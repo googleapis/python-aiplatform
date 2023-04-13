@@ -1,6 +1,35 @@
 # Changelog
 
 
+## [1.24.0](https://github.com/googleapis/python-aiplatform/compare/v1.23.0...v1.24.0) (2023-04-12)
+
+
+### Features
+
+* Add ExperimentRun.get_logged_custom_jobs method ([c116b07](https://github.com/googleapis/python-aiplatform/commit/c116b074c45387d9264fa8ee5d60723aa9bd63cd))
+* Add get method for Experiment and ExperimentRun ([41cd943](https://github.com/googleapis/python-aiplatform/commit/41cd9438f709e2ad8ed530b62d1967a15b5565e2))
+* Add incremental training to AutoMLImageTrainingJob. ([bb92380](https://github.com/googleapis/python-aiplatform/commit/bb92380f1281466db95d31218d1e898c77e596f5))
+* Add preview capability to manage DeploymentResourcePools. ([5df5da0](https://github.com/googleapis/python-aiplatform/commit/5df5da0ffa1c3a17235a061a756f9afdc261f2ac))
+* Add start_time support for BatchReadFeatureValues wrapper methods. ([91d8459](https://github.com/googleapis/python-aiplatform/commit/91d84591913044c547b09f70bf55ef8b4e35cd71))
+* Add TensorBoard log uploader ([3fad7bb](https://github.com/googleapis/python-aiplatform/commit/3fad7bba8c90f4a34259d9712728d16c59aba888))
+* Enable deployment of models that do not support deployment ([25f3f21](https://github.com/googleapis/python-aiplatform/commit/25f3f219210938c6eb0ea88d0fc3a0897d09ee4b))
+* Enable experiment tracking in CustomJob ([94a63b8](https://github.com/googleapis/python-aiplatform/commit/94a63b81a5a6cc51124d19484cefef58c6fc2cca))
+* Update the v1 service definition to add the embedding_id field in MatchRequest. ([5a1146e](https://github.com/googleapis/python-aiplatform/commit/5a1146e02ec9c021d3a2b064d30078f4e985591a))
+
+
+### Bug Fixes
+
+* Adding previously created PrivateEndpoint network parameter in Model deploy helper method ([3e1b206](https://github.com/googleapis/python-aiplatform/commit/3e1b206b1670e4e4c9cca5ffe02f770c9ffae700))
+
+
+### Documentation
+
+* Adds note to delete endpoint sample ([#2060](https://github.com/googleapis/python-aiplatform/issues/2060)) ([9922eb2](https://github.com/googleapis/python-aiplatform/commit/9922eb26ac1bdf7d99950cb5c85c02998197dc59))
+* Fix create tensorboard sample ([2c45123](https://github.com/googleapis/python-aiplatform/commit/2c45123d671ed91e1a56f1200e86485dc4f93f4f))
+* **samples:** Add sample for experiment run state update. ([111a747](https://github.com/googleapis/python-aiplatform/commit/111a747fdce1ab92e4d4673b1011c8b6a01d984e))
+* Update docstring for 3 model uploading methods ([a71e4a3](https://github.com/googleapis/python-aiplatform/commit/a71e4a389b9597ec09833cbe023ad497f9f4870d))
+* Update Vertex Forecasting weight column description. ([e0ee183](https://github.com/googleapis/python-aiplatform/commit/e0ee183d93984bd83b7d2745fec4db75b28976ae))
+
 ## [1.23.0](https://github.com/googleapis/python-aiplatform/compare/v1.22.1...v1.23.0) (2023-03-15)
 
 
