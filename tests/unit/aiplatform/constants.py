@@ -312,3 +312,18 @@ class DatasetConstants:
     _TEST_DATA_LABEL_ITEMS = None
     _TEST_REQUEST_METADATA = ()
     _TEST_SOURCE_URI_GCS = "gs://my-bucket/my_index_file.jsonl"
+
+
+@dataclasses.dataclass(frozen=True)
+class MatchingEngineConstants:
+    """Defines constants used by tests that create MatchingEngine resources."""
+
+    _TEST_INDEX_ID = "index_id"
+    _TEST_INDEX_NAME = f"{ProjectConstants._TEST_PARENT}/indexes/{_TEST_INDEX_ID}"
+    _TEST_INDEX_DISPLAY_NAME = "index_display_name"
+    _TEST_INDEX_DESCRIPTION = "index_description"
+    _TEST_LABELS = {"my_key": "my_value"}
+    _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
+    _TEST_DISPLAY_NAME_UPDATE = "my new display name"
+    _TEST_DESCRIPTION_UPDATE = "my description update"
+    _TEST_REQUEST_METADATA = ()
