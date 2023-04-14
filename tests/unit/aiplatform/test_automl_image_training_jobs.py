@@ -41,12 +41,15 @@ from google.cloud.aiplatform.compat.types import (
     pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
 )
+import constants as test_constants
 
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
-_TEST_DATASET_NAME = "test-dataset-name"
-_TEST_DISPLAY_NAME = "test-display-name"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
+_TEST_DATASET_DISPLAY_NAME = (
+    test_constants.TrainingJobConstants._TEST_DATASET_DISPLAY_NAME
+)
+_TEST_DATASET_NAME = test_constants.TrainingJobConstants._TEST_DATASET_NAME
+_TEST_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_DISPLAY_NAME
 _TEST_METADATA_SCHEMA_URI_IMAGE = schema.dataset.metadata.image
 
 _TEST_TRAINING_BUDGET_MILLI_NODE_HOURS = 7500
@@ -57,12 +60,11 @@ _TEST_MODEL_TYPE_MOBILE = "MOBILE_TF_LOW_LATENCY_1"
 _TEST_PREDICTION_TYPE_ICN = "classification"
 _TEST_PREDICTION_TYPE_IOD = "object_detection"
 
-_TEST_DATASET_NAME = "test-dataset-name"
-_TEST_MODEL_DISPLAY_NAME = "model-display-name"
+_TEST_MODEL_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_MODEL_DISPLAY_NAME
 _TEST_MODEL_ID = "98777645321"
 
-_TEST_LABELS = {"key": "value"}
-_TEST_MODEL_LABELS = {"model_key": "model_value"}
+_TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
+_TEST_MODEL_LABELS = test_constants.TrainingJobConstants._TEST_MODEL_LABELS
 
 _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
     {
@@ -109,11 +111,13 @@ _TEST_MODEL_NAME = (
 )
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/12345"
+    test_constants.TrainingJobConstants._TEST_PIPELINE_RESOURCE_NAME
 )
 
 # CMEK encryption
-_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = (
+    test_constants.TrainingJobConstants._TEST_DEFAULT_ENCRYPTION_KEY_NAME
+)
 _TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
 )
