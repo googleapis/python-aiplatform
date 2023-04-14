@@ -24,14 +24,18 @@ from google.protobuf import timestamp_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import tensorboard as gca_tensorboard
+from google.cloud.aiplatform.compat.types import (
+    tensorboard as gca_tensorboard,
+)
 from google.cloud.aiplatform.compat.types import (
     tensorboard_data as gca_tensorboard_data,
 )
 from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
-from google.cloud.aiplatform.compat.types import tensorboard_run as gca_tensorboard_run
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_run as gca_tensorboard_run,
+)
 from google.cloud.aiplatform.compat.types import (
     tensorboard_service as gca_tensorboard_service,
 )
@@ -306,6 +310,53 @@ class Tensorboard(_TensorboardServiceResource):
         _LOGGER.log_action_completed_against_resource("tensorboard", "updated", self)
 
         return self
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["Tensorboard"]:
+        """Lists the TensorBoards in a project and location.
+
+        Example Usage:
+            tb_list = aiplatform.Tensorboard.list(
+                    project = 'project-id'
+                    location = 'us-central1'
+            )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `tensorboard_id`, `display_name`,
+                `description`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to list tensorboards. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location to list tensorboards. Overrides location set
+                in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to list tensorboards. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[Tensorboard] - A list of Tensorboards
+        """
+        return cls._list(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
 
 
 class TensorboardExperiment(_TensorboardServiceResource):

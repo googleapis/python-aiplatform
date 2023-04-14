@@ -152,6 +152,22 @@ def delete_tensorboard_mock():
         yield delete_tensorboard_mock
 
 
+@pytest.fixture
+def list_tensorboard_mock():
+    with patch.object(
+        tensorboard_service_client.TensorboardServiceClient,
+        "list_tensorboards",
+    ) as list_tensorboard_mock:
+        list_tensorboard_mock.return_value = [
+            gca_tensorboard.Tensorboard(
+                name=_TEST_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                encryption_spec=_TEST_ENCRYPTION_SPEC,
+            )
+        ]
+        yield list_tensorboard_mock
+
+
 _TEST_TENSORBOARD_EXPERIMENT = gca_tensorboard_experiment.TensorboardExperiment(
     name=_TEST_TENSORBOARD_EXPERIMENT_NAME,
     display_name=_TEST_DISPLAY_NAME,
@@ -578,6 +594,19 @@ class TestTensorboard:
             update_mask=field_mask_pb2.FieldMask(paths=["encryption_spec"]),
             tensorboard=expected_tensorboard,
             metadata=_TEST_REQUEST_METADATA,
+        )
+
+    def test_list_tensorboard(self, list_tensorboard_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        tensorboard.Tensorboard.list(filter="is_default=true", order_by="display_name")
+
+        list_tensorboard_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_PARENT,
+                "filter": "is_default=true",
+                "order_by": "display_name",
+            }
         )
 
 
