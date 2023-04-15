@@ -38,6 +38,7 @@ from google.cloud.aiplatform.compat.services import (
     index_endpoint_service_client,
     index_service_client,
 )
+import constants as test_constants
 
 from google.protobuf import field_mask_pb2
 
@@ -46,29 +47,35 @@ import grpc
 import pytest
 
 # project
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
 
 # index
-_TEST_INDEX_ID = "index_id"
-_TEST_INDEX_NAME = f"{_TEST_PARENT}/indexes/{_TEST_INDEX_ID}"
-_TEST_INDEX_DISPLAY_NAME = "index_display_name"
+_TEST_INDEX_ID = test_constants.MatchingEngineConstants._TEST_INDEX_ID
+_TEST_INDEX_NAME = test_constants.MatchingEngineConstants._TEST_INDEX_NAME
+_TEST_INDEX_DISPLAY_NAME = (
+    test_constants.MatchingEngineConstants._TEST_INDEX_DISPLAY_NAME
+)
 
 # index_endpoint
 _TEST_INDEX_ENDPOINT_ID = "index_endpoint_id"
 _TEST_INDEX_ENDPOINT_NAME = f"{_TEST_PARENT}/indexEndpoints/{_TEST_INDEX_ENDPOINT_ID}"
 _TEST_INDEX_ENDPOINT_DISPLAY_NAME = "index_endpoint_display_name"
 _TEST_INDEX_ENDPOINT_DESCRIPTION = "index_endpoint_description"
-_TEST_INDEX_DESCRIPTION = "index_description"
+_TEST_INDEX_DESCRIPTION = test_constants.MatchingEngineConstants._TEST_INDEX_DESCRIPTION
 _TEST_INDEX_ENDPOINT_VPC_NETWORK = "projects/{}/global/networks/{}".format(
     "12345", "network"
 )
 
-_TEST_LABELS = {"my_key": "my_value"}
-_TEST_DISPLAY_NAME_UPDATE = "my new display name"
-_TEST_DESCRIPTION_UPDATE = "my description update"
-_TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
+_TEST_LABELS = test_constants.MatchingEngineConstants._TEST_LABELS
+_TEST_DISPLAY_NAME_UPDATE = (
+    test_constants.MatchingEngineConstants._TEST_DISPLAY_NAME_UPDATE
+)
+_TEST_DESCRIPTION_UPDATE = (
+    test_constants.MatchingEngineConstants._TEST_DESCRIPTION_UPDATE
+)
+_TEST_LABELS_UPDATE = test_constants.MatchingEngineConstants._TEST_LABELS_UPDATE
 
 # deployment
 _TEST_DEPLOYED_INDEX_ID = "deployed_index_id"
@@ -89,7 +96,7 @@ _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4
 
 # request_metadata
-_TEST_REQUEST_METADATA = ()
+_TEST_REQUEST_METADATA = test_constants.MatchingEngineConstants._TEST_REQUEST_METADATA
 
 # Lists
 _TEST_INDEX_ENDPOINT_LIST = [

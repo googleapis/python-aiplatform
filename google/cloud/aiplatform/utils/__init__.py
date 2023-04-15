@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ from google.cloud.aiplatform import initializer
 
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
+    deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
@@ -74,6 +75,7 @@ VertexAiServiceClient = TypeVar(
     "VertexAiServiceClient",
     # v1beta1
     dataset_service_client_v1beta1.DatasetServiceClient,
+    deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
     endpoint_service_client_v1beta1.EndpointServiceClient,
     featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1beta1.FeaturestoreServiceClient,
@@ -483,6 +485,17 @@ class DatasetClientWithOverride(ClientWithOverride):
     _version_map = (
         (compat.V1, dataset_service_client_v1.DatasetServiceClient),
         (compat.V1BETA1, dataset_service_client_v1beta1.DatasetServiceClient),
+    )
+
+
+class DeploymentResourcePoolClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
+        ),
     )
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,66 +36,68 @@ from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 
+from google.cloud.aiplatform.preview import models as preview_models
+
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
     endpoint_service_client,
+    endpoint_service_client_v1beta1,
     prediction_service_client,
+    deployment_resource_pool_service_client_v1beta1,
 )
 
 from google.cloud.aiplatform.compat.types import (
+    deployment_resource_pool_v1beta1 as gca_deployment_resource_pool_v1beta1,
     endpoint as gca_endpoint,
+    endpoint_v1beta1 as gca_endpoint_v1beta1,
     model as gca_model,
     machine_resources as gca_machine_resources,
+    machine_resources_v1beta1 as gca_machine_resources_v1beta1,
     prediction_service as gca_prediction_service,
     endpoint_service as gca_endpoint_service,
+    endpoint_service_v1beta1 as gca_endpoint_service_v1beta1,
     encryption_spec as gca_encryption_spec,
     io as gca_io,
 )
 
+import constants as test_constants
 
-_TEST_PROJECT = "test-project"
+
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
 _TEST_PROJECT_2 = "test-project-2"
-_TEST_LOCATION = "us-central1"
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
 _TEST_LOCATION_2 = "europe-west4"
 
-_TEST_DISPLAY_NAME = "test-display-name"
-_TEST_DISPLAY_NAME_2 = "test-display-name-2"
-_TEST_DISPLAY_NAME_3 = "test-display-name-3"
-_TEST_ID = "1028944691210842416"
-_TEST_ID_2 = "4366591682456584192"
-_TEST_ID_3 = "5820582938582924817"
+_TEST_DISPLAY_NAME = test_constants.EndpointConstants._TEST_DISPLAY_NAME
+_TEST_DISPLAY_NAME_2 = test_constants.EndpointConstants._TEST_DISPLAY_NAME_2
+_TEST_DISPLAY_NAME_3 = test_constants.EndpointConstants._TEST_DISPLAY_NAME_3
+_TEST_ID = test_constants.EndpointConstants._TEST_ID
+_TEST_ID_2 = test_constants.EndpointConstants._TEST_ID_2
+_TEST_ID_3 = test_constants.EndpointConstants._TEST_ID_3
 _TEST_DESCRIPTION = "test-description"
 _TEST_REQUEST_METADATA = ()
 _TEST_TIMEOUT = None
 
-_TEST_ENDPOINT_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
-)
+_TEST_ENDPOINT_NAME = test_constants.EndpointConstants._TEST_ENDPOINT_NAME
 _TEST_ENDPOINT_NAME_ALT_LOCATION = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION_2}/endpoints/{_TEST_ID}"
 )
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
-_TEST_MODEL_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
-)
-
-_TEST_VERSION_ID = "1"
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
+_TEST_MODEL_NAME = test_constants.EndpointConstants._TEST_MODEL_NAME
+_TEST_DRP_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/deploymentResourcePools/{_TEST_ID}"
+_TEST_VERSION_ID = test_constants.EndpointConstants._TEST_VERSION_ID
 
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
-_TEST_MODEL_ID = "1028944691210842416"
-_TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
+_TEST_MODEL_ID = test_constants.EndpointConstants._TEST_MODEL_ID
+_TEST_PREDICTION = test_constants.EndpointConstants._TEST_PREDICTION
 _TEST_INSTANCES = [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
-_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+_TEST_SERVICE_ACCOUNT = test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT
 
-_TEST_DEPLOYED_MODELS = [
-    gca_endpoint.DeployedModel(id=_TEST_ID, display_name=_TEST_DISPLAY_NAME),
-    gca_endpoint.DeployedModel(id=_TEST_ID_2, display_name=_TEST_DISPLAY_NAME_2),
-    gca_endpoint.DeployedModel(id=_TEST_ID_3, display_name=_TEST_DISPLAY_NAME_3),
-]
+_TEST_DEPLOYED_MODELS = test_constants.EndpointConstants._TEST_DEPLOYED_MODELS
 
-_TEST_TRAFFIC_SPLIT = {_TEST_ID: 0, _TEST_ID_2: 100, _TEST_ID_3: 0}
+_TEST_TRAFFIC_SPLIT = test_constants.EndpointConstants._TEST_TRAFFIC_SPLIT
 
 _TEST_LONG_TRAFFIC_SPLIT = {
     "m1": 40,
@@ -343,6 +345,25 @@ def deploy_model_mock():
 
 
 @pytest.fixture
+def preview_deploy_model_mock():
+    with mock.patch.object(
+        endpoint_service_client_v1beta1.EndpointServiceClient, "deploy_model"
+    ) as preview_deploy_model_mock:
+        deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            model=_TEST_MODEL_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+        )
+        deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
+        deploy_model_lro_mock.result.return_value = (
+            gca_endpoint_service_v1beta1.DeployModelResponse(
+                deployed_model=deployed_model,
+            )
+        )
+        preview_deploy_model_mock.return_value = deploy_model_lro_mock
+        yield preview_deploy_model_mock
+
+
+@pytest.fixture
 def deploy_model_with_explanations_mock():
     with mock.patch.object(
         endpoint_service_client.EndpointServiceClient, "deploy_model"
@@ -457,6 +478,43 @@ def predict_client_explain_mock():
             _TEST_ATTRIBUTIONS
         )
         yield predict_mock
+
+
+@pytest.fixture
+def get_drp_mock():
+    with mock.patch.object(
+        deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
+        "get_deployment_resource_pool",
+    ) as get_drp_mock:
+        machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+
+        autoscaling_metric_specs = [
+            gca_machine_resources_v1beta1.AutoscalingMetricSpec(
+                metric_name=_TEST_METRIC_NAME_CPU_UTILIZATION, target=70
+            ),
+            gca_machine_resources_v1beta1.AutoscalingMetricSpec(
+                metric_name=_TEST_METRIC_NAME_GPU_UTILIZATION, target=70
+            ),
+        ]
+
+        dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+            machine_spec=machine_spec,
+            min_replica_count=10,
+            max_replica_count=20,
+            autoscaling_metric_specs=autoscaling_metric_specs,
+        )
+
+        get_drp_mock.return_value = (
+            gca_deployment_resource_pool_v1beta1.DeploymentResourcePool(
+                name=_TEST_DRP_NAME,
+                dedicated_resources=dedicated_resources,
+            )
+        )
+        yield get_drp_mock
 
 
 """
@@ -1521,6 +1579,40 @@ class TestEndpoint:
             display_name=None,
         )
         deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock", "get_drp_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_preview_deploy_with_deployment_resource_pool(
+        self, preview_deploy_model_mock, sync
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME).preview
+        test_model = models.Model(_TEST_ID).preview
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.SHARED_RESOURCES,
+        )
+        test_drp = preview_models.DeploymentResourcePool(_TEST_DRP_NAME)
+
+        test_endpoint.deploy(
+            model=test_model,
+            deployment_resource_pool=test_drp,
+            sync=sync,
+            deploy_request_timeout=None,
+        )
+        if not sync:
+            test_endpoint.wait()
+
+        deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            shared_resources=_TEST_DRP_NAME,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        preview_deploy_model_mock.assert_called_once_with(
             endpoint=test_endpoint.resource_name,
             deployed_model=deployed_model,
             traffic_split={"0": 100},

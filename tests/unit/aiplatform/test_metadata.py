@@ -42,6 +42,7 @@ from google.cloud.aiplatform_v1 import (
     Artifact as GapicArtifact,
     Context as GapicContext,
     Execution as GapicExecution,
+    JobServiceClient,
     MetadataServiceClient,
     AddExecutionEventsResponse,
     MetadataStore as GapicMetadataStore,
@@ -686,6 +687,21 @@ _EXPERIMENT_RUN_MOCK = GapicContext(
 _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
 _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT.parent_contexts = [_TEST_CONTEXT_NAME]
 
+_TEST_CUSTOM_JOB_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/customJobs/12345"
+)
+_TEST_CUSTOM_JOB_CONSOLE_URI = "test-custom-job-console-uri"
+
+_EXPERIMENT_RUN_MOCK_WITH_CUSTOM_JOBS = copy.deepcopy(
+    _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT
+)
+_EXPERIMENT_RUN_MOCK_WITH_CUSTOM_JOBS.metadata[constants._CUSTOM_JOB_KEY] = [
+    {
+        constants._CUSTOM_JOB_RESOURCE_NAME: _TEST_CUSTOM_JOB_NAME,
+        constants._CUSTOM_JOB_CONSOLE_URI: _TEST_CUSTOM_JOB_CONSOLE_URI,
+    },
+]
+
 
 @pytest.fixture
 def get_experiment_mock():
@@ -719,6 +735,17 @@ def get_experiment_run_mock():
         get_context_mock.side_effect = [
             _EXPERIMENT_MOCK,
             _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT,
+        ]
+
+        yield get_context_mock
+
+
+@pytest.fixture
+def get_experiment_run_with_custom_jobs_mock():
+    with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
+        get_context_mock.side_effect = [
+            _EXPERIMENT_MOCK,
+            _EXPERIMENT_RUN_MOCK_WITH_CUSTOM_JOBS,
         ]
 
         yield get_context_mock
@@ -829,6 +856,12 @@ def add_context_children_mock():
         MetadataServiceClient, "add_context_children"
     ) as add_context_children_mock:
         yield add_context_children_mock
+
+
+@pytest.fixture
+def get_custom_job_mock():
+    with patch.object(JobServiceClient, "get_custom_job") as get_custom_job_mock:
+        yield get_custom_job_mock
 
 
 _EXPERIMENT_RUN_MOCK_POPULATED_1 = copy.deepcopy(
@@ -1869,3 +1902,19 @@ class TestExperiments:
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with pytest.raises(ValueError):
             aiplatform.get_experiment_df(_TEST_EXPERIMENT)
+
+    @pytest.mark.usefixtures(
+        "get_experiment_run_with_custom_jobs_mock",
+        "get_metadata_store_mock",
+        "get_tensorboard_run_artifact_not_found_mock",
+    )
+    def test_experiment_run_get_logged_custom_jobs(self, get_custom_job_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        run = aiplatform.ExperimentRun(_TEST_RUN, experiment=_TEST_EXPERIMENT)
+        jobs = run.get_logged_custom_jobs()
+
+        assert len(jobs) == 1
+        get_custom_job_mock.assert_called_once_with(
+            name=_TEST_CUSTOM_JOB_NAME,
+            retry=base._DEFAULT_RETRY,
+        )

@@ -18,12 +18,14 @@
 
 import dataclasses
 from datetime import datetime
-
+from unittest import mock
+from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2, duration_pb2
 
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform import schema
 
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
@@ -81,6 +83,15 @@ class TrainingJobConstants:
     _TEST_REDUCTION_SERVER_CONTAINER_URI = (
         "us-docker.pkg.dev/vertex-ai-restricted/training/reductionserver:latest"
     )
+    _TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
+    _TEST_DATASET_NAME = "test-dataset-name"
+    _TEST_DISPLAY_NAME = "test-display-name"
+    _TEST_BUCKET_NAME = "test-bucket"
+    _TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
+    _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
+    _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
+    _TEST_MODEL_DISPLAY_NAME = "model-display-name"
+    _TEST_MODEL_LABELS = {"model_key": "model_value"}
     _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
     _TEST_DISPLAY_NAME = "my_job_1234"
     _TEST_BASE_OUTPUT_DIR = f"{_TEST_STAGING_BUCKET}/{_TEST_DISPLAY_NAME}"
@@ -130,6 +141,25 @@ class TrainingJobConstants:
         labels=ProjectConstants._TEST_LABELS,
         encryption_spec=ProjectConstants._TEST_ENCRYPTION_SPEC,
     )
+    _TEST_PIPELINE_RESOURCE_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/us-central1/trainingPipelines/{_TEST_ID}"
+    _TEST_BUCKET_NAME = "test-bucket"
+    _TEST_TENSORBOARD_RESOURCE_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/tensorboards/{_TEST_ID}"
+    _TEST_MODEL_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/us-central1/models/{_TEST_ID}"
+    _TEST_CUSTOM_JOB_RESOURCE_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/customJobs/{_TEST_ID}"
+    _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+    _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
+    _TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
+    _TEST_MODEL_DISPLAY_NAME = "model-display-name"
+    _TEST_TRAINING_FRACTION_SPLIT = 0.6
+    _TEST_VALIDATION_FRACTION_SPLIT = 0.2
+    _TEST_TEST_FRACTION_SPLIT = 0.2
+    _TEST_BOOT_DISK_TYPE_DEFAULT = "pd-ssd"
+    _TEST_BOOT_DISK_SIZE_GB_DEFAULT = 100
+    # # DUPLICATE: THIS NEEDS TO BE MOVED TO THE TRAINING JOB TEST THAT USES IT
+    _TEST_PIPELINE_RESOURCE_NAME = (
+        "projects/my-project/locations/us-central1/trainingPipelines/12345"
+    )
+    _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -160,6 +190,38 @@ class ModelConstants:
         version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
         version_description=_TEST_MODEL_VERSION_DESCRIPTION_2,
     )
+    _TEST_MODEL_EVAL_METRICS = {
+        "auPrc": 0.80592036,
+        "auRoc": 0.8100363,
+        "logLoss": 0.53061414,
+        "confidenceMetrics": [
+            {
+                "confidenceThreshold": -0.01,
+                "recall": 1.0,
+                "precision": 0.5,
+                "falsePositiveRate": 1.0,
+                "f1Score": 0.6666667,
+                "recallAt1": 1.0,
+                "precisionAt1": 0.5,
+                "falsePositiveRateAt1": 1.0,
+                "f1ScoreAt1": 0.6666667,
+                "truePositiveCount": "415",
+                "falsePositiveCount": "415",
+            },
+            {
+                "recall": 1.0,
+                "precision": 0.5,
+                "falsePositiveRate": 1.0,
+                "f1Score": 0.6666667,
+                "recallAt1": 0.74216866,
+                "precisionAt1": 0.74216866,
+                "falsePositiveRateAt1": 0.25783134,
+                "f1ScoreAt1": 0.74216866,
+                "truePositiveCount": "415",
+                "falsePositiveCount": "415",
+            },
+        ],
+    }
 
 
 @dataclasses.dataclass(frozen=True)
@@ -180,6 +242,10 @@ class EndpointConstants:
         endpoint.DeployedModel(id=_TEST_ID_3, display_name=_TEST_DISPLAY_NAME_3),
     ]
     _TEST_TRAFFIC_SPLIT = {_TEST_ID: 0, _TEST_ID_2: 100, _TEST_ID_3: 0}
+    _TEST_MODEL_ID = "1028944691210842416"
+    _TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
+    _TEST_VERSION_ID = "1"
+    _TEST_MODEL_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/models/{_TEST_ID}"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -237,3 +303,41 @@ class PipelineJobConstants:
     _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
     _TEST_PIPELINE_JOB_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
     _TEST_PIPELINE_CREATE_TIME = datetime.now()
+
+
+@dataclasses.dataclass(frozen=True)
+class DatasetConstants:
+    """Defines constants used by tests that create Dataset resources."""
+
+    _TEST_ID = "1028944691210842416"
+    _TEST_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/datasets/{_TEST_ID}"
+    _TEST_DISPLAY_NAME = "my_dataset_1234"
+    _TEST_ENCRYPTION_KEY_NAME = "key_1234"
+    _TEST_METADATA_SCHEMA_URI_TEXT = schema.dataset.metadata.text
+    _TEST_ENCRYPTION_SPEC = encryption_spec.EncryptionSpec(
+        kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+    )
+    _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
+    _TEST_NONTABULAR_DATASET_METADATA = None
+    _TEST_IMPORT_SCHEMA_URI = schema.dataset.ioformat.image.single_label_classification
+    _TEST_IMPORT_SCHEMA_URI_IMAGE = (
+        schema.dataset.ioformat.image.single_label_classification
+    )
+    _TEST_DATA_LABEL_ITEMS = None
+    _TEST_REQUEST_METADATA = ()
+    _TEST_SOURCE_URI_GCS = "gs://my-bucket/my_index_file.jsonl"
+
+
+@dataclasses.dataclass(frozen=True)
+class MatchingEngineConstants:
+    """Defines constants used by tests that create MatchingEngine resources."""
+
+    _TEST_INDEX_ID = "index_id"
+    _TEST_INDEX_NAME = f"{ProjectConstants._TEST_PARENT}/indexes/{_TEST_INDEX_ID}"
+    _TEST_INDEX_DISPLAY_NAME = "index_display_name"
+    _TEST_INDEX_DESCRIPTION = "index_description"
+    _TEST_LABELS = {"my_key": "my_value"}
+    _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
+    _TEST_DISPLAY_NAME_UPDATE = "my new display name"
+    _TEST_DESCRIPTION_UPDATE = "my description update"
+    _TEST_REQUEST_METADATA = ()

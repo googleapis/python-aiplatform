@@ -37,12 +37,12 @@ from google.cloud.aiplatform.compat.services import job_service_client
 
 import constants as test_constants
 
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_ID = "1028944691210842416"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
+_TEST_ID = test_constants.TrainingJobConstants._TEST_ID
 _TEST_DISPLAY_NAME = "my_hp_job_1234"
 
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
 
 _TEST_STAGING_BUCKET = test_constants.TrainingJobConstants._TEST_STAGING_BUCKET
 _TEST_BASE_OUTPUT_DIR = test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR
@@ -57,13 +57,15 @@ _TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec_compat.EncryptionSpec(
     kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
 )
 
-_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+_TEST_SERVICE_ACCOUNT = test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT
 
 
-_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
+_TEST_NETWORK = test_constants.TrainingJobConstants._TEST_NETWORK
 
-_TEST_TIMEOUT = 8000
-_TEST_RESTART_JOB_ON_WORKER_RESTART = True
+_TEST_TIMEOUT = test_constants.TrainingJobConstants._TEST_TIMEOUT
+_TEST_RESTART_JOB_ON_WORKER_RESTART = (
+    test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
+)
 
 _TEST_METRIC_SPEC_KEY = "test-metric"
 _TEST_METRIC_SPEC_VALUE = "maximize"
@@ -74,7 +76,7 @@ _TEST_MAX_FAILED_TRIAL_COUNT = 4
 _TEST_SEARCH_ALGORITHM = "random"
 _TEST_MEASUREMENT_SELECTION = "best"
 
-_TEST_LABELS = {"my_hp_key": "my_hp_value"}
+_TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
 
 _TEST_CONDITIONAL_PARAMETER_DECAY = hpt.DoubleParameterSpec(
     min=1e-07, max=1, scale="linear", parent_values=[32, 64]
