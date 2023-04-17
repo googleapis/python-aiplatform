@@ -28,7 +28,9 @@ from google.cloud.aiplatform.compat.types import (
     matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
 )
 from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
-from google.cloud.aiplatform.matching_engine._protos import match_service_pb2_grpc
+from google.cloud.aiplatform.matching_engine._protos import (
+    match_service_pb2_grpc,
+)
 from google.protobuf import field_mask_pb2
 
 import grpc
@@ -130,6 +132,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         cls,
         display_name: str,
         network: Optional[str] = None,
+        public_endpoint_enabled: Optional[bool] = False,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
@@ -163,6 +166,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 projects/{project}/global/networks/{network}. Where
                 {project} is a project number, as in '12345', and {network}
                 is network name.
+            public_endpoint_enabled (bool):
+                Optional. If true, the deployed index will be
+                accessible through public endpoint.
             description (str):
                 Optional. The description of the IndexEndpoint.
             labels (Dict[str, str]):
@@ -203,15 +209,20 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         """
         network = network or initializer.global_config.network
 
-        if not network:
+        if not network and not public_endpoint_enabled:
             raise ValueError(
-                "Please provide `network` argument or set network"
-                "using aiplatform.init(network=...)"
+                "Please provide `network` argument for private endpoint or provide `public_endpoint_enabled` to deploy this index to a public endpoint"
+            )
+
+        if network and public_endpoint_enabled:
+            raise ValueError(
+                "`network` and `public_endpoint_enabled` argument should not be set at the same time"
             )
 
         return cls._create(
             display_name=display_name,
             network=network,
+            public_endpoint_enabled=public_endpoint_enabled,
             description=description,
             labels=labels,
             project=project,
@@ -227,6 +238,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         cls,
         display_name: str,
         network: Optional[str] = None,
+        public_endpoint_enabled: Optional[bool] = False,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
@@ -253,6 +265,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 projects/{project}/global/networks/{network}. Where
                 {project} is a project number, as in '12345', and {network}
                 is network name.
+            public_endpoint_enabled (bool):
+                Optional. If true, the deployed index will be
+                accessible through public endpoint.
             description (str):
                 Optional. The description of the IndexEndpoint.
             labels (Dict[str, str]):
@@ -288,9 +303,17 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
-        gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-            display_name=display_name, description=description, network=network
-        )
+
+        if public_endpoint_enabled:
+            gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
+                display_name=display_name,
+                description=description,
+                public_endpoint_enabled=public_endpoint_enabled,
+            )
+        else:
+            gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
+                display_name=display_name, description=description, network=network
+            )
 
         if labels:
             utils.validate_labels(labels)
