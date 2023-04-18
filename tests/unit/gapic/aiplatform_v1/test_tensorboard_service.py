@@ -1007,6 +1007,7 @@ def test_get_tensorboard(request_type, transport: str = "grpc"):
             blob_storage_path_prefix="blob_storage_path_prefix_value",
             run_count=989,
             etag="etag_value",
+            is_default=True,
         )
         response = client.get_tensorboard(request)
 
@@ -1023,6 +1024,7 @@ def test_get_tensorboard(request_type, transport: str = "grpc"):
     assert response.blob_storage_path_prefix == "blob_storage_path_prefix_value"
     assert response.run_count == 989
     assert response.etag == "etag_value"
+    assert response.is_default is True
 
 
 def test_get_tensorboard_empty_call():
@@ -1066,6 +1068,7 @@ async def test_get_tensorboard_async(
                 blob_storage_path_prefix="blob_storage_path_prefix_value",
                 run_count=989,
                 etag="etag_value",
+                is_default=True,
             )
         )
         response = await client.get_tensorboard(request)
@@ -1083,6 +1086,7 @@ async def test_get_tensorboard_async(
     assert response.blob_storage_path_prefix == "blob_storage_path_prefix_value"
     assert response.run_count == 989
     assert response.etag == "etag_value"
+    assert response.is_default is True
 
 
 @pytest.mark.asyncio
