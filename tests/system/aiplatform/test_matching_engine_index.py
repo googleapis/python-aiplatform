@@ -347,9 +347,14 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         # )
         # assert results[0][0].id == 9999
 
-        # Undeploy index
+        # Undeploy index from private endpoint
         my_index_endpoint = my_index_endpoint.undeploy_index(
             deployed_index_id=deployed_index.id
+        )
+
+        # Undeploy index from public endpoint
+        public_index_endpoint = public_index_endpoint.undeploy_index(
+            deployed_index_id=deployed_index_public.id
         )
 
         # Delete index and check that it is no longer listed
@@ -362,6 +367,13 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         # Delete index endpoint and check that it is no longer listed
         my_index_endpoint.delete()
         assert my_index_endpoint.resource_name not in [
+            index_endpoint.resource_name
+            for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
+        ]
+
+        # Delete public index endpoint
+        public_index_endpoint.delete()
+        assert public_index_endpoint.resource_name not in [
             index_endpoint.resource_name
             for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
         ]
