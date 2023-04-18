@@ -5338,6 +5338,21 @@ class AutoMLImageTrainingJob(_TrainingJob):
                         or Core ML model and used on a mobile or edge device afterwards.
                         Expected to have a higher latency, but should also have a higher
                         prediction quality than other mobile models.
+                    "EFFICIENTNET" - A model that, available in Vertex Model Garden image
+                        classification training with customizable hyperparameters. Best tailored
+                        to be used within Google Cloud, and cannot be exported externally.
+                    "RESNET" - A model that, available in Vertex Model Garden image
+                        classification training with customizable hyperparameters. Best tailored
+                        to be used within Google Cloud, and cannot be exported externally.
+                    "VIT" - A model that, available in Vertex Model Garden image
+                        classification training with customizable hyperparameters. Best tailored
+                        to be used within Google Cloud, and cannot be exported externally.
+                    "COCA" - A model that, available in Vertex Model Garden image
+                        classification training with customizable hyperparameters. Best tailored
+                        to be used within Google Cloud, and cannot be exported externally.
+                    "SPINENET" - A model that, available in Vertex Model Garden image object
+                        detection training with customizable hyperparameters. Best tailored
+                        to be used within Google Cloud, and cannot be exported externally.
             base_model: Optional[models.Model] = None
                 Optional. Only permitted for Image Classification models.
                 If it is specified, the new model will be trained based on the `base` model.

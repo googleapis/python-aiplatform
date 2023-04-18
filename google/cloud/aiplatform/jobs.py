@@ -1243,8 +1243,8 @@ class CustomJob(_RunnableJob):
                 staging_bucket set in aiplatform.init.
 
         Raises:
-            RuntimeError: If staging bucket was not set using aiplatform.init and a staging
-            bucket was not passed in.
+            RuntimeError: If staging bucket was not set using aiplatform.init
+                and a staging bucket was not passed in.
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
@@ -1458,8 +1458,8 @@ class CustomJob(_RunnableJob):
                 staging_bucket set in aiplatform.init.
 
         Raises:
-            RuntimeError: If staging bucket was not set using aiplatform.init and a staging
-            bucket was not passed in.
+            RuntimeError: If staging bucket was not set using aiplatform.init
+                and a staging bucket was not passed in.
         """
 
         project = project or initializer.global_config.project
@@ -1842,10 +1842,11 @@ class CustomJob(_RunnableJob):
                 Optional. The timeout for the create request in seconds.
 
         Raises:
-            ValueError: if both `experiment` and `tensorboard` are specified
-                        or if `enable_autolog` is True in `CustomJob.from_local_script`
-                        but `experiment` is not specified or the specified experiment
-                        doesn't have a backing tensorboard.
+            ValueError:
+                If both `experiment` and `tensorboard` are specified or if
+                `enable_autolog` is True in `CustomJob.from_local_script` but
+                `experiment` is not specified or the specified experiment
+                doesn't have a backing tensorboard.
         """
         if experiment and tensorboard:
             raise ValueError("'experiment' and 'tensorboard' cannot be set together.")
@@ -2535,8 +2536,11 @@ class ModelDeploymentMonitoringJob(_Job):
             A List of ModelDeploymentMonitoringObjectiveConfig objects.
 
         Raises:
-            ValueError, when the model IDs given are invalid.
-            RuntimeError, when XAI is enabled on a model that doesn't have XAI parameters configured.
+            ValueError:
+                When the model IDs given are invalid.
+            RuntimeError:
+                When XAI is enabled on a model that doesn't have XAI parameters
+                configured.
         """
         all_models = []
         xai_enabled = []

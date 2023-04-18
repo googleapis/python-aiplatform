@@ -547,6 +547,7 @@ class TestMatchingEngineIndexEndpoint:
             network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
+            public_endpoint_enabled=False,
         )
 
         create_index_endpoint_mock.assert_called_once_with(
@@ -554,6 +555,66 @@ class TestMatchingEngineIndexEndpoint:
             index_endpoint=expected,
             metadata=_TEST_REQUEST_METADATA,
         )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_create_index_endpoint_with_public_endpoint_enabled(
+        self, create_index_endpoint_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.MatchingEngineIndexEndpoint.create(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            public_endpoint_enabled=True,
+            labels=_TEST_LABELS,
+        )
+
+        expected = gca_index_endpoint.IndexEndpoint(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            public_endpoint_enabled=True,
+            labels=_TEST_LABELS,
+        )
+
+        create_index_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            index_endpoint=expected,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    def test_create_index_endpoint_missing_argument_throw_error(
+        self, create_index_endpoint_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        expected_message = "Please provide `network` argument for private endpoint or provide `public_endpoint_enabled` to deploy this index to a public endpoint"
+
+        with pytest.raises(ValueError) as exception:
+            _ = aiplatform.MatchingEngineIndexEndpoint.create(
+                display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+                description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+                labels=_TEST_LABELS,
+            )
+
+        assert str(exception.value) == expected_message
+
+    def test_create_index_endpoint_set_both_throw_error(
+        self, create_index_endpoint_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        expected_message = "`network` and `public_endpoint_enabled` argument should not be set at the same time"
+
+        with pytest.raises(ValueError) as exception:
+            _ = aiplatform.MatchingEngineIndexEndpoint.create(
+                display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+                description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+                public_endpoint_enabled=True,
+                network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
+                labels=_TEST_LABELS,
+            )
+
+        assert str(exception.value) == expected_message
 
     @pytest.mark.usefixtures("get_index_endpoint_mock", "get_index_mock")
     def test_deploy_index(self, deploy_index_mock, undeploy_index_mock):
