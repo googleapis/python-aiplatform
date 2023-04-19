@@ -472,9 +472,14 @@ def build_image(
 
     tag_options = ["-t", output_image_name]
     cache_args = ["--no-cache"] if no_cache else []
+    platform_args = ["--platform", "linux/amd64"]
 
     command = (
-        ["docker", "build"] + cache_args + tag_options + ["--rm", "-f-", host_workdir]
+        ["docker", "build"]
+        + cache_args
+        + platform_args
+        + tag_options
+        + ["--rm", "-f-", host_workdir]
     )
 
     requirements_relative_path = _get_relative_path_to_workdir(
