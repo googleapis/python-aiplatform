@@ -344,6 +344,12 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         return index_obj
 
+    @property
+    def public_endpoint_domain_name(self) -> Optional[str]:
+        """Public endpoint DNS name."""
+        self._assert_gca_resource_is_available()
+        return self._gca_resource.public_endpoint_domain_name
+
     def update(
         self,
         display_name: str,

@@ -60,6 +60,9 @@ _TEST_INDEX_DISPLAY_NAME = (
 
 # index_endpoint
 _TEST_INDEX_ENDPOINT_ID = "index_endpoint_id"
+_TEST_INDEX_ENDPOINT_PUBLIC_DNS = (
+    "1114627793.us-central1-249381615684.vdb.vertexai.goog"
+)
 _TEST_INDEX_ENDPOINT_NAME = f"{_TEST_PARENT}/indexEndpoints/{_TEST_INDEX_ENDPOINT_ID}"
 _TEST_INDEX_ENDPOINT_DISPLAY_NAME = "index_endpoint_display_name"
 _TEST_INDEX_ENDPOINT_DESCRIPTION = "index_endpoint_description"
@@ -306,6 +309,57 @@ def get_index_endpoint_mock():
         ]
         get_index_endpoint_mock.return_value = index_endpoint
         yield get_index_endpoint_mock
+
+
+@pytest.fixture
+def get_index_public_endpoint_mock():
+    with patch.object(
+        index_endpoint_service_client.IndexEndpointServiceClient, "get_index_endpoint"
+    ) as get_index_public_endpoint_mock:
+        index_endpoint = gca_index_endpoint.IndexEndpoint(
+            name=_TEST_INDEX_ENDPOINT_NAME,
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            public_endpoint_domain_name=_TEST_INDEX_ENDPOINT_PUBLIC_DNS,
+        )
+        index_endpoint.deployed_indexes = [
+            gca_index_endpoint.DeployedIndex(
+                id=_TEST_DEPLOYED_INDEX_ID,
+                index=_TEST_INDEX_NAME,
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+            ),
+            gca_index_endpoint.DeployedIndex(
+                id=f"{_TEST_DEPLOYED_INDEX_ID}_2",
+                index=f"{_TEST_INDEX_NAME}_2",
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+            ),
+        ]
+        get_index_public_endpoint_mock.return_value = index_endpoint
+        yield get_index_public_endpoint_mock
 
 
 @pytest.fixture
@@ -556,7 +610,7 @@ class TestMatchingEngineIndexEndpoint:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    @pytest.mark.usefixtures("get_index_public_endpoint_mock")
     def test_create_index_endpoint_with_public_endpoint_enabled(
         self, create_index_endpoint_mock
     ):
@@ -567,6 +621,10 @@ class TestMatchingEngineIndexEndpoint:
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             public_endpoint_enabled=True,
             labels=_TEST_LABELS,
+        )
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
         expected = gca_index_endpoint.IndexEndpoint(
@@ -580,6 +638,11 @@ class TestMatchingEngineIndexEndpoint:
             parent=_TEST_PARENT,
             index_endpoint=expected,
             metadata=_TEST_REQUEST_METADATA,
+        )
+
+        assert (
+            my_index_endpoint.public_endpoint_domain_name
+            == _TEST_INDEX_ENDPOINT_PUBLIC_DNS
         )
 
     def test_create_index_endpoint_missing_argument_throw_error(
