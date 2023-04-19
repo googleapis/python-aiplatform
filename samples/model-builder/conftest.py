@@ -372,6 +372,19 @@ def mock_get_custom_job(mock_custom_job):
         yield mock
 
 
+@pytest.fixture
+def mock_get_custom_job_from_local_script(mock_custom_job):
+    with patch.object(aiplatform.CustomJob, "from_local_script") as mock:
+        mock.return_value = mock_custom_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_job(mock_custom_job):
+    with patch.object(mock_custom_job, "run") as mock:
+        yield mock
+
+
 """
 ----------------------------------------------------------------------------
 Model Fixtures
@@ -433,8 +446,15 @@ Tensorboard Fixtures
 
 
 @pytest.fixture
-def mock_create_tensorboard():
-    with patch.object(aiplatform.tensorboard.Tensorboard, "create") as mock:
+def mock_tensorboard():
+    mock = MagicMock(aiplatform.Tensorboard)
+    yield mock
+
+
+@pytest.fixture
+def mock_create_tensorboard(mock_tensorboard):
+    with patch.object(aiplatform.Tensorboard, "create") as mock:
+        mock.return_value = mock_tensorboard
         yield mock
 
 
