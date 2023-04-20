@@ -5341,9 +5341,6 @@ class AutoMLImageTrainingJob(_TrainingJob):
                     "EFFICIENTNET" - A model that, available in Vertex Model Garden image
                         classification training with customizable hyperparameters. Best tailored
                         to be used within Google Cloud, and cannot be exported externally.
-                    "RESNET" - A model that, available in Vertex Model Garden image
-                        classification training with customizable hyperparameters. Best tailored
-                        to be used within Google Cloud, and cannot be exported externally.
                     "VIT" - A model that, available in Vertex Model Garden image
                         classification training with customizable hyperparameters. Best tailored
                         to be used within Google Cloud, and cannot be exported externally.
