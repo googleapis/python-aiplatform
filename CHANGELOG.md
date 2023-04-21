@@ -1,6 +1,34 @@
 # Changelog
 
 
+## [1.24.1](https://github.com/googleapis/python-aiplatform/compare/v1.24.0...v1.24.1) (2023-04-21)
+
+
+### Features
+
+* Add preview capability to deploy models with shared resources. ([29d4e45](https://github.com/googleapis/python-aiplatform/commit/29d4e45839180f50163de04cd0802ee88d8dd926))
+* Add support for create public index endpoint in matching engine ([7e6022b](https://github.com/googleapis/python-aiplatform/commit/7e6022bc05a8ed0e38329c92466e4ff2e924be87))
+* Add support for return public endpoint dns name in matching engine ([1b5ae44](https://github.com/googleapis/python-aiplatform/commit/1b5ae4402b74d234d0fd8c886e935b3e8919bb50))
+* Add the new model types to "AutoMLImageTrainingJob" in SDK. ([4d032d5](https://github.com/googleapis/python-aiplatform/commit/4d032d59840fdc812dbbedb45acdf45c259e50bd))
+* Adds the Time series Dense Encoder (TiDE) forecasting job. ([d8e6744](https://github.com/googleapis/python-aiplatform/commit/d8e67446dedd2c9fde58c6da1e468346391b8ab7))
+* Remove google internal annotation when export to github. ([fd5ff99](https://github.com/googleapis/python-aiplatform/commit/fd5ff998282dc5d0511f03ea6eb6d27c05183d59))
+
+
+### Bug Fixes
+
+* Support timestamp in Vertex SDK write_feature_values() ([4b0722c](https://github.com/googleapis/python-aiplatform/commit/4b0722cfcdcc5246054e0a185be9db1e23f8043b))
+
+
+### Documentation
+
+* Add Time series Dense Encoder (TiDE) model code sample. ([8e91a58](https://github.com/googleapis/python-aiplatform/commit/8e91a58b5fea6c8e4172e19f8d57f0db9a04bf92))
+* Fix docstring formatting for exceptions ([d75322c](https://github.com/googleapis/python-aiplatform/commit/d75322c24d1b802c77493550fa08bfffdf3ec8fb))
+
+
+### Miscellaneous Chores
+
+* Release 1.24.1 ([cf633a2](https://github.com/googleapis/python-aiplatform/commit/cf633a2513e215e409b9426ff751330fbc481de6))
+
 ## [1.24.0](https://github.com/googleapis/python-aiplatform/compare/v1.23.0...v1.24.0) (2023-04-12)
 
 
