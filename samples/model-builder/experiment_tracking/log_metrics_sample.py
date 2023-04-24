@@ -27,7 +27,7 @@ def log_metrics_sample(
 ):
     aiplatform.init(experiment=experiment_name, project=project, location=location)
 
-    aiplatform.start_run(run=run_name, resume=True)
+    aiplatform.start_run(run=run_name, resume=False)
 
     aiplatform.log_metrics(metrics)
 
