@@ -29,7 +29,7 @@ from google.cloud.aiplatform.compat.types import (
 from tests.system.aiplatform import e2e_base
 
 
-_BLOB_PATH = "california-housing-data.csv"
+_DATASET_TRAINING_SRC = "gs://cloud-samples-data-us-central1/vertex-ai/structured_data/california_housing/california-housing-data.csv"
 _DATASET_BATCH_PREDICT_SRC = "gs://cloud-samples-data-us-central1/vertex-ai/batch-prediction/california_housing_batch_predict.jsonl"
 _DIR_NAME = os.path.dirname(os.path.abspath(__file__))
 _LOCAL_TRAINING_SCRIPT_PATH = os.path.join(
@@ -70,11 +70,9 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         # Create and import to single managed dataset for both training jobs
 
-        dataset_gcs_source = f'gs://{shared_state["staging_bucket_name"]}/{_BLOB_PATH}'
-
         ds = aiplatform.TabularDataset.create(
             display_name=self._make_display_name("dataset"),
-            gcs_source=[dataset_gcs_source],
+            gcs_source=[_DATASET_TRAINING_SRC],
             sync=False,
             create_request_timeout=180.0,
         )
