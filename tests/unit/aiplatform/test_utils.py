@@ -35,7 +35,9 @@ from google.cloud import aiplatform
 from google.cloud import storage
 from google.cloud.aiplatform import compat, utils
 from google.cloud.aiplatform.compat.types import pipeline_failure_policy
+from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform.utils import (
+    column_transformations_utils,
     gcs_utils,
     pipeline_utils,
     prediction_utils,
@@ -483,6 +485,51 @@ def test_get_timestamp_proto(
 def test_timestamped_unique_name():
     name = utils.timestamped_unique_name()
     assert re.match(r"\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-.{5}", name)
+
+
+class TestColumnTransformationsUtils:
+
+    column_transformations = [
+        {"auto": {"column_name": "a"}},
+        {"auto": {"column_name": "b"}},
+    ]
+    column_specs = {"a": "auto", "b": "auto"}
+
+    def test_get_default_column_transformations(self):
+        ds = mock.MagicMock(datasets.TimeSeriesDataset)
+        ds.column_names = ["a", "b", "target"]
+        (
+            transforms,
+            columns,
+        ) = column_transformations_utils.get_default_column_transformations(
+            dataset=ds, target_column="target"
+        )
+        assert transforms == [
+            {"auto": {"column_name": "a"}},
+            {"auto": {"column_name": "b"}},
+        ]
+        assert columns == ["a", "b"]
+
+    def test_validate_transformations_with_multiple_configs(self):
+        with pytest.raises(ValueError):
+            (
+                column_transformations_utils.validate_and_get_column_transformations(
+                    column_transformations=self.column_transformations,
+                    column_specs=self.column_specs,
+                )
+            )
+
+    def test_validate_transformations_with_column_specs(self):
+        actual = column_transformations_utils.validate_and_get_column_transformations(
+            column_specs=self.column_specs
+        )
+        assert actual == self.column_transformations
+
+    def test_validate_transformations_with_column_transformations(self):
+        actual = column_transformations_utils.validate_and_get_column_transformations(
+            column_transformations=self.column_transformations
+        )
+        assert actual == self.column_transformations
 
 
 @pytest.mark.usefixtures("google_auth_mock")
