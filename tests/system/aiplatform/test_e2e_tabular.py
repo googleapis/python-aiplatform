@@ -189,7 +189,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         # Ensure batch prediction errors output file is empty
         batch_predict_gcs_output_path = (
-            custom_batch_prediction_job.output_info.gcs_output_path
+            custom_batch_prediction_job.output_info.gcs_output_directory
         )
         client = storage.Client()
 
