@@ -249,18 +249,15 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
             self,
         )
 
-        update_entity_type_lro = self.api_client.update_entity_type(
+        updated_entity_type = self.api_client.update_entity_type(
             entity_type=gapic_entity_type,
             update_mask=update_mask,
             metadata=request_metadata,
             timeout=update_request_timeout,
         )
 
-        _LOGGER.log_action_started_against_resource_with_lro(
-            "Update", "entityType", self.__class__, update_entity_type_lro
-        )
-
-        update_entity_type_lro.result()
+        # Update underlying resource with response data.
+        self._gca_resource = updated_entity_type
 
         _LOGGER.log_action_completed_against_resource("entityType", "updated", self)
 

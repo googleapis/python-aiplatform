@@ -36,6 +36,7 @@ _TEST_READ_INSTANCE_SRC = "gs://cloud-samples-data-us-central1/vertex-ai/feature
 _TEST_FEATURESTORE_ID = "movie_prediction"
 _TEST_USER_ENTITY_TYPE_ID = "users"
 _TEST_MOVIE_ENTITY_TYPE_ID = "movies"
+_TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS = {"my_key_update": "my_value_update"}
 
 _TEST_USER_AGE_FEATURE_ID = "age"
 _TEST_USER_GENDER_FEATURE_ID = "gender"
@@ -128,6 +129,15 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert get_movie_entity_type.resource_name in [
             entity_type.resource_name for entity_type in list_entity_types
         ]
+
+        # Update information about the movie entity type.
+        assert movie_entity_type.labels != _TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS
+
+        movie_entity_type.update(
+            labels=_TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS,
+        )
+
+        assert movie_entity_type.labels == _TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS
 
     def test_create_get_list_features(self, shared_state):
 
