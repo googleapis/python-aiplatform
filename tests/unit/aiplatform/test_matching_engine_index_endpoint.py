@@ -32,11 +32,13 @@ from google.cloud.aiplatform.compat.types import (
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
     index_endpoint as gca_index_endpoint,
     index as gca_index,
+    match_service_v1beta1 as gca_match_service_v1beta1,
+    index_v1beta1 as gca_index_v1beta1,
 )
-
 from google.cloud.aiplatform.compat.services import (
     index_endpoint_service_client,
     index_service_client,
+    match_service_client_v1beta1,
 )
 import constants as test_constants
 
@@ -229,6 +231,7 @@ _TEST_NUM_NEIGHBOURS = 1
 _TEST_FILTER = [
     Namespace(name="class", allow_tokens=["token_1"], deny_tokens=["token_2"])
 ]
+_TEST_IDS = ["123", "456", "789"]
 
 
 def uuid_mock():
@@ -474,6 +477,49 @@ def index_endpoint_match_queries_mock():
             )
         )
         yield index_endpoint_match_queries_mock
+
+
+@pytest.fixture
+def index_public_endpoint_match_queries_mock():
+    with patch.object(
+        match_service_client_v1beta1.MatchServiceClient, "find_neighbors"
+    ) as index_public_endpoint_match_queries_mock:
+        index_public_endpoint_match_queries_mock.return_value = (
+            gca_match_service_v1beta1.FindNeighborsResponse(
+                nearest_neighbors=[
+                    gca_match_service_v1beta1.FindNeighborsResponse.NearestNeighbors(
+                        id="1",
+                        neighbors=[
+                            gca_match_service_v1beta1.FindNeighborsResponse.Neighbor(
+                                datapoint=gca_index_v1beta1.IndexDatapoint(
+                                    datapoint_id="1"
+                                ),
+                                distance=0.1,
+                            )
+                        ],
+                    )
+                ]
+            )
+        )
+        yield index_public_endpoint_match_queries_mock
+
+
+@pytest.fixture
+def index_public_endpoint_read_index_datapoints_mock():
+    with patch.object(
+        match_service_client_v1beta1.MatchServiceClient, "read_index_datapoints"
+    ) as index_public_endpoint_read_index_datapoints_mock:
+        index_public_endpoint_read_index_datapoints_mock.return_value = (
+            gca_match_service_v1beta1.ReadIndexDatapointsResponse(
+                datapoints=[
+                    gca_index_v1beta1.IndexDatapoint(
+                        datapoint_id="1",
+                        feature_vector=[0, 1, 2, 3],
+                    )
+                ]
+            )
+        )
+        yield index_public_endpoint_read_index_datapoints_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -845,3 +891,71 @@ class TestMatchingEngineIndexEndpoint:
         )
 
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
+
+    @pytest.mark.usefixtures("get_index_public_endpoint_mock")
+    def test_index_public_endpoint_match_queries(
+        self, index_public_endpoint_match_queries_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_pubic_index_endpoint.find_neighbors(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+        )
+
+        find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest(
+            index_endpoint=my_pubic_index_endpoint.resource_name,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=[
+                gca_match_service_v1beta1.FindNeighborsRequest.Query(
+                    neighbor_count=_TEST_NUM_NEIGHBOURS,
+                    datapoint=gca_index_v1beta1.IndexDatapoint(
+                        feature_vector=_TEST_QUERIES[0],
+                        restricts=[
+                            gca_index_v1beta1.IndexDatapoint.Restriction(
+                                namespace="class",
+                                allow_list=["token_1"],
+                                deny_list=["token_2"],
+                            )
+                        ],
+                    ),
+                )
+            ],
+        )
+
+        index_public_endpoint_match_queries_mock.assert_called_with(
+            find_neighbors_request
+        )
+
+    @pytest.mark.usefixtures("get_index_public_endpoint_mock")
+    def test_index_public_endpoint_read_index_datapoints(
+        self, index_public_endpoint_read_index_datapoints_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_pubic_index_endpoint.read_index_datapoints(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            ids=_TEST_IDS,
+        )
+
+        read_index_datapoints_request = (
+            gca_match_service_v1beta1.ReadIndexDatapointsRequest(
+                index_endpoint=my_pubic_index_endpoint.resource_name,
+                deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                ids=_TEST_IDS,
+            )
+        )
+
+        index_public_endpoint_read_index_datapoints_mock.assert_called_with(
+            read_index_datapoints_request
+        )
