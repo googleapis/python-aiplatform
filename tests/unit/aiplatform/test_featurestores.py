@@ -591,8 +591,10 @@ def update_entity_type_mock():
     with patch.object(
         featurestore_service_client.FeaturestoreServiceClient, "update_entity_type"
     ) as update_entity_type_mock:
-        update_entity_type_lro_mock = mock.Mock(operation.Operation)
-        update_entity_type_mock.return_value = update_entity_type_lro_mock
+        update_entity_type_mock.return_value = gca_entity_type.EntityType(
+            name=_TEST_ENTITY_TYPE_NAME,
+            labels=_TEST_LABELS_UPDATE,
+        )
         yield update_entity_type_mock
 
 
@@ -2103,6 +2105,8 @@ class TestEntityType:
             metadata=_TEST_REQUEST_METADATA,
             timeout=None,
         )
+
+        assert my_entity_type.labels == _TEST_LABELS_UPDATE
 
     @pytest.mark.parametrize(
         "featurestore_name", [_TEST_FEATURESTORE_NAME, _TEST_FEATURESTORE_ID]
