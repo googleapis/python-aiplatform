@@ -194,7 +194,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         client = storage.Client()
 
         for blob in client.list_blobs(
-            bucket=shared_state["staging_bucket_name"],
+            bucket_or_name=shared_state["staging_bucket_name"],
             prefix=f"bp_results/{batch_predict_gcs_output_path.split('/')[-1]}",
         ):
             # There are always 2 files in this output path: 1 with errors, 1 with predictions
