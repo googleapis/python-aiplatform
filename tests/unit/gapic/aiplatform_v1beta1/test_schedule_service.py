@@ -2277,6 +2277,7 @@ def test_resume_schedule_flattened():
         # using the keyword arguments to the method.
         client.resume_schedule(
             name="name_value",
+            catch_up=True,
         )
 
         # Establish that the underlying call was made with the expected
@@ -2285,6 +2286,9 @@ def test_resume_schedule_flattened():
         _, args, _ = call.mock_calls[0]
         arg = args[0].name
         mock_val = "name_value"
+        assert arg == mock_val
+        arg = args[0].catch_up
+        mock_val = True
         assert arg == mock_val
 
 
@@ -2299,6 +2303,7 @@ def test_resume_schedule_flattened_error():
         client.resume_schedule(
             schedule_service.ResumeScheduleRequest(),
             name="name_value",
+            catch_up=True,
         )
 
 
@@ -2318,6 +2323,7 @@ async def test_resume_schedule_flattened_async():
         # using the keyword arguments to the method.
         response = await client.resume_schedule(
             name="name_value",
+            catch_up=True,
         )
 
         # Establish that the underlying call was made with the expected
@@ -2326,6 +2332,9 @@ async def test_resume_schedule_flattened_async():
         _, args, _ = call.mock_calls[0]
         arg = args[0].name
         mock_val = "name_value"
+        assert arg == mock_val
+        arg = args[0].catch_up
+        mock_val = True
         assert arg == mock_val
 
 
@@ -2341,6 +2350,7 @@ async def test_resume_schedule_flattened_error_async():
         await client.resume_schedule(
             schedule_service.ResumeScheduleRequest(),
             name="name_value",
+            catch_up=True,
         )
 
 

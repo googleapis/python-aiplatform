@@ -925,12 +925,15 @@ class ModelSourceInfo(proto.Message):
             MODEL_GARDEN (4):
                 The Model is saved or tuned from Model
                 Garden.
+            GENIE (5):
+                The Model is saved or tuned from Genie.
         """
         MODEL_SOURCE_TYPE_UNSPECIFIED = 0
         AUTOML = 1
         CUSTOM = 2
         BQML = 3
         MODEL_GARDEN = 4
+        GENIE = 5
 
     source_type: ModelSourceType = proto.Field(
         proto.ENUM,

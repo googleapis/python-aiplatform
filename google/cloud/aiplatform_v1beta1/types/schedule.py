@@ -91,6 +91,9 @@ class Schedule(proto.Message):
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Schedule was
             created.
+        update_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Timestamp when this Schedule was
+            updated.
         next_run_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Schedule should schedule
             the next run. Having a next_run_time in the past means the
@@ -103,7 +106,10 @@ class Schedule(proto.Message):
             last resumed. Unset if never resumed from pause.
         max_concurrent_run_count (int):
             Required. Maximum number of runs that can be
-            executed concurrently for this Schedule.
+            started concurrently for this Schedule. This is
+            the limit for starting the scheduled requests
+            and not the execution of the operations/jobs
+            created by the requests (if applicable).
         allow_queueing (bool):
             Optional. Whether new scheduled runs can be queued when
             max_concurrent_runs limit is reached. If set to true, new
@@ -114,6 +120,13 @@ class Schedule(proto.Message):
             If set to true, all missed runs will be
             scheduled. New runs will be scheduled after the
             backfill is complete. Default to false.
+        last_scheduled_run_response (google.cloud.aiplatform_v1beta1.types.Schedule.RunResponse):
+            Output only. Response of the last scheduled
+            run. This is the response for starting the
+            scheduled requests and not the execution of the
+            operations/jobs created by the requests (if
+            applicable). Unset if no run has been scheduled
+            yet.
     """
 
     class State(proto.Enum):
@@ -139,6 +152,27 @@ class Schedule(proto.Message):
         ACTIVE = 1
         PAUSED = 2
         COMPLETED = 3
+
+    class RunResponse(proto.Message):
+        r"""Status of a scheduled run.
+
+        Attributes:
+            scheduled_run_time (google.protobuf.timestamp_pb2.Timestamp):
+                The scheduled run time based on the
+                user-specified schedule.
+            run_response (str):
+                The response of the scheduled run.
+        """
+
+        scheduled_run_time: timestamp_pb2.Timestamp = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message=timestamp_pb2.Timestamp,
+        )
+        run_response: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
 
     cron: str = proto.Field(
         proto.STRING,
@@ -189,6 +223,11 @@ class Schedule(proto.Message):
         number=6,
         message=timestamp_pb2.Timestamp,
     )
+    update_time: timestamp_pb2.Timestamp = proto.Field(
+        proto.MESSAGE,
+        number=19,
+        message=timestamp_pb2.Timestamp,
+    )
     next_run_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=7,
@@ -215,6 +254,11 @@ class Schedule(proto.Message):
     catch_up: bool = proto.Field(
         proto.BOOL,
         number=13,
+    )
+    last_scheduled_run_response: RunResponse = proto.Field(
+        proto.MESSAGE,
+        number=18,
+        message=RunResponse,
     )
 
 

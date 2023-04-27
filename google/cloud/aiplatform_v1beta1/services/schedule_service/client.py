@@ -1154,6 +1154,7 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         request: Optional[Union[schedule_service.ResumeScheduleRequest, dict]] = None,
         *,
         name: Optional[str] = None,
+        catch_up: Optional[bool] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1204,6 +1205,18 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+            catch_up (bool):
+                Optional. Whether to backfill missed runs when the
+                schedule is resumed from PAUSED state. If set to true,
+                all missed runs will be scheduled. New runs will be
+                scheduled after the backfill is complete. This will also
+                update
+                [Schedule.catch_up][google.cloud.aiplatform.v1beta1.Schedule.catch_up]
+                field. Default to false.
+
+                This corresponds to the ``catch_up`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1213,7 +1226,7 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        has_flattened_params = any([name, catch_up])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1230,6 +1243,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
             # request, apply these.
             if name is not None:
                 request.name = name
+            if catch_up is not None:
+                request.catch_up = catch_up
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.

@@ -40,6 +40,9 @@ __protobuf__ = proto.module(
         "UndeployModelRequest",
         "UndeployModelResponse",
         "UndeployModelOperationMetadata",
+        "MutateDeployedModelRequest",
+        "MutateDeployedModelResponse",
+        "MutateDeployedModelOperationMetadata",
     },
 )
 
@@ -390,6 +393,83 @@ class UndeployModelResponse(proto.Message):
 class UndeployModelOperationMetadata(proto.Message):
     r"""Runtime operation information for
     [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The operation generic information.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class MutateDeployedModelRequest(proto.Message):
+    r"""Request message for
+    [EndpointService.MutateDeployedModel][google.cloud.aiplatform.v1beta1.EndpointService.MutateDeployedModel].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint resource into which to
+            mutate a DeployedModel. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        deployed_model (google.cloud.aiplatform_v1beta1.types.DeployedModel):
+            Required. The DeployedModel to be mutated within the
+            Endpoint. Only the following fields can be mutated:
+
+            -  ``min_replica_count`` in either
+               [DedicatedResources][google.cloud.aiplatform.v1beta1.DedicatedResources]
+               or
+               [AutomaticResources][google.cloud.aiplatform.v1beta1.AutomaticResources]
+            -  ``max_replica_count`` in either
+               [DedicatedResources][google.cloud.aiplatform.v1beta1.DedicatedResources]
+               or
+               [AutomaticResources][google.cloud.aiplatform.v1beta1.AutomaticResources]
+            -  [autoscaling_metric_specs][google.cloud.aiplatform.v1beta1.DedicatedResources.autoscaling_metric_specs]
+            -  ``disable_container_logging`` (v1 only)
+            -  ``enable_container_logging`` (v1beta1 only)
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Required. The update mask applies to the resource. See
+            [google.protobuf.FieldMask][google.protobuf.FieldMask].
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    deployed_model: gca_endpoint.DeployedModel = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_endpoint.DeployedModel,
+    )
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=field_mask_pb2.FieldMask,
+    )
+
+
+class MutateDeployedModelResponse(proto.Message):
+    r"""Response message for
+    [EndpointService.MutateDeployedModel][google.cloud.aiplatform.v1beta1.EndpointService.MutateDeployedModel].
+
+    Attributes:
+        deployed_model (google.cloud.aiplatform_v1beta1.types.DeployedModel):
+            The DeployedModel that's being mutated.
+    """
+
+    deployed_model: gca_endpoint.DeployedModel = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=gca_endpoint.DeployedModel,
+    )
+
+
+class MutateDeployedModelOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [EndpointService.MutateDeployedModel][google.cloud.aiplatform.v1beta1.EndpointService.MutateDeployedModel].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):

@@ -138,6 +138,9 @@ from .types.endpoint_service import DeployModelResponse
 from .types.endpoint_service import GetEndpointRequest
 from .types.endpoint_service import ListEndpointsRequest
 from .types.endpoint_service import ListEndpointsResponse
+from .types.endpoint_service import MutateDeployedModelOperationMetadata
+from .types.endpoint_service import MutateDeployedModelRequest
+from .types.endpoint_service import MutateDeployedModelResponse
 from .types.endpoint_service import UndeployModelOperationMetadata
 from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
@@ -988,6 +991,9 @@ __all__ = (
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
+    "MutateDeployedModelOperationMetadata",
+    "MutateDeployedModelRequest",
+    "MutateDeployedModelResponse",
     "NasJob",
     "NasJobOutput",
     "NasJobSpec",
