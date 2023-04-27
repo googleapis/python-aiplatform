@@ -237,6 +237,30 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def context_path(
+        project: str,
+        location: str,
+        metadata_store: str,
+        context: str,
+    ) -> str:
+        """Returns a fully-qualified context string."""
+        return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}".format(
+            project=project,
+            location=location,
+            metadata_store=metadata_store,
+            context=context,
+        )
+
+    @staticmethod
+    def parse_context_path(path: str) -> Dict[str, str]:
+        """Parses a context path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/metadataStores/(?P<metadata_store>.+?)/contexts/(?P<context>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def custom_job_path(
         project: str,
         location: str,

@@ -2668,6 +2668,303 @@ async def test_undeploy_model_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        endpoint_service.MutateDeployedModelRequest,
+        dict,
+    ],
+)
+def test_mutate_deployed_model(request_type, transport: str = "grpc"):
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.mutate_deployed_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == endpoint_service.MutateDeployedModelRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_mutate_deployed_model_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        client.mutate_deployed_model()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == endpoint_service.MutateDeployedModelRequest()
+
+
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_async(
+    transport: str = "grpc_asyncio",
+    request_type=endpoint_service.MutateDeployedModelRequest,
+):
+    client = EndpointServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.mutate_deployed_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == endpoint_service.MutateDeployedModelRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_async_from_dict():
+    await test_mutate_deployed_model_async(request_type=dict)
+
+
+def test_mutate_deployed_model_field_headers():
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = endpoint_service.MutateDeployedModelRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.mutate_deployed_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_field_headers_async():
+    client = EndpointServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = endpoint_service.MutateDeployedModelRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.mutate_deployed_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+def test_mutate_deployed_model_flattened():
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.mutate_deployed_model(
+            endpoint="endpoint_value",
+            deployed_model=gca_endpoint.DeployedModel(
+                dedicated_resources=machine_resources.DedicatedResources(
+                    machine_spec=machine_resources.MachineSpec(
+                        machine_type="machine_type_value"
+                    )
+                )
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model
+        mock_val = gca_endpoint.DeployedModel(
+            dedicated_resources=machine_resources.DedicatedResources(
+                machine_spec=machine_resources.MachineSpec(
+                    machine_type="machine_type_value"
+                )
+            )
+        )
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
+
+
+def test_mutate_deployed_model_flattened_error():
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.mutate_deployed_model(
+            endpoint_service.MutateDeployedModelRequest(),
+            endpoint="endpoint_value",
+            deployed_model=gca_endpoint.DeployedModel(
+                dedicated_resources=machine_resources.DedicatedResources(
+                    machine_spec=machine_resources.MachineSpec(
+                        machine_type="machine_type_value"
+                    )
+                )
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+
+
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_flattened_async():
+    client = EndpointServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.mutate_deployed_model(
+            endpoint="endpoint_value",
+            deployed_model=gca_endpoint.DeployedModel(
+                dedicated_resources=machine_resources.DedicatedResources(
+                    machine_spec=machine_resources.MachineSpec(
+                        machine_type="machine_type_value"
+                    )
+                )
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model
+        mock_val = gca_endpoint.DeployedModel(
+            dedicated_resources=machine_resources.DedicatedResources(
+                machine_spec=machine_resources.MachineSpec(
+                    machine_type="machine_type_value"
+                )
+            )
+        )
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_flattened_error_async():
+    client = EndpointServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.mutate_deployed_model(
+            endpoint_service.MutateDeployedModelRequest(),
+            endpoint="endpoint_value",
+            deployed_model=gca_endpoint.DeployedModel(
+                dedicated_resources=machine_resources.DedicatedResources(
+                    machine_spec=machine_resources.MachineSpec(
+                        machine_type="machine_type_value"
+                    )
+                )
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.EndpointServiceGrpcTransport(
@@ -2812,6 +3109,7 @@ def test_endpoint_service_base_transport():
         "delete_endpoint",
         "deploy_model",
         "undeploy_model",
+        "mutate_deployed_model",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
