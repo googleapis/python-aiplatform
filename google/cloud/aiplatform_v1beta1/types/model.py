@@ -31,6 +31,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "Model",
+        "LargeModelReference",
         "PredictSchemata",
         "ModelContainerSpec",
         "Port",
@@ -537,6 +538,24 @@ class Model(proto.Message):
     metadata_artifact: str = proto.Field(
         proto.STRING,
         number=44,
+    )
+
+
+class LargeModelReference(proto.Message):
+    r"""Contains information about the Large Model.
+
+    Attributes:
+        name (str):
+            Required. The unique name of the large
+            Foundation or pre-built model. Like
+            "chat-panda", "text-panda". Or model name with
+            version ID, like "chat-panda-001",
+            "text-panda-005", etc.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
     )
 
 

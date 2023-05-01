@@ -391,6 +391,7 @@ from .types.migration_service import MigrateResourceRequest
 from .types.migration_service import MigrateResourceResponse
 from .types.migration_service import SearchMigratableResourcesRequest
 from .types.migration_service import SearchMigratableResourcesResponse
+from .types.model import LargeModelReference
 from .types.model import Model
 from .types.model import ModelContainerSpec
 from .types.model import ModelSourceInfo
@@ -882,6 +883,7 @@ __all__ = (
     "IntegratedGradientsAttribution",
     "JobServiceClient",
     "JobState",
+    "LargeModelReference",
     "LineageSubgraph",
     "ListAnnotationsRequest",
     "ListAnnotationsResponse",

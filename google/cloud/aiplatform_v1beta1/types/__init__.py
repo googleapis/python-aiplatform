@@ -432,6 +432,7 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
+    LargeModelReference,
     Model,
     ModelContainerSpec,
     ModelSourceInfo,
@@ -1009,6 +1010,7 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "LargeModelReference",
     "Model",
     "ModelContainerSpec",
     "ModelSourceInfo",
