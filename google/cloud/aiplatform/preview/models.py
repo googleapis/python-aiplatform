@@ -24,7 +24,7 @@ import proto
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import models
+from google.cloud.aiplatform import _models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import _explanation_utils
 from google.cloud.aiplatform.compat.services import (
@@ -400,7 +400,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List["models.DeploymentResourcePool"]:
+    ) -> List["DeploymentResourcePool"]:
         """Lists the deployment resource pools.
 
         filter (str):
@@ -438,7 +438,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "models.DeploymentResourcePool":
+    ) -> "DeploymentResourcePool":
         drp = cls._empty_constructor(
             project=project, location=location, credentials=credentials
         )
@@ -446,7 +446,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         return drp
 
 
-class Endpoint(aiplatform.Endpoint):
+class Endpoint(_models._Endpoint):
     @staticmethod
     def _validate_deploy_args(
         min_replica_count: Optional[int],
@@ -578,7 +578,7 @@ class Endpoint(aiplatform.Endpoint):
         """Deploys a Model to the Endpoint.
 
         Args:
-            model (aiplatform.Model): Required. Model to be deployed.
+            model (_models._Model): Required. Model to be deployed.
             deployed_model_display_name (str): Optional. The display name of the
               DeployedModel. If not provided upon creation, the Model's display_name
               is used.
@@ -714,7 +714,7 @@ class Endpoint(aiplatform.Endpoint):
         """Deploys a Model to the Endpoint.
 
         Args:
-            model (aiplatform.Model): Required. Model to be deployed.
+            model (_models._Model): Required. Model to be deployed.
             deployed_model_display_name (str): Optional. The display name of the
               DeployedModel. If not provided upon creation, the Model's display_name
               is used.
@@ -845,7 +845,7 @@ class Endpoint(aiplatform.Endpoint):
               endpoint_service_client.EndpointServiceClient to make call.
             endpoint_resource_name (str): Required. Endpoint resource name to deploy
               model to.
-            model (aiplatform.Model): Required. Model to be deployed.
+            model (_models._Model): Required. Model to be deployed.
             endpoint_resource_traffic_split (proto.MapField): Optional. Endpoint
               current resource traffic split.
             network (str): Optional. The full name of the Compute Engine network to
@@ -1028,10 +1028,10 @@ class Endpoint(aiplatform.Endpoint):
         operation_future.result(timeout=None)
 
 
-class Model(aiplatform.Model):
+class Model(_models._Model):
     def deploy(
         self,
-        endpoint: Optional[Union["Endpoint", models.PrivateEndpoint]] = None,
+        endpoint: Optional[Union["Endpoint", _models.PrivateEndpoint]] = None,
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
@@ -1053,13 +1053,13 @@ class Model(aiplatform.Model):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
-    ) -> Union[Endpoint, models.PrivateEndpoint]:
+    ) -> Union[Endpoint, _models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
         Endpoint will be created if unspecified.
 
         Args:
-            endpoint (Union[Endpoint, models.PrivateEndpoint]): Optional. Public or
+            endpoint (Union[Endpoint, _models.PrivateEndpoint]): Optional. Public or
               private Endpoint to deploy model to. If not specified, endpoint
               display name will be model display name+'_endpoint'.
             deployed_model_display_name (str): Optional. The display name of the
@@ -1154,7 +1154,7 @@ class Model(aiplatform.Model):
               arguments.
 
         Returns:
-            endpoint (Union[Endpoint, models.PrivateEndpoint]):
+            endpoint (Union[Endpoint, _models.PrivateEndpoint]):
                 Endpoint with the deployed model.
 
         Raises:
@@ -1172,7 +1172,7 @@ class Model(aiplatform.Model):
             deployment_resource_pool=deployment_resource_pool,
         )
 
-        if isinstance(endpoint, models.PrivateEndpoint):
+        if isinstance(endpoint, _models.PrivateEndpoint):
             if traffic_split:
                 raise ValueError(
                     "Traffic splitting is not yet supported for PrivateEndpoint. "
@@ -1211,7 +1211,7 @@ class Model(aiplatform.Model):
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
     def _deploy(
         self,
-        endpoint: Optional[Union["Endpoint", models.PrivateEndpoint]] = None,
+        endpoint: Optional[Union["Endpoint", _models.PrivateEndpoint]] = None,
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
@@ -1230,7 +1230,7 @@ class Model(aiplatform.Model):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
-    ) -> Union[Endpoint, models.PrivateEndpoint]:
+    ) -> Union[Endpoint, _models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
         Endpoint will be created if unspecified.
@@ -1323,7 +1323,7 @@ class Model(aiplatform.Model):
               arguments.
 
         Returns:
-            endpoint (Union[Endpoint, models.PrivateEndpoint]):
+            endpoint (Union[Endpoint, _models.PrivateEndpoint]):
                 Endpoint with the deployed model.
         """
 
@@ -1339,7 +1339,7 @@ class Model(aiplatform.Model):
                     encryption_spec_key_name=encryption_spec_key_name,
                 )
             else:
-                endpoint = models.PrivateEndpoint.create(
+                endpoint = _models.PrivateEndpoint.create(
                     display_name=display_name,
                     network=network,
                     project=self.project,
