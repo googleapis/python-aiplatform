@@ -2438,7 +2438,9 @@ class _ForecastingTrainingJob(_TrainingJob):
             (
                 self._column_transformations,
                 column_names,
-            ) = dataset._get_default_column_transformations(target_column)
+            ) = column_transformations_utils.get_default_column_transformations(
+                dataset=dataset, target_column=target_column
+            )
 
             _LOGGER.info(
                 "The column transformation of type 'auto' was set for the following columns: %s."
@@ -5339,9 +5341,6 @@ class AutoMLImageTrainingJob(_TrainingJob):
                         Expected to have a higher latency, but should also have a higher
                         prediction quality than other mobile models.
                     "EFFICIENTNET" - A model that, available in Vertex Model Garden image
-                        classification training with customizable hyperparameters. Best tailored
-                        to be used within Google Cloud, and cannot be exported externally.
-                    "RESNET" - A model that, available in Vertex Model Garden image
                         classification training with customizable hyperparameters. Best tailored
                         to be used within Google Cloud, and cannot be exported externally.
                     "VIT" - A model that, available in Vertex Model Garden image

@@ -1294,3 +1294,41 @@ class TestForecastingTrainingJob:
             training_pipeline=true_training_pipeline,
             timeout=None,
         )
+
+    def test_automl_forecasting_with_no_transformations(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_time_series,
+        mock_model_service_get,
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        job = training_jobs.AutoMLForecastingTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+        )
+        mock_dataset_time_series.column_names = [
+            "a",
+            "b",
+            _TEST_TRAINING_TARGET_COLUMN,
+        ]
+        job.run(
+            dataset=mock_dataset_time_series,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            time_column=_TEST_TRAINING_TIME_COLUMN,
+            time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
+            unavailable_at_forecast_columns=_TEST_TRAINING_UNAVAILABLE_AT_FORECAST_COLUMNS,
+            available_at_forecast_columns=_TEST_TRAINING_AVAILABLE_AT_FORECAST_COLUMNS,
+            forecast_horizon=_TEST_TRAINING_FORECAST_HORIZON,
+            data_granularity_unit=_TEST_TRAINING_DATA_GRANULARITY_UNIT,
+            data_granularity_count=_TEST_TRAINING_DATA_GRANULARITY_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            time_series_attribute_columns=_TEST_TRAINING_TIME_SERIES_ATTRIBUTE_COLUMNS,
+            context_window=_TEST_TRAINING_CONTEXT_WINDOW,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+        )
+        assert job._column_transformations == [
+            {"auto": {"column_name": "a"}},
+            {"auto": {"column_name": "b"}},
+        ]
