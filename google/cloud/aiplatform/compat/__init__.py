@@ -41,6 +41,7 @@ if DEFAULT_VERSION == V1BETA1:
     services.specialist_pool_service_client = (
         services.specialist_pool_service_client_v1beta1
     )
+    services.match_service_client = services.match_service_client_v1beta1
     services.metadata_service_client = services.metadata_service_client_v1beta1
     services.tensorboard_service_client = services.tensorboard_service_client_v1beta1
     services.index_service_client = services.index_service_client_v1beta1
