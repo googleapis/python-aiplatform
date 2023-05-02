@@ -31,14 +31,10 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import base, explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
-from google.cloud.aiplatform import _models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import constants
-from google.cloud.aiplatform.preview import explain as preview_explain
+
 from google.cloud.aiplatform.preview import models as preview_models
-from google.cloud.aiplatform.preview.explain import (
-    models as preview_explain_models,
-)
 
 from google.cloud.aiplatform.compat.services import (
     deployment_resource_pool_service_client_v1beta1,
@@ -47,7 +43,6 @@ from google.cloud.aiplatform.compat.services import (
     model_service_client,
     job_service_client,
     pipeline_service_client,
-    model_service_client_v1beta1,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -68,14 +63,6 @@ from google.cloud.aiplatform.compat.types import (
     model as gca_model,
     model_evaluation as gca_model_evaluation,
     model_service as gca_model_service,
-)
-
-from google.cloud.aiplatform_v1beta1.types import (
-    model as model_v1beta1,
-    model_service as model_service_v1beta1,
-    endpoint as endpoint_v1beta1,
-    endpoint_service as endpoint_service_v1beta1,
-    machine_resources as machine_resources_v1beta1,
 )
 
 from google.cloud.aiplatform.prediction import LocalModel
@@ -164,28 +151,6 @@ _TEST_EXPLANATION_METADATA = explain.ExplanationMetadata(
 )
 _TEST_EXPLANATION_PARAMETERS = (
     test_constants.ModelConstants._TEST_EXPLANATION_PARAMETERS
-)
-_TEST_EXPLANATION_METADATA_EXAMPLES = preview_explain.ExplanationMetadata(
-    outputs={"embedding": {"output_tensor_name": "embedding"}},
-    inputs={
-        "my_input": {
-            "input_tensor_name": "bytes_inputs",
-            "encoding": "IDENTITY",
-            "modality": "image",
-        },
-        "id": {"input_tensor_name": "id", "encoding": "IDENTITY"},
-    },
-)
-_TEST_EXPLANATION_PARAMETERS_EXAMPLES = preview_explain.ExplanationParameters(
-    {
-        "examples": {
-            "gcs_source": {
-                "uris": ["gs://example-bucket/folder/instance1.jsonl"],
-            },
-            "neighbor_count": 10,
-            "presets": {"query": "FAST", "modality": "TEXT"},
-        }
-    }
 )
 
 # CMEK encryption
@@ -388,40 +353,11 @@ def get_endpoint_mock():
 
 
 @pytest.fixture
-def get_endpoint_mock_v1beta1():
-    with mock.patch.object(
-        endpoint_service_client_v1beta1.EndpointServiceClient, "get_endpoint"
-    ) as get_endpoint_mock:
-        test_endpoint_resource_name = (
-            endpoint_service_client_v1beta1.EndpointServiceClient.endpoint_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-            )
-        )
-        get_endpoint_mock.return_value = endpoint_v1beta1.Endpoint(
-            display_name=_TEST_MODEL_NAME,
-            name=test_endpoint_resource_name,
-        )
-        yield get_endpoint_mock
-
-
-@pytest.fixture
 def get_model_mock():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
     ) as get_model_mock:
         get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_MODEL_NAME,
-            name=_TEST_MODEL_RESOURCE_NAME,
-        )
-        yield get_model_mock
-
-
-@pytest.fixture
-def get_model_mock_v1beta1():
-    with mock.patch.object(
-        model_service_client_v1beta1.ModelServiceClient, "get_model"
-    ) as get_model_mock:
-        get_model_mock.return_value = model_v1beta1.Model(
             display_name=_TEST_MODEL_NAME,
             name=_TEST_MODEL_RESOURCE_NAME,
         )
@@ -556,19 +492,6 @@ def upload_model_mock():
 
 
 @pytest.fixture
-def upload_model_mock_v1beta1():
-    with mock.patch.object(
-        model_service_client_v1beta1.ModelServiceClient, "upload_model"
-    ) as upload_model_mock:
-        mock_lro = mock.Mock(ga_operation.Operation)
-        mock_lro.result.return_value = model_service_v1beta1.UploadModelResponse(
-            model=_TEST_MODEL_RESOURCE_NAME
-        )
-        upload_model_mock.return_value = mock_lro
-        yield upload_model_mock
-
-
-@pytest.fixture
 def upload_model_with_version_mock():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "upload_model"
@@ -661,25 +584,6 @@ def deploy_model_mock():
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
         deploy_model_lro_mock.result.return_value = (
             gca_endpoint_service.DeployModelResponse(
-                deployed_model=deployed_model,
-            )
-        )
-        deploy_model_mock.return_value = deploy_model_lro_mock
-        yield deploy_model_mock
-
-
-@pytest.fixture
-def deploy_model_mock_v1beta1():
-    with mock.patch.object(
-        endpoint_service_client_v1beta1.EndpointServiceClient, "deploy_model"
-    ) as deploy_model_mock:
-        deployed_model = endpoint_v1beta1.DeployedModel(
-            model=_TEST_MODEL_RESOURCE_NAME,
-            display_name=_TEST_MODEL_NAME,
-        )
-        deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = (
-            endpoint_service_v1beta1.DeployModelResponse(
                 deployed_model=deployed_model,
             )
         )
@@ -1216,45 +1120,6 @@ class TestModel:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_upload_with_parameters_for_examples(
-        self, upload_model_mock_v1beta1, get_model_mock_v1beta1, sync
-    ):
-        my_model = preview_explain_models.Model.upload(
-            display_name=_TEST_MODEL_NAME,
-            artifact_uri=_TEST_ARTIFACT_URI,
-            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-            explanation_metadata=_TEST_EXPLANATION_METADATA_EXAMPLES,
-            explanation_parameters=_TEST_EXPLANATION_PARAMETERS_EXAMPLES,
-            sync=sync,
-        )
-
-        if not sync:
-            my_model.wait()
-
-        container_spec = model_v1beta1.ModelContainerSpec(
-            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-        )
-
-        managed_model = model_v1beta1.Model(
-            display_name=_TEST_MODEL_NAME,
-            artifact_uri=_TEST_ARTIFACT_URI,
-            container_spec=container_spec,
-            explanation_spec=model_v1beta1.explanation.ExplanationSpec(
-                metadata=_TEST_EXPLANATION_METADATA_EXAMPLES,
-                parameters=_TEST_EXPLANATION_PARAMETERS_EXAMPLES,
-            ),
-            version_aliases=["default"],
-        )
-
-        upload_model_mock_v1beta1.assert_called_once_with(
-            request=model_service_v1beta1.UploadModelRequest(
-                parent=initializer.global_config.common_location_path(),
-                model=managed_model,
-            ),
-            timeout=None,
-        )
-
-    @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_all_args(
         self, upload_model_mock, get_model_mock, sync
     ):
@@ -1510,45 +1375,6 @@ class TestModel:
             display_name=None,
         )
         deploy_model_mock.assert_called_once_with(
-            endpoint=test_endpoint.resource_name,
-            deployed_model=deployed_model,
-            traffic_split={"0": 100},
-            metadata=(),
-            timeout=None,
-        )
-
-    @pytest.mark.usefixtures("get_endpoint_mock_v1beta1", "get_model_mock_v1beta1")
-    @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_for_examples(self, deploy_model_mock_v1beta1, sync):
-
-        test_model = preview_explain_models.Model(_TEST_ID)
-        test_model._gca_resource.supported_deployment_resources_types.append(
-            model_v1beta1.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
-        )
-
-        test_endpoint = preview_explain_models.Endpoint(_TEST_ID)
-
-        assert (
-            test_model.deploy(
-                test_endpoint,
-                sync=sync,
-            )
-            == test_endpoint
-        )
-
-        if not sync:
-            test_endpoint.wait()
-
-        automatic_resources = machine_resources_v1beta1.AutomaticResources(
-            min_replica_count=1,
-            max_replica_count=1,
-        )
-        deployed_model = endpoint_v1beta1.DeployedModel(
-            automatic_resources=automatic_resources,
-            model=test_model.resource_name,
-            display_name=None,
-        )
-        deploy_model_mock_v1beta1.assert_called_once_with(
             endpoint=test_endpoint.resource_name,
             deployed_model=deployed_model,
             traffic_split={"0": 100},
@@ -1824,7 +1650,7 @@ class TestModel:
 
         test_endpoint = test_model.deploy(network=_TEST_NETWORK)
         # Ensure endpoint created with `network` is a PrivateEndpoint
-        assert isinstance(test_endpoint, _models.PrivateEndpoint)
+        assert isinstance(test_endpoint, models.PrivateEndpoint)
 
         automatic_resources = gca_machine_resources.AutomaticResources(
             min_replica_count=1,
@@ -1863,7 +1689,6 @@ class TestModel:
             sync=sync,
             deploy_request_timeout=None,
         )
-
         if not sync:
             test_endpoint.wait()
 
@@ -2847,7 +2672,7 @@ class TestModel:
 
     def test_init_with_version_in_resource_name(self, get_model_with_version):
         model = models.Model(
-            model_name=_models.ModelRegistry._get_versioned_name(
+            model_name=models.ModelRegistry._get_versioned_name(
                 _TEST_MODEL_NAME, _TEST_VERSION_ALIAS_1
             )
         )
@@ -2958,7 +2783,7 @@ class TestModel:
         assert upload_model_request.model_id == _TEST_ID
 
     def test_get_model_instance_from_registry(self, get_model_with_version):
-        registry = _models.ModelRegistry(_TEST_MODEL_PARENT)
+        registry = models.ModelRegistry(_TEST_MODEL_PARENT)
         model = registry.get_model(_TEST_VERSION_ALIAS_1)
         assert model.version_aliases == [_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2]
         assert model.display_name == _TEST_MODEL_NAME
@@ -3027,7 +2852,7 @@ class TestModel:
         my_model.versioning_registry.delete_version(_TEST_VERSION_ALIAS_1)
 
         delete_model_version_mock.assert_called_once_with(
-            name=_models.ModelRegistry._get_versioned_name(
+            name=models.ModelRegistry._get_versioned_name(
                 _TEST_MODEL_PARENT, _TEST_VERSION_ALIAS_1
             )
         )
@@ -3060,7 +2885,7 @@ class TestModel:
         )
 
         merge_version_aliases_mock.assert_called_once_with(
-            name=_models.ModelRegistry._get_versioned_name(
+            name=models.ModelRegistry._get_versioned_name(
                 _TEST_MODEL_PARENT, _TEST_VERSION_ALIAS_1
             ),
             version_aliases=["new-alias", "other-new-alias"],
@@ -3073,7 +2898,7 @@ class TestModel:
         )
 
         merge_version_aliases_mock.assert_called_once_with(
-            name=_models.ModelRegistry._get_versioned_name(
+            name=models.ModelRegistry._get_versioned_name(
                 _TEST_MODEL_PARENT, _TEST_VERSION_ALIAS_1
             ),
             version_aliases=["-old-alias", "-other-old-alias"],
