@@ -268,6 +268,13 @@ class CustomJobSpec(proto.Message):
             [Trial.web_access_uris][google.cloud.aiplatform.v1.Trial.web_access_uris]
             (within
             [HyperparameterTuningJob.trials][google.cloud.aiplatform.v1.HyperparameterTuningJob.trials]).
+        experiment (str):
+            Optional. The Experiment associated with this job. Format:
+            ``projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}``
+        experiment_run (str):
+            Optional. The Experiment Run associated with this job.
+            Format:
+            ``projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}-{experiment-run-name}``
     """
 
     worker_pool_specs: MutableSequence["WorkerPoolSpec"] = proto.RepeatedField(
@@ -308,6 +315,14 @@ class CustomJobSpec(proto.Message):
     enable_dashboard_access: bool = proto.Field(
         proto.BOOL,
         number=16,
+    )
+    experiment: str = proto.Field(
+        proto.STRING,
+        number=17,
+    )
+    experiment_run: str = proto.Field(
+        proto.STRING,
+        number=18,
     )
 
 

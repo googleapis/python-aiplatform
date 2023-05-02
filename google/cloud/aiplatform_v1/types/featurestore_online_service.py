@@ -175,7 +175,7 @@ class ReadFeatureValuesResponse(proto.Message):
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``.
             feature_descriptors (MutableSequence[google.cloud.aiplatform_v1.types.ReadFeatureValuesResponse.FeatureDescriptor]):
                 List of Feature metadata corresponding to each piece of
-                [ReadFeatureValuesResponse.data][].
+                [ReadFeatureValuesResponse.EntityView.data][google.cloud.aiplatform.v1.ReadFeatureValuesResponse.EntityView.data].
         """
 
         entity_type: str = proto.Field(

@@ -686,10 +686,9 @@ class ExplanationSpecOverride(proto.Message):
 
     Attributes:
         parameters (google.cloud.aiplatform_v1.types.ExplanationParameters):
-            The parameters to be overridden. Note that the
-            [method][google.cloud.aiplatform.v1.ExplanationParameters.method]
-            cannot be changed. If not specified, no parameter is
-            overridden.
+            The parameters to be overridden. Note that
+            the attribution method cannot be changed. If not
+            specified, no parameter is overridden.
         metadata (google.cloud.aiplatform_v1.types.ExplanationMetadataOverride):
             The metadata to be overridden. If not
             specified, no metadata is overridden.

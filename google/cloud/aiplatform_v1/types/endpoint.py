@@ -122,7 +122,8 @@ class Endpoint(proto.Message):
         model_deployment_monitoring_job (str):
             Output only. Resource name of the Model Monitoring job
             associated with this Endpoint if monitoring is enabled by
-            [CreateModelDeploymentMonitoringJob][]. Format:
+            [JobService.CreateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.CreateModelDeploymentMonitoringJob].
+            Format:
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
         predict_request_response_logging_config (google.cloud.aiplatform_v1.types.PredictRequestResponseLoggingConfig):
             Configures the request-response logging for
@@ -278,24 +279,23 @@ class DeployedModel(proto.Message):
         disable_container_logging (bool):
             For custom-trained Models and AutoML Tabular Models, the
             container of the DeployedModel instances will send
-            ``stderr`` and ``stdout`` streams to Stackdriver Logging by
+            ``stderr`` and ``stdout`` streams to Cloud Logging by
             default. Please note that the logs incur cost, which are
             subject to `Cloud Logging
-            pricing <https://cloud.google.com/stackdriver/pricing>`__.
+            pricing <https://cloud.google.com/logging/pricing>`__.
 
             User can disable container logging by setting this flag to
             true.
         enable_access_logging (bool):
             If true, online prediction access logs are
-            sent to StackDriver Logging.
+            sent to Cloud Logging.
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each prediction request.
-            Note that Stackdriver logs may incur a cost,
-            especially if your project receives prediction
-            requests at a high queries per second rate
-            (QPS). Estimate your costs before enabling this
-            option.
+            Note that logs may incur a cost, especially if
+            your project receives prediction requests at a
+            high queries per second rate (QPS). Estimate
+            your costs before enabling this option.
         private_endpoints (google.cloud.aiplatform_v1.types.PrivateEndpoints):
             Output only. Provide paths for users to send
             predict/explain/health requests directly to the deployed

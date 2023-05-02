@@ -374,7 +374,8 @@ class PipelineTaskDetail(proto.Message):
             task is at the root level.
         task_name (str):
             Output only. The user specified name of the task that is
-            defined in [PipelineJob.spec][].
+            defined in
+            [pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec].
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Task create time.
         start_time (google.protobuf.timestamp_pb2.Timestamp):

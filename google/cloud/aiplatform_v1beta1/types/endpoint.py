@@ -124,7 +124,8 @@ class Endpoint(proto.Message):
         model_deployment_monitoring_job (str):
             Output only. Resource name of the Model Monitoring job
             associated with this Endpoint if monitoring is enabled by
-            [CreateModelDeploymentMonitoringJob][]. Format:
+            [JobService.CreateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.CreateModelDeploymentMonitoringJob].
+            Format:
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
         predict_request_response_logging_config (google.cloud.aiplatform_v1beta1.types.PredictRequestResponseLoggingConfig):
             Configures the request-response logging for
@@ -291,22 +292,20 @@ class DeployedModel(proto.Message):
             account.
         enable_container_logging (bool):
             If true, the container of the DeployedModel instances will
-            send ``stderr`` and ``stdout`` streams to Stackdriver
-            Logging.
+            send ``stderr`` and ``stdout`` streams to Cloud Logging.
 
             Only supported for custom-trained Models and AutoML Tabular
             Models.
         enable_access_logging (bool):
             If true, online prediction access logs are
-            sent to StackDriver Logging.
+            sent to Cloud Logging.
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each prediction request.
-            Note that Stackdriver logs may incur a cost,
-            especially if your project receives prediction
-            requests at a high queries per second rate
-            (QPS). Estimate your costs before enabling this
-            option.
+            Note that logs may incur a cost, especially if
+            your project receives prediction requests at a
+            high queries per second rate (QPS). Estimate
+            your costs before enabling this option.
         private_endpoints (google.cloud.aiplatform_v1beta1.types.PrivateEndpoints):
             Output only. Provide paths for users to send
             predict/explain/health requests directly to the deployed

@@ -1226,12 +1226,12 @@ class ExportTensorboardTimeSeriesDataRequest(proto.Message):
             10000. Values above 10000 are coerced to 10000.
         page_token (str):
             A page token, received from a previous
-            [TensorboardService.ExportTensorboardTimeSeries][] call.
-            Provide this to retrieve the subsequent page.
+            [ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ExportTensorboardTimeSeriesData]
+            call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
-            [TensorboardService.ExportTensorboardTimeSeries][] must
-            match the call that provided the page token.
+            [ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ExportTensorboardTimeSeriesData]
+            must match the call that provided the page token.
         order_by (str):
             Field to use to sort the
             TensorboardTimeSeries' data. By default,
@@ -1270,9 +1270,9 @@ class ExportTensorboardTimeSeriesDataResponse(proto.Message):
             The returned time series data points.
         next_page_token (str):
             A token, which can be sent as
-            [ExportTensorboardTimeSeriesRequest.page_token][] to
-            retrieve the next page. If this field is omitted, there are
-            no subsequent pages.
+            [page_token][google.cloud.aiplatform.v1beta1.ExportTensorboardTimeSeriesDataRequest.page_token]
+            to retrieve the next page. If this field is omitted, there
+            are no subsequent pages.
     """
 
     @property
