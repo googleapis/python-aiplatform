@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import datetime
 import logging
 import os
 from typing import Dict, Union, Optional, Any, List
@@ -59,6 +60,24 @@ def _get_experiment_schema_version() -> str:
         str: schema version of the currently set experiment tracking version
     """
     return constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT]
+
+
+def _get_or_create_default_tensorboard() -> tensorboard_resource.Tensorboard:
+    """Helper method to get the default TensorBoard instance if already exists, or create a default TensorBoard instance.
+
+    Returns:
+         tensorboard_resource.Tensorboard: the default TensorBoard instance.
+    """
+    tensorboards = tensorboard_resource.Tensorboard.list(filter="is_default=true")
+    if tensorboards:
+        return tensorboards[0]
+    else:
+        default_tensorboard = tensorboard_resource.Tensorboard.create(
+            display_name="Default Tensorboard "
+            + datetime.datetime.now().isoformat(sep=" "),
+            is_default=True,
+        )
+        return default_tensorboard
 
 
 # Legacy Experiment tracking
@@ -268,7 +287,11 @@ class _ExperimentTracker:
             experiment_name=experiment, description=description
         )
 
-        backing_tb = backing_tensorboard or self._global_tensorboard
+        backing_tb = (
+            backing_tensorboard
+            or self._global_tensorboard
+            or _get_or_create_default_tensorboard()
+        )
 
         current_backing_tb = experiment.backing_tensorboard_resource_name
 
