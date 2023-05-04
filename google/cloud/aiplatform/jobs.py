@@ -1491,7 +1491,12 @@ class CustomJob(_RunnableJob):
         # if users enable autolog, automatically install SDK in their container image
         # otherwise users need to manually install SDK
         if enable_autolog:
-            experiment_requirements = [constants.AIPLATFORM_AUTOLOG_DEPENDENCY_PATH]
+            # temporary pin the protobuf version to resolve the conflict between
+            # SDK and pre-built training containers
+            experiment_requirements = [
+                constants.AIPLATFORM_AUTOLOG_DEPENDENCY_PATH,
+                "protobuf==3.19.6",
+            ]
         else:
             experiment_requirements = []
 
