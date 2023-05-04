@@ -300,16 +300,6 @@ class _ExperimentTracker:
 
         self._experiment = experiment
 
-        if (
-            not current_backing_tb
-            and not backing_tb
-            and autologging_utils._is_autologging_enabled()
-        ):
-            logging.warning(
-                "Disabling autologging since the current Experiment doesn't have a backing Tensorboard."
-            )
-            self.autolog(disable=True)
-
     def set_tensorboard(
         self,
         tensorboard: Union[
