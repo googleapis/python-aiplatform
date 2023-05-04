@@ -120,6 +120,11 @@ def _get_model_info(
 class _ModelGardenModel:
     """Base class for shared methods and properties across Model Garden models."""
 
+    _model_id: str
+    _endpoint_name: str
+    _endpoint: aiplatform.Endpoint
+
+
     @staticmethod
     @abc.abstractmethod
     def _get_public_preview_class_map() -> Dict[str, Type["_ModelGardenModel"]]:
@@ -133,7 +138,7 @@ class _ModelGardenModel:
         """
         pass
 
-    def __init__(self, model_id: str, endpoint_name: Optional[str] = None):
+    def _construct(self, model_id: str, endpoint_name: Optional[str] = None):
         """Creates a _ModelGardenModel.
 
         This constructor should not be called directly.
@@ -177,7 +182,7 @@ class _ModelGardenModel:
                 f"{model_name} is of type {model_info.interface_class.__name__} not of type {cls.__name__}"
             )
 
-        return model_info.interface_class(
+        return model_info.interface_class()._construct(
             model_id=model_name,
             endpoint_name=model_info.endpoint_name,
         )
