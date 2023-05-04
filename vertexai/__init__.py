@@ -14,7 +14,7 @@
 #
 """The vertexai module."""
 
-from google.cloud.aiplatform.aiplatform import init
+from google.cloud.aiplatform import init
 
 __all__ = [
     "init",
