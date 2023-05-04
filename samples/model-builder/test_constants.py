@@ -272,10 +272,6 @@ QUANTILES = [0, 0.5, 1]
 VALIDATION_OPTIONS = "fail-pipeline"
 PREDEFINED_SPLIT_COLUMN_NAME = "predefined"
 
-TENSORBOARD_NAME = (
-    f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard"
-)
-
 SCHEMA_TITLE = "system.Schema"
 SCHEMA_VERSION = "0.0.1"
 METADATA = {}
@@ -332,3 +328,11 @@ VERSION_ID = "test-version"
 IS_DEFAULT_VERSION = False
 VERSION_ALIASES = ["test-version-alias"]
 VERSION_DESCRIPTION = "test-version-description"
+
+# TensorBoard
+TENSORBOARD_LOG_DIR = "gs://fake-dir"
+TENSORBOARD_ID = "8888888888888888888"
+TENSORBOARD_NAME = (
+    f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard"
+)
+TENSORBOARD_EXPERIMENT_NAME = "my-tensorboard-experiment"
