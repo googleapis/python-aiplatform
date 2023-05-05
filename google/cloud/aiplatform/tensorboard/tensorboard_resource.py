@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -99,13 +99,13 @@ class Tensorboard(_TensorboardServiceResource):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        is_default=False,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
+        is_default: bool = False,
     ) -> "Tensorboard":
         """Creates a new tensorboard.
 
@@ -137,10 +137,6 @@ class Tensorboard(_TensorboardServiceResource):
                 See https://goo.gl/xmQnxf for more information and examples of labels.
                 System reserved label keys are prefixed with "aiplatform.googleapis.com/"
                 and are immutable.
-            is_default (bool):
-                If the TensorBoard instance is default or not. The default
-                TensorBoard instance will be used by Experiment/ExperimentRun
-                when needed if no TensorBoard instance is explicitly specified.
             project (str):
                 Optional. Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -165,6 +161,10 @@ class Tensorboard(_TensorboardServiceResource):
                 Overrides encryption_spec_key_name set in aiplatform.init.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            is_default (bool):
+                If the TensorBoard instance is default or not. The default
+                TensorBoard instance will be used by Experiment/ExperimentRun
+                when needed if no TensorBoard instance is explicitly specified.
 
         Returns:
             tensorboard (Tensorboard):
@@ -218,9 +218,9 @@ class Tensorboard(_TensorboardServiceResource):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
-        is_default: Optional[bool] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
+        is_default: Optional[bool] = None,
     ) -> "Tensorboard":
         """Updates an existing tensorboard.
 
@@ -249,11 +249,6 @@ class Tensorboard(_TensorboardServiceResource):
                 See https://goo.gl/xmQnxf for more information and examples of labels.
                 System reserved label keys are prefixed with "aiplatform.googleapis.com/"
                 and are immutable.
-            is_default (bool):
-                Optional. If the TensorBoard instance is default or not.
-                The default TensorBoard instance will be used by
-                Experiment/ExperimentRun when needed if no TensorBoard instance
-                is explicitly specified.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
             encryption_spec_key_name (str):
@@ -267,6 +262,11 @@ class Tensorboard(_TensorboardServiceResource):
                 If set, this Tensorboard and all sub-resources of this Tensorboard will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+            is_default (bool):
+                Optional. If the TensorBoard instance is default or not.
+                The default TensorBoard instance will be used by
+                Experiment/ExperimentRun when needed if no TensorBoard instance
+                is explicitly specified.
 
         Returns:
             Tensorboard: The managed tensorboard resource.
