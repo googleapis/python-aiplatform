@@ -5,3 +5,6 @@ Google Cloud Aiplatform SDK
     :members:
     :show-inheritance:
     :inherited-members:
+
+.. autoclass:: google.cloud.aiplatform.metadata.schema.google.artifact_schema.ExperimentModel
+    :members:
