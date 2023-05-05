@@ -704,6 +704,10 @@ class Examples(proto.Message):
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
+        example_gcs_source (google.cloud.aiplatform_v1beta1.types.Examples.ExampleGcsSource):
+            The Cloud Storage input instances.
+
+            This field is a member of `oneof`_ ``source``.
         nearest_neighbor_search_config (google.protobuf.struct_pb2.Value):
             The full configuration for the generated index, the
             semantics are the same as
@@ -728,6 +732,48 @@ class Examples(proto.Message):
             querying for examples.
     """
 
+    class ExampleGcsSource(proto.Message):
+        r"""The Cloud Storage input instances.
+
+        Attributes:
+            data_format (google.cloud.aiplatform_v1beta1.types.Examples.ExampleGcsSource.DataFormat):
+                The format in which instances are given, if
+                not specified, assume it's JSONL format.
+                Currently only JSONL format is supported.
+            gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
+                The Cloud Storage location for the input
+                instances.
+        """
+
+        class DataFormat(proto.Enum):
+            r"""The format of the input example instances.
+
+            Values:
+                DATA_FORMAT_UNSPECIFIED (0):
+                    Format unspecified, used when unset.
+                JSONL (1):
+                    Examples are stored in JSONL files.
+            """
+            DATA_FORMAT_UNSPECIFIED = 0
+            JSONL = 1
+
+        data_format: "Examples.ExampleGcsSource.DataFormat" = proto.Field(
+            proto.ENUM,
+            number=1,
+            enum="Examples.ExampleGcsSource.DataFormat",
+        )
+        gcs_source: io.GcsSource = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=io.GcsSource,
+        )
+
+    example_gcs_source: ExampleGcsSource = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="source",
+        message=ExampleGcsSource,
+    )
     nearest_neighbor_search_config: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=2,
