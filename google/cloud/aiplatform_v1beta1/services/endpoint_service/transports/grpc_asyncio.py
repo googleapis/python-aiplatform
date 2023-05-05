@@ -455,6 +455,38 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
             )
         return self._stubs["undeploy_model"]
 
+    @property
+    def mutate_deployed_model(
+        self,
+    ) -> Callable[
+        [endpoint_service.MutateDeployedModelRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the mutate deployed model method over gRPC.
+
+        Updates an existing deployed model. Updatable fields include
+        ``min_replica_count``, ``max_replica_count``,
+        ``autoscaling_metric_specs``, ``disable_container_logging`` (v1
+        only), and ``enable_container_logging`` (v1beta1 only).
+
+        Returns:
+            Callable[[~.MutateDeployedModelRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "mutate_deployed_model" not in self._stubs:
+            self._stubs["mutate_deployed_model"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/MutateDeployedModel",
+                request_serializer=endpoint_service.MutateDeployedModelRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["mutate_deployed_model"]
+
     def close(self):
         return self.grpc_channel.close()
 

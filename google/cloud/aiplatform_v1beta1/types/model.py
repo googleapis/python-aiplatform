@@ -31,6 +31,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "Model",
+        "LargeModelReference",
         "PredictSchemata",
         "ModelContainerSpec",
         "Port",
@@ -540,6 +541,24 @@ class Model(proto.Message):
     )
 
 
+class LargeModelReference(proto.Message):
+    r"""Contains information about the Large Model.
+
+    Attributes:
+        name (str):
+            Required. The unique name of the large
+            Foundation or pre-built model. Like
+            "chat-panda", "text-panda". Or model name with
+            version ID, like "chat-panda-001",
+            "text-panda-005", etc.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
 class PredictSchemata(proto.Message):
     r"""Contains the schemata used in Model's predictions and explanations
     via
@@ -925,12 +944,15 @@ class ModelSourceInfo(proto.Message):
             MODEL_GARDEN (4):
                 The Model is saved or tuned from Model
                 Garden.
+            GENIE (5):
+                The Model is saved or tuned from Genie.
         """
         MODEL_SOURCE_TYPE_UNSPECIFIED = 0
         AUTOML = 1
         CUSTOM = 2
         BQML = 3
         MODEL_GARDEN = 4
+        GENIE = 5
 
     source_type: ModelSourceType = proto.Field(
         proto.ENUM,

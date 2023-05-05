@@ -169,6 +169,11 @@
                 "list_endpoints"
               ]
             },
+            "MutateDeployedModel": {
+              "methods": [
+                "mutate_deployed_model"
+              ]
+            },
             "UndeployModel": {
               "methods": [
                 "undeploy_model"
@@ -207,6 +212,11 @@
             "ListEndpoints": {
               "methods": [
                 "list_endpoints"
+              ]
+            },
+            "MutateDeployedModel": {
+              "methods": [
+                "mutate_deployed_model"
               ]
             },
             "UndeployModel": {

@@ -36,7 +36,7 @@ version = version["__version__"]
 packages = [
     package
     for package in setuptools.PEP420PackageFinder.find()
-    if package.startswith("google")
+    if package.startswith("google") or package.startswith("vertexai")
 ]
 
 tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]

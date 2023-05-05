@@ -147,7 +147,7 @@ class Prediction(NamedTuple):
             of elements as instances to be explained. Default is None.
     """
 
-    predictions: List[Dict[str, Any]]
+    predictions: List[Any]
     deployed_model_id: str
     model_version_id: Optional[str] = None
     model_resource_name: Optional[str] = None

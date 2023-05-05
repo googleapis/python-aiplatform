@@ -60,6 +60,8 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform.compat.types import (
     tensorboard as gca_tensorboard,
 )
+from google.cloud.aiplatform.metadata import metadata
+
 
 import test_tensorboard
 import test_metadata
@@ -454,6 +456,15 @@ def update_context_mock():
         yield update_context_mock
 
 
+@pytest.fixture
+def get_or_create_default_tb_none_mock():
+    with patch.object(
+        metadata, "_get_or_create_default_tensorboard"
+    ) as get_or_create_default_tb_none_mock:
+        get_or_create_default_tb_none_mock.return_value = None
+        yield get_or_create_default_tb_none_mock
+
+
 _TEST_EXPERIMENT_RUN_CONTEXT_NAME = f"{_TEST_PARENT}/contexts/{_TEST_EXECUTION_ID}"
 _TEST_OTHER_EXPERIMENT_RUN_CONTEXT_NAME = (
     f"{_TEST_PARENT}/contexts/{_TEST_OTHER_EXECUTION_ID}"
@@ -702,6 +713,7 @@ class TestAutologging:
         "get_experiment_mock_without_tensorboard",
         "get_metadata_store_mock",
         "update_context_mock",
+        "get_or_create_default_tb_none_mock",
     )
     def test_autologging_raises_if_experiment_tensorboard_not_set(
         self,
