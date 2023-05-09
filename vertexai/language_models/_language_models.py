@@ -30,7 +30,7 @@ from google.cloud.aiplatform.utils import gcs_utils
 
 try:
     import pandas
-except:
+except ImportError:
     pandas = None
 
 
@@ -101,7 +101,7 @@ def _get_model_info(model_id: str) -> _ModelInfo:
 
     interface_class_map = {
         _LLM_TEXT_GENERATION_INSTANCE_SCHEMA_URI: TextGenerationModel,
-        _LLM_CHAT_GENERATION_INSTANCE_SCHEMA_URI: _MultiTurnChatModel,
+        _LLM_CHAT_GENERATION_INSTANCE_SCHEMA_URI: ChatModel,
         _LLM_TEXT_EMBEDDING_INSTANCE_SCHEMA_URI: TextEmbeddingModel,
     }
 
@@ -161,8 +161,8 @@ class _LanguageModel:
             aiplatform_models.gca_endpoint_compat.Endpoint(name=endpoint_name)
         )
 
-    @staticmethod
-    def from_pretrained(model_name: str) -> "_LanguageModel":
+    @classmethod
+    def from_pretrained(cls, model_name: str) -> "_LanguageModel":
         """Loads a LanguageModel.
 
         Args:
@@ -172,9 +172,15 @@ class _LanguageModel:
             An instance of a class derieved from `_LanguageModel`.
 
         Raises:
-            ValueError: If model_name is unknown
+            ValueError: If model_name is unknown.
+            ValueError: If model does not support this class.
         """
         model_info = _get_model_info(model_id=model_name)
+
+        if not issubclass(model_info.interface_class, cls):
+            raise ValueError(
+                f"{model_name} is of type {model_info.interface_class.__name__} not of type {cls.__name__}"
+            )
 
         return model_info.interface_class(
             model_id=model_name,
@@ -214,6 +220,7 @@ class _LanguageModel:
     def tune_model(
         self,
         training_data: Union[str, "pandas.core.frame.DataFrame"],
+        *,
         train_steps: int = 1000,
         tuning_job_location: Optional[str] = None,
         tuned_model_location: Optional[str] = None,
@@ -298,6 +305,7 @@ class TextGenerationModel(_LanguageModel):
     def predict(
         self,
         prompt: str,
+        *,
         max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: float = _DEFAULT_TEMPERATURE,
         top_k: int = _DEFAULT_TOP_K,
@@ -366,7 +374,7 @@ class TextGenerationModel(_LanguageModel):
         ]
 
 
-class ChatModel(TextGenerationModel):
+class _ChatModel(TextGenerationModel):
     """ChatModel represents a language model that is capable of chat.
 
     Examples:
@@ -387,7 +395,7 @@ class ChatModel(TextGenerationModel):
         temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
-    ) -> "ChatSession":
+    ) -> "_ChatSession":
         """Starts a chat session with the model.
 
         Args:
@@ -399,7 +407,7 @@ class ChatModel(TextGenerationModel):
         Returns:
             A `ChatSession` object.
         """
-        return ChatSession(
+        return _ChatSession(
             model=self,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
@@ -408,7 +416,7 @@ class ChatModel(TextGenerationModel):
         )
 
 
-class ChatSession:
+class _ChatSession:
     """ChatSession represents a chat session with a language model.
 
     Within a chat session, the model keeps context and remembers the previous conversation.
@@ -416,7 +424,7 @@ class ChatSession:
 
     def __init__(
         self,
-        model: ChatModel,
+        model: _ChatModel,
         max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
@@ -520,7 +528,7 @@ class InputOutputTextPair:
     output_text: str
 
 
-class _MultiTurnChatModel(_LanguageModel):
+class ChatModel(_LanguageModel):
     """ChatModel represents a language model that is capable of chat.
 
     Examples:
@@ -528,7 +536,6 @@ class _MultiTurnChatModel(_LanguageModel):
         chat_model = ChatModel.from_pretrained("chat-bison@001")
 
         chat = chat_model.start_chat(
-            # Optional:
             context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
             examples=[
                 InputOutputTextPair(
@@ -548,13 +555,14 @@ class _MultiTurnChatModel(_LanguageModel):
 
     def start_chat(
         self,
+        *,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
         max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
-    ) -> "_MultiTurnChatSession":
+    ) -> "ChatSession":
         """Starts a chat session with the model.
 
         Args:
@@ -568,9 +576,9 @@ class _MultiTurnChatModel(_LanguageModel):
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
 
         Returns:
-            A `MultiTurnChatSession` object.
+            A `ChatSession` object.
         """
-        return _MultiTurnChatSession(
+        return ChatSession(
             model=self,
             context=context,
             examples=examples,
@@ -581,15 +589,15 @@ class _MultiTurnChatModel(_LanguageModel):
         )
 
 
-class _MultiTurnChatSession:
-    """MultiTurnChatSession represents a chat session with a language model.
+class ChatSession:
+    """ChatSession represents a chat session with a language model.
 
     Within a chat session, the model keeps context and remembers the previous conversation.
     """
 
     def __init__(
         self,
-        model: TextGenerationModel,
+        model: ChatModel,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
         max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,

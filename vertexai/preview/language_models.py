@@ -16,7 +16,7 @@
 
 from vertexai.language_models._language_models import (
     ChatModel,
-    MultiTurnChatSession,
+    ChatSession,
     InputOutputTextPair,
     TextEmbedding,
     TextEmbeddingModel,
@@ -26,7 +26,7 @@ from vertexai.language_models._language_models import (
 
 __all__ = [
     "ChatModel",
-    "MultiTurnChatSession",
+    "ChatSession",
     "InputOutputTextPair",
     "TextEmbedding",
     "TextEmbeddingModel",
