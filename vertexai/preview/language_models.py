@@ -14,4 +14,22 @@
 #
 """Classes for working with language models."""
 
-from vertexai.language_models._language_models import *  # pylint: disable=wildcard-import
+from vertexai.language_models._language_models import (
+    ChatModel,
+    MultiTurnChatSession,
+    InputOutputTextPair,
+    TextEmbedding,
+    TextEmbeddingModel,
+    TextGenerationModel,
+    TextGenerationResponse,
+)
+
+__all__ = [
+    "ChatModel",
+    "MultiTurnChatSession",
+    "InputOutputTextPair",
+    "TextEmbedding",
+    "TextEmbeddingModel",
+    "TextGenerationModel",
+    "TextGenerationResponse",
+]
