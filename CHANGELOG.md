@@ -9,8 +9,6 @@
 * Add support for Large Language Models ([866c6aa](https://github.com/googleapis/python-aiplatform/commit/866c6aaf72b9a7a5f6155665f574cc11cf8075f4))
 * Add default TensorBoard support. ([fa7d3a0](https://github.com/googleapis/python-aiplatform/commit/fa7d3a0e3cd5040eb4ab1c3b0df4e494dc84bac3))
 * Add support for find_neighbors/read_index_datapoints in matching engine public endpoint ([e3a87f0](https://github.com/googleapis/python-aiplatform/commit/e3a87f04abf013341fe4f655b96405e27228ffdb))
-* Add xai example-based explanations to preview namespace ([575ee0f](https://github.com/googleapis/python-aiplatform/commit/575ee0f8439c39ed374a35e249894df04062be24))
-* Add xai example-based explanations to preview namespace ([809257f](https://github.com/googleapis/python-aiplatform/commit/809257f64410d17205470637ad1e3c74e8619502))
 * Added the new root `vertexai` package ([fbd03b1](https://github.com/googleapis/python-aiplatform/commit/fbd03b15e9b71cbeeaebc868745a36c892b55c8f))
 
 
