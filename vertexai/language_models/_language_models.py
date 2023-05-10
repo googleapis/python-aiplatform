@@ -485,7 +485,7 @@ class TextEmbeddingModel(_LanguageModel):
     Examples:
 
         # Getting embedding:
-        model = TextEmbeddingModel.from_pretrained("embedding-gecko@001")
+        model = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
         embeddings = model.get_embeddings(["What is life?"])
         for embedding in embeddings:
             vector = embedding.values
