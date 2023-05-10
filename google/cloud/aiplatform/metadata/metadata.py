@@ -391,7 +391,7 @@ class _ExperimentTracker:
         Resume a previously started run:
         ```
         aiplatform.init(experiment='my-experiment')
-        with aiplatform.start_run('my-run') as my_run:
+        with aiplatform.start_run('my-run', resume=True) as my_run:
             my_run.log_params({'learning_rate':0.1})
         ```
 
