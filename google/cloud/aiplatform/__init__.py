@@ -100,6 +100,7 @@ autolog = metadata.metadata._experiment_tracker.autolog
 start_execution = metadata.metadata._experiment_tracker.start_execution
 log = metadata.metadata._experiment_tracker.log
 log_time_series_metrics = metadata.metadata._experiment_tracker.log_time_series_metrics
+log_artifact = metadata.metadata._experiment_tracker.log_artifact
 end_run = metadata.metadata._experiment_tracker.end_run
 
 upload_tb_log = uploader_tracker._tensorboard_tracker.upload_tb_log
@@ -129,6 +130,7 @@ __all__ = (
     "log_classification_metrics",
     "log_model",
     "log_time_series_metrics",
+    "log_artifact",
     "get_experiment_df",
     "get_pipeline_df",
     "start_run",

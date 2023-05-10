@@ -17,8 +17,11 @@
 
 from collections import abc
 import concurrent.futures
+import datetime
 import functools
+import pathlib
 from typing import Any, Callable, Dict, List, Optional, Set, Union
+import uuid
 
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
@@ -45,6 +48,7 @@ from google.cloud.aiplatform.metadata.schema.google import (
     artifact_schema as google_artifact_schema,
 )
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
+from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud.aiplatform.utils import rest_utils
 
 from google.protobuf import timestamp_pb2
@@ -960,6 +964,70 @@ class ExperimentRun(
         self._backing_tensorboard_run.resource.write_tensorboard_scalar_data(
             time_series_data=metrics, step=step, wall_time=wall_time
         )
+
+    @_v1_not_supported
+    def log_artifact(
+        self,
+        local_path: str,
+        display_name: Optional[str] = None,
+        gcs_dir: Optional[str] = None,
+    ) -> artifact.Artifact:
+        """Logs artifact to this Experiment Run.
+
+        This function will make a copy of the artifact pointed by local_path to
+        gcs, and create & return an aiplatform.Artifact instance representing
+        this logged artifact.
+
+        Args:
+            local_path (str):
+                Required. Local path to the artifact.
+            display_name (str):
+                Optional. Display name for the associated aiplatform.Artifact.
+                If not provided, defaults to file name in local_path.
+            gcs_dir (str):
+                Optional. The GCS directory to copy the artifact to. If not
+                provided, defaults to <staging_bucket>/artifacts/<uuid>/
+
+        Returns:
+            aiplatform.Artifact: the created artficat. Will also be associated
+            with the parent ExperimentRun.
+
+        """
+        file_name = pathlib.Path(local_path).name
+        destination_uri = None
+        if gcs_dir:
+            if not gcs_dir.endswith("/"):
+                gcs_dir = gcs_dir + "/"
+            destination_uri = gcs_dir + file_name
+        else:
+            staging_bucket = initializer.global_config.staging_bucket
+            if not staging_bucket:
+                raise ValueError(
+                    "Either 'gcs_dir' or 'staging_bucket' must be provided for "
+                    "logging artifact. To provide staging bucket, use "
+                    "vertex_ai.init(staging_bucket=...)"
+                )
+            destination_uri = (
+                staging_bucket
+                + "/artifacts/"
+                + datetime.datetime.now().isoformat(sep="-")
+                + "-"
+                + uuid.uuid4().hex[0:5]
+                + "/"
+                + file_name
+            )
+        gcs_utils.upload_to_gcs(local_path, destination_uri)
+
+        art = artifact.Artifact.create(
+            display_name=display_name or file_name,
+            schema_title="system.Artifact",
+            uri=destination_uri,
+        )
+
+        self._metadata_node.add_artifacts_and_executions(
+            artifact_resource_names=[art.resource_name]
+        )
+        return artifact
 
     def _soft_create_time_series(self, metric_keys: Set[str]):
         """Creates TensorboardTimeSeries for the metric keys if one currently does not exist.

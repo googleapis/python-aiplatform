@@ -20,6 +20,8 @@ import copy
 from importlib import reload
 from unittest import mock
 from unittest.mock import patch, call
+import uuid
+import datetime
 
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -76,6 +78,7 @@ from google.cloud.aiplatform.tensorboard import tensorboard_resource
 from google.cloud.aiplatform import utils
 
 import constants as test_constants
+from google.cloud.aiplatform.utils import gcs_utils
 
 _TEST_PROJECT = "test-project"
 _TEST_OTHER_PROJECT = "test-project-1"
@@ -92,6 +95,7 @@ _TEST_OTHER_RUN = "run-2"
 _TEST_DISPLAY_NAME = "test-display-name"
 _TEST_CREDENTIALS = mock.Mock(spec=credentials.AnonymousCredentials())
 _TEST_BUCKET_NAME = "gs://test-bucket"
+_TEST_TIME = datetime.datetime(2023, 1, 6, 8, 54, 41, 734495)
 
 # resource attributes
 _TEST_METADATA = {"test-param1": 1, "test-param2": "test-value", "test-param3": True}
@@ -123,6 +127,7 @@ _TEST_EXECUTION = GapicExecution(
 # artifact
 _TEST_ARTIFACT_ID = f"{_TEST_EXPERIMENT}-{_TEST_RUN}-metrics"
 _TEST_ARTIFACT_NAME = f"{_TEST_PARENT}/artifacts/{_TEST_ARTIFACT_ID}"
+_TEST_UPLOADED_ARTIFACT_NAME = f"{_TEST_PARENT}/artifacts/uploaded-artifact"
 _TEST_OTHER_ARTIFACT_ID = f"{_TEST_EXPERIMENT}-{_TEST_OTHER_RUN}-metrics"
 _TEST_OTHER_ARTIFACT_NAME = f"{_TEST_PARENT}/artifacts/{_TEST_OTHER_ARTIFACT_ID}"
 _TEST_MODEL_ID = "test-model"
@@ -645,6 +650,30 @@ def get_experiment_model_artifact_mock():
         yield get_experiment_model_artifact_mock
 
 
+@pytest.fixture
+def upload_to_gcs_mock():
+    with patch.object(gcs_utils, "upload_to_gcs") as upload_to_gcs_mock:
+        yield upload_to_gcs_mock
+
+
+@pytest.fixture
+def create_artifact_mock():
+    with patch.object(MetadataServiceClient, "create_artifact") as create_artifact_mock:
+        create_artifact_mock.return_value = _TEST_UPLOADED_ARTIFACT
+        yield create_artifact_mock
+
+
+def uuid_mock():
+    return uuid.UUID(int=1)
+
+
+@pytest.fixture()
+def mock_datetime():
+    with patch.object(datetime, "datetime", autospec=True) as mock_datetime:
+        mock_datetime.now.return_value = _TEST_TIME
+        yield mock_datetime
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestMetadata:
     def setup_method(self):
@@ -977,6 +1006,11 @@ _TEST_PIPELINE_METRIC_ARTIFACT = GapicArtifact(
     name=_TEST_ARTIFACT_NAME,
     schema_title=constants.SYSTEM_METRICS,
     metadata={key: value + 1 for key, value in _TEST_METRICS.items()},
+)
+
+_TEST_UPLOADED_ARTIFACT = GapicArtifact(
+    name=_TEST_UPLOADED_ARTIFACT_NAME,
+    schema_title="system.Artifact",
 )
 
 
@@ -1741,6 +1775,108 @@ class TestExperiments:
         aiplatform.start_run(_TEST_RUN)
         with pytest.raises(TypeError):
             aiplatform.log_params({"test": {"nested": "string"}})
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+        "get_or_create_default_tb_none_mock",
+    )
+    def test_log_artifact_missing_bucket(self):
+        aiplatform.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
+        )
+        aiplatform.start_run(_TEST_RUN)
+        with pytest.raises(ValueError):
+            aiplatform.log_artifact(local_path="test/image.jpg")
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+        "get_or_create_default_tb_none_mock",
+    )
+    def test_log_artifact_with_custom_gcs_dir(
+        self,
+        upload_to_gcs_mock,
+        create_artifact_mock,
+        add_context_artifacts_and_executions_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
+        )
+        aiplatform.start_run(_TEST_RUN)
+        aiplatform.log_artifact(
+            local_path="test/image.jpg", gcs_dir="gs://my-bucket/my-dir"
+        )
+        upload_to_gcs_mock.assert_called_once_with(
+            "test/image.jpg", "gs://my-bucket/my-dir/image.jpg"
+        )
+        create_artifact_mock.assert_called_once_with(
+            parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default",
+            artifact=GapicArtifact(
+                display_name="image.jpg",
+                uri="gs://my-bucket/my-dir/image.jpg",
+                schema_title="system.Artifact",
+                metadata={},
+                state=GapicArtifact.State.LIVE,
+            ),
+            artifact_id=None,
+        )
+        add_context_artifacts_and_executions_mock.assert_called_once_with(
+            context=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default/contexts/{_TEST_EXPERIMENT}-{_TEST_RUN}",
+            artifacts=[_TEST_UPLOADED_ARTIFACT_NAME],
+            executions=None,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+        "get_or_create_default_tb_none_mock",
+    )
+    @patch("uuid.uuid4", uuid_mock)
+    def test_log_artifact_with_default_gcs_dir_with_display_name(
+        self,
+        upload_to_gcs_mock,
+        create_artifact_mock,
+        add_context_artifacts_and_executions_mock,
+        mock_datetime,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            staging_bucket="gs://staging-bucket",
+        )
+        aiplatform.start_run(_TEST_RUN)
+        aiplatform.log_artifact(
+            local_path="test/image.jpg",
+            display_name="my-artifact",
+        )
+        upload_to_gcs_mock.assert_called_once_with(
+            "test/image.jpg",
+            "gs://staging-bucket/artifacts/2023-01-06-08:54:41.734495-00000/image.jpg",
+        )
+        create_artifact_mock.assert_called_once_with(
+            parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default",
+            artifact=GapicArtifact(
+                display_name="my-artifact",
+                uri="gs://staging-bucket/artifacts/2023-01-06-08:54:41.734495-00000/image.jpg",
+                schema_title="system.Artifact",
+                metadata={},
+                state=GapicArtifact.State.LIVE,
+            ),
+            artifact_id=None,
+        )
+        add_context_artifacts_and_executions_mock.assert_called_once_with(
+            context=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default/contexts/{_TEST_EXPERIMENT}-{_TEST_RUN}",
+            artifacts=[_TEST_UPLOADED_ARTIFACT_NAME],
+            executions=None,
+        )
 
     @pytest.mark.usefixtures(
         "get_metadata_store_mock",

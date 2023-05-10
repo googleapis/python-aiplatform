@@ -27,6 +27,7 @@ from google.protobuf import timestamp_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.compat.types import execution as gca_execution
+from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
@@ -799,7 +800,7 @@ class _ExperimentTracker:
         step: Optional[int] = None,
         wall_time: Optional[timestamp_pb2.Timestamp] = None,
     ):
-        """Logs time series metrics to to this Experiment Run.
+        """Logs time series metrics to this Experiment Run.
 
         Requires the experiment or experiment run has a backing Vertex Tensorboard resource.
 
@@ -837,6 +838,40 @@ class _ExperimentTracker:
         self._validate_experiment_and_run(method_name="log_time_series_metrics")
         self.experiment_run.log_time_series_metrics(
             metrics=metrics, step=step, wall_time=wall_time
+        )
+
+    def log_artifact(
+        self,
+        local_path: str,
+        display_name: Optional[str] = None,
+        gcs_dir: Optional[str] = None,
+    ) -> artifact.Artifact:
+        """Logs artifact to this Experiment Run.
+
+        This function will make a copy of the artifact pointed by local_path to
+        gcs, and create & return an aiplatform.Artifact instance representing
+        this logged artifact.
+
+        Args:
+            local_path (str):
+                Required. Local path to the artifact.
+            display_name (str):
+                Optional. Display name for the associated aiplatform.Artifact.
+                If not provided, defaults to file name in local_path.
+            gcs_dir (str):
+                Optional. The GCS directory to copy the artifact to. If not
+                provided, defaults to <staging_bucket>/artifacts/<uuid>/
+
+        Returns:
+            aiplatform.Artifact: the created artifact. Will also be associated
+            with the parent ExperimentRun.
+
+        """
+        self._validate_experiment_and_run(method_name="log_artifact")
+        return self.experiment_run.log_artifact(
+            local_path=local_path,
+            display_name=display_name,
+            gcs_dir=gcs_dir,
         )
 
     def start_execution(
