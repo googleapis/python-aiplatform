@@ -259,15 +259,15 @@ class DeployedIndex(proto.Message):
             efficiency.
         enable_access_logging (bool):
             Optional. If true, private endpoint's access
-            logs are sent to StackDriver Logging.
+            logs are sent to Cloud Logging.
 
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each MatchRequest.
-            Note that Stackdriver logs may incur a cost,
-            especially if the deployed index receives a high
-            queries per second rate (QPS). Estimate your
-            costs before enabling this option.
+            Note that logs may incur a cost, especially if
+            the deployed index receives a high queries per
+            second rate (QPS). Estimate your costs before
+            enabling this option.
         deployed_index_auth_config (google.cloud.aiplatform_v1beta1.types.DeployedIndexAuthConfig):
             Optional. If set, the authentication is
             enabled for the private endpoint.

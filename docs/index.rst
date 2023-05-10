@@ -7,6 +7,8 @@ API Reference
 .. toctree::
     :maxdepth: 2
 
+    vertexai/services
+
     aiplatform/services
     aiplatform/types
     aiplatform/prediction

@@ -954,7 +954,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 -  ``labels``
                 -  ``online_serving_config.fixed_node_count``
                 -  ``online_serving_config.scaling``
-                -  ``online_storage_ttl_days`` (available in Preview)
+                -  ``online_storage_ttl_days``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1616,7 +1616,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
                 -  ``monitoring_config.numerical_threshold_config.value``
                 -  ``monitoring_config.categorical_threshold_config.value``
-                -  ``offline_storage_ttl_days`` (available in Preview)
+                -  ``offline_storage_ttl_days``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

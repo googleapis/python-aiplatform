@@ -36,11 +36,13 @@ if DEFAULT_VERSION == V1BETA1:
     services.featurestore_service_client = services.featurestore_service_client_v1beta1
     services.job_service_client = services.job_service_client_v1beta1
     services.model_service_client = services.model_service_client_v1beta1
+    services.model_garden_service_client = services.model_garden_service_client_v1beta1
     services.pipeline_service_client = services.pipeline_service_client_v1beta1
     services.prediction_service_client = services.prediction_service_client_v1beta1
     services.specialist_pool_service_client = (
         services.specialist_pool_service_client_v1beta1
     )
+    services.match_service_client = services.match_service_client_v1beta1
     services.metadata_service_client = services.metadata_service_client_v1beta1
     services.tensorboard_service_client = services.tensorboard_service_client_v1beta1
     services.index_service_client = services.index_service_client_v1beta1
@@ -102,6 +104,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.model_deployment_monitoring_job = (
         types.model_deployment_monitoring_job_v1beta1
     )
+    types.model_garden_service = types.model_garden_service_v1beta1
     types.model_monitoring = types.model_monitoring_v1beta1
     types.model_service = types.model_service_v1beta1
     types.operation = types.operation_v1beta1
@@ -110,6 +113,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.pipeline_service = types.pipeline_service_v1beta1
     types.pipeline_state = types.pipeline_state_v1beta1
     types.prediction_service = types.prediction_service_v1beta1
+    types.publisher_model = types.publisher_model_v1beta1
     types.specialist_pool = types.specialist_pool_v1beta1
     types.specialist_pool_service = types.specialist_pool_service_v1beta1
     types.study = types.study_v1beta1

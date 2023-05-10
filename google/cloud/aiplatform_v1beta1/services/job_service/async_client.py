@@ -105,6 +105,8 @@ class JobServiceAsyncClient:
     parse_batch_prediction_job_path = staticmethod(
         JobServiceClient.parse_batch_prediction_job_path
     )
+    context_path = staticmethod(JobServiceClient.context_path)
+    parse_context_path = staticmethod(JobServiceClient.parse_context_path)
     custom_job_path = staticmethod(JobServiceClient.custom_job_path)
     parse_custom_job_path = staticmethod(JobServiceClient.parse_custom_job_path)
     data_labeling_job_path = staticmethod(JobServiceClient.data_labeling_job_path)
@@ -137,6 +139,10 @@ class JobServiceAsyncClient:
     )
     network_path = staticmethod(JobServiceClient.network_path)
     parse_network_path = staticmethod(JobServiceClient.parse_network_path)
+    notification_channel_path = staticmethod(JobServiceClient.notification_channel_path)
+    parse_notification_channel_path = staticmethod(
+        JobServiceClient.parse_notification_channel_path
+    )
     tensorboard_path = staticmethod(JobServiceClient.tensorboard_path)
     parse_tensorboard_path = staticmethod(JobServiceClient.parse_tensorboard_path)
     trial_path = staticmethod(JobServiceClient.trial_path)

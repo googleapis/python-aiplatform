@@ -25,7 +25,6 @@ from unittest.mock import patch, mock_open
 from google.api_core import exceptions
 import constants as test_constants
 
-from google.protobuf import duration_pb2  # type: ignore
 from google.rpc import status_pb2
 
 from google.cloud import aiplatform
@@ -33,53 +32,41 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
     custom_job as gca_custom_job_compat,
 )
-from google.cloud.aiplatform.compat.types import io as gca_io_compat
+
 from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state_compat,
-)
-from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
+    execution as gca_execution,
 )
 from google.cloud.aiplatform.compat.services import job_service_client
-from google.cloud.aiplatform_v1 import MetadataServiceClient
-import test_metadata
-from google.cloud.aiplatform.metadata import constants as metadata_constants
+from google.cloud.aiplatform_v1 import (
+    MetadataServiceClient,
+    Context as GapicContext,
+)
+from google.cloud.aiplatform.metadata import constants
 
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
 _TEST_ID = "1028944691210842416"
-_TEST_DISPLAY_NAME = "my_job_1234"
+_TEST_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_DISPLAY_NAME
 
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
 
 _TEST_CUSTOM_JOB_NAME = f"{_TEST_PARENT}/customJobs/{_TEST_ID}"
 _TEST_TENSORBOARD_NAME = f"{_TEST_PARENT}/tensorboards/{_TEST_ID}"
-_TEST_ENABLE_WEB_ACCESS = True
-_TEST_WEB_ACCESS_URIS = {"workerpool0-0": "uri"}
-_TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
+_TEST_ENABLE_WEB_ACCESS = test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS
+_TEST_WEB_ACCESS_URIS = test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS
+_TEST_TRAINING_CONTAINER_IMAGE = (
+    test_constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE
+)
 _TEST_PREBUILT_CONTAINER_IMAGE = "gcr.io/cloud-aiplatform/container:image"
 
+_TEST_RUN_ARGS = test_constants.TrainingJobConstants._TEST_RUN_ARGS
 _TEST_EXPERIMENT = "test-experiment"
 _TEST_EXPERIMENT_RUN = "test-experiment-run"
 
-_TEST_RUN_ARGS = ["-v", "0.1", "--test=arg"]
 
-_TEST_WORKER_POOL_SPEC = [
-    {
-        "machine_spec": {
-            "machine_type": "n1-standard-4",
-            "accelerator_type": "NVIDIA_TESLA_K80",
-            "accelerator_count": 1,
-        },
-        "replica_count": 1,
-        "disk_spec": {"boot_disk_type": "pd-ssd", "boot_disk_size_gb": 100},
-        "container_spec": {
-            "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-            "command": [],
-            "args": _TEST_RUN_ARGS,
-        },
-    }
-]
+_TEST_WORKER_POOL_SPEC = test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC
 
 _TEST_WORKER_POOL_SPEC_WITH_EXPERIMENTS = [
     {
@@ -121,41 +108,64 @@ _TEST_CONTAINER_SPEC = gca_custom_job_compat.ContainerSpec(
     ],
 )
 
-_TEST_STAGING_BUCKET = "gs://test-staging-bucket"
-_TEST_BASE_OUTPUT_DIR = f"{_TEST_STAGING_BUCKET}/{_TEST_DISPLAY_NAME}"
+_TEST_STAGING_BUCKET = test_constants.TrainingJobConstants._TEST_STAGING_BUCKET
+_TEST_BASE_OUTPUT_DIR = test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR
 
 # CMEK encryption
-_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_1234"
 _TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec_compat.EncryptionSpec(
     kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
 )
 
-_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+_TEST_SERVICE_ACCOUNT = test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT
 
 
-_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
+_TEST_NETWORK = test_constants.TrainingJobConstants._TEST_NETWORK
 
-_TEST_TIMEOUT = 8000
-_TEST_RESTART_JOB_ON_WORKER_RESTART = True
+_TEST_TIMEOUT = test_constants.TrainingJobConstants._TEST_TIMEOUT
+_TEST_RESTART_JOB_ON_WORKER_RESTART = (
+    test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
+)
 
-_TEST_LABELS = {"my_key": "my_value"}
+_TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
 
-_TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
-    display_name=_TEST_DISPLAY_NAME,
-    job_spec=gca_custom_job_compat.CustomJobSpec(
-        worker_pool_specs=_TEST_WORKER_POOL_SPEC,
-        base_output_directory=gca_io_compat.GcsDestination(
-            output_uri_prefix=_TEST_BASE_OUTPUT_DIR
-        ),
-        scheduling=gca_custom_job_compat.Scheduling(
-            timeout=duration_pb2.Duration(seconds=_TEST_TIMEOUT),
-            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-        ),
-        service_account=_TEST_SERVICE_ACCOUNT,
-        network=_TEST_NETWORK,
-    ),
-    labels=_TEST_LABELS,
-    encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+_TEST_BASE_CUSTOM_JOB_PROTO = (
+    test_constants.TrainingJobConstants._TEST_BASE_CUSTOM_JOB_PROTO
+)
+
+# Experiment args
+_TEST_PARENT_METADATA = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default"
+)
+_TEST_CONTEXT_ID = "test-experiment"
+_TEST_CONTEXT_NAME = f"{_TEST_PARENT_METADATA}/contexts/{_TEST_CONTEXT_ID}"
+_TEST_EXPERIMENT_DESCRIPTION = "test-experiment-description"
+_TEST_RUN = "run-1"
+_TEST_EXECUTION_ID = f"{_TEST_EXPERIMENT}-{_TEST_RUN}"
+_TEST_EXPERIMENT_RUN_CONTEXT_NAME = (
+    f"{_TEST_PARENT_METADATA}/contexts/{_TEST_EXECUTION_ID}"
+)
+
+_EXPERIMENT_MOCK = GapicContext(
+    name=_TEST_CONTEXT_NAME,
+    display_name=_TEST_EXPERIMENT,
+    description=_TEST_EXPERIMENT_DESCRIPTION,
+    schema_title=constants.SYSTEM_EXPERIMENT,
+    schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
+    metadata={**constants.EXPERIMENT_METADATA},
+)
+
+
+_EXPERIMENT_RUN_MOCK = GapicContext(
+    name=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+    display_name=_TEST_RUN,
+    schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+    schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT_RUN],
+    metadata={
+        constants._PARAM_KEY: {},
+        constants._METRIC_KEY: {},
+        constants._STATE_KEY: gca_execution.Execution.State.RUNNING.name,
+    },
 )
 
 
@@ -333,12 +343,12 @@ def create_custom_job_mock_fail():
         yield create_custom_job_mock
 
 
-_EXPERIMENT_MOCK = copy.deepcopy(test_metadata._EXPERIMENT_MOCK)
+_EXPERIMENT_MOCK = copy.deepcopy(_EXPERIMENT_MOCK)
 _EXPERIMENT_MOCK.metadata[
-    metadata_constants._BACKING_TENSORBOARD_RESOURCE_KEY
+    constants._BACKING_TENSORBOARD_RESOURCE_KEY
 ] = _TEST_TENSORBOARD_NAME
 
-_EXPERIMENT_RUN_MOCK = copy.deepcopy(test_metadata._EXPERIMENT_RUN_MOCK)
+_EXPERIMENT_RUN_MOCK = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
 
 
 @pytest.fixture
@@ -523,10 +533,10 @@ class TestCustomJob:
         )
 
         expected_run_context = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
-        expected_run_context.metadata[metadata_constants._CUSTOM_JOB_KEY] = [
+        expected_run_context.metadata[constants._CUSTOM_JOB_KEY] = [
             {
-                metadata_constants._CUSTOM_JOB_RESOURCE_NAME: _TEST_CUSTOM_JOB_NAME,
-                metadata_constants._CUSTOM_JOB_CONSOLE_URI: job._dashboard_uri(),
+                constants._CUSTOM_JOB_RESOURCE_NAME: _TEST_CUSTOM_JOB_NAME,
+                constants._CUSTOM_JOB_CONSOLE_URI: job._dashboard_uri(),
             }
         ]
         update_context_mock.assert_called_with(

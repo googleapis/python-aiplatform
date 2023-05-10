@@ -44,12 +44,14 @@ from google.cloud.aiplatform.compat.services import (
     index_service_client_v1beta1,
     index_endpoint_service_client_v1beta1,
     job_service_client_v1beta1,
+    match_service_client_v1beta1,
     metadata_service_client_v1beta1,
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
     vizier_service_client_v1beta1,
+    model_garden_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -85,6 +87,7 @@ VertexAiServiceClient = TypeVar(
     prediction_service_client_v1beta1.PredictionServiceClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
     job_service_client_v1beta1.JobServiceClient,
+    match_service_client_v1beta1.MatchServiceClient,
     metadata_service_client_v1beta1.MetadataServiceClient,
     tensorboard_service_client_v1beta1.TensorboardServiceClient,
     vizier_service_client_v1beta1.VizierServiceClient,
@@ -598,6 +601,12 @@ class PredictionClientWithOverride(ClientWithOverride):
     )
 
 
+class MatchClientWithOverride(ClientWithOverride):
+    _is_temporary = False
+    _default_version = compat.V1BETA1
+    _version_map = ((compat.V1BETA1, match_service_client_v1beta1.MatchServiceClient),)
+
+
 class MetadataClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION
@@ -625,6 +634,14 @@ class VizierClientWithOverride(ClientWithOverride):
     )
 
 
+class ModelGardenClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (compat.V1BETA1, model_garden_service_client_v1beta1.ModelGardenServiceClient),
+    )
+
+
 VertexAiServiceClientWithOverride = TypeVar(
     "VertexAiServiceClientWithOverride",
     DatasetClientWithOverride,
@@ -632,12 +649,14 @@ VertexAiServiceClientWithOverride = TypeVar(
     FeaturestoreClientWithOverride,
     JobClientWithOverride,
     ModelClientWithOverride,
+    MatchClientWithOverride,
     PipelineClientWithOverride,
     PipelineJobClientWithOverride,
     PredictionClientWithOverride,
     MetadataClientWithOverride,
     TensorboardClientWithOverride,
     VizierClientWithOverride,
+    ModelGardenClientWithOverride,
 )
 
 

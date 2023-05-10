@@ -166,6 +166,11 @@ class EndpointServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.mutate_deployed_model: gapic_v1.method.wrap_method(
+                self.mutate_deployed_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -244,6 +249,15 @@ class EndpointServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [endpoint_service.UndeployModelRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def mutate_deployed_model(
+        self,
+    ) -> Callable[
+        [endpoint_service.MutateDeployedModelRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

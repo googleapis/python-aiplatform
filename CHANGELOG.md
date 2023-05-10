@@ -1,6 +1,52 @@
 # Changelog
 
 
+## [1.25.0](https://github.com/googleapis/python-aiplatform/compare/v1.24.1...v1.25.0) (2023-05-09)
+
+
+### Features
+
+* Add support for Large Language Models ([866c6aa](https://github.com/googleapis/python-aiplatform/commit/866c6aaf72b9a7a5f6155665f574cc11cf8075f4))
+* Add default TensorBoard support. ([fa7d3a0](https://github.com/googleapis/python-aiplatform/commit/fa7d3a0e3cd5040eb4ab1c3b0df4e494dc84bac3))
+* Add support for find_neighbors/read_index_datapoints in matching engine public endpoint ([e3a87f0](https://github.com/googleapis/python-aiplatform/commit/e3a87f04abf013341fe4f655b96405e27228ffdb))
+* Added the new root `vertexai` package ([fbd03b1](https://github.com/googleapis/python-aiplatform/commit/fbd03b15e9b71cbeeaebc868745a36c892b55c8f))
+
+
+### Bug Fixes
+
+* EntityType RPC update returns the updated EntityType - not an LRO. ([8f9c714](https://github.com/googleapis/python-aiplatform/commit/8f9c7144c152e105924d87abb30aa734af376486))
+* Fix default AutoML Forecasting transformations list. ([77b89c0](https://github.com/googleapis/python-aiplatform/commit/77b89c0151ce3647b8fac8f4e8b6a7f7c07a1192))
+* Fix type hints for `Prediction.predictions`. ([56518f1](https://github.com/googleapis/python-aiplatform/commit/56518f166215761354aba43d78301a11d198daf5))
+* Removed parameter Resume, due to causing confusion and errors. ([c82e0b5](https://github.com/googleapis/python-aiplatform/commit/c82e0b5fb74fe9ba15f9d0f14a441349499ee257))
+
+## [1.24.1](https://github.com/googleapis/python-aiplatform/compare/v1.24.0...v1.24.1) (2023-04-21)
+
+
+### Features
+
+* Add preview capability to deploy models with shared resources. ([29d4e45](https://github.com/googleapis/python-aiplatform/commit/29d4e45839180f50163de04cd0802ee88d8dd926))
+* Add support for create public index endpoint in matching engine ([7e6022b](https://github.com/googleapis/python-aiplatform/commit/7e6022bc05a8ed0e38329c92466e4ff2e924be87))
+* Add support for return public endpoint dns name in matching engine ([1b5ae44](https://github.com/googleapis/python-aiplatform/commit/1b5ae4402b74d234d0fd8c886e935b3e8919bb50))
+* Add the new model types to "AutoMLImageTrainingJob" in SDK. ([4d032d5](https://github.com/googleapis/python-aiplatform/commit/4d032d59840fdc812dbbedb45acdf45c259e50bd))
+* Adds the Time series Dense Encoder (TiDE) forecasting job. ([d8e6744](https://github.com/googleapis/python-aiplatform/commit/d8e67446dedd2c9fde58c6da1e468346391b8ab7))
+* Remove google internal annotation when export to github. ([fd5ff99](https://github.com/googleapis/python-aiplatform/commit/fd5ff998282dc5d0511f03ea6eb6d27c05183d59))
+
+
+### Bug Fixes
+
+* Support timestamp in Vertex SDK write_feature_values() ([4b0722c](https://github.com/googleapis/python-aiplatform/commit/4b0722cfcdcc5246054e0a185be9db1e23f8043b))
+
+
+### Documentation
+
+* Add Time series Dense Encoder (TiDE) model code sample. ([8e91a58](https://github.com/googleapis/python-aiplatform/commit/8e91a58b5fea6c8e4172e19f8d57f0db9a04bf92))
+* Fix docstring formatting for exceptions ([d75322c](https://github.com/googleapis/python-aiplatform/commit/d75322c24d1b802c77493550fa08bfffdf3ec8fb))
+
+
+### Miscellaneous Chores
+
+* Release 1.24.1 ([cf633a2](https://github.com/googleapis/python-aiplatform/commit/cf633a2513e215e409b9426ff751330fbc481de6))
+
 ## [1.24.0](https://github.com/googleapis/python-aiplatform/compare/v1.23.0...v1.24.0) (2023-04-12)
 
 

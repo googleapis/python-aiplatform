@@ -130,18 +130,11 @@ class TestAutologging(e2e_base.TestEndToEnd):
         cls._experiment_autocreate_tf = cls._make_display_name("")[:64]
         cls._experiment_manual_scikit = cls._make_display_name("")[:64]
         cls._experiment_nested_run = cls._make_display_name("")[:64]
-        cls._experiment_disable_test = cls._make_display_name("")[:64]
         cls._backing_tensorboard = aiplatform.Tensorboard.create(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             display_name=cls._make_display_name("")[:64],
         )
-
-        cls._experiment_enable_name = cls._make_display_name("")[:64]
-        cls._experiment_enable_test = aiplatform.Experiment.get_or_create(
-            experiment_name=cls._experiment_enable_name
-        )
-        cls._experiment_enable_test.assign_backing_tensorboard(cls._backing_tensorboard)
 
     def test_autologging_with_autorun_creation(self, shared_state):
 
@@ -278,35 +271,4 @@ class TestAutologging(e2e_base.TestEndToEnd):
         assert len(experiment_df) == 1
 
         assert "This model creates nested runs." in caplog.text
-        caplog.clear()
-
-    def test_autologging_enable_disable_check(self, shared_state, caplog):
-
-        caplog.set_level(logging.INFO)
-
-        # first enable autologging with provided tb-backed experiment
-        aiplatform.init(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-            experiment=self._experiment_enable_name,
-        )
-
-        shared_state["resources"].append(
-            aiplatform.metadata.metadata._experiment_tracker.experiment
-        )
-
-        aiplatform.autolog()
-
-        assert aiplatform.utils.autologging_utils._is_autologging_enabled()
-
-        aiplatform.metadata.metadata._experiment_tracker._global_tensorboard = None
-
-        # re-initializing without tb-backed experiment should disable autologging
-        aiplatform.init(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-            experiment=self._experiment_disable_test,
-        )
-
-        assert "Disabling" in caplog.text
         caplog.clear()

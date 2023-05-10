@@ -91,8 +91,7 @@ class Dataset(proto.Message):
                title.
         saved_queries (MutableSequence[google.cloud.aiplatform_v1.types.SavedQuery]):
             All SavedQueries belong to the Dataset will be returned in
-            List/Get Dataset response. The
-            [annotation_specs][SavedQuery.annotation_specs] field will
+            List/Get Dataset response. The annotation_specs field will
             not be populated except for UI cases which will only use
             [annotation_spec_count][google.cloud.aiplatform.v1.SavedQuery.annotation_spec_count].
             In CreateDataset request, a SavedQuery is created together
@@ -266,10 +265,9 @@ class ExportDataConfig(proto.Message):
 
             This field is a member of `oneof`_ ``split``.
         annotations_filter (str):
-            A filter on Annotations of the Dataset. Only Annotations on
-            to-be-exported DataItems(specified by [data_items_filter][])
-            that match this filter will be exported. The filter syntax
-            is the same as in
+            An expression for filtering what part of the Dataset is to
+            be exported. Only Annotations that match this filter will be
+            exported. The filter syntax is the same as in
             [ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
     """
 

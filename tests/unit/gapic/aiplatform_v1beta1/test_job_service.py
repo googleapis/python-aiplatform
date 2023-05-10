@@ -11746,10 +11746,39 @@ def test_parse_batch_prediction_job_path():
     assert expected == actual
 
 
-def test_custom_job_path():
+def test_context_path():
     project = "cuttlefish"
     location = "mussel"
-    custom_job = "winkle"
+    metadata_store = "winkle"
+    context = "nautilus"
+    expected = "projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}".format(
+        project=project,
+        location=location,
+        metadata_store=metadata_store,
+        context=context,
+    )
+    actual = JobServiceClient.context_path(project, location, metadata_store, context)
+    assert expected == actual
+
+
+def test_parse_context_path():
+    expected = {
+        "project": "scallop",
+        "location": "abalone",
+        "metadata_store": "squid",
+        "context": "clam",
+    }
+    path = JobServiceClient.context_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = JobServiceClient.parse_context_path(path)
+    assert expected == actual
+
+
+def test_custom_job_path():
+    project = "whelk"
+    location = "octopus"
+    custom_job = "oyster"
     expected = "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
         project=project,
         location=location,
@@ -11761,9 +11790,9 @@ def test_custom_job_path():
 
 def test_parse_custom_job_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "custom_job": "abalone",
+        "project": "nudibranch",
+        "location": "cuttlefish",
+        "custom_job": "mussel",
     }
     path = JobServiceClient.custom_job_path(**expected)
 
@@ -11773,9 +11802,9 @@ def test_parse_custom_job_path():
 
 
 def test_data_labeling_job_path():
-    project = "squid"
-    location = "clam"
-    data_labeling_job = "whelk"
+    project = "winkle"
+    location = "nautilus"
+    data_labeling_job = "scallop"
     expected = "projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}".format(
         project=project,
         location=location,
@@ -11789,9 +11818,9 @@ def test_data_labeling_job_path():
 
 def test_parse_data_labeling_job_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "data_labeling_job": "nudibranch",
+        "project": "abalone",
+        "location": "squid",
+        "data_labeling_job": "clam",
     }
     path = JobServiceClient.data_labeling_job_path(**expected)
 
@@ -11801,9 +11830,9 @@ def test_parse_data_labeling_job_path():
 
 
 def test_dataset_path():
-    project = "cuttlefish"
-    location = "mussel"
-    dataset = "winkle"
+    project = "whelk"
+    location = "octopus"
+    dataset = "oyster"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project,
         location=location,
@@ -11815,9 +11844,9 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "dataset": "abalone",
+        "project": "nudibranch",
+        "location": "cuttlefish",
+        "dataset": "mussel",
     }
     path = JobServiceClient.dataset_path(**expected)
 
@@ -11827,9 +11856,9 @@ def test_parse_dataset_path():
 
 
 def test_endpoint_path():
-    project = "squid"
-    location = "clam"
-    endpoint = "whelk"
+    project = "winkle"
+    location = "nautilus"
+    endpoint = "scallop"
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
         project=project,
         location=location,
@@ -11841,9 +11870,9 @@ def test_endpoint_path():
 
 def test_parse_endpoint_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "endpoint": "nudibranch",
+        "project": "abalone",
+        "location": "squid",
+        "endpoint": "clam",
     }
     path = JobServiceClient.endpoint_path(**expected)
 
@@ -11853,9 +11882,9 @@ def test_parse_endpoint_path():
 
 
 def test_hyperparameter_tuning_job_path():
-    project = "cuttlefish"
-    location = "mussel"
-    hyperparameter_tuning_job = "winkle"
+    project = "whelk"
+    location = "octopus"
+    hyperparameter_tuning_job = "oyster"
     expected = "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(
         project=project,
         location=location,
@@ -11869,9 +11898,9 @@ def test_hyperparameter_tuning_job_path():
 
 def test_parse_hyperparameter_tuning_job_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "hyperparameter_tuning_job": "abalone",
+        "project": "nudibranch",
+        "location": "cuttlefish",
+        "hyperparameter_tuning_job": "mussel",
     }
     path = JobServiceClient.hyperparameter_tuning_job_path(**expected)
 
@@ -11881,9 +11910,9 @@ def test_parse_hyperparameter_tuning_job_path():
 
 
 def test_model_path():
-    project = "squid"
-    location = "clam"
-    model = "whelk"
+    project = "winkle"
+    location = "nautilus"
+    model = "scallop"
     expected = "projects/{project}/locations/{location}/models/{model}".format(
         project=project,
         location=location,
@@ -11895,9 +11924,9 @@ def test_model_path():
 
 def test_parse_model_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "model": "nudibranch",
+        "project": "abalone",
+        "location": "squid",
+        "model": "clam",
     }
     path = JobServiceClient.model_path(**expected)
 
@@ -11907,9 +11936,9 @@ def test_parse_model_path():
 
 
 def test_model_deployment_monitoring_job_path():
-    project = "cuttlefish"
-    location = "mussel"
-    model_deployment_monitoring_job = "winkle"
+    project = "whelk"
+    location = "octopus"
+    model_deployment_monitoring_job = "oyster"
     expected = "projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}".format(
         project=project,
         location=location,
@@ -11923,9 +11952,9 @@ def test_model_deployment_monitoring_job_path():
 
 def test_parse_model_deployment_monitoring_job_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "model_deployment_monitoring_job": "abalone",
+        "project": "nudibranch",
+        "location": "cuttlefish",
+        "model_deployment_monitoring_job": "mussel",
     }
     path = JobServiceClient.model_deployment_monitoring_job_path(**expected)
 
@@ -11935,9 +11964,9 @@ def test_parse_model_deployment_monitoring_job_path():
 
 
 def test_nas_job_path():
-    project = "squid"
-    location = "clam"
-    nas_job = "whelk"
+    project = "winkle"
+    location = "nautilus"
+    nas_job = "scallop"
     expected = "projects/{project}/locations/{location}/nasJobs/{nas_job}".format(
         project=project,
         location=location,
@@ -11949,9 +11978,9 @@ def test_nas_job_path():
 
 def test_parse_nas_job_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "nas_job": "nudibranch",
+        "project": "abalone",
+        "location": "squid",
+        "nas_job": "clam",
     }
     path = JobServiceClient.nas_job_path(**expected)
 
@@ -11961,10 +11990,10 @@ def test_parse_nas_job_path():
 
 
 def test_nas_trial_detail_path():
-    project = "cuttlefish"
-    location = "mussel"
-    nas_job = "winkle"
-    nas_trial_detail = "nautilus"
+    project = "whelk"
+    location = "octopus"
+    nas_job = "oyster"
+    nas_trial_detail = "nudibranch"
     expected = "projects/{project}/locations/{location}/nasJobs/{nas_job}/nasTrialDetails/{nas_trial_detail}".format(
         project=project,
         location=location,
@@ -11979,10 +12008,10 @@ def test_nas_trial_detail_path():
 
 def test_parse_nas_trial_detail_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
-        "nas_job": "squid",
-        "nas_trial_detail": "clam",
+        "project": "cuttlefish",
+        "location": "mussel",
+        "nas_job": "winkle",
+        "nas_trial_detail": "nautilus",
     }
     path = JobServiceClient.nas_trial_detail_path(**expected)
 
@@ -11992,8 +12021,8 @@ def test_parse_nas_trial_detail_path():
 
 
 def test_network_path():
-    project = "whelk"
-    network = "octopus"
+    project = "scallop"
+    network = "abalone"
     expected = "projects/{project}/global/networks/{network}".format(
         project=project,
         network=network,
@@ -12004,13 +12033,36 @@ def test_network_path():
 
 def test_parse_network_path():
     expected = {
-        "project": "oyster",
-        "network": "nudibranch",
+        "project": "squid",
+        "network": "clam",
     }
     path = JobServiceClient.network_path(**expected)
 
     # Check that the path construction is reversible.
     actual = JobServiceClient.parse_network_path(path)
+    assert expected == actual
+
+
+def test_notification_channel_path():
+    project = "whelk"
+    notification_channel = "octopus"
+    expected = "projects/{project}/notificationChannels/{notification_channel}".format(
+        project=project,
+        notification_channel=notification_channel,
+    )
+    actual = JobServiceClient.notification_channel_path(project, notification_channel)
+    assert expected == actual
+
+
+def test_parse_notification_channel_path():
+    expected = {
+        "project": "oyster",
+        "notification_channel": "nudibranch",
+    }
+    path = JobServiceClient.notification_channel_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = JobServiceClient.parse_notification_channel_path(path)
     assert expected == actual
 
 

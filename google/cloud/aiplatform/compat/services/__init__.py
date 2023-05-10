@@ -39,8 +39,14 @@ from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
 from google.cloud.aiplatform_v1beta1.services.job_service import (
     client as job_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1beta1.services.match_service import (
+    client as match_service_client_v1beta1,
+)
 from google.cloud.aiplatform_v1beta1.services.metadata_service import (
     client as metadata_service_client_v1beta1,
+)
+from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
+    client as model_garden_service_client_v1beta1,
 )
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     client as model_service_client_v1beta1,
@@ -129,6 +135,8 @@ __all__ = (
     index_service_client_v1beta1,
     index_endpoint_service_client_v1beta1,
     job_service_client_v1beta1,
+    match_service_client_v1beta1,
+    model_garden_service_client_v1beta1,
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,

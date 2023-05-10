@@ -77,6 +77,16 @@ MOBILE_TF_MODEL_TYPES = {
     "MOBILE_TF_HIGH_ACCURACY_1",
 }
 
+MODEL_GARDEN_ICN_MODEL_TYPES = {
+    "EFFICIENTNET",
+    "VIT",
+    "COCA",
+}
+
+MODEL_GARDEN_IOD_MODEL_TYPES = {
+    "SPINENET",
+}
+
 # TODO(b/177079208): Use EPCL Enums for validating Model Types
 # Defined by gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_*
 # Format: "prediction_type": set() of model_type's
@@ -84,9 +94,12 @@ MOBILE_TF_MODEL_TYPES = {
 # NOTE: When adding a new prediction_type's, ensure it fits the pattern
 #       "automl_image_{prediction_type}_*" used by the YAML schemas on GCS
 AUTOML_IMAGE_PREDICTION_MODEL_TYPES = {
-    "classification": {"CLOUD", "CLOUD_1"} | MOBILE_TF_MODEL_TYPES,
+    "classification": {"CLOUD", "CLOUD_1"}
+    | MOBILE_TF_MODEL_TYPES
+    | MODEL_GARDEN_ICN_MODEL_TYPES,
     "object_detection": {"CLOUD_1", "CLOUD_HIGH_ACCURACY_1", "CLOUD_LOW_LATENCY_1"}
-    | MOBILE_TF_MODEL_TYPES,
+    | MOBILE_TF_MODEL_TYPES
+    | MODEL_GARDEN_IOD_MODEL_TYPES,
 }
 
 AUTOML_VIDEO_PREDICTION_MODEL_TYPES = {

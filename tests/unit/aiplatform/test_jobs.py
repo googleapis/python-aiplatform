@@ -62,24 +62,24 @@ import constants as test_constants
 _TEST_API_CLIENT = job_service_client.JobServiceClient
 _TEST_API_CLIENT_BETA = job_service_client_v1beta1.JobServiceClient
 
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_ID = "1028944691210842416"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
+_TEST_ID = test_constants.TrainingJobConstants._TEST_ID
 _TEST_ALT_ID = "8834795523125638878"
-_TEST_DISPLAY_NAME = "my_job_1234"
+_TEST_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_DISPLAY_NAME
 _TEST_BQ_PROJECT_ID = "projectId"
 _TEST_BQ_DATASET_ID = "bqDatasetId"
 _TEST_BQ_TABLE_NAME = "someBqTable"
 _TEST_BQ_JOB_ID = "123459876"
 _TEST_BQ_MAX_RESULTS = 100
 _TEST_GCS_BUCKET_NAME = "my-bucket"
-_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+_TEST_SERVICE_ACCOUNT = test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT
 
 
 _TEST_BQ_PATH = f"bq://{_TEST_BQ_PROJECT_ID}.{_TEST_BQ_DATASET_ID}"
 _TEST_GCS_BUCKET_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}"
 _TEST_GCS_JSONL_SOURCE_URI = f"{_TEST_GCS_BUCKET_PATH}/bp_input_config.jsonl"
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
 
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ALT_ID}"

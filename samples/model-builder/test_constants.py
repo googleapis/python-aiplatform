@@ -36,6 +36,8 @@ STAGING_BUCKET = "gs://my-staging-bucket"
 EXPERIMENT_NAME = "fraud-detection-trial-72"
 CREDENTIALS = credentials.AnonymousCredentials()
 
+SERVICE_ACCOUNT = "abc@abc.iam.gserviceaccount.com"
+
 RESOURCE_ID = str(randint(10000000, 99999999))  # Create random resource ID
 RESOURCE_ID_2 = str(randint(10000000, 99999999))
 
@@ -270,10 +272,6 @@ QUANTILES = [0, 0.5, 1]
 VALIDATION_OPTIONS = "fail-pipeline"
 PREDEFINED_SPLIT_COLUMN_NAME = "predefined"
 
-TENSORBOARD_NAME = (
-    f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard"
-)
-
 SCHEMA_TITLE = "system.Schema"
 SCHEMA_VERSION = "0.0.1"
 METADATA = {}
@@ -330,3 +328,11 @@ VERSION_ID = "test-version"
 IS_DEFAULT_VERSION = False
 VERSION_ALIASES = ["test-version-alias"]
 VERSION_DESCRIPTION = "test-version-description"
+
+# TensorBoard
+TENSORBOARD_LOG_DIR = "gs://fake-dir"
+TENSORBOARD_ID = "8888888888888888888"
+TENSORBOARD_NAME = (
+    f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard"
+)
+TENSORBOARD_EXPERIMENT_NAME = "my-tensorboard-experiment"

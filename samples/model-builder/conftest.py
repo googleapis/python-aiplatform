@@ -372,6 +372,19 @@ def mock_get_custom_job(mock_custom_job):
         yield mock
 
 
+@pytest.fixture
+def mock_get_custom_job_from_local_script(mock_custom_job):
+    with patch.object(aiplatform.CustomJob, "from_local_script") as mock:
+        mock.return_value = mock_custom_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_job(mock_custom_job):
+    with patch.object(mock_custom_job, "run") as mock:
+        yield mock
+
+
 """
 ----------------------------------------------------------------------------
 Model Fixtures
@@ -433,9 +446,45 @@ Tensorboard Fixtures
 
 
 @pytest.fixture
-def mock_create_tensorboard():
-    with patch.object(aiplatform.tensorboard.Tensorboard, "create") as mock:
+def mock_tensorboard():
+    mock = MagicMock(aiplatform.Tensorboard)
+    yield mock
+
+
+@pytest.fixture
+def mock_TensorBoard_uploaderTracker():
+    mock = MagicMock(aiplatform.uploader_tracker)
+    yield mock
+
+
+@pytest.fixture
+def mock_create_tensorboard(mock_tensorboard):
+    with patch.object(aiplatform.Tensorboard, "create") as mock:
+        mock.return_value = mock_tensorboard
         yield mock
+
+
+@pytest.fixture
+def mock_tensorboard_uploader_onetime():
+    with patch.object(aiplatform, "upload_tb_log") as mock_tensorboard_uploader_onetime:
+        mock_tensorboard_uploader_onetime.return_value = None
+        yield mock_tensorboard_uploader_onetime
+
+
+@pytest.fixture
+def mock_tensorboard_uploader_start():
+    with patch.object(
+        aiplatform, "start_upload_tb_log"
+    ) as mock_tensorboard_uploader_start:
+        mock_tensorboard_uploader_start.return_value = None
+        yield mock_tensorboard_uploader_start
+
+
+@pytest.fixture
+def mock_tensorboard_uploader_end():
+    with patch.object(aiplatform, "end_upload_tb_log") as mock_tensorboard_uploader_end:
+        mock_tensorboard_uploader_end.return_value = None
+        yield mock_tensorboard_uploader_end
 
 
 """

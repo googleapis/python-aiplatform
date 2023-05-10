@@ -279,6 +279,7 @@ class _Config:
         location_override: Optional[str] = None,
         prediction_client: bool = False,
         api_base_path_override: Optional[str] = None,
+        api_path_override: Optional[str] = None,
     ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 
@@ -289,6 +290,7 @@ class _Config:
                 Vertex AI.
             prediction_client (str): Optional. flag to use a prediction endpoint.
             api_base_path_override (str): Optional. Override default API base path.
+            api_path_override (str): Optional. Override default api path.
         Returns:
             clients_options (google.api_core.client_options.ClientOptions):
                 A ClientOptions object set with regionalized API endpoint, i.e.
@@ -311,9 +313,12 @@ class _Config:
             else constants.API_BASE_PATH
         )
 
-        return client_options.ClientOptions(
-            api_endpoint=f"{region}-{service_base_path}"
+        api_endpoint = (
+            f"{region}-{service_base_path}"
+            if not api_path_override
+            else api_path_override
         )
+        return client_options.ClientOptions(api_endpoint=api_endpoint)
 
     def common_location_path(
         self, project: Optional[str] = None, location: Optional[str] = None
@@ -345,6 +350,7 @@ class _Config:
         location_override: Optional[str] = None,
         prediction_client: bool = False,
         api_base_path_override: Optional[str] = None,
+        api_path_override: Optional[str] = None,
         appended_user_agent: Optional[List[str]] = None,
     ) -> utils.VertexAiServiceClientWithOverride:
         """Instantiates a given VertexAiServiceClient with optional
@@ -358,6 +364,7 @@ class _Config:
             location_override (str): Optional. location override.
             prediction_client (str): Optional. flag to use a prediction endpoint.
             api_base_path_override (str): Optional. Override default api base path.
+            api_path_override (str): Optional. Override default api path.
             appended_user_agent (List[str]):
                 Optional. User agent appended in the client info. If more than one, it will be
                 separated by spaces.
@@ -383,6 +390,7 @@ class _Config:
                 location_override=location_override,
                 prediction_client=prediction_client,
                 api_base_path_override=api_base_path_override,
+                api_path_override=api_path_override,
             ),
             "client_info": client_info,
         }

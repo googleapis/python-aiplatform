@@ -270,7 +270,7 @@ class UpdateFeaturestoreRequest(proto.Message):
             -  ``labels``
             -  ``online_serving_config.fixed_node_count``
             -  ``online_serving_config.scaling``
-            -  ``online_storage_ttl_days`` (available in Preview)
+            -  ``online_storage_ttl_days``
     """
 
     featurestore: gca_featurestore.Featurestore = proto.Field(
@@ -1076,7 +1076,7 @@ class UpdateEntityTypeRequest(proto.Message):
             -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
             -  ``monitoring_config.numerical_threshold_config.value``
             -  ``monitoring_config.categorical_threshold_config.value``
-            -  ``offline_storage_ttl_days`` (available in Preview)
+            -  ``offline_storage_ttl_days``
     """
 
     entity_type: gca_entity_type.EntityType = proto.Field(

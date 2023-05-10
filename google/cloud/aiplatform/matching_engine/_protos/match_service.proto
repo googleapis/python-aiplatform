@@ -74,7 +74,7 @@ message MatchRequest {
   // nearest neighbor search. If embedding values isn't set, will first uses
   // embedding_id to lookup embedding values from dataset, if embedding exist in
   // the dataset, do nearest neighbor search.
-  string embedding_id = 10 [(datapol.semantic_type) = ST_IDENTIFYING_ID];
+  string embedding_id = 10;
 }
 
 // Embedding on query result.

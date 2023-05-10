@@ -48,6 +48,8 @@ from .services.metadata_service import MetadataServiceClient
 from .services.metadata_service import MetadataServiceAsyncClient
 from .services.migration_service import MigrationServiceClient
 from .services.migration_service import MigrationServiceAsyncClient
+from .services.model_garden_service import ModelGardenServiceClient
+from .services.model_garden_service import ModelGardenServiceAsyncClient
 from .services.model_service import ModelServiceClient
 from .services.model_service import ModelServiceAsyncClient
 from .services.pipeline_service import PipelineServiceClient
@@ -138,6 +140,9 @@ from .types.endpoint_service import DeployModelResponse
 from .types.endpoint_service import GetEndpointRequest
 from .types.endpoint_service import ListEndpointsRequest
 from .types.endpoint_service import ListEndpointsResponse
+from .types.endpoint_service import MutateDeployedModelOperationMetadata
+from .types.endpoint_service import MutateDeployedModelRequest
+from .types.endpoint_service import MutateDeployedModelResponse
 from .types.endpoint_service import UndeployModelOperationMetadata
 from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
@@ -388,6 +393,7 @@ from .types.migration_service import MigrateResourceRequest
 from .types.migration_service import MigrateResourceResponse
 from .types.migration_service import SearchMigratableResourcesRequest
 from .types.migration_service import SearchMigratableResourcesResponse
+from .types.model import LargeModelReference
 from .types.model import Model
 from .types.model import ModelContainerSpec
 from .types.model import ModelSourceInfo
@@ -409,6 +415,8 @@ from .types.model_deployment_monitoring_job import (
 )
 from .types.model_evaluation import ModelEvaluation
 from .types.model_evaluation_slice import ModelEvaluationSlice
+from .types.model_garden_service import GetPublisherModelRequest
+from .types.model_garden_service import PublisherModelView
 from .types.model_monitoring import ModelMonitoringAlertConfig
 from .types.model_monitoring import ModelMonitoringConfig
 from .types.model_monitoring import ModelMonitoringObjectiveConfig
@@ -477,6 +485,7 @@ from .types.prediction_service import ExplainResponse
 from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
+from .types.publisher_model import PublisherModel
 from .types.saved_query import SavedQuery
 from .types.schedule import Schedule
 from .types.schedule_service import CreateScheduleRequest
@@ -603,6 +612,7 @@ __all__ = (
     "MatchServiceAsyncClient",
     "MetadataServiceAsyncClient",
     "MigrationServiceAsyncClient",
+    "ModelGardenServiceAsyncClient",
     "ModelServiceAsyncClient",
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
@@ -848,6 +858,7 @@ __all__ = (
     "GetNasJobRequest",
     "GetNasTrialDetailRequest",
     "GetPipelineJobRequest",
+    "GetPublisherModelRequest",
     "GetScheduleRequest",
     "GetSpecialistPoolRequest",
     "GetStudyRequest",
@@ -879,6 +890,7 @@ __all__ = (
     "IntegratedGradientsAttribution",
     "JobServiceClient",
     "JobState",
+    "LargeModelReference",
     "LineageSubgraph",
     "ListAnnotationsRequest",
     "ListAnnotationsResponse",
@@ -979,6 +991,7 @@ __all__ = (
     "ModelEvaluation",
     "ModelEvaluationSlice",
     "ModelExplanation",
+    "ModelGardenServiceClient",
     "ModelMonitoringAlertConfig",
     "ModelMonitoringConfig",
     "ModelMonitoringObjectiveConfig",
@@ -988,6 +1001,9 @@ __all__ = (
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
+    "MutateDeployedModelOperationMetadata",
+    "MutateDeployedModelRequest",
+    "MutateDeployedModelResponse",
     "NasJob",
     "NasJobOutput",
     "NasJobSpec",
@@ -1016,6 +1032,8 @@ __all__ = (
     "Presets",
     "PrivateEndpoints",
     "PrivateServiceConnectConfig",
+    "PublisherModel",
+    "PublisherModelView",
     "PurgeArtifactsMetadata",
     "PurgeArtifactsRequest",
     "PurgeArtifactsResponse",
