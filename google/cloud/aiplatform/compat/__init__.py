@@ -39,6 +39,7 @@ if DEFAULT_VERSION == V1BETA1:
     services.model_garden_service_client = services.model_garden_service_client_v1beta1
     services.pipeline_service_client = services.pipeline_service_client_v1beta1
     services.prediction_service_client = services.prediction_service_client_v1beta1
+    services.schedule_service_client = services.schedule_service_client_v1beta1
     services.specialist_pool_service_client = (
         services.specialist_pool_service_client_v1beta1
     )
@@ -114,6 +115,8 @@ if DEFAULT_VERSION == V1BETA1:
     types.pipeline_state = types.pipeline_state_v1beta1
     types.prediction_service = types.prediction_service_v1beta1
     types.publisher_model = types.publisher_model_v1beta1
+    types.schedule = types.schedule_v1beta1
+    types.schedule_service = types.schedule_service_v1beta1
     types.specialist_pool = types.specialist_pool_v1beta1
     types.specialist_pool_service = types.specialist_pool_service_v1beta1
     types.study = types.study_v1beta1
