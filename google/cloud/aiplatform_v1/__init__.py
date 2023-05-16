@@ -130,6 +130,7 @@ from .types.event import Event
 from .types.execution import Execution
 from .types.explanation import Attribution
 from .types.explanation import BlurBaselineConfig
+from .types.explanation import Examples
 from .types.explanation import ExamplesOverride
 from .types.explanation import ExamplesRestrictionsNamespace
 from .types.explanation import Explanation
@@ -141,6 +142,7 @@ from .types.explanation import FeatureNoiseSigma
 from .types.explanation import IntegratedGradientsAttribution
 from .types.explanation import ModelExplanation
 from .types.explanation import Neighbor
+from .types.explanation import Presets
 from .types.explanation import SampledShapleyAttribution
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
@@ -731,6 +733,7 @@ __all__ = (
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
     "Event",
+    "Examples",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
     "Execution",
@@ -955,6 +958,7 @@ __all__ = (
     "PredictResponse",
     "PredictSchemata",
     "PredictionServiceClient",
+    "Presets",
     "PrivateEndpoints",
     "PrivateServiceConnectConfig",
     "PurgeArtifactsMetadata",
