@@ -162,6 +162,11 @@ class ScheduleServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_schedule: gapic_v1.method.wrap_method(
+                self.update_schedule,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -232,6 +237,15 @@ class ScheduleServiceTransport(abc.ABC):
     ) -> Callable[
         [schedule_service.ResumeScheduleRequest],
         Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_schedule(
+        self,
+    ) -> Callable[
+        [schedule_service.UpdateScheduleRequest],
+        Union[gca_schedule.Schedule, Awaitable[gca_schedule.Schedule]],
     ]:
         raise NotImplementedError()
 

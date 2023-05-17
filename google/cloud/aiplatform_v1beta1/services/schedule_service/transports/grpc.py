@@ -425,6 +425,38 @@ class ScheduleServiceGrpcTransport(ScheduleServiceTransport):
             )
         return self._stubs["resume_schedule"]
 
+    @property
+    def update_schedule(
+        self,
+    ) -> Callable[[schedule_service.UpdateScheduleRequest], gca_schedule.Schedule]:
+        r"""Return a callable for the update schedule method over gRPC.
+
+        Updates an active or paused Schedule.
+
+        When the Schedule is updated, new runs will be scheduled
+        starting from the updated next execution time after the update
+        time based on the time_specification in the updated Schedule.
+        All unstarted runs before the update time will be skipped while
+        already created runs will NOT be paused or canceled.
+
+        Returns:
+            Callable[[~.UpdateScheduleRequest],
+                    ~.Schedule]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_schedule" not in self._stubs:
+            self._stubs["update_schedule"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ScheduleService/UpdateSchedule",
+                request_serializer=schedule_service.UpdateScheduleRequest.serialize,
+                response_deserializer=gca_schedule.Schedule.deserialize,
+            )
+        return self._stubs["update_schedule"]
+
     def close(self):
         self.grpc_channel.close()
 

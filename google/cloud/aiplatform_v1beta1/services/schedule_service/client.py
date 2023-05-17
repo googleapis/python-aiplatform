@@ -59,6 +59,7 @@ from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import ScheduleServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import ScheduleServiceGrpcTransport
@@ -1263,6 +1264,137 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
             timeout=timeout,
             metadata=metadata,
         )
+
+    def update_schedule(
+        self,
+        request: Optional[Union[schedule_service.UpdateScheduleRequest, dict]] = None,
+        *,
+        schedule: Optional[gca_schedule.Schedule] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_schedule.Schedule:
+        r"""Updates an active or paused Schedule.
+
+        When the Schedule is updated, new runs will be scheduled
+        starting from the updated next execution time after the update
+        time based on the time_specification in the updated Schedule.
+        All unstarted runs before the update time will be skipped while
+        already created runs will NOT be paused or canceled.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_schedule():
+                # Create a client
+                client = aiplatform_v1beta1.ScheduleServiceClient()
+
+                # Initialize request argument(s)
+                schedule = aiplatform_v1beta1.Schedule()
+                schedule.cron = "cron_value"
+                schedule.create_pipeline_job_request.parent = "parent_value"
+                schedule.display_name = "display_name_value"
+                schedule.max_concurrent_run_count = 2596
+
+                request = aiplatform_v1beta1.UpdateScheduleRequest(
+                    schedule=schedule,
+                )
+
+                # Make the request
+                response = client.update_schedule(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateScheduleRequest, dict]):
+                The request object. Request message for
+                [ScheduleService.UpdateSchedule][google.cloud.aiplatform.v1beta1.ScheduleService.UpdateSchedule].
+            schedule (google.cloud.aiplatform_v1beta1.types.Schedule):
+                Required. The Schedule which replaces the resource on
+                the server. The following restrictions will be applied:
+
+                -  The scheduled request type cannot be changed.
+                -  The output_only fields will be ignored if specified.
+
+                This corresponds to the ``schedule`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            update_mask (google.protobuf.field_mask_pb2.FieldMask):
+                Required. The update mask applies to the resource. See
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
+
+                This corresponds to the ``update_mask`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.Schedule:
+                An instance of a Schedule
+                periodically schedules runs to make API
+                calls based on user specified time
+                specification and API request type.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([schedule, update_mask])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a schedule_service.UpdateScheduleRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, schedule_service.UpdateScheduleRequest):
+            request = schedule_service.UpdateScheduleRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if schedule is not None:
+                request.schedule = schedule
+            if update_mask is not None:
+                request.update_mask = update_mask
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.update_schedule]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("schedule.name", request.schedule.name),)
+            ),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
 
     def __enter__(self) -> "ScheduleServiceClient":
         return self
