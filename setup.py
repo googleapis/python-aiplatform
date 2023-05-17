@@ -62,7 +62,7 @@ pipelines_extra_require = [
     "pyyaml>=5.3,<6",
 ]
 datasets_extra_require = [
-    "pyarrow >= 3.0.0, < 8.0dev",
+    "pyarrow >= 3.0.0, < 8.0dev; python_version<'3.11'",
 ]
 
 vizier_extra_require = [
