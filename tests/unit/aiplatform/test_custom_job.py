@@ -937,8 +937,8 @@ class TestCustomJob:
             enable_autolog=True,
         )
 
-        expected_container_spec = _TEST_CONTAINER_SPEC
-        expected_container_spec.args = _TEST_RUN_ARGS
+        expected_container_spec = copy.deepcopy(_TEST_CONTAINER_SPEC)
+        expected_container_spec.command[-1] += " " + " ".join(_TEST_RUN_ARGS)
         expected_container_spec.env = [
             {"name": key, "value": value}
             for key, value in test_constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES.items()

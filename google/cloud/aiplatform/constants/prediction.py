@@ -154,6 +154,12 @@ TF_CONTAINER_URIS = [
 ]
 
 PYTORCH_CONTAINER_URIS = [
+    "us-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.1-13:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.1-13:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.1-13:latest",
+    "us-docker.pkg.dev/vertex-ai/prediction/pytorch-gpu.1-13:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/pytorch-gpu.1-13:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/pytorch-gpu.1-13:latest",
     "us-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.1-12:latest",
     "europe-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.1-12:latest",
     "asia-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.1-12:latest",
