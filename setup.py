@@ -63,6 +63,7 @@ pipelines_extra_require = [
 ]
 datasets_extra_require = [
     "pyarrow >= 3.0.0, < 8.0dev; python_version<'3.11'",
+    "pyarrow >= 10.0.1; python_version>='3.11'",
 ]
 
 vizier_extra_require = [
