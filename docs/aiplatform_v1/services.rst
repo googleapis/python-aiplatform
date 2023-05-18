@@ -10,6 +10,7 @@ Services for Google Cloud Aiplatform v1 API
     index_endpoint_service
     index_service
     job_service
+    match_service
     metadata_service
     migration_service
     model_service
