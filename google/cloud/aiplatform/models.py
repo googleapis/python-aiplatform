@@ -2810,7 +2810,6 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
         return self
 
-    # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
     @classmethod
     @base.optional_sync()
