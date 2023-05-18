@@ -661,6 +661,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
                 rpc_rate_limiter=mock_rate_limiter,
                 verbosity=1,  # In order to test the upload tracker.
                 one_shot=True,
+                description="Test Description",
             )
             uploader.create_experiment()
 
