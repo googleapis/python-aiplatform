@@ -15,10 +15,7 @@
 """Classes for working with language models."""
 
 import dataclasses
-import tempfile
 from typing import Any, List, Optional, Sequence, Type, Union
-
-from google.cloud import storage
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -783,18 +780,12 @@ def _launch_tuning_job(
         dataset_uri = training_data
     elif pandas and isinstance(training_data, pandas.DataFrame):
         dataset_uri = _uri_join(output_dir_uri, "training_data.jsonl")
+        training_data = training_data[["input_text", "output_text"]]
 
-        with tempfile.NamedTemporaryFile() as temp_file:
-            dataset_path = temp_file.name
-            df = training_data
-            df = df[["input_text", "output_text"]]
-            df.to_json(path_or_buf=dataset_path, orient="records", lines=True)
-            storage_client = storage.Client(
-                credentials=aiplatform_initializer.global_config.credentials
-            )
-            storage.Blob.from_string(
-                uri=dataset_uri, client=storage_client
-            ).upload_from_filename(filename=dataset_path)
+        gcs_utils._upload_pandas_df_to_gcs(
+            df=training_data, upload_gcs_path=dataset_uri
+        )
+
     else:
         raise TypeError(f"Unsupported training_data type: {type(training_data)}")
 

@@ -19,13 +19,17 @@ import datetime
 import glob
 import logging
 import pathlib
-from typing import Optional
+import tempfile
+from typing import Optional, TYPE_CHECKING
 
 from google.auth import credentials as auth_credentials
 from google.cloud import storage
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import resource_manager_utils
+
+if TYPE_CHECKING:
+    import pandas
 
 _logger = logging.getLogger(__name__)
 
@@ -293,3 +297,37 @@ def download_file_from_gcs(
     _logger.debug(f'Downloading "{source_file_uri}" to "{destination_file_path}"')
 
     source_blob.download_to_filename(filename=destination_file_path)
+
+
+def _upload_pandas_df_to_gcs(
+    df: "pandas.DataFrame", upload_gcs_path: str, file_format: str = "jsonl"
+) -> None:
+    """Uploads the provided Pandas DataFrame to a GCS bucket.
+
+    Args:
+        df (pandas.DataFrame):
+            Required. The Pandas DataFrame to upload.
+        upload_gcs_path (str):
+            Required. The GCS path to upload the data file.
+        file_format (str):
+            Required. The format to export the DataFrame to. Currently
+            only JSONL is supported.
+
+    Raises:
+        ValueError: When a file format other than JSONL is provided.
+    """
+
+    with tempfile.NamedTemporaryFile() as temp_file:
+        local_dataset_path = temp_file.name
+
+        if file_format == "jsonl":
+            df.to_json(path_or_buf=local_dataset_path, orient="records", lines=True)
+        else:
+            raise ValueError(f"Unsupported file format: {file_format}")
+
+        storage_client = storage.Client(
+            credentials=initializer.global_config.credentials
+        )
+        storage.Blob.from_string(
+            uri=upload_gcs_path, client=storage_client
+        ).upload_from_filename(filename=local_dataset_path)
