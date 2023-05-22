@@ -753,6 +753,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -833,6 +834,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -867,6 +870,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
     @base.optional_sync()
@@ -888,6 +892,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -962,6 +967,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -987,6 +994,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1015,6 +1023,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1095,6 +1104,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is specified.
@@ -1122,6 +1133,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             model=model.versioned_resource_name,
             display_name=deployed_model_display_name,
             service_account=service_account,
+            enable_access_logging=enable_access_logging,
         )
 
         supports_automatic_resources = (
@@ -2798,7 +2810,6 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
         return self
 
-    # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
     @classmethod
     @base.optional_sync()
@@ -3192,6 +3203,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3290,6 +3302,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3342,6 +3356,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -3365,6 +3380,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3456,6 +3472,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3505,6 +3523,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
@@ -3597,8 +3616,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 When only the project is specified, the Dataset and Table is created.
                 When the full table reference is specified, the Dataset must exist and
                 table must not exist. Accepted forms: ``bq://projectId`` or
-                ``bq://projectId.bqDatasetId`` or
-                ``bq://projectId.bqDatasetId.bqTableId``. If no Dataset is specified,
+                ``bq://projectId.bqDatasetId``. If no Dataset is specified,
                 a new one is created with the name
                 ``prediction_<model-display-name>_<job-create-time>``
                 where the table name is made BigQuery-dataset-name compatible

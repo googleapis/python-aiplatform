@@ -727,7 +727,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             "Deploy index", "index_endpoint", self.__class__, deploy_lro
         )
 
-        deploy_lro.result()
+        deploy_lro.result(timeout=None)
 
         _LOGGER.log_action_completed_against_resource(
             "index_endpoint", "Deployed index", self

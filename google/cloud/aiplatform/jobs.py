@@ -1577,13 +1577,13 @@ class CustomJob(_RunnableJob):
                     + f"python3 -m {python_packager.module_name}",
                 ]
 
+                if args:
+                    command[-1] += " " + " ".join(args)
+
                 spec["container_spec"] = {
                     "image_uri": container_uri,
                     "command": command,
                 }
-
-                if args:
-                    spec["container_spec"]["args"] = args
 
                 if environment_variables:
                     spec["container_spec"]["env"] = [
