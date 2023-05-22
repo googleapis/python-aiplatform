@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import schedule as gca_schedule
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -32,6 +33,7 @@ __protobuf__ = proto.module(
         "DeleteScheduleRequest",
         "PauseScheduleRequest",
         "ResumeScheduleRequest",
+        "UpdateScheduleRequest",
     },
 )
 
@@ -259,6 +261,34 @@ class ResumeScheduleRequest(proto.Message):
     catch_up: bool = proto.Field(
         proto.BOOL,
         number=2,
+    )
+
+
+class UpdateScheduleRequest(proto.Message):
+    r"""Request message for
+    [ScheduleService.UpdateSchedule][google.cloud.aiplatform.v1beta1.ScheduleService.UpdateSchedule].
+
+    Attributes:
+        schedule (google.cloud.aiplatform_v1beta1.types.Schedule):
+            Required. The Schedule which replaces the resource on the
+            server. The following restrictions will be applied:
+
+            -  The scheduled request type cannot be changed.
+            -  The output_only fields will be ignored if specified.
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Required. The update mask applies to the resource. See
+            [google.protobuf.FieldMask][google.protobuf.FieldMask].
+    """
+
+    schedule: gca_schedule.Schedule = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=gca_schedule.Schedule,
+    )
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
     )
 
 

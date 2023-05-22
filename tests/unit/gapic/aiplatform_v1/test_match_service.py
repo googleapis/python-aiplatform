@@ -31,49 +31,23 @@ from proto.marshal.rules import wrappers
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
-from google.api_core import future
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
-from google.api_core import operation
-from google.api_core import operation_async  # type: ignore
-from google.api_core import operations_v1
 from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1beta1.services.schedule_service import (
-    ScheduleServiceAsyncClient,
-)
-from google.cloud.aiplatform_v1beta1.services.schedule_service import (
-    ScheduleServiceClient,
-)
-from google.cloud.aiplatform_v1beta1.services.schedule_service import pagers
-from google.cloud.aiplatform_v1beta1.services.schedule_service import transports
-from google.cloud.aiplatform_v1beta1.types import artifact
-from google.cloud.aiplatform_v1beta1.types import context
-from google.cloud.aiplatform_v1beta1.types import encryption_spec
-from google.cloud.aiplatform_v1beta1.types import execution
-from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
-from google.cloud.aiplatform_v1beta1.types import pipeline_job
-from google.cloud.aiplatform_v1beta1.types import pipeline_service
-from google.cloud.aiplatform_v1beta1.types import pipeline_state
-from google.cloud.aiplatform_v1beta1.types import schedule
-from google.cloud.aiplatform_v1beta1.types import schedule as gca_schedule
-from google.cloud.aiplatform_v1beta1.types import schedule_service
-from google.cloud.aiplatform_v1beta1.types import value
+from google.cloud.aiplatform_v1.services.match_service import MatchServiceAsyncClient
+from google.cloud.aiplatform_v1.services.match_service import MatchServiceClient
+from google.cloud.aiplatform_v1.services.match_service import transports
+from google.cloud.aiplatform_v1.types import index
+from google.cloud.aiplatform_v1.types import match_service
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
-from google.protobuf import any_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
 import google.auth
 
 
@@ -99,38 +73,33 @@ def test__get_default_mtls_endpoint():
     sandbox_mtls_endpoint = "example.mtls.sandbox.googleapis.com"
     non_googleapi = "api.example.com"
 
-    assert ScheduleServiceClient._get_default_mtls_endpoint(None) is None
+    assert MatchServiceClient._get_default_mtls_endpoint(None) is None
     assert (
-        ScheduleServiceClient._get_default_mtls_endpoint(api_endpoint)
+        MatchServiceClient._get_default_mtls_endpoint(api_endpoint) == api_mtls_endpoint
+    )
+    assert (
+        MatchServiceClient._get_default_mtls_endpoint(api_mtls_endpoint)
         == api_mtls_endpoint
     )
     assert (
-        ScheduleServiceClient._get_default_mtls_endpoint(api_mtls_endpoint)
-        == api_mtls_endpoint
-    )
-    assert (
-        ScheduleServiceClient._get_default_mtls_endpoint(sandbox_endpoint)
+        MatchServiceClient._get_default_mtls_endpoint(sandbox_endpoint)
         == sandbox_mtls_endpoint
     )
     assert (
-        ScheduleServiceClient._get_default_mtls_endpoint(sandbox_mtls_endpoint)
+        MatchServiceClient._get_default_mtls_endpoint(sandbox_mtls_endpoint)
         == sandbox_mtls_endpoint
     )
-    assert (
-        ScheduleServiceClient._get_default_mtls_endpoint(non_googleapi) == non_googleapi
-    )
+    assert MatchServiceClient._get_default_mtls_endpoint(non_googleapi) == non_googleapi
 
 
 @pytest.mark.parametrize(
     "client_class,transport_name",
     [
-        (ScheduleServiceClient, "grpc"),
-        (ScheduleServiceAsyncClient, "grpc_asyncio"),
+        (MatchServiceClient, "grpc"),
+        (MatchServiceAsyncClient, "grpc_asyncio"),
     ],
 )
-def test_schedule_service_client_from_service_account_info(
-    client_class, transport_name
-):
+def test_match_service_client_from_service_account_info(client_class, transport_name):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
@@ -147,11 +116,11 @@ def test_schedule_service_client_from_service_account_info(
 @pytest.mark.parametrize(
     "transport_class,transport_name",
     [
-        (transports.ScheduleServiceGrpcTransport, "grpc"),
-        (transports.ScheduleServiceGrpcAsyncIOTransport, "grpc_asyncio"),
+        (transports.MatchServiceGrpcTransport, "grpc"),
+        (transports.MatchServiceGrpcAsyncIOTransport, "grpc_asyncio"),
     ],
 )
-def test_schedule_service_client_service_account_always_use_jwt(
+def test_match_service_client_service_account_always_use_jwt(
     transport_class, transport_name
 ):
     with mock.patch.object(
@@ -172,13 +141,11 @@ def test_schedule_service_client_service_account_always_use_jwt(
 @pytest.mark.parametrize(
     "client_class,transport_name",
     [
-        (ScheduleServiceClient, "grpc"),
-        (ScheduleServiceAsyncClient, "grpc_asyncio"),
+        (MatchServiceClient, "grpc"),
+        (MatchServiceAsyncClient, "grpc_asyncio"),
     ],
 )
-def test_schedule_service_client_from_service_account_file(
-    client_class, transport_name
-):
+def test_match_service_client_from_service_account_file(client_class, transport_name):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_file"
@@ -199,49 +166,47 @@ def test_schedule_service_client_from_service_account_file(
         assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
-def test_schedule_service_client_get_transport_class():
-    transport = ScheduleServiceClient.get_transport_class()
+def test_match_service_client_get_transport_class():
+    transport = MatchServiceClient.get_transport_class()
     available_transports = [
-        transports.ScheduleServiceGrpcTransport,
+        transports.MatchServiceGrpcTransport,
     ]
     assert transport in available_transports
 
-    transport = ScheduleServiceClient.get_transport_class("grpc")
-    assert transport == transports.ScheduleServiceGrpcTransport
+    transport = MatchServiceClient.get_transport_class("grpc")
+    assert transport == transports.MatchServiceGrpcTransport
 
 
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
     [
-        (ScheduleServiceClient, transports.ScheduleServiceGrpcTransport, "grpc"),
+        (MatchServiceClient, transports.MatchServiceGrpcTransport, "grpc"),
         (
-            ScheduleServiceAsyncClient,
-            transports.ScheduleServiceGrpcAsyncIOTransport,
+            MatchServiceAsyncClient,
+            transports.MatchServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
     ],
 )
 @mock.patch.object(
-    ScheduleServiceClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(ScheduleServiceClient),
+    MatchServiceClient, "DEFAULT_ENDPOINT", modify_default_endpoint(MatchServiceClient)
 )
 @mock.patch.object(
-    ScheduleServiceAsyncClient,
+    MatchServiceAsyncClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(ScheduleServiceAsyncClient),
+    modify_default_endpoint(MatchServiceAsyncClient),
 )
-def test_schedule_service_client_client_options(
+def test_match_service_client_client_options(
     client_class, transport_class, transport_name
 ):
     # Check that if channel is provided we won't create a new one.
-    with mock.patch.object(ScheduleServiceClient, "get_transport_class") as gtc:
+    with mock.patch.object(MatchServiceClient, "get_transport_class") as gtc:
         transport = transport_class(credentials=ga_credentials.AnonymousCredentials())
         client = client_class(transport=transport)
         gtc.assert_not_called()
 
     # Check that if channel is provided via str we will create a new one.
-    with mock.patch.object(ScheduleServiceClient, "get_transport_class") as gtc:
+    with mock.patch.object(MatchServiceClient, "get_transport_class") as gtc:
         client = client_class(transport=transport_name)
         gtc.assert_called()
 
@@ -350,44 +315,32 @@ def test_schedule_service_client_client_options(
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name,use_client_cert_env",
     [
+        (MatchServiceClient, transports.MatchServiceGrpcTransport, "grpc", "true"),
         (
-            ScheduleServiceClient,
-            transports.ScheduleServiceGrpcTransport,
-            "grpc",
-            "true",
-        ),
-        (
-            ScheduleServiceAsyncClient,
-            transports.ScheduleServiceGrpcAsyncIOTransport,
+            MatchServiceAsyncClient,
+            transports.MatchServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             "true",
         ),
+        (MatchServiceClient, transports.MatchServiceGrpcTransport, "grpc", "false"),
         (
-            ScheduleServiceClient,
-            transports.ScheduleServiceGrpcTransport,
-            "grpc",
-            "false",
-        ),
-        (
-            ScheduleServiceAsyncClient,
-            transports.ScheduleServiceGrpcAsyncIOTransport,
+            MatchServiceAsyncClient,
+            transports.MatchServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             "false",
         ),
     ],
 )
 @mock.patch.object(
-    ScheduleServiceClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(ScheduleServiceClient),
+    MatchServiceClient, "DEFAULT_ENDPOINT", modify_default_endpoint(MatchServiceClient)
 )
 @mock.patch.object(
-    ScheduleServiceAsyncClient,
+    MatchServiceAsyncClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(ScheduleServiceAsyncClient),
+    modify_default_endpoint(MatchServiceAsyncClient),
 )
 @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
-def test_schedule_service_client_mtls_env_auto(
+def test_match_service_client_mtls_env_auto(
     client_class, transport_class, transport_name, use_client_cert_env
 ):
     # This tests the endpoint autoswitch behavior. Endpoint is autoswitched to the default
@@ -483,20 +436,16 @@ def test_schedule_service_client_mtls_env_auto(
                 )
 
 
-@pytest.mark.parametrize(
-    "client_class", [ScheduleServiceClient, ScheduleServiceAsyncClient]
+@pytest.mark.parametrize("client_class", [MatchServiceClient, MatchServiceAsyncClient])
+@mock.patch.object(
+    MatchServiceClient, "DEFAULT_ENDPOINT", modify_default_endpoint(MatchServiceClient)
 )
 @mock.patch.object(
-    ScheduleServiceClient,
+    MatchServiceAsyncClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(ScheduleServiceClient),
+    modify_default_endpoint(MatchServiceAsyncClient),
 )
-@mock.patch.object(
-    ScheduleServiceAsyncClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(ScheduleServiceAsyncClient),
-)
-def test_schedule_service_client_get_mtls_endpoint_and_cert_source(client_class):
+def test_match_service_client_get_mtls_endpoint_and_cert_source(client_class):
     mock_client_cert_source = mock.Mock()
 
     # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "true".
@@ -567,15 +516,15 @@ def test_schedule_service_client_get_mtls_endpoint_and_cert_source(client_class)
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
     [
-        (ScheduleServiceClient, transports.ScheduleServiceGrpcTransport, "grpc"),
+        (MatchServiceClient, transports.MatchServiceGrpcTransport, "grpc"),
         (
-            ScheduleServiceAsyncClient,
-            transports.ScheduleServiceGrpcAsyncIOTransport,
+            MatchServiceAsyncClient,
+            transports.MatchServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
     ],
 )
-def test_schedule_service_client_client_options_scopes(
+def test_match_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
@@ -602,20 +551,20 @@ def test_schedule_service_client_client_options_scopes(
     "client_class,transport_class,transport_name,grpc_helpers",
     [
         (
-            ScheduleServiceClient,
-            transports.ScheduleServiceGrpcTransport,
+            MatchServiceClient,
+            transports.MatchServiceGrpcTransport,
             "grpc",
             grpc_helpers,
         ),
         (
-            ScheduleServiceAsyncClient,
-            transports.ScheduleServiceGrpcAsyncIOTransport,
+            MatchServiceAsyncClient,
+            transports.MatchServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             grpc_helpers_async,
         ),
     ],
 )
-def test_schedule_service_client_client_options_credentials_file(
+def test_match_service_client_client_options_credentials_file(
     client_class, transport_class, transport_name, grpc_helpers
 ):
     # Check the case credentials file is provided.
@@ -637,14 +586,12 @@ def test_schedule_service_client_client_options_credentials_file(
         )
 
 
-def test_schedule_service_client_client_options_from_dict():
+def test_match_service_client_client_options_from_dict():
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.schedule_service.transports.ScheduleServiceGrpcTransport.__init__"
+        "google.cloud.aiplatform_v1.services.match_service.transports.MatchServiceGrpcTransport.__init__"
     ) as grpc_transport:
         grpc_transport.return_value = None
-        client = ScheduleServiceClient(
-            client_options={"api_endpoint": "squid.clam.whelk"}
-        )
+        client = MatchServiceClient(client_options={"api_endpoint": "squid.clam.whelk"})
         grpc_transport.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -662,20 +609,20 @@ def test_schedule_service_client_client_options_from_dict():
     "client_class,transport_class,transport_name,grpc_helpers",
     [
         (
-            ScheduleServiceClient,
-            transports.ScheduleServiceGrpcTransport,
+            MatchServiceClient,
+            transports.MatchServiceGrpcTransport,
             "grpc",
             grpc_helpers,
         ),
         (
-            ScheduleServiceAsyncClient,
-            transports.ScheduleServiceGrpcAsyncIOTransport,
+            MatchServiceAsyncClient,
+            transports.MatchServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             grpc_helpers_async,
         ),
     ],
 )
-def test_schedule_service_client_create_channel_credentials_file(
+def test_match_service_client_create_channel_credentials_file(
     client_class, transport_class, transport_name, grpc_helpers
 ):
     # Check the case credentials file is provided.
@@ -728,12 +675,12 @@ def test_schedule_service_client_create_channel_credentials_file(
 @pytest.mark.parametrize(
     "request_type",
     [
-        schedule_service.CreateScheduleRequest,
+        match_service.FindNeighborsRequest,
         dict,
     ],
 )
-def test_create_schedule(request_type, transport: str = "grpc"):
-    client = ScheduleServiceClient(
+def test_find_neighbors(request_type, transport: str = "grpc"):
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -743,62 +690,41 @@ def test_create_schedule(request_type, transport: str = "grpc"):
     request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
+    with mock.patch.object(type(client.transport.find_neighbors), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = gca_schedule.Schedule(
-            name="name_value",
-            display_name="display_name_value",
-            max_run_count=1410,
-            started_run_count=1843,
-            state=gca_schedule.Schedule.State.ACTIVE,
-            max_concurrent_run_count=2596,
-            allow_queueing=True,
-            catch_up=True,
-            cron="cron_value",
-            create_pipeline_job_request=pipeline_service.CreatePipelineJobRequest(
-                parent="parent_value"
-            ),
-        )
-        response = client.create_schedule(request)
+        call.return_value = match_service.FindNeighborsResponse()
+        response = client.find_neighbors(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.CreateScheduleRequest()
+        assert args[0] == match_service.FindNeighborsRequest()
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_schedule.Schedule)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.max_run_count == 1410
-    assert response.started_run_count == 1843
-    assert response.state == gca_schedule.Schedule.State.ACTIVE
-    assert response.max_concurrent_run_count == 2596
-    assert response.allow_queueing is True
-    assert response.catch_up is True
+    assert isinstance(response, match_service.FindNeighborsResponse)
 
 
-def test_create_schedule_empty_call():
+def test_find_neighbors_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
-        client.create_schedule()
+    with mock.patch.object(type(client.transport.find_neighbors), "__call__") as call:
+        client.find_neighbors()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.CreateScheduleRequest()
+        assert args[0] == match_service.FindNeighborsRequest()
 
 
 @pytest.mark.asyncio
-async def test_create_schedule_async(
-    transport: str = "grpc_asyncio", request_type=schedule_service.CreateScheduleRequest
+async def test_find_neighbors_async(
+    transport: str = "grpc_asyncio", request_type=match_service.FindNeighborsRequest
 ):
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -808,59 +734,42 @@ async def test_create_schedule_async(
     request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
+    with mock.patch.object(type(client.transport.find_neighbors), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_schedule.Schedule(
-                name="name_value",
-                display_name="display_name_value",
-                max_run_count=1410,
-                started_run_count=1843,
-                state=gca_schedule.Schedule.State.ACTIVE,
-                max_concurrent_run_count=2596,
-                allow_queueing=True,
-                catch_up=True,
-            )
+            match_service.FindNeighborsResponse()
         )
-        response = await client.create_schedule(request)
+        response = await client.find_neighbors(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.CreateScheduleRequest()
+        assert args[0] == match_service.FindNeighborsRequest()
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_schedule.Schedule)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.max_run_count == 1410
-    assert response.started_run_count == 1843
-    assert response.state == gca_schedule.Schedule.State.ACTIVE
-    assert response.max_concurrent_run_count == 2596
-    assert response.allow_queueing is True
-    assert response.catch_up is True
+    assert isinstance(response, match_service.FindNeighborsResponse)
 
 
 @pytest.mark.asyncio
-async def test_create_schedule_async_from_dict():
-    await test_create_schedule_async(request_type=dict)
+async def test_find_neighbors_async_from_dict():
+    await test_find_neighbors_async(request_type=dict)
 
 
-def test_create_schedule_field_headers():
-    client = ScheduleServiceClient(
+def test_find_neighbors_field_headers():
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = schedule_service.CreateScheduleRequest()
+    request = match_service.FindNeighborsRequest()
 
-    request.parent = "parent_value"
+    request.index_endpoint = "index_endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
-        call.return_value = gca_schedule.Schedule()
-        client.create_schedule(request)
+    with mock.patch.object(type(client.transport.find_neighbors), "__call__") as call:
+        call.return_value = match_service.FindNeighborsResponse()
+        client.find_neighbors(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -871,28 +780,28 @@ def test_create_schedule_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent_value",
+        "index_endpoint=index_endpoint_value",
     ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
-async def test_create_schedule_field_headers_async():
-    client = ScheduleServiceAsyncClient(
+async def test_find_neighbors_field_headers_async():
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = schedule_service.CreateScheduleRequest()
+    request = match_service.FindNeighborsRequest()
 
-    request.parent = "parent_value"
+    request.index_endpoint = "index_endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
+    with mock.patch.object(type(client.transport.find_neighbors), "__call__") as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_schedule.Schedule()
+            match_service.FindNeighborsResponse()
         )
-        await client.create_schedule(request)
+        await client.find_neighbors(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
@@ -903,111 +812,19 @@ async def test_create_schedule_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent_value",
+        "index_endpoint=index_endpoint_value",
     ) in kw["metadata"]
-
-
-def test_create_schedule_flattened():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = gca_schedule.Schedule()
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        client.create_schedule(
-            parent="parent_value",
-            schedule=gca_schedule.Schedule(cron="cron_value"),
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].parent
-        mock_val = "parent_value"
-        assert arg == mock_val
-        arg = args[0].schedule
-        mock_val = gca_schedule.Schedule(cron="cron_value")
-        assert arg == mock_val
-
-
-def test_create_schedule_flattened_error():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.create_schedule(
-            schedule_service.CreateScheduleRequest(),
-            parent="parent_value",
-            schedule=gca_schedule.Schedule(cron="cron_value"),
-        )
-
-
-@pytest.mark.asyncio
-async def test_create_schedule_flattened_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = gca_schedule.Schedule()
-
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_schedule.Schedule()
-        )
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        response = await client.create_schedule(
-            parent="parent_value",
-            schedule=gca_schedule.Schedule(cron="cron_value"),
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].parent
-        mock_val = "parent_value"
-        assert arg == mock_val
-        arg = args[0].schedule
-        mock_val = gca_schedule.Schedule(cron="cron_value")
-        assert arg == mock_val
-
-
-@pytest.mark.asyncio
-async def test_create_schedule_flattened_error_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        await client.create_schedule(
-            schedule_service.CreateScheduleRequest(),
-            parent="parent_value",
-            schedule=gca_schedule.Schedule(cron="cron_value"),
-        )
 
 
 @pytest.mark.parametrize(
     "request_type",
     [
-        schedule_service.DeleteScheduleRequest,
+        match_service.ReadIndexDatapointsRequest,
         dict,
     ],
 )
-def test_delete_schedule(request_type, transport: str = "grpc"):
-    client = ScheduleServiceClient(
+def test_read_index_datapoints(request_type, transport: str = "grpc"):
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -1017,1480 +834,95 @@ def test_delete_schedule(request_type, transport: str = "grpc"):
     request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
+    with mock.patch.object(
+        type(client.transport.read_index_datapoints), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/spam")
-        response = client.delete_schedule(request)
+        call.return_value = match_service.ReadIndexDatapointsResponse()
+        response = client.read_index_datapoints(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.DeleteScheduleRequest()
+        assert args[0] == match_service.ReadIndexDatapointsRequest()
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, future.Future)
+    assert isinstance(response, match_service.ReadIndexDatapointsResponse)
 
 
-def test_delete_schedule_empty_call():
+def test_read_index_datapoints_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
-        client.delete_schedule()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.DeleteScheduleRequest()
-
-
-@pytest.mark.asyncio
-async def test_delete_schedule_async(
-    transport: str = "grpc_asyncio", request_type=schedule_service.DeleteScheduleRequest
-):
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.DeleteScheduleRequest()
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, future.Future)
-
-
-@pytest.mark.asyncio
-async def test_delete_schedule_async_from_dict():
-    await test_delete_schedule_async(request_type=dict)
-
-
-def test_delete_schedule_field_headers():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = schedule_service.DeleteScheduleRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
-        client.delete_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
-@pytest.mark.asyncio
-async def test_delete_schedule_field_headers_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = schedule_service.DeleteScheduleRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/op")
-        )
-        await client.delete_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
-def test_delete_schedule_flattened():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        client.delete_schedule(
-            name="name_value",
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].name
-        mock_val = "name_value"
-        assert arg == mock_val
-
-
-def test_delete_schedule_flattened_error():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.delete_schedule(
-            schedule_service.DeleteScheduleRequest(),
-            name="name_value",
-        )
-
-
-@pytest.mark.asyncio
-async def test_delete_schedule_flattened_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
-
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        response = await client.delete_schedule(
-            name="name_value",
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].name
-        mock_val = "name_value"
-        assert arg == mock_val
-
-
-@pytest.mark.asyncio
-async def test_delete_schedule_flattened_error_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        await client.delete_schedule(
-            schedule_service.DeleteScheduleRequest(),
-            name="name_value",
-        )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        schedule_service.GetScheduleRequest,
-        dict,
-    ],
-)
-def test_get_schedule(request_type, transport: str = "grpc"):
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = schedule.Schedule(
-            name="name_value",
-            display_name="display_name_value",
-            max_run_count=1410,
-            started_run_count=1843,
-            state=schedule.Schedule.State.ACTIVE,
-            max_concurrent_run_count=2596,
-            allow_queueing=True,
-            catch_up=True,
-            cron="cron_value",
-            create_pipeline_job_request=pipeline_service.CreatePipelineJobRequest(
-                parent="parent_value"
-            ),
-        )
-        response = client.get_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.GetScheduleRequest()
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, schedule.Schedule)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.max_run_count == 1410
-    assert response.started_run_count == 1843
-    assert response.state == schedule.Schedule.State.ACTIVE
-    assert response.max_concurrent_run_count == 2596
-    assert response.allow_queueing is True
-    assert response.catch_up is True
-
-
-def test_get_schedule_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
-        client.get_schedule()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.GetScheduleRequest()
-
-
-@pytest.mark.asyncio
-async def test_get_schedule_async(
-    transport: str = "grpc_asyncio", request_type=schedule_service.GetScheduleRequest
-):
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            schedule.Schedule(
-                name="name_value",
-                display_name="display_name_value",
-                max_run_count=1410,
-                started_run_count=1843,
-                state=schedule.Schedule.State.ACTIVE,
-                max_concurrent_run_count=2596,
-                allow_queueing=True,
-                catch_up=True,
-            )
-        )
-        response = await client.get_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.GetScheduleRequest()
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, schedule.Schedule)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.max_run_count == 1410
-    assert response.started_run_count == 1843
-    assert response.state == schedule.Schedule.State.ACTIVE
-    assert response.max_concurrent_run_count == 2596
-    assert response.allow_queueing is True
-    assert response.catch_up is True
-
-
-@pytest.mark.asyncio
-async def test_get_schedule_async_from_dict():
-    await test_get_schedule_async(request_type=dict)
-
-
-def test_get_schedule_field_headers():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = schedule_service.GetScheduleRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
-        call.return_value = schedule.Schedule()
-        client.get_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
-@pytest.mark.asyncio
-async def test_get_schedule_field_headers_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = schedule_service.GetScheduleRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(schedule.Schedule())
-        await client.get_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
-def test_get_schedule_flattened():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = schedule.Schedule()
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        client.get_schedule(
-            name="name_value",
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].name
-        mock_val = "name_value"
-        assert arg == mock_val
-
-
-def test_get_schedule_flattened_error():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.get_schedule(
-            schedule_service.GetScheduleRequest(),
-            name="name_value",
-        )
-
-
-@pytest.mark.asyncio
-async def test_get_schedule_flattened_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = schedule.Schedule()
-
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(schedule.Schedule())
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        response = await client.get_schedule(
-            name="name_value",
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].name
-        mock_val = "name_value"
-        assert arg == mock_val
-
-
-@pytest.mark.asyncio
-async def test_get_schedule_flattened_error_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        await client.get_schedule(
-            schedule_service.GetScheduleRequest(),
-            name="name_value",
-        )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        schedule_service.ListSchedulesRequest,
-        dict,
-    ],
-)
-def test_list_schedules(request_type, transport: str = "grpc"):
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = schedule_service.ListSchedulesResponse(
-            next_page_token="next_page_token_value",
-        )
-        response = client.list_schedules(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.ListSchedulesRequest()
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListSchedulesPager)
-    assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_schedules_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
-        client.list_schedules()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.ListSchedulesRequest()
-
-
-@pytest.mark.asyncio
-async def test_list_schedules_async(
-    transport: str = "grpc_asyncio", request_type=schedule_service.ListSchedulesRequest
-):
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            schedule_service.ListSchedulesResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_schedules(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.ListSchedulesRequest()
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListSchedulesAsyncPager)
-    assert response.next_page_token == "next_page_token_value"
-
-
-@pytest.mark.asyncio
-async def test_list_schedules_async_from_dict():
-    await test_list_schedules_async(request_type=dict)
-
-
-def test_list_schedules_field_headers():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = schedule_service.ListSchedulesRequest()
-
-    request.parent = "parent_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
-        call.return_value = schedule_service.ListSchedulesResponse()
-        client.list_schedules(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "parent=parent_value",
-    ) in kw["metadata"]
-
-
-@pytest.mark.asyncio
-async def test_list_schedules_field_headers_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = schedule_service.ListSchedulesRequest()
-
-    request.parent = "parent_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            schedule_service.ListSchedulesResponse()
-        )
-        await client.list_schedules(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "parent=parent_value",
-    ) in kw["metadata"]
-
-
-def test_list_schedules_flattened():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = schedule_service.ListSchedulesResponse()
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        client.list_schedules(
-            parent="parent_value",
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].parent
-        mock_val = "parent_value"
-        assert arg == mock_val
-
-
-def test_list_schedules_flattened_error():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.list_schedules(
-            schedule_service.ListSchedulesRequest(),
-            parent="parent_value",
-        )
-
-
-@pytest.mark.asyncio
-async def test_list_schedules_flattened_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = schedule_service.ListSchedulesResponse()
-
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            schedule_service.ListSchedulesResponse()
-        )
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        response = await client.list_schedules(
-            parent="parent_value",
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].parent
-        mock_val = "parent_value"
-        assert arg == mock_val
-
-
-@pytest.mark.asyncio
-async def test_list_schedules_flattened_error_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        await client.list_schedules(
-            schedule_service.ListSchedulesRequest(),
-            parent="parent_value",
-        )
-
-
-def test_list_schedules_pager(transport_name: str = "grpc"):
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
-        transport=transport_name,
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
-        # Set the response to a series of pages.
-        call.side_effect = (
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                ],
-                next_page_token="abc",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[],
-                next_page_token="def",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                ],
-                next_page_token="ghi",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                ],
-            ),
-            RuntimeError,
-        )
-
-        metadata = ()
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
-        )
-        pager = client.list_schedules(request={})
-
-        assert pager._metadata == metadata
-
-        results = list(pager)
-        assert len(results) == 6
-        assert all(isinstance(i, schedule.Schedule) for i in results)
-
-
-def test_list_schedules_pages(transport_name: str = "grpc"):
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials,
-        transport=transport_name,
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
-        # Set the response to a series of pages.
-        call.side_effect = (
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                ],
-                next_page_token="abc",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[],
-                next_page_token="def",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                ],
-                next_page_token="ghi",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                ],
-            ),
-            RuntimeError,
-        )
-        pages = list(client.list_schedules(request={}).pages)
-        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
-            assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.asyncio
-async def test_list_schedules_async_pager():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_schedules), "__call__", new_callable=mock.AsyncMock
+        type(client.transport.read_index_datapoints), "__call__"
     ) as call:
-        # Set the response to a series of pages.
-        call.side_effect = (
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                ],
-                next_page_token="abc",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[],
-                next_page_token="def",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                ],
-                next_page_token="ghi",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                ],
-            ),
-            RuntimeError,
-        )
-        async_pager = await client.list_schedules(
-            request={},
-        )
-        assert async_pager.next_page_token == "abc"
-        responses = []
-        async for response in async_pager:  # pragma: no branch
-            responses.append(response)
-
-        assert len(responses) == 6
-        assert all(isinstance(i, schedule.Schedule) for i in responses)
+        client.read_index_datapoints()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == match_service.ReadIndexDatapointsRequest()
 
 
 @pytest.mark.asyncio
-async def test_list_schedules_async_pages():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials,
+async def test_read_index_datapoints_async(
+    transport: str = "grpc_asyncio",
+    request_type=match_service.ReadIndexDatapointsRequest,
+):
+    client = MatchServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_schedules), "__call__", new_callable=mock.AsyncMock
+        type(client.transport.read_index_datapoints), "__call__"
     ) as call:
-        # Set the response to a series of pages.
-        call.side_effect = (
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                ],
-                next_page_token="abc",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[],
-                next_page_token="def",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                ],
-                next_page_token="ghi",
-            ),
-            schedule_service.ListSchedulesResponse(
-                schedules=[
-                    schedule.Schedule(),
-                    schedule.Schedule(),
-                ],
-            ),
-            RuntimeError,
-        )
-        pages = []
-        async for page_ in (
-            await client.list_schedules(request={})
-        ).pages:  # pragma: no branch
-            pages.append(page_)
-        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
-            assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        schedule_service.PauseScheduleRequest,
-        dict,
-    ],
-)
-def test_pause_schedule(request_type, transport: str = "grpc"):
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = None
-        response = client.pause_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.PauseScheduleRequest()
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_pause_schedule_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
-        client.pause_schedule()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.PauseScheduleRequest()
-
-
-@pytest.mark.asyncio
-async def test_pause_schedule_async(
-    transport: str = "grpc_asyncio", request_type=schedule_service.PauseScheduleRequest
-):
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-        response = await client.pause_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.PauseScheduleRequest()
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-@pytest.mark.asyncio
-async def test_pause_schedule_async_from_dict():
-    await test_pause_schedule_async(request_type=dict)
-
-
-def test_pause_schedule_field_headers():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = schedule_service.PauseScheduleRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
-        call.return_value = None
-        client.pause_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
-@pytest.mark.asyncio
-async def test_pause_schedule_field_headers_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = schedule_service.PauseScheduleRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-        await client.pause_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
-def test_pause_schedule_flattened():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = None
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        client.pause_schedule(
-            name="name_value",
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].name
-        mock_val = "name_value"
-        assert arg == mock_val
-
-
-def test_pause_schedule_flattened_error():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.pause_schedule(
-            schedule_service.PauseScheduleRequest(),
-            name="name_value",
-        )
-
-
-@pytest.mark.asyncio
-async def test_pause_schedule_flattened_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = None
-
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        response = await client.pause_schedule(
-            name="name_value",
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].name
-        mock_val = "name_value"
-        assert arg == mock_val
-
-
-@pytest.mark.asyncio
-async def test_pause_schedule_flattened_error_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        await client.pause_schedule(
-            schedule_service.PauseScheduleRequest(),
-            name="name_value",
-        )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        schedule_service.ResumeScheduleRequest,
-        dict,
-    ],
-)
-def test_resume_schedule(request_type, transport: str = "grpc"):
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = None
-        response = client.resume_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.ResumeScheduleRequest()
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_resume_schedule_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
-        client.resume_schedule()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.ResumeScheduleRequest()
-
-
-@pytest.mark.asyncio
-async def test_resume_schedule_async(
-    transport: str = "grpc_asyncio", request_type=schedule_service.ResumeScheduleRequest
-):
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-        response = await client.resume_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.ResumeScheduleRequest()
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-@pytest.mark.asyncio
-async def test_resume_schedule_async_from_dict():
-    await test_resume_schedule_async(request_type=dict)
-
-
-def test_resume_schedule_field_headers():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = schedule_service.ResumeScheduleRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
-        call.return_value = None
-        client.resume_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
-@pytest.mark.asyncio
-async def test_resume_schedule_field_headers_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = schedule_service.ResumeScheduleRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-        await client.resume_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
-def test_resume_schedule_flattened():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = None
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        client.resume_schedule(
-            name="name_value",
-            catch_up=True,
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].name
-        mock_val = "name_value"
-        assert arg == mock_val
-        arg = args[0].catch_up
-        mock_val = True
-        assert arg == mock_val
-
-
-def test_resume_schedule_flattened_error():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.resume_schedule(
-            schedule_service.ResumeScheduleRequest(),
-            name="name_value",
-            catch_up=True,
-        )
-
-
-@pytest.mark.asyncio
-async def test_resume_schedule_flattened_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = None
-
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        response = await client.resume_schedule(
-            name="name_value",
-            catch_up=True,
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].name
-        mock_val = "name_value"
-        assert arg == mock_val
-        arg = args[0].catch_up
-        mock_val = True
-        assert arg == mock_val
-
-
-@pytest.mark.asyncio
-async def test_resume_schedule_flattened_error_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        await client.resume_schedule(
-            schedule_service.ResumeScheduleRequest(),
-            name="name_value",
-            catch_up=True,
-        )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        schedule_service.UpdateScheduleRequest,
-        dict,
-    ],
-)
-def test_update_schedule(request_type, transport: str = "grpc"):
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = gca_schedule.Schedule(
-            name="name_value",
-            display_name="display_name_value",
-            max_run_count=1410,
-            started_run_count=1843,
-            state=gca_schedule.Schedule.State.ACTIVE,
-            max_concurrent_run_count=2596,
-            allow_queueing=True,
-            catch_up=True,
-            cron="cron_value",
-            create_pipeline_job_request=pipeline_service.CreatePipelineJobRequest(
-                parent="parent_value"
-            ),
-        )
-        response = client.update_schedule(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.UpdateScheduleRequest()
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_schedule.Schedule)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.max_run_count == 1410
-    assert response.started_run_count == 1843
-    assert response.state == gca_schedule.Schedule.State.ACTIVE
-    assert response.max_concurrent_run_count == 2596
-    assert response.allow_queueing is True
-    assert response.catch_up is True
-
-
-def test_update_schedule_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
-        client.update_schedule()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.UpdateScheduleRequest()
-
-
-@pytest.mark.asyncio
-async def test_update_schedule_async(
-    transport: str = "grpc_asyncio", request_type=schedule_service.UpdateScheduleRequest
-):
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_schedule.Schedule(
-                name="name_value",
-                display_name="display_name_value",
-                max_run_count=1410,
-                started_run_count=1843,
-                state=gca_schedule.Schedule.State.ACTIVE,
-                max_concurrent_run_count=2596,
-                allow_queueing=True,
-                catch_up=True,
-            )
+            match_service.ReadIndexDatapointsResponse()
         )
-        response = await client.update_schedule(request)
+        response = await client.read_index_datapoints(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.UpdateScheduleRequest()
+        assert args[0] == match_service.ReadIndexDatapointsRequest()
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, gca_schedule.Schedule)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.max_run_count == 1410
-    assert response.started_run_count == 1843
-    assert response.state == gca_schedule.Schedule.State.ACTIVE
-    assert response.max_concurrent_run_count == 2596
-    assert response.allow_queueing is True
-    assert response.catch_up is True
+    assert isinstance(response, match_service.ReadIndexDatapointsResponse)
 
 
 @pytest.mark.asyncio
-async def test_update_schedule_async_from_dict():
-    await test_update_schedule_async(request_type=dict)
+async def test_read_index_datapoints_async_from_dict():
+    await test_read_index_datapoints_async(request_type=dict)
 
 
-def test_update_schedule_field_headers():
-    client = ScheduleServiceClient(
+def test_read_index_datapoints_field_headers():
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = schedule_service.UpdateScheduleRequest()
+    request = match_service.ReadIndexDatapointsRequest()
 
-    request.schedule.name = "name_value"
+    request.index_endpoint = "index_endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
-        call.return_value = gca_schedule.Schedule()
-        client.update_schedule(request)
+    with mock.patch.object(
+        type(client.transport.read_index_datapoints), "__call__"
+    ) as call:
+        call.return_value = match_service.ReadIndexDatapointsResponse()
+        client.read_index_datapoints(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -2501,28 +933,30 @@ def test_update_schedule_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "schedule.name=name_value",
+        "index_endpoint=index_endpoint_value",
     ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
-async def test_update_schedule_field_headers_async():
-    client = ScheduleServiceAsyncClient(
+async def test_read_index_datapoints_field_headers_async():
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = schedule_service.UpdateScheduleRequest()
+    request = match_service.ReadIndexDatapointsRequest()
 
-    request.schedule.name = "name_value"
+    request.index_endpoint = "index_endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
+    with mock.patch.object(
+        type(client.transport.read_index_datapoints), "__call__"
+    ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_schedule.Schedule()
+            match_service.ReadIndexDatapointsResponse()
         )
-        await client.update_schedule(request)
+        await client.read_index_datapoints(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
@@ -2533,131 +967,39 @@ async def test_update_schedule_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "schedule.name=name_value",
+        "index_endpoint=index_endpoint_value",
     ) in kw["metadata"]
-
-
-def test_update_schedule_flattened():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = gca_schedule.Schedule()
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        client.update_schedule(
-            schedule=gca_schedule.Schedule(cron="cron_value"),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].schedule
-        mock_val = gca_schedule.Schedule(cron="cron_value")
-        assert arg == mock_val
-        arg = args[0].update_mask
-        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
-        assert arg == mock_val
-
-
-def test_update_schedule_flattened_error():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.update_schedule(
-            schedule_service.UpdateScheduleRequest(),
-            schedule=gca_schedule.Schedule(cron="cron_value"),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
-        )
-
-
-@pytest.mark.asyncio
-async def test_update_schedule_flattened_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = gca_schedule.Schedule()
-
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_schedule.Schedule()
-        )
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        response = await client.update_schedule(
-            schedule=gca_schedule.Schedule(cron="cron_value"),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
-        )
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        arg = args[0].schedule
-        mock_val = gca_schedule.Schedule(cron="cron_value")
-        assert arg == mock_val
-        arg = args[0].update_mask
-        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
-        assert arg == mock_val
-
-
-@pytest.mark.asyncio
-async def test_update_schedule_flattened_error_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        await client.update_schedule(
-            schedule_service.UpdateScheduleRequest(),
-            schedule=gca_schedule.Schedule(cron="cron_value"),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
-        )
 
 
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
-    transport = transports.ScheduleServiceGrpcTransport(
+    transport = transports.MatchServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = ScheduleServiceClient(
+        client = MatchServiceClient(
             credentials=ga_credentials.AnonymousCredentials(),
             transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
-    transport = transports.ScheduleServiceGrpcTransport(
+    transport = transports.MatchServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = ScheduleServiceClient(
+        client = MatchServiceClient(
             client_options={"credentials_file": "credentials.json"},
             transport=transport,
         )
 
     # It is an error to provide an api_key and a transport instance.
-    transport = transports.ScheduleServiceGrpcTransport(
+    transport = transports.MatchServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = ScheduleServiceClient(
+        client = MatchServiceClient(
             client_options=options,
             transport=transport,
         )
@@ -2666,16 +1008,16 @@ def test_credentials_transport_error():
     options = mock.Mock()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = ScheduleServiceClient(
+        client = MatchServiceClient(
             client_options=options, credentials=ga_credentials.AnonymousCredentials()
         )
 
     # It is an error to provide scopes and a transport instance.
-    transport = transports.ScheduleServiceGrpcTransport(
+    transport = transports.MatchServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = ScheduleServiceClient(
+        client = MatchServiceClient(
             client_options={"scopes": ["1", "2"]},
             transport=transport,
         )
@@ -2683,22 +1025,22 @@ def test_credentials_transport_error():
 
 def test_transport_instance():
     # A client may be instantiated with a custom transport instance.
-    transport = transports.ScheduleServiceGrpcTransport(
+    transport = transports.MatchServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
-    client = ScheduleServiceClient(transport=transport)
+    client = MatchServiceClient(transport=transport)
     assert client.transport is transport
 
 
 def test_transport_get_channel():
     # A client may be instantiated with a custom transport instance.
-    transport = transports.ScheduleServiceGrpcTransport(
+    transport = transports.MatchServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
     assert channel
 
-    transport = transports.ScheduleServiceGrpcAsyncIOTransport(
+    transport = transports.MatchServiceGrpcAsyncIOTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
@@ -2708,8 +1050,8 @@ def test_transport_get_channel():
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.ScheduleServiceGrpcTransport,
-        transports.ScheduleServiceGrpcAsyncIOTransport,
+        transports.MatchServiceGrpcTransport,
+        transports.MatchServiceGrpcAsyncIOTransport,
     ],
 )
 def test_transport_adc(transport_class):
@@ -2727,7 +1069,7 @@ def test_transport_adc(transport_class):
     ],
 )
 def test_transport_kind(transport_name):
-    transport = ScheduleServiceClient.get_transport_class(transport_name)(
+    transport = MatchServiceClient.get_transport_class(transport_name)(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     assert transport.kind == transport_name
@@ -2735,44 +1077,39 @@ def test_transport_kind(transport_name):
 
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     assert isinstance(
         client.transport,
-        transports.ScheduleServiceGrpcTransport,
+        transports.MatchServiceGrpcTransport,
     )
 
 
-def test_schedule_service_base_transport_error():
+def test_match_service_base_transport_error():
     # Passing both a credentials object and credentials_file should raise an error
     with pytest.raises(core_exceptions.DuplicateCredentialArgs):
-        transport = transports.ScheduleServiceTransport(
+        transport = transports.MatchServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
             credentials_file="credentials.json",
         )
 
 
-def test_schedule_service_base_transport():
+def test_match_service_base_transport():
     # Instantiate the base transport.
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.schedule_service.transports.ScheduleServiceTransport.__init__"
+        "google.cloud.aiplatform_v1.services.match_service.transports.MatchServiceTransport.__init__"
     ) as Transport:
         Transport.return_value = None
-        transport = transports.ScheduleServiceTransport(
+        transport = transports.MatchServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
         )
 
     # Every method on the transport should just blindly
     # raise NotImplementedError.
     methods = (
-        "create_schedule",
-        "delete_schedule",
-        "get_schedule",
-        "list_schedules",
-        "pause_schedule",
-        "resume_schedule",
-        "update_schedule",
+        "find_neighbors",
+        "read_index_datapoints",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -2791,11 +1128,6 @@ def test_schedule_service_base_transport():
     with pytest.raises(NotImplementedError):
         transport.close()
 
-    # Additionally, the LRO client (a property) should
-    # also raise NotImplementedError
-    with pytest.raises(NotImplementedError):
-        transport.operations_client
-
     # Catch all for all remaining methods and properties
     remainder = [
         "kind",
@@ -2805,16 +1137,16 @@ def test_schedule_service_base_transport():
             getattr(transport, r)()
 
 
-def test_schedule_service_base_transport_with_credentials_file():
+def test_match_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
         google.auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.schedule_service.transports.ScheduleServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1.services.match_service.transports.MatchServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.ScheduleServiceTransport(
+        transport = transports.MatchServiceTransport(
             credentials_file="credentials.json",
             quota_project_id="octopus",
         )
@@ -2826,22 +1158,22 @@ def test_schedule_service_base_transport_with_credentials_file():
         )
 
 
-def test_schedule_service_base_transport_with_adc():
+def test_match_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
     with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.schedule_service.transports.ScheduleServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1.services.match_service.transports.MatchServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.ScheduleServiceTransport()
+        transport = transports.MatchServiceTransport()
         adc.assert_called_once()
 
 
-def test_schedule_service_auth_adc():
+def test_match_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        ScheduleServiceClient()
+        MatchServiceClient()
         adc.assert_called_once_with(
             scopes=None,
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
@@ -2852,11 +1184,11 @@ def test_schedule_service_auth_adc():
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.ScheduleServiceGrpcTransport,
-        transports.ScheduleServiceGrpcAsyncIOTransport,
+        transports.MatchServiceGrpcTransport,
+        transports.MatchServiceGrpcAsyncIOTransport,
     ],
 )
-def test_schedule_service_transport_auth_adc(transport_class):
+def test_match_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
@@ -2872,11 +1204,11 @@ def test_schedule_service_transport_auth_adc(transport_class):
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.ScheduleServiceGrpcTransport,
-        transports.ScheduleServiceGrpcAsyncIOTransport,
+        transports.MatchServiceGrpcTransport,
+        transports.MatchServiceGrpcAsyncIOTransport,
     ],
 )
-def test_schedule_service_transport_auth_gdch_credentials(transport_class):
+def test_match_service_transport_auth_gdch_credentials(transport_class):
     host = "https://language.com"
     api_audience_tests = [None, "https://language2.com"]
     api_audience_expect = [host, "https://language2.com"]
@@ -2894,11 +1226,11 @@ def test_schedule_service_transport_auth_gdch_credentials(transport_class):
 @pytest.mark.parametrize(
     "transport_class,grpc_helpers",
     [
-        (transports.ScheduleServiceGrpcTransport, grpc_helpers),
-        (transports.ScheduleServiceGrpcAsyncIOTransport, grpc_helpers_async),
+        (transports.MatchServiceGrpcTransport, grpc_helpers),
+        (transports.MatchServiceGrpcAsyncIOTransport, grpc_helpers_async),
     ],
 )
-def test_schedule_service_transport_create_channel(transport_class, grpc_helpers):
+def test_match_service_transport_create_channel(transport_class, grpc_helpers):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
     with mock.patch.object(
@@ -2928,12 +1260,9 @@ def test_schedule_service_transport_create_channel(transport_class, grpc_helpers
 
 @pytest.mark.parametrize(
     "transport_class",
-    [
-        transports.ScheduleServiceGrpcTransport,
-        transports.ScheduleServiceGrpcAsyncIOTransport,
-    ],
+    [transports.MatchServiceGrpcTransport, transports.MatchServiceGrpcAsyncIOTransport],
 )
-def test_schedule_service_grpc_transport_client_cert_source_for_mtls(transport_class):
+def test_match_service_grpc_transport_client_cert_source_for_mtls(transport_class):
     cred = ga_credentials.AnonymousCredentials()
 
     # Check ssl_channel_credentials is used if provided.
@@ -2978,8 +1307,8 @@ def test_schedule_service_grpc_transport_client_cert_source_for_mtls(transport_c
         "grpc_asyncio",
     ],
 )
-def test_schedule_service_host_no_port(transport_name):
-    client = ScheduleServiceClient(
+def test_match_service_host_no_port(transport_name):
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
@@ -2996,8 +1325,8 @@ def test_schedule_service_host_no_port(transport_name):
         "grpc_asyncio",
     ],
 )
-def test_schedule_service_host_with_port(transport_name):
-    client = ScheduleServiceClient(
+def test_match_service_host_with_port(transport_name):
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
@@ -3007,11 +1336,11 @@ def test_schedule_service_host_with_port(transport_name):
     assert client.transport._host == ("aiplatform.googleapis.com:8000")
 
 
-def test_schedule_service_grpc_transport_channel():
+def test_match_service_grpc_transport_channel():
     channel = grpc.secure_channel("http://localhost/", grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
-    transport = transports.ScheduleServiceGrpcTransport(
+    transport = transports.MatchServiceGrpcTransport(
         host="squid.clam.whelk",
         channel=channel,
     )
@@ -3020,11 +1349,11 @@ def test_schedule_service_grpc_transport_channel():
     assert transport._ssl_channel_credentials == None
 
 
-def test_schedule_service_grpc_asyncio_transport_channel():
+def test_match_service_grpc_asyncio_transport_channel():
     channel = aio.secure_channel("http://localhost/", grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
-    transport = transports.ScheduleServiceGrpcAsyncIOTransport(
+    transport = transports.MatchServiceGrpcAsyncIOTransport(
         host="squid.clam.whelk",
         channel=channel,
     )
@@ -3037,14 +1366,9 @@ def test_schedule_service_grpc_asyncio_transport_channel():
 # removed from grpc/grpc_asyncio transport constructor.
 @pytest.mark.parametrize(
     "transport_class",
-    [
-        transports.ScheduleServiceGrpcTransport,
-        transports.ScheduleServiceGrpcAsyncIOTransport,
-    ],
+    [transports.MatchServiceGrpcTransport, transports.MatchServiceGrpcAsyncIOTransport],
 )
-def test_schedule_service_transport_channel_mtls_with_client_cert_source(
-    transport_class,
-):
+def test_match_service_transport_channel_mtls_with_client_cert_source(transport_class):
     with mock.patch(
         "grpc.ssl_channel_credentials", autospec=True
     ) as grpc_ssl_channel_cred:
@@ -3091,12 +1415,9 @@ def test_schedule_service_transport_channel_mtls_with_client_cert_source(
 # removed from grpc/grpc_asyncio transport constructor.
 @pytest.mark.parametrize(
     "transport_class",
-    [
-        transports.ScheduleServiceGrpcTransport,
-        transports.ScheduleServiceGrpcAsyncIOTransport,
-    ],
+    [transports.MatchServiceGrpcTransport, transports.MatchServiceGrpcAsyncIOTransport],
 )
-def test_schedule_service_transport_channel_mtls_with_adc(transport_class):
+def test_match_service_transport_channel_mtls_with_adc(transport_class):
     mock_ssl_cred = mock.Mock()
     with mock.patch.multiple(
         "google.auth.transport.grpc.SslCredentials",
@@ -3133,336 +1454,132 @@ def test_schedule_service_transport_channel_mtls_with_adc(transport_class):
             assert transport.grpc_channel == mock_grpc_channel
 
 
-def test_schedule_service_grpc_lro_client():
-    client = ScheduleServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-    transport = client.transport
-
-    # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.OperationsClient,
-    )
-
-    # Ensure that subsequent calls to the property send the exact same object.
-    assert transport.operations_client is transport.operations_client
-
-
-def test_schedule_service_grpc_lro_async_client():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-    transport = client.transport
-
-    # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.OperationsAsyncClient,
-    )
-
-    # Ensure that subsequent calls to the property send the exact same object.
-    assert transport.operations_client is transport.operations_client
-
-
-def test_artifact_path():
+def test_index_endpoint_path():
     project = "squid"
     location = "clam"
-    metadata_store = "whelk"
-    artifact = "octopus"
-    expected = "projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}".format(
+    index_endpoint = "whelk"
+    expected = "projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}".format(
         project=project,
         location=location,
-        metadata_store=metadata_store,
-        artifact=artifact,
+        index_endpoint=index_endpoint,
     )
-    actual = ScheduleServiceClient.artifact_path(
-        project, location, metadata_store, artifact
-    )
+    actual = MatchServiceClient.index_endpoint_path(project, location, index_endpoint)
     assert expected == actual
 
 
-def test_parse_artifact_path():
+def test_parse_index_endpoint_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
-        "metadata_store": "cuttlefish",
-        "artifact": "mussel",
+        "project": "octopus",
+        "location": "oyster",
+        "index_endpoint": "nudibranch",
     }
-    path = ScheduleServiceClient.artifact_path(**expected)
+    path = MatchServiceClient.index_endpoint_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_artifact_path(path)
-    assert expected == actual
-
-
-def test_context_path():
-    project = "winkle"
-    location = "nautilus"
-    metadata_store = "scallop"
-    context = "abalone"
-    expected = "projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}".format(
-        project=project,
-        location=location,
-        metadata_store=metadata_store,
-        context=context,
-    )
-    actual = ScheduleServiceClient.context_path(
-        project, location, metadata_store, context
-    )
-    assert expected == actual
-
-
-def test_parse_context_path():
-    expected = {
-        "project": "squid",
-        "location": "clam",
-        "metadata_store": "whelk",
-        "context": "octopus",
-    }
-    path = ScheduleServiceClient.context_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_context_path(path)
-    assert expected == actual
-
-
-def test_custom_job_path():
-    project = "oyster"
-    location = "nudibranch"
-    custom_job = "cuttlefish"
-    expected = "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
-        project=project,
-        location=location,
-        custom_job=custom_job,
-    )
-    actual = ScheduleServiceClient.custom_job_path(project, location, custom_job)
-    assert expected == actual
-
-
-def test_parse_custom_job_path():
-    expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "custom_job": "nautilus",
-    }
-    path = ScheduleServiceClient.custom_job_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_custom_job_path(path)
-    assert expected == actual
-
-
-def test_execution_path():
-    project = "scallop"
-    location = "abalone"
-    metadata_store = "squid"
-    execution = "clam"
-    expected = "projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}".format(
-        project=project,
-        location=location,
-        metadata_store=metadata_store,
-        execution=execution,
-    )
-    actual = ScheduleServiceClient.execution_path(
-        project, location, metadata_store, execution
-    )
-    assert expected == actual
-
-
-def test_parse_execution_path():
-    expected = {
-        "project": "whelk",
-        "location": "octopus",
-        "metadata_store": "oyster",
-        "execution": "nudibranch",
-    }
-    path = ScheduleServiceClient.execution_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_execution_path(path)
-    assert expected == actual
-
-
-def test_network_path():
-    project = "cuttlefish"
-    network = "mussel"
-    expected = "projects/{project}/global/networks/{network}".format(
-        project=project,
-        network=network,
-    )
-    actual = ScheduleServiceClient.network_path(project, network)
-    assert expected == actual
-
-
-def test_parse_network_path():
-    expected = {
-        "project": "winkle",
-        "network": "nautilus",
-    }
-    path = ScheduleServiceClient.network_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_network_path(path)
-    assert expected == actual
-
-
-def test_pipeline_job_path():
-    project = "scallop"
-    location = "abalone"
-    pipeline_job = "squid"
-    expected = (
-        "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
-            project=project,
-            location=location,
-            pipeline_job=pipeline_job,
-        )
-    )
-    actual = ScheduleServiceClient.pipeline_job_path(project, location, pipeline_job)
-    assert expected == actual
-
-
-def test_parse_pipeline_job_path():
-    expected = {
-        "project": "clam",
-        "location": "whelk",
-        "pipeline_job": "octopus",
-    }
-    path = ScheduleServiceClient.pipeline_job_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_pipeline_job_path(path)
-    assert expected == actual
-
-
-def test_schedule_path():
-    project = "oyster"
-    location = "nudibranch"
-    schedule = "cuttlefish"
-    expected = "projects/{project}/locations/{location}/schedules/{schedule}".format(
-        project=project,
-        location=location,
-        schedule=schedule,
-    )
-    actual = ScheduleServiceClient.schedule_path(project, location, schedule)
-    assert expected == actual
-
-
-def test_parse_schedule_path():
-    expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "schedule": "nautilus",
-    }
-    path = ScheduleServiceClient.schedule_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_schedule_path(path)
+    actual = MatchServiceClient.parse_index_endpoint_path(path)
     assert expected == actual
 
 
 def test_common_billing_account_path():
-    billing_account = "scallop"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
-    actual = ScheduleServiceClient.common_billing_account_path(billing_account)
+    actual = MatchServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
 
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "abalone",
+        "billing_account": "mussel",
     }
-    path = ScheduleServiceClient.common_billing_account_path(**expected)
+    path = MatchServiceClient.common_billing_account_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_common_billing_account_path(path)
+    actual = MatchServiceClient.parse_common_billing_account_path(path)
     assert expected == actual
 
 
 def test_common_folder_path():
-    folder = "squid"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
-    actual = ScheduleServiceClient.common_folder_path(folder)
+    actual = MatchServiceClient.common_folder_path(folder)
     assert expected == actual
 
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "clam",
+        "folder": "nautilus",
     }
-    path = ScheduleServiceClient.common_folder_path(**expected)
+    path = MatchServiceClient.common_folder_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_common_folder_path(path)
+    actual = MatchServiceClient.parse_common_folder_path(path)
     assert expected == actual
 
 
 def test_common_organization_path():
-    organization = "whelk"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
-    actual = ScheduleServiceClient.common_organization_path(organization)
+    actual = MatchServiceClient.common_organization_path(organization)
     assert expected == actual
 
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "octopus",
+        "organization": "abalone",
     }
-    path = ScheduleServiceClient.common_organization_path(**expected)
+    path = MatchServiceClient.common_organization_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_common_organization_path(path)
+    actual = MatchServiceClient.parse_common_organization_path(path)
     assert expected == actual
 
 
 def test_common_project_path():
-    project = "oyster"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
-    actual = ScheduleServiceClient.common_project_path(project)
+    actual = MatchServiceClient.common_project_path(project)
     assert expected == actual
 
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nudibranch",
+        "project": "clam",
     }
-    path = ScheduleServiceClient.common_project_path(**expected)
+    path = MatchServiceClient.common_project_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_common_project_path(path)
+    actual = MatchServiceClient.parse_common_project_path(path)
     assert expected == actual
 
 
 def test_common_location_path():
-    project = "cuttlefish"
-    location = "mussel"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
     )
-    actual = ScheduleServiceClient.common_location_path(project, location)
+    actual = MatchServiceClient.common_location_path(project, location)
     assert expected == actual
 
 
 def test_parse_common_location_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
+        "project": "oyster",
+        "location": "nudibranch",
     }
-    path = ScheduleServiceClient.common_location_path(**expected)
+    path = MatchServiceClient.common_location_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = ScheduleServiceClient.parse_common_location_path(path)
+    actual = MatchServiceClient.parse_common_location_path(path)
     assert expected == actual
 
 
@@ -3470,18 +1587,18 @@ def test_client_with_default_client_info():
     client_info = gapic_v1.client_info.ClientInfo()
 
     with mock.patch.object(
-        transports.ScheduleServiceTransport, "_prep_wrapped_messages"
+        transports.MatchServiceTransport, "_prep_wrapped_messages"
     ) as prep:
-        client = ScheduleServiceClient(
+        client = MatchServiceClient(
             credentials=ga_credentials.AnonymousCredentials(),
             client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
     with mock.patch.object(
-        transports.ScheduleServiceTransport, "_prep_wrapped_messages"
+        transports.MatchServiceTransport, "_prep_wrapped_messages"
     ) as prep:
-        transport_class = ScheduleServiceClient.get_transport_class()
+        transport_class = MatchServiceClient.get_transport_class()
         transport = transport_class(
             credentials=ga_credentials.AnonymousCredentials(),
             client_info=client_info,
@@ -3491,7 +1608,7 @@ def test_client_with_default_client_info():
 
 @pytest.mark.asyncio
 async def test_transport_close_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc_asyncio",
     )
@@ -3504,7 +1621,7 @@ async def test_transport_close_async():
 
 
 def test_delete_operation(transport: str = "grpc"):
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3529,7 +1646,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_delete_operation_async(transport: str = "grpc"):
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3553,7 +1670,7 @@ async def test_delete_operation_async(transport: str = "grpc"):
 
 
 def test_delete_operation_field_headers():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3582,7 +1699,7 @@ def test_delete_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_delete_operation_field_headers_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3609,7 +1726,7 @@ async def test_delete_operation_field_headers_async():
 
 
 def test_delete_operation_from_dict():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3627,7 +1744,7 @@ def test_delete_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_delete_operation_from_dict_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3643,7 +1760,7 @@ async def test_delete_operation_from_dict_async():
 
 
 def test_cancel_operation(transport: str = "grpc"):
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3668,7 +1785,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_cancel_operation_async(transport: str = "grpc"):
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3692,7 +1809,7 @@ async def test_cancel_operation_async(transport: str = "grpc"):
 
 
 def test_cancel_operation_field_headers():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3721,7 +1838,7 @@ def test_cancel_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_cancel_operation_field_headers_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3748,7 +1865,7 @@ async def test_cancel_operation_field_headers_async():
 
 
 def test_cancel_operation_from_dict():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3766,7 +1883,7 @@ def test_cancel_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_cancel_operation_from_dict_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3782,7 +1899,7 @@ async def test_cancel_operation_from_dict_async():
 
 
 def test_wait_operation(transport: str = "grpc"):
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3807,7 +1924,7 @@ def test_wait_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_wait_operation(transport: str = "grpc"):
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3833,7 +1950,7 @@ async def test_wait_operation(transport: str = "grpc"):
 
 
 def test_wait_operation_field_headers():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3862,7 +1979,7 @@ def test_wait_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_wait_operation_field_headers_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3891,7 +2008,7 @@ async def test_wait_operation_field_headers_async():
 
 
 def test_wait_operation_from_dict():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3909,7 +2026,7 @@ def test_wait_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_wait_operation_from_dict_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3927,7 +2044,7 @@ async def test_wait_operation_from_dict_async():
 
 
 def test_get_operation(transport: str = "grpc"):
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3952,7 +2069,7 @@ def test_get_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_get_operation_async(transport: str = "grpc"):
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3978,7 +2095,7 @@ async def test_get_operation_async(transport: str = "grpc"):
 
 
 def test_get_operation_field_headers():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4007,7 +2124,7 @@ def test_get_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_operation_field_headers_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4036,7 +2153,7 @@ async def test_get_operation_field_headers_async():
 
 
 def test_get_operation_from_dict():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4054,7 +2171,7 @@ def test_get_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_get_operation_from_dict_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4072,7 +2189,7 @@ async def test_get_operation_from_dict_async():
 
 
 def test_list_operations(transport: str = "grpc"):
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4097,7 +2214,7 @@ def test_list_operations(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_operations_async(transport: str = "grpc"):
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4123,7 +2240,7 @@ async def test_list_operations_async(transport: str = "grpc"):
 
 
 def test_list_operations_field_headers():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4152,7 +2269,7 @@ def test_list_operations_field_headers():
 
 @pytest.mark.asyncio
 async def test_list_operations_field_headers_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4181,7 +2298,7 @@ async def test_list_operations_field_headers_async():
 
 
 def test_list_operations_from_dict():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4199,7 +2316,7 @@ def test_list_operations_from_dict():
 
 @pytest.mark.asyncio
 async def test_list_operations_from_dict_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4217,7 +2334,7 @@ async def test_list_operations_from_dict_async():
 
 
 def test_list_locations(transport: str = "grpc"):
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4242,7 +2359,7 @@ def test_list_locations(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_locations_async(transport: str = "grpc"):
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4268,7 +2385,7 @@ async def test_list_locations_async(transport: str = "grpc"):
 
 
 def test_list_locations_field_headers():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4297,7 +2414,7 @@ def test_list_locations_field_headers():
 
 @pytest.mark.asyncio
 async def test_list_locations_field_headers_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4326,7 +2443,7 @@ async def test_list_locations_field_headers_async():
 
 
 def test_list_locations_from_dict():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4344,7 +2461,7 @@ def test_list_locations_from_dict():
 
 @pytest.mark.asyncio
 async def test_list_locations_from_dict_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4362,7 +2479,7 @@ async def test_list_locations_from_dict_async():
 
 
 def test_get_location(transport: str = "grpc"):
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4387,7 +2504,7 @@ def test_get_location(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_get_location_async(transport: str = "grpc_asyncio"):
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4413,7 +2530,7 @@ async def test_get_location_async(transport: str = "grpc_asyncio"):
 
 
 def test_get_location_field_headers():
-    client = ScheduleServiceClient(credentials=ga_credentials.AnonymousCredentials())
+    client = MatchServiceClient(credentials=ga_credentials.AnonymousCredentials())
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -4440,9 +2557,7 @@ def test_get_location_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_location_field_headers_async():
-    client = ScheduleServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials()
-    )
+    client = MatchServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials())
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -4469,7 +2584,7 @@ async def test_get_location_field_headers_async():
 
 
 def test_get_location_from_dict():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4487,7 +2602,7 @@ def test_get_location_from_dict():
 
 @pytest.mark.asyncio
 async def test_get_location_from_dict_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4505,7 +2620,7 @@ async def test_get_location_from_dict_async():
 
 
 def test_set_iam_policy(transport: str = "grpc"):
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4538,7 +2653,7 @@ def test_set_iam_policy(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4573,7 +2688,7 @@ async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
 
 
 def test_set_iam_policy_field_headers():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4603,7 +2718,7 @@ def test_set_iam_policy_field_headers():
 
 @pytest.mark.asyncio
 async def test_set_iam_policy_field_headers_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4632,7 +2747,7 @@ async def test_set_iam_policy_field_headers_async():
 
 
 def test_set_iam_policy_from_dict():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4651,7 +2766,7 @@ def test_set_iam_policy_from_dict():
 
 @pytest.mark.asyncio
 async def test_set_iam_policy_from_dict_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4669,7 +2784,7 @@ async def test_set_iam_policy_from_dict_async():
 
 
 def test_get_iam_policy(transport: str = "grpc"):
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4704,7 +2819,7 @@ def test_get_iam_policy(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4740,7 +2855,7 @@ async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
 
 
 def test_get_iam_policy_field_headers():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4770,7 +2885,7 @@ def test_get_iam_policy_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_iam_policy_field_headers_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4799,7 +2914,7 @@ async def test_get_iam_policy_field_headers_async():
 
 
 def test_get_iam_policy_from_dict():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4818,7 +2933,7 @@ def test_get_iam_policy_from_dict():
 
 @pytest.mark.asyncio
 async def test_get_iam_policy_from_dict_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4836,7 +2951,7 @@ async def test_get_iam_policy_from_dict_async():
 
 
 def test_test_iam_permissions(transport: str = "grpc"):
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4870,7 +2985,7 @@ def test_test_iam_permissions(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4905,7 +3020,7 @@ async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
 
 
 def test_test_iam_permissions_field_headers():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4937,7 +3052,7 @@ def test_test_iam_permissions_field_headers():
 
 @pytest.mark.asyncio
 async def test_test_iam_permissions_field_headers_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -4970,7 +3085,7 @@ async def test_test_iam_permissions_field_headers_async():
 
 
 def test_test_iam_permissions_from_dict():
-    client = ScheduleServiceClient(
+    client = MatchServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4991,7 +3106,7 @@ def test_test_iam_permissions_from_dict():
 
 @pytest.mark.asyncio
 async def test_test_iam_permissions_from_dict_async():
-    client = ScheduleServiceAsyncClient(
+    client = MatchServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5018,7 +3133,7 @@ def test_transport_close():
     }
 
     for transport, close_name in transports.items():
-        client = ScheduleServiceClient(
+        client = MatchServiceClient(
             credentials=ga_credentials.AnonymousCredentials(), transport=transport
         )
         with mock.patch.object(
@@ -5034,7 +3149,7 @@ def test_client_ctx():
         "grpc",
     ]
     for transport in transports:
-        client = ScheduleServiceClient(
+        client = MatchServiceClient(
             credentials=ga_credentials.AnonymousCredentials(), transport=transport
         )
         # Test client calls underlying transport.
@@ -5048,8 +3163,8 @@ def test_client_ctx():
 @pytest.mark.parametrize(
     "client_class,transport_class",
     [
-        (ScheduleServiceClient, transports.ScheduleServiceGrpcTransport),
-        (ScheduleServiceAsyncClient, transports.ScheduleServiceGrpcAsyncIOTransport),
+        (MatchServiceClient, transports.MatchServiceGrpcTransport),
+        (MatchServiceAsyncClient, transports.MatchServiceGrpcAsyncIOTransport),
     ],
 )
 def test_api_key_credentials(client_class, transport_class):

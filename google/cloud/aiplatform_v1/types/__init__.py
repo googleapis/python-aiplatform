@@ -132,6 +132,7 @@ from .execution import (
 from .explanation import (
     Attribution,
     BlurBaselineConfig,
+    Examples,
     ExamplesOverride,
     ExamplesRestrictionsNamespace,
     Explanation,
@@ -143,6 +144,7 @@ from .explanation import (
     IntegratedGradientsAttribution,
     ModelExplanation,
     Neighbor,
+    Presets,
     SampledShapleyAttribution,
     SmoothGradConfig,
     XraiAttribution,
@@ -339,6 +341,12 @@ from .machine_resources import (
 )
 from .manual_batch_tuning_parameters import (
     ManualBatchTuningParameters,
+)
+from .match_service import (
+    FindNeighborsRequest,
+    FindNeighborsResponse,
+    ReadIndexDatapointsRequest,
+    ReadIndexDatapointsResponse,
 )
 from .metadata_schema import (
     MetadataSchema,
@@ -724,6 +732,7 @@ __all__ = (
     "Execution",
     "Attribution",
     "BlurBaselineConfig",
+    "Examples",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
     "Explanation",
@@ -735,6 +744,7 @@ __all__ = (
     "IntegratedGradientsAttribution",
     "ModelExplanation",
     "Neighbor",
+    "Presets",
     "SampledShapleyAttribution",
     "SmoothGradConfig",
     "XraiAttribution",
@@ -896,6 +906,10 @@ __all__ = (
     "NfsMount",
     "ResourcesConsumed",
     "ManualBatchTuningParameters",
+    "FindNeighborsRequest",
+    "FindNeighborsResponse",
+    "ReadIndexDatapointsRequest",
+    "ReadIndexDatapointsResponse",
     "MetadataSchema",
     "AddContextArtifactsAndExecutionsRequest",
     "AddContextArtifactsAndExecutionsResponse",

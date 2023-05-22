@@ -16,34 +16,29 @@
 import abc
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Union
 
-from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 import google.auth  # type: ignore
 import google.api_core
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
-from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import schedule
-from google.cloud.aiplatform_v1beta1.types import schedule as gca_schedule
-from google.cloud.aiplatform_v1beta1.types import schedule_service
+from google.cloud.aiplatform_v1.types import match_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
-from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
 
 
-class ScheduleServiceTransport(abc.ABC):
-    """Abstract transport class for ScheduleService."""
+class MatchServiceTransport(abc.ABC):
+    """Abstract transport class for MatchService."""
 
     AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
@@ -132,38 +127,13 @@ class ScheduleServiceTransport(abc.ABC):
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
-            self.create_schedule: gapic_v1.method.wrap_method(
-                self.create_schedule,
+            self.find_neighbors: gapic_v1.method.wrap_method(
+                self.find_neighbors,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.delete_schedule: gapic_v1.method.wrap_method(
-                self.delete_schedule,
-                default_timeout=None,
-                client_info=client_info,
-            ),
-            self.get_schedule: gapic_v1.method.wrap_method(
-                self.get_schedule,
-                default_timeout=None,
-                client_info=client_info,
-            ),
-            self.list_schedules: gapic_v1.method.wrap_method(
-                self.list_schedules,
-                default_timeout=None,
-                client_info=client_info,
-            ),
-            self.pause_schedule: gapic_v1.method.wrap_method(
-                self.pause_schedule,
-                default_timeout=None,
-                client_info=client_info,
-            ),
-            self.resume_schedule: gapic_v1.method.wrap_method(
-                self.resume_schedule,
-                default_timeout=None,
-                client_info=client_info,
-            ),
-            self.update_schedule: gapic_v1.method.wrap_method(
-                self.update_schedule,
+            self.read_index_datapoints: gapic_v1.method.wrap_method(
+                self.read_index_datapoints,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -179,73 +149,26 @@ class ScheduleServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
-    def operations_client(self):
-        """Return the client designed to process long-running operations."""
-        raise NotImplementedError()
-
-    @property
-    def create_schedule(
+    def find_neighbors(
         self,
     ) -> Callable[
-        [schedule_service.CreateScheduleRequest],
-        Union[gca_schedule.Schedule, Awaitable[gca_schedule.Schedule]],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def delete_schedule(
-        self,
-    ) -> Callable[
-        [schedule_service.DeleteScheduleRequest],
-        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def get_schedule(
-        self,
-    ) -> Callable[
-        [schedule_service.GetScheduleRequest],
-        Union[schedule.Schedule, Awaitable[schedule.Schedule]],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def list_schedules(
-        self,
-    ) -> Callable[
-        [schedule_service.ListSchedulesRequest],
+        [match_service.FindNeighborsRequest],
         Union[
-            schedule_service.ListSchedulesResponse,
-            Awaitable[schedule_service.ListSchedulesResponse],
+            match_service.FindNeighborsResponse,
+            Awaitable[match_service.FindNeighborsResponse],
         ],
     ]:
         raise NotImplementedError()
 
     @property
-    def pause_schedule(
+    def read_index_datapoints(
         self,
     ) -> Callable[
-        [schedule_service.PauseScheduleRequest],
-        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def resume_schedule(
-        self,
-    ) -> Callable[
-        [schedule_service.ResumeScheduleRequest],
-        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def update_schedule(
-        self,
-    ) -> Callable[
-        [schedule_service.UpdateScheduleRequest],
-        Union[gca_schedule.Schedule, Awaitable[gca_schedule.Schedule]],
+        [match_service.ReadIndexDatapointsRequest],
+        Union[
+            match_service.ReadIndexDatapointsResponse,
+            Awaitable[match_service.ReadIndexDatapointsResponse],
+        ],
     ]:
         raise NotImplementedError()
 
@@ -347,4 +270,4 @@ class ScheduleServiceTransport(abc.ABC):
         raise NotImplementedError()
 
 
-__all__ = ("ScheduleServiceTransport",)
+__all__ = ("MatchServiceTransport",)

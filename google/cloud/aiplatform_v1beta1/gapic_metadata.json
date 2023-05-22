@@ -1919,6 +1919,11 @@
               "methods": [
                 "resume_schedule"
               ]
+            },
+            "UpdateSchedule": {
+              "methods": [
+                "update_schedule"
+              ]
             }
           }
         },
@@ -1953,6 +1958,11 @@
             "ResumeSchedule": {
               "methods": [
                 "resume_schedule"
+              ]
+            },
+            "UpdateSchedule": {
+              "methods": [
+                "update_schedule"
               ]
             }
           }

@@ -29,7 +29,7 @@ from typing import (
     cast,
 )
 
-from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
@@ -46,44 +46,33 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
-from google.api_core import operation as gac_operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.schedule_service import pagers
-from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.cloud.aiplatform_v1beta1.types import pipeline_service
-from google.cloud.aiplatform_v1beta1.types import schedule
-from google.cloud.aiplatform_v1beta1.types import schedule as gca_schedule
-from google.cloud.aiplatform_v1beta1.types import schedule_service
+from google.cloud.aiplatform_v1.types import index
+from google.cloud.aiplatform_v1.types import match_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from .transports.base import ScheduleServiceTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc import ScheduleServiceGrpcTransport
-from .transports.grpc_asyncio import ScheduleServiceGrpcAsyncIOTransport
+from .transports.base import MatchServiceTransport, DEFAULT_CLIENT_INFO
+from .transports.grpc import MatchServiceGrpcTransport
+from .transports.grpc_asyncio import MatchServiceGrpcAsyncIOTransport
 
 
-class ScheduleServiceClientMeta(type):
-    """Metaclass for the ScheduleService client.
+class MatchServiceClientMeta(type):
+    """Metaclass for the MatchService client.
 
     This provides class-level methods for building and retrieving
     support objects (e.g. transport) without polluting the client instance
     objects.
     """
 
-    _transport_registry = (
-        OrderedDict()
-    )  # type: Dict[str, Type[ScheduleServiceTransport]]
-    _transport_registry["grpc"] = ScheduleServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = ScheduleServiceGrpcAsyncIOTransport
+    _transport_registry = OrderedDict()  # type: Dict[str, Type[MatchServiceTransport]]
+    _transport_registry["grpc"] = MatchServiceGrpcTransport
+    _transport_registry["grpc_asyncio"] = MatchServiceGrpcAsyncIOTransport
 
     def get_transport_class(
         cls,
         label: Optional[str] = None,
-    ) -> Type[ScheduleServiceTransport]:
+    ) -> Type[MatchServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -102,10 +91,9 @@ class ScheduleServiceClientMeta(type):
         return next(iter(cls._transport_registry.values()))
 
 
-class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
-    """A service for creating and managing Vertex AI's Schedule
-    resources to periodically launch shceudled runs to make API
-    calls.
+class MatchServiceClient(metaclass=MatchServiceClientMeta):
+    """MatchService is a Google managed service for efficient vector
+    similarity search at scale.
     """
 
     @staticmethod
@@ -154,7 +142,7 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            ScheduleServiceClient: The constructed client.
+            MatchServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_info(info)
         kwargs["credentials"] = credentials
@@ -172,7 +160,7 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            ScheduleServiceClient: The constructed client.
+            MatchServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -181,168 +169,33 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @property
-    def transport(self) -> ScheduleServiceTransport:
+    def transport(self) -> MatchServiceTransport:
         """Returns the transport used by the client instance.
 
         Returns:
-            ScheduleServiceTransport: The transport used by the client
+            MatchServiceTransport: The transport used by the client
                 instance.
         """
         return self._transport
 
     @staticmethod
-    def artifact_path(
+    def index_endpoint_path(
         project: str,
         location: str,
-        metadata_store: str,
-        artifact: str,
+        index_endpoint: str,
     ) -> str:
-        """Returns a fully-qualified artifact string."""
-        return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}".format(
+        """Returns a fully-qualified index_endpoint string."""
+        return "projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}".format(
             project=project,
             location=location,
-            metadata_store=metadata_store,
-            artifact=artifact,
+            index_endpoint=index_endpoint,
         )
 
     @staticmethod
-    def parse_artifact_path(path: str) -> Dict[str, str]:
-        """Parses a artifact path into its component segments."""
+    def parse_index_endpoint_path(path: str) -> Dict[str, str]:
+        """Parses a index_endpoint path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/metadataStores/(?P<metadata_store>.+?)/artifacts/(?P<artifact>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def context_path(
-        project: str,
-        location: str,
-        metadata_store: str,
-        context: str,
-    ) -> str:
-        """Returns a fully-qualified context string."""
-        return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}".format(
-            project=project,
-            location=location,
-            metadata_store=metadata_store,
-            context=context,
-        )
-
-    @staticmethod
-    def parse_context_path(path: str) -> Dict[str, str]:
-        """Parses a context path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/metadataStores/(?P<metadata_store>.+?)/contexts/(?P<context>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def custom_job_path(
-        project: str,
-        location: str,
-        custom_job: str,
-    ) -> str:
-        """Returns a fully-qualified custom_job string."""
-        return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
-            project=project,
-            location=location,
-            custom_job=custom_job,
-        )
-
-    @staticmethod
-    def parse_custom_job_path(path: str) -> Dict[str, str]:
-        """Parses a custom_job path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/customJobs/(?P<custom_job>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def execution_path(
-        project: str,
-        location: str,
-        metadata_store: str,
-        execution: str,
-    ) -> str:
-        """Returns a fully-qualified execution string."""
-        return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}".format(
-            project=project,
-            location=location,
-            metadata_store=metadata_store,
-            execution=execution,
-        )
-
-    @staticmethod
-    def parse_execution_path(path: str) -> Dict[str, str]:
-        """Parses a execution path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/metadataStores/(?P<metadata_store>.+?)/executions/(?P<execution>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def network_path(
-        project: str,
-        network: str,
-    ) -> str:
-        """Returns a fully-qualified network string."""
-        return "projects/{project}/global/networks/{network}".format(
-            project=project,
-            network=network,
-        )
-
-    @staticmethod
-    def parse_network_path(path: str) -> Dict[str, str]:
-        """Parses a network path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def pipeline_job_path(
-        project: str,
-        location: str,
-        pipeline_job: str,
-    ) -> str:
-        """Returns a fully-qualified pipeline_job string."""
-        return "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
-            project=project,
-            location=location,
-            pipeline_job=pipeline_job,
-        )
-
-    @staticmethod
-    def parse_pipeline_job_path(path: str) -> Dict[str, str]:
-        """Parses a pipeline_job path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/pipelineJobs/(?P<pipeline_job>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def schedule_path(
-        project: str,
-        location: str,
-        schedule: str,
-    ) -> str:
-        """Returns a fully-qualified schedule string."""
-        return "projects/{project}/locations/{location}/schedules/{schedule}".format(
-            project=project,
-            location=location,
-            schedule=schedule,
-        )
-
-    @staticmethod
-    def parse_schedule_path(path: str) -> Dict[str, str]:
-        """Parses a schedule path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/schedules/(?P<schedule>.+?)$",
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/indexEndpoints/(?P<index_endpoint>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -495,11 +348,11 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, ScheduleServiceTransport]] = None,
+        transport: Optional[Union[str, MatchServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the schedule service client.
+        """Instantiates the match service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -507,7 +360,7 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ScheduleServiceTransport]): The
+            transport (Union[str, MatchServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
@@ -555,8 +408,8 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
-        if isinstance(transport, ScheduleServiceTransport):
-            # transport is a ScheduleServiceTransport instance.
+        if isinstance(transport, MatchServiceTransport):
+            # transport is a MatchServiceTransport instance.
             if credentials or client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
@@ -591,17 +444,16 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 api_audience=client_options.api_audience,
             )
 
-    def create_schedule(
+    def find_neighbors(
         self,
-        request: Optional[Union[schedule_service.CreateScheduleRequest, dict]] = None,
+        request: Optional[Union[match_service.FindNeighborsRequest, dict]] = None,
         *,
-        parent: Optional[str] = None,
-        schedule: Optional[gca_schedule.Schedule] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_schedule.Schedule:
-        r"""Creates a Schedule.
+    ) -> match_service.FindNeighborsResponse:
+        r"""Finds the nearest neighbors of each vector within the
+        request.
 
         .. code-block:: python
 
@@ -612,47 +464,27 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
             # - It may require specifying regional endpoints when creating the service
             #   client as shown in:
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
+            from google.cloud import aiplatform_v1
 
-            def sample_create_schedule():
+            def sample_find_neighbors():
                 # Create a client
-                client = aiplatform_v1beta1.ScheduleServiceClient()
+                client = aiplatform_v1.MatchServiceClient()
 
                 # Initialize request argument(s)
-                schedule = aiplatform_v1beta1.Schedule()
-                schedule.cron = "cron_value"
-                schedule.create_pipeline_job_request.parent = "parent_value"
-                schedule.display_name = "display_name_value"
-                schedule.max_concurrent_run_count = 2596
-
-                request = aiplatform_v1beta1.CreateScheduleRequest(
-                    parent="parent_value",
-                    schedule=schedule,
+                request = aiplatform_v1.FindNeighborsRequest(
+                    index_endpoint="index_endpoint_value",
                 )
 
                 # Make the request
-                response = client.create_schedule(request=request)
+                response = client.find_neighbors(request=request)
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CreateScheduleRequest, dict]):
-                The request object. Request message for
-                [ScheduleService.CreateSchedule][google.cloud.aiplatform.v1beta1.ScheduleService.CreateSchedule].
-            parent (str):
-                Required. The resource name of the Location to create
-                the Schedule in. Format:
-                ``projects/{project}/locations/{location}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            schedule (google.cloud.aiplatform_v1beta1.types.Schedule):
-                Required. The Schedule to create.
-                This corresponds to the ``schedule`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
+            request (Union[google.cloud.aiplatform_v1.types.FindNeighborsRequest, dict]):
+                The request object. The request message for
+                [MatchService.FindNeighbors][google.cloud.aiplatform.v1.MatchService.FindNeighbors].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -660,728 +492,28 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            google.cloud.aiplatform_v1beta1.types.Schedule:
-                An instance of a Schedule
-                periodically schedules runs to make API
-                calls based on user specified time
-                specification and API request type.
+            google.cloud.aiplatform_v1.types.FindNeighborsResponse:
+                The response message for
+                   [MatchService.FindNeighbors][google.cloud.aiplatform.v1.MatchService.FindNeighbors].
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, schedule])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
         # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.CreateScheduleRequest.
+        # in a match_service.FindNeighborsRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, schedule_service.CreateScheduleRequest):
-            request = schedule_service.CreateScheduleRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-            if schedule is not None:
-                request.schedule = schedule
+        if not isinstance(request, match_service.FindNeighborsRequest):
+            request = match_service.FindNeighborsRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.create_schedule]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def delete_schedule(
-        self,
-        request: Optional[Union[schedule_service.DeleteScheduleRequest, dict]] = None,
-        *,
-        name: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
-        r"""Deletes a Schedule.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_delete_schedule():
-                # Create a client
-                client = aiplatform_v1beta1.ScheduleServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.DeleteScheduleRequest(
-                    name="name_value",
-                )
-
-                # Make the request
-                operation = client.delete_schedule(request=request)
-
-                print("Waiting for operation to complete...")
-
-                response = operation.result()
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteScheduleRequest, dict]):
-                The request object. Request message for
-                [ScheduleService.DeleteSchedule][google.cloud.aiplatform.v1beta1.ScheduleService.DeleteSchedule].
-            name (str):
-                Required. The name of the Schedule resource to be
-                deleted. Format:
-                ``projects/{project}/locations/{location}/schedules/{schedule}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.api_core.operation.Operation:
-                An object representing a long-running operation.
-
-                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
-                   empty messages in your APIs. A typical example is to
-                   use it as the request or the response type of an API
-                   method. For instance:
-
-                      service Foo {
-                         rpc Bar(google.protobuf.Empty) returns
-                         (google.protobuf.Empty);
-
-                      }
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.DeleteScheduleRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, schedule_service.DeleteScheduleRequest):
-            request = schedule_service.DeleteScheduleRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.delete_schedule]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Wrap the response in an operation future.
-        response = gac_operation.from_gapic(
-            response,
-            self._transport.operations_client,
-            empty_pb2.Empty,
-            metadata_type=gca_operation.DeleteOperationMetadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def get_schedule(
-        self,
-        request: Optional[Union[schedule_service.GetScheduleRequest, dict]] = None,
-        *,
-        name: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> schedule.Schedule:
-        r"""Gets a Schedule.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_get_schedule():
-                # Create a client
-                client = aiplatform_v1beta1.ScheduleServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.GetScheduleRequest(
-                    name="name_value",
-                )
-
-                # Make the request
-                response = client.get_schedule(request=request)
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetScheduleRequest, dict]):
-                The request object. Request message for
-                [ScheduleService.GetSchedule][google.cloud.aiplatform.v1beta1.ScheduleService.GetSchedule].
-            name (str):
-                Required. The name of the Schedule resource. Format:
-                ``projects/{project}/locations/{location}/schedules/{schedule}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.types.Schedule:
-                An instance of a Schedule
-                periodically schedules runs to make API
-                calls based on user specified time
-                specification and API request type.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.GetScheduleRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, schedule_service.GetScheduleRequest):
-            request = schedule_service.GetScheduleRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.get_schedule]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def list_schedules(
-        self,
-        request: Optional[Union[schedule_service.ListSchedulesRequest, dict]] = None,
-        *,
-        parent: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListSchedulesPager:
-        r"""Lists Schedules in a Location.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_list_schedules():
-                # Create a client
-                client = aiplatform_v1beta1.ScheduleServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.ListSchedulesRequest(
-                    parent="parent_value",
-                )
-
-                # Make the request
-                page_result = client.list_schedules(request=request)
-
-                # Handle the response
-                for response in page_result:
-                    print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListSchedulesRequest, dict]):
-                The request object. Request message for
-                [ScheduleService.ListSchedules][google.cloud.aiplatform.v1beta1.ScheduleService.ListSchedules].
-            parent (str):
-                Required. The resource name of the Location to list the
-                Schedules from. Format:
-                ``projects/{project}/locations/{location}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.services.schedule_service.pagers.ListSchedulesPager:
-                Response message for
-                   [ScheduleService.ListSchedules][google.cloud.aiplatform.v1beta1.ScheduleService.ListSchedules]
-
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.ListSchedulesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, schedule_service.ListSchedulesRequest):
-            request = schedule_service.ListSchedulesRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.list_schedules]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.ListSchedulesPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def pause_schedule(
-        self,
-        request: Optional[Union[schedule_service.PauseScheduleRequest, dict]] = None,
-        *,
-        name: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> None:
-        r"""Pauses a Schedule. Will mark
-        [Schedule.state][google.cloud.aiplatform.v1beta1.Schedule.state]
-        to 'PAUSED'. If the schedule is paused, no new runs will be
-        created. Already created runs will NOT be paused or canceled.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_pause_schedule():
-                # Create a client
-                client = aiplatform_v1beta1.ScheduleServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.PauseScheduleRequest(
-                    name="name_value",
-                )
-
-                # Make the request
-                client.pause_schedule(request=request)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.PauseScheduleRequest, dict]):
-                The request object. Request message for
-                [ScheduleService.PauseSchedule][google.cloud.aiplatform.v1beta1.ScheduleService.PauseSchedule].
-            name (str):
-                Required. The name of the Schedule resource to be
-                paused. Format:
-                ``projects/{project}/locations/{location}/schedules/{schedule}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.PauseScheduleRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, schedule_service.PauseScheduleRequest):
-            request = schedule_service.PauseScheduleRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.pause_schedule]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-    def resume_schedule(
-        self,
-        request: Optional[Union[schedule_service.ResumeScheduleRequest, dict]] = None,
-        *,
-        name: Optional[str] = None,
-        catch_up: Optional[bool] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> None:
-        r"""Resumes a paused Schedule to start scheduling new runs. Will
-        mark
-        [Schedule.state][google.cloud.aiplatform.v1beta1.Schedule.state]
-        to 'ACTIVE'. Only paused Schedule can be resumed.
-
-        When the Schedule is resumed, new runs will be scheduled
-        starting from the next execution time after the current time
-        based on the time_specification in the Schedule. If
-        [Schedule.catchUp][] is set up true, all missed runs will be
-        scheduled for backfill first.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_resume_schedule():
-                # Create a client
-                client = aiplatform_v1beta1.ScheduleServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.ResumeScheduleRequest(
-                    name="name_value",
-                )
-
-                # Make the request
-                client.resume_schedule(request=request)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ResumeScheduleRequest, dict]):
-                The request object. Request message for
-                [ScheduleService.ResumeSchedule][google.cloud.aiplatform.v1beta1.ScheduleService.ResumeSchedule].
-            name (str):
-                Required. The name of the Schedule resource to be
-                resumed. Format:
-                ``projects/{project}/locations/{location}/schedules/{schedule}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            catch_up (bool):
-                Optional. Whether to backfill missed runs when the
-                schedule is resumed from PAUSED state. If set to true,
-                all missed runs will be scheduled. New runs will be
-                scheduled after the backfill is complete. This will also
-                update
-                [Schedule.catch_up][google.cloud.aiplatform.v1beta1.Schedule.catch_up]
-                field. Default to false.
-
-                This corresponds to the ``catch_up`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name, catch_up])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.ResumeScheduleRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, schedule_service.ResumeScheduleRequest):
-            request = schedule_service.ResumeScheduleRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-            if catch_up is not None:
-                request.catch_up = catch_up
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.resume_schedule]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-    def update_schedule(
-        self,
-        request: Optional[Union[schedule_service.UpdateScheduleRequest, dict]] = None,
-        *,
-        schedule: Optional[gca_schedule.Schedule] = None,
-        update_mask: Optional[field_mask_pb2.FieldMask] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_schedule.Schedule:
-        r"""Updates an active or paused Schedule.
-
-        When the Schedule is updated, new runs will be scheduled
-        starting from the updated next execution time after the update
-        time based on the time_specification in the updated Schedule.
-        All unstarted runs before the update time will be skipped while
-        already created runs will NOT be paused or canceled.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_update_schedule():
-                # Create a client
-                client = aiplatform_v1beta1.ScheduleServiceClient()
-
-                # Initialize request argument(s)
-                schedule = aiplatform_v1beta1.Schedule()
-                schedule.cron = "cron_value"
-                schedule.create_pipeline_job_request.parent = "parent_value"
-                schedule.display_name = "display_name_value"
-                schedule.max_concurrent_run_count = 2596
-
-                request = aiplatform_v1beta1.UpdateScheduleRequest(
-                    schedule=schedule,
-                )
-
-                # Make the request
-                response = client.update_schedule(request=request)
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateScheduleRequest, dict]):
-                The request object. Request message for
-                [ScheduleService.UpdateSchedule][google.cloud.aiplatform.v1beta1.ScheduleService.UpdateSchedule].
-            schedule (google.cloud.aiplatform_v1beta1.types.Schedule):
-                Required. The Schedule which replaces the resource on
-                the server. The following restrictions will be applied:
-
-                -  The scheduled request type cannot be changed.
-                -  The output_only fields will be ignored if specified.
-
-                This corresponds to the ``schedule`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. The update mask applies to the resource. See
-                [google.protobuf.FieldMask][google.protobuf.FieldMask].
-
-                This corresponds to the ``update_mask`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.types.Schedule:
-                An instance of a Schedule
-                periodically schedules runs to make API
-                calls based on user specified time
-                specification and API request type.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([schedule, update_mask])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a schedule_service.UpdateScheduleRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, schedule_service.UpdateScheduleRequest):
-            request = schedule_service.UpdateScheduleRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if schedule is not None:
-                request.schedule = schedule
-            if update_mask is not None:
-                request.update_mask = update_mask
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.update_schedule]
+        rpc = self._transport._wrapped_methods[self._transport.find_neighbors]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata(
-                (("schedule.name", request.schedule.name),)
+                (("index_endpoint", request.index_endpoint),)
             ),
         )
 
@@ -1396,7 +528,92 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         # Done; return the response.
         return response
 
-    def __enter__(self) -> "ScheduleServiceClient":
+    def read_index_datapoints(
+        self,
+        request: Optional[Union[match_service.ReadIndexDatapointsRequest, dict]] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> match_service.ReadIndexDatapointsResponse:
+        r"""Reads the datapoints/vectors of the given IDs.
+        A maximum of 1000 datapoints can be retrieved in a
+        batch.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_read_index_datapoints():
+                # Create a client
+                client = aiplatform_v1.MatchServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ReadIndexDatapointsRequest(
+                    index_endpoint="index_endpoint_value",
+                )
+
+                # Make the request
+                response = client.read_index_datapoints(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.ReadIndexDatapointsRequest, dict]):
+                The request object. The request message for
+                [MatchService.ReadIndexDatapoints][google.cloud.aiplatform.v1.MatchService.ReadIndexDatapoints].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.ReadIndexDatapointsResponse:
+                The response message for
+                   [MatchService.ReadIndexDatapoints][google.cloud.aiplatform.v1.MatchService.ReadIndexDatapoints].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a match_service.ReadIndexDatapointsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, match_service.ReadIndexDatapointsRequest):
+            request = match_service.ReadIndexDatapointsRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.read_index_datapoints]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("index_endpoint", request.index_endpoint),)
+            ),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def __enter__(self) -> "MatchServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -2100,4 +1317,4 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
 )
 
 
-__all__ = ("ScheduleServiceClient",)
+__all__ = ("MatchServiceClient",)

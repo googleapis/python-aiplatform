@@ -554,6 +554,7 @@ from .schedule_service import (
     ListSchedulesResponse,
     PauseScheduleRequest,
     ResumeScheduleRequest,
+    UpdateScheduleRequest,
 )
 from .service_networking import (
     PrivateServiceConnectConfig,
@@ -1111,6 +1112,7 @@ __all__ = (
     "ListSchedulesResponse",
     "PauseScheduleRequest",
     "ResumeScheduleRequest",
+    "UpdateScheduleRequest",
     "PrivateServiceConnectConfig",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
