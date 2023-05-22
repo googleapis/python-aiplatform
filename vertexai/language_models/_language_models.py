@@ -272,6 +272,15 @@ class _LanguageModel:
         # The UXR study attendees preferred to tune model in place
         self._endpoint = tuned_model._endpoint
 
+    @property
+    def _model_resource_name(self) -> str:
+        """Full resource name of the model."""
+        if "publishers/" in self._endpoint_name:
+            return self._endpoint_name
+        else:
+            # This is a ModelRegistry resource name
+            return self._endpoint.list_models()[0].model
+
 
 @dataclasses.dataclass
 class TextGenerationResponse:

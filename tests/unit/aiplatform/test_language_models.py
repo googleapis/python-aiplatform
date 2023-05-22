@@ -36,6 +36,7 @@ import constants as test_constants
 from google.cloud.aiplatform.compat.services import (
     model_garden_service_client_v1beta1,
     endpoint_service_client,
+    model_service_client,
     pipeline_service_client,
 )
 from google.cloud.aiplatform.compat.services import prediction_service_client
@@ -45,9 +46,11 @@ from google.cloud.aiplatform.compat.types import (
     endpoint as gca_endpoint,
     pipeline_job as gca_pipeline_job,
     pipeline_state as gca_pipeline_state,
+    deployed_model_ref_v1beta1,
 )
 from google.cloud.aiplatform_v1beta1.types import (
     publisher_model as gca_publisher_model,
+    model as gca_model,
 )
 
 from vertexai.preview import language_models
@@ -358,6 +361,45 @@ def mock_get_tuned_model(get_endpoint_mock):
         yield mock_text_generation_model
 
 
+@pytest.fixture
+def get_model_with_tuned_version_label_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name=test_constants.ModelConstants._TEST_MODEL_NAME,
+            name=test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME,
+            labels={"google-vertex-llm-tuning-base-model-id": "text-bison-001"},
+            deployed_models=[
+                deployed_model_ref_v1beta1.DeployedModelRef(
+                    endpoint=test_constants.EndpointConstants._TEST_ENDPOINT_NAME,
+                    deployed_model_id=test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME,
+                )
+            ],
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
+def get_endpoint_with_models_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "get_endpoint"
+    ) as get_endpoint_models_mock:
+        get_endpoint_models_mock.return_value = gca_endpoint.Endpoint(
+            display_name=test_constants.EndpointConstants._TEST_DISPLAY_NAME,
+            name=test_constants.EndpointConstants._TEST_ENDPOINT_NAME,
+            deployed_models=[
+                gca_endpoint.DeployedModel(
+                    id=test_constants.ModelConstants._TEST_ID,
+                    display_name=test_constants.ModelConstants._TEST_MODEL_NAME,
+                    model=test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME,
+                ),
+            ],
+            traffic_split=test_constants.EndpointConstants._TEST_TRAFFIC_SPLIT,
+        )
+        yield get_endpoint_models_mock
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestLanguageModels:
     """Unit tests for the language models."""
@@ -388,6 +430,11 @@ class TestLanguageModels:
 
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/text-bison@001", retry=base._DEFAULT_RETRY
+        )
+
+        assert (
+            model._model_resource_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/text-bison@001"
         )
 
         gca_predict_response = gca_prediction_service.PredictResponse()
@@ -449,6 +496,36 @@ class TestLanguageModels:
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
+            )
+
+    @pytest.mark.usefixtures(
+        "get_model_with_tuned_version_label_mock",
+        "get_endpoint_with_models_mock",
+    )
+    def test_get_tuned_model(
+        self,
+    ):
+        """Tests getting a tuned model"""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        with mock.patch.object(
+            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+
+            tuned_model = language_models.TextGenerationModel.get_tuned_model(
+                test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
+            )
+
+            assert (
+                tuned_model._model_resource_name
+                == test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
             )
 
     def test_chat(self):
