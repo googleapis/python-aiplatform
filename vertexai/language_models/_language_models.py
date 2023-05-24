@@ -296,7 +296,7 @@ class TextGenerationResponse:
 class TextGenerationModel(_LanguageModel):
     """TextGenerationModel represents a general language model.
 
-    Examples:
+    Examples::
 
         # Getting answers:
         model = TextGenerationModel.from_pretrained("text-bison@001")
@@ -383,7 +383,7 @@ class TextGenerationModel(_LanguageModel):
 class _ChatModel(TextGenerationModel):
     """ChatModel represents a language model that is capable of chat.
 
-    Examples:
+    Examples::
 
         # Getting answers:
         model = ChatModel.from_pretrained("chat-bison@001")
@@ -488,7 +488,7 @@ class _ChatSession:
 class TextEmbeddingModel(_LanguageModel):
     """TextEmbeddingModel converts text into a vector of floating-point numbers.
 
-    Examples:
+    Examples::
 
         # Getting embedding:
         model = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
@@ -537,7 +537,7 @@ class InputOutputTextPair:
 class ChatModel(_LanguageModel):
     """ChatModel represents a language model that is capable of chat.
 
-    Examples:
+    Examples::
 
         chat_model = ChatModel.from_pretrained("chat-bison@001")
 
