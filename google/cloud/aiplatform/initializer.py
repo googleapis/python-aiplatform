@@ -45,6 +45,19 @@ from google.cloud.aiplatform.compat.types import (
 class _Config:
     """Stores common parameters and options for API calls."""
 
+    def _set_google_auth_default(self):
+        """Calls google.auth.default() and stores the returned project and credentials as instance attributes.
+
+        This prevents google.auth.default() from being called multiple times when
+        the project and credentials have already been set..
+        """
+
+        credentials, project = google.auth.default()
+        if not self._project:
+            self._project = project
+        if not self._credentials:
+            self._credentials = credentials
+
     def __init__(self):
         self._project = None
         self._location = None
@@ -220,7 +233,8 @@ class _Config:
         )
 
         try:
-            _, project_id = google.auth.default()
+            self._set_google_auth_default()
+            project_id = self._project
         except GoogleAuthError as exc:
             raise GoogleAuthError(project_not_found_exception_str) from exc
 
@@ -255,7 +269,8 @@ class _Config:
         logger = logging.getLogger("google.auth._default")
         logging_warning_filter = utils.LoggingFilter(logging.WARNING)
         logger.addFilter(logging_warning_filter)
-        credentials, _ = google.auth.default()
+        self._set_google_auth_default()
+        credentials = self._credentials
         logger.removeFilter(logging_warning_filter)
         return credentials
 
