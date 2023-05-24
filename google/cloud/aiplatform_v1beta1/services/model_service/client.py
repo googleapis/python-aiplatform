@@ -1170,6 +1170,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         ] = None,
         *,
         model: Optional[str] = None,
+        examples: Optional[explanation.Examples] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1237,7 +1238,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([model])
+        has_flattened_params = any([model, examples])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1254,6 +1255,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             # request, apply these.
             if model is not None:
                 request.model = model
+            if examples is not None:
+                request.examples = examples
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
