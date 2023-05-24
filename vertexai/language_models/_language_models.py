@@ -33,7 +33,7 @@ except ImportError:
 
 _LOGGER = base.Logger(__name__)
 
-_TEXT_GENERATION_TUNING_PIPELINE_URI = "https://us-kfp.pkg.dev/vertex-ai/large-language-model-pipelines/tune-large-model/preview"
+_TEXT_GENERATION_TUNING_PIPELINE_URI = "https://us-kfp.pkg.dev/vertex-ai/large-language-model-pipelines/tune-large-model/sdk-1-25"
 
 # Endpoint label/metadata key to preserve the base model ID information
 _TUNING_BASE_MODEL_ID_LABEL_KEY = "google-vertex-llm-tuning-base-model-id"
