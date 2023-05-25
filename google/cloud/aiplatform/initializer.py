@@ -18,7 +18,7 @@
 
 from concurrent import futures
 import logging
-import pkg_resources
+import pkg_resources  # Note this is used after copybara replacement
 import os
 from typing import List, Optional, Type, Union
 
@@ -72,14 +72,14 @@ class _Config:
                         credentials=self._credentials,
                     )
                     self._project = project_id
-                    return project_id
                 except Exception:
                     logging.getLogger(__name__).warning(
                         "Failed to convert project number to project ID.", exc_info=True
                     )
-                    return project_number
+                    self._project = project_number
             else:
-                _, project = google.auth.default()
+                credentials, project = google.auth.default()
+                self._credentials = self._credentials or credentials
                 self._project = project
 
         if not self._credentials:
