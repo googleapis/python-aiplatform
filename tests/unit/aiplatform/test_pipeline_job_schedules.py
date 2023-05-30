@@ -60,7 +60,6 @@ _TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME = "sample-pipeline-job-schedule-display
 _TEST_PIPELINE_JOB_SCHEDULE_ID = "sample-test-schedule-20230417"
 _TEST_PIPELINE_JOB_SCHEDULE_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/schedules/{_TEST_PIPELINE_JOB_SCHEDULE_ID}"
 _TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION = "* * * * *"
-_TEST_PIPELINE_JOB_SCHEDULE_CRON_TZ_EXPRESSION = "TZ=America/New_York * * * * *"
 _TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT = 1
 _TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT = 2
 
@@ -415,6 +414,411 @@ class TestPipelineJobSchedule:
 
         assert pipeline_job_schedule._gca_resource == make_schedule(
             gca_schedule.Schedule.State.COMPLETED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_call_schedule_service_create_with_different_timezone(
+        self,
+        mock_schedule_service_create,
+        mock_schedule_service_get,
+        mock_schedule_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        """Creates a PipelineJobSchedule.
+
+        Creates PipelineJobSchedule with cron expression in different timezone.
+        """
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+        )
+
+        test_pipeline_job_schedule_cron_tz_expression = "TZ=America/New_York * * * * *"
+        pipeline_job_schedule.create(
+            cron_expression=test_pipeline_job_schedule_cron_tz_expression,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+            "inputArtifacts": {"vertex_model": {"artifactId": "456"}},
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+            cron=test_pipeline_job_schedule_cron_tz_expression,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            create_pipeline_job_request={
+                "parent": _TEST_PARENT,
+                "pipeline_job": {
+                    "runtime_config": runtime_config,
+                    "pipeline_spec": {"fields": pipeline_spec},
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
+                },
+            },
+        )
+
+        mock_schedule_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            schedule=expected_gapic_pipeline_job_schedule,
+            timeout=None,
+        )
+
+        assert pipeline_job_schedule._gca_resource == make_schedule(
+            gca_schedule.Schedule.State.COMPLETED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_call_schedule_service_create_artifact_registry(
+        self,
+        mock_schedule_service_create,
+        mock_schedule_service_get,
+        mock_schedule_bucket_exists,
+        mock_request_urlopen,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        """Creates a PipelineJobSchedule.
+
+        Creates PipelineJob with template stored in artifact registry.
+        """
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_AR_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+        )
+
+        pipeline_job_schedule.create(
+            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            create_pipeline_job_request={
+                "parent": _TEST_PARENT,
+                "pipeline_job": {
+                    "runtime_config": runtime_config,
+                    "pipeline_spec": {"fields": pipeline_spec},
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
+                },
+            },
+        )
+
+        mock_schedule_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            schedule=expected_gapic_pipeline_job_schedule,
+            timeout=None,
+        )
+
+        assert pipeline_job_schedule._gca_resource == make_schedule(
+            gca_schedule.Schedule.State.COMPLETED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_call_schedule_service_create_https(
+        self,
+        mock_schedule_service_create,
+        mock_schedule_service_get,
+        mock_schedule_bucket_exists,
+        mock_request_urlopen,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        """Creates a PipelineJobSchedule.
+
+        Creates PipelineJob with template stored in https.
+        """
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_HTTPS_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+        )
+
+        pipeline_job_schedule.create(
+            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            create_pipeline_job_request={
+                "parent": _TEST_PARENT,
+                "pipeline_job": {
+                    "runtime_config": runtime_config,
+                    "pipeline_spec": {"fields": pipeline_spec},
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
+                },
+            },
+        )
+
+        mock_schedule_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            schedule=expected_gapic_pipeline_job_schedule,
+            timeout=None,
+        )
+
+        assert pipeline_job_schedule._gca_resource == make_schedule(
+            gca_schedule.Schedule.State.COMPLETED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_call_schedule_service_create_with_timeout(
+        self,
+        mock_schedule_service_create,
+        mock_schedule_service_get,
+        mock_schedule_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        """Creates a PipelineJobSchedule.
+
+        Sets timeout for PipelineJobSchedule creation.
+        """
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+        )
+
+        pipeline_job_schedule.create(
+            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=180.0,
+        )
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            create_pipeline_job_request={
+                "parent": _TEST_PARENT,
+                "pipeline_job": {
+                    "runtime_config": runtime_config,
+                    "pipeline_spec": {"fields": pipeline_spec},
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
+                },
+            },
+        )
+
+        mock_schedule_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            schedule=expected_gapic_pipeline_job_schedule,
+            timeout=180.0,
+        )
+
+        assert pipeline_job_schedule._gca_resource == make_schedule(
+            gca_schedule.Schedule.State.COMPLETED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_call_schedule_service_create_with_timeout_not_explicitly_set(
+        self,
+        mock_schedule_service_create,
+        mock_schedule_service_get,
+        mock_schedule_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        """Creates a PipelineJobSchedule.
+
+        Does not set timeout for PipelineJobSchedule creation.
+        """
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+        )
+
+        pipeline_job_schedule.create(
+            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            create_pipeline_job_request={
+                "parent": _TEST_PARENT,
+                "pipeline_job": {
+                    "runtime_config": runtime_config,
+                    "pipeline_spec": {"fields": pipeline_spec},
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
+                },
+            },
+        )
+
+        mock_schedule_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            schedule=expected_gapic_pipeline_job_schedule,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("mock_schedule_service_get")
