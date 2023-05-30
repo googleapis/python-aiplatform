@@ -17,9 +17,9 @@
 
 import datetime
 import logging
-import time
 import re
 import tempfile
+import time
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from google.auth import credentials as auth_credentials
@@ -29,16 +29,16 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.constants import pipeline as pipeline_constants
 from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
-from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.utils import gcs_utils
-from google.cloud.aiplatform.utils import yaml_utils
 from google.cloud.aiplatform.utils import pipeline_utils
-from google.protobuf import json_format
+from google.cloud.aiplatform.utils import yaml_utils
 from google.protobuf import field_mask_pb2 as field_mask
+from google.protobuf import json_format
 
 from google.cloud.aiplatform.compat.types import (
     pipeline_job as gca_pipeline_job,
@@ -96,7 +96,6 @@ class PipelineJob(
         ),
     ),
 ):
-
     client_class = utils.PipelineJobClientWithOverride
     _resource_noun = "pipelineJobs"
     _delete_method = "delete_pipeline_job"
@@ -442,6 +441,10 @@ class PipelineJob(
     @property
     def pipeline_spec(self):
         return self._gca_resource.pipeline_spec
+
+    @property
+    def runtime_config(self) -> gca_pipeline_job.PipelineJob.RuntimeConfig:
+        return self._gca_resource.runtime_config
 
     @property
     def state(self) -> Optional[gca_pipeline_state.PipelineState]:
