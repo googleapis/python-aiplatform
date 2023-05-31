@@ -563,25 +563,35 @@ class TestLanguageModels:
                     output_text="Ned likes watching movies.",
                 ),
             ],
-            temperature=0.0,
+            temperature=0.2, max_output_tokens=777
         )
 
         gca_predict_response1 = gca_prediction_service.PredictResponse()
         gca_predict_response1.predictions.append(_TEST_CHAT_GENERATION_PREDICTION1)
 
+        default_top_k, default_top_p = (
+                language_models.TextGenerationModel._DEFAULT_TOP_K, 
+                language_models.TextGenerationModel._DEFAULT_TOP_P)
         with mock.patch.object(
             target=prediction_service_client.PredictionServiceClient,
             attribute="predict",
             return_value=gca_predict_response1,
-        ):
+        ) as mock_predict:
             response = chat.send_message(
-                "Are my favorite movies based on a book series?"
+                "Are my favorite movies based on a book series?",
+                max_output_tokens=888
             )
             assert (
                 response.text
                 == _TEST_CHAT_GENERATION_PREDICTION1["candidates"][0]["content"]
             )
             assert len(chat._history) == 1
+            mock_predict.assert_called_once()
+            call_params = mock_predict.call_args.kwargs["parameters"]
+            assert call_params["temperature"] == 0.2
+            assert call_params["maxDecodeSteps"] == 888
+            assert call_params["topK"] == default_top_k
+            assert call_params["topP"] == default_top_p
 
         gca_predict_response2 = gca_prediction_service.PredictResponse()
         gca_predict_response2.predictions.append(_TEST_CHAT_GENERATION_PREDICTION2)
@@ -590,16 +600,22 @@ class TestLanguageModels:
             target=prediction_service_client.PredictionServiceClient,
             attribute="predict",
             return_value=gca_predict_response2,
-        ):
+        ) as mock_predict:
             response = chat.send_message(
                 "When where these books published?",
-                temperature=0.1,
+                temperature=0.1, top_p=0.55
             )
             assert (
                 response.text
                 == _TEST_CHAT_GENERATION_PREDICTION2["candidates"][0]["content"]
             )
             assert len(chat._history) == 2
+            mock_predict.assert_called_once()
+            call_params = mock_predict.call_args.kwargs["parameters"]
+            assert call_params["temperature"] == 0.1
+            assert call_params["maxDecodeSteps"] == 777
+            assert call_params["topK"] == default_top_k
+            assert call_params["topP"] == 0.55
 
     def test_text_embedding(self):
         """Tests the text embedding model."""

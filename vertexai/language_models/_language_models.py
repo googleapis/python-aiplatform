@@ -624,28 +624,30 @@ class ChatSession:
         self,
         message: str,
         *,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
     ) -> "TextGenerationResponse":
         """Sends message to the language model and gets a response.
 
         Args:
             message: Message to send to the model
-            max_output_tokens: Max length of the output text in tokens.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            max_output_tokens: Max length of the output text in tokens. If not set, then it defaults to the max_output_tokens set initially when the session was created.
+            temperature: Controls the randomness of predictions. Range: [0, 1]. If not set, then it defaults to the temperature set initially when the session was created.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. If not set, then it defaults to the top_k set initially when the session was created.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. If not set, then it defaults to the top_p set initially when the session was created.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
         """
         prediction_parameters = {
-            "temperature": temperature,
-            "maxDecodeSteps": max_output_tokens,
-            "topP": top_p,
-            "topK": top_k,
+            "temperature": (temperature if temperature is not None 
+                            else self._temperature),
+            "maxDecodeSteps": (max_output_tokens if max_output_tokens is not None 
+                               else self._max_output_tokens),
+            "topP": top_p if top_p is not None else self._top_p,
+            "topK": top_k if top_k is not None else self._top_k,
         }
         messages = []
         for input_text, output_text in self._history:
