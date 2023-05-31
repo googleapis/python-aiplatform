@@ -55,6 +55,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform import model_monitoring
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.preview import _publisher_model
 from google.cloud.aiplatform.utils import console_utils
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
@@ -624,15 +625,22 @@ class BatchPredictionJob(_Job):
             utils.validate_labels(labels)
 
         if isinstance(model_name, str):
-            model_name = utils.full_resource_name(
-                resource_name=model_name,
-                resource_noun="models",
-                parse_resource_name_method=aiplatform.Model._parse_resource_name,
-                format_resource_name_method=aiplatform.Model._format_resource_name,
-                project=project,
-                location=location,
-                resource_id_validator=super()._revisioned_resource_id_validator,
-            )
+            try:
+                model_name = utils.full_resource_name(
+                    resource_name=model_name,
+                    resource_noun="models",
+                    parse_resource_name_method=aiplatform.Model._parse_resource_name,
+                    format_resource_name_method=aiplatform.Model._format_resource_name,
+                    project=project,
+                    location=location,
+                    resource_id_validator=super()._revisioned_resource_id_validator,
+                )
+            except ValueError:
+                # Do not raise exception if model_name is a valid PublisherModel name
+                if not _publisher_model._PublisherModel._parse_resource_name(
+                    model_name
+                ):
+                    raise
 
         # Raise error if both or neither source URIs are provided
         if bool(gcs_source) == bool(bigquery_source):
