@@ -22,7 +22,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import models as aiplatform_models
 from google.cloud.aiplatform import utils as aiplatform_utils
-from google.cloud.aiplatform.preview import _publisher_model
+from google.cloud.aiplatform import _publisher_models
 from google.cloud.aiplatform.utils import gcs_utils
 
 try:
@@ -65,7 +65,7 @@ def _get_model_info(model_id: str) -> _ModelInfo:
         model_id = "publishers/google/models/" + model_id
 
     publisher_model_res = (
-        _publisher_model._PublisherModel(  # pylint: disable=protected-access
+        _publisher_models._PublisherModel(  # pylint: disable=protected-access
             resource_name=model_id
         )._gca_resource
     )
