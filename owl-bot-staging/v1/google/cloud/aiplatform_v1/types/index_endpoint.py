@@ -213,18 +213,17 @@ class DeployedIndex(proto.Message):
             its original Index. Additionally when certain changes to the
             original Index are being done (e.g. when what the Index
             contains is being changed) the DeployedIndex may be
-            asynchronously updated in the background to reflect this
+            asynchronously updated in the background to reflect these
             changes. If this timestamp's value is at least the
             [Index.update_time][google.cloud.aiplatform.v1.Index.update_time]
             of the original Index, it means that this DeployedIndex and
             the original Index are in sync. If this timestamp is older,
             then to see which updates this DeployedIndex already
-            contains (and which not), one must
-            [list][Operations.ListOperations] [Operations][Operation]
-            [working][Operation.name] on the original Index. Only the
+            contains (and which it does not), one must
+            [list][google.longrunning.Operations.ListOperations] the
+            operations that are running on the original Index. Only the
             successfully completed Operations with
-            [Operations.metadata.generic_metadata.update_time]
-            [google.cloud.aiplatform.v1.GenericOperationMetadata.update_time]
+            [update_time][google.cloud.aiplatform.v1.GenericOperationMetadata.update_time]
             equal or before this sync time are contained in this
             DeployedIndex.
         automatic_resources (google.cloud.aiplatform_v1.types.AutomaticResources):
