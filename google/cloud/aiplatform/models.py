@@ -22,6 +22,7 @@ import tempfile
 from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.api_core import operation
+from google.api_core import retry
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 
@@ -1418,7 +1419,86 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 ``parameters_schema_uri``.
             timeout (float): Optional. The timeout for this request in seconds.
         Returns:
-            prediction: Prediction with returned predictions and Model Id.
+            prediction (aiplatform.Prediction):
+                Prediction with returned predictions and Model ID.
+        """
+        self.wait()
+        if use_raw_predict:
+            raw_predict_response = self.raw_predict(
+                body=json.dumps({"instances": instances, "parameters": parameters}),
+                headers={"Content-Type": "application/json"},
+            )
+            json_response = raw_predict_response.json()
+            return Prediction(
+                predictions=json_response["predictions"],
+                deployed_model_id=raw_predict_response.headers[
+                    _RAW_PREDICT_DEPLOYED_MODEL_ID_KEY
+                ],
+                model_resource_name=raw_predict_response.headers[
+                    _RAW_PREDICT_MODEL_RESOURCE_KEY
+                ],
+                model_version_id=raw_predict_response.headers.get(
+                    _RAW_PREDICT_MODEL_VERSION_ID_KEY, None
+                ),
+            )
+        else:
+            prediction_response = self._prediction_client.predict(
+                endpoint=self._gca_resource.name,
+                instances=instances,
+                parameters=parameters,
+                timeout=timeout,
+                retry=retry.Retry(),
+            )
+
+            return Prediction(
+                predictions=[
+                    json_format.MessageToDict(item)
+                    for item in prediction_response.predictions.pb
+                ],
+                deployed_model_id=prediction_response.deployed_model_id,
+                model_version_id=prediction_response.model_version_id,
+                model_resource_name=prediction_response.model,
+            )
+
+    async def predict_async(
+        self,
+        instances: List,
+        *,
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Make an asynchronous prediction against this Endpoint.
+        Example usage:
+            ```
+            response = await my_endpoint.predict_async(instances=[...])
+            my_predictions = response.predictions
+            ```
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                Optional. The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            timeout (float): Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                Prediction with returned predictions and Model ID.
         """
         self.wait()
 
