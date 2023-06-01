@@ -300,6 +300,23 @@ class TestInit:
 
         assert client_options.api_endpoint == "asia-east1-override.googleapis.com"
 
+    def test_init_with_only_creds_does_not_override_set_project(self):
+        assert initializer.global_config.project is not _TEST_PROJECT_2
+        initializer.global_config.init(project=_TEST_PROJECT_2)
+
+        creds = credentials.AnonymousCredentials()
+        initializer.global_config.init(credentials=creds)
+
+        assert initializer.global_config.project == _TEST_PROJECT_2
+
+    def test_init_with_only_project_does_not_override_set_creds(self):
+        creds = credentials.AnonymousCredentials()
+        assert initializer.global_config.credentials is not creds
+        initializer.global_config.init(credentials=creds)
+
+        initializer.global_config.init(project=_TEST_PROJECT_2)
+        assert initializer.global_config.credentials is creds
+
 
 class TestThreadPool:
     def teardown_method(self):

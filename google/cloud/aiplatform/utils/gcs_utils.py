@@ -18,6 +18,7 @@
 import datetime
 import glob
 import logging
+import os
 import pathlib
 import tempfile
 from typing import Optional, TYPE_CHECKING
@@ -317,8 +318,8 @@ def _upload_pandas_df_to_gcs(
         ValueError: When a file format other than JSONL is provided.
     """
 
-    with tempfile.NamedTemporaryFile() as temp_file:
-        local_dataset_path = temp_file.name
+    with tempfile.TemporaryDirectory() as temp_dir:
+        local_dataset_path = os.path.join(temp_dir, "dataset.jsonl")
 
         if file_format == "jsonl":
             df.to_json(path_or_buf=local_dataset_path, orient="records", lines=True)

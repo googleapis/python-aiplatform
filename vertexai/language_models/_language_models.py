@@ -22,7 +22,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import models as aiplatform_models
 from google.cloud.aiplatform import utils as aiplatform_utils
-from google.cloud.aiplatform.preview import _publisher_model
+from google.cloud.aiplatform import _publisher_models
 from google.cloud.aiplatform.utils import gcs_utils
 
 try:
@@ -65,7 +65,7 @@ def _get_model_info(model_id: str) -> _ModelInfo:
         model_id = "publishers/google/models/" + model_id
 
     publisher_model_res = (
-        _publisher_model._PublisherModel(  # pylint: disable=protected-access
+        _publisher_models._PublisherModel(  # pylint: disable=protected-access
             resource_name=model_id
         )._gca_resource
     )
@@ -97,7 +97,7 @@ def _get_model_info(model_id: str) -> _ModelInfo:
         tuning_model_id = None
 
     interface_class_map = {
-        _LLM_TEXT_GENERATION_INSTANCE_SCHEMA_URI: TextGenerationModel,
+        _LLM_TEXT_GENERATION_INSTANCE_SCHEMA_URI: _PreviewTextGenerationModel,
         _LLM_CHAT_GENERATION_INSTANCE_SCHEMA_URI: ChatModel,
         _LLM_TEXT_EMBEDDING_INSTANCE_SCHEMA_URI: TextEmbeddingModel,
     }
@@ -183,6 +183,19 @@ class _LanguageModel:
             model_id=model_name,
             endpoint_name=model_info.endpoint_name,
         )
+
+    @property
+    def _model_resource_name(self) -> str:
+        """Full resource name of the model."""
+        if "publishers/" in self._endpoint_name:
+            return self._endpoint_name
+        else:
+            # This is a ModelRegistry resource name
+            return self._endpoint.list_models()[0].model
+
+
+class _TunableModelMixin(_LanguageModel):
+    """Model that can be tuned."""
 
     def list_tuned_model_names(self) -> Sequence[str]:
         """Lists the names of tuned models.
@@ -271,15 +284,6 @@ class _LanguageModel:
         tuned_model = job.result()
         # The UXR study attendees preferred to tune model in place
         self._endpoint = tuned_model._endpoint
-
-    @property
-    def _model_resource_name(self) -> str:
-        """Full resource name of the model."""
-        if "publishers/" in self._endpoint_name:
-            return self._endpoint_name
-        else:
-            # This is a ModelRegistry resource name
-            return self._endpoint.list_models()[0].model
 
 
 @dataclasses.dataclass
@@ -378,6 +382,14 @@ class TextGenerationModel(_LanguageModel):
             )
             for prediction in prediction_response.predictions
         ]
+
+
+_TextGenerationModel = TextGenerationModel
+
+
+class _PreviewTextGenerationModel(TextGenerationModel, _TunableModelMixin):
+    """Tunable text generation model."""
+    pass
 
 
 class _ChatModel(TextGenerationModel):
@@ -842,6 +854,10 @@ def _launch_tuning_job_on_jsonl_data(
         pipeline_arguments["dataset_name"] = dataset_name_or_uri
     if dataset_name_or_uri.startswith("gs://"):
         pipeline_arguments["dataset_uri"] = dataset_name_or_uri
+    if aiplatform_initializer.global_config.encryption_spec_key_name:
+        pipeline_arguments["encryption_spec_key_name"] = (
+            aiplatform_initializer.global_config.encryption_spec_key_name
+        )
     job = aiplatform.PipelineJob(
         template_path=tuning_pipeline_uri,
         display_name=None,

@@ -23,7 +23,7 @@ from importlib import reload
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.preview import _publisher_model
+from google.cloud.aiplatform import _publisher_models
 
 from google.cloud.aiplatform.compat.services import (
     model_garden_service_client_v1beta1,
@@ -61,7 +61,7 @@ class TestPublisherModel:
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
         )
-        _ = _publisher_model._PublisherModel(_TEST_RESOURCE_NAME)
+        _ = _publisher_models._PublisherModel(_TEST_RESOURCE_NAME)
         mock_get_publisher_model.assert_called_once_with(
             name=_TEST_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
@@ -71,7 +71,7 @@ class TestPublisherModel:
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
         )
-        _ = _publisher_model._PublisherModel(_TEST_MODEL_GARDEN_ID)
+        _ = _publisher_models._PublisherModel(_TEST_MODEL_GARDEN_ID)
         mock_get_publisher_model.assert_called_once_with(
             name=_TEST_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
@@ -90,4 +90,4 @@ class TestPublisherModel:
                 "resource name or model garden id."
             ),
         ):
-            _ = _publisher_model._PublisherModel(_TEST_INVALID_RESOURCE_NAME)
+            _ = _publisher_models._PublisherModel(_TEST_INVALID_RESOURCE_NAME)

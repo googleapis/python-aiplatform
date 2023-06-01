@@ -2202,3 +2202,23 @@ class TestPrivateEndpoint(TestEndpoint):
     def test_list(self):
         ep_list = aiplatform.PrivateEndpoint.list()
         assert ep_list  # Ensure list is not empty
+
+    def test_construct_sdk_resource_from_gapic_uses_resource_project(self):
+        PROJECT = "my-project"
+        LOCATION = "me-west1"
+        endpoint_name = f"projects/{PROJECT}/locations/{LOCATION}/endpoints/123"
+        endpoint = aiplatform.Endpoint._construct_sdk_resource_from_gapic(
+            models.gca_endpoint_compat.Endpoint(name=endpoint_name)
+        )
+        assert endpoint.project == PROJECT
+        assert endpoint.location == LOCATION
+        assert endpoint.project != _TEST_PROJECT
+        assert endpoint.location != _TEST_LOCATION
+
+        endpoint2 = aiplatform.Endpoint._construct_sdk_resource_from_gapic(
+            models.gca_endpoint_compat.Endpoint(name=endpoint_name),
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        assert endpoint2.project != _TEST_PROJECT
+        assert endpoint2.location != _TEST_LOCATION
