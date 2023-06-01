@@ -55,9 +55,18 @@ from google.cloud.aiplatform_v1beta1.types import (
 
 from vertexai.preview import language_models
 from google.cloud.aiplatform_v1 import Execution as GapicExecution
+from google.cloud.aiplatform.compat.types import (
+    encryption_spec as gca_encryption_spec,
+)
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+
+# CMEK encryption
+_TEST_ENCRYPTION_KEY_NAME = "key_1234"
+_TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+)
 
 _TEXT_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/text-bison",
@@ -166,21 +175,44 @@ _TEST_PIPELINE_SPEC = {
         "dag": {"tasks": {}},
         "inputDefinitions": {
             "parameters": {
-                "project": {"parameterType": "STRING"},
-                "location": {
+                "api_endpoint": {
+                    "defaultValue": "aiplatform.googleapis.com/ui",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "dataset_name": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "dataset_uri": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "encryption_spec_key_name": {
+                    "defaultValue": "",
+                    "isOptional": True,
                     "parameterType": "STRING",
                 },
                 "large_model_reference": {
+                    "defaultValue": "text-bison-001",
+                    "isOptional": True,
                     "parameterType": "STRING",
                 },
-                "model_display_name": {
-                    "parameterType": "STRING",
+                "learning_rate": {
+                    "defaultValue": 3,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_DOUBLE",
                 },
+                "location": {"parameterType": "STRING"},
+                "model_display_name": {"parameterType": "STRING"},
+                "project": {"parameterType": "STRING"},
                 "train_steps": {
+                    "defaultValue": 1000,
+                    "isOptional": True,
                     "parameterType": "NUMBER_INTEGER",
                 },
-                "dataset_uri": {"parameterType": "STRING"},
-                "dataset_name": {"parameterType": "STRING"},
             }
         },
     },
@@ -480,6 +512,7 @@ class TestLanguageModels:
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
         with mock.patch.object(
             target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
@@ -496,6 +529,11 @@ class TestLanguageModels:
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
+            )
+            call_kwargs = mock_pipeline_service_create.call_args[1]
+            assert (
+                call_kwargs["pipeline_job"].encryption_spec.kms_key_name
+                == _TEST_ENCRYPTION_KEY_NAME
             )
 
     @pytest.mark.usefixtures(
@@ -518,7 +556,6 @@ class TestLanguageModels:
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-
             tuned_model = language_models.TextGenerationModel.get_tuned_model(
                 test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
             )

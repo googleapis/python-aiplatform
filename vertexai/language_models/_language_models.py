@@ -842,6 +842,10 @@ def _launch_tuning_job_on_jsonl_data(
         pipeline_arguments["dataset_name"] = dataset_name_or_uri
     if dataset_name_or_uri.startswith("gs://"):
         pipeline_arguments["dataset_uri"] = dataset_name_or_uri
+    if aiplatform_initializer.global_config.encryption_spec_key_name:
+        pipeline_arguments["encryption_spec_key_name"] = (
+            aiplatform_initializer.global_config.encryption_spec_key_name
+        )
     job = aiplatform.PipelineJob(
         template_path=tuning_pipeline_uri,
         display_name=None,
