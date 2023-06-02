@@ -638,6 +638,51 @@ class TestLanguageModels:
             )
             assert len(chat._history) == 2
 
+        # Validating the parameters
+        chat_temperature = 0.1
+        chat_max_output_tokens = 100
+        chat_top_k = 1
+        chat_top_p = 0.1
+        message_temperature = 0.2
+        message_max_output_tokens = 200
+        message_top_k = 2
+        message_top_p = 0.2
+
+        chat2 = model.start_chat(
+            temperature=chat_temperature,
+            max_output_tokens=chat_max_output_tokens,
+            top_k=chat_top_k,
+            top_p=chat_top_p,
+        )
+
+        gca_predict_response3 = gca_prediction_service.PredictResponse()
+        gca_predict_response3.predictions.append(_TEST_CHAT_GENERATION_PREDICTION1)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response3,
+        ) as mock_predict3:
+            chat2.send_message("Are my favorite movies based on a book series?")
+            prediction_parameters = mock_predict3.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == chat_temperature
+            assert prediction_parameters["maxDecodeSteps"] == chat_max_output_tokens
+            assert prediction_parameters["topK"] == chat_top_k
+            assert prediction_parameters["topP"] == chat_top_p
+
+            chat2.send_message(
+                "Are my favorite movies based on a book series?",
+                temperature=message_temperature,
+                max_output_tokens=message_max_output_tokens,
+                top_k=message_top_k,
+                top_p=message_top_p,
+            )
+            prediction_parameters = mock_predict3.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == message_temperature
+            assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
+            assert prediction_parameters["topK"] == message_top_k
+            assert prediction_parameters["topP"] == message_top_p
+
     def test_text_embedding(self):
         """Tests the text embedding model."""
         aiplatform.init(
