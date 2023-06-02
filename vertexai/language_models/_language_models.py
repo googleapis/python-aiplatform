@@ -47,6 +47,10 @@ _LLM_CHAT_GENERATION_INSTANCE_SCHEMA_URI = (
 _LLM_TEXT_EMBEDDING_INSTANCE_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
 )
+_LLM_CODE_CHAT_GENERATION_INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
+_LLM_CODE_GENERATION_INSTANCE_SCHEMA_URI = (
+    "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
+)
 
 
 @dataclasses.dataclass
@@ -100,6 +104,8 @@ def _get_model_info(model_id: str) -> _ModelInfo:
         _LLM_TEXT_GENERATION_INSTANCE_SCHEMA_URI: _PreviewTextGenerationModel,
         _LLM_CHAT_GENERATION_INSTANCE_SCHEMA_URI: ChatModel,
         _LLM_TEXT_EMBEDDING_INSTANCE_SCHEMA_URI: TextEmbeddingModel,
+        _LLM_CODE_CHAT_GENERATION_INSTANCE_SCHEMA_URI: CodeChatModel,
+        _LLM_CODE_GENERATION_INSTANCE_SCHEMA_URI: CodeGenerationModel,
     }
 
     interface_class = interface_class_map.get(
@@ -552,30 +558,8 @@ class InputOutputTextPair:
     output_text: str
 
 
-class ChatModel(_LanguageModel):
-    """ChatModel represents a language model that is capable of chat.
-
-    Examples::
-
-        chat_model = ChatModel.from_pretrained("chat-bison@001")
-
-        chat = chat_model.start_chat(
-            context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
-            examples=[
-                InputOutputTextPair(
-                    input_text="Who do you work for?",
-                    output_text="I work for Ned.",
-                ),
-                InputOutputTextPair(
-                    input_text="What do I like?",
-                    output_text="Ned likes watching movies.",
-                ),
-            ],
-            temperature=0.3,
-        )
-
-        chat.send_message("Do you know any cool events this weekend?")
-    """
+class _ChatModelBase(_LanguageModel):
+    """_ChatModelBase is a base class for chat models."""
 
     def start_chat(
         self,
@@ -613,21 +597,86 @@ class ChatModel(_LanguageModel):
         )
 
 
-class ChatSession:
-    """ChatSession represents a chat session with a language model.
+class ChatModel(_ChatModelBase):
+    """ChatModel represents a language model that is capable of chat.
 
-    Within a chat session, the model keeps context and remembers the previous conversation.
+    Examples::
+
+        chat_model = ChatModel.from_pretrained("chat-bison@001")
+
+        chat = chat_model.start_chat(
+            context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
+            examples=[
+                InputOutputTextPair(
+                    input_text="Who do you work for?",
+                    output_text="I work for Ned.",
+                ),
+                InputOutputTextPair(
+                    input_text="What do I like?",
+                    output_text="Ned likes watching movies.",
+                ),
+            ],
+            temperature=0.3,
+        )
+
+        chat.send_message("Do you know any cool events this weekend?")
     """
+
+    pass
+
+
+class CodeChatModel(_ChatModelBase):
+    """CodeChatModel represents a model that is capable of completing code.
+
+    Examples:
+        code_chat_model = CodeChatModel.from_pretrained("codechat-bison@001")
+
+        code_chat = code_chat_model.start_chat(
+            max_output_tokens=128,
+            temperature=0.2,
+        )
+
+        code_chat.send_message("Please help write a function to calculate the min of two numbers")
+    """
+
+    _DEFAULT_MAX_OUTPUT_TOKENS = 128
+    _DEFAULT_TEMPERATURE = 0.5
+
+    def start_chat(
+        self,
+        *,
+        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _DEFAULT_TEMPERATURE,
+    ) -> "CodeChatSession":
+        """Starts a chat session with the code chat model.
+
+        Args:
+            max_output_tokens: Max length of the output text in tokens.
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+
+        Returns:
+            A `ChatSession` object.
+        """
+        return CodeChatSession(
+            model=self,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+        )
+
+
+class _ChatSessionBase:
+    """_ChatSessionBase is a base class for all chat sessions."""
 
     def __init__(
         self,
-        model: ChatModel,
+        model: _ChatModelBase,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
         max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        is_code_chat_session: bool = False,
     ):
         self._model = model
         self._context = context
@@ -637,6 +686,7 @@ class ChatSession:
         self._temperature = temperature
         self._top_k = top_k
         self._top_p = top_p
+        self._is_code_chat_session = is_code_chat_session
 
     def send_message(
         self,
@@ -670,9 +720,12 @@ class ChatSession:
             "maxDecodeSteps": max_output_tokens
             if max_output_tokens is not None
             else self._max_output_tokens,
-            "topP": top_p if top_p is not None else self._top_p,
-            "topK": top_k if top_k is not None else self._top_k,
         }
+
+        if not self._is_code_chat_session:
+            prediction_parameters["topP"] = top_p if top_p is not None else self._top_p
+            prediction_parameters["topK"] = top_k if top_k is not None else self._top_k
+
         messages = []
         for input_text, output_text in self._history:
             messages.append(
@@ -696,9 +749,9 @@ class ChatSession:
         )
 
         prediction_instance = {"messages": messages}
-        if self._context:
+        if not self._is_code_chat_session and self._context:
             prediction_instance["context"] = self._context
-        if self._examples:
+        if not self._is_code_chat_session and self._examples:
             prediction_instance["examples"] = [
                 {
                     "input": {"content": example.input_text},
@@ -720,6 +773,132 @@ class ChatSession:
 
         self._history.append((message, response_text))
         return response_obj
+
+
+class ChatSession(_ChatSessionBase):
+    """ChatSession represents a chat session with a language model.
+
+    Within a chat session, the model keeps context and remembers the previous conversation.
+    """
+
+    def __init__(
+        self,
+        model: ChatModel,
+        context: Optional[str] = None,
+        examples: Optional[List[InputOutputTextPair]] = None,
+        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+    ):
+        super().__init__(
+            model=model,
+            context=context,
+            examples=examples,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+        )
+
+
+class CodeChatSession(_ChatSessionBase):
+    """CodeChatSession represents a chat session with code chat language model.
+
+    Within a code chat session, the model keeps context and remembers the previous converstion.
+    """
+
+    def __init__(
+        self,
+        model: CodeChatModel,
+        max_output_tokens: int = CodeChatModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = CodeChatModel._DEFAULT_TEMPERATURE,
+    ):
+        super().__init__(
+            model=model,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            is_code_chat_session=True,
+        )
+
+    def send_message(
+        self,
+        message: str,
+        *,
+        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
+    ) -> "TextGenerationResponse":
+        """Sends message to the code chat model and gets a response.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens.
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+
+        Returns:
+            A `TextGenerationResponse` object that contains the text produced by the model.
+        """
+        return super().send_message(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+        )
+
+
+class CodeGenerationModel(_LanguageModel):
+    """A language model that generates code.
+
+    Examples:
+
+        # Getting answers:
+        generation_model = CodeGenerationModel.from_pretrained("code-bison@001")
+        print(generation_model.predict(
+            prefix="Write a function that checks if a year is a leap year.",
+        ))
+
+        completion_model = CodeGenerationModel.from_pretrained("code-gecko@001")
+        print(completion_model.predict(
+            prefix="def reverse_string(s):",
+        ))
+    """
+
+    _DEFAULT_TEMPERATURE = 0.0
+    _DEFAULT_MAX_OUTPUT_TOKENS = 128
+
+    def predict(
+        self,
+        prefix: str,
+        suffix: Optional[str] = "",
+        *,
+        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _DEFAULT_TEMPERATURE,
+    ) -> "TextGenerationResponse":
+        """Gets model response for a single prompt.
+
+        Args:
+            prefix: Code before the current point.
+            suffix: Code after the current point.
+            max_output_tokens: Max length of the output text in tokens.
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+
+        Returns:
+            A `TextGenerationResponse` object that contains the text produced by the model.
+        """
+        instance = {"prefix": prefix, "suffix": suffix}
+        prediction_parameters = {
+            "temperature": temperature,
+            "maxDecodeSteps": max_output_tokens,
+        }
+
+        prediction_response = self._endpoint.predict(
+            instances=[instance],
+            parameters=prediction_parameters,
+        )
+
+        return TextGenerationResponse(
+            text=prediction_response.predictions[0]["content"],
+            _prediction_response=prediction_response,
+        )
 
 
 ###### Model tuning
@@ -869,9 +1048,9 @@ def _launch_tuning_job_on_jsonl_data(
     if dataset_name_or_uri.startswith("gs://"):
         pipeline_arguments["dataset_uri"] = dataset_name_or_uri
     if aiplatform_initializer.global_config.encryption_spec_key_name:
-        pipeline_arguments["encryption_spec_key_name"] = (
-            aiplatform_initializer.global_config.encryption_spec_key_name
-        )
+        pipeline_arguments[
+            "encryption_spec_key_name"
+        ] = aiplatform_initializer.global_config.encryption_spec_key_name
     job = aiplatform.PipelineJob(
         template_path=tuning_pipeline_uri,
         display_name=None,
