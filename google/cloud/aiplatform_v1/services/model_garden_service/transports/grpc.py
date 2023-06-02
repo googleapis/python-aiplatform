@@ -17,7 +17,6 @@ import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import grpc_helpers
-from google.api_core import operations_v1
 from google.api_core import gapic_v1
 import google.auth  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
@@ -25,25 +24,19 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import study
-from google.cloud.aiplatform_v1beta1.types import study as gca_study
-from google.cloud.aiplatform_v1beta1.types import vizier_service
+from google.cloud.aiplatform_v1.types import model_garden_service
+from google.cloud.aiplatform_v1.types import publisher_model
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
-from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
-from .base import VizierServiceTransport, DEFAULT_CLIENT_INFO
+from .base import ModelGardenServiceTransport, DEFAULT_CLIENT_INFO
 
 
-class VizierServiceGrpcTransport(VizierServiceTransport):
-    """gRPC backend transport for VizierService.
+class ModelGardenServiceGrpcTransport(ModelGardenServiceTransport):
+    """gRPC backend transport for ModelGardenService.
 
-    Vertex AI Vizier API.
-    Vertex AI Vizier is a service to solve blackbox optimization
-    problems, such as tuning machine learning hyperparameters and
-    searching over deep learning architectures.
+    The interface of Model Garden Service.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
@@ -123,7 +116,6 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
         self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
         self._stubs: Dict[str, Callable] = {}
-        self._operations_client: Optional[operations_v1.OperationsClient] = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -243,84 +235,18 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
         return self._grpc_channel
 
     @property
-    def operations_client(self) -> operations_v1.OperationsClient:
-        """Create the client designed to process long-running operations.
-
-        This property caches on the instance; repeated calls return the same
-        client.
-        """
-        # Quick check: Only create a new client if we do not already have one.
-        if self._operations_client is None:
-            self._operations_client = operations_v1.OperationsClient(self.grpc_channel)
-
-        # Return the client from cache.
-        return self._operations_client
-
-    @property
-    def create_study(
-        self,
-    ) -> Callable[[vizier_service.CreateStudyRequest], gca_study.Study]:
-        r"""Return a callable for the create study method over gRPC.
-
-        Creates a Study. A resource name will be generated
-        after creation of the Study.
-
-        Returns:
-            Callable[[~.CreateStudyRequest],
-                    ~.Study]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "create_study" not in self._stubs:
-            self._stubs["create_study"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/CreateStudy",
-                request_serializer=vizier_service.CreateStudyRequest.serialize,
-                response_deserializer=gca_study.Study.deserialize,
-            )
-        return self._stubs["create_study"]
-
-    @property
-    def get_study(self) -> Callable[[vizier_service.GetStudyRequest], study.Study]:
-        r"""Return a callable for the get study method over gRPC.
-
-        Gets a Study by name.
-
-        Returns:
-            Callable[[~.GetStudyRequest],
-                    ~.Study]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "get_study" not in self._stubs:
-            self._stubs["get_study"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/GetStudy",
-                request_serializer=vizier_service.GetStudyRequest.serialize,
-                response_deserializer=study.Study.deserialize,
-            )
-        return self._stubs["get_study"]
-
-    @property
-    def list_studies(
+    def get_publisher_model(
         self,
     ) -> Callable[
-        [vizier_service.ListStudiesRequest], vizier_service.ListStudiesResponse
+        [model_garden_service.GetPublisherModelRequest], publisher_model.PublisherModel
     ]:
-        r"""Return a callable for the list studies method over gRPC.
+        r"""Return a callable for the get publisher model method over gRPC.
 
-        Lists all the studies in a region for an associated
-        project.
+        Gets a Model Garden publisher model.
 
         Returns:
-            Callable[[~.ListStudiesRequest],
-                    ~.ListStudiesResponse]:
+            Callable[[~.GetPublisherModelRequest],
+                    ~.PublisherModel]:
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
@@ -328,344 +254,13 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "list_studies" not in self._stubs:
-            self._stubs["list_studies"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/ListStudies",
-                request_serializer=vizier_service.ListStudiesRequest.serialize,
-                response_deserializer=vizier_service.ListStudiesResponse.deserialize,
+        if "get_publisher_model" not in self._stubs:
+            self._stubs["get_publisher_model"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelGardenService/GetPublisherModel",
+                request_serializer=model_garden_service.GetPublisherModelRequest.serialize,
+                response_deserializer=publisher_model.PublisherModel.deserialize,
             )
-        return self._stubs["list_studies"]
-
-    @property
-    def delete_study(
-        self,
-    ) -> Callable[[vizier_service.DeleteStudyRequest], empty_pb2.Empty]:
-        r"""Return a callable for the delete study method over gRPC.
-
-        Deletes a Study.
-
-        Returns:
-            Callable[[~.DeleteStudyRequest],
-                    ~.Empty]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "delete_study" not in self._stubs:
-            self._stubs["delete_study"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/DeleteStudy",
-                request_serializer=vizier_service.DeleteStudyRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
-            )
-        return self._stubs["delete_study"]
-
-    @property
-    def lookup_study(
-        self,
-    ) -> Callable[[vizier_service.LookupStudyRequest], study.Study]:
-        r"""Return a callable for the lookup study method over gRPC.
-
-        Looks a study up using the user-defined display_name field
-        instead of the fully qualified resource name.
-
-        Returns:
-            Callable[[~.LookupStudyRequest],
-                    ~.Study]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "lookup_study" not in self._stubs:
-            self._stubs["lookup_study"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/LookupStudy",
-                request_serializer=vizier_service.LookupStudyRequest.serialize,
-                response_deserializer=study.Study.deserialize,
-            )
-        return self._stubs["lookup_study"]
-
-    @property
-    def suggest_trials(
-        self,
-    ) -> Callable[[vizier_service.SuggestTrialsRequest], operations_pb2.Operation]:
-        r"""Return a callable for the suggest trials method over gRPC.
-
-        Adds one or more Trials to a Study, with parameter values
-        suggested by Vertex AI Vizier. Returns a long-running operation
-        associated with the generation of Trial suggestions. When this
-        long-running operation succeeds, it will contain a
-        [SuggestTrialsResponse][google.cloud.aiplatform.v1beta1.SuggestTrialsResponse].
-
-        Returns:
-            Callable[[~.SuggestTrialsRequest],
-                    ~.Operation]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "suggest_trials" not in self._stubs:
-            self._stubs["suggest_trials"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/SuggestTrials",
-                request_serializer=vizier_service.SuggestTrialsRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
-            )
-        return self._stubs["suggest_trials"]
-
-    @property
-    def create_trial(
-        self,
-    ) -> Callable[[vizier_service.CreateTrialRequest], study.Trial]:
-        r"""Return a callable for the create trial method over gRPC.
-
-        Adds a user provided Trial to a Study.
-
-        Returns:
-            Callable[[~.CreateTrialRequest],
-                    ~.Trial]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "create_trial" not in self._stubs:
-            self._stubs["create_trial"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/CreateTrial",
-                request_serializer=vizier_service.CreateTrialRequest.serialize,
-                response_deserializer=study.Trial.deserialize,
-            )
-        return self._stubs["create_trial"]
-
-    @property
-    def get_trial(self) -> Callable[[vizier_service.GetTrialRequest], study.Trial]:
-        r"""Return a callable for the get trial method over gRPC.
-
-        Gets a Trial.
-
-        Returns:
-            Callable[[~.GetTrialRequest],
-                    ~.Trial]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "get_trial" not in self._stubs:
-            self._stubs["get_trial"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/GetTrial",
-                request_serializer=vizier_service.GetTrialRequest.serialize,
-                response_deserializer=study.Trial.deserialize,
-            )
-        return self._stubs["get_trial"]
-
-    @property
-    def list_trials(
-        self,
-    ) -> Callable[
-        [vizier_service.ListTrialsRequest], vizier_service.ListTrialsResponse
-    ]:
-        r"""Return a callable for the list trials method over gRPC.
-
-        Lists the Trials associated with a Study.
-
-        Returns:
-            Callable[[~.ListTrialsRequest],
-                    ~.ListTrialsResponse]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "list_trials" not in self._stubs:
-            self._stubs["list_trials"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/ListTrials",
-                request_serializer=vizier_service.ListTrialsRequest.serialize,
-                response_deserializer=vizier_service.ListTrialsResponse.deserialize,
-            )
-        return self._stubs["list_trials"]
-
-    @property
-    def add_trial_measurement(
-        self,
-    ) -> Callable[[vizier_service.AddTrialMeasurementRequest], study.Trial]:
-        r"""Return a callable for the add trial measurement method over gRPC.
-
-        Adds a measurement of the objective metrics to a
-        Trial. This measurement is assumed to have been taken
-        before the Trial is complete.
-
-        Returns:
-            Callable[[~.AddTrialMeasurementRequest],
-                    ~.Trial]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "add_trial_measurement" not in self._stubs:
-            self._stubs["add_trial_measurement"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/AddTrialMeasurement",
-                request_serializer=vizier_service.AddTrialMeasurementRequest.serialize,
-                response_deserializer=study.Trial.deserialize,
-            )
-        return self._stubs["add_trial_measurement"]
-
-    @property
-    def complete_trial(
-        self,
-    ) -> Callable[[vizier_service.CompleteTrialRequest], study.Trial]:
-        r"""Return a callable for the complete trial method over gRPC.
-
-        Marks a Trial as complete.
-
-        Returns:
-            Callable[[~.CompleteTrialRequest],
-                    ~.Trial]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "complete_trial" not in self._stubs:
-            self._stubs["complete_trial"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/CompleteTrial",
-                request_serializer=vizier_service.CompleteTrialRequest.serialize,
-                response_deserializer=study.Trial.deserialize,
-            )
-        return self._stubs["complete_trial"]
-
-    @property
-    def delete_trial(
-        self,
-    ) -> Callable[[vizier_service.DeleteTrialRequest], empty_pb2.Empty]:
-        r"""Return a callable for the delete trial method over gRPC.
-
-        Deletes a Trial.
-
-        Returns:
-            Callable[[~.DeleteTrialRequest],
-                    ~.Empty]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "delete_trial" not in self._stubs:
-            self._stubs["delete_trial"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/DeleteTrial",
-                request_serializer=vizier_service.DeleteTrialRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
-            )
-        return self._stubs["delete_trial"]
-
-    @property
-    def check_trial_early_stopping_state(
-        self,
-    ) -> Callable[
-        [vizier_service.CheckTrialEarlyStoppingStateRequest], operations_pb2.Operation
-    ]:
-        r"""Return a callable for the check trial early stopping
-        state method over gRPC.
-
-        Checks whether a Trial should stop or not. Returns a
-        long-running operation. When the operation is successful, it
-        will contain a
-        [CheckTrialEarlyStoppingStateResponse][google.cloud.aiplatform.v1beta1.CheckTrialEarlyStoppingStateResponse].
-
-        Returns:
-            Callable[[~.CheckTrialEarlyStoppingStateRequest],
-                    ~.Operation]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "check_trial_early_stopping_state" not in self._stubs:
-            self._stubs[
-                "check_trial_early_stopping_state"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/CheckTrialEarlyStoppingState",
-                request_serializer=vizier_service.CheckTrialEarlyStoppingStateRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
-            )
-        return self._stubs["check_trial_early_stopping_state"]
-
-    @property
-    def stop_trial(self) -> Callable[[vizier_service.StopTrialRequest], study.Trial]:
-        r"""Return a callable for the stop trial method over gRPC.
-
-        Stops a Trial.
-
-        Returns:
-            Callable[[~.StopTrialRequest],
-                    ~.Trial]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "stop_trial" not in self._stubs:
-            self._stubs["stop_trial"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/StopTrial",
-                request_serializer=vizier_service.StopTrialRequest.serialize,
-                response_deserializer=study.Trial.deserialize,
-            )
-        return self._stubs["stop_trial"]
-
-    @property
-    def list_optimal_trials(
-        self,
-    ) -> Callable[
-        [vizier_service.ListOptimalTrialsRequest],
-        vizier_service.ListOptimalTrialsResponse,
-    ]:
-        r"""Return a callable for the list optimal trials method over gRPC.
-
-        Lists the pareto-optimal Trials for multi-objective Study or the
-        optimal Trials for single-objective Study. The definition of
-        pareto-optimal can be checked in wiki page.
-        https://en.wikipedia.org/wiki/Pareto_efficiency
-
-        Returns:
-            Callable[[~.ListOptimalTrialsRequest],
-                    ~.ListOptimalTrialsResponse]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "list_optimal_trials" not in self._stubs:
-            self._stubs["list_optimal_trials"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.VizierService/ListOptimalTrials",
-                request_serializer=vizier_service.ListOptimalTrialsRequest.serialize,
-                response_deserializer=vizier_service.ListOptimalTrialsResponse.deserialize,
-            )
-        return self._stubs["list_optimal_trials"]
+        return self._stubs["get_publisher_model"]
 
     def close(self):
         self.grpc_channel.close()
@@ -878,4 +473,4 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
         return "grpc"
 
 
-__all__ = ("VizierServiceGrpcTransport",)
+__all__ = ("ModelGardenServiceGrpcTransport",)

@@ -24,20 +24,20 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
-from google.api import httpbody_pb2  # type: ignore
-from google.cloud.aiplatform_v1beta1.types import prediction_service
+from google.cloud.aiplatform_v1.types import model_garden_service
+from google.cloud.aiplatform_v1.types import publisher_model
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
-from .base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
-from .grpc import PredictionServiceGrpcTransport
+from .base import ModelGardenServiceTransport, DEFAULT_CLIENT_INFO
+from .grpc import ModelGardenServiceGrpcTransport
 
 
-class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
-    """gRPC AsyncIO backend transport for PredictionService.
+class ModelGardenServiceGrpcAsyncIOTransport(ModelGardenServiceTransport):
+    """gRPC AsyncIO backend transport for ModelGardenService.
 
-    A service for online predictions and explanations.
+    The interface of Model Garden Service.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
@@ -238,19 +238,19 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         return self._grpc_channel
 
     @property
-    def predict(
+    def get_publisher_model(
         self,
     ) -> Callable[
-        [prediction_service.PredictRequest],
-        Awaitable[prediction_service.PredictResponse],
+        [model_garden_service.GetPublisherModelRequest],
+        Awaitable[publisher_model.PublisherModel],
     ]:
-        r"""Return a callable for the predict method over gRPC.
+        r"""Return a callable for the get publisher model method over gRPC.
 
-        Perform an online prediction.
+        Gets a Model Garden publisher model.
 
         Returns:
-            Callable[[~.PredictRequest],
-                    Awaitable[~.PredictResponse]]:
+            Callable[[~.GetPublisherModelRequest],
+                    Awaitable[~.PublisherModel]]:
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
@@ -258,90 +258,13 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "predict" not in self._stubs:
-            self._stubs["predict"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PredictionService/Predict",
-                request_serializer=prediction_service.PredictRequest.serialize,
-                response_deserializer=prediction_service.PredictResponse.deserialize,
+        if "get_publisher_model" not in self._stubs:
+            self._stubs["get_publisher_model"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelGardenService/GetPublisherModel",
+                request_serializer=model_garden_service.GetPublisherModelRequest.serialize,
+                response_deserializer=publisher_model.PublisherModel.deserialize,
             )
-        return self._stubs["predict"]
-
-    @property
-    def raw_predict(
-        self,
-    ) -> Callable[
-        [prediction_service.RawPredictRequest], Awaitable[httpbody_pb2.HttpBody]
-    ]:
-        r"""Return a callable for the raw predict method over gRPC.
-
-        Perform an online prediction with an arbitrary HTTP payload.
-
-        The response includes the following HTTP headers:
-
-        -  ``X-Vertex-AI-Endpoint-Id``: ID of the
-           [Endpoint][google.cloud.aiplatform.v1beta1.Endpoint] that
-           served this prediction.
-
-        -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
-           [DeployedModel][google.cloud.aiplatform.v1beta1.DeployedModel]
-           that served this prediction.
-
-        Returns:
-            Callable[[~.RawPredictRequest],
-                    Awaitable[~.HttpBody]]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "raw_predict" not in self._stubs:
-            self._stubs["raw_predict"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PredictionService/RawPredict",
-                request_serializer=prediction_service.RawPredictRequest.serialize,
-                response_deserializer=httpbody_pb2.HttpBody.FromString,
-            )
-        return self._stubs["raw_predict"]
-
-    @property
-    def explain(
-        self,
-    ) -> Callable[
-        [prediction_service.ExplainRequest],
-        Awaitable[prediction_service.ExplainResponse],
-    ]:
-        r"""Return a callable for the explain method over gRPC.
-
-        Perform an online explanation.
-
-        If
-        [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
-        is specified, the corresponding DeployModel must have
-        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
-        populated. If
-        [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
-        is not specified, all DeployedModels must have
-        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
-        populated.
-
-        Returns:
-            Callable[[~.ExplainRequest],
-                    Awaitable[~.ExplainResponse]]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "explain" not in self._stubs:
-            self._stubs["explain"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PredictionService/Explain",
-                request_serializer=prediction_service.ExplainRequest.serialize,
-                response_deserializer=prediction_service.ExplainResponse.deserialize,
-            )
-        return self._stubs["explain"]
+        return self._stubs["get_publisher_model"]
 
     def close(self):
         return self.grpc_channel.close()
@@ -550,4 +473,4 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         return self._stubs["test_iam_permissions"]
 
 
-__all__ = ("PredictionServiceGrpcAsyncIOTransport",)
+__all__ = ("ModelGardenServiceGrpcAsyncIOTransport",)

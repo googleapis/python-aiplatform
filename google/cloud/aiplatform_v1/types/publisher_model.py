@@ -19,12 +19,12 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import machine_resources
-from google.cloud.aiplatform_v1beta1.types import model
+from google.cloud.aiplatform_v1.types import machine_resources
+from google.cloud.aiplatform_v1.types import model
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package="google.cloud.aiplatform.v1",
     manifest={
         "PublisherModel",
     },
@@ -44,15 +44,15 @@ class PublisherModel(proto.Message):
             a new model version is uploaded under an
             existing model id. It is an auto-incrementing
             decimal number in string representation.
-        open_source_category (google.cloud.aiplatform_v1beta1.types.PublisherModel.OpenSourceCategory):
+        open_source_category (google.cloud.aiplatform_v1.types.PublisherModel.OpenSourceCategory):
             Required. Indicates the open source category
             of the publisher model.
-        supported_actions (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction):
+        supported_actions (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction):
             Optional. Supported call-to-action options.
         frameworks (MutableSequence[str]):
             Optional. Additional information about the
             model's Frameworks.
-        launch_stage (google.cloud.aiplatform_v1beta1.types.PublisherModel.LaunchStage):
+        launch_stage (google.cloud.aiplatform_v1.types.PublisherModel.LaunchStage):
             Optional. Indicates the launch stage of the
             model.
         publisher_model_template (str):
@@ -60,11 +60,11 @@ class PublisherModel(proto.Message):
             indicate this model has a publisher model and
             provide the template of the publisher model
             resource name.
-        predict_schemata (google.cloud.aiplatform_v1beta1.types.PredictSchemata):
+        predict_schemata (google.cloud.aiplatform_v1.types.PredictSchemata):
             Optional. The schemata that describes formats of the
             PublisherModel's predictions and explanations as given and
             returned via
-            [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
+            [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
     """
 
     class OpenSourceCategory(proto.Enum):
@@ -183,28 +183,28 @@ class PublisherModel(proto.Message):
         r"""Actions could take on this Publisher Model.
 
         Attributes:
-            view_rest_api (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.ViewRestApi):
+            view_rest_api (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.ViewRestApi):
                 Optional. To view Rest API docs.
-            open_notebook (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+            open_notebook (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Open notebook of the
                 PublisherModel.
-            create_application (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+            create_application (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Create application using the
                 PublisherModel.
-            open_fine_tuning_pipeline (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+            open_fine_tuning_pipeline (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Open fine-tuning pipeline of the
                 PublisherModel.
-            open_prompt_tuning_pipeline (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+            open_prompt_tuning_pipeline (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Open prompt-tuning pipeline of the
                 PublisherModel.
-            open_genie (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+            open_genie (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Open Genie / Playground.
-            deploy (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.Deploy):
+            deploy (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.Deploy):
                 Optional. Deploy the PublisherModel to Vertex
                 Endpoint.
-            open_generation_ai_studio (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+            open_generation_ai_studio (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Open in Generation AI Studio.
-            request_access (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+            request_access (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Request for access.
         """
 
@@ -213,7 +213,7 @@ class PublisherModel(proto.Message):
             us-central1, europe-west2, global, etc..
 
             Attributes:
-                references (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.PublisherModel.ResourceReference]):
+                references (MutableMapping[str, google.cloud.aiplatform_v1.types.PublisherModel.ResourceReference]):
                     Required.
                 title (str):
                     Required. The title of the regional resource
@@ -237,7 +237,7 @@ class PublisherModel(proto.Message):
             r"""Rest API docs.
 
             Attributes:
-                documentations (MutableSequence[google.cloud.aiplatform_v1beta1.types.PublisherModel.Documentation]):
+                documentations (MutableSequence[google.cloud.aiplatform_v1.types.PublisherModel.Documentation]):
                     Required.
                 title (str):
                     Required. The title of the view rest API.
@@ -267,13 +267,13 @@ class PublisherModel(proto.Message):
             .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
             Attributes:
-                dedicated_resources (google.cloud.aiplatform_v1beta1.types.DedicatedResources):
+                dedicated_resources (google.cloud.aiplatform_v1.types.DedicatedResources):
                     A description of resources that are dedicated
                     to the DeployedModel, and that need a higher
                     degree of manual configuration.
 
                     This field is a member of `oneof`_ ``prediction_resources``.
-                automatic_resources (google.cloud.aiplatform_v1beta1.types.AutomaticResources):
+                automatic_resources (google.cloud.aiplatform_v1.types.AutomaticResources):
                     A description of resources that to large
                     degree are decided by Vertex AI, and require
                     only a modest additional configuration.
@@ -287,10 +287,10 @@ class PublisherModel(proto.Message):
                     This field is a member of `oneof`_ ``prediction_resources``.
                 model_display_name (str):
                     Optional. Default model display name.
-                large_model_reference (google.cloud.aiplatform_v1beta1.types.LargeModelReference):
+                large_model_reference (google.cloud.aiplatform_v1.types.LargeModelReference):
                     Optional. Large model reference. When this is set,
                     model_artifact_spec is not needed.
-                container_spec (google.cloud.aiplatform_v1beta1.types.ModelContainerSpec):
+                container_spec (google.cloud.aiplatform_v1.types.ModelContainerSpec):
                     Optional. The specification of the container
                     that is to be used when deploying this Model in
                     Vertex AI. Not present for Large Models.

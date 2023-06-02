@@ -29,7 +29,7 @@ from typing import (
     cast,
 )
 
-from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
@@ -46,22 +46,20 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
-from google.api import httpbody_pb2  # type: ignore
-from google.cloud.aiplatform_v1beta1.types import explanation
-from google.cloud.aiplatform_v1beta1.types import prediction_service
+from google.cloud.aiplatform_v1.types import model
+from google.cloud.aiplatform_v1.types import model_garden_service
+from google.cloud.aiplatform_v1.types import publisher_model
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
-from google.protobuf import any_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from .transports.base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc import PredictionServiceGrpcTransport
-from .transports.grpc_asyncio import PredictionServiceGrpcAsyncIOTransport
+from .transports.base import ModelGardenServiceTransport, DEFAULT_CLIENT_INFO
+from .transports.grpc import ModelGardenServiceGrpcTransport
+from .transports.grpc_asyncio import ModelGardenServiceGrpcAsyncIOTransport
 
 
-class PredictionServiceClientMeta(type):
-    """Metaclass for the PredictionService client.
+class ModelGardenServiceClientMeta(type):
+    """Metaclass for the ModelGardenService client.
 
     This provides class-level methods for building and retrieving
     support objects (e.g. transport) without polluting the client instance
@@ -70,14 +68,14 @@ class PredictionServiceClientMeta(type):
 
     _transport_registry = (
         OrderedDict()
-    )  # type: Dict[str, Type[PredictionServiceTransport]]
-    _transport_registry["grpc"] = PredictionServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = PredictionServiceGrpcAsyncIOTransport
+    )  # type: Dict[str, Type[ModelGardenServiceTransport]]
+    _transport_registry["grpc"] = ModelGardenServiceGrpcTransport
+    _transport_registry["grpc_asyncio"] = ModelGardenServiceGrpcAsyncIOTransport
 
     def get_transport_class(
         cls,
         label: Optional[str] = None,
-    ) -> Type[PredictionServiceTransport]:
+    ) -> Type[ModelGardenServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -96,8 +94,8 @@ class PredictionServiceClientMeta(type):
         return next(iter(cls._transport_registry.values()))
 
 
-class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
-    """A service for online predictions and explanations."""
+class ModelGardenServiceClient(metaclass=ModelGardenServiceClientMeta):
+    """The interface of Model Garden Service."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
@@ -145,7 +143,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            PredictionServiceClient: The constructed client.
+            ModelGardenServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_info(info)
         kwargs["credentials"] = credentials
@@ -163,7 +161,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            PredictionServiceClient: The constructed client.
+            ModelGardenServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -172,57 +170,30 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @property
-    def transport(self) -> PredictionServiceTransport:
+    def transport(self) -> ModelGardenServiceTransport:
         """Returns the transport used by the client instance.
 
         Returns:
-            PredictionServiceTransport: The transport used by the client
+            ModelGardenServiceTransport: The transport used by the client
                 instance.
         """
         return self._transport
 
     @staticmethod
-    def endpoint_path(
-        project: str,
-        location: str,
-        endpoint: str,
-    ) -> str:
-        """Returns a fully-qualified endpoint string."""
-        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-            project=project,
-            location=location,
-            endpoint=endpoint,
-        )
-
-    @staticmethod
-    def parse_endpoint_path(path: str) -> Dict[str, str]:
-        """Parses a endpoint path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_path(
-        project: str,
-        location: str,
+    def publisher_model_path(
+        publisher: str,
         model: str,
     ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
+        """Returns a fully-qualified publisher_model string."""
+        return "publishers/{publisher}/models/{model}".format(
+            publisher=publisher,
             model=model,
         )
 
     @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
+    def parse_publisher_model_path(path: str) -> Dict[str, str]:
+        """Parses a publisher_model path into its component segments."""
+        m = re.match(r"^publishers/(?P<publisher>.+?)/models/(?P<model>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
@@ -373,11 +344,11 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, PredictionServiceTransport]] = None,
+        transport: Optional[Union[str, ModelGardenServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the prediction service client.
+        """Instantiates the model garden service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -385,7 +356,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, PredictionServiceTransport]): The
+            transport (Union[str, ModelGardenServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
@@ -433,8 +404,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
-        if isinstance(transport, PredictionServiceTransport):
-            # transport is a PredictionServiceTransport instance.
+        if isinstance(transport, ModelGardenServiceTransport):
+            # transport is a ModelGardenServiceTransport instance.
             if credentials or client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
@@ -469,18 +440,18 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 api_audience=client_options.api_audience,
             )
 
-    def predict(
+    def get_publisher_model(
         self,
-        request: Optional[Union[prediction_service.PredictRequest, dict]] = None,
+        request: Optional[
+            Union[model_garden_service.GetPublisherModelRequest, dict]
+        ] = None,
         *,
-        endpoint: Optional[str] = None,
-        instances: Optional[MutableSequence[struct_pb2.Value]] = None,
-        parameters: Optional[struct_pb2.Value] = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> prediction_service.PredictResponse:
-        r"""Perform an online prediction.
+    ) -> publisher_model.PublisherModel:
+        r"""Gets a Model Garden publisher model.
 
         .. code-block:: python
 
@@ -491,64 +462,33 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
             # - It may require specifying regional endpoints when creating the service
             #   client as shown in:
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
+            from google.cloud import aiplatform_v1
 
-            def sample_predict():
+            def sample_get_publisher_model():
                 # Create a client
-                client = aiplatform_v1beta1.PredictionServiceClient()
+                client = aiplatform_v1.ModelGardenServiceClient()
 
                 # Initialize request argument(s)
-                instances = aiplatform_v1beta1.Value()
-                instances.null_value = "NULL_VALUE"
-
-                request = aiplatform_v1beta1.PredictRequest(
-                    endpoint="endpoint_value",
-                    instances=instances,
+                request = aiplatform_v1.GetPublisherModelRequest(
+                    name="name_value",
                 )
 
                 # Make the request
-                response = client.predict(request=request)
+                response = client.get_publisher_model(request=request)
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.PredictRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1.types.GetPublisherModelRequest, dict]):
                 The request object. Request message for
-                [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
-            endpoint (str):
-                Required. The name of the Endpoint requested to serve
-                the prediction. Format:
-                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+                [ModelGardenService.GetPublisherModel][google.cloud.aiplatform.v1.ModelGardenService.GetPublisherModel]
+            name (str):
+                Required. The name of the PublisherModel resource.
+                Format:
+                ``publishers/{publisher}/models/{publisher_model}``
 
-                This corresponds to the ``endpoint`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            instances (MutableSequence[google.protobuf.struct_pb2.Value]):
-                Required. The instances that are the input to the
-                prediction call. A DeployedModel may have an upper limit
-                on the number of instances it supports per request, and
-                when it is exceeded the prediction call errors in case
-                of AutoML Models, or, in case of customer created
-                Models, the behaviour is as documented by that Model.
-                The schema of any single instance may be specified via
-                Endpoint's DeployedModels'
-                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
-                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
-
-                This corresponds to the ``instances`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            parameters (google.protobuf.struct_pb2.Value):
-                The parameters that govern the prediction. The schema of
-                the parameters may be specified via Endpoint's
-                DeployedModels' [Model's
-                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
-                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
-
-                This corresponds to the ``parameters`` field
+                This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -558,15 +498,13 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            google.cloud.aiplatform_v1beta1.types.PredictResponse:
-                Response message for
-                   [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
-
+            google.cloud.aiplatform_v1.types.PublisherModel:
+                A Model Garden Publisher Model.
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([endpoint, instances, parameters])
+        has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -574,28 +512,24 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.PredictRequest.
+        # in a model_garden_service.GetPublisherModelRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, prediction_service.PredictRequest):
-            request = prediction_service.PredictRequest(request)
+        if not isinstance(request, model_garden_service.GetPublisherModelRequest):
+            request = model_garden_service.GetPublisherModelRequest(request)
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-            if endpoint is not None:
-                request.endpoint = endpoint
-            if instances is not None:
-                request.instances.extend(instances)
-            if parameters is not None:
-                request.parameters = parameters
+            if name is not None:
+                request.name = name
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.predict]
+        rpc = self._transport._wrapped_methods[self._transport.get_publisher_model]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
@@ -609,354 +543,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # Done; return the response.
         return response
 
-    def raw_predict(
-        self,
-        request: Optional[Union[prediction_service.RawPredictRequest, dict]] = None,
-        *,
-        endpoint: Optional[str] = None,
-        http_body: Optional[httpbody_pb2.HttpBody] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> httpbody_pb2.HttpBody:
-        r"""Perform an online prediction with an arbitrary HTTP payload.
-
-        The response includes the following HTTP headers:
-
-        -  ``X-Vertex-AI-Endpoint-Id``: ID of the
-           [Endpoint][google.cloud.aiplatform.v1beta1.Endpoint] that
-           served this prediction.
-
-        -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
-           [DeployedModel][google.cloud.aiplatform.v1beta1.DeployedModel]
-           that served this prediction.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_raw_predict():
-                # Create a client
-                client = aiplatform_v1beta1.PredictionServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.RawPredictRequest(
-                    endpoint="endpoint_value",
-                )
-
-                # Make the request
-                response = client.raw_predict(request=request)
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.RawPredictRequest, dict]):
-                The request object. Request message for
-                [PredictionService.RawPredict][google.cloud.aiplatform.v1beta1.PredictionService.RawPredict].
-            endpoint (str):
-                Required. The name of the Endpoint requested to serve
-                the prediction. Format:
-                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
-
-                This corresponds to the ``endpoint`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            http_body (google.api.httpbody_pb2.HttpBody):
-                The prediction input. Supports HTTP headers and
-                arbitrary data payload.
-
-                A
-                [DeployedModel][google.cloud.aiplatform.v1beta1.DeployedModel]
-                may have an upper limit on the number of instances it
-                supports per request. When this limit it is exceeded for
-                an AutoML model, the
-                [RawPredict][google.cloud.aiplatform.v1beta1.PredictionService.RawPredict]
-                method returns an error. When this limit is exceeded for
-                a custom-trained model, the behavior varies depending on
-                the model.
-
-                You can specify the schema for each instance in the
-                [predict_schemata.instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri]
-                field when you create a
-                [Model][google.cloud.aiplatform.v1beta1.Model]. This
-                schema applies when you deploy the ``Model`` as a
-                ``DeployedModel`` to an
-                [Endpoint][google.cloud.aiplatform.v1beta1.Endpoint] and
-                use the ``RawPredict`` method.
-
-                This corresponds to the ``http_body`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.api.httpbody_pb2.HttpBody:
-                Message that represents an arbitrary HTTP body. It should only be used for
-                   payload formats that can't be represented as JSON,
-                   such as raw binary or an HTML page.
-
-                   This message can be used both in streaming and
-                   non-streaming API methods in the request as well as
-                   the response.
-
-                   It can be used as a top-level request field, which is
-                   convenient if one wants to extract parameters from
-                   either the URL or HTTP template into the request
-                   fields and also want access to the raw HTTP body.
-
-                   Example:
-
-                      message GetResourceRequest {
-                         // A unique request id. string request_id = 1;
-
-                         // The raw HTTP body is bound to this field.
-                         google.api.HttpBody http_body = 2;
-
-                      }
-
-                      service ResourceService {
-                         rpc GetResource(GetResourceRequest)
-                            returns (google.api.HttpBody);
-
-                         rpc UpdateResource(google.api.HttpBody)
-                            returns (google.protobuf.Empty);
-
-                      }
-
-                   Example with streaming methods:
-
-                      service CaldavService {
-                         rpc GetCalendar(stream google.api.HttpBody)
-                            returns (stream google.api.HttpBody);
-
-                         rpc UpdateCalendar(stream google.api.HttpBody)
-                            returns (stream google.api.HttpBody);
-
-                      }
-
-                   Use of this type only changes how the request and
-                   response bodies are handled, all other features will
-                   continue to work unchanged.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([endpoint, http_body])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.RawPredictRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, prediction_service.RawPredictRequest):
-            request = prediction_service.RawPredictRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if endpoint is not None:
-                request.endpoint = endpoint
-            if http_body is not None:
-                request.http_body = http_body
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.raw_predict]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def explain(
-        self,
-        request: Optional[Union[prediction_service.ExplainRequest, dict]] = None,
-        *,
-        endpoint: Optional[str] = None,
-        instances: Optional[MutableSequence[struct_pb2.Value]] = None,
-        parameters: Optional[struct_pb2.Value] = None,
-        deployed_model_id: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> prediction_service.ExplainResponse:
-        r"""Perform an online explanation.
-
-        If
-        [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
-        is specified, the corresponding DeployModel must have
-        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
-        populated. If
-        [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
-        is not specified, all DeployedModels must have
-        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
-        populated.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_explain():
-                # Create a client
-                client = aiplatform_v1beta1.PredictionServiceClient()
-
-                # Initialize request argument(s)
-                instances = aiplatform_v1beta1.Value()
-                instances.null_value = "NULL_VALUE"
-
-                request = aiplatform_v1beta1.ExplainRequest(
-                    endpoint="endpoint_value",
-                    instances=instances,
-                )
-
-                # Make the request
-                response = client.explain(request=request)
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ExplainRequest, dict]):
-                The request object. Request message for
-                [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
-            endpoint (str):
-                Required. The name of the Endpoint requested to serve
-                the explanation. Format:
-                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
-
-                This corresponds to the ``endpoint`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            instances (MutableSequence[google.protobuf.struct_pb2.Value]):
-                Required. The instances that are the input to the
-                explanation call. A DeployedModel may have an upper
-                limit on the number of instances it supports per
-                request, and when it is exceeded the explanation call
-                errors in case of AutoML Models, or, in case of customer
-                created Models, the behaviour is as documented by that
-                Model. The schema of any single instance may be
-                specified via Endpoint's DeployedModels'
-                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
-                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
-
-                This corresponds to the ``instances`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            parameters (google.protobuf.struct_pb2.Value):
-                The parameters that govern the prediction. The schema of
-                the parameters may be specified via Endpoint's
-                DeployedModels' [Model's
-                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
-                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
-
-                This corresponds to the ``parameters`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            deployed_model_id (str):
-                If specified, this ExplainRequest will be served by the
-                chosen DeployedModel, overriding
-                [Endpoint.traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split].
-
-                This corresponds to the ``deployed_model_id`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.types.ExplainResponse:
-                Response message for
-                   [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([endpoint, instances, parameters, deployed_model_id])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.ExplainRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, prediction_service.ExplainRequest):
-            request = prediction_service.ExplainRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if endpoint is not None:
-                request.endpoint = endpoint
-            if instances is not None:
-                request.instances.extend(instances)
-            if parameters is not None:
-                request.parameters = parameters
-            if deployed_model_id is not None:
-                request.deployed_model_id = deployed_model_id
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.explain]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def __enter__(self) -> "PredictionServiceClient":
+    def __enter__(self) -> "ModelGardenServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -1660,4 +1247,4 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
 )
 
 
-__all__ = ("PredictionServiceClient",)
+__all__ = ("ModelGardenServiceClient",)
