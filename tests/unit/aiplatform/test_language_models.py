@@ -92,6 +92,42 @@ _CHAT_BISON_PUBLISHER_MODEL_DICT = {
     },
 }
 
+_CODECHAT_BISON_PUBLISHER_MODEL_DICT = {
+    "name": "publishers/google/models/codechat-bison",
+    "version_id": "001",
+    "open_source_category": "PROPRIETARY",
+    "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/codechat-bison@001",
+    "predict_schemata": {
+        "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml",
+        "parameters_schema_uri": "gs://google-cloud-aiplatfrom/schema/predict/params/codechat_generation_1.0.0.yaml",
+        "prediction_schema_uri": "gs://google-cloud-aiplatform/schema/predict/prediction/codechat_generation_1.0.0.yaml",
+    },
+}
+
+_CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT = {
+    "name": "publishers/google/models/code-bison",
+    "version_id": "001",
+    "open_source_category": "PROPRIETARY",
+    "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/code-bison@001",
+    "predict_schemata": {
+        "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml",
+        "parameters_schema_uri": "gs://google-cloud-aiplatfrom/schema/predict/params/code_generation_1.0.0.yaml",
+        "prediction_schema_uri": "gs://google-cloud-aiplatform/schema/predict/prediction/code_generation_1.0.0.yaml",
+    },
+}
+
+_CODE_COMPLETION_BISON_PUBLISHER_MODEL_DICT = {
+    "name": "publishers/google/models/code-gecko",
+    "version_id": "001",
+    "open_source_category": "PROPRIETARY",
+    "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/code-gecko@001",
+    "predict_schemata": {
+        "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml",
+        "parameters_schema_uri": "gs://google-cloud-aiplatfrom/schema/predict/params/code_generation_1.0.0.yaml",
+        "prediction_schema_uri": "gs://google-cloud-aiplatform/schema/predict/prediction/code_generation_1.0.0.yaml",
+    },
+}
+
 _TEXT_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/textembedding-gecko",
     "version_id": "001",
@@ -143,6 +179,45 @@ _TEST_CHAT_GENERATION_PREDICTION2 = {
             "content": "Chat response 2",
         }
     ],
+}
+
+_TEST_CODE_GENERATION_PREDICTION = {
+    "safetyAttributes": {
+        "categories": [],
+        "blocked": False,
+        "scores": [],
+    },
+    "content": """
+```python
+def is_leap_year(year):
+  \"\"\"
+  Returns True if the given year is a leap year, False otherwise.
+
+  Args:
+    year: The year to check.
+
+  Returns:
+    True if the year is a leap year, False otherwise.
+  \"\"\"
+
+  # A year is a leap year if it is divisible by 4, but not divisible by 100,
+  # unless it is also divisible by 400.
+
+  return (year % 4 == 0 and year % 100 != 0) or year % 400 == 0
+```""",
+}
+
+_TEST_CODE_COMPLETION_PREDICTION = {
+    "safetyAttributes": {
+        "categories": [],
+        "blocked": False,
+        "scores": [],
+    },
+    "content": """
+    return s[::-1]
+
+
+def reverse_string_2(s):""",
 }
 
 _TEXT_EMBEDDING_VECTOR_LENGTH = 768
@@ -457,7 +532,7 @@ class TestLanguageModels:
             ),
         ) as mock_get_publisher_model:
             model = language_models.TextGenerationModel.from_pretrained(
-                "google/text-bison@001"
+                "text-bison@001"
             )
 
         mock_get_publisher_model.assert_called_once_with(
@@ -522,7 +597,7 @@ class TestLanguageModels:
             ),
         ):
             model = language_models.TextGenerationModel.from_pretrained(
-                "google/text-bison@001"
+                "text-bison@001"
             )
 
             model.tune_model(
@@ -565,6 +640,21 @@ class TestLanguageModels:
                 == test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
             )
 
+    @pytest.mark.usefixtures(
+        "get_model_mock",
+    )
+    def get_tuned_model_raises_if_not_called_with_mg_model(self):
+        """Tests getting a tuned model raises if not called with a Model trained from Model Garden."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        with pytest.raises(ValueError):
+            language_models.TextGenerationModel.get_tuned_model(
+                test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
+            )
+
     def test_chat(self):
         """Tests the chat generation model."""
         aiplatform.init(
@@ -578,7 +668,7 @@ class TestLanguageModels:
                 _CHAT_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = language_models.ChatModel.from_pretrained("google/chat-bison@001")
+            model = language_models.ChatModel.from_pretrained("chat-bison@001")
 
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
@@ -638,6 +728,188 @@ class TestLanguageModels:
             )
             assert len(chat._history) == 2
 
+        # Validating the parameters
+        chat_temperature = 0.1
+        chat_max_output_tokens = 100
+        chat_top_k = 1
+        chat_top_p = 0.1
+        message_temperature = 0.2
+        message_max_output_tokens = 200
+        message_top_k = 2
+        message_top_p = 0.2
+
+        chat2 = model.start_chat(
+            temperature=chat_temperature,
+            max_output_tokens=chat_max_output_tokens,
+            top_k=chat_top_k,
+            top_p=chat_top_p,
+        )
+
+        gca_predict_response3 = gca_prediction_service.PredictResponse()
+        gca_predict_response3.predictions.append(_TEST_CHAT_GENERATION_PREDICTION1)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response3,
+        ) as mock_predict3:
+            chat2.send_message("Are my favorite movies based on a book series?")
+            prediction_parameters = mock_predict3.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == chat_temperature
+            assert prediction_parameters["maxDecodeSteps"] == chat_max_output_tokens
+            assert prediction_parameters["topK"] == chat_top_k
+            assert prediction_parameters["topP"] == chat_top_p
+
+            chat2.send_message(
+                "Are my favorite movies based on a book series?",
+                temperature=message_temperature,
+                max_output_tokens=message_max_output_tokens,
+                top_k=message_top_k,
+                top_p=message_top_p,
+            )
+            prediction_parameters = mock_predict3.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == message_temperature
+            assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
+            assert prediction_parameters["topK"] == message_top_k
+            assert prediction_parameters["topP"] == message_top_p
+
+    def test_code_chat(self):
+        """Tests the code chat model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODECHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = language_models.CodeChatModel.from_pretrained(
+                "google/codechat-bison@001"
+            )
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/codechat-bison@001",
+            retry=base._DEFAULT_RETRY,
+        )
+
+        code_chat = model.start_chat(
+            max_output_tokens=128,
+            temperature=0.2,
+        )
+
+        gca_predict_response1 = gca_prediction_service.PredictResponse()
+        gca_predict_response1.predictions.append(_TEST_CHAT_GENERATION_PREDICTION1)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response1,
+        ):
+            response = code_chat.send_message("Hi, how are you?")
+            assert (
+                response.text
+                == _TEST_CHAT_GENERATION_PREDICTION1["candidates"][0]["content"]
+            )
+            assert len(code_chat._history) == 1
+
+        gca_predict_response2 = gca_prediction_service.PredictResponse()
+        gca_predict_response2.predictions.append(_TEST_CHAT_GENERATION_PREDICTION2)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response2,
+        ):
+            response = code_chat.send_message(
+                "Please help write a function to calculate the min of two numbers",
+                temperature=0.2,
+                max_output_tokens=256,
+            )
+            assert (
+                response.text
+                == _TEST_CHAT_GENERATION_PREDICTION2["candidates"][0]["content"]
+            )
+            assert len(code_chat._history) == 2
+
+    def test_code_generation(self):
+        """Tests code generation with the code generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = language_models.CodeGenerationModel.from_pretrained(
+                "google/code-bison@001"
+            )
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/code-bison@001",
+            retry=base._DEFAULT_RETRY,
+        )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(_TEST_CODE_GENERATION_PREDICTION)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            response = model.predict(
+                prefix="Write a function that checks if a year is a leap year.",
+                max_output_tokens=256,
+                temperature=0.2,
+            )
+
+        assert response.text == _TEST_CODE_GENERATION_PREDICTION["content"]
+
+    def test_code_completion(self):
+        """Tests code completion with the code generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODE_COMPLETION_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = language_models.CodeGenerationModel.from_pretrained(
+                "google/code-gecko@001"
+            )
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/code-gecko@001",
+            retry=base._DEFAULT_RETRY,
+        )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(_TEST_CODE_COMPLETION_PREDICTION)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            response = model.predict(
+                prefix="def reverse_string(s):",
+                max_output_tokens=128,
+                temperature=0.2,
+            )
+
+        assert response.text == _TEST_CODE_COMPLETION_PREDICTION["content"]
+
     def test_text_embedding(self):
         """Tests the text embedding model."""
         aiplatform.init(
@@ -652,7 +924,7 @@ class TestLanguageModels:
             ),
         ) as mock_get_publisher_model:
             model = language_models.TextEmbeddingModel.from_pretrained(
-                "google/textembedding-gecko@001"
+                "textembedding-gecko@001"
             )
 
         mock_get_publisher_model.assert_called_once_with(
