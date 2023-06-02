@@ -15,15 +15,14 @@
 """Classes for working with language models."""
 
 import dataclasses
-from typing import Any, List, Optional, Sequence, Type, Union
+from typing import Any, Dict, List, Optional, Sequence, Type, Union
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
-from google.cloud.aiplatform import models as aiplatform_models
 from google.cloud.aiplatform import utils as aiplatform_utils
-from google.cloud.aiplatform import _publisher_models
 from google.cloud.aiplatform.utils import gcs_utils
+from vertexai._model_garden import _model_garden_models
 
 try:
     import pandas
@@ -33,7 +32,6 @@ except ImportError:
 
 _LOGGER = base.Logger(__name__)
 
-_TEXT_GENERATION_TUNING_PIPELINE_URI = "https://us-kfp.pkg.dev/vertex-ai/large-language-model-pipelines/tune-large-model/sdk-1-25"
 
 # Endpoint label/metadata key to preserve the base model ID information
 _TUNING_BASE_MODEL_ID_LABEL_KEY = "google-vertex-llm-tuning-base-model-id"
@@ -51,76 +49,6 @@ _LLM_CODE_CHAT_GENERATION_INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/sc
 _LLM_CODE_GENERATION_INSTANCE_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 )
-
-
-@dataclasses.dataclass
-class _ModelInfo:
-    endpoint_name: str
-    interface_class: Type["_LanguageModel"]
-    tuning_pipeline_uri: Optional[str] = None
-    tuning_model_id: Optional[str] = None
-
-
-def _get_model_info(model_id: str) -> _ModelInfo:
-    """Gets the model information by model ID."""
-
-    # The default publisher is Google
-    if "/" not in model_id:
-        model_id = "publishers/google/models/" + model_id
-
-    publisher_model_res = (
-        _publisher_models._PublisherModel(  # pylint: disable=protected-access
-            resource_name=model_id
-        )._gca_resource
-    )
-
-    if not publisher_model_res.name.startswith("publishers/google/models/"):
-        raise ValueError(
-            f"Only Google models are currently supported. {publisher_model_res.name}"
-        )
-    short_model_id = publisher_model_res.name.rsplit("/", 1)[-1]
-
-    # == "projects/{project}/locations/{location}/publishers/google/models/text-bison@001"
-    publisher_model_template = publisher_model_res.publisher_model_template.replace(
-        "{user-project}", "{project}"
-    )
-    if not publisher_model_template:
-        raise RuntimeError(
-            f"The model does not have an associated Publisher Model. {publisher_model_res.name}"
-        )
-
-    endpoint_name = publisher_model_template.format(
-        project=aiplatform_initializer.global_config.project,
-        location=aiplatform_initializer.global_config.location,
-    )
-    if short_model_id == "text-bison":
-        tuning_pipeline_uri = _TEXT_GENERATION_TUNING_PIPELINE_URI
-        tuning_model_id = short_model_id + "-" + publisher_model_res.version_id
-    else:
-        tuning_pipeline_uri = None
-        tuning_model_id = None
-
-    interface_class_map = {
-        _LLM_TEXT_GENERATION_INSTANCE_SCHEMA_URI: _PreviewTextGenerationModel,
-        _LLM_CHAT_GENERATION_INSTANCE_SCHEMA_URI: ChatModel,
-        _LLM_TEXT_EMBEDDING_INSTANCE_SCHEMA_URI: TextEmbeddingModel,
-        _LLM_CODE_CHAT_GENERATION_INSTANCE_SCHEMA_URI: CodeChatModel,
-        _LLM_CODE_GENERATION_INSTANCE_SCHEMA_URI: CodeGenerationModel,
-    }
-
-    interface_class = interface_class_map.get(
-        publisher_model_res.predict_schemata.instance_schema_uri
-    )
-
-    if not interface_class:
-        raise ValueError(f"Unknown model {publisher_model_res.name}")
-
-    return _ModelInfo(
-        endpoint_name=endpoint_name,
-        interface_class=interface_class,
-        tuning_pipeline_uri=tuning_pipeline_uri,
-        tuning_model_id=tuning_model_id,
-    )
 
 
 def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
@@ -142,7 +70,7 @@ def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
     raise ValueError(f"Unsupported tuning model ID {tuning_model_id}")
 
 
-class _LanguageModel:
+class _LanguageModel(_model_garden_models._ModelGardenModel):
     """_LanguageModel is a base class for all language models."""
 
     def __init__(self, model_id: str, endpoint_name: Optional[str] = None):
@@ -155,40 +83,23 @@ class _LanguageModel:
             model_id: Identifier of a Vertex LLM. Example: "text-bison@001"
             endpoint_name: Vertex Endpoint resource name for the model
         """
-        self._model_id = model_id
-        self._endpoint_name = endpoint_name
-        # TODO(b/280879204)
-        # A workaround for not being able to directly instantiate the
-        # high-level Endpoint with the PublisherModel resource name.
-        self._endpoint = aiplatform.Endpoint._construct_sdk_resource_from_gapic(
-            aiplatform_models.gca_endpoint_compat.Endpoint(name=endpoint_name)
+
+        super().__init__(
+            model_id=model_id,
+            endpoint_name=endpoint_name,
         )
 
-    @classmethod
-    def from_pretrained(cls, model_name: str) -> "_LanguageModel":
-        """Loads a LanguageModel.
+    @staticmethod
+    def _get_public_preview_class_map() -> Dict[str, Type["_LanguageModel"]]:
 
-        Args:
-            model_name: Name of the model.
-
-        Returns:
-            An instance of a class derieved from `_LanguageModel`.
-
-        Raises:
-            ValueError: If model_name is unknown.
-            ValueError: If model does not support this class.
-        """
-        model_info = _get_model_info(model_id=model_name)
-
-        if not issubclass(model_info.interface_class, cls):
-            raise ValueError(
-                f"{model_name} is of type {model_info.interface_class.__name__} not of type {cls.__name__}"
-            )
-
-        return model_info.interface_class(
-            model_id=model_name,
-            endpoint_name=model_info.endpoint_name,
-        )
+        interface_class_map = {
+            _LLM_TEXT_GENERATION_INSTANCE_SCHEMA_URI: _PreviewTextGenerationModel,
+            _LLM_CHAT_GENERATION_INSTANCE_SCHEMA_URI: ChatModel,
+            _LLM_TEXT_EMBEDDING_INSTANCE_SCHEMA_URI: TextEmbeddingModel,
+            _LLM_CODE_CHAT_GENERATION_INSTANCE_SCHEMA_URI: CodeChatModel,
+            _LLM_CODE_GENERATION_INSTANCE_SCHEMA_URI: CodeGenerationModel,
+        }
+        return interface_class_map
 
     @property
     def _model_resource_name(self) -> str:
@@ -209,7 +120,10 @@ class _TunableModelMixin(_LanguageModel):
         Returns:
             A list of tuned models that can be used with the `get_tuned_model` method.
         """
-        model_info = _get_model_info(model_id=self._model_id)
+        model_info = _model_garden_models._get_model_info(
+            model_id=self._model_id,
+            schema_to_class_map=self._get_public_preview_class_map(),
+        )
         return _list_tuned_model_names(model_id=model_info.tuning_model_id)
 
     @staticmethod
@@ -217,6 +131,15 @@ class _TunableModelMixin(_LanguageModel):
         """Loads the specified tuned language model."""
 
         tuned_vertex_model = aiplatform.Model(tuned_model_name)
+        tuned_model_labels = tuned_vertex_model.labels
+
+        if _TUNING_BASE_MODEL_ID_LABEL_KEY not in tuned_model_labels:
+            raise ValueError(
+                f"The provided model {tuned_model_name} does not have a base model ID."
+            )
+
+        tuning_model_id = tuned_vertex_model.labels[_TUNING_BASE_MODEL_ID_LABEL_KEY]
+
         tuned_model_deployments = tuned_vertex_model.gca_resource.deployed_models
         if len(tuned_model_deployments) == 0:
             # Deploying the model
@@ -224,9 +147,11 @@ class _TunableModelMixin(_LanguageModel):
         else:
             endpoint_name = tuned_model_deployments[0].endpoint
 
-        tuning_model_id = tuned_vertex_model.labels[_TUNING_BASE_MODEL_ID_LABEL_KEY]
         base_model_id = _get_model_id_from_tuning_model_id(tuning_model_id)
-        model_info = _get_model_info(model_id=base_model_id)
+        model_info = _model_garden_models._get_model_info(
+            model_id=base_model_id,
+            schema_to_class_map=_LanguageModel._get_public_preview_class_map(),
+        )
         model = model_info.interface_class(
             model_id=base_model_id,
             endpoint_name=endpoint_name,
@@ -271,7 +196,10 @@ class _TunableModelMixin(_LanguageModel):
             raise ValueError(
                 f'Model deployment is only supported in the following locations: tuned_model_location="{_TUNED_MODEL_LOCATION}"'
             )
-        model_info = _get_model_info(model_id=self._model_id)
+        model_info = _model_garden_models._get_model_info(
+            model_id=self._model_id,
+            schema_to_class_map=self._get_public_preview_class_map(),
+        )
         if not model_info.tuning_pipeline_uri:
             raise RuntimeError(f"The {self._model_id} model does not support tuning")
         pipeline_job = _launch_tuning_job(
@@ -395,6 +323,7 @@ _TextGenerationModel = TextGenerationModel
 
 class _PreviewTextGenerationModel(TextGenerationModel, _TunableModelMixin):
     """Tunable text generation model."""
+
     pass
 
 

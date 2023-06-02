@@ -532,7 +532,7 @@ class TestLanguageModels:
             ),
         ) as mock_get_publisher_model:
             model = language_models.TextGenerationModel.from_pretrained(
-                "google/text-bison@001"
+                "text-bison@001"
             )
 
         mock_get_publisher_model.assert_called_once_with(
@@ -597,7 +597,7 @@ class TestLanguageModels:
             ),
         ):
             model = language_models.TextGenerationModel.from_pretrained(
-                "google/text-bison@001"
+                "text-bison@001"
             )
 
             model.tune_model(
@@ -640,6 +640,21 @@ class TestLanguageModels:
                 == test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
             )
 
+    @pytest.mark.usefixtures(
+        "get_model_mock",
+    )
+    def get_tuned_model_raises_if_not_called_with_mg_model(self):
+        """Tests getting a tuned model raises if not called with a Model trained from Model Garden."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        with pytest.raises(ValueError):
+            language_models.TextGenerationModel.get_tuned_model(
+                test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
+            )
+
     def test_chat(self):
         """Tests the chat generation model."""
         aiplatform.init(
@@ -653,7 +668,7 @@ class TestLanguageModels:
                 _CHAT_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = language_models.ChatModel.from_pretrained("google/chat-bison@001")
+            model = language_models.ChatModel.from_pretrained("chat-bison@001")
 
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
@@ -909,7 +924,7 @@ class TestLanguageModels:
             ),
         ) as mock_get_publisher_model:
             model = language_models.TextEmbeddingModel.from_pretrained(
-                "google/textembedding-gecko@001"
+                "textembedding-gecko@001"
             )
 
         mock_get_publisher_model.assert_called_once_with(
