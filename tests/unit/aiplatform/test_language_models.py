@@ -834,6 +834,41 @@ class TestLanguageModels:
             )
             assert len(code_chat._history) == 2
 
+        # Validating the parameters
+        chat_temperature = 0.1
+        chat_max_output_tokens = 100
+        message_temperature = 0.2
+        message_max_output_tokens = 200
+
+        code_chat2 = model.start_chat(
+            temperature=chat_temperature,
+            max_output_tokens=chat_max_output_tokens,
+        )
+
+        gca_predict_response3 = gca_prediction_service.PredictResponse()
+        gca_predict_response3.predictions.append(_TEST_CHAT_GENERATION_PREDICTION1)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response3,
+        ) as mock_predict:
+            code_chat2.send_message(
+                "Please help write a function to calculate the min of two numbers"
+            )
+            prediction_parameters = mock_predict.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == chat_temperature
+            assert prediction_parameters["maxDecodeSteps"] == chat_max_output_tokens
+
+            code_chat2.send_message(
+                "Please help write a function to calculate the min of two numbers",
+                temperature=message_temperature,
+                max_output_tokens=message_max_output_tokens,
+            )
+            prediction_parameters = mock_predict.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == message_temperature
+            assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
+
     def test_code_generation(self):
         """Tests code generation with the code generation model."""
         aiplatform.init(

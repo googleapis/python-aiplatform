@@ -754,15 +754,17 @@ class CodeChatSession(_ChatSessionBase):
         self,
         message: str,
         *,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
     ) -> "TextGenerationResponse":
         """Sends message to the code chat model and gets a response.
 
         Args:
             message: Message to send to the model
             max_output_tokens: Max length of the output text in tokens.
+                Uses the value specified when calling `CodeChatModel.start_chat` by default.
             temperature: Controls the randomness of predictions. Range: [0, 1].
+                 Uses the value specified when calling `CodeChatModel.start_chat` by default.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
