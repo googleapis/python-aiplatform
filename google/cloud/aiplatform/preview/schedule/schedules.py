@@ -60,7 +60,6 @@ class _Schedule(
         location: str,
     ):
         """Retrieves a Schedule resource and instantiates its representation.
-
         Args:
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to create this Schedule.
@@ -110,6 +109,35 @@ class _Schedule(
         self._gca_resource = self._get_gca_resource(resource_name=schedule_id)
 
         return self
+
+    def pause(self) -> None:
+        """Starts asynchronous pause on the Schedule.
+
+        Changes Schedule state from State.ACTIVE to State.PAUSED.
+        """
+        self.api_client.pause_schedule(name=self.resource_name)
+
+    def resume(
+        self,
+        catch_up: bool = True,
+    ) -> None:
+        """Starts asynchronous resume on the Schedule.
+
+        Changes Schedule state from State.PAUSED to State.ACTIVE.
+
+        Args:
+            catch_up (bool):
+                Optional. Whether to backfill missed runs when the Schedule is
+                resumed from State.PAUSED.
+        """
+        self.api_client.resume_schedule(name=self.resource_name)
+
+    def done(self) -> bool:
+        """Helper method that return True is Schedule is done. False otherwise."""
+        if not self._gca_resource:
+            return False
+
+        return self.state in _SCHEDULE_COMPLETE_STATES
 
     def wait(self) -> None:
         """Wait for this Schedule to complete."""
