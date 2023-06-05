@@ -26,10 +26,10 @@ from google.cloud.aiplatform import initializer
 import constants as test_constants
 
 from google.cloud.aiplatform.compat.services import (
-    model_garden_service_client_v1beta1,
+    model_garden_service_client_v1,
 )
 
-from google.cloud.aiplatform_v1beta1.types import (
+from google.cloud.aiplatform_v1.types import (
     publisher_model as gca_publisher_model,
 )
 
@@ -76,7 +76,7 @@ class TestModelGardenModels:
             location=test_constants.ProjectConstants._TEST_LOCATION,
         )
         with mock.patch.object(
-            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            target=model_garden_service_client_v1.ModelGardenServiceClient,
             attribute="get_publisher_model",
             return_value=gca_publisher_model.PublisherModel(
                 _TEXT_BISON_PUBLISHER_MODEL_DICT

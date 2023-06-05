@@ -34,7 +34,7 @@ from google.cloud.aiplatform.utils import gcs_utils
 import constants as test_constants
 
 from google.cloud.aiplatform.compat.services import (
-    model_garden_service_client_v1beta1,
+    model_garden_service_client,
     endpoint_service_client,
     model_service_client,
     pipeline_service_client,
@@ -46,9 +46,9 @@ from google.cloud.aiplatform.compat.types import (
     endpoint as gca_endpoint,
     pipeline_job as gca_pipeline_job,
     pipeline_state as gca_pipeline_state,
-    deployed_model_ref_v1beta1,
+    deployed_model_ref_v1,
 )
-from google.cloud.aiplatform_v1beta1.types import (
+from google.cloud.aiplatform_v1.types import (
     publisher_model as gca_publisher_model,
     model as gca_model,
 )
@@ -478,7 +478,7 @@ def get_model_with_tuned_version_label_mock():
             name=test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME,
             labels={"google-vertex-llm-tuning-base-model-id": "text-bison-001"},
             deployed_models=[
-                deployed_model_ref_v1beta1.DeployedModelRef(
+                deployed_model_ref_v1.DeployedModelRef(
                     endpoint=test_constants.EndpointConstants._TEST_ENDPOINT_NAME,
                     deployed_model_id=test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME,
                 )
@@ -525,7 +525,7 @@ class TestLanguageModels:
             location=_TEST_LOCATION,
         )
         with mock.patch.object(
-            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
             return_value=gca_publisher_model.PublisherModel(
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
@@ -590,7 +590,7 @@ class TestLanguageModels:
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
         with mock.patch.object(
-            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
             return_value=gca_publisher_model.PublisherModel(
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
@@ -625,7 +625,7 @@ class TestLanguageModels:
         )
 
         with mock.patch.object(
-            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
             return_value=gca_publisher_model.PublisherModel(
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
@@ -662,7 +662,7 @@ class TestLanguageModels:
             location=_TEST_LOCATION,
         )
         with mock.patch.object(
-            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
             return_value=gca_publisher_model.PublisherModel(
                 _CHAT_BISON_PUBLISHER_MODEL_DICT
@@ -780,7 +780,7 @@ class TestLanguageModels:
             location=_TEST_LOCATION,
         )
         with mock.patch.object(
-            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
             return_value=gca_publisher_model.PublisherModel(
                 _CODECHAT_BISON_PUBLISHER_MODEL_DICT
@@ -876,7 +876,7 @@ class TestLanguageModels:
             location=_TEST_LOCATION,
         )
         with mock.patch.object(
-            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
             return_value=gca_publisher_model.PublisherModel(
                 _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
@@ -942,7 +942,7 @@ class TestLanguageModels:
             location=_TEST_LOCATION,
         )
         with mock.patch.object(
-            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
             return_value=gca_publisher_model.PublisherModel(
                 _CODE_COMPLETION_BISON_PUBLISHER_MODEL_DICT
@@ -1008,7 +1008,7 @@ class TestLanguageModels:
             location=_TEST_LOCATION,
         )
         with mock.patch.object(
-            target=model_garden_service_client_v1beta1.ModelGardenServiceClient,
+            target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
             return_value=gca_publisher_model.PublisherModel(
                 _TEXT_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT
