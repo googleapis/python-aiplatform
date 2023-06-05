@@ -869,8 +869,36 @@ class TestLanguageModels:
                 max_output_tokens=256,
                 temperature=0.2,
             )
+            assert response.text == _TEST_CODE_GENERATION_PREDICTION["content"]
 
-        assert response.text == _TEST_CODE_GENERATION_PREDICTION["content"]
+        # Validating the parameters
+        predict_temperature = 0.1
+        predict_max_output_tokens = 100
+        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
+        default_max_output_tokens = (
+            language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            model.predict(
+                prefix="Write a function that checks if a year is a leap year.",
+                max_output_tokens=predict_max_output_tokens,
+                temperature=predict_temperature,
+            )
+            prediction_parameters = mock_predict.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == predict_temperature
+            assert prediction_parameters["maxOutputTokens"] == predict_max_output_tokens
+
+            model.predict(
+                prefix="Write a function that checks if a year is a leap year.",
+            )
+            prediction_parameters = mock_predict.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == default_temperature
+            assert prediction_parameters["maxOutputTokens"] == default_max_output_tokens
 
     def test_code_completion(self):
         """Tests code completion with the code generation model."""
@@ -907,8 +935,36 @@ class TestLanguageModels:
                 max_output_tokens=128,
                 temperature=0.2,
             )
+            assert response.text == _TEST_CODE_COMPLETION_PREDICTION["content"]
 
-        assert response.text == _TEST_CODE_COMPLETION_PREDICTION["content"]
+        # Validating the parameters
+        predict_temperature = 0.1
+        predict_max_output_tokens = 100
+        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
+        default_max_output_tokens = (
+            language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            model.predict(
+                prefix="def reverse_string(s):",
+                max_output_tokens=predict_max_output_tokens,
+                temperature=predict_temperature,
+            )
+            prediction_parameters = mock_predict.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == predict_temperature
+            assert prediction_parameters["maxOutputTokens"] == predict_max_output_tokens
+
+            model.predict(
+                prefix="def reverse_string(s):",
+            )
+            prediction_parameters = mock_predict.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == default_temperature
+            assert prediction_parameters["maxOutputTokens"] == default_max_output_tokens
 
     def test_text_embedding(self):
         """Tests the text embedding model."""
