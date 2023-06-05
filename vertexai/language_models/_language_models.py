@@ -816,7 +816,7 @@ class CodeGenerationModel(_LanguageModel):
         instance = {"prefix": prefix, "suffix": suffix}
         prediction_parameters = {
             "temperature": temperature,
-            "maxDecodeSteps": max_output_tokens,
+            "maxOutputTokens": max_output_tokens,
         }
 
         prediction_response = self._endpoint.predict(
