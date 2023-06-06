@@ -18,7 +18,6 @@
 import pytest
 from importlib import reload
 from unittest import mock
-from typing import Dict, Type
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -53,14 +52,7 @@ class TestModelGardenModels:
     """Unit tests for the _ModelGardenModel base class."""
 
     class FakeModelGardenModel(_model_garden_models._ModelGardenModel):
-        @staticmethod
-        def _get_public_preview_class_map() -> Dict[
-            str, Type[_model_garden_models._ModelGardenModel]
-        ]:
-            test_map = {
-                "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml": TestModelGardenModels.FakeModelGardenModel
-            }
-            return test_map
+        _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
 
     def setup_method(self):
         reload(initializer)

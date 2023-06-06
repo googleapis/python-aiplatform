@@ -12,5 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Classes for working with language models."""
 
-from vertexai.language_models import _language_models
+from vertexai.language_models._language_models import (
+    InputOutputTextPair,
+    TextEmbedding,
+    TextEmbeddingModel,
+    TextGenerationModel,
+    TextGenerationResponse,
+)
+
+__all__ = [
+    "InputOutputTextPair",
+    "TextEmbedding",
+    "TextEmbeddingModel",
+    "TextGenerationModel",
+    "TextGenerationResponse",
+]

@@ -107,7 +107,9 @@ def _get_model_info(
     )
 
     if not interface_class:
-        raise ValueError(f"Unknown model {publisher_model_res.name}")
+        raise ValueError(
+            f"Unknown model {publisher_model_res.name}; {schema_to_class_map}"
+        )
 
     return _ModelInfo(
         endpoint_name=endpoint_name,
@@ -120,18 +122,8 @@ def _get_model_info(
 class _ModelGardenModel:
     """Base class for shared methods and properties across Model Garden models."""
 
-    @staticmethod
-    @abc.abstractmethod
-    def _get_public_preview_class_map() -> Dict[str, Type["_ModelGardenModel"]]:
-        """Returns a Dict mapping schema URI to model class.
-
-        Subclasses should implement this method. Example mapping:
-
-            {
-                "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml": TextGenerationModel
-            }
-        """
-        pass
+    # Subclasses override this attribute to specify their instance schema
+    _INSTANCE_SCHEMA_URI: Optional[str] = None
 
     def __init__(self, model_id: str, endpoint_name: Optional[str] = None):
         """Creates a _ModelGardenModel.
@@ -168,8 +160,13 @@ class _ModelGardenModel:
             ValueError: If model does not support this class.
         """
 
+        if not cls._INSTANCE_SCHEMA_URI:
+            raise ValueError(
+                f"Class {cls} is not a correct model interface class since it does not have an instance schema URI."
+            )
+
         model_info = _get_model_info(
-            model_id=model_name, schema_to_class_map=cls._get_public_preview_class_map()
+            model_id=model_name, schema_to_class_map={cls._INSTANCE_SCHEMA_URI: cls}
         )
 
         if not issubclass(model_info.interface_class, cls):

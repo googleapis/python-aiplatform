@@ -53,7 +53,10 @@ from google.cloud.aiplatform_v1.types import (
     model as gca_model,
 )
 
-from vertexai.preview import language_models
+from vertexai.preview import (
+    language_models as preview_language_models,
+)
+from vertexai import language_models
 from google.cloud.aiplatform_v1 import Execution as GapicExecution
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
@@ -456,7 +459,7 @@ def get_endpoint_mock():
 @pytest.fixture
 def mock_get_tuned_model(get_endpoint_mock):
     with mock.patch.object(
-        language_models.TextGenerationModel, "get_tuned_model"
+        preview_language_models.TextGenerationModel, "get_tuned_model"
     ) as mock_text_generation_model:
         mock_text_generation_model._model_id = (
             test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
@@ -519,6 +522,50 @@ class TestLanguageModels:
         initializer.global_pool.shutdown(wait=True)
 
     def test_text_generation(self):
+        """Tests the text generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = preview_language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/text-bison@001", retry=base._DEFAULT_RETRY
+        )
+
+        assert (
+            model._model_resource_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/text-bison@001"
+        )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(_TEST_TEXT_GENERATION_PREDICTION)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            response = model.predict(
+                "What is the best recipe for banana bread? Recipe:",
+                max_output_tokens=128,
+                temperature=0,
+                top_p=1,
+                top_k=5,
+            )
+
+        assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+
+    def test_text_generation_ga(self):
         """Tests the text generation model."""
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -596,7 +643,7 @@ class TestLanguageModels:
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = language_models.TextGenerationModel.from_pretrained(
+            model = preview_language_models.TextGenerationModel.from_pretrained(
                 "text-bison@001"
             )
 
@@ -631,7 +678,7 @@ class TestLanguageModels:
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-            tuned_model = language_models.TextGenerationModel.get_tuned_model(
+            tuned_model = preview_language_models.TextGenerationModel.get_tuned_model(
                 test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
             )
 
@@ -651,7 +698,7 @@ class TestLanguageModels:
         )
 
         with pytest.raises(ValueError):
-            language_models.TextGenerationModel.get_tuned_model(
+            preview_language_models.TextGenerationModel.get_tuned_model(
                 test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
             )
 
@@ -668,7 +715,7 @@ class TestLanguageModels:
                 _CHAT_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = language_models.ChatModel.from_pretrained("chat-bison@001")
+            model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
 
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
@@ -681,11 +728,11 @@ class TestLanguageModels:
             My favorite movies are Lord of the Rings and Hobbit.
             """,
             examples=[
-                language_models.InputOutputTextPair(
+                preview_language_models.InputOutputTextPair(
                     input_text="Who do you work for?",
                     output_text="I work for Ned.",
                 ),
-                language_models.InputOutputTextPair(
+                preview_language_models.InputOutputTextPair(
                     input_text="What do I like?",
                     output_text="Ned likes watching movies.",
                 ),
@@ -786,7 +833,7 @@ class TestLanguageModels:
                 _CODECHAT_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = language_models.CodeChatModel.from_pretrained(
+            model = preview_language_models.CodeChatModel.from_pretrained(
                 "google/codechat-bison@001"
             )
 
@@ -882,7 +929,7 @@ class TestLanguageModels:
                 _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = language_models.CodeGenerationModel.from_pretrained(
+            model = preview_language_models.CodeGenerationModel.from_pretrained(
                 "google/code-bison@001"
             )
 
@@ -909,9 +956,11 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
+        default_temperature = (
+            preview_language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
+        )
         default_max_output_tokens = (
-            language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
+            preview_language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
         )
 
         with mock.patch.object(
@@ -948,7 +997,7 @@ class TestLanguageModels:
                 _CODE_COMPLETION_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = language_models.CodeGenerationModel.from_pretrained(
+            model = preview_language_models.CodeGenerationModel.from_pretrained(
                 "google/code-gecko@001"
             )
 
@@ -975,9 +1024,11 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
+        default_temperature = (
+            preview_language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
+        )
         default_max_output_tokens = (
-            language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
+            preview_language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
         )
 
         with mock.patch.object(
@@ -1002,6 +1053,43 @@ class TestLanguageModels:
             assert prediction_parameters["maxOutputTokens"] == default_max_output_tokens
 
     def test_text_embedding(self):
+        """Tests the text embedding model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = preview_language_models.TextEmbeddingModel.from_pretrained(
+                "textembedding-gecko@001"
+            )
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/textembedding-gecko@001",
+            retry=base._DEFAULT_RETRY,
+        )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(_TEST_TEXT_EMBEDDING_PREDICTION)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            embeddings = model.get_embeddings(["What is life?"])
+            assert embeddings
+            for embedding in embeddings:
+                vector = embedding.values
+                assert len(vector) == _TEXT_EMBEDDING_VECTOR_LENGTH
+                assert vector == _TEST_TEXT_EMBEDDING_PREDICTION["embeddings"]["values"]
+
+    def test_text_embedding_ga(self):
         """Tests the text embedding model."""
         aiplatform.init(
             project=_TEST_PROJECT,

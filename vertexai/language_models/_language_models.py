@@ -15,7 +15,7 @@
 """Classes for working with language models."""
 
 import dataclasses
-from typing import Any, Dict, List, Optional, Sequence, Type, Union
+from typing import Any, List, Optional, Sequence, Union
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -35,20 +35,6 @@ _LOGGER = base.Logger(__name__)
 
 # Endpoint label/metadata key to preserve the base model ID information
 _TUNING_BASE_MODEL_ID_LABEL_KEY = "google-vertex-llm-tuning-base-model-id"
-
-_LLM_TEXT_GENERATION_INSTANCE_SCHEMA_URI = (
-    "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
-)
-_LLM_CHAT_GENERATION_INSTANCE_SCHEMA_URI = (
-    "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
-)
-_LLM_TEXT_EMBEDDING_INSTANCE_SCHEMA_URI = (
-    "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
-)
-_LLM_CODE_CHAT_GENERATION_INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
-_LLM_CODE_GENERATION_INSTANCE_SCHEMA_URI = (
-    "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
-)
 
 
 def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
@@ -89,18 +75,6 @@ class _LanguageModel(_model_garden_models._ModelGardenModel):
             endpoint_name=endpoint_name,
         )
 
-    @staticmethod
-    def _get_public_preview_class_map() -> Dict[str, Type["_LanguageModel"]]:
-
-        interface_class_map = {
-            _LLM_TEXT_GENERATION_INSTANCE_SCHEMA_URI: _PreviewTextGenerationModel,
-            _LLM_CHAT_GENERATION_INSTANCE_SCHEMA_URI: ChatModel,
-            _LLM_TEXT_EMBEDDING_INSTANCE_SCHEMA_URI: TextEmbeddingModel,
-            _LLM_CODE_CHAT_GENERATION_INSTANCE_SCHEMA_URI: CodeChatModel,
-            _LLM_CODE_GENERATION_INSTANCE_SCHEMA_URI: CodeGenerationModel,
-        }
-        return interface_class_map
-
     @property
     def _model_resource_name(self) -> str:
         """Full resource name of the model."""
@@ -122,12 +96,12 @@ class _TunableModelMixin(_LanguageModel):
         """
         model_info = _model_garden_models._get_model_info(
             model_id=self._model_id,
-            schema_to_class_map=self._get_public_preview_class_map(),
+            schema_to_class_map={self._INSTANCE_SCHEMA_URI: type(self)},
         )
         return _list_tuned_model_names(model_id=model_info.tuning_model_id)
 
-    @staticmethod
-    def get_tuned_model(tuned_model_name: str) -> "_LanguageModel":
+    @classmethod
+    def get_tuned_model(cls, tuned_model_name: str) -> "_LanguageModel":
         """Loads the specified tuned language model."""
 
         tuned_vertex_model = aiplatform.Model(tuned_model_name)
@@ -150,7 +124,7 @@ class _TunableModelMixin(_LanguageModel):
         base_model_id = _get_model_id_from_tuning_model_id(tuning_model_id)
         model_info = _model_garden_models._get_model_info(
             model_id=base_model_id,
-            schema_to_class_map=_LanguageModel._get_public_preview_class_map(),
+            schema_to_class_map={cls._INSTANCE_SCHEMA_URI: cls},
         )
         model = model_info.interface_class(
             model_id=base_model_id,
@@ -198,7 +172,7 @@ class _TunableModelMixin(_LanguageModel):
             )
         model_info = _model_garden_models._get_model_info(
             model_id=self._model_id,
-            schema_to_class_map=self._get_public_preview_class_map(),
+            schema_to_class_map={self._INSTANCE_SCHEMA_URI: type(self)},
         )
         if not model_info.tuning_pipeline_uri:
             raise RuntimeError(f"The {self._model_id} model does not support tuning")
@@ -240,6 +214,8 @@ class TextGenerationModel(_LanguageModel):
         model = TextGenerationModel.from_pretrained("text-bison@001")
         model.predict("What is life?")
     """
+
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
 
     _DEFAULT_TEMPERATURE = 0.0
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
@@ -451,6 +427,10 @@ class TextEmbeddingModel(_LanguageModel):
             print(len(vector))
     """
 
+    _INSTANCE_SCHEMA_URI = (
+        "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
+    )
+
     def get_embeddings(self, texts: List[str]) -> List["TextEmbedding"]:
         instances = [{"content": str(text)} for text in texts]
 
@@ -551,7 +531,7 @@ class ChatModel(_ChatModelBase):
         chat.send_message("Do you know any cool events this weekend?")
     """
 
-    pass
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
 
 
 class CodeChatModel(_ChatModelBase):
@@ -567,6 +547,8 @@ class CodeChatModel(_ChatModelBase):
 
         code_chat.send_message("Please help write a function to calculate the min of two numbers")
     """
+
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
 
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
     _DEFAULT_TEMPERATURE = 0.5
@@ -792,6 +774,8 @@ class CodeGenerationModel(_LanguageModel):
             prefix="def reverse_string(s):",
         ))
     """
+
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
     _DEFAULT_TEMPERATURE = 0.0
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
