@@ -152,7 +152,7 @@ class _TunableModelMixin(_LanguageModel):
             model_id=base_model_id,
             schema_to_class_map=_LanguageModel._get_public_preview_class_map(),
         )
-        model = model_info.interface_class(
+        model = model_info.interface_class()._construct(  # pylint: disable=protected-access
             model_id=base_model_id,
             endpoint_name=endpoint_name,
         )
