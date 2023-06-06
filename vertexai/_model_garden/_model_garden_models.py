@@ -39,6 +39,7 @@ _LOGGER = base.Logger(__name__)
 class _ModelInfo:
     endpoint_name: str
     interface_class: Type["_ModelGardenModel"]
+    publisher_model: _publisher_models._PublisherModel
     tuning_pipeline_uri: Optional[str] = None
     tuning_model_id: Optional[str] = None
 
@@ -114,6 +115,7 @@ def _get_model_info(
     return _ModelInfo(
         endpoint_name=endpoint_name,
         interface_class=interface_class,
+        publisher_model=publisher_model_res,
         tuning_pipeline_uri=tuning_pipeline_uri,
         tuning_model_id=tuning_model_id,
     )
@@ -168,6 +170,11 @@ class _ModelGardenModel:
         model_info = _get_model_info(
             model_id=model_name, schema_to_class_map={cls._INSTANCE_SCHEMA_URI: cls}
         )
+
+        full_class_name = cls.__module__ + "." + cls.__qual_name__
+
+        if model_info.publisher_model.launch_stage != "GA" and "preview" not in full_class_name.lower():
+            raise ValueError(f"Using a preview model {model_name} in non-preview SDK classes.")
 
         if not issubclass(model_info.interface_class, cls):
             raise ValueError(
