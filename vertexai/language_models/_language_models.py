@@ -126,6 +126,8 @@ class _TunableModelMixin(_LanguageModel):
             model_id=base_model_id,
             schema_to_class_map={cls._INSTANCE_SCHEMA_URI: cls},
         )
+        cls._validate_launch_stage(cls, model_info.publisher_model_resource)
+
         model = model_info.interface_class(
             model_id=base_model_id,
             endpoint_name=endpoint_name,
@@ -215,6 +217,8 @@ class TextGenerationModel(_LanguageModel):
         model.predict("What is life?")
     """
 
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
+
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
 
     _DEFAULT_TEMPERATURE = 0.0
@@ -300,7 +304,7 @@ _TextGenerationModel = TextGenerationModel
 class _PreviewTextGenerationModel(TextGenerationModel, _TunableModelMixin):
     """Tunable text generation model."""
 
-    pass
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
 class _ChatModel(TextGenerationModel):
@@ -427,6 +431,8 @@ class TextEmbeddingModel(_LanguageModel):
             print(len(vector))
     """
 
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
+
     _INSTANCE_SCHEMA_URI = (
         "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
     )
@@ -445,6 +451,12 @@ class TextEmbeddingModel(_LanguageModel):
             )
             for prediction in prediction_response.predictions
         ]
+
+
+class _PreviewTextEmbeddingModel(TextEmbeddingModel):
+    """Preview text embedding model."""
+
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
 class TextEmbedding:
@@ -469,6 +481,8 @@ class InputOutputTextPair:
 
 class _ChatModelBase(_LanguageModel):
     """_ChatModelBase is a base class for chat models."""
+
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
     def start_chat(
         self,
@@ -777,6 +791,7 @@ class CodeGenerationModel(_LanguageModel):
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
     _DEFAULT_TEMPERATURE = 0.0
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
 
