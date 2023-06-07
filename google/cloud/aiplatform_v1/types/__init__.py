@@ -418,6 +418,7 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
+    LargeModelReference,
     Model,
     ModelContainerSpec,
     ModelSourceInfo,
@@ -437,6 +438,10 @@ from .model_evaluation import (
 )
 from .model_evaluation_slice import (
     ModelEvaluationSlice,
+)
+from .model_garden_service import (
+    GetPublisherModelRequest,
+    PublisherModelView,
 )
 from .model_monitoring import (
     ModelMonitoringAlertConfig,
@@ -513,6 +518,9 @@ from .prediction_service import (
     PredictRequest,
     PredictResponse,
     RawPredictRequest,
+)
+from .publisher_model import (
+    PublisherModel,
 )
 from .saved_query import (
     SavedQuery,
@@ -969,6 +977,7 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "LargeModelReference",
     "Model",
     "ModelContainerSpec",
     "ModelSourceInfo",
@@ -982,6 +991,8 @@ __all__ = (
     "ModelDeploymentMonitoringObjectiveType",
     "ModelEvaluation",
     "ModelEvaluationSlice",
+    "GetPublisherModelRequest",
+    "PublisherModelView",
     "ModelMonitoringAlertConfig",
     "ModelMonitoringObjectiveConfig",
     "SamplingStrategy",
@@ -1046,6 +1057,7 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
+    "PublisherModel",
     "SavedQuery",
     "PrivateServiceConnectConfig",
     "SpecialistPool",

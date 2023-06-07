@@ -1041,7 +1041,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         suggested by Vertex AI Vizier. Returns a long-running operation
         associated with the generation of Trial suggestions. When this
         long-running operation succeeds, it will contain a
-        [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
+        [SuggestTrialsResponse][google.cloud.aiplatform.v1.SuggestTrialsResponse].
 
         .. code-block:: python
 

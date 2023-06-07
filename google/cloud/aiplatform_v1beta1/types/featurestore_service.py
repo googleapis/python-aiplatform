@@ -349,7 +349,7 @@ class ImportFeatureValuesRequest(proto.Message):
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``
         entity_id_field (str):
             Source column that holds entity IDs. If not provided, entity
-            IDs are extracted from the column named ``entity_id``.
+            IDs are extracted from the column named entity_id.
         feature_specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.ImportFeatureValuesRequest.FeatureSpec]):
             Required. Specifications defining which Feature values to
             import from the entity. The request fails if no
@@ -1600,6 +1600,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
             The number rows that weren't ingested due to
             having timestamps outside the retention
             boundary.
+        blocking_operation_ids (MutableSequence[int]):
+            List of ImportFeatureValues operations
+            running under a single EntityType that are
+            blocking this operation.
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(
@@ -1626,6 +1630,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
     timestamp_outside_retention_rows_count: int = proto.Field(
         proto.INT64,
         number=7,
+    )
+    blocking_operation_ids: MutableSequence[int] = proto.RepeatedField(
+        proto.INT64,
+        number=8,
     )
 
 
@@ -1938,7 +1946,7 @@ class EntityIdSelector(proto.Message):
             This field is a member of `oneof`_ ``EntityIdsSource``.
         entity_id_field (str):
             Source column that holds entity IDs. If not provided, entity
-            IDs are extracted from the column named ``entity_id``.
+            IDs are extracted from the column named entity_id.
     """
 
     csv_source: io.CsvSource = proto.Field(
