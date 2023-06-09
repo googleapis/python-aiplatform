@@ -18,6 +18,7 @@
 import datetime
 import time
 from typing import Dict, List, Optional, Sequence, Tuple, Union
+from google.protobuf import json_format
 
 import abc
 
@@ -26,6 +27,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import explain
+from google.cloud.aiplatform import hyperparameter_tuning as hpt
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import jobs
@@ -41,6 +43,7 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform.compat.types import (
     training_pipeline as gca_training_pipeline,
+    study as gca_study_compat,
 )
 
 from google.cloud.aiplatform.utils import _timestamped_gcs_dir
@@ -5287,125 +5290,226 @@ class AutoMLImageTrainingJob(_TrainingJob):
         labels: Optional[Dict[str, str]] = None,
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
+        checkpoint_name: Optional[str] = None,
+        trainer_config: Optional[Dict[str, str]] = None,
+        metric_spec: Optional[Dict[str, str]] = None,
+        parameter_spec: Optional[
+            Dict[
+                str,
+                Union[
+                    hpt.DoubleParameterSpec,
+                    hpt.IntegerParameterSpec,
+                    hpt.CategoricalParameterSpec,
+                    hpt.DiscreteParameterSpec,
+                ],
+            ]
+        ] = None,
+        search_algorithm: Optional[str] = None,
+        measurement_selection: Optional[str] = None,
     ):
         """Constructs a AutoML Image Training Job.
 
         Args:
-            display_name (str):
-                Optional. The user-defined name of this TrainingPipeline.
-            prediction_type (str):
-                The type of prediction the Model is to produce, one of:
-                    "classification" - Predict one out of multiple target values is
-                        picked for each row.
-                    "object_detection" - Predict a value based on its relation to other values.
-                        This type is available only to columns that contain
-                        semantically numeric values, i.e. integers or floating
-                        point number, even if stored as e.g. strings.
-            multi_label: bool = False
-                Required. Default is False.
-                If false, a single-label (multi-class) Model will be trained
-                (i.e. assuming that for each image just up to one annotation may be
-                applicable). If true, a multi-label Model will be trained (i.e.
-                assuming that for each image multiple annotations may be applicable).
-
-                This is only applicable for the "classification" prediction_type and
-                will be ignored otherwise.
+            display_name (str): Optional. The user-defined name of this
+              TrainingPipeline.
+            prediction_type (str): The type of prediction the Model is to produce,
+              one of: "classification" - Predict one out of multiple target values
+              is picked for each row. "object_detection" - Predict a value based on
+              its relation to other values. This type is available only to columns
+              that contain semantically numeric values, i.e. integers or floating
+              point number, even if stored as e.g. strings.
+            multi_label: bool = False Required. Default is False. If false, a
+              single-label (multi-class) Model will be trained (i.e. assuming that
+              for each image just up to one annotation may be applicable). If true,
+              a multi-label Model will be trained (i.e. assuming that for each image
+              multiple annotations may be applicable).  This is only applicable for
+              the "classification" prediction_type and will be ignored otherwise.
             model_type: str = "CLOUD"
-                Required. One of the following:
-                    "CLOUD" - Default for Image Classification.
-                        A Model best tailored to be used within Google Cloud, and
-                        which cannot be exported.
-                    "CLOUD_1" - A model type best tailored to be used within Google Cloud,
-                        which cannot be exported externally. Compared to the CLOUD model
-                        above, it is expected to have higher prediction accuracy.
-                    "CLOUD_HIGH_ACCURACY_1" - Default for Image Object Detection.
-                        A model best tailored to be used within Google Cloud, and
-                        which cannot be exported. Expected to have a higher latency,
-                        but should also have a higher prediction quality than other
-                        cloud models.
-                    "CLOUD_LOW_LATENCY_1" - A model best tailored to be used within
-                        Google Cloud, and which cannot be exported. Expected to have a
-                        low latency, but may have lower prediction quality than other
-                        cloud models.
-                    "MOBILE_TF_LOW_LATENCY_1" - A model that, in addition to being
-                        available within Google Cloud, can also be exported as TensorFlow
-                        or Core ML model and used on a mobile or edge device afterwards.
-                        Expected to have low latency, but may have lower prediction
-                        quality than other mobile models.
-                    "MOBILE_TF_VERSATILE_1" - A model that, in addition to being
-                        available within Google Cloud, can also be exported as TensorFlow
-                        or Core ML model and used on a mobile or edge device with afterwards.
-                    "MOBILE_TF_HIGH_ACCURACY_1" - A model that, in addition to being
-                        available within Google Cloud, can also be exported as TensorFlow
-                        or Core ML model and used on a mobile or edge device afterwards.
-                        Expected to have a higher latency, but should also have a higher
-                        prediction quality than other mobile models.
-                    "EFFICIENTNET" - A model that, available in Vertex Model Garden image
-                        classification training with customizable hyperparameters. Best tailored
-                        to be used within Google Cloud, and cannot be exported externally.
-                    "VIT" - A model that, available in Vertex Model Garden image
-                        classification training with customizable hyperparameters. Best tailored
-                        to be used within Google Cloud, and cannot be exported externally.
-                    "COCA" - A model that, available in Vertex Model Garden image
-                        classification training with customizable hyperparameters. Best tailored
-                        to be used within Google Cloud, and cannot be exported externally.
-                    "SPINENET" - A model that, available in Vertex Model Garden image object
-                        detection training with customizable hyperparameters. Best tailored
-                        to be used within Google Cloud, and cannot be exported externally.
-            base_model: Optional[models.Model] = None
-                Optional. Only permitted for Image Classification models.
-                If it is specified, the new model will be trained based on the `base` model.
-                Otherwise, the new model will be trained from scratch. The `base` model
-                must be in the same Project and Location as the new Model to train,
-                and have the same model_type.
-            incremental_train_base_model: Optional[models.Model] = None
-                Optional for both Image Classification and Object detection models, to
-                incrementally train a new model using an existing model as the starting point, with
-                a reduced training time. If not specified, the new model will be trained from scratch.
-                The `base` model must be in the same Project and Location as the new Model to train,
-                and have the same prediction_type and model_type.
-            project (str):
-                Optional. Project to run training in. Overrides project set in aiplatform.init.
-            location (str):
-                Optional. Location to run training in. Overrides location set in aiplatform.init.
-            credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to run call training service. Overrides
-                credentials set in aiplatform.init.
-            labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize TrainingPipelines.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            training_encryption_spec_key_name (Optional[str]):
-                Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the training pipeline. Has the
+
+              Required. One of the following:
+
+              "CLOUD" - Default for Image Classification. A Model best tailored to be used
+              within Google Cloud, and which cannot be exported.
+
+              "CLOUD_1" - A model type best tailored to be used within Google Cloud, which
+              cannot be exported externally. Compared to the CLOUD model above, it is
+              expected to have higher prediction accuracy.
+
+              "CLOUD_HIGH_ACCURACY_1" - Default  for Image Object Detection. A model best
+              tailored to be used within Google Cloud, and which cannot be exported.
+              Expected to have a higher latency, but should also have a higher prediction
+              quality than other cloud models.
+
+              "CLOUD_LOW_LATENCY_1" - A model best tailored to be used
+              within Google Cloud, and which cannot be exported. Expected to have a
+              low latency, but may have lower prediction quality than other cloud
+              models.
+
+              "MOBILE_TF_LOW_LATENCY_1" - A model that, in addition to being
+              available within Google Cloud, can also be exported as TensorFlow or
+              Core ML model and used on a mobile or edge device afterwards. Expected
+              to have low latency, but may have lower prediction quality than other
+              mobile models.
+
+              "MOBILE_TF_VERSATILE_1" - A model that, in addition to
+              being available within Google Cloud, can also be exported as
+              TensorFlow or Core ML model and used on a mobile or edge device with
+              afterwards.
+
+              "MOBILE_TF_HIGH_ACCURACY_1" - A model that, in addition to
+              being available within Google Cloud, can also be exported as
+              TensorFlow or Core ML model and used on a mobile or edge device
+              afterwards. Expected to have a higher latency, but should also have a
+              higher prediction quality than other mobile models.
+
+              "EFFICIENTNET" - A model that, available in Vertex Model Garden image
+              classification training with customizable hyperparameters. Best tailored
+              to be used within Google Cloud, and cannot be exported externally.
+
+              "VIT" - A model that, available in Vertex Model Garden image classification
+              training with customizable hyperparameters. Best tailored to be used
+              within Google Cloud, and cannot be exported externally.
+
+              "MAXVIT" - A model that, available in Vertex Model Garden image classification
+              training with customizable hyperparameters. Best tailored to be used
+              within Google Cloud, and cannot be exported externally.
+
+              "COCA" - A model that, available in Vertex Model Garden image classification
+              training with customizable hyperparameters. Best tailored to be used
+              within Google Cloud, and cannot be exported externally.
+
+              "SPINENET" - A model that, available in Vertex Model Garden image object
+              detection training with customizable hyperparameters. Best tailored to be
+              used within Google Cloud, and cannot be exported externally.
+
+              "YOLO" - A model that, available in Vertex Model Garden image object detection
+              training with customizable hyperparameters. Best tailored to be used
+              within Google Cloud, and cannot be exported externally.
+            base_model: Optional[models.Model] = None Optional. Only permitted for
+              Image Classification models. If it is specified, the new model will be
+              trained based on the `base` model. Otherwise, the new model will be
+              trained from scratch. The `base` model must be in the same Project and
+              Location as the new Model to train, and have the same model_type.
+            incremental_train_base_model: Optional[models.Model] = None Optional for
+              both Image Classification and Object detection models, to
+              incrementally train a new model using an existing model as the
+              starting point, with a reduced training time. If not specified, the
+              new model will be trained from scratch. The `base` model must be in
+              the same Project and Location as the new Model to train, and have the
+              same prediction_type and model_type.
+            project (str): Optional. Project to run training in. Overrides project
+              set in aiplatform.init.
+            location (str): Optional. Location to run training in. Overrides
+              location set in aiplatform.init.
+            credentials (auth_credentials.Credentials): Optional. Custom credentials
+              to use to run call training service. Overrides credentials set in
+              aiplatform.init.
+            labels (Dict[str, str]): Optional. The labels with user-defined metadata
+              to organize TrainingPipelines. Label keys and values can be no longer
+              than 64 characters (Unicode codepoints), can only contain lowercase
+              letters, numeric characters, underscores and dashes. International
+              characters are allowed. See https://goo.gl/xmQnxf for more information
+              and examples of labels.
+            training_encryption_spec_key_name (Optional[str]): Optional. The Cloud
+              KMS resource identifier of the customer managed encryption key used to
+              protect the training pipeline. Has the
                 form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-                The key needs to be in the same region as where the compute
-                resource is created.
-
-                If set, this TrainingPipeline will be secured by this key.
-
-                Note: Model trained by this TrainingPipeline is also secured
-                by this key if ``model_to_upload`` is not set separately.
-
-                Overrides encryption_spec_key_name set in aiplatform.init.
-            model_encryption_spec_key_name (Optional[str]):
-                Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the model. Has the
+                  ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                  The key needs to be in the same region as where the compute
+                  resource is created.  If set, this TrainingPipeline will be
+                  secured by this key.
+                Note: Model trained by this TrainingPipeline is also secured by this
+                  key if ``model_to_upload`` is not set separately.  Overrides
+                  encryption_spec_key_name set in aiplatform.init.
+            model_encryption_spec_key_name (Optional[str]): Optional. The Cloud KMS
+              resource identifier of the customer managed encryption key used to
+              protect the model. Has the
                 form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-                The key needs to be in the same region as where the compute
-                resource is created.
+                  ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                  The key needs to be in the same region as where the compute
+                  resource is created.  If set, the trained Model will be secured by
+                  this key.  Overrides encryption_spec_key_name set in
+                  aiplatform.init.
+            checkpoint_name: Optional[str] = None, Optional. The field is reserved
+              for Model Garden model training, based on the provided pre-trained
+              model checkpoint. Only necessary for `model_type`==EFFICIENTNET, VIT,
+              COCA, SPINENET, YOLO.
+            trainer_config: Optional[Dict[str, str]] = None, Optional. The field is
+              usually used together with the Model Garden model training, when
+              passing the customized configs for the trainer.
 
-                If set, the trained Model will be secured by this key.
+              Example with all supported parameters:
 
-                Overrides encryption_spec_key_name set in aiplatform.init.
+              trainer_config = {
+                'global_batch_size': '8',
+                'learning_rate': '0.001',
+                'optimizer_type': 'sgd',
+                'optimizer_momentum': '0.9',
+                'train_steps': '10000',
+                'accelerator_count': '1',
+                'anchor_size': '8',  -- IOD only
+              }
+              trainer_config is only required for Model Garden models when
+              `model_type`==EFFICIENTNET, VIT, COCA, SPINENET, YOLO.
+            metric_spec: Dict[str, str] Required. Dictionary representing metrics to
+              optimize. The dictionary key is the metric_id, which is reported by
+              your training job, with possible values be ('loss', 'accuracy') and the
+              dictionary value is the optimization goal of the metric('minimize' or 'maximize').
+
+              example:  metric_spec = {'loss': 'minimize', 'accuracy': 'maximize'}
+              metric_spec is only required for Model Garden models when
+              `model_type`==EFFICIENTNET, VIT, COCA, SPINENET, YOLO.
+            parameter_spec (Dict[str, hpt._ParameterSpec]): Required. Dictionary
+              representing parameters to optimize. The dictionary key is the
+              metric_id, which is passed into your training job as a command line
+              key word argument, and the dictionary value is the parameter
+              specification of the metric.
+
+              from google.cloud.aiplatform import hpt as hpt
+
+              parameter_spec = {
+                'learning_rate': hpt.DoubleParameterSpec(min=1e-7, max=1, scale='linear'),
+              }
+
+              Supported parameter specifications can be found in aiplatform.hyperparameter_tuning.
+              These parameter specification are currently supported: Union[DoubleParameterSpec,
+              IntegerParameterSpec, CategoricalParameterSpec, DiscreteParameterSpec]
+              parameter_spec is only required for Model Garden models when
+              `model_type`==EFFICIENTNET, VIT, COCA, SPINENET, YOLO.
+            search_algorithm (str): The search algorithm specified for the Study.
+              Accepts one of the following:
+
+                `None` - If you do not specify an algorithm, your job uses the default
+                Vertex AI algorithm. The default algorithm applies Bayesian optimization
+                to arrive at the optimal solution with a more effective search over the
+                parameter space.
+
+                'grid' - A simple grid search within the feasible space. This option is
+                particularly useful if you want to specify a quantity of trials that is greater
+                than the number of points in the feasible space. In such cases, if you do
+                not specify a grid search, the Vertex AI default algorithm may generate
+                duplicate suggestions. To use grid search, all parameter specs must be of
+                type `IntegerParameterSpec`, `CategoricalParameterSpec`, or `DiscreteParameterSpec`.
+
+                'random' - A simple random search within the feasible space.
+
+              search_algorithm is only required for Model Garden models when
+              `model_type`==EFFICIENTNET, VIT, COCA, SPINENET, YOLO.
+            measurement_selection (str): This indicates which measurement to use
+              if/when the service automatically selects the final measurement from
+              previously reported intermediate measurements.
+                Accepts: 'best', 'last'  Choose this based on two considerations: A)
+                  Do you expect your measurements to monotonically improve? If so,
+                  choose 'last'. On the other hand, if you're in a situation where
+                  your system can "over-train" and you expect the performance to get
+                  better for a while but then start declining, choose 'best'. B) Are
+                  your measurements significantly noisy and/or irreproducible? If
+                  so, 'best' will tend to be over-optimistic, and it may be better
+                  to choose 'last'. If both or neither of (A) and (B) apply, it
+                  doesn't matter which selection type is chosen.
+              measurement_selection is only required for Model Garden models when
+              `model_type`==EFFICIENTNET, VIT, COCA, SPINENET, YOLO.
+
         Raises:
             ValueError: When an invalid prediction_type or model_type is provided.
         """
@@ -5418,8 +5522,9 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         if not valid_model_types:
             raise ValueError(
-                f"'{prediction_type}' is not a supported prediction type for AutoML Image Training. "
-                f"Please choose one of: {tuple(constants.AUTOML_IMAGE_PREDICTION_MODEL_TYPES.keys())}."
+                f"'{prediction_type}' is not a supported prediction type for AutoML"
+                " Image Training. Please choose one of:"
+                f" {tuple(constants.AUTOML_IMAGE_PREDICTION_MODEL_TYPES.keys())}."
             )
 
         # Override default model_type for object_detection
@@ -5428,15 +5533,92 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         if model_type not in valid_model_types:
             raise ValueError(
-                f"'{model_type}' is not a supported model_type for prediction_type of '{prediction_type}'. "
-                f"Please choose one of: {tuple(valid_model_types)}"
+                f"'{model_type}' is not a supported model_type for prediction_type of"
+                f" '{prediction_type}'. Please choose one of:"
+                f" {tuple(valid_model_types)}"
             )
 
         if base_model and prediction_type != "classification":
             raise ValueError(
-                "Training with a `base_model` is only supported in AutoML Image Classification. "
-                f"However '{prediction_type}' was provided as `prediction_type`."
+                "Training with a `base_model` is only supported in AutoML Image"
+                f" Classification. However '{prediction_type}' was provided as"
+                " `prediction_type`."
             )
+
+        model_garden_models = constants.MODEL_GARDEN_ICN_MODEL_TYPES.union(
+            constants.MODEL_GARDEN_IOD_MODEL_TYPES
+        )
+
+        if checkpoint_name and model_type not in model_garden_models:
+            raise ValueError(
+                "Training with a `checkpoint_name` is only supported in Model Garden"
+                f" models {tuple(model_garden_models)}. However,"
+                f" '{model_type}' was provided as `model_type`."
+            )
+
+        if trainer_config and model_type not in model_garden_models:
+            raise ValueError(
+                "Training with a `trainer_config` is only supported in Model Garden"
+                f" models {tuple(model_garden_models)}. However,"
+                f" '{model_type}' was provided as `model_type`."
+            )
+
+        if metric_spec and model_type not in model_garden_models:
+            raise ValueError(
+                "Training with a `metric_spec` is only supported in Model Garden"
+                f" models {tuple(model_garden_models)}. However,"
+                f" '{model_type}' was provided as `model_type`."
+            )
+
+        if parameter_spec and model_type not in model_garden_models:
+            raise ValueError(
+                "Training with a `parameter_spec` is only supported in Model Garden"
+                f" models {tuple(model_garden_models)}. However,"
+                f" '{model_type}' was provided as `model_type`."
+            )
+
+        if search_algorithm and model_type not in model_garden_models:
+            raise ValueError(
+                "Training with a `search_algorithm` is only supported in Model Garden"
+                f" models {tuple(model_garden_models)}. However,"
+                f" '{model_type}' was provided as `model_type`."
+            )
+
+        if measurement_selection and model_type not in model_garden_models:
+            raise ValueError(
+                "Training with a `measurement_selection` is only supported in Model Garden"
+                f" models {tuple(model_garden_models)}. However,"
+                f" '{model_type}' was provided as `model_type`."
+            )
+
+        metrics = (
+            [
+                gca_study_compat.StudySpec.MetricSpec(
+                    metric_id=metric_id, goal=goal.upper()
+                )
+                for metric_id, goal in metric_spec.items()
+            ]
+            if metric_spec
+            else []
+        )
+
+        parameters = (
+            [
+                parameter._to_parameter_spec(parameter_id=parameter_id)
+                for parameter_id, parameter in parameter_spec.items()
+            ]
+            if parameter_spec
+            else []
+        )
+
+        study_spec = gca_study_compat.StudySpec(
+            metrics=metrics,
+            parameters=parameters,
+            algorithm=hpt.SEARCH_ALGORITHM_TO_PROTO_VALUE[search_algorithm],
+            measurement_selection_type=hpt.MEASUREMENT_SELECTION_TO_PROTO_VALUE[
+                measurement_selection
+            ],
+        )
 
         super().__init__(
             display_name=display_name,
@@ -5453,6 +5635,9 @@ class AutoMLImageTrainingJob(_TrainingJob):
         self._multi_label = multi_label
         self._base_model = base_model
         self._incremental_train_base_model = incremental_train_base_model
+        self._checkpoint_name = checkpoint_name
+        self._trainer_config = trainer_config
+        self._study_spec = study_spec
 
     def run(
         self,
@@ -5477,12 +5662,16 @@ class AutoMLImageTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the AutoML Image training job and returns a model.
 
-        If training on a Vertex AI dataset, you can use one of the following split configurations:
+        If training on a Vertex AI dataset, you can use one of the following split
+        configurations:
             Data fraction splits:
             Any of ``training_fraction_split``, ``validation_fraction_split`` and
-            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-            the provided ones sum to less than 1, the remainder is assigned to sets as
-            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            ``test_fraction_split`` may optionally be provided, they must sum to up
+            to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets
+            as
+            decided by Vertex AI. If none of the fractions are set, by default
+            roughly 80%
             of data will be used for training, 10% for validation, and 10% for test.
 
             Data filter splits:
@@ -5492,125 +5681,111 @@ class AutoMLImageTrainingJob(_TrainingJob):
             containing DataItems.
             If any of the filters in this message are to match nothing, then
             they can be set as '-' (the minus sign).
-            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            If using filter splits, all of ``training_filter_split``,
+            ``validation_filter_split`` and
             ``test_filter_split`` must be provided.
             Supported only for unstructured Datasets.
 
         Args:
-            dataset (datasets.ImageDataset):
-                Required. The dataset within the same Project from which data will be used to train the Model. The
-                Dataset must use schema compatible with Model being trained,
-                and what is compatible should be described in the used
-                TrainingPipeline's [training_task_definition]
-                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
-                For tabular Datasets, all their data is exported to
-                training, to pick and choose from.
-            training_fraction_split (float):
-                Optional. The fraction of the input data that is to be used to train
-                the Model. This is ignored if Dataset is not provided.
-            validation_fraction_split (float):
-                Optional. The fraction of the input data that is to be used to validate
-                the Model. This is ignored if Dataset is not provided.
-            test_fraction_split (float):
-                Optional. The fraction of the input data that is to be used to evaluate
-                the Model. This is ignored if Dataset is not provided.
-            training_filter_split (str):
-                Optional. A filter on DataItems of the Dataset. DataItems that match
-                this filter are used to train the Model. A filter with same syntax
-                as the one used in DatasetService.ListDataItems may be used. If a
-                single DataItem is matched by more than one of the FilterSplit filters,
-                then it is assigned to the first set that applies to it in the training,
-                validation, test order. This is ignored if Dataset is not provided.
-            validation_filter_split (str):
-                Optional. A filter on DataItems of the Dataset. DataItems that match
-                this filter are used to validate the Model. A filter with same syntax
-                as the one used in DatasetService.ListDataItems may be used. If a
-                single DataItem is matched by more than one of the FilterSplit filters,
-                then it is assigned to the first set that applies to it in the training,
-                validation, test order. This is ignored if Dataset is not provided.
-            test_filter_split (str):
-                Optional. A filter on DataItems of the Dataset. DataItems that match
-                this filter are used to test the Model. A filter with same syntax
-                as the one used in DatasetService.ListDataItems may be used. If a
-                single DataItem is matched by more than one of the FilterSplit filters,
-                then it is assigned to the first set that applies to it in the training,
-                validation, test order. This is ignored if Dataset is not provided.
-            budget_milli_node_hours (int):
-                Optional. The train budget of creating this Model, expressed in milli node
-                hours i.e. 1,000 value in this field means 1 node hour.
+            dataset (datasets.ImageDataset): Required. The dataset within the same
+              Project from which data will be used to train the Model. The Dataset
+              must use schema compatible with Model being trained, and what is
+              compatible should be described in the used TrainingPipeline's
+              [training_task_definition]
+              [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+              For tabular Datasets, all their data is exported to training, to pick
+              and choose from.
+            training_fraction_split (float): Optional. The fraction of the input
+              data that is to be used to train the Model. This is ignored if Dataset
+              is not provided.
+            validation_fraction_split (float): Optional. The fraction of the input
+              data that is to be used to validate the Model. This is ignored if
+              Dataset is not provided.
+            test_fraction_split (float): Optional. The fraction of the input data
+              that is to be used to evaluate the Model. This is ignored if Dataset
+              is not provided.
+            training_filter_split (str): Optional. A filter on DataItems of the
+              Dataset. DataItems that match this filter are used to train the Model.
+              A filter with same syntax as the one used in
+              DatasetService.ListDataItems may be used. If a single DataItem is
+              matched by more than one of the FilterSplit filters, then it is
+              assigned to the first set that applies to it in the training,
+              validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str): Optional. A filter on DataItems of the
+              Dataset. DataItems that match this filter are used to validate the
+              Model. A filter with same syntax as the one used in
+              DatasetService.ListDataItems may be used. If a single DataItem is
+              matched by more than one of the FilterSplit filters, then it is
+              assigned to the first set that applies to it in the training,
+              validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str): Optional. A filter on DataItems of the Dataset.
+              DataItems that match this filter are used to test the Model. A filter
+              with same syntax as the one used in DatasetService.ListDataItems may
+              be used. If a single DataItem is matched by more than one of the
+              FilterSplit filters, then it is assigned to the first set that applies
+              to it in the training, validation, test order. This is ignored if
+              Dataset is not provided.
+            budget_milli_node_hours (int): Optional. The train budget of creating
+              this Model, expressed in milli node hours i.e. 1,000 value in this
+              field means 1 node hour.  Defaults by `prediction_type`:
+              `classification` - For Cloud models the budget must be: 8,000 -
+              800,000 milli node hours (inclusive). The default value is 192,000
+              which represents one day in wall time, assuming 8 nodes are used.
+              `object_detection` - For Cloud models the budget must be: 20,000 -
+              900,000 milli node hours (inclusive). The default value is 216,000
+              which represents one day in wall time, assuming 9 nodes are used.  The
+              training cost of the model will not exceed this budget. The final cost
+              will be attempted to be close to the budget, though may end up being
+              (even) noticeably smaller - at the backend's discretion. This
+              especially may happen when further model training ceases to provide
+              any improvements. If the budget is set to a value known to be
+              insufficient to train a Model for the given training set, the training
+              won't be attempted and will error.
+            model_display_name (str): Optional. The display name of the managed
+              Vertex AI Model. The name can be up to 128 characters long and can be
+              consist of any UTF-8 characters. If not provided upon creation, the
+              job's display_name is used.
+            model_labels (Dict[str, str]): Optional. The labels with user-defined
+              metadata to organize your Models. Label keys and values can be no
+              longer than 64 characters (Unicode codepoints), can only contain
+              lowercase letters, numeric characters, underscores and dashes.
+              International characters are allowed. See https://goo.gl/xmQnxf for
+              more information and examples of labels.
+            model_id (str): Optional. The ID to use for the Model produced by this
+              job, which will become the final component of the model resource name.
+              This value may be up to 63 characters, and valid characters are
+              `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str): Optional. The resource name or model ID of an
+              existing model. The new model uploaded by this job will be a version
+              of `parent_model`.  Only set this field when training a new version of
+              an existing model.
+            is_default_version (bool): Optional. When set to True, the newly
+              uploaded model version will automatically have alias "default"
+              included. Subsequent uses of the model produced by this job without a
+              version specified will use this "default" version.  When set to False,
+              the "default" alias will not be moved. Actions targeting the model
+              version produced by this job will need to specifically reference this
+              version by ID or alias.  New model uploads, i.e. version 1, will
+              always be "default" aliased.
+            model_version_aliases (Sequence[str]): Optional. User provided version
+              aliases so that the model version uploaded by this job can be
+              referenced via alias instead of auto-generated version ID. A default
+              version alias will be created for the first version of the model.  The
+              format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str): Optional. The description of the model
+              version being uploaded by this job.
+            disable_early_stopping: bool = False Required. If true, the entire
+              budget is used. This disables the early stopping feature. By default,
+              the early stopping feature is enabled, which means that training might
+              stop before the entire training budget has been used, if further
+              training does no longer brings significant improvement to the model.
+            sync: bool = True Whether to execute this method synchronously. If
+              False, this method will be executed in concurrent Future and any
+              downstream object will be immediately returned and synced when the
+              Future has completed.
+            create_request_timeout (float): Optional. The timeout for the create
+              request in seconds.
 
-                Defaults by `prediction_type`:
-
-                    `classification` - For Cloud models the budget must be: 8,000 - 800,000
-                    milli node hours (inclusive). The default value is 192,000 which
-                    represents one day in wall time, assuming 8 nodes are used.
-                    `object_detection` - For Cloud models the budget must be: 20,000 - 900,000
-                    milli node hours (inclusive). The default value is 216,000 which represents
-                    one day in wall time, assuming 9 nodes are used.
-
-                The training cost of the model will not exceed this budget. The final
-                cost will be attempted to be close to the budget, though may end up
-                being (even) noticeably smaller - at the backend's discretion. This
-                especially may happen when further model training ceases to provide
-                any improvements. If the budget is set to a value known to be insufficient to
-                train a Model for the given training set, the training won't be attempted and
-                will error.
-            model_display_name (str):
-                Optional. The display name of the managed Vertex AI Model. The name
-                can be up to 128 characters long and can be consist of any UTF-8
-                characters. If not provided upon creation, the job's display_name is used.
-            model_labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize your Models.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            model_id (str):
-                Optional. The ID to use for the Model produced by this job,
-                which will become the final component of the model resource name.
-                This value may be up to 63 characters, and valid characters
-                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
-            parent_model (str):
-                Optional. The resource name or model ID of an existing model.
-                The new model uploaded by this job will be a version of `parent_model`.
-
-                Only set this field when training a new version of an existing model.
-            is_default_version (bool):
-                Optional. When set to True, the newly uploaded model version will
-                automatically have alias "default" included. Subsequent uses of
-                the model produced by this job without a version specified will
-                use this "default" version.
-
-                When set to False, the "default" alias will not be moved.
-                Actions targeting the model version produced by this job will need
-                to specifically reference this version by ID or alias.
-
-                New model uploads, i.e. version 1, will always be "default" aliased.
-            model_version_aliases (Sequence[str]):
-                Optional. User provided version aliases so that the model version
-                uploaded by this job can be referenced via alias instead of
-                auto-generated version ID. A default version alias will be created
-                for the first version of the model.
-
-                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
-            model_version_description (str):
-               Optional. The description of the model version being uploaded by this job.
-            disable_early_stopping: bool = False
-                Required. If true, the entire budget is used. This disables the early stopping
-                feature. By default, the early stopping feature is enabled, which means
-                that training might stop before the entire training budget has been
-                used, if further training does no longer brings significant improvement
-                to the model.
-            sync: bool = True
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-            create_request_timeout (float):
-                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -5679,12 +5854,16 @@ class AutoMLImageTrainingJob(_TrainingJob):
     ) -> models.Model:
         """Runs the training job and returns a model.
 
-        If training on a Vertex AI dataset, you can use one of the following split configurations:
+        If training on a Vertex AI dataset, you can use one of the following split
+        configurations:
             Data fraction splits:
             Any of ``training_fraction_split``, ``validation_fraction_split`` and
-            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-            the provided ones sum to less than 1, the remainder is assigned to sets as
-            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            ``test_fraction_split`` may optionally be provided, they must sum to up
+            to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets
+            as
+            decided by Vertex AI. If none of the fractions are set, by default
+            roughly 80%
             of data will be used for training, 10% for validation, and 10% for test.
 
             Data filter splits:
@@ -5694,131 +5873,117 @@ class AutoMLImageTrainingJob(_TrainingJob):
             containing DataItems.
             If any of the filters in this message are to match nothing, then
             they can be set as '-' (the minus sign).
-            If using filter splits, all of ``training_filter_split``, ``validation_filter_split`` and
+            If using filter splits, all of ``training_filter_split``,
+            ``validation_filter_split`` and
             ``test_filter_split`` must be provided.
             Supported only for unstructured Datasets.
 
         Args:
-            dataset (datasets.ImageDataset):
-                Required. The dataset within the same Project from which data will be used to train the Model. The
-                Dataset must use schema compatible with Model being trained,
-                and what is compatible should be described in the used
-                TrainingPipeline's [training_task_definition]
-                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
-                For tabular Datasets, all their data is exported to
-                training, to pick and choose from.
-            base_model: Optional[models.Model] = None
-                Optional. Only permitted for Image Classification models.
-                If it is specified, the new model will be trained based on the `base` model.
-                Otherwise, the new model will be trained from scratch. The `base` model
-                must be in the same Project and Location as the new Model to train,
-                and have the same model_type.
-            incremental_train_base_model: Optional[models.Model] = None
-                Optional for both Image Classification and Object detection models, to
-                incrementally train a new model using an existing model as the starting point, with
-                a reduced training time. If not specified, the new model will be trained from scratch.
-                The `base` model must be in the same Project and Location as the new Model to train,
-                and have the same prediction_type and model_type.
-            model_id (str):
-                Optional. The ID to use for the Model produced by this job,
-                which will become the final component of the model resource name.
-                This value may be up to 63 characters, and valid characters
-                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
-            parent_model (str):
-                Optional. The resource name or model ID of an existing model.
-                The new model uploaded by this job will be a version of `parent_model`.
-
-                Only set this field when training a new version of an existing model.
-            is_default_version (bool):
-                Optional. When set to True, the newly uploaded model version will
-                automatically have alias "default" included. Subsequent uses of
-                the model produced by this job without a version specified will
-                use this "default" version.
-
-                When set to False, the "default" alias will not be moved.
-                Actions targeting the model version produced by this job will need
-                to specifically reference this version by ID or alias.
-
-                New model uploads, i.e. version 1, will always be "default" aliased.
-            model_version_aliases (Sequence[str]):
-                Optional. User provided version aliases so that the model version
-                uploaded by this job can be referenced via alias instead of
-                auto-generated version ID. A default version alias will be created
-                for the first version of the model.
-
-                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
-            model_version_description (str):
-               Optional. The description of the model version being uploaded by this job.
-            training_fraction_split (float):
-                Optional. The fraction of the input data that is to be used to train
-                the Model. This is ignored if Dataset is not provided.
-            validation_fraction_split (float):
-                Optional. The fraction of the input data that is to be used to validate
-                the Model. This is ignored if Dataset is not provided.
-            test_fraction_split (float):
-                Optional. The fraction of the input data that is to be used to evaluate
-                the Model. This is ignored if Dataset is not provided.
-            training_filter_split (str):
-                Optional. A filter on DataItems of the Dataset. DataItems that match
-                this filter are used to train the Model. A filter with same syntax
-                as the one used in DatasetService.ListDataItems may be used. If a
-                single DataItem is matched by more than one of the FilterSplit filters,
-                then it is assigned to the first set that applies to it in the training,
-                validation, test order. This is ignored if Dataset is not provided.
-            validation_filter_split (str):
-                Optional. A filter on DataItems of the Dataset. DataItems that match
-                this filter are used to validate the Model. A filter with same syntax
-                as the one used in DatasetService.ListDataItems may be used. If a
-                single DataItem is matched by more than one of the FilterSplit filters,
-                then it is assigned to the first set that applies to it in the training,
-                validation, test order. This is ignored if Dataset is not provided.
-            test_filter_split (str):
-                Optional. A filter on DataItems of the Dataset. DataItems that match
-                this filter are used to test the Model. A filter with same syntax
-                as the one used in DatasetService.ListDataItems may be used. If a
-                single DataItem is matched by more than one of the FilterSplit filters,
-                then it is assigned to the first set that applies to it in the training,
-                validation, test order. This is ignored if Dataset is not provided.
-            budget_milli_node_hours (int):
-                Optional. The train budget of creating this Model, expressed in milli node
-                hours i.e. 1,000 value in this field means 1 node hour.
-                The training cost of the model will not exceed this budget. The final
-                cost will be attempted to be close to the budget, though may end up
-                being (even) noticeably smaller - at the backend's discretion. This
-                especially may happen when further model training ceases to provide
-                any improvements.
-                If the budget is set to a value known to be insufficient to train a
-                Model for the given training set, the training won't be attempted and
-                will error.
-                The minimum value is 1000 and the maximum is 72000.
-            model_display_name (str):
-                Optional. The display name of the managed Vertex AI Model. The name
-                can be up to 128 characters long and can be consist of any UTF-8
-                characters. If a `base_model` was provided, the display_name in the
-                base_model will be overritten with this value. If not provided upon
-                creation, the job's display_name is used.
-            model_labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize your Models.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            disable_early_stopping (bool):
-                Required. If true, the entire budget is used. This disables the early stopping
-                feature. By default, the early stopping feature is enabled, which means
-                that training might stop before the entire training budget has been
-                used, if further training does no longer brings significant improvement
-                to the model.
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-            create_request_timeout (float):
-                Optional. The timeout for the create request in seconds.
+            dataset (datasets.ImageDataset): Required. The dataset within the same
+              Project from which data will be used to train the Model. The Dataset
+              must use schema compatible with Model being trained, and what is
+              compatible should be described in the used TrainingPipeline's
+              [training_task_definition]
+              [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+              For tabular Datasets, all their data is exported to training, to pick
+              and choose from.
+            base_model: Optional[models.Model] = None Optional. Only permitted for
+              Image Classification models. If it is specified, the new model will be
+              trained based on the `base` model. Otherwise, the new model will be
+              trained from scratch. The `base` model must be in the same Project and
+              Location as the new Model to train, and have the same model_type.
+            incremental_train_base_model: Optional[models.Model] = None Optional for
+              both Image Classification and Object detection models, to
+              incrementally train a new model using an existing model as the
+              starting point, with a reduced training time. If not specified, the
+              new model will be trained from scratch. The `base` model must be in
+              the same Project and Location as the new Model to train, and have the
+              same prediction_type and model_type.
+            model_id (str): Optional. The ID to use for the Model produced by this
+              job, which will become the final component of the model resource name.
+              This value may be up to 63 characters, and valid characters are
+              `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str): Optional. The resource name or model ID of an
+              existing model. The new model uploaded by this job will be a version
+              of `parent_model`.  Only set this field when training a new version of
+              an existing model.
+            is_default_version (bool): Optional. When set to True, the newly
+              uploaded model version will automatically have alias "default"
+              included. Subsequent uses of the model produced by this job without a
+              version specified will use this "default" version.  When set to False,
+              the "default" alias will not be moved. Actions targeting the model
+              version produced by this job will need to specifically reference this
+              version by ID or alias.  New model uploads, i.e. version 1, will
+              always be "default" aliased.
+            model_version_aliases (Sequence[str]): Optional. User provided version
+              aliases so that the model version uploaded by this job can be
+              referenced via alias instead of auto-generated version ID. A default
+              version alias will be created for the first version of the model.  The
+              format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str): Optional. The description of the model
+              version being uploaded by this job.
+            training_fraction_split (float): Optional. The fraction of the input
+              data that is to be used to train the Model. This is ignored if Dataset
+              is not provided.
+            validation_fraction_split (float): Optional. The fraction of the input
+              data that is to be used to validate the Model. This is ignored if
+              Dataset is not provided.
+            test_fraction_split (float): Optional. The fraction of the input data
+              that is to be used to evaluate the Model. This is ignored if Dataset
+              is not provided.
+            training_filter_split (str): Optional. A filter on DataItems of the
+              Dataset. DataItems that match this filter are used to train the Model.
+              A filter with same syntax as the one used in
+              DatasetService.ListDataItems may be used. If a single DataItem is
+              matched by more than one of the FilterSplit filters, then it is
+              assigned to the first set that applies to it in the training,
+              validation, test order. This is ignored if Dataset is not provided.
+            validation_filter_split (str): Optional. A filter on DataItems of the
+              Dataset. DataItems that match this filter are used to validate the
+              Model. A filter with same syntax as the one used in
+              DatasetService.ListDataItems may be used. If a single DataItem is
+              matched by more than one of the FilterSplit filters, then it is
+              assigned to the first set that applies to it in the training,
+              validation, test order. This is ignored if Dataset is not provided.
+            test_filter_split (str): Optional. A filter on DataItems of the Dataset.
+              DataItems that match this filter are used to test the Model. A filter
+              with same syntax as the one used in DatasetService.ListDataItems may
+              be used. If a single DataItem is matched by more than one of the
+              FilterSplit filters, then it is assigned to the first set that applies
+              to it in the training, validation, test order. This is ignored if
+              Dataset is not provided.
+            budget_milli_node_hours (int): Optional. The train budget of creating
+              this Model, expressed in milli node hours i.e. 1,000 value in this
+              field means 1 node hour. The training cost of the model will not
+              exceed this budget. The final cost will be attempted to be close to
+              the budget, though may end up being (even) noticeably smaller - at the
+              backend's discretion. This especially may happen when further model
+              training ceases to provide any improvements. If the budget is set to a
+              value known to be insufficient to train a Model for the given training
+              set, the training won't be attempted and will error. The minimum value
+              is 1000 and the maximum is 72000.
+            model_display_name (str): Optional. The display name of the managed
+              Vertex AI Model. The name can be up to 128 characters long and can be
+              consist of any UTF-8 characters. If a `base_model` was provided, the
+              display_name in the base_model will be overritten with this value. If
+              not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]): Optional. The labels with user-defined
+              metadata to organize your Models. Label keys and values can be no
+              longer than 64 characters (Unicode codepoints), can only contain
+              lowercase letters, numeric characters, underscores and dashes.
+              International characters are allowed. See https://goo.gl/xmQnxf for
+              more information and examples of labels.
+            disable_early_stopping (bool): Required. If true, the entire budget is
+              used. This disables the early stopping feature. By default, the early
+              stopping feature is enabled, which means that training might stop
+              before the entire training budget has been used, if further training
+              does no longer brings significant improvement to the model.
+            sync (bool): Whether to execute this method synchronously. If False,
+              this method will be executed in concurrent Future and any downstream
+              object will be immediately returned and synced when the Future has
+              completed.
+            create_request_timeout (float): Optional. The timeout for the create
+              request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5860,6 +6025,22 @@ class AutoMLImageTrainingJob(_TrainingJob):
             training_task_inputs_dict[
                 "uptrainBaseModelId"
             ] = incremental_train_base_model.name
+
+        tunable_parameter_dict: Dict[str, any] = {}
+
+        if self._checkpoint_name:
+            tunable_parameter_dict["checkpointName"] = self._checkpoint_name
+
+        if self._study_spec:
+            tunable_parameter_dict["studySpec"] = json_format.MessageToDict(
+                self._study_spec._pb
+            )
+
+        if self._trainer_config:
+            tunable_parameter_dict["trainerConfig"] = self._trainer_config
+
+        if tunable_parameter_dict:
+            training_task_inputs_dict["tunableParameter"] = tunable_parameter_dict
 
         return self._run_job(
             training_task_definition=training_task_definition,
