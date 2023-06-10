@@ -59,8 +59,8 @@ class ModelEvaluation(proto.Message):
             ModelEvaluation was created.
         slice_dimensions (MutableSequence[str]):
             All possible
-            [dimensions][ModelEvaluationSlice.slice.dimension] of
-            ModelEvaluationSlices. The dimensions can be used as the
+            [dimensions][google.cloud.aiplatform.v1beta1.ModelEvaluationSlice.Slice.dimension]
+            of ModelEvaluationSlices. The dimensions can be used as the
             filter of the
             [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices]
             request, in the form of ``slice.dimension = <dimension>``.

@@ -31,6 +31,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
         "Model",
+        "LargeModelReference",
         "PredictSchemata",
         "ModelContainerSpec",
         "Port",
@@ -107,6 +108,9 @@ class Model(proto.Message):
             Output only. The resource name of the
             TrainingPipeline that uploaded this Model, if
             any.
+        pipeline_job (str):
+            This field is populated if the model is
+            produced by a pipeline job.
         container_spec (google.cloud.aiplatform_v1.types.ModelContainerSpec):
             Input only. The specification of the container that is to be
             used when deploying this Model. The specification is
@@ -462,6 +466,10 @@ class Model(proto.Message):
         proto.STRING,
         number=7,
     )
+    pipeline_job: str = proto.Field(
+        proto.STRING,
+        number=47,
+    )
     container_spec: "ModelContainerSpec" = proto.Field(
         proto.MESSAGE,
         number=9,
@@ -535,6 +543,24 @@ class Model(proto.Message):
     metadata_artifact: str = proto.Field(
         proto.STRING,
         number=44,
+    )
+
+
+class LargeModelReference(proto.Message):
+    r"""Contains information about the Large Model.
+
+    Attributes:
+        name (str):
+            Required. The unique name of the large
+            Foundation or pre-built model. Like
+            "chat-bison", "text-bison". Or model name with
+            version ID, like "chat-bison@001",
+            "text-bison@005", etc.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
     )
 
 

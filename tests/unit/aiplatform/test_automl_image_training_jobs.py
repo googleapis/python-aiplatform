@@ -25,6 +25,7 @@ from google.protobuf import struct_pb2
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
+from google.cloud.aiplatform import hyperparameter_tuning as hpt
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
@@ -39,6 +40,7 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
     model as gca_model,
     pipeline_state as gca_pipeline_state,
+    study as gca_study_compat,
     training_pipeline as gca_training_pipeline,
 )
 import constants as test_constants
@@ -94,6 +96,102 @@ _TEST_TRAINING_TASK_INPUTS_WITH_UPTRAIN_BASE_MODEL = json_format.ParseDict(
         "multiLabel": False,
         "disableEarlyStopping": _TEST_TRAINING_DISABLE_EARLY_STOPPING,
         "uptrainBaseModelId": _TEST_MODEL_ID,
+    },
+    struct_pb2.Value(),
+)
+
+_TEST_CHECKPOINT_NAME = "gs://coca_ckpt_uri/saved_model"
+_TEST_TRAINER_CONFIG = {
+    "config_key_1": "config_value_1",
+    "config_key_2": "config_value_2",
+}
+_TEST_METRIC_SPEC_KEY = "metric"
+_TEST_METRIC_SPEC_VALUE = "MAXIMIZE"
+_TEST_SEARCH_ALGORITHM = "random"
+_TEST_MEASUREMENT_SELECTION = "best"
+_TEST_CONDITIONAL_PARAMETER_DECAY = hpt.DoubleParameterSpec(
+    min=1e-07, max=1, scale="linear", parent_values=[32, 64]
+)
+_TEST_CONDITIONAL_PARAMETER_LR = hpt.DoubleParameterSpec(
+    min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
+)
+_TEST_STUDY_SPEC = gca_study_compat.StudySpec(
+    metrics=[
+        gca_study_compat.StudySpec.MetricSpec(
+            metric_id=_TEST_METRIC_SPEC_KEY, goal=_TEST_METRIC_SPEC_VALUE.upper()
+        )
+    ],
+    parameters=[
+        gca_study_compat.StudySpec.ParameterSpec(
+            parameter_id="lr",
+            scale_type=gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LOG_SCALE,
+            double_value_spec=gca_study_compat.StudySpec.ParameterSpec.DoubleValueSpec(
+                min_value=0.001, max_value=0.1
+            ),
+        ),
+        gca_study_compat.StudySpec.ParameterSpec(
+            parameter_id="units",
+            scale_type=gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
+            integer_value_spec=gca_study_compat.StudySpec.ParameterSpec.IntegerValueSpec(
+                min_value=4, max_value=1028
+            ),
+        ),
+        gca_study_compat.StudySpec.ParameterSpec(
+            parameter_id="activation",
+            categorical_value_spec=gca_study_compat.StudySpec.ParameterSpec.CategoricalValueSpec(
+                values=["relu", "sigmoid", "elu", "selu", "tanh"]
+            ),
+        ),
+        gca_study_compat.StudySpec.ParameterSpec(
+            parameter_id="batch_size",
+            scale_type=gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
+            discrete_value_spec=gca_study_compat.StudySpec.ParameterSpec.DiscreteValueSpec(
+                values=[4, 8, 16, 32, 64]
+            ),
+            conditional_parameter_specs=[
+                gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec(
+                    parent_discrete_values=gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition(
+                        values=[32, 64]
+                    ),
+                    parameter_spec=gca_study_compat.StudySpec.ParameterSpec(
+                        double_value_spec=gca_study_compat.StudySpec.ParameterSpec.DoubleValueSpec(
+                            min_value=1e-07, max_value=1
+                        ),
+                        scale_type=gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
+                        parameter_id="decay",
+                    ),
+                ),
+                gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec(
+                    parent_discrete_values=gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition(
+                        values=[4, 8, 16]
+                    ),
+                    parameter_spec=gca_study_compat.StudySpec.ParameterSpec(
+                        double_value_spec=gca_study_compat.StudySpec.ParameterSpec.DoubleValueSpec(
+                            min_value=1e-07, max_value=1
+                        ),
+                        scale_type=gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
+                        parameter_id="learning_rate",
+                    ),
+                ),
+            ],
+        ),
+    ],
+    algorithm=gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
+    measurement_selection_type=gca_study_compat.StudySpec.MeasurementSelectionType.BEST_MEASUREMENT,
+)
+
+_TEST_TRAINING_TASK_INPUTS_WITH_TUNABLE_PARAMETERS = json_format.ParseDict(
+    {
+        "modelType": "COCA",
+        "budgetMilliNodeHours": _TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+        "multiLabel": False,
+        "disableEarlyStopping": _TEST_TRAINING_DISABLE_EARLY_STOPPING,
+        "uptrainBaseModelId": _TEST_MODEL_ID,
+        "tunableParameter": {
+            "checkpointName": _TEST_CHECKPOINT_NAME,
+            "trainerConfig": _TEST_TRAINER_CONFIG,
+            "studySpec": json_format.MessageToDict(_TEST_STUDY_SPEC._pb),
+        },
     },
     struct_pb2.Value(),
 )
@@ -270,6 +368,76 @@ class TestAutoMLImageTrainingJob:
         assert job._multi_label is True
         assert job._base_model == mock_model
 
+    def test_init_job_with_tunable_parameters(self, mock_model):
+        """Ensure all private members are set correctly at initialization."""
+
+        aiplatform.init(project=_TEST_PROJECT)
+
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            prediction_type=_TEST_PREDICTION_TYPE_ICN,
+            model_type="COCA",
+            base_model=mock_model,
+            multi_label=True,
+            checkpoint_name=_TEST_CHECKPOINT_NAME,
+            trainer_config=_TEST_TRAINER_CONFIG,
+            metric_spec={_TEST_METRIC_SPEC_KEY: _TEST_METRIC_SPEC_VALUE},
+            parameter_spec={
+                "lr": hpt.DoubleParameterSpec(min=0.001, max=0.1, scale="log"),
+                "units": hpt.IntegerParameterSpec(min=4, max=1028, scale="linear"),
+                "activation": hpt.CategoricalParameterSpec(
+                    values=["relu", "sigmoid", "elu", "selu", "tanh"]
+                ),
+                "batch_size": hpt.DiscreteParameterSpec(
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
+                ),
+            },
+            search_algorithm=_TEST_SEARCH_ALGORITHM,
+            measurement_selection=_TEST_MEASUREMENT_SELECTION,
+        )
+
+        assert job._display_name == _TEST_DISPLAY_NAME
+        assert job._model_type == "COCA"
+        assert job._prediction_type == _TEST_PREDICTION_TYPE_ICN
+        assert job._multi_label is True
+        assert job._base_model == mock_model
+        assert job._checkpoint_name == _TEST_CHECKPOINT_NAME
+        assert job._trainer_config == _TEST_TRAINER_CONFIG
+        assert job._study_spec == gca_study_compat.StudySpec(
+            metrics=[
+                gca_study_compat.StudySpec.MetricSpec(
+                    metric_id=_TEST_METRIC_SPEC_KEY,
+                    goal=_TEST_METRIC_SPEC_VALUE.upper(),
+                ),
+            ],
+            parameters=[
+                hpt.DoubleParameterSpec(
+                    min=0.001, max=0.1, scale="log"
+                )._to_parameter_spec(parameter_id="lr"),
+                hpt.IntegerParameterSpec(
+                    min=4, max=1028, scale="linear"
+                )._to_parameter_spec(parameter_id="units"),
+                hpt.CategoricalParameterSpec(
+                    values=["relu", "sigmoid", "elu", "selu", "tanh"]
+                )._to_parameter_spec(parameter_id="activation"),
+                hpt.DiscreteParameterSpec(
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
+                )._to_parameter_spec(parameter_id="batch_size"),
+            ],
+            algorithm=gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
+            measurement_selection_type=gca_study_compat.StudySpec.MeasurementSelectionType.BEST_MEASUREMENT,
+        )
+
     def test_init_wrong_parameters(self, mock_model):
         """Ensure correct exceptions are raised when initializing with invalid args"""
 
@@ -359,6 +527,111 @@ class TestAutoMLImageTrainingJob:
             labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_image_classification,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_UPTRAIN_BASE_MODEL,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=None,
+        )
+
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
+        assert job._gca_resource is mock_pipeline_service_get.return_value
+        assert model_from_job._gca_resource is mock_model_service_get.return_value
+        assert job.get_model()._gca_resource is mock_model_service_get.return_value
+        assert not job.has_failed
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_tunable_parameters(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_image,
+        mock_model_service_get,
+        mock_uptrain_base_model,
+        sync,
+    ):
+        """Create and run an AutoML ICN training job, verify calls and return value"""
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            model_type="COCA",
+            incremental_train_base_model=mock_uptrain_base_model,
+            labels=_TEST_LABELS,
+            checkpoint_name=_TEST_CHECKPOINT_NAME,
+            trainer_config=_TEST_TRAINER_CONFIG,
+            metric_spec={_TEST_METRIC_SPEC_KEY: _TEST_METRIC_SPEC_VALUE},
+            parameter_spec={
+                "lr": hpt.DoubleParameterSpec(min=0.001, max=0.1, scale="log"),
+                "units": hpt.IntegerParameterSpec(min=4, max=1028, scale="linear"),
+                "activation": hpt.CategoricalParameterSpec(
+                    values=["relu", "sigmoid", "elu", "selu", "tanh"]
+                ),
+                "batch_size": hpt.DiscreteParameterSpec(
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
+                ),
+            },
+            search_algorithm=_TEST_SEARCH_ALGORITHM,
+            measurement_selection=_TEST_MEASUREMENT_SELECTION,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_image,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter_split=_TEST_FILTER_SPLIT_TEST,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter=_TEST_FILTER_SPLIT_TEST,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            filter_split=true_filter_split,
+            dataset_id=mock_dataset_image.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            training_task_definition=schema.training_job.definition.automl_image_classification,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_TUNABLE_PARAMETERS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,

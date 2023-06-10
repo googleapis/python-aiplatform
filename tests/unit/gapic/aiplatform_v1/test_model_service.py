@@ -959,6 +959,7 @@ def test_get_model(request_type, transport: str = "grpc"):
             version_description="version_description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
+            pipeline_job="pipeline_job_value",
             artifact_uri="artifact_uri_value",
             supported_deployment_resources_types=[
                 model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -985,6 +986,7 @@ def test_get_model(request_type, transport: str = "grpc"):
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -1041,6 +1043,7 @@ async def test_get_model_async(
                 version_description="version_description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
+                pipeline_job="pipeline_job_value",
                 artifact_uri="artifact_uri_value",
                 supported_deployment_resources_types=[
                     model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -1072,6 +1075,7 @@ async def test_get_model_async(
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2121,6 +2125,7 @@ def test_update_model(request_type, transport: str = "grpc"):
             version_description="version_description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
+            pipeline_job="pipeline_job_value",
             artifact_uri="artifact_uri_value",
             supported_deployment_resources_types=[
                 gca_model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2147,6 +2152,7 @@ def test_update_model(request_type, transport: str = "grpc"):
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         gca_model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2203,6 +2209,7 @@ async def test_update_model_async(
                 version_description="version_description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
+                pipeline_job="pipeline_job_value",
                 artifact_uri="artifact_uri_value",
                 supported_deployment_resources_types=[
                     gca_model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2234,6 +2241,7 @@ async def test_update_model_async(
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         gca_model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2900,6 +2908,7 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
             version_description="version_description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
+            pipeline_job="pipeline_job_value",
             artifact_uri="artifact_uri_value",
             supported_deployment_resources_types=[
                 model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2926,6 +2935,7 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2987,6 +2997,7 @@ async def test_merge_version_aliases_async(
                 version_description="version_description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
+                pipeline_job="pipeline_job_value",
                 artifact_uri="artifact_uri_value",
                 supported_deployment_resources_types=[
                     model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -3018,6 +3029,7 @@ async def test_merge_version_aliases_async(
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -6570,10 +6582,38 @@ def test_parse_model_evaluation_slice_path():
     assert expected == actual
 
 
-def test_training_pipeline_path():
+def test_pipeline_job_path():
     project = "cuttlefish"
     location = "mussel"
-    training_pipeline = "winkle"
+    pipeline_job = "winkle"
+    expected = (
+        "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
+            project=project,
+            location=location,
+            pipeline_job=pipeline_job,
+        )
+    )
+    actual = ModelServiceClient.pipeline_job_path(project, location, pipeline_job)
+    assert expected == actual
+
+
+def test_parse_pipeline_job_path():
+    expected = {
+        "project": "nautilus",
+        "location": "scallop",
+        "pipeline_job": "abalone",
+    }
+    path = ModelServiceClient.pipeline_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ModelServiceClient.parse_pipeline_job_path(path)
+    assert expected == actual
+
+
+def test_training_pipeline_path():
+    project = "squid"
+    location = "clam"
+    training_pipeline = "whelk"
     expected = "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
         project=project,
         location=location,
@@ -6587,9 +6627,9 @@ def test_training_pipeline_path():
 
 def test_parse_training_pipeline_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "training_pipeline": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "training_pipeline": "nudibranch",
     }
     path = ModelServiceClient.training_pipeline_path(**expected)
 
@@ -6599,7 +6639,7 @@ def test_parse_training_pipeline_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "squid"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -6609,7 +6649,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+        "billing_account": "mussel",
     }
     path = ModelServiceClient.common_billing_account_path(**expected)
 
@@ -6619,7 +6659,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "whelk"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -6629,7 +6669,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+        "folder": "nautilus",
     }
     path = ModelServiceClient.common_folder_path(**expected)
 
@@ -6639,7 +6679,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "oyster"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -6649,7 +6689,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+        "organization": "abalone",
     }
     path = ModelServiceClient.common_organization_path(**expected)
 
@@ -6659,7 +6699,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "cuttlefish"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -6669,7 +6709,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+        "project": "clam",
     }
     path = ModelServiceClient.common_project_path(**expected)
 
@@ -6679,8 +6719,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "winkle"
-    location = "nautilus"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -6691,8 +6731,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = ModelServiceClient.common_location_path(**expected)
 

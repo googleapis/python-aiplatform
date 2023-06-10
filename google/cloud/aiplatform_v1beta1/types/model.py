@@ -548,9 +548,9 @@ class LargeModelReference(proto.Message):
         name (str):
             Required. The unique name of the large
             Foundation or pre-built model. Like
-            "chat-panda", "text-panda". Or model name with
-            version ID, like "chat-panda-001",
-            "text-panda-005", etc.
+            "chat-bison", "text-bison". Or model name with
+            version ID, like "chat-bison@001",
+            "text-bison@005", etc.
     """
 
     name: str = proto.Field(

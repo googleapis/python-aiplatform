@@ -1,6 +1,38 @@
 # Changelog
 
 
+## [1.26.0](https://github.com/googleapis/python-aiplatform/compare/v1.25.0...v1.26.0) (2023-06-07)
+
+
+### Features
+
+* Add additional scheduled pipelines client create method unit tests. ([0463678](https://github.com/googleapis/python-aiplatform/commit/0463678723acc485da34e89e342c20a2b6809435))
+* Add pipelineJob create_schedule() method and unit test. ([635ae9c](https://github.com/googleapis/python-aiplatform/commit/635ae9c1170f536550e69fa2049e891f696c8d6f))
+* Add scheduled pipelines client create/get methods and unit tests. ([4755fc7](https://github.com/googleapis/python-aiplatform/commit/4755fc79d27da0975991d828e407df7fafe8c4d3))
+* Add scheduled pipelines client list/pause/resume methods and unit tests. ([ce5dee4](https://github.com/googleapis/python-aiplatform/commit/ce5dee454ff16e92141b8c8e46a7f855c5635843))
+* Adding `enable_access_logging` parameter to Endpoint.deploy() method, minor edit to batch_predict() docstring ([794cedd](https://github.com/googleapis/python-aiplatform/commit/794cedd0e9e34544d6c8d5bf6892ef2c28eaaf5d))
+* LLM - Added support for CMEK in tuning ([aebf74a](https://github.com/googleapis/python-aiplatform/commit/aebf74a666327210495dad12a28a0f8080d91f9b))
+* LLM - Released the LLM SDK to GA ([76465e2](https://github.com/googleapis/python-aiplatform/commit/76465e27ba233f04632688c8ce06b9d2818ff1b8))
+* Support publisher models in `BatchPredictionJob.create` ([13b11c6](https://github.com/googleapis/python-aiplatform/commit/13b11c667ac38bd3898ebca88428bea5bd923661))
+
+
+### Bug Fixes
+
+* CustomJob.from_local_script does not pass args to script for custom container images ([6ead69d](https://github.com/googleapis/python-aiplatform/commit/6ead69d069667ddc6590f2f32fac73ab0bd12b85))
+* Fix bug when checking PipelineJob failure status ([a154859](https://github.com/googleapis/python-aiplatform/commit/a154859141da22df6a9fcfdcc3898d9a94175a68))
+* Fix the bug that start_upload_tb_log() doesn't continuously upload ([66e6eae](https://github.com/googleapis/python-aiplatform/commit/66e6eaebbe2ac4e9cd370afa32242ae9117beece))
+* LLM - Fixed parameters set in `ChatModel.start_chat` being ignored ([a0d815d](https://github.com/googleapis/python-aiplatform/commit/a0d815d646d5b0885366677a533e44337530d71a))
+* LLM - Fixed the DataFrame staging on Windows ([056b0bd](https://github.com/googleapis/python-aiplatform/commit/056b0bde6f05b2a36934cc18c7f1bc34dce75dba))
+* Resource created by `_construct_sdk_resource_from_gapic` should use the project from the resource name instead of the default project. ([162b2f2](https://github.com/googleapis/python-aiplatform/commit/162b2f265ac6cd91a78f29e2110eaf87a4a6c2e3))
+* Retry for etag errors on context update. ([d3d5f9a](https://github.com/googleapis/python-aiplatform/commit/d3d5f9a2a33b4f22e53599b515f0e4d1415c5786))
+* Unbreak additional timeout for MatchingEngineIndexEndpoint deploy_index ([af199c0](https://github.com/googleapis/python-aiplatform/commit/af199c035c037478abccfa629801b843909baf99))
+
+
+### Documentation
+
+* Correct text embedding model ID docstring ([8824629](https://github.com/googleapis/python-aiplatform/commit/88246293a8a4ba94a13106bc99044129674fd15e))
+* LLM - Fixed the rendering of the example usage code blocks. ([eaaee28](https://github.com/googleapis/python-aiplatform/commit/eaaee28d1cf96eb1077f7092fb526d1162080a96))
+
 ## [1.25.0](https://github.com/googleapis/python-aiplatform/compare/v1.24.1...v1.25.0) (2023-05-09)
 
 

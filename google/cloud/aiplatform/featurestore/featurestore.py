@@ -480,8 +480,6 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-            request_metadata (Sequence[Tuple[str, str]]):
-                Optional. Strings which should be sent along with the request as metadata.
             encryption_spec (str):
                 Optional. Customer-managed encryption key
                 spec for data storage. If set, both of the

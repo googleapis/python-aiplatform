@@ -154,6 +154,53 @@ def update_context_mock():
 
 
 @pytest.fixture
+def update_context_with_errors_mock():
+    with patch.object(
+        MetadataServiceClient, "update_context"
+    ) as update_context_with_errors_mock:
+        update_context_with_errors_mock.side_effect = [
+            exceptions.Aborted(
+                "Specified Context `etag`: `1` does not match server `etag`: `2`"
+            ),
+            GapicContext(
+                name=_TEST_CONTEXT_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                schema_title=_TEST_SCHEMA_TITLE,
+                schema_version=_TEST_SCHEMA_VERSION,
+                description=_TEST_DESCRIPTION,
+                metadata=_TEST_UPDATED_METADATA,
+            ),
+        ]
+        yield update_context_with_errors_mock
+
+
+@pytest.fixture
+def update_context_with_errors_mock_2():
+    with patch.object(
+        MetadataServiceClient, "update_context"
+    ) as update_context_with_errors_mock_2:
+        update_context_with_errors_mock_2.side_effect = [
+            exceptions.Aborted(
+                "Specified Context `etag`: `2` does not match server `etag`: `1`"
+            )
+        ]
+        yield update_context_with_errors_mock_2
+
+
+@pytest.fixture
+def update_context_with_errors_mock_3():
+    with patch.object(
+        MetadataServiceClient, "update_context"
+    ) as update_context_with_errors_mock_3:
+        update_context_with_errors_mock_3.side_effect = [
+            exceptions.Aborted(
+                "Specified Context `etag`: `1` does not match server `etag`: `2`"
+            )
+        ] * 6
+        yield update_context_with_errors_mock_2
+
+
+@pytest.fixture
 def add_context_artifacts_and_executions_mock():
     with patch.object(
         MetadataServiceClient, "add_context_artifacts_and_executions"
@@ -481,6 +528,70 @@ class TestContext:
 
         update_context_mock.assert_called_once_with(context=updated_context)
         assert my_context._gca_resource == updated_context
+
+    @pytest.mark.usefixtures("get_context_mock")
+    @pytest.mark.usefixtures("create_context_mock")
+    def test_update_context_with_retry_success(self, update_context_with_errors_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_context = context.Context._create(
+            resource_id=_TEST_CONTEXT_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+        my_context.update(_TEST_UPDATED_METADATA)
+
+        updated_context = GapicContext(
+            name=_TEST_CONTEXT_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+
+        update_context_with_errors_mock.assert_called_with(context=updated_context)
+        assert my_context._gca_resource == updated_context
+
+    @pytest.mark.usefixtures("get_context_mock")
+    @pytest.mark.usefixtures("create_context_mock")
+    @pytest.mark.usefixtures("update_context_with_errors_mock_2")
+    def test_update_context_with_retry_etag_order_failure(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_context = context.Context._create(
+            resource_id=_TEST_CONTEXT_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+        with pytest.raises(exceptions.Aborted):
+            my_context.update(_TEST_UPDATED_METADATA)
+
+    @pytest.mark.usefixtures("get_context_mock")
+    @pytest.mark.usefixtures("create_context_mock")
+    @pytest.mark.usefixtures("update_context_with_errors_mock_3")
+    def test_update_context_with_retry_too_many_error_failure(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_context = context.Context._create(
+            resource_id=_TEST_CONTEXT_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+        with pytest.raises(exceptions.Aborted):
+            my_context.update(_TEST_UPDATED_METADATA)
 
     @pytest.mark.usefixtures("get_context_mock")
     def test_list_contexts(self, list_contexts_mock):

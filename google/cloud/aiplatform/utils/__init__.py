@@ -63,6 +63,7 @@ from google.cloud.aiplatform.compat.services import (
     index_endpoint_service_client_v1,
     job_service_client_v1,
     metadata_service_client_v1,
+    model_garden_service_client_v1,
     model_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
@@ -646,8 +647,9 @@ class VizierClientWithOverride(ClientWithOverride):
 
 class ModelGardenClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (compat.V1, model_garden_service_client_v1.ModelGardenServiceClient),
         (compat.V1BETA1, model_garden_service_client_v1beta1.ModelGardenServiceClient),
     )
 

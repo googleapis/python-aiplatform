@@ -628,13 +628,6 @@ class PipelineJob(
 
         return self.state in _PIPELINE_COMPLETE_STATES
 
-    def _has_failed(self) -> bool:
-        """Return True if PipelineJob has Failed."""
-        if not self._gca_resource:
-            return False
-
-        return self.state in _PIPELINE_ERROR_STATES
-
     def _get_context(self) -> context.Context:
         """Returns the PipelineRun Context for this PipelineJob in the MetadataStore.
 
@@ -655,7 +648,7 @@ class PipelineJob(
             time.sleep(1)
 
         if not pipeline_run_context:
-            if self._has_failed:
+            if self.has_failed:
                 raise RuntimeError(
                     f"Cannot associate PipelineJob to Experiment: {self.gca_resource.error}"
                 )

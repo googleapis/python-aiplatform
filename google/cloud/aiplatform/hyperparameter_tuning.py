@@ -22,6 +22,20 @@ import proto
 
 from google.cloud.aiplatform.compat.types import study as gca_study_compat
 
+SEARCH_ALGORITHM_TO_PROTO_VALUE = {
+    "random": gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
+    "grid": gca_study_compat.StudySpec.Algorithm.GRID_SEARCH,
+    None: gca_study_compat.StudySpec.Algorithm.ALGORITHM_UNSPECIFIED,
+}
+
+MEASUREMENT_SELECTION_TO_PROTO_VALUE = {
+    "best": (gca_study_compat.StudySpec.MeasurementSelectionType.BEST_MEASUREMENT),
+    "last": (gca_study_compat.StudySpec.MeasurementSelectionType.LAST_MEASUREMENT),
+    None: (
+        gca_study_compat.StudySpec.MeasurementSelectionType.MEASUREMENT_SELECTION_TYPE_UNSPECIFIED
+    ),
+}
+
 _SCALE_TYPE_MAP = {
     "linear": gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
     "log": gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LOG_SCALE,

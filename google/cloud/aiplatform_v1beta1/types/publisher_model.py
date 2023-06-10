@@ -52,6 +52,9 @@ class PublisherModel(proto.Message):
         frameworks (MutableSequence[str]):
             Optional. Additional information about the
             model's Frameworks.
+        launch_stage (google.cloud.aiplatform_v1beta1.types.PublisherModel.LaunchStage):
+            Optional. Indicates the launch stage of the
+            model.
         publisher_model_template (str):
             Optional. Output only. Immutable. Used to
             indicate this model has a publisher model and
@@ -96,6 +99,31 @@ class PublisherModel(proto.Message):
         GOOGLE_OWNED_OSS = 4
         THIRD_PARTY_OWNED_OSS = 5
 
+    class LaunchStage(proto.Enum):
+        r"""An enum representing the launch stage of a PublisherModel.
+
+        Values:
+            LAUNCH_STAGE_UNSPECIFIED (0):
+                The model launch stage is unspecified.
+            EXPERIMENTAL (1):
+                Used to indicate the PublisherModel is at
+                Experimental launch stage.
+            PRIVATE_PREVIEW (2):
+                Used to indicate the PublisherModel is at
+                Private Preview launch stage.
+            PUBLIC_PREVIEW (3):
+                Used to indicate the PublisherModel is at
+                Public Preview launch stage.
+            GA (4):
+                Used to indicate the PublisherModel is at GA
+                launch stage.
+        """
+        LAUNCH_STAGE_UNSPECIFIED = 0
+        EXPERIMENTAL = 1
+        PRIVATE_PREVIEW = 2
+        PUBLIC_PREVIEW = 3
+        GA = 4
+
     class ResourceReference(proto.Message):
         r"""Reference to a resource.
 
@@ -112,7 +140,8 @@ class PublisherModel(proto.Message):
 
                 This field is a member of `oneof`_ ``reference``.
             resource_name (str):
-                The resource name of the GCP resource.
+                The resource name of the Google Cloud
+                resource.
 
                 This field is a member of `oneof`_ ``reference``.
         """
@@ -175,6 +204,8 @@ class PublisherModel(proto.Message):
                 Endpoint.
             open_generation_ai_studio (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Open in Generation AI Studio.
+            request_access (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+                Optional. Request for access.
         """
 
         class RegionalResourceReferences(proto.Message):
@@ -358,6 +389,13 @@ class PublisherModel(proto.Message):
             number=8,
             message="PublisherModel.CallToAction.RegionalResourceReferences",
         )
+        request_access: "PublisherModel.CallToAction.RegionalResourceReferences" = (
+            proto.Field(
+                proto.MESSAGE,
+                number=9,
+                message="PublisherModel.CallToAction.RegionalResourceReferences",
+            )
+        )
 
     name: str = proto.Field(
         proto.STRING,
@@ -380,6 +418,11 @@ class PublisherModel(proto.Message):
     frameworks: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=23,
+    )
+    launch_stage: LaunchStage = proto.Field(
+        proto.ENUM,
+        number=29,
+        enum=LaunchStage,
     )
     publisher_model_template: str = proto.Field(
         proto.STRING,

@@ -94,6 +94,9 @@ from google.cloud.aiplatform_v1.services.job_service import (
 from google.cloud.aiplatform_v1.services.metadata_service import (
     client as metadata_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.model_garden_service import (
+    client as model_garden_service_client_v1,
+)
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client_v1,
 )
@@ -123,6 +126,7 @@ __all__ = (
     index_endpoint_service_client_v1,
     job_service_client_v1,
     metadata_service_client_v1,
+    model_garden_service_client_v1,
     model_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,

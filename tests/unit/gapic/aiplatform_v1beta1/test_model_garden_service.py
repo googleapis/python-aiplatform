@@ -732,6 +732,7 @@ def test_get_publisher_model(request_type, transport: str = "grpc"):
             version_id="version_id_value",
             open_source_category=publisher_model.PublisherModel.OpenSourceCategory.PROPRIETARY,
             frameworks=["frameworks_value"],
+            launch_stage=publisher_model.PublisherModel.LaunchStage.EXPERIMENTAL,
             publisher_model_template="publisher_model_template_value",
         )
         response = client.get_publisher_model(request)
@@ -750,6 +751,9 @@ def test_get_publisher_model(request_type, transport: str = "grpc"):
         == publisher_model.PublisherModel.OpenSourceCategory.PROPRIETARY
     )
     assert response.frameworks == ["frameworks_value"]
+    assert (
+        response.launch_stage == publisher_model.PublisherModel.LaunchStage.EXPERIMENTAL
+    )
     assert response.publisher_model_template == "publisher_model_template_value"
 
 
@@ -796,6 +800,7 @@ async def test_get_publisher_model_async(
                 version_id="version_id_value",
                 open_source_category=publisher_model.PublisherModel.OpenSourceCategory.PROPRIETARY,
                 frameworks=["frameworks_value"],
+                launch_stage=publisher_model.PublisherModel.LaunchStage.EXPERIMENTAL,
                 publisher_model_template="publisher_model_template_value",
             )
         )
@@ -815,6 +820,9 @@ async def test_get_publisher_model_async(
         == publisher_model.PublisherModel.OpenSourceCategory.PROPRIETARY
     )
     assert response.frameworks == ["frameworks_value"]
+    assert (
+        response.launch_stage == publisher_model.PublisherModel.LaunchStage.EXPERIMENTAL
+    )
     assert response.publisher_model_template == "publisher_model_template_value"
 
 

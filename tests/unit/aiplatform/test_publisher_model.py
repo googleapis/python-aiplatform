@@ -26,7 +26,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import _publisher_models
 
 from google.cloud.aiplatform.compat.services import (
-    model_garden_service_client_v1beta1,
+    model_garden_service_client_v1,
 )
 
 
@@ -41,7 +41,7 @@ _TEST_INVALID_RESOURCE_NAME = "google.chat-bison@001"
 @pytest.fixture
 def mock_get_publisher_model():
     with mock.patch.object(
-        model_garden_service_client_v1beta1.ModelGardenServiceClient,
+        model_garden_service_client_v1.ModelGardenServiceClient,
         "get_publisher_model",
     ) as mock_get_publisher_model:
         yield mock_get_publisher_model

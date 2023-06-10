@@ -52,7 +52,7 @@ class TensorboardExperiment(proto.Message):
             TensorboardExperiment was last updated.
         labels (MutableMapping[str, str]):
             The labels with user-defined metadata to organize your
-            Datasets.
+            TensorboardExperiment.
 
             Label keys and values cannot be longer than 64 characters
             (Unicode codepoints), can only contain lowercase letters,

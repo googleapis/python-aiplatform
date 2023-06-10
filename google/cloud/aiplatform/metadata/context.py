@@ -18,6 +18,7 @@
 from typing import Optional, Dict, List, Sequence
 
 import proto
+import re
 import threading
 
 from google.auth import credentials as auth_credentials
@@ -37,6 +38,12 @@ from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
+from google.api_core.exceptions import Aborted
+
+_ETAG_ERROR_MAX_RETRY_COUNT = 5
+_ETAG_ERROR_REGEX = re.compile(
+    r"Specified Context \`etag\`: \`(\d+)\` does not match server \`etag\`: \`(\d+)\`"
+)
 
 
 class Context(resource._Resource):
@@ -276,6 +283,46 @@ class Context(resource._Resource):
             parent=parent,
             context=gapic_context,
             context_id=resource_id,
+        )
+
+    def update(
+        self,
+        metadata: Optional[Dict] = None,
+        description: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Updates an existing Metadata Context with new metadata.
+
+        This is implemented with retry on etag errors, up to
+        _ETAG_ERROR_MAX_RETRY_COUNT times.
+        Args:
+            metadata (Dict):
+                Optional. metadata contains the updated metadata information.
+            description (str):
+                Optional. Description describes the resource to be updated.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to update this resource. Overrides
+                credentials set in aiplatform.init.
+        """
+        for _ in range(_ETAG_ERROR_MAX_RETRY_COUNT - 1):
+            try:
+                super().update(
+                    metadata=metadata, description=description, credentials=credentials
+                )
+                return
+            except Aborted as aborted_exception:
+                regex_match = _ETAG_ERROR_REGEX.match(aborted_exception.message)
+                if regex_match:
+                    local_etag = regex_match.group(1)
+                    server_etag = regex_match.group(2)
+                    if local_etag < server_etag:
+                        self.sync_resource()
+                        continue
+                raise aborted_exception
+
+        # Expose result/exception directly in the last retry.
+        super().update(
+            metadata=metadata, description=description, credentials=credentials
         )
 
     @classmethod
