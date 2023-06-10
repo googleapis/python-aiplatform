@@ -15,6 +15,7 @@
 """Classes for working with language models."""
 
 from vertexai.language_models._language_models import (
+    _PreviewTextEmbeddingModel,
     _PreviewTextGenerationModel,
     ChatModel,
     ChatSession,
@@ -23,11 +24,11 @@ from vertexai.language_models._language_models import (
     CodeGenerationModel,
     InputOutputTextPair,
     TextEmbedding,
-    TextEmbeddingModel,
     TextGenerationResponse,
 )
 
 TextGenerationModel = _PreviewTextGenerationModel
+TextEmbeddingModel = _PreviewTextEmbeddingModel
 
 __all__ = [
     "ChatModel",

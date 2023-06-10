@@ -15,7 +15,6 @@
 
 """Base class for working with Model Garden models."""
 
-import abc
 import dataclasses
 from typing import Dict, Optional, Type
 
@@ -25,12 +24,23 @@ from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import models as aiplatform_models
 from google.cloud.aiplatform import _publisher_models
 
+from google.cloud.aiplatform.compat.types import (
+    publisher_model as gca_publisher_model,
+)
 
 _SUPPORTED_PUBLISHERS = ["google"]
 
 _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP = {
     "text-bison": "https://us-kfp.pkg.dev/vertex-ai/large-language-model-pipelines/tune-large-model/sdk-1-25"
 }
+
+_SDK_PUBLIC_PREVIEW_LAUNCH_STAGE = frozenset(
+    [
+        gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
+        gca_publisher_model.PublisherModel.LaunchStage.GA,
+    ]
+)
+_SDK_GA_LAUNCH_STAGE = frozenset([gca_publisher_model.PublisherModel.LaunchStage.GA])
 
 _LOGGER = base.Logger(__name__)
 
@@ -39,6 +49,7 @@ _LOGGER = base.Logger(__name__)
 class _ModelInfo:
     endpoint_name: str
     interface_class: Type["_ModelGardenModel"]
+    publisher_model_resource: _publisher_models._PublisherModel
     tuning_pipeline_uri: Optional[str] = None
     tuning_model_id: Optional[str] = None
 
@@ -114,6 +125,7 @@ def _get_model_info(
     return _ModelInfo(
         endpoint_name=endpoint_name,
         interface_class=interface_class,
+        publisher_model_resource=publisher_model_res,
         tuning_pipeline_uri=tuning_pipeline_uri,
         tuning_model_id=tuning_model_id,
     )
@@ -121,6 +133,28 @@ def _get_model_info(
 
 class _ModelGardenModel:
     """Base class for shared methods and properties across Model Garden models."""
+
+    _LAUNCH_STAGE: gca_publisher_model.PublisherModel.LaunchStage = (
+        _SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+    )
+
+    def _validate_launch_stage(
+        self,
+        publisher_model_resource: gca_publisher_model.PublisherModel,
+    ) -> None:
+        """Validates the model class _LAUNCH_STAGE matches the PublisherModel resource's launch stage.
+
+        Args:
+            publisher_model_resource (gca_publisher_model.PublisherModel
+                The GAPIC PublisherModel resource for this model.
+        """
+
+        publisher_launch_stage = publisher_model_resource.launch_stage
+
+        if publisher_launch_stage not in self._LAUNCH_STAGE:
+            raise ValueError(
+                f"The model you are trying to instantiate does not support the launch stage: {publisher_launch_stage.name}"
+            )
 
     # Subclasses override this attribute to specify their instance schema
     _INSTANCE_SCHEMA_URI: Optional[str] = None
@@ -173,6 +207,8 @@ class _ModelGardenModel:
             raise ValueError(
                 f"{model_name} is of type {model_info.interface_class.__name__} not of type {cls.__name__}"
             )
+
+        cls._validate_launch_stage(cls, model_info.publisher_model_resource)
 
         return model_info.interface_class(
             model_id=model_name,

@@ -48,7 +48,7 @@ from google.cloud.aiplatform.compat.types import (
     pipeline_state as gca_pipeline_state,
     deployed_model_ref_v1,
 )
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     publisher_model as gca_publisher_model,
     model as gca_model,
 )
@@ -75,6 +75,7 @@ _TEXT_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/text-bison",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/text-bison@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml",
@@ -87,6 +88,7 @@ _CHAT_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/chat-bison",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/chat-bison@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml",
@@ -99,6 +101,7 @@ _CODECHAT_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/codechat-bison",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/codechat-bison@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml",
@@ -111,6 +114,7 @@ _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/code-bison",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/code-bison@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml",
@@ -123,6 +127,7 @@ _CODE_COMPLETION_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/code-gecko",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/code-gecko@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml",
@@ -135,6 +140,7 @@ _TEXT_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/textembedding-gecko",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/chat-bison@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml",
