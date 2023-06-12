@@ -15,18 +15,14 @@
 """Classes for working with language models."""
 
 import dataclasses
-import tempfile
-from typing import Any, List, Optional, Sequence, Type, Union
-
-from google.cloud import storage
+from typing import Any, List, Optional, Sequence, Union
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
-from google.cloud.aiplatform import models as aiplatform_models
 from google.cloud.aiplatform import utils as aiplatform_utils
-from google.cloud.aiplatform.preview import _publisher_model
 from google.cloud.aiplatform.utils import gcs_utils
+from vertexai._model_garden import _model_garden_models
 
 try:
     import pandas
@@ -36,88 +32,9 @@ except ImportError:
 
 _LOGGER = base.Logger(__name__)
 
-_TEXT_GENERATION_TUNING_PIPELINE_URI = "https://us-kfp.pkg.dev/vertex-ai/large-language-model-pipelines/tune-large-model/preview"
 
 # Endpoint label/metadata key to preserve the base model ID information
 _TUNING_BASE_MODEL_ID_LABEL_KEY = "google-vertex-llm-tuning-base-model-id"
-
-_LLM_TEXT_GENERATION_INSTANCE_SCHEMA_URI = (
-    "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
-)
-_LLM_CHAT_GENERATION_INSTANCE_SCHEMA_URI = (
-    "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
-)
-_LLM_TEXT_EMBEDDING_INSTANCE_SCHEMA_URI = (
-    "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
-)
-
-
-@dataclasses.dataclass
-class _ModelInfo:
-    endpoint_name: str
-    interface_class: Type["_LanguageModel"]
-    tuning_pipeline_uri: Optional[str] = None
-    tuning_model_id: Optional[str] = None
-
-
-def _get_model_info(model_id: str) -> _ModelInfo:
-    """Gets the model information by model ID."""
-
-    # The default publisher is Google
-    if "/" not in model_id:
-        model_id = "publishers/google/models/" + model_id
-
-    publisher_model_res = (
-        _publisher_model._PublisherModel(  # pylint: disable=protected-access
-            resource_name=model_id
-        )._gca_resource
-    )
-
-    if not publisher_model_res.name.startswith("publishers/google/models/"):
-        raise ValueError(
-            f"Only Google models are currently supported. {publisher_model_res.name}"
-        )
-    short_model_id = publisher_model_res.name.rsplit("/", 1)[-1]
-
-    # == "projects/{project}/locations/{location}/publishers/google/models/text-bison@001"
-    publisher_model_template = publisher_model_res.publisher_model_template.replace(
-        "{user-project}", "{project}"
-    )
-    if not publisher_model_template:
-        raise RuntimeError(
-            f"The model does not have an associated Publisher Model. {publisher_model_res.name}"
-        )
-
-    endpoint_name = publisher_model_template.format(
-        project=aiplatform_initializer.global_config.project,
-        location=aiplatform_initializer.global_config.location,
-    )
-    if short_model_id == "text-bison":
-        tuning_pipeline_uri = _TEXT_GENERATION_TUNING_PIPELINE_URI
-        tuning_model_id = short_model_id + "-" + publisher_model_res.version_id
-    else:
-        tuning_pipeline_uri = None
-        tuning_model_id = None
-
-    interface_class_map = {
-        _LLM_TEXT_GENERATION_INSTANCE_SCHEMA_URI: TextGenerationModel,
-        _LLM_CHAT_GENERATION_INSTANCE_SCHEMA_URI: ChatModel,
-        _LLM_TEXT_EMBEDDING_INSTANCE_SCHEMA_URI: TextEmbeddingModel,
-    }
-
-    interface_class = interface_class_map.get(
-        publisher_model_res.predict_schemata.instance_schema_uri
-    )
-
-    if not interface_class:
-        raise ValueError(f"Unknown model {publisher_model_res.name}")
-
-    return _ModelInfo(
-        endpoint_name=endpoint_name,
-        interface_class=interface_class,
-        tuning_pipeline_uri=tuning_pipeline_uri,
-        tuning_model_id=tuning_model_id,
-    )
 
 
 def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
@@ -139,7 +56,7 @@ def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
     raise ValueError(f"Unsupported tuning model ID {tuning_model_id}")
 
 
-class _LanguageModel:
+class _LanguageModel(_model_garden_models._ModelGardenModel):
     """_LanguageModel is a base class for all language models."""
 
     def __init__(self, model_id: str, endpoint_name: Optional[str] = None):
@@ -152,40 +69,24 @@ class _LanguageModel:
             model_id: Identifier of a Vertex LLM. Example: "text-bison@001"
             endpoint_name: Vertex Endpoint resource name for the model
         """
-        self._model_id = model_id
-        self._endpoint_name = endpoint_name
-        # TODO(b/280879204)
-        # A workaround for not being able to directly instantiate the
-        # high-level Endpoint with the PublisherModel resource name.
-        self._endpoint = aiplatform.Endpoint._construct_sdk_resource_from_gapic(
-            aiplatform_models.gca_endpoint_compat.Endpoint(name=endpoint_name)
+
+        super().__init__(
+            model_id=model_id,
+            endpoint_name=endpoint_name,
         )
 
-    @classmethod
-    def from_pretrained(cls, model_name: str) -> "_LanguageModel":
-        """Loads a LanguageModel.
+    @property
+    def _model_resource_name(self) -> str:
+        """Full resource name of the model."""
+        if "publishers/" in self._endpoint_name:
+            return self._endpoint_name
+        else:
+            # This is a ModelRegistry resource name
+            return self._endpoint.list_models()[0].model
 
-        Args:
-            model_name: Name of the model.
 
-        Returns:
-            An instance of a class derieved from `_LanguageModel`.
-
-        Raises:
-            ValueError: If model_name is unknown.
-            ValueError: If model does not support this class.
-        """
-        model_info = _get_model_info(model_id=model_name)
-
-        if not issubclass(model_info.interface_class, cls):
-            raise ValueError(
-                f"{model_name} is of type {model_info.interface_class.__name__} not of type {cls.__name__}"
-            )
-
-        return model_info.interface_class(
-            model_id=model_name,
-            endpoint_name=model_info.endpoint_name,
-        )
+class _TunableModelMixin(_LanguageModel):
+    """Model that can be tuned."""
 
     def list_tuned_model_names(self) -> Sequence[str]:
         """Lists the names of tuned models.
@@ -193,14 +94,26 @@ class _LanguageModel:
         Returns:
             A list of tuned models that can be used with the `get_tuned_model` method.
         """
-        model_info = _get_model_info(model_id=self._model_id)
+        model_info = _model_garden_models._get_model_info(
+            model_id=self._model_id,
+            schema_to_class_map={self._INSTANCE_SCHEMA_URI: type(self)},
+        )
         return _list_tuned_model_names(model_id=model_info.tuning_model_id)
 
-    @staticmethod
-    def get_tuned_model(tuned_model_name: str) -> "_LanguageModel":
+    @classmethod
+    def get_tuned_model(cls, tuned_model_name: str) -> "_LanguageModel":
         """Loads the specified tuned language model."""
 
         tuned_vertex_model = aiplatform.Model(tuned_model_name)
+        tuned_model_labels = tuned_vertex_model.labels
+
+        if _TUNING_BASE_MODEL_ID_LABEL_KEY not in tuned_model_labels:
+            raise ValueError(
+                f"The provided model {tuned_model_name} does not have a base model ID."
+            )
+
+        tuning_model_id = tuned_vertex_model.labels[_TUNING_BASE_MODEL_ID_LABEL_KEY]
+
         tuned_model_deployments = tuned_vertex_model.gca_resource.deployed_models
         if len(tuned_model_deployments) == 0:
             # Deploying the model
@@ -208,9 +121,13 @@ class _LanguageModel:
         else:
             endpoint_name = tuned_model_deployments[0].endpoint
 
-        tuning_model_id = tuned_vertex_model.labels[_TUNING_BASE_MODEL_ID_LABEL_KEY]
         base_model_id = _get_model_id_from_tuning_model_id(tuning_model_id)
-        model_info = _get_model_info(model_id=base_model_id)
+        model_info = _model_garden_models._get_model_info(
+            model_id=base_model_id,
+            schema_to_class_map={cls._INSTANCE_SCHEMA_URI: cls},
+        )
+        cls._validate_launch_stage(cls, model_info.publisher_model_resource)
+
         model = model_info.interface_class(
             model_id=base_model_id,
             endpoint_name=endpoint_name,
@@ -255,7 +172,10 @@ class _LanguageModel:
             raise ValueError(
                 f'Model deployment is only supported in the following locations: tuned_model_location="{_TUNED_MODEL_LOCATION}"'
             )
-        model_info = _get_model_info(model_id=self._model_id)
+        model_info = _model_garden_models._get_model_info(
+            model_id=self._model_id,
+            schema_to_class_map={self._INSTANCE_SCHEMA_URI: type(self)},
+        )
         if not model_info.tuning_pipeline_uri:
             raise RuntimeError(f"The {self._model_id} model does not support tuning")
         pipeline_job = _launch_tuning_job(
@@ -290,12 +210,16 @@ class TextGenerationResponse:
 class TextGenerationModel(_LanguageModel):
     """TextGenerationModel represents a general language model.
 
-    Examples:
+    Examples::
 
         # Getting answers:
         model = TextGenerationModel.from_pretrained("text-bison@001")
         model.predict("What is life?")
     """
+
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
+
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
 
     _DEFAULT_TEMPERATURE = 0.0
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
@@ -374,10 +298,19 @@ class TextGenerationModel(_LanguageModel):
         ]
 
 
+_TextGenerationModel = TextGenerationModel
+
+
+class _PreviewTextGenerationModel(TextGenerationModel, _TunableModelMixin):
+    """Tunable text generation model."""
+
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+
+
 class _ChatModel(TextGenerationModel):
     """ChatModel represents a language model that is capable of chat.
 
-    Examples:
+    Examples::
 
         # Getting answers:
         model = ChatModel.from_pretrained("chat-bison@001")
@@ -442,19 +375,23 @@ class _ChatSession:
         self,
         message: str,
         *,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
     ) -> "TextGenerationResponse":
         """Sends message to the language model and gets a response.
 
         Args:
             message: Message to send to the model
             max_output_tokens: Max length of the output text in tokens.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
             temperature: Controls the randomness of predictions. Range: [0, 1].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
@@ -466,10 +403,12 @@ class _ChatSession:
 
         response_obj = self._model.predict(
             prompt=new_history_text,
-            max_output_tokens=max_output_tokens or self._max_output_tokens,
-            temperature=temperature or self._temperature,
-            top_k=top_k or self._top_k,
-            top_p=top_p or self._top_p,
+            max_output_tokens=max_output_tokens
+            if max_output_tokens is not None
+            else self._max_output_tokens,
+            temperature=temperature if temperature is not None else self._temperature,
+            top_k=top_k if top_k is not None else self._top_k,
+            top_p=top_p if top_p is not None else self._top_p,
         )
         response_text = response_obj.text
 
@@ -482,7 +421,7 @@ class _ChatSession:
 class TextEmbeddingModel(_LanguageModel):
     """TextEmbeddingModel converts text into a vector of floating-point numbers.
 
-    Examples:
+    Examples::
 
         # Getting embedding:
         model = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
@@ -491,6 +430,12 @@ class TextEmbeddingModel(_LanguageModel):
             vector = embedding.values
             print(len(vector))
     """
+
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
+
+    _INSTANCE_SCHEMA_URI = (
+        "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
+    )
 
     def get_embeddings(self, texts: List[str]) -> List["TextEmbedding"]:
         instances = [{"content": str(text)} for text in texts]
@@ -506,6 +451,12 @@ class TextEmbeddingModel(_LanguageModel):
             )
             for prediction in prediction_response.predictions
         ]
+
+
+class _PreviewTextEmbeddingModel(TextEmbeddingModel):
+    """Preview text embedding model."""
+
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
 class TextEmbedding:
@@ -528,30 +479,10 @@ class InputOutputTextPair:
     output_text: str
 
 
-class ChatModel(_LanguageModel):
-    """ChatModel represents a language model that is capable of chat.
+class _ChatModelBase(_LanguageModel):
+    """_ChatModelBase is a base class for chat models."""
 
-    Examples:
-
-        chat_model = ChatModel.from_pretrained("chat-bison@001")
-
-        chat = chat_model.start_chat(
-            context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
-            examples=[
-                InputOutputTextPair(
-                    input_text="Who do you work for?",
-                    output_text="I work for Ned.",
-                ),
-                InputOutputTextPair(
-                    input_text="What do I like?",
-                    output_text="Ned likes watching movies.",
-                ),
-            ],
-            temperature=0.3,
-        )
-
-        chat.send_message("Do you know any cool events this weekend?")
-    """
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
     def start_chat(
         self,
@@ -589,21 +520,88 @@ class ChatModel(_LanguageModel):
         )
 
 
-class ChatSession:
-    """ChatSession represents a chat session with a language model.
+class ChatModel(_ChatModelBase):
+    """ChatModel represents a language model that is capable of chat.
 
-    Within a chat session, the model keeps context and remembers the previous conversation.
+    Examples::
+
+        chat_model = ChatModel.from_pretrained("chat-bison@001")
+
+        chat = chat_model.start_chat(
+            context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
+            examples=[
+                InputOutputTextPair(
+                    input_text="Who do you work for?",
+                    output_text="I work for Ned.",
+                ),
+                InputOutputTextPair(
+                    input_text="What do I like?",
+                    output_text="Ned likes watching movies.",
+                ),
+            ],
+            temperature=0.3,
+        )
+
+        chat.send_message("Do you know any cool events this weekend?")
     """
+
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
+
+
+class CodeChatModel(_ChatModelBase):
+    """CodeChatModel represents a model that is capable of completing code.
+
+    Examples:
+        code_chat_model = CodeChatModel.from_pretrained("codechat-bison@001")
+
+        code_chat = code_chat_model.start_chat(
+            max_output_tokens=128,
+            temperature=0.2,
+        )
+
+        code_chat.send_message("Please help write a function to calculate the min of two numbers")
+    """
+
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
+
+    _DEFAULT_MAX_OUTPUT_TOKENS = 128
+    _DEFAULT_TEMPERATURE = 0.5
+
+    def start_chat(
+        self,
+        *,
+        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _DEFAULT_TEMPERATURE,
+    ) -> "CodeChatSession":
+        """Starts a chat session with the code chat model.
+
+        Args:
+            max_output_tokens: Max length of the output text in tokens.
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+
+        Returns:
+            A `ChatSession` object.
+        """
+        return CodeChatSession(
+            model=self,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+        )
+
+
+class _ChatSessionBase:
+    """_ChatSessionBase is a base class for all chat sessions."""
 
     def __init__(
         self,
-        model: ChatModel,
+        model: _ChatModelBase,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
         max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        is_code_chat_session: bool = False,
     ):
         self._model = model
         self._context = context
@@ -613,34 +611,46 @@ class ChatSession:
         self._temperature = temperature
         self._top_k = top_k
         self._top_p = top_p
+        self._is_code_chat_session = is_code_chat_session
 
     def send_message(
         self,
         message: str,
         *,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
     ) -> "TextGenerationResponse":
         """Sends message to the language model and gets a response.
 
         Args:
             message: Message to send to the model
             max_output_tokens: Max length of the output text in tokens.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
             temperature: Controls the randomness of predictions. Range: [0, 1].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
         """
         prediction_parameters = {
-            "temperature": temperature,
-            "maxDecodeSteps": max_output_tokens,
-            "topP": top_p,
-            "topK": top_k,
+            "temperature": temperature
+            if temperature is not None
+            else self._temperature,
+            "maxDecodeSteps": max_output_tokens
+            if max_output_tokens is not None
+            else self._max_output_tokens,
         }
+
+        if not self._is_code_chat_session:
+            prediction_parameters["topP"] = top_p if top_p is not None else self._top_p
+            prediction_parameters["topK"] = top_k if top_k is not None else self._top_k
+
         messages = []
         for input_text, output_text in self._history:
             messages.append(
@@ -664,9 +674,9 @@ class ChatSession:
         )
 
         prediction_instance = {"messages": messages}
-        if self._context:
+        if not self._is_code_chat_session and self._context:
             prediction_instance["context"] = self._context
-        if self._examples:
+        if not self._is_code_chat_session and self._examples:
             prediction_instance["examples"] = [
                 {
                     "input": {"content": example.input_text},
@@ -688,6 +698,137 @@ class ChatSession:
 
         self._history.append((message, response_text))
         return response_obj
+
+
+class ChatSession(_ChatSessionBase):
+    """ChatSession represents a chat session with a language model.
+
+    Within a chat session, the model keeps context and remembers the previous conversation.
+    """
+
+    def __init__(
+        self,
+        model: ChatModel,
+        context: Optional[str] = None,
+        examples: Optional[List[InputOutputTextPair]] = None,
+        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+    ):
+        super().__init__(
+            model=model,
+            context=context,
+            examples=examples,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+        )
+
+
+class CodeChatSession(_ChatSessionBase):
+    """CodeChatSession represents a chat session with code chat language model.
+
+    Within a code chat session, the model keeps context and remembers the previous converstion.
+    """
+
+    def __init__(
+        self,
+        model: CodeChatModel,
+        max_output_tokens: int = CodeChatModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = CodeChatModel._DEFAULT_TEMPERATURE,
+    ):
+        super().__init__(
+            model=model,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            is_code_chat_session=True,
+        )
+
+    def send_message(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+    ) -> "TextGenerationResponse":
+        """Sends message to the code chat model and gets a response.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens.
+                Uses the value specified when calling `CodeChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+                 Uses the value specified when calling `CodeChatModel.start_chat` by default.
+
+        Returns:
+            A `TextGenerationResponse` object that contains the text produced by the model.
+        """
+        return super().send_message(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+        )
+
+
+class CodeGenerationModel(_LanguageModel):
+    """A language model that generates code.
+
+    Examples:
+
+        # Getting answers:
+        generation_model = CodeGenerationModel.from_pretrained("code-bison@001")
+        print(generation_model.predict(
+            prefix="Write a function that checks if a year is a leap year.",
+        ))
+
+        completion_model = CodeGenerationModel.from_pretrained("code-gecko@001")
+        print(completion_model.predict(
+            prefix="def reverse_string(s):",
+        ))
+    """
+
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
+
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+    _DEFAULT_TEMPERATURE = 0.0
+    _DEFAULT_MAX_OUTPUT_TOKENS = 128
+
+    def predict(
+        self,
+        prefix: str,
+        suffix: Optional[str] = "",
+        *,
+        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _DEFAULT_TEMPERATURE,
+    ) -> "TextGenerationResponse":
+        """Gets model response for a single prompt.
+
+        Args:
+            prefix: Code before the current point.
+            suffix: Code after the current point.
+            max_output_tokens: Max length of the output text in tokens.
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+
+        Returns:
+            A `TextGenerationResponse` object that contains the text produced by the model.
+        """
+        instance = {"prefix": prefix, "suffix": suffix}
+        prediction_parameters = {
+            "temperature": temperature,
+            "maxOutputTokens": max_output_tokens,
+        }
+
+        prediction_response = self._endpoint.predict(
+            instances=[instance],
+            parameters=prediction_parameters,
+        )
+
+        return TextGenerationResponse(
+            text=prediction_response.predictions[0]["content"],
+            _prediction_response=prediction_response,
+        )
 
 
 ###### Model tuning
@@ -783,18 +924,12 @@ def _launch_tuning_job(
         dataset_uri = training_data
     elif pandas and isinstance(training_data, pandas.DataFrame):
         dataset_uri = _uri_join(output_dir_uri, "training_data.jsonl")
+        training_data = training_data[["input_text", "output_text"]]
 
-        with tempfile.NamedTemporaryFile() as temp_file:
-            dataset_path = temp_file.name
-            df = training_data
-            df = df[["input_text", "output_text"]]
-            df.to_json(path_or_buf=dataset_path, orient="records", lines=True)
-            storage_client = storage.Client(
-                credentials=aiplatform_initializer.global_config.credentials
-            )
-            storage.Blob.from_string(
-                uri=dataset_uri, client=storage_client
-            ).upload_from_filename(filename=dataset_path)
+        gcs_utils._upload_pandas_df_to_gcs(
+            df=training_data, upload_gcs_path=dataset_uri
+        )
+
     else:
         raise TypeError(f"Unsupported training_data type: {type(training_data)}")
 
@@ -842,6 +977,10 @@ def _launch_tuning_job_on_jsonl_data(
         pipeline_arguments["dataset_name"] = dataset_name_or_uri
     if dataset_name_or_uri.startswith("gs://"):
         pipeline_arguments["dataset_uri"] = dataset_name_or_uri
+    if aiplatform_initializer.global_config.encryption_spec_key_name:
+        pipeline_arguments[
+            "encryption_spec_key_name"
+        ] = aiplatform_initializer.global_config.encryption_spec_key_name
     job = aiplatform.PipelineJob(
         template_path=tuning_pipeline_uri,
         display_name=None,

@@ -570,8 +570,7 @@ class PredictionServiceAsyncClient:
         [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
         is not specified, all DeployedModels must have
         [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
-        populated. Only deployed AutoML tabular Models have
-        explanation_spec.
+        populated.
 
         .. code-block:: python
 

@@ -431,20 +431,6 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
         )
 
-    @classmethod
-    def _construct_sdk_resource_from_gapic(
-        cls,
-        gapic_resource: proto.Message,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "models.DeploymentResourcePool":
-        drp = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
-        )
-        drp._gca_resource = gapic_resource
-        return drp
-
 
 class Endpoint(aiplatform.Endpoint):
     @staticmethod

@@ -1024,8 +1024,13 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             VertexAiResourceNoun:
                 An initialized SDK object that represents GAPIC type.
         """
+        resource_name_parts = utils.extract_project_and_location_from_parent(
+            gapic_resource.name
+        )
         sdk_resource = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
+            project=resource_name_parts.get("project") or project,
+            location=resource_name_parts.get("location") or location,
+            credentials=credentials,
         )
         sdk_resource._gca_resource = gapic_resource
         return sdk_resource

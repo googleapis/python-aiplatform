@@ -34,6 +34,9 @@ flags.DEFINE_string("experiment_name", None, "The name of the Cloud AI Experimen
 flags.DEFINE_string(
     "experiment_display_name", None, "The display name of the Cloud AI Experiment."
 )
+flags.DEFINE_string(
+    "description", None, "String description to assign to the experiment."
+)
 flags.DEFINE_string("logdir", None, "Tensorboard log directory to upload")
 flags.DEFINE_bool("one_shot", False, "Iterate through logdir once to upload.")
 flags.DEFINE_string("env", "prod", "Environment which this tensorboard belongs to.")
@@ -103,6 +106,7 @@ def main(argv):
     tb_uploader = uploader.TensorBoardUploader(
         experiment_name=experiment_name,
         experiment_display_name=experiment_display_name,
+        description=FLAGS.description,
         tensorboard_resource_name=FLAGS.tensorboard_resource_name,
         blob_storage_bucket=blob_storage_bucket,
         blob_storage_folder=blob_storage_folder,

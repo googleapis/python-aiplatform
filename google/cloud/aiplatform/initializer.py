@@ -18,7 +18,7 @@
 
 from concurrent import futures
 import logging
-import pkg_resources
+import pkg_resources  # Note this is used after copybara replacement
 import os
 from typing import List, Optional, Type, Union
 
@@ -44,6 +44,47 @@ from google.cloud.aiplatform.compat.types import (
 
 class _Config:
     """Stores common parameters and options for API calls."""
+
+    def _set_project_as_env_var_or_google_auth_default(self):
+        """Tries to set the project from the environment variable or calls google.auth.default().
+
+        Stores the returned project and credentials as instance attributes.
+
+        This prevents google.auth.default() from being called multiple times when
+        the project and credentials have already been set.
+        """
+
+        if not self._project:
+            # Project is not set. Trying to get it from the environment.
+            # See https://github.com/googleapis/python-aiplatform/issues/852
+            # See https://github.com/googleapis/google-auth-library-python/issues/924
+            # TODO: Remove when google.auth.default() learns the
+            # CLOUD_ML_PROJECT_ID env variable or Vertex AI starts setting GOOGLE_CLOUD_PROJECT env variable.
+            project_number = os.environ.get("CLOUD_ML_PROJECT_ID")
+            if project_number:
+                if not self._credentials:
+                    credentials, _ = google.auth.default()
+                    self._credentials = credentials
+                # Try to convert project number to project ID which is more readable.
+                try:
+                    project_id = resource_manager_utils.get_project_id(
+                        project_number=project_number,
+                        credentials=self._credentials,
+                    )
+                    self._project = project_id
+                except Exception:
+                    logging.getLogger(__name__).warning(
+                        "Failed to convert project number to project ID.", exc_info=True
+                    )
+                    self._project = project_number
+            else:
+                credentials, project = google.auth.default()
+                self._credentials = self._credentials or credentials
+                self._project = project
+
+        if not self._credentials:
+            credentials, _ = google.auth.default()
+            self._credentials = credentials
 
     def __init__(self):
         self._project = None
@@ -191,26 +232,6 @@ class _Config:
         if self._project:
             return self._project
 
-        # Project is not set. Trying to get it from the environment.
-        # See https://github.com/googleapis/python-aiplatform/issues/852
-        # See https://github.com/googleapis/google-auth-library-python/issues/924
-        # TODO: Remove when google.auth.default() learns the
-        # CLOUD_ML_PROJECT_ID env variable or Vertex AI starts setting GOOGLE_CLOUD_PROJECT env variable.
-        project_number = os.environ.get("CLOUD_ML_PROJECT_ID")
-        if project_number:
-            # Try to convert project number to project ID which is more readable.
-            try:
-                project_id = resource_manager_utils.get_project_id(
-                    project_number=project_number,
-                    credentials=self.credentials,
-                )
-                return project_id
-            except Exception:
-                logging.getLogger(__name__).warning(
-                    "Failed to convert project number to project ID.", exc_info=True
-                )
-                return project_number
-
         project_not_found_exception_str = (
             "Unable to find your project. Please provide a project ID by:"
             "\n- Passing a constructor argument"
@@ -220,7 +241,8 @@ class _Config:
         )
 
         try:
-            _, project_id = google.auth.default()
+            self._set_project_as_env_var_or_google_auth_default()
+            project_id = self._project
         except GoogleAuthError as exc:
             raise GoogleAuthError(project_not_found_exception_str) from exc
 
@@ -255,7 +277,8 @@ class _Config:
         logger = logging.getLogger("google.auth._default")
         logging_warning_filter = utils.LoggingFilter(logging.WARNING)
         logger.addFilter(logging_warning_filter)
-        credentials, _ = google.auth.default()
+        self._set_project_as_env_var_or_google_auth_default()
+        credentials = self._credentials
         logger.removeFilter(logging_warning_filter)
         return credentials
 

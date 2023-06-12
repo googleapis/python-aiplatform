@@ -55,6 +55,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform import model_monitoring
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform import _publisher_models
 from google.cloud.aiplatform.utils import console_utils
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
@@ -624,15 +625,22 @@ class BatchPredictionJob(_Job):
             utils.validate_labels(labels)
 
         if isinstance(model_name, str):
-            model_name = utils.full_resource_name(
-                resource_name=model_name,
-                resource_noun="models",
-                parse_resource_name_method=aiplatform.Model._parse_resource_name,
-                format_resource_name_method=aiplatform.Model._format_resource_name,
-                project=project,
-                location=location,
-                resource_id_validator=super()._revisioned_resource_id_validator,
-            )
+            try:
+                model_name = utils.full_resource_name(
+                    resource_name=model_name,
+                    resource_noun="models",
+                    parse_resource_name_method=aiplatform.Model._parse_resource_name,
+                    format_resource_name_method=aiplatform.Model._format_resource_name,
+                    project=project,
+                    location=location,
+                    resource_id_validator=super()._revisioned_resource_id_validator,
+                )
+            except ValueError:
+                # Do not raise exception if model_name is a valid PublisherModel name
+                if not _publisher_models._PublisherModel._parse_resource_name(
+                    model_name
+                ):
+                    raise
 
         # Raise error if both or neither source URIs are provided
         if bool(gcs_source) == bool(bigquery_source):
@@ -1990,18 +1998,6 @@ class CustomJob(_RunnableJob):
         return self._gca_resource.job_spec
 
 
-_SEARCH_ALGORITHM_TO_PROTO_VALUE = {
-    "random": gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
-    "grid": gca_study_compat.StudySpec.Algorithm.GRID_SEARCH,
-    None: gca_study_compat.StudySpec.Algorithm.ALGORITHM_UNSPECIFIED,
-}
-
-_MEASUREMENT_SELECTION_TO_PROTO_VALUE = {
-    "best": gca_study_compat.StudySpec.MeasurementSelectionType.BEST_MEASUREMENT,
-    "last": gca_study_compat.StudySpec.MeasurementSelectionType.LAST_MEASUREMENT,
-}
-
-
 class HyperparameterTuningJob(_RunnableJob):
     """Vertex AI Hyperparameter Tuning Job."""
 
@@ -2207,8 +2203,10 @@ class HyperparameterTuningJob(_RunnableJob):
         study_spec = gca_study_compat.StudySpec(
             metrics=metrics,
             parameters=parameters,
-            algorithm=_SEARCH_ALGORITHM_TO_PROTO_VALUE[search_algorithm],
-            measurement_selection_type=_MEASUREMENT_SELECTION_TO_PROTO_VALUE[
+            algorithm=hyperparameter_tuning.SEARCH_ALGORITHM_TO_PROTO_VALUE[
+                search_algorithm
+            ],
+            measurement_selection_type=hyperparameter_tuning.MEASUREMENT_SELECTION_TO_PROTO_VALUE[
                 measurement_selection
             ],
         )

@@ -91,6 +91,8 @@ class ModelServiceAsyncClient:
     parse_model_evaluation_slice_path = staticmethod(
         ModelServiceClient.parse_model_evaluation_slice_path
     )
+    pipeline_job_path = staticmethod(ModelServiceClient.pipeline_job_path)
+    parse_pipeline_job_path = staticmethod(ModelServiceClient.parse_pipeline_job_path)
     training_pipeline_path = staticmethod(ModelServiceClient.training_pipeline_path)
     parse_training_pipeline_path = staticmethod(
         ModelServiceClient.parse_training_pipeline_path

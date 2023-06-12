@@ -560,11 +560,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             Endpoint (aiplatform.Endpoint):
                 An initialized Endpoint resource.
         """
-        endpoint = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
+        endpoint = super()._construct_sdk_resource_from_gapic(
+            gapic_resource=gapic_resource,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
-
-        endpoint._gca_resource = gapic_resource
 
         endpoint._prediction_client = cls._instantiate_prediction_client(
             location=endpoint.location,
@@ -2021,11 +2022,12 @@ class PrivateEndpoint(Endpoint):
                 "Cannot import the urllib3 HTTP client. Please install google-cloud-aiplatform[private_endpoints]."
             )
 
-        endpoint = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
+        endpoint = super()._construct_sdk_resource_from_gapic(
+            gapic_resource=gapic_resource,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
-
-        endpoint._gca_resource = gapic_resource
 
         endpoint._http_client = urllib3.PoolManager()
 
@@ -2810,7 +2812,6 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
         return self
 
-    # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
     @classmethod
     @base.optional_sync()

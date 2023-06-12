@@ -495,6 +495,7 @@ from .types.schedule_service import ListSchedulesRequest
 from .types.schedule_service import ListSchedulesResponse
 from .types.schedule_service import PauseScheduleRequest
 from .types.schedule_service import ResumeScheduleRequest
+from .types.schedule_service import UpdateScheduleRequest
 from .types.service_networking import PrivateServiceConnectConfig
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
@@ -1137,6 +1138,7 @@ __all__ = (
     "UpdateModelDeploymentMonitoringJobOperationMetadata",
     "UpdateModelDeploymentMonitoringJobRequest",
     "UpdateModelRequest",
+    "UpdateScheduleRequest",
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",
     "UpdateTensorboardExperimentRequest",

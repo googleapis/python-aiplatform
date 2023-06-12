@@ -254,7 +254,7 @@ class _TensorBoardTracker:
             allowed_plugins=uploader_constants.ALLOWED_PLUGINS,
             writer_client=api_client,
             logdir=logdir,
-            one_shot=True,
+            one_shot=one_shot,
             run_name_prefix=run_name_prefix,
             description=description,
             verbosity=verbosity,
