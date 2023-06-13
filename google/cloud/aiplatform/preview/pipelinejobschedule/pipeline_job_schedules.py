@@ -54,8 +54,6 @@ _VALID_HTTPS_URL = schedule_constants._VALID_HTTPS_URL
 
 _SCHEDULE_ERROR_STATES = schedule_constants._SCHEDULE_ERROR_STATES
 
-_READ_MASK_FIELDS = schedule_constants._PIPELINE_JOB_SCHEDULE_READ_MASK_FIELDS
-
 
 class PipelineJobSchedule(
     _Schedule,
@@ -264,7 +262,6 @@ class PipelineJobSchedule(
         cls,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
-        enable_simple_view: bool = True,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -286,16 +283,6 @@ class PipelineJobSchedule(
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
-            enable_simple_view (bool):
-                Optional. Whether to pass the `read_mask` parameter to the list call.
-                Defaults to False if not provided. This will improve the performance of calling
-                list(). However, the returned PipelineJobSchedule list will not include all fields for
-                each PipelineJobSchedule. Setting this to True will exclude the following fields in your
-                response: 'create_pipeline_job_request', 'next_run_time', 'last_pause_time',
-                'last_resume_time', 'max_concurrent_run_count', 'allow_queueing','last_scheduled_run_response'.
-                The following fields will be included in each PipelineJobSchedule resource in your
-                response: 'name', 'display_name', 'start_time', 'end_time', 'max_run_count',
-                'started_run_count', 'state', 'create_time', 'update_time', 'cron', 'catch_up'.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
@@ -309,19 +296,9 @@ class PipelineJobSchedule(
         Returns:
             List[PipelineJobSchedule] - A list of PipelineJobSchedule resource objects.
         """
-
-        read_mask_fields = None
-
-        if enable_simple_view:
-            read_mask_fields = field_mask.FieldMask(paths=_READ_MASK_FIELDS)
-            _LOGGER.warn(
-                "By enabling simple view, the PipelineJobSchedule resources returned from this method will not contain all fields."
-            )
-
         return cls._list_with_local_order(
             filter=filter,
             order_by=order_by,
-            read_mask=read_mask_fields,
             project=project,
             location=location,
             credentials=credentials,

@@ -27,6 +27,7 @@ from google.cloud import storage
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.compat.services import (
     pipeline_service_client,
     schedule_service_client_v1beta1 as schedule_service_client,
@@ -37,13 +38,9 @@ from google.cloud.aiplatform.compat.types import (
     pipeline_state_v1beta1 as gca_pipeline_state,
     schedule_v1beta1 as gca_schedule,
 )
-from google.cloud.aiplatform.preview.constants import (
-    schedules as schedule_constants,
-)
 from google.cloud.aiplatform.preview.pipelinejob import (
     pipeline_jobs as preview_pipeline_jobs,
 )
-from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.preview.pipelinejobschedule import (
     pipeline_job_schedules,
 )
@@ -51,7 +48,6 @@ from google.cloud.aiplatform.utils import gcs_utils
 import pytest
 import yaml
 
-from google.protobuf import field_mask_pb2 as field_mask
 from google.protobuf import json_format
 
 _TEST_PROJECT = "test-project"
@@ -1129,64 +1125,10 @@ class TestPipelineJobSchedule:
             create_request_timeout=None,
         )
 
-        pipeline_job_schedule.list(enable_simple_view=False)
+        pipeline_job_schedule.list()
 
         mock_schedule_service_list.assert_called_once_with(
             request={"parent": _TEST_PARENT}
-        )
-
-    @pytest.mark.usefixtures(
-        "mock_schedule_service_create",
-        "mock_schedule_service_get",
-        "mock_schedule_bucket_exists",
-    )
-    @pytest.mark.parametrize(
-        "job_spec",
-        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
-    )
-    def test_list_schedules_with_read_mask(
-        self, mock_schedule_service_list, mock_load_yaml_and_json
-    ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            staging_bucket=_TEST_GCS_BUCKET_NAME,
-            location=_TEST_LOCATION,
-            credentials=_TEST_CREDENTIALS,
-        )
-
-        job = pipeline_jobs.PipelineJob(
-            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
-            template_path=_TEST_TEMPLATE_PATH,
-            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
-            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
-            enable_caching=True,
-        )
-
-        pipeline_job_schedule = pipeline_job_schedules.PipelineJobSchedule(
-            pipeline_job=job,
-            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
-        )
-
-        pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
-            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
-            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
-            service_account=_TEST_SERVICE_ACCOUNT,
-            network=_TEST_NETWORK,
-            create_request_timeout=None,
-        )
-
-        pipeline_job_schedule.list(enable_simple_view=True)
-
-        test_pipeline_job_schedule_list_read_mask = field_mask.FieldMask(
-            paths=schedule_constants._PIPELINE_JOB_SCHEDULE_READ_MASK_FIELDS
-        )
-
-        mock_schedule_service_list.assert_called_once_with(
-            request={
-                "parent": _TEST_PARENT,
-                "read_mask": test_pipeline_job_schedule_list_read_mask,
-            },
         )
 
     @pytest.mark.usefixtures(
