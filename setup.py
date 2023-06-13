@@ -67,7 +67,7 @@ datasets_extra_require = [
 ]
 
 vizier_extra_require = [
-    "google-vizier>=0.0.11-alpha",
+    "google-vizier>=0.1.6",
 ]
 
 prediction_extra_require = [
