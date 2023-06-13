@@ -16,7 +16,7 @@
 """Base class for working with Model Garden models."""
 
 import dataclasses
-from typing import Dict, Optional, Type
+from typing import Dict, Optional, Type, TypeVar
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -43,6 +43,8 @@ _SDK_PUBLIC_PREVIEW_LAUNCH_STAGE = frozenset(
 _SDK_GA_LAUNCH_STAGE = frozenset([gca_publisher_model.PublisherModel.LaunchStage.GA])
 
 _LOGGER = base.Logger(__name__)
+
+T = TypeVar("T", bound="_ModelGardenModel")
 
 
 @dataclasses.dataclass
@@ -180,7 +182,7 @@ class _ModelGardenModel:
         )
 
     @classmethod
-    def from_pretrained(cls, model_name: str) -> "_ModelGardenModel":
+    def from_pretrained(cls: Type[T], model_name: str) -> T:
         """Loads a _ModelGardenModel.
 
         Args:
