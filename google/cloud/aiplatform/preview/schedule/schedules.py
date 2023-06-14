@@ -194,5 +194,5 @@ class _Schedule(
             Dashboard uri where Schedule can be viewed.
         """
         fields = self._parse_resource_name(self.resource_name)
-        url = f"https://console.cloud.google.com/vertex-ai/locations/{fields['location']}/pipelines/runs/{fields['schedule']}?project={fields['project']}"
+        url = f"https://console.cloud.google.com/vertex-ai/locations/{fields['location']}/pipelines/schedules/{fields['schedule']}?project={fields['project']}"
         return url
