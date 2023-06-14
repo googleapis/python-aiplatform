@@ -41,7 +41,6 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.protobuf import field_mask_pb2 as field_mask
 
-
 _LOGGER = base.Logger(__name__)
 
 # Pattern for valid names used as a Vertex resource name.
@@ -53,7 +52,7 @@ _VALID_AR_URL = schedule_constants._VALID_AR_URL
 # Pattern for any JSON or YAML file over HTTPS.
 _VALID_HTTPS_URL = schedule_constants._VALID_HTTPS_URL
 
-_READ_MASK_FIELDS = schedule_constants._PIPELINE_JOB_SCHEDULE_READ_MASK_FIELDS
+_SCHEDULE_ERROR_STATES = schedule_constants._SCHEDULE_ERROR_STATES
 
 
 class PipelineJobSchedule(
@@ -263,7 +262,6 @@ class PipelineJobSchedule(
         cls,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
-        enable_simple_view: bool = True,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -285,16 +283,6 @@ class PipelineJobSchedule(
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
-            enable_simple_view (bool):
-                Optional. Whether to pass the `read_mask` parameter to the list call.
-                Defaults to False if not provided. This will improve the performance of calling
-                list(). However, the returned PipelineJobSchedule list will not include all fields for
-                each PipelineJobSchedule. Setting this to True will exclude the following fields in your
-                response: 'create_pipeline_job_request', 'next_run_time', 'last_pause_time',
-                'last_resume_time', 'max_concurrent_run_count', 'allow_queueing','last_scheduled_run_response'.
-                The following fields will be included in each PipelineJobSchedule resource in your
-                response: 'name', 'display_name', 'start_time', 'end_time', 'max_run_count',
-                'started_run_count', 'state', 'create_time', 'update_time', 'cron', 'catch_up'.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
@@ -308,19 +296,9 @@ class PipelineJobSchedule(
         Returns:
             List[PipelineJobSchedule] - A list of PipelineJobSchedule resource objects.
         """
-
-        read_mask_fields = None
-
-        if enable_simple_view:
-            read_mask_fields = field_mask.FieldMask(paths=_READ_MASK_FIELDS)
-            _LOGGER.warn(
-                "By enabling simple view, the PipelineJobSchedule resources returned from this method will not contain all fields."
-            )
-
         return cls._list_with_local_order(
             filter=filter,
             order_by=order_by,
-            read_mask=read_mask_fields,
             project=project,
             location=location,
             credentials=credentials,
@@ -384,4 +362,87 @@ class PipelineJobSchedule(
             project=project,
             location=location,
             credentials=credentials,
+        )
+
+    def update(
+        self,
+        display_name: Optional[str] = None,
+        cron_expression: Optional[str] = None,
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None,
+        allow_queueing: Optional[bool] = None,
+        max_run_count: Optional[int] = None,
+        max_concurrent_run_count: Optional[int] = None,
+    ) -> None:
+        """Update an existing PipelineJobSchedule.
+
+        Example usage:
+
+        pipeline_job_schedule.update(
+            display_name='updated-display-name',
+            cron_expression='1 2 3 4 5',
+        )
+
+        Args:
+            display_name (str):
+                Optional. The user-defined name of this PipelineJobSchedule.
+            cron_expression (str):
+                Optional. Time specification (cron schedule expression) to launch scheduled runs.
+                To explicitly set a timezone to the cron tab, apply a prefix: "CRON_TZ=${IANA_TIME_ZONE}" or "TZ=${IANA_TIME_ZONE}".
+                The ${IANA_TIME_ZONE} may only be a valid string from IANA time zone database.
+                For example, "CRON_TZ=America/New_York 1 * * * *", or "TZ=America/New_York 1 * * * *".
+            start_time (str):
+                Optional. Timestamp after which the first run can be scheduled.
+                If unspecified, it defaults to the schedule creation timestamp.
+            end_time (str):
+                Optional. Timestamp after which no more runs will be scheduled.
+                If unspecified, then runs will be scheduled indefinitely.
+            allow_queueing (bool):
+                Optional. Whether new scheduled runs can be queued when max_concurrent_runs limit is reached.
+            max_run_count (int):
+                Optional. Maximum run count of the schedule.
+                If specified, The schedule will be completed when either started_run_count >= max_run_count or when end_time is reached.
+            max_concurrent_run_count (int):
+                Optional. Maximum number of runs that can be started concurrently for this PipelineJobSchedule.
+
+        Raises:
+            RuntimeError: User tried to call update() before create().
+        """
+        pipeline_job_schedule = self._gca_resource
+        if pipeline_job_schedule.state in _SCHEDULE_ERROR_STATES:
+            raise RuntimeError(
+                "Not updating PipelineJobSchedule: PipelineJobSchedule must be active or completed."
+            )
+
+        updated_fields = []
+        if display_name is not None:
+            updated_fields.append("display_name")
+            setattr(pipeline_job_schedule, "display_name", display_name)
+        if cron_expression is not None:
+            updated_fields.append("cron")
+            setattr(pipeline_job_schedule, "cron", cron_expression)
+        if start_time is not None:
+            updated_fields.append("start_time")
+            setattr(pipeline_job_schedule, "start_time", start_time)
+        if end_time is not None:
+            updated_fields.append("end_time")
+            setattr(pipeline_job_schedule, "end_time", end_time)
+        if allow_queueing is not None:
+            updated_fields.append("allow_queueing")
+            setattr(pipeline_job_schedule, "allow_queueing", allow_queueing)
+        if max_run_count is not None:
+            updated_fields.append("max_run_count")
+            setattr(pipeline_job_schedule, "max_run_count", max_run_count)
+        if max_concurrent_run_count is not None:
+            updated_fields.append("max_concurrent_run_count")
+            setattr(
+                pipeline_job_schedule,
+                "max_concurrent_run_count",
+                max_concurrent_run_count,
+            )
+
+        update_mask = field_mask.FieldMask(paths=updated_fields)
+        self.api_client.update_schedule(
+            schedule=pipeline_job_schedule,
+            update_mask=update_mask,
         )

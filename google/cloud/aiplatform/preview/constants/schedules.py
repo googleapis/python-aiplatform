@@ -41,18 +41,3 @@ _VALID_AR_URL = pipeline_constants._VALID_AR_URL
 
 # Pattern for any JSON or YAML file over HTTPS.
 _VALID_HTTPS_URL = pipeline_constants._VALID_HTTPS_URL
-
-# Fields to include in returned PipelineJobSchedule when enable_simple_view=True in PipelineJobSchedule.list()
-_PIPELINE_JOB_SCHEDULE_READ_MASK_FIELDS = [
-    "name",
-    "display_name",
-    "start_time",
-    "end_time",
-    "max_run_count",
-    "started_run_count",
-    "state",
-    "create_time",
-    "update_time",
-    "cron",
-    "catch_up",
-]
