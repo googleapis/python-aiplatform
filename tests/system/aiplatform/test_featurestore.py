@@ -27,9 +27,6 @@ import pandas as pd
 _TEST_USERS_ENTITY_TYPE_GCS_SRC = (
     "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/users.avro"
 )
-_TEST_MOVIES_ENTITY_TYPE_GCS_SRC = (
-    "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movies.avro"
-)
 
 _TEST_READ_INSTANCE_SRC = "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movie_prediction.csv"
 

@@ -60,7 +60,6 @@ class _Schedule(
         location: str,
     ):
         """Retrieves a Schedule resource and instantiates its representation.
-
         Args:
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to create this Schedule.
@@ -111,6 +110,35 @@ class _Schedule(
 
         return self
 
+    def pause(self) -> None:
+        """Starts asynchronous pause on the Schedule.
+
+        Changes Schedule state from State.ACTIVE to State.PAUSED.
+        """
+        self.api_client.pause_schedule(name=self.resource_name)
+
+    def resume(
+        self,
+        catch_up: bool = True,
+    ) -> None:
+        """Starts asynchronous resume on the Schedule.
+
+        Changes Schedule state from State.PAUSED to State.ACTIVE.
+
+        Args:
+            catch_up (bool):
+                Optional. Whether to backfill missed runs when the Schedule is
+                resumed from State.PAUSED.
+        """
+        self.api_client.resume_schedule(name=self.resource_name)
+
+    def done(self) -> bool:
+        """Helper method that return True is Schedule is done. False otherwise."""
+        if not self._gca_resource:
+            return False
+
+        return self.state in _SCHEDULE_COMPLETE_STATES
+
     def wait(self) -> None:
         """Wait for this Schedule to complete."""
         if self._latest_future is None:
@@ -127,6 +155,46 @@ class _Schedule(
         """
         self._sync_gca_resource()
         return self._gca_resource.state
+
+    @property
+    def max_run_count(self) -> int:
+        """Current Schedule max_run_count.
+
+        Returns:
+            Schedule max_run_count.
+        """
+        self._sync_gca_resource()
+        return self._gca_resource.max_run_count
+
+    @property
+    def cron_expression(self) -> str:
+        """Current Schedule cron expression.
+
+        Returns:
+            Schedule cron expression.
+        """
+        self._sync_gca_resource()
+        return self._gca_resource.cron
+
+    @property
+    def max_concurrent_run_count(self) -> int:
+        """Current Schedule max_concurrent_run_count.
+
+        Returns:
+            Schedule max_concurrent_run_count.
+        """
+        self._sync_gca_resource()
+        return self._gca_resource.max_concurrent_run_count
+
+    @property
+    def allow_queueing(self) -> bool:
+        """Whether current Schedule allows queueing.
+
+        Returns:
+            Schedule allow_queueing.
+        """
+        self._sync_gca_resource()
+        return self._gca_resource.allow_queueing
 
     def _block_until_complete(self) -> None:
         """Helper method to block and check on Schedule until complete."""
@@ -166,5 +234,5 @@ class _Schedule(
             Dashboard uri where Schedule can be viewed.
         """
         fields = self._parse_resource_name(self.resource_name)
-        url = f"https://console.cloud.google.com/vertex-ai/locations/{fields['location']}/pipelines/runs/{fields['schedule']}?project={fields['project']}"
+        url = f"https://console.cloud.google.com/vertex-ai/locations/{fields['location']}/pipelines/schedules/{fields['schedule']}?project={fields['project']}"
         return url

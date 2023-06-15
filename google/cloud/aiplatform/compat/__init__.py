@@ -140,6 +140,7 @@ if DEFAULT_VERSION == V1:
     )
     services.featurestore_service_client = services.featurestore_service_client_v1
     services.job_service_client = services.job_service_client_v1
+    services.model_garden_service_client = services.model_garden_service_client_v1
     services.model_service_client = services.model_service_client_v1
     services.pipeline_service_client = services.pipeline_service_client_v1
     services.prediction_service_client = services.prediction_service_client_v1
@@ -206,6 +207,7 @@ if DEFAULT_VERSION == V1:
     types.pipeline_service = types.pipeline_service_v1
     types.pipeline_state = types.pipeline_state_v1
     types.prediction_service = types.prediction_service_v1
+    types.publisher_model = types.publisher_model_v1
     types.specialist_pool = types.specialist_pool_v1
     types.specialist_pool_service = types.specialist_pool_service_v1
     types.study = types.study_v1

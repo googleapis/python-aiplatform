@@ -1998,18 +1998,6 @@ class CustomJob(_RunnableJob):
         return self._gca_resource.job_spec
 
 
-_SEARCH_ALGORITHM_TO_PROTO_VALUE = {
-    "random": gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
-    "grid": gca_study_compat.StudySpec.Algorithm.GRID_SEARCH,
-    None: gca_study_compat.StudySpec.Algorithm.ALGORITHM_UNSPECIFIED,
-}
-
-_MEASUREMENT_SELECTION_TO_PROTO_VALUE = {
-    "best": gca_study_compat.StudySpec.MeasurementSelectionType.BEST_MEASUREMENT,
-    "last": gca_study_compat.StudySpec.MeasurementSelectionType.LAST_MEASUREMENT,
-}
-
-
 class HyperparameterTuningJob(_RunnableJob):
     """Vertex AI Hyperparameter Tuning Job."""
 
@@ -2215,8 +2203,10 @@ class HyperparameterTuningJob(_RunnableJob):
         study_spec = gca_study_compat.StudySpec(
             metrics=metrics,
             parameters=parameters,
-            algorithm=_SEARCH_ALGORITHM_TO_PROTO_VALUE[search_algorithm],
-            measurement_selection_type=_MEASUREMENT_SELECTION_TO_PROTO_VALUE[
+            algorithm=hyperparameter_tuning.SEARCH_ALGORITHM_TO_PROTO_VALUE[
+                search_algorithm
+            ],
+            measurement_selection_type=hyperparameter_tuning.MEASUREMENT_SELECTION_TO_PROTO_VALUE[
                 measurement_selection
             ],
         )
