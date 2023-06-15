@@ -1522,6 +1522,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         parameters: Optional[Dict] = None,
         timeout: Optional[float] = None,
         use_raw_predict: Optional[bool] = False,
+        retry: Optional[bool] = False,
     ) -> Prediction:
         """Make a prediction against this Endpoint.
 
@@ -1579,6 +1580,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 instances=instances,
                 parameters=parameters,
                 timeout=timeout,
+                retry=retry,
             )
 
             return Prediction(
