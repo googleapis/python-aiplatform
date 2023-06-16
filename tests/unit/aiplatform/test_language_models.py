@@ -570,6 +570,10 @@ class TestLanguageModels:
             )
 
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+        assert (
+            response.safety_attributes["Violent"]
+            == _TEST_TEXT_GENERATION_PREDICTION["safetyAttributes"]["scores"][0]
+        )
 
     def test_text_generation_ga(self):
         """Tests the text generation model."""
