@@ -1549,6 +1549,11 @@
                 "merge_version_aliases"
               ]
             },
+            "UpdateExplanationDataset": {
+              "methods": [
+                "update_explanation_dataset"
+              ]
+            },
             "UpdateModel": {
               "methods": [
                 "update_model"
@@ -1637,6 +1642,11 @@
             "MergeVersionAliases": {
               "methods": [
                 "merge_version_aliases"
+              ]
+            },
+            "UpdateExplanationDataset": {
+              "methods": [
+                "update_explanation_dataset"
               ]
             },
             "UpdateModel": {

@@ -159,6 +159,11 @@ class ModelServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_explanation_dataset: gapic_v1.method.wrap_method(
+                self.update_explanation_dataset,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.delete_model: gapic_v1.method.wrap_method(
                 self.delete_model,
                 default_timeout=None,
@@ -282,6 +287,15 @@ class ModelServiceTransport(abc.ABC):
     ) -> Callable[
         [model_service.UpdateModelRequest],
         Union[gca_model.Model, Awaitable[gca_model.Model]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_explanation_dataset(
+        self,
+    ) -> Callable[
+        [model_service.UpdateExplanationDatasetRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 
