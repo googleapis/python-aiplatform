@@ -21,6 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import evaluated_annotation
+from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
@@ -41,10 +42,13 @@ __protobuf__ = proto.module(
         "ListModelVersionsRequest",
         "ListModelVersionsResponse",
         "UpdateModelRequest",
+        "UpdateExplanationDatasetRequest",
+        "UpdateExplanationDatasetOperationMetadata",
         "DeleteModelRequest",
         "DeleteModelVersionRequest",
         "MergeVersionAliasesRequest",
         "ExportModelRequest",
+        "UpdateExplanationDatasetResponse",
         "ExportModelOperationMetadata",
         "ExportModelResponse",
         "CopyModelRequest",
@@ -441,6 +445,46 @@ class UpdateModelRequest(proto.Message):
     )
 
 
+class UpdateExplanationDatasetRequest(proto.Message):
+    r"""Request message for
+    [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1.ModelService.UpdateExplanationDataset].
+
+    Attributes:
+        model (str):
+            Required. The resource name of the Model to update. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+        examples (google.cloud.aiplatform_v1.types.Examples):
+            The example config containing the location of
+            the dataset.
+    """
+
+    model: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    examples: explanation.Examples = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=explanation.Examples,
+    )
+
+
+class UpdateExplanationDatasetOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1.ModelService.UpdateExplanationDataset].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
 class DeleteModelRequest(proto.Message):
     r"""Request message for
     [ModelService.DeleteModel][google.cloud.aiplatform.v1.ModelService.DeleteModel].
@@ -584,6 +628,14 @@ class ExportModelRequest(proto.Message):
         number=2,
         message=OutputConfig,
     )
+
+
+class UpdateExplanationDatasetResponse(proto.Message):
+    r"""Response message of
+    [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1.ModelService.UpdateExplanationDataset]
+    operation.
+
+    """
 
 
 class ExportModelOperationMetadata(proto.Message):
