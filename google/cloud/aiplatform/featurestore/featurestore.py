@@ -1157,6 +1157,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                                 "my_entity_type_id_1": "my_entity_type_id_1_entity_1",
                                 "my_entity_type_id_2": "my_entity_type_id_2_entity_1",
                                 "timestamp": "2020-01-01T10:00:00.123Z"
+                            }
                         ],
                     )
 
@@ -1171,6 +1172,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                                 "feature_id_2_1": "feature_id_2_1_feature_value",
                                 "bar": "feature_id_2_2_feature_value",
                                 "timestamp": "2020-01-01T10:00:00.123Z"
+                            }
                         ],
                     )
 
