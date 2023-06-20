@@ -18,6 +18,7 @@
 from datetime import datetime
 from importlib import reload
 import json
+from typing import Any, Dict
 from unittest import mock
 from unittest.mock import patch
 from urllib import request
@@ -48,6 +49,7 @@ from google.cloud.aiplatform.utils import gcs_utils
 import pytest
 import yaml
 
+from google.protobuf import struct_pb2
 from google.protobuf import json_format
 
 _TEST_PROJECT = "test-project"
@@ -405,6 +407,12 @@ def mock_request_urlopen(job_spec):
         yield mock_urlopen
 
 
+def dict_to_struct(d: Dict[str, Any]) -> struct_pb2.Struct:
+    s = struct_pb2.Struct()
+    s.update(d)
+    return s
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestPipelineJobSchedule:
     def setup_method(self):
@@ -481,7 +489,7 @@ class TestPipelineJobSchedule:
                 "parent": _TEST_PARENT,
                 "pipeline_job": {
                     "runtime_config": runtime_config,
-                    "pipeline_spec": {"fields": pipeline_spec},
+                    "pipeline_spec": dict_to_struct(pipeline_spec),
                     "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
                 },
@@ -565,7 +573,7 @@ class TestPipelineJobSchedule:
                 "parent": _TEST_PARENT,
                 "pipeline_job": {
                     "runtime_config": runtime_config,
-                    "pipeline_spec": {"fields": pipeline_spec},
+                    "pipeline_spec": dict_to_struct(pipeline_spec),
                     "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
                 },
@@ -647,7 +655,7 @@ class TestPipelineJobSchedule:
                 "parent": _TEST_PARENT,
                 "pipeline_job": {
                     "runtime_config": runtime_config,
-                    "pipeline_spec": {"fields": pipeline_spec},
+                    "pipeline_spec": dict_to_struct(pipeline_spec),
                     "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
                 },
@@ -729,7 +737,7 @@ class TestPipelineJobSchedule:
                 "parent": _TEST_PARENT,
                 "pipeline_job": {
                     "runtime_config": runtime_config,
-                    "pipeline_spec": {"fields": pipeline_spec},
+                    "pipeline_spec": dict_to_struct(pipeline_spec),
                     "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
                 },
@@ -810,7 +818,7 @@ class TestPipelineJobSchedule:
                 "parent": _TEST_PARENT,
                 "pipeline_job": {
                     "runtime_config": runtime_config,
-                    "pipeline_spec": {"fields": pipeline_spec},
+                    "pipeline_spec": dict_to_struct(pipeline_spec),
                     "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
                 },
@@ -890,7 +898,7 @@ class TestPipelineJobSchedule:
                 "parent": _TEST_PARENT,
                 "pipeline_job": {
                     "runtime_config": runtime_config,
-                    "pipeline_spec": {"fields": pipeline_spec},
+                    "pipeline_spec": dict_to_struct(pipeline_spec),
                     "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
                 },
@@ -958,7 +966,7 @@ class TestPipelineJobSchedule:
                 "parent": _TEST_PARENT,
                 "pipeline_job": {
                     "runtime_config": runtime_config,
-                    "pipeline_spec": {"fields": pipeline_spec},
+                    "pipeline_spec": dict_to_struct(pipeline_spec),
                     "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
                 },

@@ -16,8 +16,12 @@
 #
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.compat.types import schedule_v1beta1 as gca_schedule
-from google.cloud.aiplatform.preview.pipelinejobschedule import pipeline_job_schedules
+from google.cloud.aiplatform.compat.types import (
+    schedule_v1beta1 as gca_schedule,
+)
+from google.cloud.aiplatform.preview.pipelinejobschedule import (
+    pipeline_job_schedules,
+)
 from tests.system.aiplatform import e2e_base
 
 from kfp import components
@@ -61,7 +65,7 @@ class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
         compiler.Compiler().compile(
             pipeline_func=training_pipeline,
             package_path=ir_file,
-            pipeline_name="training-pipeline",
+            pipeline_name="system-test-training-pipeline",
         )
         job = aiplatform.PipelineJob(
             template_path=ir_file,
@@ -72,14 +76,19 @@ class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
             pipeline_job=job, display_name="pipeline_job_schedule_display_name"
         )
 
-        pipeline_job_schedule.create(cron_expression="*/2 * * * *", max_run_count=2)
+        max_run_count = 2
+        pipeline_job_schedule.create(
+            cron_expression="*/5 * * * *",
+            max_run_count=max_run_count,
+            max_concurrent_run_count=2,
+        )
 
         shared_state.setdefault("resources", []).append(pipeline_job_schedule)
 
         pipeline_job_schedule.pause()
         assert pipeline_job_schedule.state == gca_schedule.Schedule.State.PAUSED
 
-        pipeline_job_schedule.resume()
+        pipeline_job_schedule.resume(catch_up=True)
         assert pipeline_job_schedule.state == gca_schedule.Schedule.State.ACTIVE
 
         pipeline_job_schedule.wait()
@@ -87,6 +96,8 @@ class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
         list_jobs_with_read_mask = pipeline_job_schedule.list_jobs(
             enable_simple_view=True
         )
+        assert len(list_jobs_with_read_mask) == max_run_count
+
         list_jobs_without_read_mask = pipeline_job_schedule.list_jobs()
 
         # enable_simple_view=True should apply the `read_mask` filter to limit PipelineJob fields returned
