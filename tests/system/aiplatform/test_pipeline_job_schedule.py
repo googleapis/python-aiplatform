@@ -37,7 +37,7 @@ from google.protobuf.json_format import MessageToDict
 class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
     _temp_prefix = "tmpvrtxsdk-e2e-pjs"
 
-    def test_create_get_list(self, shared_state):
+    def test_create_get_pause_resume_update_list(self, shared_state):
         # Components:
         def train(
             number_of_epochs: int,
@@ -77,22 +77,34 @@ class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
         )
 
         max_run_count = 2
+        cron_expression = "*/5 * * * *"
         pipeline_job_schedule.create(
-            cron_expression="*/5 * * * *",
+            cron_expression=cron_expression,
             max_run_count=max_run_count,
             max_concurrent_run_count=2,
         )
 
         shared_state.setdefault("resources", []).append(pipeline_job_schedule)
 
+        # Pausing the pipeline job schedule.
         pipeline_job_schedule.pause()
         assert pipeline_job_schedule.state == gca_schedule.Schedule.State.PAUSED
 
+        # Before updating, confirm the cron_expression is correctly set from the create step.
+        assert pipeline_job_schedule.cron_expression == cron_expression
+
+        # Updating the pipeline job schedule.
+        new_cron_expression = "* * * * *"
+        pipeline_job_schedule.update(cron_expression=new_cron_expression)
+        assert pipeline_job_schedule.cron_expression == new_cron_expression
+
+        # Resuming the pipeline job schedule.
         pipeline_job_schedule.resume(catch_up=True)
         assert pipeline_job_schedule.state == gca_schedule.Schedule.State.ACTIVE
 
         pipeline_job_schedule.wait()
 
+        # Confirming that correct number of runs were scheduled and completed by this pipeline job schedule.
         list_jobs_with_read_mask = pipeline_job_schedule.list_jobs(
             enable_simple_view=True
         )
