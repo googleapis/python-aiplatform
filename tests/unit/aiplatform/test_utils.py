@@ -570,6 +570,17 @@ class TestGcsUtils:
             output == "gs://test-project-vertex-pipelines-us-central1/output_artifacts/"
         )
 
+    def test_validate_gcs_path(self):
+        test_valid_path = "gs://test_valid_path"
+        gcs_utils.validate_gcs_path(test_valid_path)
+
+        test_invalid_path = "test_invalid_path"
+        err_msg = re.escape(
+            f"Invalid GCS path {test_invalid_path}. Please provide a valid GCS path starting with 'gs://'"
+        )
+        with pytest.raises(ValueError, match=err_msg):
+            gcs_utils.validate_gcs_path(test_invalid_path)
+
 
 class TestPipelineUtils:
     SAMPLE_JOB_SPEC = {

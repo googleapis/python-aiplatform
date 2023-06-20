@@ -332,3 +332,18 @@ def _upload_pandas_df_to_gcs(
         storage.Blob.from_string(
             uri=upload_gcs_path, client=storage_client
         ).upload_from_filename(filename=local_dataset_path)
+
+
+def validate_gcs_path(gcs_path: str) -> None:
+    """Validates a GCS path.
+
+    Args:
+        gcs_path (str):
+            Required. A GCS path to validate.
+    Raises:
+        ValueError if gcs_path is invalid.
+    """
+    if not gcs_path.startswith("gs://"):
+        raise ValueError(
+            f"Invalid GCS path {gcs_path}. Please provide a valid GCS path starting with 'gs://'"
+        )
