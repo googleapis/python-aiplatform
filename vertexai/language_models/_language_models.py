@@ -565,6 +565,19 @@ class InputOutputTextPair:
     output_text: str
 
 
+@dataclasses.dataclass
+class ChatMessage:
+    """A chat message.
+
+    Attributes:
+        content: Content of the message.
+        author: Author of the message.
+    """
+
+    content: str
+    author: str
+
+
 class _ChatModelBase(_LanguageModel):
     """_ChatModelBase is a base class for chat models."""
 
@@ -579,6 +592,7 @@ class _ChatModelBase(_LanguageModel):
         temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        message_history: Optional[List[ChatMessage]] = None,
     ) -> "ChatSession":
         """Starts a chat session with the model.
 
@@ -591,6 +605,7 @@ class _ChatModelBase(_LanguageModel):
             temperature: Controls the randomness of predictions. Range: [0, 1].
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            message_history: A list of previously sent and received messages.
 
         Returns:
             A `ChatSession` object.
@@ -603,6 +618,7 @@ class _ChatModelBase(_LanguageModel):
             temperature=temperature,
             top_k=top_k,
             top_p=top_p,
+            message_history=message_history,
         )
 
 
@@ -678,6 +694,9 @@ class CodeChatModel(_ChatModelBase):
 class _ChatSessionBase:
     """_ChatSessionBase is a base class for all chat sessions."""
 
+    USER_AUTHOR = "user"
+    MODEL_AUTHOR = "bot"
+
     def __init__(
         self,
         model: _ChatModelBase,
@@ -688,16 +707,22 @@ class _ChatSessionBase:
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
         is_code_chat_session: bool = False,
+        message_history: Optional[List[ChatMessage]] = None,
     ):
         self._model = model
         self._context = context
         self._examples = examples
-        self._history = []
         self._max_output_tokens = max_output_tokens
         self._temperature = temperature
         self._top_k = top_k
         self._top_p = top_p
         self._is_code_chat_session = is_code_chat_session
+        self._message_history: List[ChatMessage] = message_history or []
+
+    @property
+    def message_history(self) -> List[ChatMessage]:
+        """List of previous messages."""
+        return self._message_history
 
     def send_message(
         self,
@@ -737,29 +762,22 @@ class _ChatSessionBase:
             prediction_parameters["topP"] = top_p if top_p is not None else self._top_p
             prediction_parameters["topK"] = top_k if top_k is not None else self._top_k
 
-        messages = []
-        for input_text, output_text in self._history:
-            messages.append(
+        message_structs = []
+        for past_message in self._message_history:
+            message_structs.append(
                 {
-                    "author": "user",
-                    "content": input_text,
+                    "author": past_message.author,
+                    "content": past_message.content,
                 }
             )
-            messages.append(
-                {
-                    "author": "bot",
-                    "content": output_text,
-                }
-            )
-
-        messages.append(
+        message_structs.append(
             {
-                "author": "user",
+                "author": self.USER_AUTHOR,
                 "content": message,
             }
         )
 
-        prediction_instance = {"messages": messages}
+        prediction_instance = {"messages": message_structs}
         if not self._is_code_chat_session and self._context:
             prediction_instance["context"] = self._context
         if not self._is_code_chat_session and self._examples:
@@ -793,7 +811,13 @@ class _ChatSessionBase:
         )
         response_text = response_obj.text
 
-        self._history.append((message, response_text))
+        self._message_history.append(
+            ChatMessage(content=message, author=self.USER_AUTHOR)
+        )
+        self._message_history.append(
+            ChatMessage(content=response_text, author=self.MODEL_AUTHOR)
+        )
+
         return response_obj
 
 
@@ -812,6 +836,7 @@ class ChatSession(_ChatSessionBase):
         temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        message_history: Optional[List[ChatMessage]] = None,
     ):
         super().__init__(
             model=model,
@@ -821,6 +846,7 @@ class ChatSession(_ChatSessionBase):
             temperature=temperature,
             top_k=top_k,
             top_p=top_p,
+            message_history=message_history,
         )
 
 

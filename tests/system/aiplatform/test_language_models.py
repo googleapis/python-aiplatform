@@ -67,13 +67,24 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             temperature=0.0,
         )
 
-        assert chat.send_message("Are my favorite movies based on a book series?").text
-        assert len(chat._history) == 1
-        assert chat.send_message(
-            "When where these books published?",
+        message1 = "Are my favorite movies based on a book series?"
+        response1 = chat.send_message(message1)
+        assert response1.text
+        assert len(chat.message_history) == 2
+        assert chat.message_history[0].author == chat.USER_AUTHOR
+        assert chat.message_history[0].content == message1
+        assert chat.message_history[1].author == chat.MODEL_AUTHOR
+
+        message2 = "When where these books published?"
+        response2 = chat.send_message(
+            message2,
             temperature=0.1,
-        ).text
-        assert len(chat._history) == 2
+        )
+        assert response2.text
+        assert len(chat.message_history) == 4
+        assert chat.message_history[2].author == chat.USER_AUTHOR
+        assert chat.message_history[2].content == message2
+        assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
     def test_text_embedding(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
