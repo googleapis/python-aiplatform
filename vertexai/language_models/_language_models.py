@@ -320,8 +320,75 @@ class TextGenerationModel(_LanguageModel):
 _TextGenerationModel = TextGenerationModel
 
 
-class _PreviewTextGenerationModel(TextGenerationModel, _TunableModelMixin):
-    """Tunable text generation model."""
+class _ModelWithBatchPredict(_LanguageModel):
+    """Model that supports batch prediction."""
+
+    def batch_predict(
+        self,
+        *,
+        source_uri: Union[str, List[str]],
+        destination_uri_prefix: str,
+        model_parameters: Optional[Dict] = None,
+    ) -> aiplatform.BatchPredictionJob:
+        """Starts a batch prediction job with the model.
+
+        Args:
+            source_uri: The location of the dataset.
+                `gs://` and `bq://` URIs are supported.
+            destination_uri_prefix: The URI prefix for the prediction.
+                `gs://` and `bq://` URIs are supported.
+            model_parameters: Model-specific parameters to send to the model.
+
+        Returns:
+            A `BatchPredictionJob` object
+        Raises:
+            ValueError: When source or destination URI is not supported.
+        """
+        arguments = {}
+        first_source_uri = source_uri if isinstance(source_uri, str) else source_uri[0]
+        if first_source_uri.startswith("gs://"):
+            if not isinstance(source_uri, str):
+                if not all(uri.startswith("gs://") for uri in source_uri):
+                    raise ValueError(
+                        f"All URIs in the list must start with 'gs://': {source_uri}"
+                    )
+            arguments["gcs_source"] = source_uri
+        elif first_source_uri.startswith("bq://"):
+            if not isinstance(source_uri, str):
+                raise ValueError(
+                    f"Only single BigQuery source can be specified: {source_uri}"
+                )
+            arguments["bigquery_source"] = source_uri
+        else:
+            raise ValueError(f"Unsupported source_uri: {source_uri}")
+
+        if destination_uri_prefix.startswith("gs://"):
+            arguments["gcs_destination_prefix"] = destination_uri_prefix
+        elif destination_uri_prefix.startswith("bq://"):
+            arguments["bigquery_destination_prefix"] = destination_uri_prefix
+        else:
+            raise ValueError(f"Unsupported destination_uri: {destination_uri_prefix}")
+
+        model_name = self._model_resource_name
+        # TODO(b/284512065): Batch prediction service does not support
+        # fully qualified publisher model names yet
+        publishers_index = model_name.index("/publishers/")
+        if publishers_index > 0:
+            model_name = model_name[publishers_index + 1 :]
+
+        job = aiplatform.BatchPredictionJob.create(
+            model_name=model_name,
+            job_display_name=None,
+            **arguments,
+            model_parameters=model_parameters,
+        )
+        return job
+
+
+class _PreviewTextGenerationModel(
+    TextGenerationModel, _TunableModelMixin, _ModelWithBatchPredict
+):
+    """Preview text generation model."""
 
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 

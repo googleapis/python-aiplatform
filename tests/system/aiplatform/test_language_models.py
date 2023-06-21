@@ -18,6 +18,9 @@
 # pylint: disable=protected-access, g-multiple-import
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform.compat.types import (
+    job_state_v1beta1 as gca_job_state_v1beta1,
+)
 from tests.system.aiplatform import e2e_base
 from vertexai.preview.language_models import (
     ChatModel,
@@ -144,3 +147,23 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             top_k=5,
         )
         assert tuned_model_response.text
+
+    def test_batch_prediction(self):
+        source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/batch_prediction_prompts1.jsonl"
+        destination_uri_prefix = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/predictions/text-bison@001_"
+
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = TextGenerationModel.from_pretrained("text-bison@001")
+        job = model.batch_predict(
+            source_uri=source_uri,
+            destination_uri_prefix=destination_uri_prefix,
+            model_parameters={"temperature": 0, "top_p": 1, "top_k": 5},
+        )
+
+        job.wait_for_resource_creation()
+        job.wait()
+        gapic_job = job._gca_resource
+        job.delete()
+
+        assert gapic_job.state == gca_job_state_v1beta1.JobState.JOB_STATE_SUCCEEDED

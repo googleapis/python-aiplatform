@@ -1135,3 +1135,37 @@ class TestLanguageModels:
                 vector = embedding.values
                 assert len(vector) == _TEXT_EMBEDDING_VECTOR_LENGTH
                 assert vector == _TEST_TEXT_EMBEDDING_PREDICTION["embeddings"]["values"]
+
+    def test_batch_prediction(self):
+        """Tests batch prediction."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        with mock.patch.object(
+            target=aiplatform.BatchPredictionJob,
+            attribute="create",
+        ) as mock_create:
+            model.batch_predict(
+                source_uri="gs://test-bucket/test_table.jsonl",
+                destination_uri_prefix="gs://test-bucket/results/",
+                model_parameters={"temperature": 0.1},
+            )
+            mock_create.assert_called_once_with(
+                model_name="publishers/google/models/text-bison@001",
+                job_display_name=None,
+                gcs_source="gs://test-bucket/test_table.jsonl",
+                gcs_destination_prefix="gs://test-bucket/results/",
+                model_parameters={"temperature": 0.1},
+            )
