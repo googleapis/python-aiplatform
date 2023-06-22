@@ -15,7 +15,7 @@
 """Classes for working with language models."""
 
 import dataclasses
-from typing import Any, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -198,10 +198,19 @@ class _TunableModelMixin(_LanguageModel):
 
 @dataclasses.dataclass
 class TextGenerationResponse:
-    """TextGenerationResponse represents a response of a language model."""
+    """TextGenerationResponse represents a response of a language model.
+    Attributes:
+        text: The generated text
+        is_blocked: Whether the the request was blocked.
+        safety_attributes: Scores for safety attributes.
+            Learn more about the safety attributes here:
+            https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
+    """
 
     text: str
     _prediction_response: Any
+    is_blocked: bool = False
+    safety_attributes: Dict[str, float] = dataclasses.field(default_factory=dict)
 
     def __repr__(self):
         return self.text
@@ -289,20 +298,97 @@ class TextGenerationModel(_LanguageModel):
             parameters=prediction_parameters,
         )
 
-        return [
-            TextGenerationResponse(
-                text=prediction["content"],
-                _prediction_response=prediction_response,
+        results = []
+        for prediction in prediction_response.predictions:
+            safety_attributes_dict = prediction.get("safetyAttributes", {})
+            results.append(
+                TextGenerationResponse(
+                    text=prediction["content"],
+                    _prediction_response=prediction_response,
+                    is_blocked=safety_attributes_dict.get("blocked", False),
+                    safety_attributes=dict(
+                        zip(
+                            safety_attributes_dict.get("categories", []),
+                            safety_attributes_dict.get("scores", []),
+                        )
+                    ),
+                )
             )
-            for prediction in prediction_response.predictions
-        ]
+        return results
 
 
 _TextGenerationModel = TextGenerationModel
 
 
-class _PreviewTextGenerationModel(TextGenerationModel, _TunableModelMixin):
-    """Tunable text generation model."""
+class _ModelWithBatchPredict(_LanguageModel):
+    """Model that supports batch prediction."""
+
+    def batch_predict(
+        self,
+        *,
+        source_uri: Union[str, List[str]],
+        destination_uri_prefix: str,
+        model_parameters: Optional[Dict] = None,
+    ) -> aiplatform.BatchPredictionJob:
+        """Starts a batch prediction job with the model.
+
+        Args:
+            source_uri: The location of the dataset.
+                `gs://` and `bq://` URIs are supported.
+            destination_uri_prefix: The URI prefix for the prediction.
+                `gs://` and `bq://` URIs are supported.
+            model_parameters: Model-specific parameters to send to the model.
+
+        Returns:
+            A `BatchPredictionJob` object
+        Raises:
+            ValueError: When source or destination URI is not supported.
+        """
+        arguments = {}
+        first_source_uri = source_uri if isinstance(source_uri, str) else source_uri[0]
+        if first_source_uri.startswith("gs://"):
+            if not isinstance(source_uri, str):
+                if not all(uri.startswith("gs://") for uri in source_uri):
+                    raise ValueError(
+                        f"All URIs in the list must start with 'gs://': {source_uri}"
+                    )
+            arguments["gcs_source"] = source_uri
+        elif first_source_uri.startswith("bq://"):
+            if not isinstance(source_uri, str):
+                raise ValueError(
+                    f"Only single BigQuery source can be specified: {source_uri}"
+                )
+            arguments["bigquery_source"] = source_uri
+        else:
+            raise ValueError(f"Unsupported source_uri: {source_uri}")
+
+        if destination_uri_prefix.startswith("gs://"):
+            arguments["gcs_destination_prefix"] = destination_uri_prefix
+        elif destination_uri_prefix.startswith("bq://"):
+            arguments["bigquery_destination_prefix"] = destination_uri_prefix
+        else:
+            raise ValueError(f"Unsupported destination_uri: {destination_uri_prefix}")
+
+        model_name = self._model_resource_name
+        # TODO(b/284512065): Batch prediction service does not support
+        # fully qualified publisher model names yet
+        publishers_index = model_name.index("/publishers/")
+        if publishers_index > 0:
+            model_name = model_name[publishers_index + 1 :]
+
+        job = aiplatform.BatchPredictionJob.create(
+            model_name=model_name,
+            job_display_name=None,
+            **arguments,
+            model_parameters=model_parameters,
+        )
+        return job
+
+
+class _PreviewTextGenerationModel(
+    TextGenerationModel, _TunableModelMixin, _ModelWithBatchPredict
+):
+    """Preview text generation model."""
 
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
@@ -479,6 +565,19 @@ class InputOutputTextPair:
     output_text: str
 
 
+@dataclasses.dataclass
+class ChatMessage:
+    """A chat message.
+
+    Attributes:
+        content: Content of the message.
+        author: Author of the message.
+    """
+
+    content: str
+    author: str
+
+
 class _ChatModelBase(_LanguageModel):
     """_ChatModelBase is a base class for chat models."""
 
@@ -493,6 +592,7 @@ class _ChatModelBase(_LanguageModel):
         temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        message_history: Optional[List[ChatMessage]] = None,
     ) -> "ChatSession":
         """Starts a chat session with the model.
 
@@ -505,6 +605,7 @@ class _ChatModelBase(_LanguageModel):
             temperature: Controls the randomness of predictions. Range: [0, 1].
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            message_history: A list of previously sent and received messages.
 
         Returns:
             A `ChatSession` object.
@@ -517,6 +618,7 @@ class _ChatModelBase(_LanguageModel):
             temperature=temperature,
             top_k=top_k,
             top_p=top_p,
+            message_history=message_history,
         )
 
 
@@ -592,6 +694,9 @@ class CodeChatModel(_ChatModelBase):
 class _ChatSessionBase:
     """_ChatSessionBase is a base class for all chat sessions."""
 
+    USER_AUTHOR = "user"
+    MODEL_AUTHOR = "bot"
+
     def __init__(
         self,
         model: _ChatModelBase,
@@ -602,16 +707,22 @@ class _ChatSessionBase:
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
         is_code_chat_session: bool = False,
+        message_history: Optional[List[ChatMessage]] = None,
     ):
         self._model = model
         self._context = context
         self._examples = examples
-        self._history = []
         self._max_output_tokens = max_output_tokens
         self._temperature = temperature
         self._top_k = top_k
         self._top_p = top_p
         self._is_code_chat_session = is_code_chat_session
+        self._message_history: List[ChatMessage] = message_history or []
+
+    @property
+    def message_history(self) -> List[ChatMessage]:
+        """List of previous messages."""
+        return self._message_history
 
     def send_message(
         self,
@@ -651,29 +762,22 @@ class _ChatSessionBase:
             prediction_parameters["topP"] = top_p if top_p is not None else self._top_p
             prediction_parameters["topK"] = top_k if top_k is not None else self._top_k
 
-        messages = []
-        for input_text, output_text in self._history:
-            messages.append(
+        message_structs = []
+        for past_message in self._message_history:
+            message_structs.append(
                 {
-                    "author": "user",
-                    "content": input_text,
+                    "author": past_message.author,
+                    "content": past_message.content,
                 }
             )
-            messages.append(
-                {
-                    "author": "bot",
-                    "content": output_text,
-                }
-            )
-
-        messages.append(
+        message_structs.append(
             {
-                "author": "user",
+                "author": self.USER_AUTHOR,
                 "content": message,
             }
         )
 
-        prediction_instance = {"messages": messages}
+        prediction_instance = {"messages": message_structs}
         if not self._is_code_chat_session and self._context:
             prediction_instance["context"] = self._context
         if not self._is_code_chat_session and self._examples:
@@ -690,13 +794,30 @@ class _ChatSessionBase:
             parameters=prediction_parameters,
         )
 
+        prediction = prediction_response.predictions[0]
+        safety_attributes = prediction["safetyAttributes"]
         response_obj = TextGenerationResponse(
-            text=prediction_response.predictions[0]["candidates"][0]["content"],
+            text=prediction["candidates"][0]["content"]
+            if prediction.get("candidates")
+            else None,
             _prediction_response=prediction_response,
+            is_blocked=safety_attributes.get("blocked", False),
+            safety_attributes=dict(
+                zip(
+                    safety_attributes.get("categories", []),
+                    safety_attributes.get("scores", []),
+                )
+            ),
         )
         response_text = response_obj.text
 
-        self._history.append((message, response_text))
+        self._message_history.append(
+            ChatMessage(content=message, author=self.USER_AUTHOR)
+        )
+        self._message_history.append(
+            ChatMessage(content=response_text, author=self.MODEL_AUTHOR)
+        )
+
         return response_obj
 
 
@@ -715,6 +836,7 @@ class ChatSession(_ChatSessionBase):
         temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        message_history: Optional[List[ChatMessage]] = None,
     ):
         super().__init__(
             model=model,
@@ -724,6 +846,7 @@ class ChatSession(_ChatSessionBase):
             temperature=temperature,
             top_k=top_k,
             top_p=top_p,
+            message_history=message_history,
         )
 
 
