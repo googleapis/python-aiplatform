@@ -8,8 +8,6 @@
 
 * Add additional scheduled pipelines client getters and unit tests. ([9371b4f](https://github.com/googleapis/python-aiplatform/commit/9371b4fd3f7529636fc323a7914960d0c6a70db4))
 * Add PipelineJobSchedule update method and unit tests. ([69c5f60](https://github.com/googleapis/python-aiplatform/commit/69c5f60bfea5308589a58c2b9ad9f392b3a1283e))
-* Add sdk support for xai example-based explanations ([8abd9e4](https://github.com/googleapis/python-aiplatform/commit/8abd9e4fb6b9ffbb32457949323c4fd8922ee99c))
-* Add sdk support for xai example-based explanations ([21e48fe](https://github.com/googleapis/python-aiplatform/commit/21e48fe017a9e068dbd885689be50f6700df1309))
 * Add tunable parameters for Model Garden model training to the "AutoMLImageTrainingJob" in SDK. ([50646be](https://github.com/googleapis/python-aiplatform/commit/50646be154b2be6c4738858af2440ad207c4020a))
 * LLM - Added batch prediction ([2235305](https://github.com/googleapis/python-aiplatform/commit/2235305c7714835ff331e5294f90a6a23e31391d))
 * LLM - Exposed the chat history ([bf0e20b](https://github.com/googleapis/python-aiplatform/commit/bf0e20b497675125e0bc5abc10455b06f7a0c019))
