@@ -570,6 +570,10 @@ class TestLanguageModels:
             )
 
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+        assert (
+            response.safety_attributes["Violent"]
+            == _TEST_TEXT_GENERATION_PREDICTION["safetyAttributes"]["scores"][0]
+        )
 
     def test_text_generation_ga(self):
         """Tests the text generation model."""
@@ -754,14 +758,17 @@ class TestLanguageModels:
             attribute="predict",
             return_value=gca_predict_response1,
         ):
-            response = chat.send_message(
-                "Are my favorite movies based on a book series?"
-            )
-            assert (
-                response.text
-                == _TEST_CHAT_GENERATION_PREDICTION1["candidates"][0]["content"]
-            )
-            assert len(chat._history) == 1
+            message_text1 = "Are my favorite movies based on a book series?"
+            expected_response1 = _TEST_CHAT_GENERATION_PREDICTION1["candidates"][0][
+                "content"
+            ]
+            response = chat.send_message(message_text1)
+            assert response.text == expected_response1
+            assert len(chat.message_history) == 2
+            assert chat.message_history[0].author == chat.USER_AUTHOR
+            assert chat.message_history[0].content == message_text1
+            assert chat.message_history[1].author == chat.MODEL_AUTHOR
+            assert chat.message_history[1].content == expected_response1
 
         gca_predict_response2 = gca_prediction_service.PredictResponse()
         gca_predict_response2.predictions.append(_TEST_CHAT_GENERATION_PREDICTION2)
@@ -771,15 +778,17 @@ class TestLanguageModels:
             attribute="predict",
             return_value=gca_predict_response2,
         ):
-            response = chat.send_message(
-                "When where these books published?",
-                temperature=0.1,
-            )
-            assert (
-                response.text
-                == _TEST_CHAT_GENERATION_PREDICTION2["candidates"][0]["content"]
-            )
-            assert len(chat._history) == 2
+            message_text2 = "When where these books published?"
+            expected_response2 = _TEST_CHAT_GENERATION_PREDICTION2["candidates"][0][
+                "content"
+            ]
+            response = chat.send_message(message_text2, temperature=0.1)
+            assert response.text == expected_response2
+            assert len(chat.message_history) == 4
+            assert chat.message_history[2].author == chat.USER_AUTHOR
+            assert chat.message_history[2].content == message_text2
+            assert chat.message_history[3].author == chat.MODEL_AUTHOR
+            assert chat.message_history[3].content == expected_response2
 
         # Validating the parameters
         chat_temperature = 0.1
@@ -866,7 +875,7 @@ class TestLanguageModels:
                 response.text
                 == _TEST_CHAT_GENERATION_PREDICTION1["candidates"][0]["content"]
             )
-            assert len(code_chat._history) == 1
+            assert len(code_chat.message_history) == 2
 
         gca_predict_response2 = gca_prediction_service.PredictResponse()
         gca_predict_response2.predictions.append(_TEST_CHAT_GENERATION_PREDICTION2)
@@ -885,7 +894,7 @@ class TestLanguageModels:
                 response.text
                 == _TEST_CHAT_GENERATION_PREDICTION2["candidates"][0]["content"]
             )
-            assert len(code_chat._history) == 2
+            assert len(code_chat.message_history) == 4
 
         # Validating the parameters
         chat_temperature = 0.1
@@ -1131,3 +1140,37 @@ class TestLanguageModels:
                 vector = embedding.values
                 assert len(vector) == _TEXT_EMBEDDING_VECTOR_LENGTH
                 assert vector == _TEST_TEXT_EMBEDDING_PREDICTION["embeddings"]["values"]
+
+    def test_batch_prediction(self):
+        """Tests batch prediction."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        with mock.patch.object(
+            target=aiplatform.BatchPredictionJob,
+            attribute="create",
+        ) as mock_create:
+            model.batch_predict(
+                source_uri="gs://test-bucket/test_table.jsonl",
+                destination_uri_prefix="gs://test-bucket/results/",
+                model_parameters={"temperature": 0.1},
+            )
+            mock_create.assert_called_once_with(
+                model_name="publishers/google/models/text-bison@001",
+                job_display_name=None,
+                gcs_source="gs://test-bucket/test_table.jsonl",
+                gcs_destination_prefix="gs://test-bucket/results/",
+                model_parameters={"temperature": 0.1},
+            )
