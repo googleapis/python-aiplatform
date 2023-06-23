@@ -661,8 +661,13 @@ class TestLanguageModels:
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
+                learning_rate=0.1,
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["learning_rate"] == 0.1
             assert (
                 call_kwargs["pipeline_job"].encryption_spec.kms_key_name
                 == _TEST_ENCRYPTION_KEY_NAME
