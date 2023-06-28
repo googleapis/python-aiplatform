@@ -297,6 +297,8 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 Custom credentials to use to update this resource. Overrides
                 credentials set in aiplatform.init.
         """
+        if not hasattr(self, "_threading_lock"):
+            self._threading_lock = threading.Lock()
 
         with self._threading_lock:
             gca_resource = deepcopy(self._gca_resource)
