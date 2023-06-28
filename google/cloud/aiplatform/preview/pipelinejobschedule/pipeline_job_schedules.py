@@ -145,6 +145,7 @@ class PipelineJobSchedule(
             max_run_count (int):
                 Optional. Maximum run count of the schedule.
                 If specified, The schedule will be completed when either started_run_count >= max_run_count or when end_time is reached.
+                Must be positive and <= 2^63-1.
             max_concurrent_run_count (int):
                 Optional. Maximum number of runs that can be started concurrently for this PipelineJobSchedule.
             service_account (str):
@@ -204,6 +205,7 @@ class PipelineJobSchedule(
             max_run_count (int):
                 Optional. Maximum run count of the schedule.
                 If specified, The schedule will be completed when either started_run_count >= max_run_count or when end_time is reached.
+                Must be positive and <= 2^63-1.
             max_concurrent_run_count (int):
                 Optional. Maximum number of runs that can be started concurrently for this PipelineJobSchedule.
             service_account (str):
@@ -402,6 +404,7 @@ class PipelineJobSchedule(
             max_run_count (int):
                 Optional. Maximum run count of the schedule.
                 If specified, The schedule will be completed when either started_run_count >= max_run_count or when end_time is reached.
+                Must be positive and <= 2^63-1.
             max_concurrent_run_count (int):
                 Optional. Maximum number of runs that can be started concurrently for this PipelineJobSchedule.
 

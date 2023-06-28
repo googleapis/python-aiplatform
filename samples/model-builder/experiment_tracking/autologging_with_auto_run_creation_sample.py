@@ -25,7 +25,7 @@ def autologging_with_auto_run_creation_sample(
     location: str,
 ):
     aiplatform.init(
-        experiment_name=experiment_name,
+        experiment=experiment_name,
         project=project,
         location=location,
         experiment_tensorboard=experiment_tensorboard,

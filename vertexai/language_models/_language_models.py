@@ -139,6 +139,7 @@ class _TunableModelMixin(_LanguageModel):
         training_data: Union[str, "pandas.core.frame.DataFrame"],
         *,
         train_steps: int = 1000,
+        learning_rate: Optional[float] = None,
         tuning_job_location: Optional[str] = None,
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
@@ -151,6 +152,7 @@ class _TunableModelMixin(_LanguageModel):
             training_data: A Pandas DataFrame of a URI pointing to data in JSON lines format.
                 The dataset must have the "input_text" and "output_text" columns.
             train_steps: Number of training steps to perform.
+            learning_rate: Learning rate for the tuning
             tuning_job_location: GCP location where the tuning job should be run. Only "europe-west4" is supported for now.
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
@@ -184,6 +186,7 @@ class _TunableModelMixin(_LanguageModel):
             model_id=model_info.tuning_model_id,
             tuning_pipeline_uri=model_info.tuning_pipeline_uri,
             model_display_name=model_display_name,
+            learning_rate=learning_rate,
         )
 
         job = _LanguageModelTuningJob(
@@ -1041,6 +1044,7 @@ def _launch_tuning_job(
     tuning_pipeline_uri: str,
     train_steps: Optional[int] = None,
     model_display_name: Optional[str] = None,
+    learning_rate: Optional[float] = None,
 ) -> aiplatform.PipelineJob:
     output_dir_uri = _generate_tuned_model_dir_uri(model_id=model_id)
     if isinstance(training_data, str):
@@ -1062,6 +1066,7 @@ def _launch_tuning_job(
         train_steps=train_steps,
         tuning_pipeline_uri=tuning_pipeline_uri,
         model_display_name=model_display_name,
+        learning_rate=learning_rate,
     )
     return job
 
@@ -1071,11 +1076,15 @@ def _launch_tuning_job_on_jsonl_data(
     dataset_name_or_uri: str,
     tuning_pipeline_uri: str,
     train_steps: Optional[int] = None,
+    learning_rate: Optional[float] = None,
     model_display_name: Optional[str] = None,
 ) -> aiplatform.PipelineJob:
     if not model_display_name:
         # Creating a human-readable model display name
-        name = f"{model_id} tuned for {train_steps} steps on "
+        name = f"{model_id} tuned for {train_steps} steps"
+        if learning_rate:
+            name += f" with learning rate {learning_rate}"
+        name += " on "
         # Truncating the start of the dataset URI to keep total length <= 128.
         max_display_name_length = 128
         if len(dataset_name_or_uri + name) <= max_display_name_length:
@@ -1095,6 +1104,8 @@ def _launch_tuning_job_on_jsonl_data(
         "large_model_reference": model_id,
         "model_display_name": model_display_name,
     }
+    if learning_rate:
+        pipeline_arguments["learning_rate"] = learning_rate
 
     if dataset_name_or_uri.startswith("projects/"):
         pipeline_arguments["dataset_name"] = dataset_name_or_uri
