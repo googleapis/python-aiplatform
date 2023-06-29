@@ -668,6 +668,7 @@ class CodeChatModel(_ChatModelBase):
     """
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
     _DEFAULT_TEMPERATURE = 0.5
@@ -917,7 +918,7 @@ class CodeGenerationModel(_LanguageModel):
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
     _DEFAULT_TEMPERATURE = 0.0
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
 

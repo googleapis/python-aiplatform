@@ -101,7 +101,7 @@ _CODECHAT_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/codechat-bison",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
-    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/codechat-bison@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml",
@@ -114,7 +114,7 @@ _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/code-bison",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
-    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/code-bison@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml",
@@ -127,7 +127,7 @@ _CODE_COMPLETION_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/code-gecko",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
-    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/code-gecko@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml",
@@ -853,7 +853,7 @@ class TestLanguageModels:
                 _CODECHAT_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = preview_language_models.CodeChatModel.from_pretrained(
+            model = language_models.CodeChatModel.from_pretrained(
                 "google/codechat-bison@001"
             )
 
@@ -949,7 +949,7 @@ class TestLanguageModels:
                 _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = preview_language_models.CodeGenerationModel.from_pretrained(
+            model = language_models.CodeGenerationModel.from_pretrained(
                 "google/code-bison@001"
             )
 
@@ -976,11 +976,9 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_temperature = (
-            preview_language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
-        )
+        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
         default_max_output_tokens = (
-            preview_language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
+            language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
         )
 
         with mock.patch.object(
@@ -1017,7 +1015,7 @@ class TestLanguageModels:
                 _CODE_COMPLETION_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = preview_language_models.CodeGenerationModel.from_pretrained(
+            model = language_models.CodeGenerationModel.from_pretrained(
                 "google/code-gecko@001"
             )
 
@@ -1044,11 +1042,9 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_temperature = (
-            preview_language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
-        )
+        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
         default_max_output_tokens = (
-            preview_language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
+            language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
         )
 
         with mock.patch.object(
