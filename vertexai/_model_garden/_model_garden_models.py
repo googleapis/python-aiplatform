@@ -34,6 +34,13 @@ _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP = {
     "text-bison": "https://us-kfp.pkg.dev/vertex-ai/large-language-model-pipelines/tune-large-model/sdk-1-25"
 }
 
+_SDK_PRIVATE_PREVIEW_LAUNCH_STAGE = frozenset(
+    [
+        gca_publisher_model.PublisherModel.LaunchStage.PRIVATE_PREVIEW,
+        gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
+        gca_publisher_model.PublisherModel.LaunchStage.GA,
+    ]
+)
 _SDK_PUBLIC_PREVIEW_LAUNCH_STAGE = frozenset(
     [
         gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
