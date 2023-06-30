@@ -799,7 +799,8 @@ class _ChatSessionBase:
         )
 
         prediction = prediction_response.predictions[0]
-        safety_attributes = prediction["safetyAttributes"]
+        # ! Note: For chat models, the safetyAttributes is a list.
+        safety_attributes = prediction["safetyAttributes"][0]
         response_obj = TextGenerationResponse(
             text=prediction["candidates"][0]["content"]
             if prediction.get("candidates")

@@ -164,11 +164,13 @@ Instructions:
 }
 
 _TEST_CHAT_GENERATION_PREDICTION1 = {
-    "safetyAttributes": {
-        "scores": [],
-        "blocked": False,
-        "categories": [],
-    },
+    "safetyAttributes": [
+        {
+            "scores": [],
+            "blocked": False,
+            "categories": [],
+        }
+    ],
     "candidates": [
         {
             "author": "1",
@@ -177,11 +179,13 @@ _TEST_CHAT_GENERATION_PREDICTION1 = {
     ],
 }
 _TEST_CHAT_GENERATION_PREDICTION2 = {
-    "safetyAttributes": {
-        "scores": [],
-        "blocked": False,
-        "categories": [],
-    },
+    "safetyAttributes": [
+        {
+            "scores": [],
+            "blocked": False,
+            "categories": [],
+        }
+    ],
     "candidates": [
         {
             "author": "1",
