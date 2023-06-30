@@ -756,6 +756,16 @@ class TestLanguageModels:
                     output_text="Ned likes watching movies.",
                 ),
             ],
+            message_history=[
+                preview_language_models.ChatMessage(
+                    author=preview_language_models.ChatSession.USER_AUTHOR,
+                    content="Question 1?",
+                ),
+                preview_language_models.ChatMessage(
+                    author=preview_language_models.ChatSession.MODEL_AUTHOR,
+                    content="Answer 1.",
+                ),
+            ],
             temperature=0.0,
         )
 
@@ -773,11 +783,11 @@ class TestLanguageModels:
             ]
             response = chat.send_message(message_text1)
             assert response.text == expected_response1
-            assert len(chat.message_history) == 2
-            assert chat.message_history[0].author == chat.USER_AUTHOR
-            assert chat.message_history[0].content == message_text1
-            assert chat.message_history[1].author == chat.MODEL_AUTHOR
-            assert chat.message_history[1].content == expected_response1
+            assert len(chat.message_history) == 4
+            assert chat.message_history[2].author == chat.USER_AUTHOR
+            assert chat.message_history[2].content == message_text1
+            assert chat.message_history[3].author == chat.MODEL_AUTHOR
+            assert chat.message_history[3].content == expected_response1
 
         gca_predict_response2 = gca_prediction_service.PredictResponse()
         gca_predict_response2.predictions.append(_TEST_CHAT_GENERATION_PREDICTION2)
@@ -793,11 +803,11 @@ class TestLanguageModels:
             ]
             response = chat.send_message(message_text2, temperature=0.1)
             assert response.text == expected_response2
-            assert len(chat.message_history) == 4
-            assert chat.message_history[2].author == chat.USER_AUTHOR
-            assert chat.message_history[2].content == message_text2
-            assert chat.message_history[3].author == chat.MODEL_AUTHOR
-            assert chat.message_history[3].content == expected_response2
+            assert len(chat.message_history) == 6
+            assert chat.message_history[4].author == chat.USER_AUTHOR
+            assert chat.message_history[4].content == message_text2
+            assert chat.message_history[5].author == chat.MODEL_AUTHOR
+            assert chat.message_history[5].content == expected_response2
 
         # Validating the parameters
         chat_temperature = 0.1
