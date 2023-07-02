@@ -557,6 +557,23 @@ def get_artifact_mock():
 
 
 @pytest.fixture
+def get_artifact_mock_with_metadata():
+    with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
+        get_artifact_mock.return_value = GapicArtifact(
+            name=_TEST_ARTIFACT_NAME,
+            display_name=_TEST_ARTIFACT_ID,
+            schema_title=constants.SYSTEM_METRICS,
+            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
+            metadata={
+                google.cloud.aiplatform.metadata.constants._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
+                constants.GCP_ARTIFACT_RESOURCE_NAME_KEY: test_constants.TensorboardConstants._TEST_TENSORBOARD_RUN_NAME,
+                constants._STATE_KEY: gca_execution.Execution.State.RUNNING,
+            },
+        )
+        yield get_artifact_mock
+
+
+@pytest.fixture
 def get_artifact_not_found_mock():
     with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
         get_artifact_mock.side_effect = exceptions.NotFound("")
@@ -2025,6 +2042,27 @@ class TestExperiments:
             name=_TEST_CUSTOM_JOB_NAME,
             retry=base._DEFAULT_RETRY,
         )
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "get_experiment_run_mock",
+        "get_context_mock",
+        "list_contexts_mock",
+        "list_executions_mock",
+        "get_artifact_mock_with_metadata",
+        "update_context_mock",
+    )
+    def test_update_experiment_run_after_list(
+        self,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        experiment_run_list = aiplatform.ExperimentRun.list(experiment=_TEST_EXPERIMENT)
+        experiment_run_list[0].update_state(gca_execution.Execution.State.FAILED)
 
 
 class TestTensorboard:

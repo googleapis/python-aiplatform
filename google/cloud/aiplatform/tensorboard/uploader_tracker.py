@@ -111,7 +111,7 @@ class _TensorBoardTracker:
         Args:
           tensorboard_experiment_name (str): Required. Name of this tensorboard
             experiment. Unique to the given
-            projects/{project}/locations/{location}/tensorboards/{tensorboard_id}. If it's already set by
+            projects/{project}/locations/{location}/tensorboards/{tensorboard_id}.
           logdir (str): Required. path of the log directory to upload
           tensorboard_id (str): Optional. TensorBoard ID. If not set, tensorboard_id in aiplatform.init will be used.
           project (str): Optional. Project the TensorBoard is in. If not set, project set in aiplatform.init will be used.

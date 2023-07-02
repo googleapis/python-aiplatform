@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import importlib
 import json
 import os
 import re
+import tempfile
 import textwrap
 from typing import Callable, Dict, Optional, Tuple
 from unittest import mock
@@ -95,6 +96,36 @@ def mock_storage_blob_upload_from_filename():
         "google.cloud.storage.Bucket.exists", return_value=True
     ):
         yield mock_blob_upload_from_filename
+
+
+@pytest.fixture
+def mock_storage_client_list_blobs():
+    with patch("google.cloud.storage.Client.list_blobs") as mock_list_blobs:
+        mock_list_blobs.return_value = [
+            storage.Blob(name=f"{GCS_PREFIX}/", bucket=GCS_BUCKET),
+            storage.Blob(name=f"{GCS_PREFIX}/{FAKE_FILENAME}-1", bucket=GCS_BUCKET),
+            storage.Blob(
+                name=f"{GCS_PREFIX}/fake-dir/{FAKE_FILENAME}-2", bucket=GCS_BUCKET
+            ),
+        ]
+        yield mock_list_blobs
+
+
+@pytest.fixture
+def mock_storage_client_list_blob():
+    with patch("google.cloud.storage.Client.list_blobs") as mock_list_blobs:
+        mock_list_blobs.return_value = [
+            storage.Blob(name=f"{GCS_PREFIX}/{FAKE_FILENAME}", bucket=GCS_BUCKET),
+        ]
+        yield mock_list_blobs
+
+
+@pytest.fixture
+def mock_storage_blob_download_to_filename():
+    with patch(
+        "google.cloud.storage.Blob.download_to_filename"
+    ) as mock_blob_download_to_filename:
+        yield mock_blob_download_to_filename
 
 
 @pytest.fixture()
@@ -569,6 +600,60 @@ class TestGcsUtils:
         assert (
             output == "gs://test-project-vertex-pipelines-us-central1/output_artifacts/"
         )
+
+    def test_download_from_gcs_dir(
+        self, mock_storage_client_list_blobs, mock_storage_blob_download_to_filename
+    ):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source_uri = f"gs://{GCS_BUCKET}/{GCS_PREFIX}"
+            destination_path = f"{temp_dir}/test-dir"
+
+            gcs_utils.download_from_gcs(source_uri, destination_path)
+
+            mock_storage_client_list_blobs.assert_called_once_with(
+                bucket_or_name=GCS_BUCKET,
+                prefix=GCS_PREFIX,
+            )
+
+            assert mock_storage_blob_download_to_filename.call_count == 2
+            mock_storage_blob_download_to_filename.assert_any_call(
+                filename=f"{destination_path}/{FAKE_FILENAME}-1"
+            )
+            mock_storage_blob_download_to_filename.assert_any_call(
+                filename=f"{destination_path}/fake-dir/{FAKE_FILENAME}-2"
+            )
+
+    def test_download_from_gcs_file(
+        self, mock_storage_client_list_blob, mock_storage_blob_download_to_filename
+    ):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source_uri = f"gs://{GCS_BUCKET}/{GCS_PREFIX}/{FAKE_FILENAME}"
+            destination_path = f"{temp_dir}/test-file"
+
+            gcs_utils.download_from_gcs(source_uri, destination_path)
+
+            mock_storage_client_list_blob.assert_called_once_with(
+                bucket_or_name=GCS_BUCKET,
+                prefix=f"{GCS_PREFIX}/{FAKE_FILENAME}",
+            )
+
+            mock_storage_blob_download_to_filename.assert_called_once_with(
+                filename=destination_path
+            )
+
+    def test_download_from_gcs_invalid_source_uri(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source_uri = f"{GCS_BUCKET}/{GCS_PREFIX}"
+            destination_path = f"{temp_dir}/test-dir"
+
+            with pytest.raises(
+                ValueError,
+                match=(
+                    f"Invalid GCS path {source_uri}. "
+                    "Please provide a valid GCS path starting with 'gs://'"
+                ),
+            ):
+                gcs_utils.download_from_gcs(source_uri, destination_path)
 
     def test_validate_gcs_path(self):
         test_valid_path = "gs://test_valid_path"
