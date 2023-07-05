@@ -310,7 +310,7 @@ class PipelineJobSchedule(
         self,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
-        enable_simple_view: bool = False,
+        enable_simple_view: bool = True,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -331,7 +331,7 @@ class PipelineJobSchedule(
                 Supported fields: `display_name`, `create_time`, `update_time`
             enable_simple_view (bool):
                 Optional. Whether to pass the `read_mask` parameter to the list call.
-                Defaults to False if not provided. This will improve the performance of calling
+                Defaults to True if not provided. This will improve the performance of calling
                 list(). However, the returned PipelineJob list will not include all fields for
                 each PipelineJob. Setting this to True will exclude the following fields in your
                 response: `runtime_config`, `service_account`, `network`, and some subfields of
