@@ -42,6 +42,8 @@ IntegratedGradientsAttribution = explanation_compat.IntegratedGradientsAttributi
 SampledShapleyAttribution = explanation_compat.SampledShapleyAttribution
 SmoothGradConfig = explanation_compat.SmoothGradConfig
 XraiAttribution = explanation_compat.XraiAttribution
+Presets = explanation_compat.Presets
+Examples = explanation_compat.Examples
 
 
 __all__ = (
@@ -58,4 +60,6 @@ __all__ = (
     "SmoothGradConfig",
     "Visualization",
     "XraiAttribution",
+    "Presets",
+    "Examples",
 )
