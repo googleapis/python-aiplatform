@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [1.28.0](https://github.com/googleapis/python-aiplatform/compare/v1.27.1...v1.28.0) (2023-07-08)
+
+
+### Features
+
+* LLM - Released the Chat models to GA ([22aa26d](https://github.com/googleapis/python-aiplatform/commit/22aa26daabbaaa84f84d3cad524f2b6e8c53e77d))
+
 ## [1.27.1](https://github.com/googleapis/python-aiplatform/compare/v1.27.0...v1.27.1) (2023-07-06)
 
 
