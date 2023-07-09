@@ -584,7 +584,7 @@ class ChatMessage:
 class _ChatModelBase(_LanguageModel):
     """_ChatModelBase is a base class for chat models."""
 
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
     def start_chat(
         self,
@@ -651,6 +651,10 @@ class ChatModel(_ChatModelBase):
     """
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
+
+
+class _PreviewChatModel(ChatModel):
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
 class CodeChatModel(_ChatModelBase):

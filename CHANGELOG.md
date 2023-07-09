@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [1.27.1](https://github.com/googleapis/python-aiplatform/compare/v1.27.0...v1.27.1) (2023-07-06)
+
+
+### Features
+
+* Add sdk support for xai example-based explanations ([f9ca1d5](https://github.com/googleapis/python-aiplatform/commit/f9ca1d52a6789f93b4eca9596c04f52a2ca75513))
+
+
+### Miscellaneous Chores
+
+* Release 1.27.1 ([2159f29](https://github.com/googleapis/python-aiplatform/commit/2159f29e8322aef33cfa27df52a57f7cc7722868))
+
 ## [1.27.0](https://github.com/googleapis/python-aiplatform/compare/v1.26.1...v1.27.0) (2023-06-30)
 
 
