@@ -149,7 +149,7 @@ class _TunableModelMixin(_LanguageModel):
         This method launches a model tuning job that can take some time.
 
         Args:
-            training_data: A Pandas DataFrame of a URI pointing to data in JSON lines format.
+            training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
                 The dataset must have the "input_text" and "output_text" columns.
             train_steps: Number of training steps to perform.
             learning_rate: Learning rate for the tuning
