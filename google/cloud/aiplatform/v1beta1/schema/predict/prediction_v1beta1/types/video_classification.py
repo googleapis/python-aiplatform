@@ -44,7 +44,8 @@ class VideoClassificationPredictionResult(proto.Message):
         type_ (str):
             The type of the prediction. The requested
             types can be configured via parameters. This
-            will be one of - segment-classification
+            will be one of
+            - segment-classification
             - shot-classification
             - one-sec-interval-classification
         time_segment_start (google.protobuf.duration_pb2.Duration):

@@ -38,7 +38,8 @@ class ImageClassificationPredictionInstance(proto.Message):
         mime_type (str):
             The MIME type of the content of the image.
             Only the images in below listed MIME types are
-            supported. - image/jpeg
+            supported.
+            - image/jpeg
             - image/gif
             - image/png
             - image/webp
