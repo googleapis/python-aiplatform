@@ -930,7 +930,7 @@ class TestLanguageModels:
             attribute="predict",
             return_value=gca_predict_response2,
         ):
-            message_text2 = "When where these books published?"
+            message_text2 = "When were these books published?"
             expected_response2 = _TEST_CHAT_GENERATION_PREDICTION2["candidates"][0][
                 "content"
             ]
