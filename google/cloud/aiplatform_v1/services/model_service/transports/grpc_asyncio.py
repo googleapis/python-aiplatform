@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -396,6 +396,36 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
                 response_deserializer=gca_model.Model.deserialize,
             )
         return self._stubs["update_model"]
+
+    @property
+    def update_explanation_dataset(
+        self,
+    ) -> Callable[
+        [model_service.UpdateExplanationDatasetRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the update explanation dataset method over gRPC.
+
+        Incrementally update the dataset used for an examples
+        model.
+
+        Returns:
+            Callable[[~.UpdateExplanationDatasetRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_explanation_dataset" not in self._stubs:
+            self._stubs["update_explanation_dataset"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/UpdateExplanationDataset",
+                request_serializer=model_service.UpdateExplanationDatasetRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["update_explanation_dataset"]
 
     @property
     def delete_model(

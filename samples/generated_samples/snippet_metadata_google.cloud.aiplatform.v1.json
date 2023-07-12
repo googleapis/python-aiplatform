@@ -349,6 +349,167 @@
           "fullName": "google.cloud.aiplatform_v1.DatasetServiceAsyncClient",
           "shortName": "DatasetServiceAsyncClient"
         },
+        "fullName": "google.cloud.aiplatform_v1.DatasetServiceAsyncClient.delete_saved_query",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.DatasetService.DeleteSavedQuery",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "DeleteSavedQuery"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeleteSavedQueryRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_saved_query"
+      },
+      "description": "Sample for DeleteSavedQuery",
+      "file": "aiplatform_v1_generated_dataset_service_delete_saved_query_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_DatasetService_DeleteSavedQuery_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_dataset_service_delete_saved_query_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.DatasetServiceClient",
+          "shortName": "DatasetServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.DatasetServiceClient.delete_saved_query",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.DatasetService.DeleteSavedQuery",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "DeleteSavedQuery"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeleteSavedQueryRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_saved_query"
+      },
+      "description": "Sample for DeleteSavedQuery",
+      "file": "aiplatform_v1_generated_dataset_service_delete_saved_query_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_DatasetService_DeleteSavedQuery_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_dataset_service_delete_saved_query_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.DatasetServiceAsyncClient",
+          "shortName": "DatasetServiceAsyncClient"
+        },
         "fullName": "google.cloud.aiplatform_v1.DatasetServiceAsyncClient.export_data",
         "method": {
           "fullName": "google.cloud.aiplatform.v1.DatasetService.ExportData",
@@ -23970,6 +24131,167 @@
         }
       ],
       "title": "aiplatform_v1_generated_model_service_merge_version_aliases_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ModelServiceAsyncClient",
+          "shortName": "ModelServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ModelServiceAsyncClient.update_explanation_dataset",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ModelService.UpdateExplanationDataset",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ModelService",
+            "shortName": "ModelService"
+          },
+          "shortName": "UpdateExplanationDataset"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.UpdateExplanationDatasetRequest"
+          },
+          {
+            "name": "model",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "update_explanation_dataset"
+      },
+      "description": "Sample for UpdateExplanationDataset",
+      "file": "aiplatform_v1_generated_model_service_update_explanation_dataset_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ModelService_UpdateExplanationDataset_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_model_service_update_explanation_dataset_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ModelServiceClient",
+          "shortName": "ModelServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ModelServiceClient.update_explanation_dataset",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ModelService.UpdateExplanationDataset",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ModelService",
+            "shortName": "ModelService"
+          },
+          "shortName": "UpdateExplanationDataset"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.UpdateExplanationDatasetRequest"
+          },
+          {
+            "name": "model",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "update_explanation_dataset"
+      },
+      "description": "Sample for UpdateExplanationDataset",
+      "file": "aiplatform_v1_generated_model_service_update_explanation_dataset_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ModelService_UpdateExplanationDataset_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_model_service_update_explanation_dataset_sync.py"
     },
     {
       "canonical": true,

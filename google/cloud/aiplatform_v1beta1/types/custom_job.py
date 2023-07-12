@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -171,6 +171,16 @@ class CustomJobSpec(proto.Message):
     r"""Represents the spec of a CustomJob.
 
     Attributes:
+        persistent_resource_id (str):
+            Optional. The ID of the PersistentResource in
+            the same Project and Location which to run
+
+            If this is specified, the job will be run on
+            existing machines held by the PersistentResource
+            instead of on-demand short-live machines. The
+            network and CMEK configs on the job should be
+            consistent with those on the PersistentResource,
+            otherwise, the job will be rejected.
         worker_pool_specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.WorkerPoolSpec]):
             Required. The spec of the worker pools
             including machine type and Docker image. All
@@ -277,6 +287,10 @@ class CustomJobSpec(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}-{experiment-run-name}``
     """
 
+    persistent_resource_id: str = proto.Field(
+        proto.STRING,
+        number=14,
+    )
     worker_pool_specs: MutableSequence["WorkerPoolSpec"] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,

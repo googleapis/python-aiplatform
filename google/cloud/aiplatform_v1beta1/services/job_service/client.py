@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -497,6 +497,28 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         """Parses a notification_channel path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/notificationChannels/(?P<notification_channel>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def persistent_resource_path(
+        project: str,
+        location: str,
+        persistent_resource: str,
+    ) -> str:
+        """Returns a fully-qualified persistent_resource string."""
+        return "projects/{project}/locations/{location}/persistentResources/{persistent_resource}".format(
+            project=project,
+            location=location,
+            persistent_resource=persistent_resource,
+        )
+
+    @staticmethod
+    def parse_persistent_resource_path(path: str) -> Dict[str, str]:
+        """Parses a persistent_resource path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/persistentResources/(?P<persistent_resource>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -3143,7 +3165,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.NasTrialDetail:
                 Represents a NasTrial details along
-                with it's parameters. If there is a
+                with its parameters. If there is a
                 corresponding train NasTrial, the train
                 NasTrial is also returned.
 

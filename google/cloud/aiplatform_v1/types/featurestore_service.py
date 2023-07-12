@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ class CreateFeaturestoreRequest(proto.Message):
         parent (str):
             Required. The resource name of the Location to create
             Featurestores. Format:
-            ``projects/{project}/locations/{location}'``
+            ``projects/{project}/locations/{location}``
         featurestore (google.cloud.aiplatform_v1.types.Featurestore):
             Required. The Featurestore to create.
         featurestore_id (str):
