@@ -140,7 +140,7 @@ class _Schedule(
         return self.state in _SCHEDULE_COMPLETE_STATES
 
     def wait(self) -> None:
-        """Wait for this Schedule to complete."""
+        """Wait for all runs scheduled by this Schedule to complete."""
         if self._latest_future is None:
             self._block_until_complete()
         else:

@@ -139,6 +139,7 @@ class _TunableModelMixin(_LanguageModel):
         training_data: Union[str, "pandas.core.frame.DataFrame"],
         *,
         train_steps: int = 1000,
+        learning_rate: Optional[float] = None,
         tuning_job_location: Optional[str] = None,
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
@@ -148,9 +149,10 @@ class _TunableModelMixin(_LanguageModel):
         This method launches a model tuning job that can take some time.
 
         Args:
-            training_data: A Pandas DataFrame of a URI pointing to data in JSON lines format.
+            training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
                 The dataset must have the "input_text" and "output_text" columns.
-            train_steps: Number of training steps to perform.
+            train_steps: Number of training batches to tune on (batch size is 8 samples).
+            learning_rate: Learning rate for the tuning
             tuning_job_location: GCP location where the tuning job should be run. Only "europe-west4" is supported for now.
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
@@ -184,6 +186,7 @@ class _TunableModelMixin(_LanguageModel):
             model_id=model_info.tuning_model_id,
             tuning_pipeline_uri=model_info.tuning_pipeline_uri,
             model_display_name=model_display_name,
+            learning_rate=learning_rate,
         )
 
         job = _LanguageModelTuningJob(
@@ -320,8 +323,75 @@ class TextGenerationModel(_LanguageModel):
 _TextGenerationModel = TextGenerationModel
 
 
-class _PreviewTextGenerationModel(TextGenerationModel, _TunableModelMixin):
-    """Tunable text generation model."""
+class _ModelWithBatchPredict(_LanguageModel):
+    """Model that supports batch prediction."""
+
+    def batch_predict(
+        self,
+        *,
+        source_uri: Union[str, List[str]],
+        destination_uri_prefix: str,
+        model_parameters: Optional[Dict] = None,
+    ) -> aiplatform.BatchPredictionJob:
+        """Starts a batch prediction job with the model.
+
+        Args:
+            source_uri: The location of the dataset.
+                `gs://` and `bq://` URIs are supported.
+            destination_uri_prefix: The URI prefix for the prediction.
+                `gs://` and `bq://` URIs are supported.
+            model_parameters: Model-specific parameters to send to the model.
+
+        Returns:
+            A `BatchPredictionJob` object
+        Raises:
+            ValueError: When source or destination URI is not supported.
+        """
+        arguments = {}
+        first_source_uri = source_uri if isinstance(source_uri, str) else source_uri[0]
+        if first_source_uri.startswith("gs://"):
+            if not isinstance(source_uri, str):
+                if not all(uri.startswith("gs://") for uri in source_uri):
+                    raise ValueError(
+                        f"All URIs in the list must start with 'gs://': {source_uri}"
+                    )
+            arguments["gcs_source"] = source_uri
+        elif first_source_uri.startswith("bq://"):
+            if not isinstance(source_uri, str):
+                raise ValueError(
+                    f"Only single BigQuery source can be specified: {source_uri}"
+                )
+            arguments["bigquery_source"] = source_uri
+        else:
+            raise ValueError(f"Unsupported source_uri: {source_uri}")
+
+        if destination_uri_prefix.startswith("gs://"):
+            arguments["gcs_destination_prefix"] = destination_uri_prefix
+        elif destination_uri_prefix.startswith("bq://"):
+            arguments["bigquery_destination_prefix"] = destination_uri_prefix
+        else:
+            raise ValueError(f"Unsupported destination_uri: {destination_uri_prefix}")
+
+        model_name = self._model_resource_name
+        # TODO(b/284512065): Batch prediction service does not support
+        # fully qualified publisher model names yet
+        publishers_index = model_name.index("/publishers/")
+        if publishers_index > 0:
+            model_name = model_name[publishers_index + 1 :]
+
+        job = aiplatform.BatchPredictionJob.create(
+            model_name=model_name,
+            job_display_name=None,
+            **arguments,
+            model_parameters=model_parameters,
+        )
+        return job
+
+
+class _PreviewTextGenerationModel(
+    TextGenerationModel, _TunableModelMixin, _ModelWithBatchPredict
+):
+    """Preview text generation model."""
 
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
@@ -498,10 +568,23 @@ class InputOutputTextPair:
     output_text: str
 
 
+@dataclasses.dataclass
+class ChatMessage:
+    """A chat message.
+
+    Attributes:
+        content: Content of the message.
+        author: Author of the message.
+    """
+
+    content: str
+    author: str
+
+
 class _ChatModelBase(_LanguageModel):
     """_ChatModelBase is a base class for chat models."""
 
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
     def start_chat(
         self,
@@ -512,6 +595,7 @@ class _ChatModelBase(_LanguageModel):
         temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        message_history: Optional[List[ChatMessage]] = None,
     ) -> "ChatSession":
         """Starts a chat session with the model.
 
@@ -524,6 +608,7 @@ class _ChatModelBase(_LanguageModel):
             temperature: Controls the randomness of predictions. Range: [0, 1].
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            message_history: A list of previously sent and received messages.
 
         Returns:
             A `ChatSession` object.
@@ -536,6 +621,7 @@ class _ChatModelBase(_LanguageModel):
             temperature=temperature,
             top_k=top_k,
             top_p=top_p,
+            message_history=message_history,
         )
 
 
@@ -567,6 +653,10 @@ class ChatModel(_ChatModelBase):
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
 
 
+class _PreviewChatModel(ChatModel):
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+
+
 class CodeChatModel(_ChatModelBase):
     """CodeChatModel represents a model that is capable of completing code.
 
@@ -582,6 +672,7 @@ class CodeChatModel(_ChatModelBase):
     """
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
     _DEFAULT_TEMPERATURE = 0.5
@@ -611,6 +702,9 @@ class CodeChatModel(_ChatModelBase):
 class _ChatSessionBase:
     """_ChatSessionBase is a base class for all chat sessions."""
 
+    USER_AUTHOR = "user"
+    MODEL_AUTHOR = "bot"
+
     def __init__(
         self,
         model: _ChatModelBase,
@@ -621,16 +715,22 @@ class _ChatSessionBase:
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
         is_code_chat_session: bool = False,
+        message_history: Optional[List[ChatMessage]] = None,
     ):
         self._model = model
         self._context = context
         self._examples = examples
-        self._history = []
         self._max_output_tokens = max_output_tokens
         self._temperature = temperature
         self._top_k = top_k
         self._top_p = top_p
         self._is_code_chat_session = is_code_chat_session
+        self._message_history: List[ChatMessage] = message_history or []
+
+    @property
+    def message_history(self) -> List[ChatMessage]:
+        """List of previous messages."""
+        return self._message_history
 
     def send_message(
         self,
@@ -670,29 +770,22 @@ class _ChatSessionBase:
             prediction_parameters["topP"] = top_p if top_p is not None else self._top_p
             prediction_parameters["topK"] = top_k if top_k is not None else self._top_k
 
-        messages = []
-        for input_text, output_text in self._history:
-            messages.append(
+        message_structs = []
+        for past_message in self._message_history:
+            message_structs.append(
                 {
-                    "author": "user",
-                    "content": input_text,
+                    "author": past_message.author,
+                    "content": past_message.content,
                 }
             )
-            messages.append(
-                {
-                    "author": "bot",
-                    "content": output_text,
-                }
-            )
-
-        messages.append(
+        message_structs.append(
             {
-                "author": "user",
+                "author": self.USER_AUTHOR,
                 "content": message,
             }
         )
 
-        prediction_instance = {"messages": messages}
+        prediction_instance = {"messages": message_structs}
         if not self._is_code_chat_session and self._context:
             prediction_instance["context"] = self._context
         if not self._is_code_chat_session and self._examples:
@@ -710,7 +803,8 @@ class _ChatSessionBase:
         )
 
         prediction = prediction_response.predictions[0]
-        safety_attributes = prediction["safetyAttributes"]
+        # ! Note: For chat models, the safetyAttributes is a list.
+        safety_attributes = prediction["safetyAttributes"][0]
         response_obj = TextGenerationResponse(
             text=prediction["candidates"][0]["content"]
             if prediction.get("candidates")
@@ -726,7 +820,13 @@ class _ChatSessionBase:
         )
         response_text = response_obj.text
 
-        self._history.append((message, response_text))
+        self._message_history.append(
+            ChatMessage(content=message, author=self.USER_AUTHOR)
+        )
+        self._message_history.append(
+            ChatMessage(content=response_text, author=self.MODEL_AUTHOR)
+        )
+
         return response_obj
 
 
@@ -745,6 +845,7 @@ class ChatSession(_ChatSessionBase):
         temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
         top_k: int = TextGenerationModel._DEFAULT_TOP_K,
         top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        message_history: Optional[List[ChatMessage]] = None,
     ):
         super().__init__(
             model=model,
@@ -754,6 +855,7 @@ class ChatSession(_ChatSessionBase):
             temperature=temperature,
             top_k=top_k,
             top_p=top_p,
+            message_history=message_history,
         )
 
 
@@ -821,7 +923,7 @@ class CodeGenerationModel(_LanguageModel):
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
     _DEFAULT_TEMPERATURE = 0.0
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
 
@@ -948,6 +1050,7 @@ def _launch_tuning_job(
     tuning_pipeline_uri: str,
     train_steps: Optional[int] = None,
     model_display_name: Optional[str] = None,
+    learning_rate: Optional[float] = None,
 ) -> aiplatform.PipelineJob:
     output_dir_uri = _generate_tuned_model_dir_uri(model_id=model_id)
     if isinstance(training_data, str):
@@ -969,6 +1072,7 @@ def _launch_tuning_job(
         train_steps=train_steps,
         tuning_pipeline_uri=tuning_pipeline_uri,
         model_display_name=model_display_name,
+        learning_rate=learning_rate,
     )
     return job
 
@@ -978,11 +1082,15 @@ def _launch_tuning_job_on_jsonl_data(
     dataset_name_or_uri: str,
     tuning_pipeline_uri: str,
     train_steps: Optional[int] = None,
+    learning_rate: Optional[float] = None,
     model_display_name: Optional[str] = None,
 ) -> aiplatform.PipelineJob:
     if not model_display_name:
         # Creating a human-readable model display name
-        name = f"{model_id} tuned for {train_steps} steps on "
+        name = f"{model_id} tuned for {train_steps} steps"
+        if learning_rate:
+            name += f" with learning rate {learning_rate}"
+        name += " on "
         # Truncating the start of the dataset URI to keep total length <= 128.
         max_display_name_length = 128
         if len(dataset_name_or_uri + name) <= max_display_name_length:
@@ -1002,6 +1110,8 @@ def _launch_tuning_job_on_jsonl_data(
         "large_model_reference": model_id,
         "model_display_name": model_display_name,
     }
+    if learning_rate:
+        pipeline_arguments["learning_rate"] = learning_rate
 
     if dataset_name_or_uri.startswith("projects/"):
         pipeline_arguments["dataset_name"] = dataset_name_or_uri

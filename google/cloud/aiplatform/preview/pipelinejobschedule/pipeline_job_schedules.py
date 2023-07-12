@@ -104,9 +104,13 @@ class PipelineJobSchedule(
             "parent": self._parent,
             "pipeline_job": {
                 "runtime_config": runtime_config,
-                "pipeline_spec": {"fields": pipeline_job.pipeline_spec},
+                "pipeline_spec": pipeline_job.pipeline_spec,
             },
         }
+        if "template_uri" in pipeline_job._gca_resource:
+            create_pipeline_job_request["pipeline_job"][
+                "template_uri"
+            ] = pipeline_job._gca_resource.template_uri
         pipeline_job_schedule_args = {
             "display_name": display_name,
             "create_pipeline_job_request": create_pipeline_job_request,
@@ -145,6 +149,7 @@ class PipelineJobSchedule(
             max_run_count (int):
                 Optional. Maximum run count of the schedule.
                 If specified, The schedule will be completed when either started_run_count >= max_run_count or when end_time is reached.
+                Must be positive and <= 2^63-1.
             max_concurrent_run_count (int):
                 Optional. Maximum number of runs that can be started concurrently for this PipelineJobSchedule.
             service_account (str):
@@ -204,6 +209,7 @@ class PipelineJobSchedule(
             max_run_count (int):
                 Optional. Maximum run count of the schedule.
                 If specified, The schedule will be completed when either started_run_count >= max_run_count or when end_time is reached.
+                Must be positive and <= 2^63-1.
             max_concurrent_run_count (int):
                 Optional. Maximum number of runs that can be started concurrently for this PipelineJobSchedule.
             service_account (str):
@@ -402,6 +408,7 @@ class PipelineJobSchedule(
             max_run_count (int):
                 Optional. Maximum run count of the schedule.
                 If specified, The schedule will be completed when either started_run_count >= max_run_count or when end_time is reached.
+                Must be positive and <= 2^63-1.
             max_concurrent_run_count (int):
                 Optional. Maximum number of runs that can be started concurrently for this PipelineJobSchedule.
 
