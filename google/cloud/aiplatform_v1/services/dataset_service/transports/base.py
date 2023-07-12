@@ -182,6 +182,11 @@ class DatasetServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.delete_saved_query: gapic_v1.method.wrap_method(
+                self.delete_saved_query,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_annotation_spec: gapic_v1.method.wrap_method(
                 self.get_annotation_spec,
                 default_timeout=None,
@@ -307,6 +312,15 @@ class DatasetServiceTransport(abc.ABC):
             dataset_service.ListSavedQueriesResponse,
             Awaitable[dataset_service.ListSavedQueriesResponse],
         ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_saved_query(
+        self,
+    ) -> Callable[
+        [dataset_service.DeleteSavedQueryRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

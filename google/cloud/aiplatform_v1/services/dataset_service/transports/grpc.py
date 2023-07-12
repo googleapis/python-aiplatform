@@ -40,8 +40,8 @@ from .base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 class DatasetServiceGrpcTransport(DatasetServiceTransport):
     """gRPC backend transport for DatasetService.
 
-    The service that handles the CRUD of Vertex AI Dataset and
-    its child resources.
+    The service that manages Vertex AI Dataset and its child
+    resources.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
@@ -523,6 +523,32 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
                 response_deserializer=dataset_service.ListSavedQueriesResponse.deserialize,
             )
         return self._stubs["list_saved_queries"]
+
+    @property
+    def delete_saved_query(
+        self,
+    ) -> Callable[[dataset_service.DeleteSavedQueryRequest], operations_pb2.Operation]:
+        r"""Return a callable for the delete saved query method over gRPC.
+
+        Deletes a SavedQuery.
+
+        Returns:
+            Callable[[~.DeleteSavedQueryRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_saved_query" not in self._stubs:
+            self._stubs["delete_saved_query"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.DatasetService/DeleteSavedQuery",
+                request_serializer=dataset_service.DeleteSavedQueryRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_saved_query"]
 
     @property
     def get_annotation_spec(

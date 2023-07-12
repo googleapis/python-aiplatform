@@ -87,7 +87,7 @@ class CreateFeaturestoreRequest(proto.Message):
         parent (str):
             Required. The resource name of the Location to create
             Featurestores. Format:
-            ``projects/{project}/locations/{location}'``
+            ``projects/{project}/locations/{location}``
         featurestore (google.cloud.aiplatform_v1.types.Featurestore):
             Required. The Featurestore to create.
         featurestore_id (str):

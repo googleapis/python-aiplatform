@@ -20,6 +20,11 @@
                 "delete_dataset"
               ]
             },
+            "DeleteSavedQuery": {
+              "methods": [
+                "delete_saved_query"
+              ]
+            },
             "ExportData": {
               "methods": [
                 "export_data"
@@ -83,6 +88,11 @@
             "DeleteDataset": {
               "methods": [
                 "delete_dataset"
+              ]
+            },
+            "DeleteSavedQuery": {
+              "methods": [
+                "delete_saved_query"
               ]
             },
             "ExportData": {

@@ -48,8 +48,8 @@ __protobuf__ = proto.module(
         "DeleteModelVersionRequest",
         "MergeVersionAliasesRequest",
         "ExportModelRequest",
-        "UpdateExplanationDatasetResponse",
         "ExportModelOperationMetadata",
+        "UpdateExplanationDatasetResponse",
         "ExportModelResponse",
         "CopyModelRequest",
         "CopyModelOperationMetadata",
@@ -630,14 +630,6 @@ class ExportModelRequest(proto.Message):
     )
 
 
-class UpdateExplanationDatasetResponse(proto.Message):
-    r"""Response message of
-    [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1.ModelService.UpdateExplanationDataset]
-    operation.
-
-    """
-
-
 class ExportModelOperationMetadata(proto.Message):
     r"""Details of
     [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel]
@@ -687,6 +679,14 @@ class ExportModelOperationMetadata(proto.Message):
         number=2,
         message=OutputInfo,
     )
+
+
+class UpdateExplanationDatasetResponse(proto.Message):
+    r"""Response message of
+    [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1.ModelService.UpdateExplanationDataset]
+    operation.
+
+    """
 
 
 class ExportModelResponse(proto.Message):
