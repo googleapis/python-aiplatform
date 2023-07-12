@@ -658,6 +658,7 @@ class TestPipelineJobSchedule:
                     "pipeline_spec": dict_to_struct(pipeline_spec),
                     "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
+                    "template_uri": _TEST_AR_TEMPLATE_PATH,
                 },
             },
         )
@@ -740,6 +741,7 @@ class TestPipelineJobSchedule:
                     "pipeline_spec": dict_to_struct(pipeline_spec),
                     "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
+                    "template_uri": _TEST_HTTPS_TEMPLATE_PATH,
                 },
             },
         )

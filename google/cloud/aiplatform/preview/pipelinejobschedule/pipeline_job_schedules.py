@@ -107,6 +107,10 @@ class PipelineJobSchedule(
                 "pipeline_spec": pipeline_job.pipeline_spec,
             },
         }
+        if "template_uri" in pipeline_job._gca_resource:
+            create_pipeline_job_request["pipeline_job"][
+                "template_uri"
+            ] = pipeline_job._gca_resource.template_uri
         pipeline_job_schedule_args = {
             "display_name": display_name,
             "create_pipeline_job_request": create_pipeline_job_request,
