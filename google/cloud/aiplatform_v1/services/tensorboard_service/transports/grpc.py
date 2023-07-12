@@ -316,36 +316,6 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
         return self._stubs["get_tensorboard"]
 
     @property
-    def read_tensorboard_usage(
-        self,
-    ) -> Callable[
-        [tensorboard_service.ReadTensorboardUsageRequest],
-        tensorboard_service.ReadTensorboardUsageResponse,
-    ]:
-        r"""Return a callable for the read tensorboard usage method over gRPC.
-
-        Returns a list of monthly active users for a given
-        TensorBoard instance.
-
-        Returns:
-            Callable[[~.ReadTensorboardUsageRequest],
-                    ~.ReadTensorboardUsageResponse]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "read_tensorboard_usage" not in self._stubs:
-            self._stubs["read_tensorboard_usage"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.TensorboardService/ReadTensorboardUsage",
-                request_serializer=tensorboard_service.ReadTensorboardUsageRequest.serialize,
-                response_deserializer=tensorboard_service.ReadTensorboardUsageResponse.deserialize,
-            )
-        return self._stubs["read_tensorboard_usage"]
-
-    @property
     def update_tensorboard(
         self,
     ) -> Callable[
@@ -429,6 +399,36 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_tensorboard"]
+
+    @property
+    def read_tensorboard_usage(
+        self,
+    ) -> Callable[
+        [tensorboard_service.ReadTensorboardUsageRequest],
+        tensorboard_service.ReadTensorboardUsageResponse,
+    ]:
+        r"""Return a callable for the read tensorboard usage method over gRPC.
+
+        Returns a list of monthly active users for a given
+        TensorBoard instance.
+
+        Returns:
+            Callable[[~.ReadTensorboardUsageRequest],
+                    ~.ReadTensorboardUsageResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "read_tensorboard_usage" not in self._stubs:
+            self._stubs["read_tensorboard_usage"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.TensorboardService/ReadTensorboardUsage",
+                request_serializer=tensorboard_service.ReadTensorboardUsageRequest.serialize,
+                response_deserializer=tensorboard_service.ReadTensorboardUsageResponse.deserialize,
+            )
+        return self._stubs["read_tensorboard_usage"]
 
     @property
     def create_tensorboard_experiment(

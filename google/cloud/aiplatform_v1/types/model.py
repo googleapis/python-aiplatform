@@ -109,8 +109,8 @@ class Model(proto.Message):
             TrainingPipeline that uploaded this Model, if
             any.
         pipeline_job (str):
-            This field is populated if the model is
-            produced by a pipeline job.
+            Optional. This field is populated if the
+            model is produced by a pipeline job.
         container_spec (google.cloud.aiplatform_v1.types.ModelContainerSpec):
             Input only. The specification of the container that is to be
             used when deploying this Model. The specification is

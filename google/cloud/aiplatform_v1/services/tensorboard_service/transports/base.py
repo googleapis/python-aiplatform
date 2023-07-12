@@ -153,11 +153,6 @@ class TensorboardServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.read_tensorboard_usage: gapic_v1.method.wrap_method(
-                self.read_tensorboard_usage,
-                default_timeout=None,
-                client_info=client_info,
-            ),
             self.update_tensorboard: gapic_v1.method.wrap_method(
                 self.update_tensorboard,
                 default_timeout=None,
@@ -170,6 +165,11 @@ class TensorboardServiceTransport(abc.ABC):
             ),
             self.delete_tensorboard: gapic_v1.method.wrap_method(
                 self.delete_tensorboard,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.read_tensorboard_usage: gapic_v1.method.wrap_method(
+                self.read_tensorboard_usage,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -323,18 +323,6 @@ class TensorboardServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
-    def read_tensorboard_usage(
-        self,
-    ) -> Callable[
-        [tensorboard_service.ReadTensorboardUsageRequest],
-        Union[
-            tensorboard_service.ReadTensorboardUsageResponse,
-            Awaitable[tensorboard_service.ReadTensorboardUsageResponse],
-        ],
-    ]:
-        raise NotImplementedError()
-
-    @property
     def update_tensorboard(
         self,
     ) -> Callable[
@@ -361,6 +349,18 @@ class TensorboardServiceTransport(abc.ABC):
     ) -> Callable[
         [tensorboard_service.DeleteTensorboardRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def read_tensorboard_usage(
+        self,
+    ) -> Callable[
+        [tensorboard_service.ReadTensorboardUsageRequest],
+        Union[
+            tensorboard_service.ReadTensorboardUsageResponse,
+            Awaitable[tensorboard_service.ReadTensorboardUsageResponse],
+        ],
     ]:
         raise NotImplementedError()
 
