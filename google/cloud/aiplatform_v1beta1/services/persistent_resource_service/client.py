@@ -48,31 +48,28 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.dataset_service import pagers
-from google.cloud.aiplatform_v1beta1.types import annotation
-from google.cloud.aiplatform_v1beta1.types import annotation_spec
-from google.cloud.aiplatform_v1beta1.types import data_item
-from google.cloud.aiplatform_v1beta1.types import dataset
-from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
-from google.cloud.aiplatform_v1beta1.types import dataset_service
+from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import pagers
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.cloud.aiplatform_v1beta1.types import saved_query
+from google.cloud.aiplatform_v1beta1.types import persistent_resource
+from google.cloud.aiplatform_v1beta1.types import (
+    persistent_resource as gca_persistent_resource,
+)
+from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
-from .transports.base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc import DatasetServiceGrpcTransport
-from .transports.grpc_asyncio import DatasetServiceGrpcAsyncIOTransport
+from google.rpc import status_pb2  # type: ignore
+from .transports.base import PersistentResourceServiceTransport, DEFAULT_CLIENT_INFO
+from .transports.grpc import PersistentResourceServiceGrpcTransport
+from .transports.grpc_asyncio import PersistentResourceServiceGrpcAsyncIOTransport
 
 
-class DatasetServiceClientMeta(type):
-    """Metaclass for the DatasetService client.
+class PersistentResourceServiceClientMeta(type):
+    """Metaclass for the PersistentResourceService client.
 
     This provides class-level methods for building and retrieving
     support objects (e.g. transport) without polluting the client instance
@@ -81,14 +78,14 @@ class DatasetServiceClientMeta(type):
 
     _transport_registry = (
         OrderedDict()
-    )  # type: Dict[str, Type[DatasetServiceTransport]]
-    _transport_registry["grpc"] = DatasetServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = DatasetServiceGrpcAsyncIOTransport
+    )  # type: Dict[str, Type[PersistentResourceServiceTransport]]
+    _transport_registry["grpc"] = PersistentResourceServiceGrpcTransport
+    _transport_registry["grpc_asyncio"] = PersistentResourceServiceGrpcAsyncIOTransport
 
     def get_transport_class(
         cls,
         label: Optional[str] = None,
-    ) -> Type[DatasetServiceTransport]:
+    ) -> Type[PersistentResourceServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -107,9 +104,9 @@ class DatasetServiceClientMeta(type):
         return next(iter(cls._transport_registry.values()))
 
 
-class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
-    """The service that manages Vertex AI Dataset and its child
-    resources.
+class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientMeta):
+    """A service for managing Vertex AI's machine learning
+    PersistentResource.
     """
 
     @staticmethod
@@ -158,7 +155,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            DatasetServiceClient: The constructed client.
+            PersistentResourceServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_info(info)
         kwargs["credentials"] = credentials
@@ -176,7 +173,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            DatasetServiceClient: The constructed client.
+            PersistentResourceServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -185,131 +182,52 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @property
-    def transport(self) -> DatasetServiceTransport:
+    def transport(self) -> PersistentResourceServiceTransport:
         """Returns the transport used by the client instance.
 
         Returns:
-            DatasetServiceTransport: The transport used by the client
+            PersistentResourceServiceTransport: The transport used by the client
                 instance.
         """
         return self._transport
 
     @staticmethod
-    def annotation_path(
+    def network_path(
         project: str,
-        location: str,
-        dataset: str,
-        data_item: str,
-        annotation: str,
+        network: str,
     ) -> str:
-        """Returns a fully-qualified annotation string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}/annotations/{annotation}".format(
+        """Returns a fully-qualified network string."""
+        return "projects/{project}/global/networks/{network}".format(
             project=project,
-            location=location,
-            dataset=dataset,
-            data_item=data_item,
-            annotation=annotation,
+            network=network,
         )
 
     @staticmethod
-    def parse_annotation_path(path: str) -> Dict[str, str]:
-        """Parses a annotation path into its component segments."""
+    def parse_network_path(path: str) -> Dict[str, str]:
+        """Parses a network path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)/dataItems/(?P<data_item>.+?)/annotations/(?P<annotation>.+?)$",
-            path,
+            r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
         )
         return m.groupdict() if m else {}
 
     @staticmethod
-    def annotation_spec_path(
+    def persistent_resource_path(
         project: str,
         location: str,
-        dataset: str,
-        annotation_spec: str,
+        persistent_resource: str,
     ) -> str:
-        """Returns a fully-qualified annotation_spec string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}/annotationSpecs/{annotation_spec}".format(
+        """Returns a fully-qualified persistent_resource string."""
+        return "projects/{project}/locations/{location}/persistentResources/{persistent_resource}".format(
             project=project,
             location=location,
-            dataset=dataset,
-            annotation_spec=annotation_spec,
+            persistent_resource=persistent_resource,
         )
 
     @staticmethod
-    def parse_annotation_spec_path(path: str) -> Dict[str, str]:
-        """Parses a annotation_spec path into its component segments."""
+    def parse_persistent_resource_path(path: str) -> Dict[str, str]:
+        """Parses a persistent_resource path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)/annotationSpecs/(?P<annotation_spec>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def data_item_path(
-        project: str,
-        location: str,
-        dataset: str,
-        data_item: str,
-    ) -> str:
-        """Returns a fully-qualified data_item string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-            data_item=data_item,
-        )
-
-    @staticmethod
-    def parse_data_item_path(path: str) -> Dict[str, str]:
-        """Parses a data_item path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)/dataItems/(?P<data_item>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def saved_query_path(
-        project: str,
-        location: str,
-        dataset: str,
-        saved_query: str,
-    ) -> str:
-        """Returns a fully-qualified saved_query string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}/savedQueries/{saved_query}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-            saved_query=saved_query,
-        )
-
-    @staticmethod
-    def parse_saved_query_path(path: str) -> Dict[str, str]:
-        """Parses a saved_query path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)/savedQueries/(?P<saved_query>.+?)$",
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/persistentResources/(?P<persistent_resource>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -462,11 +380,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, DatasetServiceTransport]] = None,
+        transport: Optional[Union[str, PersistentResourceServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the dataset service client.
+        """Instantiates the persistent resource service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -474,7 +392,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, DatasetServiceTransport]): The
+            transport (Union[str, PersistentResourceServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
@@ -522,8 +440,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
-        if isinstance(transport, DatasetServiceTransport):
-            # transport is a DatasetServiceTransport instance.
+        if isinstance(transport, PersistentResourceServiceTransport):
+            # transport is a PersistentResourceServiceTransport instance.
             if credentials or client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
@@ -558,17 +476,22 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 api_audience=client_options.api_audience,
             )
 
-    def create_dataset(
+    def create_persistent_resource(
         self,
-        request: Optional[Union[dataset_service.CreateDatasetRequest, dict]] = None,
+        request: Optional[
+            Union[persistent_resource_service.CreatePersistentResourceRequest, dict]
+        ] = None,
         *,
         parent: Optional[str] = None,
-        dataset: Optional[gca_dataset.Dataset] = None,
+        persistent_resource: Optional[
+            gca_persistent_resource.PersistentResource
+        ] = None,
+        persistent_resource_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
-        r"""Creates a Dataset.
+        r"""Uploads a Model artifact into Vertex AI.
 
         .. code-block:: python
 
@@ -581,23 +504,18 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_dataset():
+            def sample_create_persistent_resource():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.PersistentResourceServiceClient()
 
                 # Initialize request argument(s)
-                dataset = aiplatform_v1beta1.Dataset()
-                dataset.display_name = "display_name_value"
-                dataset.metadata_schema_uri = "metadata_schema_uri_value"
-                dataset.metadata.null_value = "NULL_VALUE"
-
-                request = aiplatform_v1beta1.CreateDatasetRequest(
+                request = aiplatform_v1beta1.CreatePersistentResourceRequest(
                     parent="parent_value",
-                    dataset=dataset,
+                    persistent_resource_id="persistent_resource_id_value",
                 )
 
                 # Make the request
-                operation = client.create_dataset(request=request)
+                operation = client.create_persistent_resource(request=request)
 
                 print("Waiting for operation to complete...")
 
@@ -607,20 +525,33 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CreateDatasetRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreatePersistentResourceRequest, dict]):
                 The request object. Request message for
-                [DatasetService.CreateDataset][google.cloud.aiplatform.v1beta1.DatasetService.CreateDataset].
+                [PersistentResourceService.CreatePersistentResource][google.cloud.aiplatform.v1beta1.PersistentResourceService.CreatePersistentResource].
             parent (str):
                 Required. The resource name of the Location to create
-                the Dataset in. Format:
+                the PersistentResource in. Format:
                 ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            dataset (google.cloud.aiplatform_v1beta1.types.Dataset):
-                Required. The Dataset to create.
-                This corresponds to the ``dataset`` field
+            persistent_resource (google.cloud.aiplatform_v1beta1.types.PersistentResource):
+                Required. The PersistentResource to
+                create.
+
+                This corresponds to the ``persistent_resource`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            persistent_resource_id (str):
+                Required. The ID to use for the PersistentResource,
+                which become the final component of the
+                PersistentResource's resource name.
+
+                The maximum length is 63 characters, and valid
+                characters are /^`a-z <[a-z0-9-]{0,61}[a-z0-9]>`__?$/.
+
+                This corresponds to the ``persistent_resource_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -633,15 +564,18 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.Dataset` A
-                collection of DataItems and Annotations on them.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.PersistentResource` Represents long-lasting resources that are dedicated to users to runs custom
+                   workloads. A PersistentResource can have multiple
+                   node pools and each node pool can have its own
+                   machine spec.
 
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, dataset])
+        has_flattened_params = any(
+            [parent, persistent_resource, persistent_resource_id]
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -649,21 +583,29 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.CreateDatasetRequest.
+        # in a persistent_resource_service.CreatePersistentResourceRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, dataset_service.CreateDatasetRequest):
-            request = dataset_service.CreateDatasetRequest(request)
+        if not isinstance(
+            request, persistent_resource_service.CreatePersistentResourceRequest
+        ):
+            request = persistent_resource_service.CreatePersistentResourceRequest(
+                request
+            )
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
             if parent is not None:
                 request.parent = parent
-            if dataset is not None:
-                request.dataset = dataset
+            if persistent_resource is not None:
+                request.persistent_resource = persistent_resource
+            if persistent_resource_id is not None:
+                request.persistent_resource_id = persistent_resource_id
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.create_dataset]
+        rpc = self._transport._wrapped_methods[
+            self._transport.create_persistent_resource
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -683,23 +625,25 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            gca_dataset.Dataset,
-            metadata_type=dataset_service.CreateDatasetOperationMetadata,
+            gca_persistent_resource.PersistentResource,
+            metadata_type=persistent_resource_service.CreatePersistentResourceOperationMetadata,
         )
 
         # Done; return the response.
         return response
 
-    def get_dataset(
+    def get_persistent_resource(
         self,
-        request: Optional[Union[dataset_service.GetDatasetRequest, dict]] = None,
+        request: Optional[
+            Union[persistent_resource_service.GetPersistentResourceRequest, dict]
+        ] = None,
         *,
         name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> dataset.Dataset:
-        r"""Gets a Dataset.
+    ) -> persistent_resource.PersistentResource:
+        r"""Gets a PersistentResource.
 
         .. code-block:: python
 
@@ -712,28 +656,29 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_dataset():
+            def sample_get_persistent_resource():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.PersistentResourceServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.GetDatasetRequest(
+                request = aiplatform_v1beta1.GetPersistentResourceRequest(
                     name="name_value",
                 )
 
                 # Make the request
-                response = client.get_dataset(request=request)
+                response = client.get_persistent_resource(request=request)
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetDatasetRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetPersistentResourceRequest, dict]):
                 The request object. Request message for
-                [DatasetService.GetDataset][google.cloud.aiplatform.v1beta1.DatasetService.GetDataset].
+                [PersistentResourceService.GetPersistentResource][google.cloud.aiplatform.v1beta1.PersistentResourceService.GetPersistentResource].
             name (str):
-                Required. The name of the Dataset
-                resource.
+                Required. The name of the PersistentResource resource.
+                Format:
+                ``projects/{project_id_or_number}/locations/{location_id}/persistentResources/{persistent_resource_id}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -745,9 +690,12 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            google.cloud.aiplatform_v1beta1.types.Dataset:
-                A collection of DataItems and
-                Annotations on them.
+            google.cloud.aiplatform_v1beta1.types.PersistentResource:
+                Represents long-lasting resources
+                that are dedicated to users to runs
+                custom workloads. A PersistentResource
+                can have multiple node pools and each
+                node pool can have its own machine spec.
 
         """
         # Create or coerce a protobuf request object.
@@ -761,11 +709,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.GetDatasetRequest.
+        # in a persistent_resource_service.GetPersistentResourceRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, dataset_service.GetDatasetRequest):
-            request = dataset_service.GetDatasetRequest(request)
+        if not isinstance(
+            request, persistent_resource_service.GetPersistentResourceRequest
+        ):
+            request = persistent_resource_service.GetPersistentResourceRequest(request)
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
             if name is not None:
@@ -773,7 +723,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.get_dataset]
+        rpc = self._transport._wrapped_methods[self._transport.get_persistent_resource]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -792,141 +742,18 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Done; return the response.
         return response
 
-    def update_dataset(
+    def list_persistent_resources(
         self,
-        request: Optional[Union[dataset_service.UpdateDatasetRequest, dict]] = None,
-        *,
-        dataset: Optional[gca_dataset.Dataset] = None,
-        update_mask: Optional[field_mask_pb2.FieldMask] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_dataset.Dataset:
-        r"""Updates a Dataset.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_update_dataset():
-                # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
-
-                # Initialize request argument(s)
-                dataset = aiplatform_v1beta1.Dataset()
-                dataset.display_name = "display_name_value"
-                dataset.metadata_schema_uri = "metadata_schema_uri_value"
-                dataset.metadata.null_value = "NULL_VALUE"
-
-                request = aiplatform_v1beta1.UpdateDatasetRequest(
-                    dataset=dataset,
-                )
-
-                # Make the request
-                response = client.update_dataset(request=request)
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateDatasetRequest, dict]):
-                The request object. Request message for
-                [DatasetService.UpdateDataset][google.cloud.aiplatform.v1beta1.DatasetService.UpdateDataset].
-            dataset (google.cloud.aiplatform_v1beta1.types.Dataset):
-                Required. The Dataset which replaces
-                the resource on the server.
-
-                This corresponds to the ``dataset`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. The update mask applies to the resource. For
-                the ``FieldMask`` definition, see
-                [google.protobuf.FieldMask][google.protobuf.FieldMask].
-                Updatable fields:
-
-                -  ``display_name``
-                -  ``description``
-                -  ``labels``
-
-                This corresponds to the ``update_mask`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.types.Dataset:
-                A collection of DataItems and
-                Annotations on them.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([dataset, update_mask])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.UpdateDatasetRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, dataset_service.UpdateDatasetRequest):
-            request = dataset_service.UpdateDatasetRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if dataset is not None:
-                request.dataset = dataset
-            if update_mask is not None:
-                request.update_mask = update_mask
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.update_dataset]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("dataset.name", request.dataset.name),)
-            ),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def list_datasets(
-        self,
-        request: Optional[Union[dataset_service.ListDatasetsRequest, dict]] = None,
+        request: Optional[
+            Union[persistent_resource_service.ListPersistentResourcesRequest, dict]
+        ] = None,
         *,
         parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListDatasetsPager:
-        r"""Lists Datasets in a Location.
+    ) -> pagers.ListPersistentResourcesPager:
+        r"""Lists PersistentResources in a Location.
 
         .. code-block:: python
 
@@ -939,29 +766,30 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_datasets():
+            def sample_list_persistent_resources():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.PersistentResourceServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.ListDatasetsRequest(
+                request = aiplatform_v1beta1.ListPersistentResourcesRequest(
                     parent="parent_value",
                 )
 
                 # Make the request
-                page_result = client.list_datasets(request=request)
+                page_result = client.list_persistent_resources(request=request)
 
                 # Handle the response
                 for response in page_result:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListDatasetsRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListPersistentResourcesRequest, dict]):
                 The request object. Request message for
-                [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
+                [PersistentResourceService.ListPersistentResource][].
             parent (str):
-                Required. The name of the Dataset's parent resource.
-                Format: ``projects/{project}/locations/{location}``
+                Required. The resource name of the Location to list the
+                PersistentResources from. Format:
+                ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -973,9 +801,9 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListDatasetsPager:
+            google.cloud.aiplatform_v1beta1.services.persistent_resource_service.pagers.ListPersistentResourcesPager:
                 Response message for
-                   [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
+                   [PersistentResourceService.ListPersistentResources][google.cloud.aiplatform.v1beta1.PersistentResourceService.ListPersistentResources]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -992,11 +820,15 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.ListDatasetsRequest.
+        # in a persistent_resource_service.ListPersistentResourcesRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, dataset_service.ListDatasetsRequest):
-            request = dataset_service.ListDatasetsRequest(request)
+        if not isinstance(
+            request, persistent_resource_service.ListPersistentResourcesRequest
+        ):
+            request = persistent_resource_service.ListPersistentResourcesRequest(
+                request
+            )
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
             if parent is not None:
@@ -1004,7 +836,9 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.list_datasets]
+        rpc = self._transport._wrapped_methods[
+            self._transport.list_persistent_resources
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1022,7 +856,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
-        response = pagers.ListDatasetsPager(
+        response = pagers.ListPersistentResourcesPager(
             method=rpc,
             request=request,
             response=response,
@@ -1032,16 +866,18 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Done; return the response.
         return response
 
-    def delete_dataset(
+    def delete_persistent_resource(
         self,
-        request: Optional[Union[dataset_service.DeleteDatasetRequest, dict]] = None,
+        request: Optional[
+            Union[persistent_resource_service.DeletePersistentResourceRequest, dict]
+        ] = None,
         *,
         name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
-        r"""Deletes a Dataset.
+        r"""Deletes a PersistentResource.
 
         .. code-block:: python
 
@@ -1054,17 +890,17 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_dataset():
+            def sample_delete_persistent_resource():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.PersistentResourceServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.DeleteDatasetRequest(
+                request = aiplatform_v1beta1.DeletePersistentResourceRequest(
                     name="name_value",
                 )
 
                 # Make the request
-                operation = client.delete_dataset(request=request)
+                operation = client.delete_persistent_resource(request=request)
 
                 print("Waiting for operation to complete...")
 
@@ -1074,13 +910,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteDatasetRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeletePersistentResourceRequest, dict]):
                 The request object. Request message for
-                [DatasetService.DeleteDataset][google.cloud.aiplatform.v1beta1.DatasetService.DeleteDataset].
+                [PersistentResourceService.DeletePersistentResource][google.cloud.aiplatform.v1beta1.PersistentResourceService.DeletePersistentResource].
             name (str):
-                Required. The resource name of the Dataset to delete.
-                Format:
-                ``projects/{project}/locations/{location}/datasets/{dataset}``
+                Required. The name of the PersistentResource to be
+                deleted. Format:
+                ``projects/{project}/locations/{location}/persistentResources/{persistent_resource}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1118,11 +954,15 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.DeleteDatasetRequest.
+        # in a persistent_resource_service.DeletePersistentResourceRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, dataset_service.DeleteDatasetRequest):
-            request = dataset_service.DeleteDatasetRequest(request)
+        if not isinstance(
+            request, persistent_resource_service.DeletePersistentResourceRequest
+        ):
+            request = persistent_resource_service.DeletePersistentResourceRequest(
+                request
+            )
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
             if name is not None:
@@ -1130,7 +970,9 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.delete_dataset]
+        rpc = self._transport._wrapped_methods[
+            self._transport.delete_persistent_resource
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1157,940 +999,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Done; return the response.
         return response
 
-    def import_data(
-        self,
-        request: Optional[Union[dataset_service.ImportDataRequest, dict]] = None,
-        *,
-        name: Optional[str] = None,
-        import_configs: Optional[MutableSequence[dataset.ImportDataConfig]] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
-        r"""Imports data into a Dataset.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_import_data():
-                # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
-
-                # Initialize request argument(s)
-                import_configs = aiplatform_v1beta1.ImportDataConfig()
-                import_configs.gcs_source.uris = ['uris_value1', 'uris_value2']
-                import_configs.import_schema_uri = "import_schema_uri_value"
-
-                request = aiplatform_v1beta1.ImportDataRequest(
-                    name="name_value",
-                    import_configs=import_configs,
-                )
-
-                # Make the request
-                operation = client.import_data(request=request)
-
-                print("Waiting for operation to complete...")
-
-                response = operation.result()
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ImportDataRequest, dict]):
-                The request object. Request message for
-                [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
-            name (str):
-                Required. The name of the Dataset resource. Format:
-                ``projects/{project}/locations/{location}/datasets/{dataset}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            import_configs (MutableSequence[google.cloud.aiplatform_v1beta1.types.ImportDataConfig]):
-                Required. The desired input
-                locations. The contents of all input
-                locations will be imported in one batch.
-
-                This corresponds to the ``import_configs`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.api_core.operation.Operation:
-                An object representing a long-running operation.
-
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.ImportDataResponse` Response message for
-                   [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name, import_configs])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.ImportDataRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, dataset_service.ImportDataRequest):
-            request = dataset_service.ImportDataRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-            if import_configs is not None:
-                request.import_configs = import_configs
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.import_data]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Wrap the response in an operation future.
-        response = gac_operation.from_gapic(
-            response,
-            self._transport.operations_client,
-            dataset_service.ImportDataResponse,
-            metadata_type=dataset_service.ImportDataOperationMetadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def export_data(
-        self,
-        request: Optional[Union[dataset_service.ExportDataRequest, dict]] = None,
-        *,
-        name: Optional[str] = None,
-        export_config: Optional[dataset.ExportDataConfig] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
-        r"""Exports data from a Dataset.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_export_data():
-                # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
-
-                # Initialize request argument(s)
-                export_config = aiplatform_v1beta1.ExportDataConfig()
-                export_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
-
-                request = aiplatform_v1beta1.ExportDataRequest(
-                    name="name_value",
-                    export_config=export_config,
-                )
-
-                # Make the request
-                operation = client.export_data(request=request)
-
-                print("Waiting for operation to complete...")
-
-                response = operation.result()
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ExportDataRequest, dict]):
-                The request object. Request message for
-                [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
-            name (str):
-                Required. The name of the Dataset resource. Format:
-                ``projects/{project}/locations/{location}/datasets/{dataset}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            export_config (google.cloud.aiplatform_v1beta1.types.ExportDataConfig):
-                Required. The desired output
-                location.
-
-                This corresponds to the ``export_config`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.api_core.operation.Operation:
-                An object representing a long-running operation.
-
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.ExportDataResponse` Response message for
-                   [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name, export_config])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.ExportDataRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, dataset_service.ExportDataRequest):
-            request = dataset_service.ExportDataRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-            if export_config is not None:
-                request.export_config = export_config
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.export_data]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Wrap the response in an operation future.
-        response = gac_operation.from_gapic(
-            response,
-            self._transport.operations_client,
-            dataset_service.ExportDataResponse,
-            metadata_type=dataset_service.ExportDataOperationMetadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def list_data_items(
-        self,
-        request: Optional[Union[dataset_service.ListDataItemsRequest, dict]] = None,
-        *,
-        parent: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListDataItemsPager:
-        r"""Lists DataItems in a Dataset.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_list_data_items():
-                # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.ListDataItemsRequest(
-                    parent="parent_value",
-                )
-
-                # Make the request
-                page_result = client.list_data_items(request=request)
-
-                # Handle the response
-                for response in page_result:
-                    print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListDataItemsRequest, dict]):
-                The request object. Request message for
-                [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
-            parent (str):
-                Required. The resource name of the Dataset to list
-                DataItems from. Format:
-                ``projects/{project}/locations/{location}/datasets/{dataset}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListDataItemsPager:
-                Response message for
-                   [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
-
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.ListDataItemsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, dataset_service.ListDataItemsRequest):
-            request = dataset_service.ListDataItemsRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.list_data_items]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.ListDataItemsPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def search_data_items(
-        self,
-        request: Optional[Union[dataset_service.SearchDataItemsRequest, dict]] = None,
-        *,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.SearchDataItemsPager:
-        r"""Searches DataItems in a Dataset.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_search_data_items():
-                # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.SearchDataItemsRequest(
-                    order_by_data_item="order_by_data_item_value",
-                    dataset="dataset_value",
-                )
-
-                # Make the request
-                page_result = client.search_data_items(request=request)
-
-                # Handle the response
-                for response in page_result:
-                    print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.SearchDataItemsRequest, dict]):
-                The request object. Request message for
-                [DatasetService.SearchDataItems][google.cloud.aiplatform.v1beta1.DatasetService.SearchDataItems].
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.SearchDataItemsPager:
-                Response message for
-                   [DatasetService.SearchDataItems][google.cloud.aiplatform.v1beta1.DatasetService.SearchDataItems].
-
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.SearchDataItemsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, dataset_service.SearchDataItemsRequest):
-            request = dataset_service.SearchDataItemsRequest(request)
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.search_data_items]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("dataset", request.dataset),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.SearchDataItemsPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def list_saved_queries(
-        self,
-        request: Optional[Union[dataset_service.ListSavedQueriesRequest, dict]] = None,
-        *,
-        parent: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListSavedQueriesPager:
-        r"""Lists SavedQueries in a Dataset.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_list_saved_queries():
-                # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.ListSavedQueriesRequest(
-                    parent="parent_value",
-                )
-
-                # Make the request
-                page_result = client.list_saved_queries(request=request)
-
-                # Handle the response
-                for response in page_result:
-                    print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListSavedQueriesRequest, dict]):
-                The request object. Request message for
-                [DatasetService.ListSavedQueries][google.cloud.aiplatform.v1beta1.DatasetService.ListSavedQueries].
-            parent (str):
-                Required. The resource name of the Dataset to list
-                SavedQueries from. Format:
-                ``projects/{project}/locations/{location}/datasets/{dataset}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListSavedQueriesPager:
-                Response message for
-                   [DatasetService.ListSavedQueries][google.cloud.aiplatform.v1beta1.DatasetService.ListSavedQueries].
-
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.ListSavedQueriesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, dataset_service.ListSavedQueriesRequest):
-            request = dataset_service.ListSavedQueriesRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.list_saved_queries]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.ListSavedQueriesPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def delete_saved_query(
-        self,
-        request: Optional[Union[dataset_service.DeleteSavedQueryRequest, dict]] = None,
-        *,
-        name: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
-        r"""Deletes a SavedQuery.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_delete_saved_query():
-                # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.DeleteSavedQueryRequest(
-                    name="name_value",
-                )
-
-                # Make the request
-                operation = client.delete_saved_query(request=request)
-
-                print("Waiting for operation to complete...")
-
-                response = operation.result()
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteSavedQueryRequest, dict]):
-                The request object. Request message for
-                [DatasetService.DeleteSavedQuery][google.cloud.aiplatform.v1beta1.DatasetService.DeleteSavedQuery].
-            name (str):
-                Required. The resource name of the SavedQuery to delete.
-                Format:
-                ``projects/{project}/locations/{location}/datasets/{dataset}/savedQueries/{saved_query}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.api_core.operation.Operation:
-                An object representing a long-running operation.
-
-                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
-                   empty messages in your APIs. A typical example is to
-                   use it as the request or the response type of an API
-                   method. For instance:
-
-                      service Foo {
-                         rpc Bar(google.protobuf.Empty) returns
-                         (google.protobuf.Empty);
-
-                      }
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.DeleteSavedQueryRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, dataset_service.DeleteSavedQueryRequest):
-            request = dataset_service.DeleteSavedQueryRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.delete_saved_query]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Wrap the response in an operation future.
-        response = gac_operation.from_gapic(
-            response,
-            self._transport.operations_client,
-            empty_pb2.Empty,
-            metadata_type=gca_operation.DeleteOperationMetadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def get_annotation_spec(
-        self,
-        request: Optional[Union[dataset_service.GetAnnotationSpecRequest, dict]] = None,
-        *,
-        name: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> annotation_spec.AnnotationSpec:
-        r"""Gets an AnnotationSpec.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_get_annotation_spec():
-                # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.GetAnnotationSpecRequest(
-                    name="name_value",
-                )
-
-                # Make the request
-                response = client.get_annotation_spec(request=request)
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetAnnotationSpecRequest, dict]):
-                The request object. Request message for
-                [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1beta1.DatasetService.GetAnnotationSpec].
-            name (str):
-                Required. The name of the AnnotationSpec resource.
-                Format:
-                ``projects/{project}/locations/{location}/datasets/{dataset}/annotationSpecs/{annotation_spec}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.types.AnnotationSpec:
-                Identifies a concept with which
-                DataItems may be annotated with.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.GetAnnotationSpecRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, dataset_service.GetAnnotationSpecRequest):
-            request = dataset_service.GetAnnotationSpecRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.get_annotation_spec]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def list_annotations(
-        self,
-        request: Optional[Union[dataset_service.ListAnnotationsRequest, dict]] = None,
-        *,
-        parent: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListAnnotationsPager:
-        r"""Lists Annotations belongs to a dataitem
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_list_annotations():
-                # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.ListAnnotationsRequest(
-                    parent="parent_value",
-                )
-
-                # Make the request
-                page_result = client.list_annotations(request=request)
-
-                # Handle the response
-                for response in page_result:
-                    print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListAnnotationsRequest, dict]):
-                The request object. Request message for
-                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
-            parent (str):
-                Required. The resource name of the DataItem to list
-                Annotations from. Format:
-                ``projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListAnnotationsPager:
-                Response message for
-                   [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
-
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a dataset_service.ListAnnotationsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, dataset_service.ListAnnotationsRequest):
-            request = dataset_service.ListAnnotationsRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.list_annotations]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.ListAnnotationsPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def __enter__(self) -> "DatasetServiceClient":
+    def __enter__(self) -> "PersistentResourceServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -2794,4 +1703,4 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
 )
 
 
-__all__ = ("DatasetServiceClient",)
+__all__ = ("PersistentResourceServiceClient",)

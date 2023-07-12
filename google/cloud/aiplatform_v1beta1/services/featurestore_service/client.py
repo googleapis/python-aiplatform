@@ -565,7 +565,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             parent (str):
                 Required. The resource name of the Location to create
                 Featurestores. Format:
-                ``projects/{project}/locations/{location}'``
+                ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this

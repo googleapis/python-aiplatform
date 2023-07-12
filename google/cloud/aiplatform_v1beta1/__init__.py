@@ -52,6 +52,8 @@ from .services.model_garden_service import ModelGardenServiceClient
 from .services.model_garden_service import ModelGardenServiceAsyncClient
 from .services.model_service import ModelServiceClient
 from .services.model_service import ModelServiceAsyncClient
+from .services.persistent_resource_service import PersistentResourceServiceClient
+from .services.persistent_resource_service import PersistentResourceServiceAsyncClient
 from .services.pipeline_service import PipelineServiceClient
 from .services.pipeline_service import PipelineServiceAsyncClient
 from .services.prediction_service import PredictionServiceClient
@@ -91,6 +93,7 @@ from .types.dataset_service import CreateDatasetOperationMetadata
 from .types.dataset_service import CreateDatasetRequest
 from .types.dataset_service import DataItemView
 from .types.dataset_service import DeleteDatasetRequest
+from .types.dataset_service import DeleteSavedQueryRequest
 from .types.dataset_service import ExportDataOperationMetadata
 from .types.dataset_service import ExportDataRequest
 from .types.dataset_service import ExportDataResponse
@@ -461,6 +464,16 @@ from .types.nas_job import NasTrial
 from .types.nas_job import NasTrialDetail
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
+from .types.persistent_resource import PersistentResource
+from .types.persistent_resource import ResourcePool
+from .types.persistent_resource import ResourceRuntimeSpec
+from .types.persistent_resource import ServiceAccountSpec
+from .types.persistent_resource_service import CreatePersistentResourceOperationMetadata
+from .types.persistent_resource_service import CreatePersistentResourceRequest
+from .types.persistent_resource_service import DeletePersistentResourceRequest
+from .types.persistent_resource_service import GetPersistentResourceRequest
+from .types.persistent_resource_service import ListPersistentResourcesRequest
+from .types.persistent_resource_service import ListPersistentResourcesResponse
 from .types.pipeline_failure_policy import PipelineFailurePolicy
 from .types.pipeline_job import PipelineJob
 from .types.pipeline_job import PipelineJobDetail
@@ -550,6 +563,8 @@ from .types.tensorboard_service import ListTensorboardTimeSeriesRequest
 from .types.tensorboard_service import ListTensorboardTimeSeriesResponse
 from .types.tensorboard_service import ReadTensorboardBlobDataRequest
 from .types.tensorboard_service import ReadTensorboardBlobDataResponse
+from .types.tensorboard_service import ReadTensorboardSizeRequest
+from .types.tensorboard_service import ReadTensorboardSizeResponse
 from .types.tensorboard_service import ReadTensorboardTimeSeriesDataRequest
 from .types.tensorboard_service import ReadTensorboardTimeSeriesDataResponse
 from .types.tensorboard_service import ReadTensorboardUsageRequest
@@ -615,6 +630,7 @@ __all__ = (
     "MigrationServiceAsyncClient",
     "ModelGardenServiceAsyncClient",
     "ModelServiceAsyncClient",
+    "PersistentResourceServiceAsyncClient",
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
     "ScheduleServiceAsyncClient",
@@ -708,6 +724,8 @@ __all__ = (
     "CreateMetadataStoreRequest",
     "CreateModelDeploymentMonitoringJobRequest",
     "CreateNasJobRequest",
+    "CreatePersistentResourceOperationMetadata",
+    "CreatePersistentResourceRequest",
     "CreatePipelineJobRequest",
     "CreateScheduleRequest",
     "CreateSpecialistPoolOperationMetadata",
@@ -755,7 +773,9 @@ __all__ = (
     "DeleteModelVersionRequest",
     "DeleteNasJobRequest",
     "DeleteOperationMetadata",
+    "DeletePersistentResourceRequest",
     "DeletePipelineJobRequest",
+    "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
     "DeleteSpecialistPoolRequest",
     "DeleteStudyRequest",
@@ -858,6 +878,7 @@ __all__ = (
     "GetModelRequest",
     "GetNasJobRequest",
     "GetNasTrialDetailRequest",
+    "GetPersistentResourceRequest",
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
     "GetScheduleRequest",
@@ -947,6 +968,8 @@ __all__ = (
     "ListNasTrialDetailsResponse",
     "ListOptimalTrialsRequest",
     "ListOptimalTrialsResponse",
+    "ListPersistentResourcesRequest",
+    "ListPersistentResourcesResponse",
     "ListPipelineJobsRequest",
     "ListPipelineJobsResponse",
     "ListSavedQueriesRequest",
@@ -1015,6 +1038,8 @@ __all__ = (
     "NfsMount",
     "PauseModelDeploymentMonitoringJobRequest",
     "PauseScheduleRequest",
+    "PersistentResource",
+    "PersistentResourceServiceClient",
     "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
@@ -1057,6 +1082,8 @@ __all__ = (
     "ReadIndexDatapointsResponse",
     "ReadTensorboardBlobDataRequest",
     "ReadTensorboardBlobDataResponse",
+    "ReadTensorboardSizeRequest",
+    "ReadTensorboardSizeResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
     "ReadTensorboardUsageRequest",
@@ -1065,6 +1092,8 @@ __all__ = (
     "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",
     "RemoveDatapointsResponse",
+    "ResourcePool",
+    "ResourceRuntimeSpec",
     "ResourcesConsumed",
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
@@ -1084,6 +1113,7 @@ __all__ = (
     "SearchMigratableResourcesResponse",
     "SearchModelDeploymentMonitoringStatsAnomaliesRequest",
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
+    "ServiceAccountSpec",
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
