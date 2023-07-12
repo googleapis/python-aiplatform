@@ -143,6 +143,10 @@ class JobServiceAsyncClient:
     parse_notification_channel_path = staticmethod(
         JobServiceClient.parse_notification_channel_path
     )
+    persistent_resource_path = staticmethod(JobServiceClient.persistent_resource_path)
+    parse_persistent_resource_path = staticmethod(
+        JobServiceClient.parse_persistent_resource_path
+    )
     tensorboard_path = staticmethod(JobServiceClient.tensorboard_path)
     parse_tensorboard_path = staticmethod(JobServiceClient.parse_tensorboard_path)
     trial_path = staticmethod(JobServiceClient.trial_path)
@@ -2635,7 +2639,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.NasTrialDetail:
                 Represents a NasTrial details along
-                with it's parameters. If there is a
+                with its parameters. If there is a
                 corresponding train NasTrial, the train
                 NasTrial is also returned.
 

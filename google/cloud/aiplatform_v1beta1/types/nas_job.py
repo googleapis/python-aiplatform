@@ -157,7 +157,7 @@ class NasJob(proto.Message):
 
 
 class NasTrialDetail(proto.Message):
-    r"""Represents a NasTrial details along with it's parameters. If
+    r"""Represents a NasTrial details along with its parameters. If
     there is a corresponding train NasTrial, the train NasTrial is
     also returned.
 
