@@ -151,7 +151,7 @@ class _TunableModelMixin(_LanguageModel):
         Args:
             training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
                 The dataset must have the "input_text" and "output_text" columns.
-            train_steps: Number of training steps to perform.
+            train_steps: Number of training batches to tune on (batch size is 8 samples).
             learning_rate: Learning rate for the tuning
             tuning_job_location: GCP location where the tuning job should be run. Only "europe-west4" is supported for now.
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
