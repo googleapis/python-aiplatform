@@ -1,6 +1,51 @@
 # Changelog
 
 
+## [1.28.0](https://github.com/googleapis/python-aiplatform/compare/v1.27.1...v1.28.0) (2023-07-08)
+
+
+### Features
+
+* LLM - Released the Chat models to GA ([22aa26d](https://github.com/googleapis/python-aiplatform/commit/22aa26daabbaaa84f84d3cad524f2b6e8c53e77d))
+
+## [1.27.1](https://github.com/googleapis/python-aiplatform/compare/v1.27.0...v1.27.1) (2023-07-06)
+
+
+### Features
+
+* Add sdk support for xai example-based explanations ([f9ca1d5](https://github.com/googleapis/python-aiplatform/commit/f9ca1d52a6789f93b4eca9596c04f52a2ca75513))
+
+
+### Miscellaneous Chores
+
+* Release 1.27.1 ([2159f29](https://github.com/googleapis/python-aiplatform/commit/2159f29e8322aef33cfa27df52a57f7cc7722868))
+
+## [1.27.0](https://github.com/googleapis/python-aiplatform/compare/v1.26.1...v1.27.0) (2023-06-30)
+
+
+### Features
+
+* Add submit for CustomTrainingJob and CustomContainerTrainingJob which won't block until complete. ([d6476d0](https://github.com/googleapis/python-aiplatform/commit/d6476d0ed1440f58301d8be0b9043b13aa8d910d))
+* LLM - Added support for `learning_rate` in tuning ([c6cdd10](https://github.com/googleapis/python-aiplatform/commit/c6cdd108b5f3469340ca16bc6ef56efc55723ce3))
+* LLM - Released the Codey models to GA ([89609c9](https://github.com/googleapis/python-aiplatform/commit/89609c9007684e5cbc4b3e5c30d26c0d5539aa39))
+
+
+### Bug Fixes
+
+* Fix aiplatform.init bug by replacing experiment_name with experiment ([c60773a](https://github.com/googleapis/python-aiplatform/commit/c60773a7db8ce7a59d2cb5787dc90937776c0b8f))
+* Fix error when calling update_state() after ExperimentRun.list() ([cb255ec](https://github.com/googleapis/python-aiplatform/commit/cb255ec514995e193df7122dbf67bbd4011e6630))
+* LLM - Exported the `ChatMessage` class ([7bf7634](https://github.com/googleapis/python-aiplatform/commit/7bf7634e97dfe56c3130264eeb62a9b5d6b55cac))
+* LLM - Fixed the chat models failing due to safetyAttributes format ([459ba86](https://github.com/googleapis/python-aiplatform/commit/459ba86396ab9260fd7b28a1524c051b7ad300a5))
+* Vizier - Fixed pyvizier client study creation errors ([16299d1](https://github.com/googleapis/python-aiplatform/commit/16299d14b8f209218d6576614f773c1bcbd21d64))
+
+
+### Documentation
+
+* Fixed a docstring for _Dataset ([b68a941](https://github.com/googleapis/python-aiplatform/commit/b68a941853f9c38b0ff30f5d07cea1d7fb0700a6))
+* Fixed a docstring for TimeSeriesDataset ([a7dfce2](https://github.com/googleapis/python-aiplatform/commit/a7dfce217eebbef0877053b9c0f6f6127b556e82))
+* Populate GA LLM SDK Pydocs ([e248285](https://github.com/googleapis/python-aiplatform/commit/e248285b5da4c33a68ccd6198ce7b1d8ab20febf))
+* Update scheduled pipelines client max_run_count docstring with allowed values. ([750e161](https://github.com/googleapis/python-aiplatform/commit/750e16179e1a53bc916ae6db93cd28cfd3f911fe))
+
 ## [1.26.1](https://github.com/googleapis/python-aiplatform/compare/v1.26.0...v1.26.1) (2023-06-21)
 
 

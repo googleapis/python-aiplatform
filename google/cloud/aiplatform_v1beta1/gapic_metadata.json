@@ -20,6 +20,11 @@
                 "delete_dataset"
               ]
             },
+            "DeleteSavedQuery": {
+              "methods": [
+                "delete_saved_query"
+              ]
+            },
             "ExportData": {
               "methods": [
                 "export_data"
@@ -83,6 +88,11 @@
             "DeleteDataset": {
               "methods": [
                 "delete_dataset"
+              ]
+            },
+            "DeleteSavedQuery": {
+              "methods": [
+                "delete_saved_query"
               ]
             },
             "ExportData": {
@@ -1727,6 +1737,60 @@
         }
       }
     },
+    "PersistentResourceService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "PersistentResourceServiceClient",
+          "rpcs": {
+            "CreatePersistentResource": {
+              "methods": [
+                "create_persistent_resource"
+              ]
+            },
+            "DeletePersistentResource": {
+              "methods": [
+                "delete_persistent_resource"
+              ]
+            },
+            "GetPersistentResource": {
+              "methods": [
+                "get_persistent_resource"
+              ]
+            },
+            "ListPersistentResources": {
+              "methods": [
+                "list_persistent_resources"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "PersistentResourceServiceAsyncClient",
+          "rpcs": {
+            "CreatePersistentResource": {
+              "methods": [
+                "create_persistent_resource"
+              ]
+            },
+            "DeletePersistentResource": {
+              "methods": [
+                "delete_persistent_resource"
+              ]
+            },
+            "GetPersistentResource": {
+              "methods": [
+                "get_persistent_resource"
+              ]
+            },
+            "ListPersistentResources": {
+              "methods": [
+                "list_persistent_resources"
+              ]
+            }
+          }
+        }
+      }
+    },
     "PipelineService": {
       "clients": {
         "grpc": {
@@ -2143,6 +2207,11 @@
                 "read_tensorboard_blob_data"
               ]
             },
+            "ReadTensorboardSize": {
+              "methods": [
+                "read_tensorboard_size"
+              ]
+            },
             "ReadTensorboardTimeSeriesData": {
               "methods": [
                 "read_tensorboard_time_series_data"
@@ -2291,6 +2360,11 @@
             "ReadTensorboardBlobData": {
               "methods": [
                 "read_tensorboard_blob_data"
+              ]
+            },
+            "ReadTensorboardSize": {
+              "methods": [
+                "read_tensorboard_size"
               ]
             },
             "ReadTensorboardTimeSeriesData": {

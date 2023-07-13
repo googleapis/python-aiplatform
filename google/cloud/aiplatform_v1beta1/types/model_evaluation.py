@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ class ModelEvaluation(proto.Message):
                 The first slice of data will be the slice_a. The second
                 slice in the list (slice_b) will be compared against the
                 first slice. If only a single slice is provided, then
-                slice_a will be compared against “not slice_a”. Below are
+                slice_a will be compared against "not slice_a". Below are
                 examples with feature "education" with value "low",
                 "medium", "high" in the dataset:
 

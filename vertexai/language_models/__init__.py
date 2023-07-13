@@ -15,6 +15,12 @@
 """Classes for working with language models."""
 
 from vertexai.language_models._language_models import (
+    ChatMessage,
+    ChatModel,
+    ChatSession,
+    CodeChatModel,
+    CodeChatSession,
+    CodeGenerationModel,
     InputOutputTextPair,
     TextEmbedding,
     TextEmbeddingModel,
@@ -23,6 +29,12 @@ from vertexai.language_models._language_models import (
 )
 
 __all__ = [
+    "ChatMessage",
+    "ChatModel",
+    "ChatSession",
+    "CodeChatModel",
+    "CodeChatSession",
+    "CodeGenerationModel",
     "InputOutputTextPair",
     "TextEmbedding",
     "TextEmbeddingModel",

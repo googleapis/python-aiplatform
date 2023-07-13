@@ -20,6 +20,11 @@
                 "delete_dataset"
               ]
             },
+            "DeleteSavedQuery": {
+              "methods": [
+                "delete_saved_query"
+              ]
+            },
             "ExportData": {
               "methods": [
                 "export_data"
@@ -83,6 +88,11 @@
             "DeleteDataset": {
               "methods": [
                 "delete_dataset"
+              ]
+            },
+            "DeleteSavedQuery": {
+              "methods": [
+                "delete_saved_query"
               ]
             },
             "ExportData": {
@@ -1549,6 +1559,11 @@
                 "merge_version_aliases"
               ]
             },
+            "UpdateExplanationDataset": {
+              "methods": [
+                "update_explanation_dataset"
+              ]
+            },
             "UpdateModel": {
               "methods": [
                 "update_model"
@@ -1637,6 +1652,11 @@
             "MergeVersionAliases": {
               "methods": [
                 "merge_version_aliases"
+              ]
+            },
+            "UpdateExplanationDataset": {
+              "methods": [
+                "update_explanation_dataset"
               ]
             },
             "UpdateModel": {

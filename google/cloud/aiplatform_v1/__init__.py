@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -83,6 +83,7 @@ from .types.dataset_service import CreateDatasetOperationMetadata
 from .types.dataset_service import CreateDatasetRequest
 from .types.dataset_service import DataItemView
 from .types.dataset_service import DeleteDatasetRequest
+from .types.dataset_service import DeleteSavedQueryRequest
 from .types.dataset_service import ExportDataOperationMetadata
 from .types.dataset_service import ExportDataRequest
 from .types.dataset_service import ExportDataResponse
@@ -424,6 +425,9 @@ from .types.model_service import ListModelsResponse
 from .types.model_service import ListModelVersionsRequest
 from .types.model_service import ListModelVersionsResponse
 from .types.model_service import MergeVersionAliasesRequest
+from .types.model_service import UpdateExplanationDatasetOperationMetadata
+from .types.model_service import UpdateExplanationDatasetRequest
+from .types.model_service import UpdateExplanationDatasetResponse
 from .types.model_service import UpdateModelRequest
 from .types.model_service import UploadModelOperationMetadata
 from .types.model_service import UploadModelRequest
@@ -715,6 +719,7 @@ __all__ = (
     "DeleteNasJobRequest",
     "DeleteOperationMetadata",
     "DeletePipelineJobRequest",
+    "DeleteSavedQueryRequest",
     "DeleteSpecialistPoolRequest",
     "DeleteStudyRequest",
     "DeleteTensorboardExperimentRequest",
@@ -1068,6 +1073,9 @@ __all__ = (
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
     "UpdateExecutionRequest",
+    "UpdateExplanationDatasetOperationMetadata",
+    "UpdateExplanationDatasetRequest",
+    "UpdateExplanationDatasetResponse",
     "UpdateFeatureRequest",
     "UpdateFeaturestoreOperationMetadata",
     "UpdateFeaturestoreRequest",

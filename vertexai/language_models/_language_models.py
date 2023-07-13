@@ -149,11 +149,12 @@ class _TunableModelMixin(_LanguageModel):
         This method launches a model tuning job that can take some time.
 
         Args:
-            training_data: A Pandas DataFrame of a URI pointing to data in JSON lines format.
+            training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
                 The dataset must have the "input_text" and "output_text" columns.
-            train_steps: Number of training steps to perform.
+            train_steps: Number of training batches to tune on (batch size is 8 samples).
             learning_rate: Learning rate for the tuning
-            tuning_job_location: GCP location where the tuning job should be run. Only "europe-west4" is supported for now.
+            tuning_job_location: GCP location where the tuning job should be run.
+                Only "europe-west4" and "us-central1" locations are supported for now.
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
 
@@ -166,9 +167,10 @@ class _TunableModelMixin(_LanguageModel):
             ValueError: If the "tuned_model_location" value is not supported
             RuntimeError: If the model does not support tuning
         """
-        if tuning_job_location != _TUNING_LOCATION:
+        if tuning_job_location not in _TUNING_LOCATIONS:
             raise ValueError(
-                f'Tuning is only supported in the following locations: tuning_job_location="{_TUNING_LOCATION}"'
+                "Please specify the tuning job location (`tuning_job_location`)."
+                f"Tuning is supported in the following locations: {_TUNING_LOCATIONS}"
             )
         if tuned_model_location != _TUNED_MODEL_LOCATION:
             raise ValueError(
@@ -187,6 +189,7 @@ class _TunableModelMixin(_LanguageModel):
             tuning_pipeline_uri=model_info.tuning_pipeline_uri,
             model_display_name=model_display_name,
             learning_rate=learning_rate,
+            tuning_job_location=tuning_job_location,
         )
 
         job = _LanguageModelTuningJob(
@@ -584,7 +587,7 @@ class ChatMessage:
 class _ChatModelBase(_LanguageModel):
     """_ChatModelBase is a base class for chat models."""
 
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
     def start_chat(
         self,
@@ -653,6 +656,10 @@ class ChatModel(_ChatModelBase):
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
 
 
+class _PreviewChatModel(ChatModel):
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+
+
 class CodeChatModel(_ChatModelBase):
     """CodeChatModel represents a model that is capable of completing code.
 
@@ -668,6 +675,7 @@ class CodeChatModel(_ChatModelBase):
     """
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
     _DEFAULT_TEMPERATURE = 0.5
@@ -798,7 +806,8 @@ class _ChatSessionBase:
         )
 
         prediction = prediction_response.predictions[0]
-        safety_attributes = prediction["safetyAttributes"]
+        # ! Note: For chat models, the safetyAttributes is a list.
+        safety_attributes = prediction["safetyAttributes"][0]
         response_obj = TextGenerationResponse(
             text=prediction["candidates"][0]["content"]
             if prediction.get("candidates")
@@ -917,7 +926,7 @@ class CodeGenerationModel(_LanguageModel):
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
     _DEFAULT_TEMPERATURE = 0.0
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
 
@@ -959,7 +968,7 @@ class CodeGenerationModel(_LanguageModel):
 
 ###### Model tuning
 # Currently, tuning can only work in this location
-_TUNING_LOCATION = "europe-west4"
+_TUNING_LOCATIONS = ("europe-west4", "us-central1")
 # Currently, deployment can only work in this location
 _TUNED_MODEL_LOCATION = "us-central1"
 
@@ -1045,6 +1054,7 @@ def _launch_tuning_job(
     train_steps: Optional[int] = None,
     model_display_name: Optional[str] = None,
     learning_rate: Optional[float] = None,
+    tuning_job_location: str = _TUNING_LOCATIONS[0],
 ) -> aiplatform.PipelineJob:
     output_dir_uri = _generate_tuned_model_dir_uri(model_id=model_id)
     if isinstance(training_data, str):
@@ -1067,6 +1077,7 @@ def _launch_tuning_job(
         tuning_pipeline_uri=tuning_pipeline_uri,
         model_display_name=model_display_name,
         learning_rate=learning_rate,
+        tuning_job_location=tuning_job_location,
     )
     return job
 
@@ -1078,6 +1089,7 @@ def _launch_tuning_job_on_jsonl_data(
     train_steps: Optional[int] = None,
     learning_rate: Optional[float] = None,
     model_display_name: Optional[str] = None,
+    tuning_job_location: str = _TUNING_LOCATIONS[0],
 ) -> aiplatform.PipelineJob:
     if not model_display_name:
         # Creating a human-readable model display name
@@ -1120,7 +1132,7 @@ def _launch_tuning_job_on_jsonl_data(
         display_name=None,
         parameter_values=pipeline_arguments,
         # TODO(b/275444101): Remove the explicit location once model can be deployed in all regions
-        location=_TUNING_LOCATION,
+        location=tuning_job_location,
     )
     job.submit()
     return job

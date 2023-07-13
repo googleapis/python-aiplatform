@@ -152,6 +152,59 @@ _TEST_EXPLANATION_METADATA = explain.ExplanationMetadata(
 _TEST_EXPLANATION_PARAMETERS = (
     test_constants.ModelConstants._TEST_EXPLANATION_PARAMETERS
 )
+_TEST_EXPLANATION_METADATA_EXAMPLES = explain.ExplanationMetadata(
+    outputs={"embedding": {"output_tensor_name": "embedding"}},
+    inputs={
+        "my_input": {
+            "input_tensor_name": "bytes_inputs",
+            "encoding": "IDENTITY",
+            "modality": "image",
+        },
+        "id": {"input_tensor_name": "id", "encoding": "IDENTITY"},
+    },
+)
+_TEST_EXPLANATION_PARAMETERS_EXAMPLES_PRESETS = explain.ExplanationParameters(
+    {
+        "examples": {
+            "example_gcs_source": {
+                "gcs_source": {
+                    "uris": ["gs://example-bucket/folder/instance1.jsonl"],
+                },
+            },
+            "neighbor_count": 10,
+            "presets": {"query": "FAST", "modality": "TEXT"},
+        }
+    }
+)
+_TEST_EXPLANATION_PARAMETERS_EXAMPLES_FULL_CONFIG = explain.ExplanationParameters(
+    {
+        "examples": {
+            "example_gcs_source": {
+                "gcs_source": {
+                    "uris": ["gs://example-bucket/folder/instance1.jsonl"],
+                },
+            },
+            "neighbor_count": 10,
+            "nearest_neighbor_search_config": [
+                {
+                    "contentsDeltaUri": "",
+                    "config": {
+                        "dimensions": 50,
+                        "approximateNeighborsCount": 10,
+                        "distanceMeasureType": "SQUARED_L2_DISTANCE",
+                        "featureNormType": "NONE",
+                        "algorithmConfig": {
+                            "treeAhConfig": {
+                                "leafNodeEmbeddingCount": 1000,
+                                "leafNodesToSearchPercent": 100,
+                            }
+                        },
+                    },
+                }
+            ],
+        }
+    }
+)
 
 # CMEK encryption
 _TEST_ENCRYPTION_KEY_NAME = "key_1234"
@@ -1107,6 +1160,80 @@ class TestModel:
             container_spec=container_spec,
             explanation_spec=gca_model.explanation.ExplanationSpec(
                 parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
+            version_aliases=["default"],
+        )
+
+        upload_model_mock.assert_called_once_with(
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
+            timeout=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_with_parameters_for_examples_presets(
+        self, upload_model_mock, get_model_mock, sync
+    ):
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS_EXAMPLES_PRESETS,
+            explanation_metadata=_TEST_EXPLANATION_METADATA_EXAMPLES,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+        )
+
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
+            explanation_spec=gca_model.explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA_EXAMPLES,
+                parameters=_TEST_EXPLANATION_PARAMETERS_EXAMPLES_PRESETS,
+            ),
+            version_aliases=["default"],
+        )
+
+        upload_model_mock.assert_called_once_with(
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
+            timeout=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_with_parameters_for_examples_full_config(
+        self, upload_model_mock, get_model_mock, sync
+    ):
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS_EXAMPLES_FULL_CONFIG,
+            explanation_metadata=_TEST_EXPLANATION_METADATA_EXAMPLES,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+        )
+
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
+            explanation_spec=gca_model.explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA_EXAMPLES,
+                parameters=_TEST_EXPLANATION_PARAMETERS_EXAMPLES_FULL_CONFIG,
             ),
             version_aliases=["default"],
         )

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1289,7 +1289,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "FeaturestoreOnlineServingServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

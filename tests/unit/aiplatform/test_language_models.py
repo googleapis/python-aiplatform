@@ -88,7 +88,7 @@ _CHAT_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/chat-bison",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
-    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/chat-bison@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml",
@@ -101,7 +101,7 @@ _CODECHAT_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/codechat-bison",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
-    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/codechat-bison@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml",
@@ -114,7 +114,7 @@ _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/code-bison",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
-    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/code-bison@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml",
@@ -127,7 +127,7 @@ _CODE_COMPLETION_BISON_PUBLISHER_MODEL_DICT = {
     "name": "publishers/google/models/code-gecko",
     "version_id": "001",
     "open_source_category": "PROPRIETARY",
-    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.PUBLIC_PREVIEW,
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
     "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/code-gecko@001",
     "predict_schemata": {
         "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml",
@@ -164,11 +164,13 @@ Instructions:
 }
 
 _TEST_CHAT_GENERATION_PREDICTION1 = {
-    "safetyAttributes": {
-        "scores": [],
-        "blocked": False,
-        "categories": [],
-    },
+    "safetyAttributes": [
+        {
+            "scores": [],
+            "blocked": False,
+            "categories": [],
+        }
+    ],
     "candidates": [
         {
             "author": "1",
@@ -177,11 +179,13 @@ _TEST_CHAT_GENERATION_PREDICTION1 = {
     ],
 }
 _TEST_CHAT_GENERATION_PREDICTION2 = {
-    "safetyAttributes": {
-        "scores": [],
-        "blocked": False,
-        "categories": [],
-    },
+    "safetyAttributes": [
+        {
+            "scores": [],
+            "blocked": False,
+            "categories": [],
+        }
+    ],
     "candidates": [
         {
             "author": "1",
@@ -752,6 +756,16 @@ class TestLanguageModels:
                     output_text="Ned likes watching movies.",
                 ),
             ],
+            message_history=[
+                preview_language_models.ChatMessage(
+                    author=preview_language_models.ChatSession.USER_AUTHOR,
+                    content="Question 1?",
+                ),
+                preview_language_models.ChatMessage(
+                    author=preview_language_models.ChatSession.MODEL_AUTHOR,
+                    content="Answer 1.",
+                ),
+            ],
             temperature=0.0,
         )
 
@@ -769,11 +783,11 @@ class TestLanguageModels:
             ]
             response = chat.send_message(message_text1)
             assert response.text == expected_response1
-            assert len(chat.message_history) == 2
-            assert chat.message_history[0].author == chat.USER_AUTHOR
-            assert chat.message_history[0].content == message_text1
-            assert chat.message_history[1].author == chat.MODEL_AUTHOR
-            assert chat.message_history[1].content == expected_response1
+            assert len(chat.message_history) == 4
+            assert chat.message_history[2].author == chat.USER_AUTHOR
+            assert chat.message_history[2].content == message_text1
+            assert chat.message_history[3].author == chat.MODEL_AUTHOR
+            assert chat.message_history[3].content == expected_response1
 
         gca_predict_response2 = gca_prediction_service.PredictResponse()
         gca_predict_response2.predictions.append(_TEST_CHAT_GENERATION_PREDICTION2)
@@ -783,17 +797,150 @@ class TestLanguageModels:
             attribute="predict",
             return_value=gca_predict_response2,
         ):
-            message_text2 = "When where these books published?"
+            message_text2 = "When were these books published?"
             expected_response2 = _TEST_CHAT_GENERATION_PREDICTION2["candidates"][0][
                 "content"
             ]
             response = chat.send_message(message_text2, temperature=0.1)
             assert response.text == expected_response2
+            assert len(chat.message_history) == 6
+            assert chat.message_history[4].author == chat.USER_AUTHOR
+            assert chat.message_history[4].content == message_text2
+            assert chat.message_history[5].author == chat.MODEL_AUTHOR
+            assert chat.message_history[5].content == expected_response2
+
+        # Validating the parameters
+        chat_temperature = 0.1
+        chat_max_output_tokens = 100
+        chat_top_k = 1
+        chat_top_p = 0.1
+        message_temperature = 0.2
+        message_max_output_tokens = 200
+        message_top_k = 2
+        message_top_p = 0.2
+
+        chat2 = model.start_chat(
+            temperature=chat_temperature,
+            max_output_tokens=chat_max_output_tokens,
+            top_k=chat_top_k,
+            top_p=chat_top_p,
+        )
+
+        gca_predict_response3 = gca_prediction_service.PredictResponse()
+        gca_predict_response3.predictions.append(_TEST_CHAT_GENERATION_PREDICTION1)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response3,
+        ) as mock_predict3:
+            chat2.send_message("Are my favorite movies based on a book series?")
+            prediction_parameters = mock_predict3.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == chat_temperature
+            assert prediction_parameters["maxDecodeSteps"] == chat_max_output_tokens
+            assert prediction_parameters["topK"] == chat_top_k
+            assert prediction_parameters["topP"] == chat_top_p
+
+            chat2.send_message(
+                "Are my favorite movies based on a book series?",
+                temperature=message_temperature,
+                max_output_tokens=message_max_output_tokens,
+                top_k=message_top_k,
+                top_p=message_top_p,
+            )
+            prediction_parameters = mock_predict3.call_args[1]["parameters"]
+            assert prediction_parameters["temperature"] == message_temperature
+            assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
+            assert prediction_parameters["topK"] == message_top_k
+            assert prediction_parameters["topP"] == message_top_p
+
+    def test_chat_ga(self):
+        """Tests the chat generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = language_models.ChatModel.from_pretrained("chat-bison@001")
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
+        )
+
+        chat = model.start_chat(
+            context="""
+            My name is Ned.
+            You are my personal assistant.
+            My favorite movies are Lord of the Rings and Hobbit.
+            """,
+            examples=[
+                language_models.InputOutputTextPair(
+                    input_text="Who do you work for?",
+                    output_text="I work for Ned.",
+                ),
+                language_models.InputOutputTextPair(
+                    input_text="What do I like?",
+                    output_text="Ned likes watching movies.",
+                ),
+            ],
+            message_history=[
+                language_models.ChatMessage(
+                    author=preview_language_models.ChatSession.USER_AUTHOR,
+                    content="Question 1?",
+                ),
+                language_models.ChatMessage(
+                    author=preview_language_models.ChatSession.MODEL_AUTHOR,
+                    content="Answer 1.",
+                ),
+            ],
+            temperature=0.0,
+        )
+
+        gca_predict_response1 = gca_prediction_service.PredictResponse()
+        gca_predict_response1.predictions.append(_TEST_CHAT_GENERATION_PREDICTION1)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response1,
+        ):
+            message_text1 = "Are my favorite movies based on a book series?"
+            expected_response1 = _TEST_CHAT_GENERATION_PREDICTION1["candidates"][0][
+                "content"
+            ]
+            response = chat.send_message(message_text1)
+            assert response.text == expected_response1
             assert len(chat.message_history) == 4
             assert chat.message_history[2].author == chat.USER_AUTHOR
-            assert chat.message_history[2].content == message_text2
+            assert chat.message_history[2].content == message_text1
             assert chat.message_history[3].author == chat.MODEL_AUTHOR
-            assert chat.message_history[3].content == expected_response2
+            assert chat.message_history[3].content == expected_response1
+
+        gca_predict_response2 = gca_prediction_service.PredictResponse()
+        gca_predict_response2.predictions.append(_TEST_CHAT_GENERATION_PREDICTION2)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response2,
+        ):
+            message_text2 = "When were these books published?"
+            expected_response2 = _TEST_CHAT_GENERATION_PREDICTION2["candidates"][0][
+                "content"
+            ]
+            response = chat.send_message(message_text2, temperature=0.1)
+            assert response.text == expected_response2
+            assert len(chat.message_history) == 6
+            assert chat.message_history[4].author == chat.USER_AUTHOR
+            assert chat.message_history[4].content == message_text2
+            assert chat.message_history[5].author == chat.MODEL_AUTHOR
+            assert chat.message_history[5].content == expected_response2
 
         # Validating the parameters
         chat_temperature = 0.1
@@ -853,7 +1000,7 @@ class TestLanguageModels:
                 _CODECHAT_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = preview_language_models.CodeChatModel.from_pretrained(
+            model = language_models.CodeChatModel.from_pretrained(
                 "google/codechat-bison@001"
             )
 
@@ -949,7 +1096,7 @@ class TestLanguageModels:
                 _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = preview_language_models.CodeGenerationModel.from_pretrained(
+            model = language_models.CodeGenerationModel.from_pretrained(
                 "google/code-bison@001"
             )
 
@@ -976,11 +1123,9 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_temperature = (
-            preview_language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
-        )
+        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
         default_max_output_tokens = (
-            preview_language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
+            language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
         )
 
         with mock.patch.object(
@@ -1017,7 +1162,7 @@ class TestLanguageModels:
                 _CODE_COMPLETION_BISON_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = preview_language_models.CodeGenerationModel.from_pretrained(
+            model = language_models.CodeGenerationModel.from_pretrained(
                 "google/code-gecko@001"
             )
 
@@ -1044,11 +1189,9 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_temperature = (
-            preview_language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
-        )
+        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
         default_max_output_tokens = (
-            preview_language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
+            language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
         )
 
         with mock.patch.object(

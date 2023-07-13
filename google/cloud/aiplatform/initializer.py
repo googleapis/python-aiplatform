@@ -20,7 +20,7 @@ from concurrent import futures
 import logging
 import pkg_resources  # Note this is used after copybara replacement
 import os
-from typing import List, Optional, Type, Union
+from typing import List, Optional, Type, TypeVar, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -39,6 +39,11 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
     encryption_spec_v1 as gca_encryption_spec_v1,
     encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
+)
+
+_TVertexAiServiceClientWithOverride = TypeVar(
+    "_TVertexAiServiceClientWithOverride",
+    bound=utils.VertexAiServiceClientWithOverride,
 )
 
 
@@ -368,14 +373,14 @@ class _Config:
 
     def create_client(
         self,
-        client_class: Type[utils.VertexAiServiceClientWithOverride],
+        client_class: Type[_TVertexAiServiceClientWithOverride],
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
         prediction_client: bool = False,
         api_base_path_override: Optional[str] = None,
         api_path_override: Optional[str] = None,
         appended_user_agent: Optional[List[str]] = None,
-    ) -> utils.VertexAiServiceClientWithOverride:
+    ) -> _TVertexAiServiceClientWithOverride:
         """Instantiates a given VertexAiServiceClient with optional
         overrides.
 

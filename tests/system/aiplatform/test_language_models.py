@@ -75,7 +75,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert chat.message_history[0].content == message1
         assert chat.message_history[1].author == chat.MODEL_AUTHOR
 
-        message2 = "When where these books published?"
+        message2 = "When were these books published?"
         response2 = chat.send_message(
             message2,
             temperature=0.1,
