@@ -15,9 +15,12 @@
 # limitations under the License.
 #
 
+import datetime
 import pytest
 
 from unittest import mock
+
+from google.api_core import datetime_helpers
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -96,6 +99,37 @@ def mock_model_eval_get():
         yield mock_get_model_eval
 
 
+_TEST_MODEL_EVAL_LIST = [
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+        create_time=datetime_helpers.DatetimeWithNanoseconds(
+            2023, 5, 14, 16, 24, 3, 299558, tzinfo=datetime.timezone.utc
+        ),
+    ),
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+        create_time=datetime_helpers.DatetimeWithNanoseconds(
+            2023, 6, 14, 16, 24, 3, 299558, tzinfo=datetime.timezone.utc
+        ),
+    ),
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+        create_time=datetime_helpers.DatetimeWithNanoseconds(
+            2023, 7, 14, 16, 24, 3, 299558, tzinfo=datetime.timezone.utc
+        ),
+    ),
+]
+
+
+@pytest.fixture
+def list_model_evaluations_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "list_model_evaluations"
+    ) as list_model_evaluations_mock:
+        list_model_evaluations_mock.return_value = _TEST_MODEL_EVAL_LIST
+        yield list_model_evaluations_mock
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestModelEvaluation:
     def test_init_model_evaluation_with_only_resource_name(self, mock_model_eval_get):
@@ -156,3 +190,29 @@ class TestModelEvaluation:
 
         with pytest.raises(NotImplementedError):
             my_eval.delete()
+
+    def test_list_model_evaluations(
+        self,
+        mock_model_eval_get,
+        get_model_mock,
+        list_model_evaluations_mock,
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        metrics_list = aiplatform.ModelEvaluation.list(model=_TEST_MODEL_RESOURCE_NAME)
+
+        assert isinstance(metrics_list[0], aiplatform.ModelEvaluation)
+
+    def test_list_model_evaluations_with_order_by(
+        self,
+        mock_model_eval_get,
+        get_model_mock,
+        list_model_evaluations_mock,
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        metrics_list = aiplatform.ModelEvaluation.list(
+            model=_TEST_MODEL_RESOURCE_NAME, order_by="create_time desc"
+        )
+
+        assert metrics_list[0].create_time > metrics_list[1].create_time
