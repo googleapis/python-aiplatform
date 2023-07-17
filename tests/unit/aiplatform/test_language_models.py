@@ -1302,7 +1302,7 @@ class TestLanguageModels:
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = preview_language_models.TextGenerationModel.from_pretrained(
+            model = language_models.TextGenerationModel.from_pretrained(
                 "text-bison@001"
             )
 
@@ -1311,7 +1311,7 @@ class TestLanguageModels:
             attribute="create",
         ) as mock_create:
             model.batch_predict(
-                source_uri="gs://test-bucket/test_table.jsonl",
+                dataset="gs://test-bucket/test_table.jsonl",
                 destination_uri_prefix="gs://test-bucket/results/",
                 model_parameters={"temperature": 0.1},
             )

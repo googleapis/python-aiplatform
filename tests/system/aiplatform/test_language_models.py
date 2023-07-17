@@ -168,7 +168,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         model = TextGenerationModel.from_pretrained("text-bison@001")
         job = model.batch_predict(
-            source_uri=source_uri,
+            dataset=source_uri,
             destination_uri_prefix=destination_uri_prefix,
             model_parameters={"temperature": 0, "top_p": 1, "top_k": 5},
         )

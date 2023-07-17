@@ -16,6 +16,7 @@
 
 import dataclasses
 from typing import Any, Dict, List, Optional, Sequence, Union
+import warnings
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -222,7 +223,7 @@ class TextGenerationResponse:
         return self.text
 
 
-class TextGenerationModel(_LanguageModel):
+class _TextGenerationModel(_LanguageModel):
     """TextGenerationModel represents a general language model.
 
     Examples::
@@ -323,23 +324,20 @@ class TextGenerationModel(_LanguageModel):
         return results
 
 
-_TextGenerationModel = TextGenerationModel
-
-
 class _ModelWithBatchPredict(_LanguageModel):
     """Model that supports batch prediction."""
 
     def batch_predict(
         self,
         *,
-        source_uri: Union[str, List[str]],
+        dataset: Union[str, List[str]],
         destination_uri_prefix: str,
         model_parameters: Optional[Dict] = None,
     ) -> aiplatform.BatchPredictionJob:
         """Starts a batch prediction job with the model.
 
         Args:
-            source_uri: The location of the dataset.
+            dataset: The location of the dataset.
                 `gs://` and `bq://` URIs are supported.
             destination_uri_prefix: The URI prefix for the prediction.
                 `gs://` and `bq://` URIs are supported.
@@ -351,22 +349,22 @@ class _ModelWithBatchPredict(_LanguageModel):
             ValueError: When source or destination URI is not supported.
         """
         arguments = {}
-        first_source_uri = source_uri if isinstance(source_uri, str) else source_uri[0]
+        first_source_uri = dataset if isinstance(dataset, str) else dataset[0]
         if first_source_uri.startswith("gs://"):
-            if not isinstance(source_uri, str):
-                if not all(uri.startswith("gs://") for uri in source_uri):
+            if not isinstance(dataset, str):
+                if not all(uri.startswith("gs://") for uri in dataset):
                     raise ValueError(
-                        f"All URIs in the list must start with 'gs://': {source_uri}"
+                        f"All URIs in the list must start with 'gs://': {dataset}"
                     )
-            arguments["gcs_source"] = source_uri
+            arguments["gcs_source"] = dataset
         elif first_source_uri.startswith("bq://"):
-            if not isinstance(source_uri, str):
+            if not isinstance(dataset, str):
                 raise ValueError(
-                    f"Only single BigQuery source can be specified: {source_uri}"
+                    f"Only single BigQuery source can be specified: {dataset}"
                 )
-            arguments["bigquery_source"] = source_uri
+            arguments["bigquery_source"] = dataset
         else:
-            raise ValueError(f"Unsupported source_uri: {source_uri}")
+            raise ValueError(f"Unsupported source_uri: {dataset}")
 
         if destination_uri_prefix.startswith("gs://"):
             arguments["gcs_destination_prefix"] = destination_uri_prefix
@@ -391,15 +389,59 @@ class _ModelWithBatchPredict(_LanguageModel):
         return job
 
 
+class _PreviewModelWithBatchPredict(_ModelWithBatchPredict):
+    """Model that supports batch prediction."""
+
+    def batch_predict(
+        self,
+        *,
+        destination_uri_prefix: str,
+        dataset: Optional[Union[str, List[str]]] = None,
+        model_parameters: Optional[Dict] = None,
+        **_kwargs: Optional[Dict[str, Any]],
+    ) -> aiplatform.BatchPredictionJob:
+        """Starts a batch prediction job with the model.
+
+        Args:
+            dataset: Required. The location of the dataset.
+                `gs://` and `bq://` URIs are supported.
+            destination_uri_prefix: The URI prefix for the prediction.
+                `gs://` and `bq://` URIs are supported.
+            model_parameters: Model-specific parameters to send to the model.
+            **_kwargs: Deprecated.
+
+        Returns:
+            A `BatchPredictionJob` object
+        Raises:
+            ValueError: When source or destination URI is not supported.
+        """
+        if "source_uri" in _kwargs:
+            warnings.warn("source_uri is deprecated, use dataset instead.")
+            if dataset:
+                raise ValueError("source_uri is deprecated, use dataset instead.")
+            dataset = _kwargs["source_uri"]
+        if not dataset:
+            raise ValueError("dataset must be specified")
+        return super().batch_predict(
+            dataset=dataset,
+            destination_uri_prefix=destination_uri_prefix,
+            model_parameters=model_parameters,
+        )
+
+
+class TextGenerationModel(_TextGenerationModel, _ModelWithBatchPredict):
+    pass
+
+
 class _PreviewTextGenerationModel(
-    TextGenerationModel, _TunableModelMixin, _ModelWithBatchPredict
+    _TextGenerationModel, _TunableModelMixin, _PreviewModelWithBatchPredict
 ):
     """Preview text generation model."""
 
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
-class _ChatModel(TextGenerationModel):
+class _ChatModel(_TextGenerationModel):
     """ChatModel represents a language model that is capable of chat.
 
     Examples::
@@ -416,10 +458,10 @@ class _ChatModel(TextGenerationModel):
 
     def start_chat(
         self,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
     ) -> "_ChatSession":
         """Starts a chat session with the model.
 
@@ -450,10 +492,10 @@ class _ChatSession:
     def __init__(
         self,
         model: _ChatModel,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
     ):
         self._model = model
         self._history = []
@@ -594,10 +636,10 @@ class _ChatModelBase(_LanguageModel):
         *,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
         message_history: Optional[List[ChatMessage]] = None,
     ) -> "ChatSession":
         """Starts a chat session with the model.
@@ -713,10 +755,10 @@ class _ChatSessionBase:
         model: _ChatModelBase,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
         is_code_chat_session: bool = False,
         message_history: Optional[List[ChatMessage]] = None,
     ):
@@ -844,10 +886,10 @@ class ChatSession(_ChatSessionBase):
         model: ChatModel,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
         message_history: Optional[List[ChatMessage]] = None,
     ):
         super().__init__(
