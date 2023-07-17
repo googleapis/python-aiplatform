@@ -1302,7 +1302,7 @@ class TestLanguageModels:
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = preview_language_models.TextGenerationModel.from_pretrained(
+            model = language_models.TextGenerationModel.from_pretrained(
                 "text-bison@001"
             )
 

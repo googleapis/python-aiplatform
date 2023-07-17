@@ -223,7 +223,7 @@ class TextGenerationResponse:
         return self.text
 
 
-class TextGenerationModel(_LanguageModel):
+class _TextGenerationModel(_LanguageModel):
     """TextGenerationModel represents a general language model.
 
     Examples::
@@ -322,9 +322,6 @@ class TextGenerationModel(_LanguageModel):
                 )
             )
         return results
-
-
-_TextGenerationModel = TextGenerationModel
 
 
 class _ModelWithBatchPredict(_LanguageModel):
@@ -432,15 +429,19 @@ class _PreviewModelWithBatchPredict(_ModelWithBatchPredict):
         )
 
 
+class TextGenerationModel(_TextGenerationModel, _ModelWithBatchPredict):
+    pass
+
+
 class _PreviewTextGenerationModel(
-    TextGenerationModel, _TunableModelMixin, _PreviewModelWithBatchPredict
+    _TextGenerationModel, _TunableModelMixin, _PreviewModelWithBatchPredict
 ):
     """Preview text generation model."""
 
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
-class _ChatModel(TextGenerationModel):
+class _ChatModel(_TextGenerationModel):
     """ChatModel represents a language model that is capable of chat.
 
     Examples::
@@ -457,10 +458,10 @@ class _ChatModel(TextGenerationModel):
 
     def start_chat(
         self,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
     ) -> "_ChatSession":
         """Starts a chat session with the model.
 
@@ -491,10 +492,10 @@ class _ChatSession:
     def __init__(
         self,
         model: _ChatModel,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
     ):
         self._model = model
         self._history = []
@@ -635,10 +636,10 @@ class _ChatModelBase(_LanguageModel):
         *,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
         message_history: Optional[List[ChatMessage]] = None,
     ) -> "ChatSession":
         """Starts a chat session with the model.
@@ -754,10 +755,10 @@ class _ChatSessionBase:
         model: _ChatModelBase,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
         is_code_chat_session: bool = False,
         message_history: Optional[List[ChatMessage]] = None,
     ):
@@ -885,10 +886,10 @@ class ChatSession(_ChatSessionBase):
         model: ChatModel,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
+        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
+        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
         message_history: Optional[List[ChatMessage]] = None,
     ):
         super().__init__(
