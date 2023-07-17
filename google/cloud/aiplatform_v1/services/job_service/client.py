@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,6 +74,8 @@ from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
 from google.cloud.aiplatform_v1.types import model_monitoring
+from google.cloud.aiplatform_v1.types import nas_job
+from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import study
 from google.cloud.aiplatform_v1.types import unmanaged_container_model
@@ -235,6 +237,30 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def context_path(
+        project: str,
+        location: str,
+        metadata_store: str,
+        context: str,
+    ) -> str:
+        """Returns a fully-qualified context string."""
+        return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}".format(
+            project=project,
+            location=location,
+            metadata_store=metadata_store,
+            context=context,
+        )
+
+    @staticmethod
+    def parse_context_path(path: str) -> Dict[str, str]:
+        """Parses a context path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/metadataStores/(?P<metadata_store>.+?)/contexts/(?P<context>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def custom_job_path(
         project: str,
         location: str,
@@ -384,6 +410,52 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         """Parses a model_deployment_monitoring_job path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/modelDeploymentMonitoringJobs/(?P<model_deployment_monitoring_job>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def nas_job_path(
+        project: str,
+        location: str,
+        nas_job: str,
+    ) -> str:
+        """Returns a fully-qualified nas_job string."""
+        return "projects/{project}/locations/{location}/nasJobs/{nas_job}".format(
+            project=project,
+            location=location,
+            nas_job=nas_job,
+        )
+
+    @staticmethod
+    def parse_nas_job_path(path: str) -> Dict[str, str]:
+        """Parses a nas_job path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/nasJobs/(?P<nas_job>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def nas_trial_detail_path(
+        project: str,
+        location: str,
+        nas_job: str,
+        nas_trial_detail: str,
+    ) -> str:
+        """Returns a fully-qualified nas_trial_detail string."""
+        return "projects/{project}/locations/{location}/nasJobs/{nas_job}/nasTrialDetails/{nas_trial_detail}".format(
+            project=project,
+            location=location,
+            nas_job=nas_job,
+            nas_trial_detail=nas_trial_detail,
+        )
+
+    @staticmethod
+    def parse_nas_trial_detail_path(path: str) -> Dict[str, str]:
+        """Parses a nas_trial_detail path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/nasJobs/(?P<nas_job>.+?)/nasTrialDetails/(?P<nas_trial_detail>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -2427,6 +2499,789 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             timeout=timeout,
             metadata=metadata,
         )
+
+    def create_nas_job(
+        self,
+        request: Optional[Union[job_service.CreateNasJobRequest, dict]] = None,
+        *,
+        parent: Optional[str] = None,
+        nas_job: Optional[gca_nas_job.NasJob] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_nas_job.NasJob:
+        r"""Creates a NasJob
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_create_nas_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                nas_job = aiplatform_v1.NasJob()
+                nas_job.display_name = "display_name_value"
+                nas_job.nas_job_spec.multi_trial_algorithm_spec.search_trial_spec.search_trial_job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
+                nas_job.nas_job_spec.multi_trial_algorithm_spec.search_trial_spec.max_trial_count = 1609
+                nas_job.nas_job_spec.multi_trial_algorithm_spec.search_trial_spec.max_parallel_trial_count = 2549
+
+                request = aiplatform_v1.CreateNasJobRequest(
+                    parent="parent_value",
+                    nas_job=nas_job,
+                )
+
+                # Make the request
+                response = client.create_nas_job(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.CreateNasJobRequest, dict]):
+                The request object. Request message for
+                [JobService.CreateNasJob][google.cloud.aiplatform.v1.JobService.CreateNasJob].
+            parent (str):
+                Required. The resource name of the Location to create
+                the NasJob in. Format:
+                ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            nas_job (google.cloud.aiplatform_v1.types.NasJob):
+                Required. The NasJob to create.
+                This corresponds to the ``nas_job`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.NasJob:
+                Represents a Neural Architecture
+                Search (NAS) job.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, nas_job])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a job_service.CreateNasJobRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, job_service.CreateNasJobRequest):
+            request = job_service.CreateNasJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if nas_job is not None:
+                request.nas_job = nas_job
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.create_nas_job]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def get_nas_job(
+        self,
+        request: Optional[Union[job_service.GetNasJobRequest, dict]] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> nas_job.NasJob:
+        r"""Gets a NasJob
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_get_nas_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetNasJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_nas_job(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.GetNasJobRequest, dict]):
+                The request object. Request message for
+                [JobService.GetNasJob][google.cloud.aiplatform.v1.JobService.GetNasJob].
+            name (str):
+                Required. The name of the NasJob resource. Format:
+                ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.NasJob:
+                Represents a Neural Architecture
+                Search (NAS) job.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a job_service.GetNasJobRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, job_service.GetNasJobRequest):
+            request = job_service.GetNasJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_nas_job]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_nas_jobs(
+        self,
+        request: Optional[Union[job_service.ListNasJobsRequest, dict]] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListNasJobsPager:
+        r"""Lists NasJobs in a Location.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_list_nas_jobs():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListNasJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_nas_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.ListNasJobsRequest, dict]):
+                The request object. Request message for
+                [JobService.ListNasJobs][google.cloud.aiplatform.v1.JobService.ListNasJobs].
+            parent (str):
+                Required. The resource name of the Location to list the
+                NasJobs from. Format:
+                ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.services.job_service.pagers.ListNasJobsPager:
+                Response message for
+                   [JobService.ListNasJobs][google.cloud.aiplatform.v1.JobService.ListNasJobs]
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a job_service.ListNasJobsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, job_service.ListNasJobsRequest):
+            request = job_service.ListNasJobsRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.list_nas_jobs]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.ListNasJobsPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def delete_nas_job(
+        self,
+        request: Optional[Union[job_service.DeleteNasJobRequest, dict]] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Deletes a NasJob.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_nas_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteNasJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_nas_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.DeleteNasJobRequest, dict]):
+                The request object. Request message for
+                [JobService.DeleteNasJob][google.cloud.aiplatform.v1.JobService.DeleteNasJob].
+            name (str):
+                Required. The name of the NasJob resource to be deleted.
+                Format:
+                ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a job_service.DeleteNasJobRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, job_service.DeleteNasJobRequest):
+            request = job_service.DeleteNasJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.delete_nas_job]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def cancel_nas_job(
+        self,
+        request: Optional[Union[job_service.CancelNasJobRequest, dict]] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
+        r"""Cancels a NasJob. Starts asynchronous cancellation on the
+        NasJob. The server makes a best effort to cancel the job, but
+        success is not guaranteed. Clients can use
+        [JobService.GetNasJob][google.cloud.aiplatform.v1.JobService.GetNasJob]
+        or other methods to check whether the cancellation succeeded or
+        whether the job completed despite cancellation. On successful
+        cancellation, the NasJob is not deleted; instead it becomes a
+        job with a
+        [NasJob.error][google.cloud.aiplatform.v1.NasJob.error] value
+        with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+        corresponding to ``Code.CANCELLED``, and
+        [NasJob.state][google.cloud.aiplatform.v1.NasJob.state] is set
+        to ``CANCELLED``.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_cancel_nas_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CancelNasJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.cancel_nas_job(request=request)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.CancelNasJobRequest, dict]):
+                The request object. Request message for
+                [JobService.CancelNasJob][google.cloud.aiplatform.v1.JobService.CancelNasJob].
+            name (str):
+                Required. The name of the NasJob to cancel. Format:
+                ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a job_service.CancelNasJobRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, job_service.CancelNasJobRequest):
+            request = job_service.CancelNasJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.cancel_nas_job]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+    def get_nas_trial_detail(
+        self,
+        request: Optional[Union[job_service.GetNasTrialDetailRequest, dict]] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> nas_job.NasTrialDetail:
+        r"""Gets a NasTrialDetail.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_get_nas_trial_detail():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetNasTrialDetailRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_nas_trial_detail(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.GetNasTrialDetailRequest, dict]):
+                The request object. Request message for
+                [JobService.GetNasTrialDetail][google.cloud.aiplatform.v1.JobService.GetNasTrialDetail].
+            name (str):
+                Required. The name of the NasTrialDetail resource.
+                Format:
+                ``projects/{project}/locations/{location}/nasJobs/{nas_job}/nasTrialDetails/{nas_trial_detail}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.NasTrialDetail:
+                Represents a NasTrial details along
+                with its parameters. If there is a
+                corresponding train NasTrial, the train
+                NasTrial is also returned.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a job_service.GetNasTrialDetailRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, job_service.GetNasTrialDetailRequest):
+            request = job_service.GetNasTrialDetailRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_nas_trial_detail]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_nas_trial_details(
+        self,
+        request: Optional[Union[job_service.ListNasTrialDetailsRequest, dict]] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListNasTrialDetailsPager:
+        r"""List top NasTrialDetails of a NasJob.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_list_nas_trial_details():
+                # Create a client
+                client = aiplatform_v1.JobServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListNasTrialDetailsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_nas_trial_details(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.ListNasTrialDetailsRequest, dict]):
+                The request object. Request message for
+                [JobService.ListNasTrialDetails][google.cloud.aiplatform.v1.JobService.ListNasTrialDetails].
+            parent (str):
+                Required. The name of the NasJob resource. Format:
+                ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.services.job_service.pagers.ListNasTrialDetailsPager:
+                Response message for
+                   [JobService.ListNasTrialDetails][google.cloud.aiplatform.v1.JobService.ListNasTrialDetails]
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a job_service.ListNasTrialDetailsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, job_service.ListNasTrialDetailsRequest):
+            request = job_service.ListNasTrialDetailsRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.list_nas_trial_details]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.ListNasTrialDetailsPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
 
     def create_batch_prediction_job(
         self,

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ from google.cloud.aiplatform_v1.services.prediction_service import (
 )
 from google.cloud.aiplatform_v1.services.prediction_service import transports
 from google.cloud.aiplatform_v1.types import explanation
+from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import prediction_service
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore

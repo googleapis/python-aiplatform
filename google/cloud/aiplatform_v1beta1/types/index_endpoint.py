@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,11 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import machine_resources
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -101,6 +104,21 @@ class IndexEndpoint(proto.Message):
             or
             [enable_private_service_connect][google.cloud.aiplatform.v1beta1.IndexEndpoint.enable_private_service_connect],
             can be set.
+        private_service_connect_config (google.cloud.aiplatform_v1beta1.types.PrivateServiceConnectConfig):
+            Optional. Configuration for private service connect.
+
+            [network][google.cloud.aiplatform.v1beta1.IndexEndpoint.network]
+            and
+            [private_service_connect_config][google.cloud.aiplatform.v1beta1.IndexEndpoint.private_service_connect_config]
+            are mutually exclusive.
+        public_endpoint_enabled (bool):
+            Optional. If true, the deployed index will be
+            accessible through public endpoint.
+        public_endpoint_domain_name (str):
+            Output only. If
+            [public_endpoint_enabled][google.cloud.aiplatform.v1beta1.IndexEndpoint.public_endpoint_enabled]
+            is true, this field will be populated with the domain name
+            to use for this index endpoint.
     """
 
     name: str = proto.Field(
@@ -147,6 +165,21 @@ class IndexEndpoint(proto.Message):
         proto.BOOL,
         number=10,
     )
+    private_service_connect_config: service_networking.PrivateServiceConnectConfig = (
+        proto.Field(
+            proto.MESSAGE,
+            number=12,
+            message=service_networking.PrivateServiceConnectConfig,
+        )
+    )
+    public_endpoint_enabled: bool = proto.Field(
+        proto.BOOL,
+        number=13,
+    )
+    public_endpoint_domain_name: str = proto.Field(
+        proto.STRING,
+        number=14,
+    )
 
 
 class DeployedIndex(proto.Message):
@@ -182,18 +215,17 @@ class DeployedIndex(proto.Message):
             its original Index. Additionally when certain changes to the
             original Index are being done (e.g. when what the Index
             contains is being changed) the DeployedIndex may be
-            asynchronously updated in the background to reflect this
+            asynchronously updated in the background to reflect these
             changes. If this timestamp's value is at least the
             [Index.update_time][google.cloud.aiplatform.v1beta1.Index.update_time]
             of the original Index, it means that this DeployedIndex and
             the original Index are in sync. If this timestamp is older,
             then to see which updates this DeployedIndex already
-            contains (and which not), one must
-            [list][Operations.ListOperations] [Operations][Operation]
-            [working][Operation.name] on the original Index. Only the
+            contains (and which it does not), one must
+            [list][google.longrunning.Operations.ListOperations] the
+            operations that are running on the original Index. Only the
             successfully completed Operations with
-            [Operations.metadata.generic_metadata.update_time]
-            [google.cloud.aiplatform.v1beta1.GenericOperationMetadata.update_time]
+            [update_time][google.cloud.aiplatform.v1beta1.GenericOperationMetadata.update_time]
             equal or before this sync time are contained in this
             DeployedIndex.
         automatic_resources (google.cloud.aiplatform_v1beta1.types.AutomaticResources):
@@ -218,23 +250,23 @@ class DeployedIndex(proto.Message):
             Available machine types for MEDIUM shard: e2-standard-16 and
             all machine types available for LARGE shard.
 
-            Available machine types for LARGE shard: e2-standard-32,
-            e2-highmem-16, n2d-standard-32.
+            Available machine types for LARGE shard: e2-highmem-16,
+            n2d-standard-32.
 
             n1-standard-16 and n1-standard-32 are still available, but
-            we recommend e2-standard-16 and e2-standard-32 for cost
+            we recommend e2-standard-16 and e2-highmem-16 for cost
             efficiency.
         enable_access_logging (bool):
             Optional. If true, private endpoint's access
-            logs are sent to StackDriver Logging.
+            logs are sent to Cloud Logging.
 
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each MatchRequest.
-            Note that Stackdriver logs may incur a cost,
-            especially if the deployed index receives a high
-            queries per second rate (QPS). Estimate your
-            costs before enabling this option.
+            Note that logs may incur a cost, especially if
+            the deployed index receives a high queries per
+            second rate (QPS). Estimate your costs before
+            enabling this option.
         deployed_index_auth_config (google.cloud.aiplatform_v1beta1.types.DeployedIndexAuthConfig):
             Optional. If set, the authentication is
             enabled for the private endpoint.
@@ -247,7 +279,7 @@ class DeployedIndex(proto.Message):
             be deployed to any ip ranges under the provided
             VPC network.
 
-            The value sohuld be the name of the address
+            The value should be the name of the address
             (https://cloud.google.com/compute/docs/reference/rest/v1/addresses)
             Example: 'vertex-ai-ip-range'.
         deployment_group (str):

@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import get_artifact_with_uri_sample
-
+from experiment_tracking import get_artifact_with_uri_sample
 import test_constants
 
 

@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import assign_aliases_model_version_sample
-
+from model_registry import assign_aliases_model_version_sample
 import test_constants as constants
 
 

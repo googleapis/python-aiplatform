@@ -32,9 +32,6 @@ import uuid
 from unittest import mock
 from unittest.mock import patch
 
-import test_training_jobs
-
-from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -69,67 +66,92 @@ from google.cloud import storage
 from google.protobuf import json_format
 from google.protobuf import struct_pb2
 from google.protobuf import duration_pb2  # type: ignore
+import constants as test_constants
 
 _TEST_BUCKET_NAME = "test-bucket"
 _TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
 _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
 _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
-_TEST_LOCAL_SCRIPT_FILE_NAME = "____test____script.py"
+_TEST_LOCAL_SCRIPT_FILE_NAME = (
+    test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME
+)
 _TEST_TEMPDIR = tempfile.mkdtemp()
 _TEST_LOCAL_SCRIPT_FILE_PATH = os.path.join(_TEST_TEMPDIR, _TEST_LOCAL_SCRIPT_FILE_NAME)
 _TEST_PYTHON_SOURCE = """
 print('hello world')
 """
-_TEST_REQUIREMENTS = ["pandas", "numpy", "tensorflow"]
+_TEST_REQUIREMENTS = test_constants.TrainingJobConstants._TEST_REQUIREMENTS
 
 _TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
 _TEST_DATASET_NAME = "test-dataset-name"
 _TEST_DISPLAY_NAME = "test-display-name"
 _TEST_METADATA_SCHEMA_URI_TABULAR = schema.dataset.metadata.tabular
-_TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
+_TEST_TRAINING_CONTAINER_IMAGE = (
+    test_constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE
+)
 _TEST_TRAINING_CONTAINER_CMD = ["python3", "task.py"]
-_TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
-_TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
-_TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
-_TEST_MODULE_NAME = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}.task"
+_TEST_SERVING_CONTAINER_IMAGE = (
+    test_constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE
+)
+_TEST_SERVING_CONTAINER_PREDICTION_ROUTE = (
+    test_constants.TrainingJobConstants._TEST_SERVING_CONTAINER_PREDICTION_ROUTE
+)
+_TEST_SERVING_CONTAINER_HEALTH_ROUTE = (
+    test_constants.TrainingJobConstants._TEST_SERVING_CONTAINER_HEALTH_ROUTE
+)
+_TEST_MODULE_NAME = test_constants.TrainingJobConstants._TEST_MODULE_NAME
 
 _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
 _TEST_ANNOTATION_SCHEMA_URI = schema.dataset.annotation.image.classification
 
 _TEST_BASE_OUTPUT_DIR = "gs://test-base-output-dir"
-_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+_TEST_SERVICE_ACCOUNT = test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT
 _TEST_BIGQUERY_DESTINATION = "bq://my-project"
-_TEST_RUN_ARGS = ["-v", 0.1, "--test=arg"]
-_TEST_REPLICA_COUNT = 1
-_TEST_MACHINE_TYPE = "n1-standard-4"
-_TEST_REDUCTION_SERVER_REPLICA_COUNT = 1
-_TEST_REDUCTION_SERVER_MACHINE_TYPE = "n1-highcpu-16"
-_TEST_REDUCTION_SERVER_CONTAINER_URI = (
-    "us-docker.pkg.dev/vertex-ai-restricted/training/reductionserver:latest"
+_TEST_RUN_ARGS = test_constants.TrainingJobConstants._TEST_RUN_ARGS
+_TEST_REPLICA_COUNT = test_constants.TrainingJobConstants._TEST_REPLICA_COUNT
+_TEST_MACHINE_TYPE = test_constants.TrainingJobConstants._TEST_MACHINE_TYPE
+_TEST_REDUCTION_SERVER_REPLICA_COUNT = (
+    test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_REPLICA_COUNT
 )
-_TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_K80"
+_TEST_REDUCTION_SERVER_MACHINE_TYPE = (
+    test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_MACHINE_TYPE
+)
+_TEST_REDUCTION_SERVER_CONTAINER_URI = (
+    test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_CONTAINER_URI
+)
+_TEST_ACCELERATOR_TYPE = test_constants.TrainingJobConstants._TEST_ACCELERATOR_TYPE
 _TEST_INVALID_ACCELERATOR_TYPE = "NVIDIA_DOES_NOT_EXIST"
-_TEST_ACCELERATOR_COUNT = 1
-_TEST_BOOT_DISK_TYPE_DEFAULT = "pd-ssd"
-_TEST_BOOT_DISK_SIZE_GB_DEFAULT = 100
-_TEST_BOOT_DISK_TYPE = "pd-standard"
-_TEST_BOOT_DISK_SIZE_GB = 300
-_TEST_MODEL_DISPLAY_NAME = "model-display-name"
-_TEST_LABELS = {"key": "value"}
-_TEST_MODEL_LABELS = {"model_key": "model_value"}
+_TEST_ACCELERATOR_COUNT = test_constants.TrainingJobConstants._TEST_ACCELERATOR_COUNT
+_TEST_BOOT_DISK_TYPE_DEFAULT = (
+    test_constants.TrainingJobConstants._TEST_BOOT_DISK_TYPE_DEFAULT
+)
+_TEST_BOOT_DISK_SIZE_GB_DEFAULT = (
+    test_constants.TrainingJobConstants._TEST_BOOT_DISK_SIZE_GB_DEFAULT
+)
+_TEST_BOOT_DISK_TYPE = test_constants.TrainingJobConstants._TEST_BOOT_DISK_TYPE
+_TEST_BOOT_DISK_SIZE_GB = test_constants.TrainingJobConstants._TEST_BOOT_DISK_SIZE_GB
+_TEST_MODEL_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_MODEL_DISPLAY_NAME
+_TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
+_TEST_MODEL_LABELS = test_constants.TrainingJobConstants._TEST_MODEL_LABELS
 
-_TEST_TRAINING_FRACTION_SPLIT = 0.6
-_TEST_VALIDATION_FRACTION_SPLIT = 0.2
-_TEST_TEST_FRACTION_SPLIT = 0.2
+_TEST_TRAINING_FRACTION_SPLIT = (
+    test_constants.TrainingJobConstants._TEST_TRAINING_FRACTION_SPLIT
+)
+_TEST_VALIDATION_FRACTION_SPLIT = (
+    test_constants.TrainingJobConstants._TEST_VALIDATION_FRACTION_SPLIT
+)
+_TEST_TEST_FRACTION_SPLIT = (
+    test_constants.TrainingJobConstants._TEST_TEST_FRACTION_SPLIT
+)
 _TEST_TRAINING_FILTER_SPLIT = "train"
 _TEST_VALIDATION_FILTER_SPLIT = "validate"
 _TEST_TEST_FILTER_SPLIT = "test"
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 _TEST_TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp"
 
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_ID = "1028944691210842416"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
+_TEST_ID = test_constants.TrainingJobConstants._TEST_ID
 _TEST_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/{_TEST_ID}"
 )
@@ -143,7 +165,7 @@ _TEST_MODEL_VERSION_DESCRIPTION = "My version description"
 _TEST_MODEL_VERSION_ID = "2"
 _TEST_ALT_PROJECT = "test-project-alt"
 _TEST_ALT_LOCATION = "europe-west4"
-_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
+_TEST_NETWORK = test_constants.TrainingJobConstants._TEST_NETWORK
 
 _TEST_MODEL_INSTANCE_SCHEMA_URI = "instance_schema_uri.yaml"
 _TEST_MODEL_PARAMETERS_SCHEMA_URI = "parameters_schema_uri.yaml"
@@ -154,13 +176,15 @@ _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
     "learning_rate": 0.01,
     "loss_fn": "mse",
 }
-_TEST_ENVIRONMENT_VARIABLES = {
-    "MY_PATH": "/path/to/my_path",
-}
+_TEST_ENVIRONMENT_VARIABLES = (
+    test_constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES
+)
 _TEST_MODEL_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_MODEL_DESCRIPTION = "test description"
 
-_TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test-staging-bucket/trainer.tar.gz"
+_TEST_OUTPUT_PYTHON_PACKAGE_PATH = (
+    test_constants.TrainingJobConstants._TEST_OUTPUT_PYTHON_PACKAGE_PATH
+)
 _TEST_PACKAGE_GCS_URIS = [_TEST_OUTPUT_PYTHON_PACKAGE_PATH] * 2
 _TEST_PYTHON_MODULE_NAME = "aiplatform.task"
 
@@ -169,7 +193,7 @@ _TEST_MODEL_NAME = f"projects/{_TEST_PROJECT}/locations/us-central1/models/{_TES
 _TEST_PIPELINE_RESOURCE_NAME = (
     f"projects/{_TEST_PROJECT}/locations/us-central1/trainingPipelines/{_TEST_ID}"
 )
-_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_CREDENTIALS = test_constants.TrainingJobConstants._TEST_CREDENTIALS
 
 
 # Explanation Spec
@@ -205,10 +229,14 @@ _TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 )
 
 _TEST_TIMEOUT = 1000
-_TEST_RESTART_JOB_ON_WORKER_RESTART = True
+_TEST_RESTART_JOB_ON_WORKER_RESTART = (
+    test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
+)
 
-_TEST_ENABLE_WEB_ACCESS = True
-_TEST_WEB_ACCESS_URIS = {"workerpool0-0": "uri"}
+_TEST_ENABLE_WEB_ACCESS = test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS
+_TEST_ENABLE_DASHBOARD_ACCESS = True
+_TEST_WEB_ACCESS_URIS = test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS
+_TEST_DASHBOARD_ACCESS_URIS = {"workerpool0-0:8888": "uri"}
 
 _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job.CustomJob(
     job_spec=gca_custom_job.CustomJobSpec(),
@@ -223,6 +251,19 @@ def _get_custom_job_proto_with_enable_web_access(state=None, name=None, version=
     custom_job_proto.job_spec.enable_web_access = _TEST_ENABLE_WEB_ACCESS
     if state == gca_job_state.JobState.JOB_STATE_RUNNING:
         custom_job_proto.web_access_uris = _TEST_WEB_ACCESS_URIS
+    return custom_job_proto
+
+
+def _get_custom_job_proto_with_enable_dashboard_access(
+    state=None, name=None, version="v1"
+):
+    custom_job_proto = copy.deepcopy(_TEST_BASE_CUSTOM_JOB_PROTO)
+    custom_job_proto.name = name
+    custom_job_proto.state = state
+
+    custom_job_proto.job_spec.enable_dashboard_access = _TEST_ENABLE_DASHBOARD_ACCESS
+    if state == gca_job_state.JobState.JOB_STATE_RUNNING:
+        custom_job_proto.web_access_uris = _TEST_DASHBOARD_ACCESS_URIS
     return custom_job_proto
 
 
@@ -344,6 +385,40 @@ def mock_get_backing_custom_job_with_enable_web_access():
                 state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
             ),
             _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+            ),
+        ]
+        yield get_custom_job_mock
+
+
+@pytest.fixture
+def mock_get_backing_custom_job_with_enable_dashboard_access():
+    with patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as get_custom_job_mock:
+        get_custom_job_mock.side_effect = [
+            _get_custom_job_proto_with_enable_dashboard_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_PENDING,
+            ),
+            _get_custom_job_proto_with_enable_dashboard_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_dashboard_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_dashboard_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_dashboard_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+            ),
+            _get_custom_job_proto_with_enable_dashboard_access(
                 name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
                 state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
             ),
@@ -635,6 +710,19 @@ def make_training_pipeline_with_enable_web_access(state):
     return training_pipeline
 
 
+def make_training_pipeline_with_enable_dashboard_access(state):
+    training_pipeline = gca_training_pipeline.TrainingPipeline(
+        name=_TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
+        training_task_inputs={"enable_dashboard_access": _TEST_ENABLE_DASHBOARD_ACCESS},
+    )
+    if state == gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING:
+        training_pipeline.training_task_metadata = {
+            "backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME
+        }
+    return training_pipeline
+
+
 def make_training_pipeline_with_scheduling(state):
     training_pipeline = gca_training_pipeline.TrainingPipeline(
         name=_TEST_PIPELINE_RESOURCE_NAME,
@@ -707,6 +795,35 @@ def mock_pipeline_service_get_with_enable_web_access():
 
 
 @pytest.fixture
+def mock_pipeline_service_get_with_enable_dashboard_access():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as mock_get_training_pipeline:
+        mock_get_training_pipeline.side_effect = [
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            ),
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+        ]
+
+        yield mock_get_training_pipeline
+
+
+@pytest.fixture
 def mock_pipeline_service_get_with_scheduling():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
@@ -764,6 +881,19 @@ def mock_pipeline_service_create_with_enable_web_access():
     ) as mock_create_training_pipeline:
         mock_create_training_pipeline.return_value = (
             make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            )
+        )
+        yield mock_create_training_pipeline
+
+
+@pytest.fixture
+def mock_pipeline_service_create_with_enable_dashboard_access():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = (
+            make_training_pipeline_with_enable_dashboard_access(
                 state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
             )
         )
@@ -1624,7 +1754,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": test_training_jobs._TEST_MODULE_NAME,
+                "python_module": _TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -1944,7 +2074,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": test_training_jobs._TEST_MODULE_NAME,
+                "python_module": _TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -2038,6 +2168,54 @@ class TestCustomTrainingJob:
         print(caplog.text)
         assert "workerpool0-0" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    # TODO: Update test to address Mutant issue b/270708320
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_dashboard_access",
+        "mock_pipeline_service_get_with_enable_dashboard_access",
+        "mock_get_backing_custom_job_with_enable_dashboard_access",
+        "mock_python_package_to_gcs",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_dashboard_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_dashboard_access=_TEST_ENABLE_DASHBOARD_ACCESS,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            job.wait()
+
+        print(caplog.text)
+        assert "workerpool0-0:8888" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_dashboard_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
@@ -2318,7 +2496,7 @@ class TestCustomTrainingJob:
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "python_module": test_training_jobs._TEST_MODULE_NAME,
+                    "python_module": _TEST_MODULE_NAME,
                     "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
@@ -2492,7 +2670,7 @@ class TestCustomTrainingJob:
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "python_module": test_training_jobs._TEST_MODULE_NAME,
+                    "python_module": _TEST_MODULE_NAME,
                     "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
@@ -2734,7 +2912,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": test_training_jobs._TEST_MODULE_NAME,
+                "python_module": _TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
@@ -3991,6 +4169,53 @@ class TestCustomContainerTrainingJob:
         print(caplog.text)
         assert "workerpool0-0" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    # TODO: Update test to address Mutant issue b/270708320
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_dashboard_access",
+        "mock_pipeline_service_get_with_enable_dashboard_access",
+        "mock_get_backing_custom_job_with_enable_dashboard_access",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_dashboard_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_dashboard_access=_TEST_ENABLE_DASHBOARD_ACCESS,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            job.wait()
+
+        print(caplog.text)
+        assert "workerpool0-0:8888" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_dashboard_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
@@ -6218,6 +6443,53 @@ class TestCustomPythonPackageTrainingJob:
         print(caplog.text)
         assert "workerpool0-0" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    # TODO: Update test to address Mutant issue b/270708320
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_dashboard_access",
+        "mock_pipeline_service_get_with_enable_dashboard_access",
+        "mock_get_backing_custom_job_with_enable_dashboard_access",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_dashboard_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomPythonPackageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_module_name=_TEST_PYTHON_MODULE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_dashboard_access=_TEST_ENABLE_DASHBOARD_ACCESS,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            job.wait()
+        print(caplog.text)
+        assert "workerpool0-0:8888" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_dashboard_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 

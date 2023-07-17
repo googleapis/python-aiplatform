@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,6 +42,8 @@ from google.cloud.aiplatform_v1.types import model_deployment_monitoring_job
 from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
+from google.cloud.aiplatform_v1.types import nas_job
+from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -718,6 +720,201 @@ class JobServiceGrpcTransport(JobServiceTransport):
                 response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_hyperparameter_tuning_job"]
+
+    @property
+    def create_nas_job(
+        self,
+    ) -> Callable[[job_service.CreateNasJobRequest], gca_nas_job.NasJob]:
+        r"""Return a callable for the create nas job method over gRPC.
+
+        Creates a NasJob
+
+        Returns:
+            Callable[[~.CreateNasJobRequest],
+                    ~.NasJob]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "create_nas_job" not in self._stubs:
+            self._stubs["create_nas_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/CreateNasJob",
+                request_serializer=job_service.CreateNasJobRequest.serialize,
+                response_deserializer=gca_nas_job.NasJob.deserialize,
+            )
+        return self._stubs["create_nas_job"]
+
+    @property
+    def get_nas_job(self) -> Callable[[job_service.GetNasJobRequest], nas_job.NasJob]:
+        r"""Return a callable for the get nas job method over gRPC.
+
+        Gets a NasJob
+
+        Returns:
+            Callable[[~.GetNasJobRequest],
+                    ~.NasJob]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "get_nas_job" not in self._stubs:
+            self._stubs["get_nas_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/GetNasJob",
+                request_serializer=job_service.GetNasJobRequest.serialize,
+                response_deserializer=nas_job.NasJob.deserialize,
+            )
+        return self._stubs["get_nas_job"]
+
+    @property
+    def list_nas_jobs(
+        self,
+    ) -> Callable[[job_service.ListNasJobsRequest], job_service.ListNasJobsResponse]:
+        r"""Return a callable for the list nas jobs method over gRPC.
+
+        Lists NasJobs in a Location.
+
+        Returns:
+            Callable[[~.ListNasJobsRequest],
+                    ~.ListNasJobsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_nas_jobs" not in self._stubs:
+            self._stubs["list_nas_jobs"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/ListNasJobs",
+                request_serializer=job_service.ListNasJobsRequest.serialize,
+                response_deserializer=job_service.ListNasJobsResponse.deserialize,
+            )
+        return self._stubs["list_nas_jobs"]
+
+    @property
+    def delete_nas_job(
+        self,
+    ) -> Callable[[job_service.DeleteNasJobRequest], operations_pb2.Operation]:
+        r"""Return a callable for the delete nas job method over gRPC.
+
+        Deletes a NasJob.
+
+        Returns:
+            Callable[[~.DeleteNasJobRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_nas_job" not in self._stubs:
+            self._stubs["delete_nas_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/DeleteNasJob",
+                request_serializer=job_service.DeleteNasJobRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_nas_job"]
+
+    @property
+    def cancel_nas_job(
+        self,
+    ) -> Callable[[job_service.CancelNasJobRequest], empty_pb2.Empty]:
+        r"""Return a callable for the cancel nas job method over gRPC.
+
+        Cancels a NasJob. Starts asynchronous cancellation on the
+        NasJob. The server makes a best effort to cancel the job, but
+        success is not guaranteed. Clients can use
+        [JobService.GetNasJob][google.cloud.aiplatform.v1.JobService.GetNasJob]
+        or other methods to check whether the cancellation succeeded or
+        whether the job completed despite cancellation. On successful
+        cancellation, the NasJob is not deleted; instead it becomes a
+        job with a
+        [NasJob.error][google.cloud.aiplatform.v1.NasJob.error] value
+        with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+        corresponding to ``Code.CANCELLED``, and
+        [NasJob.state][google.cloud.aiplatform.v1.NasJob.state] is set
+        to ``CANCELLED``.
+
+        Returns:
+            Callable[[~.CancelNasJobRequest],
+                    ~.Empty]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "cancel_nas_job" not in self._stubs:
+            self._stubs["cancel_nas_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/CancelNasJob",
+                request_serializer=job_service.CancelNasJobRequest.serialize,
+                response_deserializer=empty_pb2.Empty.FromString,
+            )
+        return self._stubs["cancel_nas_job"]
+
+    @property
+    def get_nas_trial_detail(
+        self,
+    ) -> Callable[[job_service.GetNasTrialDetailRequest], nas_job.NasTrialDetail]:
+        r"""Return a callable for the get nas trial detail method over gRPC.
+
+        Gets a NasTrialDetail.
+
+        Returns:
+            Callable[[~.GetNasTrialDetailRequest],
+                    ~.NasTrialDetail]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "get_nas_trial_detail" not in self._stubs:
+            self._stubs["get_nas_trial_detail"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/GetNasTrialDetail",
+                request_serializer=job_service.GetNasTrialDetailRequest.serialize,
+                response_deserializer=nas_job.NasTrialDetail.deserialize,
+            )
+        return self._stubs["get_nas_trial_detail"]
+
+    @property
+    def list_nas_trial_details(
+        self,
+    ) -> Callable[
+        [job_service.ListNasTrialDetailsRequest],
+        job_service.ListNasTrialDetailsResponse,
+    ]:
+        r"""Return a callable for the list nas trial details method over gRPC.
+
+        List top NasTrialDetails of a NasJob.
+
+        Returns:
+            Callable[[~.ListNasTrialDetailsRequest],
+                    ~.ListNasTrialDetailsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_nas_trial_details" not in self._stubs:
+            self._stubs["list_nas_trial_details"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/ListNasTrialDetails",
+                request_serializer=job_service.ListNasTrialDetailsRequest.serialize,
+                response_deserializer=job_service.ListNasTrialDetailsResponse.deserialize,
+            )
+        return self._stubs["list_nas_trial_details"]
 
     @property
     def create_batch_prediction_job(

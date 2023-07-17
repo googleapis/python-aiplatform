@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,8 +23,15 @@ from google.cloud import storage
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.utils import rest_utils
+from google.cloud.aiplatform.metadata.schema.google import (
+    artifact_schema as google_artifact_schema,
+)
 from tests.system.aiplatform import e2e_base
 from tests.system.aiplatform import test_model_upload
+
+import numpy as np
+import sklearn
+from sklearn.linear_model import LinearRegression
 
 
 _RUN = "run-1"
@@ -161,7 +168,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
             experiment=self._experiment_name,
         )
         aiplatform.start_run(_RUN, resume=True)
-        aiplatform.log_classification_metrics(
+        classification_metrics = aiplatform.log_classification_metrics(
             display_name=_CLASSIFICATION_METRICS["display_name"],
             labels=_CLASSIFICATION_METRICS["labels"],
             matrix=_CLASSIFICATION_METRICS["matrix"],
@@ -174,7 +181,49 @@ class TestExperiments(e2e_base.TestEndToEnd):
         metrics = run.get_classification_metrics()[0]
         metric_artifact = aiplatform.Artifact(metrics.pop("id"))
         assert metrics == _CLASSIFICATION_METRICS
+        assert isinstance(
+            classification_metrics, google_artifact_schema.ClassificationMetrics
+        )
         metric_artifact.delete()
+
+    def test_log_model(self, shared_state):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
+
+        train_x = np.array([[1, 1], [1, 2], [2, 2], [2, 3]])
+        train_y = np.dot(train_x, np.array([1, 2])) + 3
+        model = LinearRegression()
+        model.fit(train_x, train_y)
+
+        model_artifact = aiplatform.log_model(
+            model=model,
+            artifact_id="sklearn-model",
+            uri=f"gs://{shared_state['staging_bucket_name']}/sklearn-model",
+            input_example=train_x,
+        )
+        shared_state["resources"].append(model_artifact)
+
+        run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
+        experiment_model = run.get_experiment_models()[0]
+        assert experiment_model.name == "sklearn-model"
+        assert (
+            experiment_model.uri
+            == f"gs://{shared_state['staging_bucket_name']}/sklearn-model"
+        )
+        assert experiment_model.get_model_info() == {
+            "model_class": "sklearn.linear_model._base.LinearRegression",
+            "framework_name": "sklearn",
+            "framework_version": sklearn.__version__,
+            "input_example": {
+                "type": "numpy.ndarray",
+                "data": train_x.tolist(),
+            },
+        }
+        experiment_model.delete()
 
     def test_create_artifact(self, shared_state):
         ds = aiplatform.Artifact.create(

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -54,12 +56,12 @@ class JobState(proto.Enum):
         JOB_STATE_EXPIRED (9):
             The job has expired.
         JOB_STATE_UPDATING (10):
-            The job is being updated. The job is only able to be updated
-            at RUNNING state; if the update operation succeeds, job goes
-            back to RUNNING state; if the update operation fails, the
-            job goes back to RUNNING state with error messages written
-            to [ModelDeploymentMonitoringJob.partial_errors][] field if
-            it is a ModelDeploymentMonitoringJob.
+            The job is being updated. Only jobs in the ``RUNNING`` state
+            can be updated. After updating, the job goes back to the
+            ``RUNNING`` state.
+        JOB_STATE_PARTIALLY_SUCCEEDED (11):
+            The job is partially succeeded, some results
+            may be missing due to errors.
     """
     JOB_STATE_UNSPECIFIED = 0
     JOB_STATE_QUEUED = 1
@@ -72,6 +74,7 @@ class JobState(proto.Enum):
     JOB_STATE_PAUSED = 8
     JOB_STATE_EXPIRED = 9
     JOB_STATE_UPDATING = 10
+    JOB_STATE_PARTIALLY_SUCCEEDED = 11
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

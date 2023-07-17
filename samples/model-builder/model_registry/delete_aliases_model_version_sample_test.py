@@ -13,8 +13,7 @@
 # limitations under the License.
 
 
-import delete_aliases_model_version_sample
-
+from model_registry import delete_aliases_model_version_sample
 import test_constants as constants
 
 

@@ -42,7 +42,6 @@ def test_create_training_pipeline_forecasting_seq2seq_sample(
         export_evaluated_data_items=constants.EXPORT_EVALUATED_DATA_ITEMS,
         export_evaluated_data_items_bigquery_destination_uri=constants.EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
         export_evaluated_data_items_override_destination=constants.EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
-        quantiles=constants.QUANTILES,
         validation_options=constants.VALIDATION_OPTIONS,
         predefined_split_column_name=constants.PREDEFINED_SPLIT_COLUMN_NAME,
     )
@@ -78,7 +77,6 @@ def test_create_training_pipeline_forecasting_seq2seq_sample(
         export_evaluated_data_items=constants.EXPORT_EVALUATED_DATA_ITEMS,
         export_evaluated_data_items_bigquery_destination_uri=constants.EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
         export_evaluated_data_items_override_destination=constants.EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
-        quantiles=constants.QUANTILES,
         validation_options=constants.VALIDATION_OPTIONS,
         predefined_split_column_name=constants.PREDEFINED_SPLIT_COLUMN_NAME,
         sync=True,

@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import get_execution_output_artifacts_sample
+
 from google.cloud import aiplatform
 
+from experiment_tracking import get_execution_output_artifacts_sample
 
-def test_aiplatform_sdk_get_execution_output_artifacts_sample(
-    mock_get_execution
-):
+
+def test_aiplatform_sdk_get_execution_output_artifacts_sample(mock_get_execution):
     exc = aiplatform.Execution()
     get_execution_output_artifacts_sample.get_execution_output_artifacts_sample(
         execution=exc

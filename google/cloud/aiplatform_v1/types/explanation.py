@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,11 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import explanation_metadata
+from google.cloud.aiplatform_v1.types import io
 from google.protobuf import struct_pb2  # type: ignore
 
 
@@ -36,6 +39,8 @@ __protobuf__ = proto.module(
         "SmoothGradConfig",
         "FeatureNoiseSigma",
         "BlurBaselineConfig",
+        "Examples",
+        "Presets",
         "ExplanationSpecOverride",
         "ExplanationMetadataOverride",
         "ExamplesOverride",
@@ -372,6 +377,11 @@ class ExplanationParameters(proto.Message):
             Gradients instead.
 
             This field is a member of `oneof`_ ``method``.
+        examples (google.cloud.aiplatform_v1.types.Examples):
+            Example-based explanations that returns the
+            nearest neighbors from the provided dataset.
+
+            This field is a member of `oneof`_ ``method``.
         top_k (int):
             If populated, returns attributions for top K
             indices of outputs (defaults to 1). Only applies
@@ -410,6 +420,12 @@ class ExplanationParameters(proto.Message):
         number=3,
         oneof="method",
         message="XraiAttribution",
+    )
+    examples: "Examples" = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        oneof="method",
+        message="Examples",
     )
     top_k: int = proto.Field(
         proto.INT32,
@@ -676,6 +692,170 @@ class BlurBaselineConfig(proto.Message):
     )
 
 
+class Examples(proto.Message):
+    r"""Example-based explainability that returns the nearest
+    neighbors from the provided dataset.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        example_gcs_source (google.cloud.aiplatform_v1.types.Examples.ExampleGcsSource):
+            The Cloud Storage input instances.
+
+            This field is a member of `oneof`_ ``source``.
+        nearest_neighbor_search_config (google.protobuf.struct_pb2.Value):
+            The full configuration for the generated index, the
+            semantics are the same as
+            [metadata][google.cloud.aiplatform.v1.Index.metadata] and
+            should match
+            `NearestNeighborSearchConfig <https://cloud.google.com/vertex-ai/docs/explainable-ai/configuring-explanations-example-based#nearest-neighbor-search-config>`__.
+
+            This field is a member of `oneof`_ ``config``.
+        presets (google.cloud.aiplatform_v1.types.Presets):
+            Simplified preset configuration, which
+            automatically sets configuration values based on
+            the desired query speed-precision trade-off and
+            modality.
+
+            This field is a member of `oneof`_ ``config``.
+        neighbor_count (int):
+            The number of neighbors to return when
+            querying for examples.
+    """
+
+    class ExampleGcsSource(proto.Message):
+        r"""The Cloud Storage input instances.
+
+        Attributes:
+            data_format (google.cloud.aiplatform_v1.types.Examples.ExampleGcsSource.DataFormat):
+                The format in which instances are given, if
+                not specified, assume it's JSONL format.
+                Currently only JSONL format is supported.
+            gcs_source (google.cloud.aiplatform_v1.types.GcsSource):
+                The Cloud Storage location for the input
+                instances.
+        """
+
+        class DataFormat(proto.Enum):
+            r"""The format of the input example instances.
+
+            Values:
+                DATA_FORMAT_UNSPECIFIED (0):
+                    Format unspecified, used when unset.
+                JSONL (1):
+                    Examples are stored in JSONL files.
+            """
+            DATA_FORMAT_UNSPECIFIED = 0
+            JSONL = 1
+
+        data_format: "Examples.ExampleGcsSource.DataFormat" = proto.Field(
+            proto.ENUM,
+            number=1,
+            enum="Examples.ExampleGcsSource.DataFormat",
+        )
+        gcs_source: io.GcsSource = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=io.GcsSource,
+        )
+
+    example_gcs_source: ExampleGcsSource = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="source",
+        message=ExampleGcsSource,
+    )
+    nearest_neighbor_search_config: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="config",
+        message=struct_pb2.Value,
+    )
+    presets: "Presets" = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="config",
+        message="Presets",
+    )
+    neighbor_count: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+
+
+class Presets(proto.Message):
+    r"""Preset configuration for example-based explanations
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        query (google.cloud.aiplatform_v1.types.Presets.Query):
+            Preset option controlling parameters for speed-precision
+            trade-off when querying for examples. If omitted, defaults
+            to ``PRECISE``.
+
+            This field is a member of `oneof`_ ``_query``.
+        modality (google.cloud.aiplatform_v1.types.Presets.Modality):
+            The modality of the uploaded model, which
+            automatically configures the distance
+            measurement and feature normalization for the
+            underlying example index and queries. If your
+            model does not precisely fit one of these types,
+            it is okay to choose the closest type.
+    """
+
+    class Query(proto.Enum):
+        r"""Preset option controlling parameters for query
+        speed-precision trade-off
+
+        Values:
+            PRECISE (0):
+                More precise neighbors as a trade-off against
+                slower response.
+            FAST (1):
+                Faster response as a trade-off against less
+                precise neighbors.
+        """
+        PRECISE = 0
+        FAST = 1
+
+    class Modality(proto.Enum):
+        r"""Preset option controlling parameters for different modalities
+
+        Values:
+            MODALITY_UNSPECIFIED (0):
+                Should not be set. Added as a recommended
+                best practice for enums
+            IMAGE (1):
+                IMAGE modality
+            TEXT (2):
+                TEXT modality
+            TABULAR (3):
+                TABULAR modality
+        """
+        MODALITY_UNSPECIFIED = 0
+        IMAGE = 1
+        TEXT = 2
+        TABULAR = 3
+
+    query: Query = proto.Field(
+        proto.ENUM,
+        number=1,
+        optional=True,
+        enum=Query,
+    )
+    modality: Modality = proto.Field(
+        proto.ENUM,
+        number=2,
+        enum=Modality,
+    )
+
+
 class ExplanationSpecOverride(proto.Message):
     r"""The [ExplanationSpec][google.cloud.aiplatform.v1.ExplanationSpec]
     entries that can be overridden at [online
@@ -684,10 +864,9 @@ class ExplanationSpecOverride(proto.Message):
 
     Attributes:
         parameters (google.cloud.aiplatform_v1.types.ExplanationParameters):
-            The parameters to be overridden. Note that the
-            [method][google.cloud.aiplatform.v1.ExplanationParameters.method]
-            cannot be changed. If not specified, no parameter is
-            overridden.
+            The parameters to be overridden. Note that
+            the attribution method cannot be changed. If not
+            specified, no parameter is overridden.
         metadata (google.cloud.aiplatform_v1.types.ExplanationMetadataOverride):
             The metadata to be overridden. If not
             specified, no metadata is overridden.

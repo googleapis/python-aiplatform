@@ -170,8 +170,7 @@ def default(session):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
-        # There are 11000+ GAPIC unit tests which causes the log to be cut off.
-        # "--verbose",
+        "--quiet",
         f"--junitxml=unit_{session.python}_sponge_log.xml",
         "--cov=google",
         "--cov-append",
@@ -192,9 +191,9 @@ def unit(session):
 def install_systemtest_dependencies(session, *constraints):
 
     # Use pre-release gRPC for system tests.
-    # Exclude version 1.49.0rc1 which has a known issue.
-    # See https://github.com/grpc/grpc/pull/30642
-    session.install("--pre", "grpcio!=1.49.0rc1")
+    # Exclude version 1.52.0rc1 which has a known issue.
+    # See https://github.com/grpc/grpc/issues/32163
+    session.install("--pre", "grpcio!=1.52.0rc1")
 
     session.install(*SYSTEM_TEST_STANDARD_DEPENDENCIES, *constraints)
 
@@ -248,7 +247,7 @@ def system(session):
     if system_test_exists:
         session.run(
             "py.test",
-            "--verbose",
+            "--quiet",
             f"--junitxml=system_{session.python}_sponge_log.xml",
             system_test_path,
             *session.posargs,
@@ -256,7 +255,7 @@ def system(session):
     if system_test_folder_exists:
         session.run(
             "py.test",
-            "--verbose",
+            "--quiet",
             f"--junitxml=system_{session.python}_sponge_log.xml",
             system_test_folder_path,
             *session.posargs,
@@ -276,7 +275,7 @@ def cover(session):
     session.run("coverage", "erase")
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION)
+@nox.session(python="3.9")
 def docs(session):
     """Build the docs for this library."""
 
@@ -302,17 +301,16 @@ def docs(session):
     )
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION)
+@nox.session(python="3.9")
 def docfx(session):
     """Build the docfx yaml files for this library."""
 
     session.install("-e", ".")
     session.install(
-        "sphinx==4.0.1",
+        "gcp-sphinx-docfx-yaml",
         "alabaster",
         "google-cloud-aiplatform[prediction]",
         "recommonmark",
-        "gcp-sphinx-docfx-yaml",
     )
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
@@ -350,9 +348,7 @@ def prerelease_deps(session):
     unit_deps_all = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_EXTERNAL_DEPENDENCIES
     session.install(*unit_deps_all)
     system_deps_all = (
-        SYSTEM_TEST_STANDARD_DEPENDENCIES
-        + SYSTEM_TEST_EXTERNAL_DEPENDENCIES
-        + SYSTEM_TEST_EXTRAS
+        SYSTEM_TEST_STANDARD_DEPENDENCIES + SYSTEM_TEST_EXTERNAL_DEPENDENCIES
     )
     session.install(*system_deps_all)
 
@@ -382,8 +378,8 @@ def prerelease_deps(session):
         # dependency of grpc
         "six",
         "googleapis-common-protos",
-        # Exclude version 1.49.0rc1 which has a known issue. See https://github.com/grpc/grpc/pull/30642
-        "grpcio!=1.49.0rc1",
+        # Exclude version 1.52.0rc1 which has a known issue. See https://github.com/grpc/grpc/issues/32163
+        "grpcio!=1.52.0rc1",
         "grpcio-status",
         "google-api-core",
         "proto-plus",

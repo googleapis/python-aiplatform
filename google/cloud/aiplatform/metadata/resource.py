@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 import abc
 import collections
 import re
+import threading
 from copy import deepcopy
 from typing import Dict, Optional, Union, Any, List
 
@@ -101,6 +102,8 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             self._gca_resource = getattr(self.api_client, self._getter_method)(
                 name=full_resource_name, retry=base._DEFAULT_RETRY
             )
+
+        self._threading_lock = threading.Lock()
 
     @property
     def metadata(self) -> Dict:
@@ -294,21 +297,25 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 Custom credentials to use to update this resource. Overrides
                 credentials set in aiplatform.init.
         """
+        if not hasattr(self, "_threading_lock"):
+            self._threading_lock = threading.Lock()
 
-        gca_resource = deepcopy(self._gca_resource)
-        if metadata:
-            self._nested_update_metadata(gca_resource=gca_resource, metadata=metadata)
-        if description:
-            gca_resource.description = description
+        with self._threading_lock:
+            gca_resource = deepcopy(self._gca_resource)
+            if metadata:
+                self._nested_update_metadata(
+                    gca_resource=gca_resource, metadata=metadata
+                )
+            if description:
+                gca_resource.description = description
 
-        api_client = self._instantiate_client(credentials=credentials)
-
-        # TODO: if etag is not valid sync and retry
-        update_gca_resource = self._update_resource(
-            client=api_client,
-            resource=gca_resource,
-        )
-        self._gca_resource = update_gca_resource
+            api_client = self._instantiate_client(credentials=credentials)
+            # TODO: if etag is not valid sync and retry
+            update_gca_resource = self._update_resource(
+                client=api_client,
+                resource=gca_resource,
+            )
+            self._gca_resource = update_gca_resource
 
     @classmethod
     def list(
@@ -453,7 +460,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         )
 
         self._gca_resource = resource
-
+        self._threading_lock = threading.Lock()
         return self
 
     @classmethod

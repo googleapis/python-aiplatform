@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ from google.cloud.aiplatform_v1.types import index_endpoint
 from google.cloud.aiplatform_v1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1.types import index_endpoint_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
+from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -1930,7 +1931,7 @@ class IndexEndpointServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "IndexEndpointServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

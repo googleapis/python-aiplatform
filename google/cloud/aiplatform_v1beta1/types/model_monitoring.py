@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -399,6 +401,10 @@ class ModelMonitoringAlertConfig(proto.Message):
             [google.cloud.aiplatform.logging.ModelMonitoringAnomaliesLogEntry][].
             This can be further sinked to Pub/Sub or any other services
             supported by Cloud Logging.
+        notification_channels (MutableSequence[str]):
+            Resource names of the NotificationChannels to send alert.
+            Must be of the format
+            ``projects/<project_id_or_number>/notificationChannels/<channel_id>``
     """
 
     class EmailAlertConfig(proto.Message):
@@ -423,6 +429,10 @@ class ModelMonitoringAlertConfig(proto.Message):
     enable_logging: bool = proto.Field(
         proto.BOOL,
         number=2,
+    )
+    notification_channels: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=3,
     )
 
 

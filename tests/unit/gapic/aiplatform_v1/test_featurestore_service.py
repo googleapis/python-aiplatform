@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -71,6 +71,7 @@ from google.oauth2 import service_account
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.type import interval_pb2  # type: ignore
 import google.auth
 
 
@@ -1016,6 +1017,7 @@ def test_get_featurestore(request_type, transport: str = "grpc"):
             name="name_value",
             etag="etag_value",
             state=featurestore.Featurestore.State.STABLE,
+            online_storage_ttl_days=2460,
         )
         response = client.get_featurestore(request)
 
@@ -1029,6 +1031,7 @@ def test_get_featurestore(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.state == featurestore.Featurestore.State.STABLE
+    assert response.online_storage_ttl_days == 2460
 
 
 def test_get_featurestore_empty_call():
@@ -1069,6 +1072,7 @@ async def test_get_featurestore_async(
                 name="name_value",
                 etag="etag_value",
                 state=featurestore.Featurestore.State.STABLE,
+                online_storage_ttl_days=2460,
             )
         )
         response = await client.get_featurestore(request)
@@ -1083,6 +1087,7 @@ async def test_get_featurestore_async(
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.state == featurestore.Featurestore.State.STABLE
+    assert response.online_storage_ttl_days == 2460
 
 
 @pytest.mark.asyncio
@@ -1668,9 +1673,11 @@ async def test_list_featurestores_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_featurestores(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -2463,6 +2470,7 @@ def test_get_entity_type(request_type, transport: str = "grpc"):
             name="name_value",
             description="description_value",
             etag="etag_value",
+            offline_storage_ttl_days=2554,
         )
         response = client.get_entity_type(request)
 
@@ -2476,6 +2484,7 @@ def test_get_entity_type(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 def test_get_entity_type_empty_call():
@@ -2516,6 +2525,7 @@ async def test_get_entity_type_async(
                 name="name_value",
                 description="description_value",
                 etag="etag_value",
+                offline_storage_ttl_days=2554,
             )
         )
         response = await client.get_entity_type(request)
@@ -2530,6 +2540,7 @@ async def test_get_entity_type_async(
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 @pytest.mark.asyncio
@@ -3115,9 +3126,11 @@ async def test_list_entity_types_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_entity_types(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -3149,6 +3162,7 @@ def test_update_entity_type(request_type, transport: str = "grpc"):
             name="name_value",
             description="description_value",
             etag="etag_value",
+            offline_storage_ttl_days=2554,
         )
         response = client.update_entity_type(request)
 
@@ -3162,6 +3176,7 @@ def test_update_entity_type(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 def test_update_entity_type_empty_call():
@@ -3206,6 +3221,7 @@ async def test_update_entity_type_async(
                 name="name_value",
                 description="description_value",
                 etag="etag_value",
+                offline_storage_ttl_days=2554,
             )
         )
         response = await client.update_entity_type(request)
@@ -3220,6 +3236,7 @@ async def test_update_entity_type_async(
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 @pytest.mark.asyncio
@@ -4794,9 +4811,11 @@ async def test_list_features_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_features(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -6010,6 +6029,247 @@ async def test_export_feature_values_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
+        featurestore_service.DeleteFeatureValuesRequest,
+        dict,
+    ],
+)
+def test_delete_feature_values(request_type, transport: str = "grpc"):
+    client = FeaturestoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_values), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.delete_feature_values(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == featurestore_service.DeleteFeatureValuesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_delete_feature_values_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeaturestoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_values), "__call__"
+    ) as call:
+        client.delete_feature_values()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == featurestore_service.DeleteFeatureValuesRequest()
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_values_async(
+    transport: str = "grpc_asyncio",
+    request_type=featurestore_service.DeleteFeatureValuesRequest,
+):
+    client = FeaturestoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_values), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_feature_values(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == featurestore_service.DeleteFeatureValuesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_values_async_from_dict():
+    await test_delete_feature_values_async(request_type=dict)
+
+
+def test_delete_feature_values_field_headers():
+    client = FeaturestoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = featurestore_service.DeleteFeatureValuesRequest()
+
+    request.entity_type = "entity_type_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_values), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_feature_values(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "entity_type=entity_type_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_values_field_headers_async():
+    client = FeaturestoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = featurestore_service.DeleteFeatureValuesRequest()
+
+    request.entity_type = "entity_type_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_values), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.delete_feature_values(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "entity_type=entity_type_value",
+    ) in kw["metadata"]
+
+
+def test_delete_feature_values_flattened():
+    client = FeaturestoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_values), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.delete_feature_values(
+            entity_type="entity_type_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].entity_type
+        mock_val = "entity_type_value"
+        assert arg == mock_val
+
+
+def test_delete_feature_values_flattened_error():
+    client = FeaturestoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_feature_values(
+            featurestore_service.DeleteFeatureValuesRequest(),
+            entity_type="entity_type_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_values_flattened_async():
+    client = FeaturestoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_values), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.delete_feature_values(
+            entity_type="entity_type_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].entity_type
+        mock_val = "entity_type_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_values_flattened_error_async():
+    client = FeaturestoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.delete_feature_values(
+            featurestore_service.DeleteFeatureValuesRequest(),
+            entity_type="entity_type_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         featurestore_service.SearchFeaturesRequest,
         dict,
     ],
@@ -6430,9 +6690,11 @@ async def test_search_features_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.search_features(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -6594,6 +6856,7 @@ def test_featurestore_service_base_transport():
         "import_feature_values",
         "batch_read_feature_values",
         "export_feature_values",
+        "delete_feature_values",
         "search_features",
         "set_iam_policy",
         "get_iam_policy",

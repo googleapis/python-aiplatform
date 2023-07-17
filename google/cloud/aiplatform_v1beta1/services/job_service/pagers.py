@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_jo
 from google.cloud.aiplatform_v1beta1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
+from google.cloud.aiplatform_v1beta1.types import nas_job
 
 
 class ListCustomJobsPager:
@@ -417,6 +418,262 @@ class ListHyperparameterTuningJobsAsyncPager:
         async def async_generator():
             async for page in self.pages:
                 for response in page.hyperparameter_tuning_jobs:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListNasJobsPager:
+    """A pager for iterating through ``list_nas_jobs`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.ListNasJobsResponse` object, and
+    provides an ``__iter__`` method to iterate through its
+    ``nas_jobs`` field.
+
+    If there are more pages, the ``__iter__`` method will make additional
+    ``ListNasJobs`` requests and continue to iterate
+    through the ``nas_jobs`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListNasJobsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., job_service.ListNasJobsResponse],
+        request: job_service.ListNasJobsRequest,
+        response: job_service.ListNasJobsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.ListNasJobsRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.ListNasJobsResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.ListNasJobsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    def pages(self) -> Iterator[job_service.ListNasJobsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __iter__(self) -> Iterator[nas_job.NasJob]:
+        for page in self.pages:
+            yield from page.nas_jobs
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListNasJobsAsyncPager:
+    """A pager for iterating through ``list_nas_jobs`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.ListNasJobsResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``nas_jobs`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListNasJobs`` requests and continue to iterate
+    through the ``nas_jobs`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListNasJobsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[job_service.ListNasJobsResponse]],
+        request: job_service.ListNasJobsRequest,
+        response: job_service.ListNasJobsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiates the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.ListNasJobsRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.ListNasJobsResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.ListNasJobsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(self) -> AsyncIterator[job_service.ListNasJobsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterator[nas_job.NasJob]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.nas_jobs:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListNasTrialDetailsPager:
+    """A pager for iterating through ``list_nas_trial_details`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.ListNasTrialDetailsResponse` object, and
+    provides an ``__iter__`` method to iterate through its
+    ``nas_trial_details`` field.
+
+    If there are more pages, the ``__iter__`` method will make additional
+    ``ListNasTrialDetails`` requests and continue to iterate
+    through the ``nas_trial_details`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListNasTrialDetailsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., job_service.ListNasTrialDetailsResponse],
+        request: job_service.ListNasTrialDetailsRequest,
+        response: job_service.ListNasTrialDetailsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.ListNasTrialDetailsRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.ListNasTrialDetailsResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.ListNasTrialDetailsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    def pages(self) -> Iterator[job_service.ListNasTrialDetailsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __iter__(self) -> Iterator[nas_job.NasTrialDetail]:
+        for page in self.pages:
+            yield from page.nas_trial_details
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListNasTrialDetailsAsyncPager:
+    """A pager for iterating through ``list_nas_trial_details`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.ListNasTrialDetailsResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``nas_trial_details`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListNasTrialDetails`` requests and continue to iterate
+    through the ``nas_trial_details`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListNasTrialDetailsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[job_service.ListNasTrialDetailsResponse]],
+        request: job_service.ListNasTrialDetailsRequest,
+        response: job_service.ListNasTrialDetailsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiates the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.ListNasTrialDetailsRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.ListNasTrialDetailsResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.ListNasTrialDetailsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(self) -> AsyncIterator[job_service.ListNasTrialDetailsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterator[nas_job.NasTrialDetail]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.nas_trial_details:
                     yield response
 
         return async_generator()

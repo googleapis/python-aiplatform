@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -409,6 +411,8 @@ class StudySpec(proto.Message):
     class MetricSpec(proto.Message):
         r"""Represents a metric to optimize.
 
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             metric_id (str):
                 Required. The ID of the metric. Must not
@@ -417,6 +421,12 @@ class StudySpec(proto.Message):
             goal (google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec.GoalType):
                 Required. The optimization goal of the
                 metric.
+            safety_config (google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec.SafetyMetricConfig):
+                Used for safe search. In the case, the metric
+                will be a safety metric. You must provide a
+                separate metric for objective metric.
+
+                This field is a member of `oneof`_ ``_safety_config``.
         """
 
         class GoalType(proto.Enum):
@@ -434,6 +444,43 @@ class StudySpec(proto.Message):
             MAXIMIZE = 1
             MINIMIZE = 2
 
+        class SafetyMetricConfig(proto.Message):
+            r"""Used in safe optimization to specify threshold levels and
+            risk tolerance.
+
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                safety_threshold (float):
+                    Safety threshold (boundary value between safe
+                    and unsafe). NOTE that if you leave
+                    SafetyMetricConfig unset, a default value of 0
+                    will be used.
+                desired_min_safe_trials_fraction (float):
+                    Desired minimum fraction of safe trials (over
+                    total number of trials) that should be targeted
+                    by the algorithm at any time during the study
+                    (best effort). This should be between 0.0 and
+                    1.0 and a value of 0.0 means that there is no
+                    minimum and an algorithm proceeds without
+                    targeting any specific fraction. A value of 1.0
+                    means that the algorithm attempts to only
+                    Suggest safe Trials.
+
+                    This field is a member of `oneof`_ ``_desired_min_safe_trials_fraction``.
+            """
+
+            safety_threshold: float = proto.Field(
+                proto.DOUBLE,
+                number=1,
+            )
+            desired_min_safe_trials_fraction: float = proto.Field(
+                proto.DOUBLE,
+                number=2,
+                optional=True,
+            )
+
         metric_id: str = proto.Field(
             proto.STRING,
             number=1,
@@ -442,6 +489,12 @@ class StudySpec(proto.Message):
             proto.ENUM,
             number=2,
             enum="StudySpec.MetricSpec.GoalType",
+        )
+        safety_config: "StudySpec.MetricSpec.SafetyMetricConfig" = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            optional=True,
+            message="StudySpec.MetricSpec.SafetyMetricConfig",
         )
 
     class ParameterSpec(proto.Message):

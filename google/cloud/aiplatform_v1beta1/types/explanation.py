@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -702,25 +704,76 @@ class Examples(proto.Message):
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
+        example_gcs_source (google.cloud.aiplatform_v1beta1.types.Examples.ExampleGcsSource):
+            The Cloud Storage input instances.
+
+            This field is a member of `oneof`_ ``source``.
         nearest_neighbor_search_config (google.protobuf.struct_pb2.Value):
-            The configuration for the generated index, the semantics are
-            the same as
+            The full configuration for the generated index, the
+            semantics are the same as
             [metadata][google.cloud.aiplatform.v1beta1.Index.metadata]
-            and should match NearestNeighborSearchConfig.
+            and should match
+            `NearestNeighborSearchConfig <https://cloud.google.com/vertex-ai/docs/explainable-ai/configuring-explanations-example-based#nearest-neighbor-search-config>`__.
 
             This field is a member of `oneof`_ ``config``.
         presets (google.cloud.aiplatform_v1beta1.types.Presets):
-            Preset config based on the desired query
-            speed-precision trade-off and modality
+            Simplified preset configuration, which
+            automatically sets configuration values based on
+            the desired query speed-precision trade-off and
+            modality.
 
             This field is a member of `oneof`_ ``config``.
         gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
-            The Cloud Storage location for the input
-            instances.
+            The Cloud Storage locations that contain the
+            instances to be indexed for approximate nearest
+            neighbor search.
         neighbor_count (int):
-            The number of neighbors to return.
+            The number of neighbors to return when
+            querying for examples.
     """
 
+    class ExampleGcsSource(proto.Message):
+        r"""The Cloud Storage input instances.
+
+        Attributes:
+            data_format (google.cloud.aiplatform_v1beta1.types.Examples.ExampleGcsSource.DataFormat):
+                The format in which instances are given, if
+                not specified, assume it's JSONL format.
+                Currently only JSONL format is supported.
+            gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
+                The Cloud Storage location for the input
+                instances.
+        """
+
+        class DataFormat(proto.Enum):
+            r"""The format of the input example instances.
+
+            Values:
+                DATA_FORMAT_UNSPECIFIED (0):
+                    Format unspecified, used when unset.
+                JSONL (1):
+                    Examples are stored in JSONL files.
+            """
+            DATA_FORMAT_UNSPECIFIED = 0
+            JSONL = 1
+
+        data_format: "Examples.ExampleGcsSource.DataFormat" = proto.Field(
+            proto.ENUM,
+            number=1,
+            enum="Examples.ExampleGcsSource.DataFormat",
+        )
+        gcs_source: io.GcsSource = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=io.GcsSource,
+        )
+
+    example_gcs_source: ExampleGcsSource = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="source",
+        message=ExampleGcsSource,
+    )
     nearest_neighbor_search_config: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=2,
@@ -751,13 +804,18 @@ class Presets(proto.Message):
 
     Attributes:
         query (google.cloud.aiplatform_v1beta1.types.Presets.Query):
-            Preset option controlling parameters for
-            query speed-precision trade-off
+            Preset option controlling parameters for speed-precision
+            trade-off when querying for examples. If omitted, defaults
+            to ``PRECISE``.
 
             This field is a member of `oneof`_ ``_query``.
         modality (google.cloud.aiplatform_v1beta1.types.Presets.Modality):
-            Preset option controlling parameters for
-            different modalities
+            The modality of the uploaded model, which
+            automatically configures the distance
+            measurement and feature normalization for the
+            underlying example index and queries. If your
+            model does not precisely fit one of these types,
+            it is okay to choose the closest type.
     """
 
     class Query(proto.Enum):
@@ -767,8 +825,7 @@ class Presets(proto.Message):
         Values:
             PRECISE (0):
                 More precise neighbors as a trade-off against
-                slower response. This is also the default value
-                (field-number 0).
+                slower response.
             FAST (1):
                 Faster response as a trade-off against less
                 precise neighbors.
@@ -817,10 +874,9 @@ class ExplanationSpecOverride(proto.Message):
 
     Attributes:
         parameters (google.cloud.aiplatform_v1beta1.types.ExplanationParameters):
-            The parameters to be overridden. Note that the
-            [method][google.cloud.aiplatform.v1beta1.ExplanationParameters.method]
-            cannot be changed. If not specified, no parameter is
-            overridden.
+            The parameters to be overridden. Note that
+            the attribution method cannot be changed. If not
+            specified, no parameter is overridden.
         metadata (google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride):
             The metadata to be overridden. If not
             specified, no metadata is overridden.

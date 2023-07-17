@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import list_execution_sample
-
+from experiment_tracking import list_execution_sample
 import test_constants as constants
 
 

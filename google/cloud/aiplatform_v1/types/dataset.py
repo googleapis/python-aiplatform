@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -30,6 +32,7 @@ __protobuf__ = proto.module(
         "Dataset",
         "ImportDataConfig",
         "ExportDataConfig",
+        "ExportFractionSplit",
     },
 )
 
@@ -57,6 +60,9 @@ class Dataset(proto.Message):
         metadata (google.protobuf.struct_pb2.Value):
             Required. Additional information about the
             Dataset.
+        data_item_count (int):
+            Output only. The number of DataItems in this
+            Dataset. Only apply for non-structured Dataset.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Dataset was
             created.
@@ -88,8 +94,7 @@ class Dataset(proto.Message):
                title.
         saved_queries (MutableSequence[google.cloud.aiplatform_v1.types.SavedQuery]):
             All SavedQueries belong to the Dataset will be returned in
-            List/Get Dataset response. The
-            [annotation_specs][SavedQuery.annotation_specs] field will
+            List/Get Dataset response. The annotation_specs field will
             not be populated except for UI cases which will only use
             [annotation_spec_count][google.cloud.aiplatform.v1.SavedQuery.annotation_spec_count].
             In CreateDataset request, a SavedQuery is created together
@@ -128,6 +133,10 @@ class Dataset(proto.Message):
         proto.MESSAGE,
         number=8,
         message=struct_pb2.Value,
+    )
+    data_item_count: int = proto.Field(
+        proto.INT64,
+        number=10,
     )
     create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
@@ -257,11 +266,15 @@ class ExportDataConfig(proto.Message):
             describe the output format.
 
             This field is a member of `oneof`_ ``destination``.
+        fraction_split (google.cloud.aiplatform_v1.types.ExportFractionSplit):
+            Split based on fractions defining the size of
+            each set.
+
+            This field is a member of `oneof`_ ``split``.
         annotations_filter (str):
-            A filter on Annotations of the Dataset. Only Annotations on
-            to-be-exported DataItems(specified by [data_items_filter][])
-            that match this filter will be exported. The filter syntax
-            is the same as in
+            An expression for filtering what part of the Dataset is to
+            be exported. Only Annotations that match this filter will be
+            exported. The filter syntax is the same as in
             [ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
     """
 
@@ -271,9 +284,50 @@ class ExportDataConfig(proto.Message):
         oneof="destination",
         message=io.GcsDestination,
     )
+    fraction_split: "ExportFractionSplit" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="split",
+        message="ExportFractionSplit",
+    )
     annotations_filter: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class ExportFractionSplit(proto.Message):
+    r"""Assigns the input data to training, validation, and test sets as per
+    the given fractions. Any of ``training_fraction``,
+    ``validation_fraction`` and ``test_fraction`` may optionally be
+    provided, they must sum to up to 1. If the provided ones sum to less
+    than 1, the remainder is assigned to sets as decided by Vertex AI.
+    If none of the fractions are set, by default roughly 80% of data is
+    used for training, 10% for validation, and 10% for test.
+
+    Attributes:
+        training_fraction (float):
+            The fraction of the input data that is to be
+            used to train the Model.
+        validation_fraction (float):
+            The fraction of the input data that is to be
+            used to validate the Model.
+        test_fraction (float):
+            The fraction of the input data that is to be
+            used to evaluate the Model.
+    """
+
+    training_fraction: float = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
+    validation_fraction: float = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+    test_fraction: float = proto.Field(
+        proto.DOUBLE,
+        number=3,
     )
 
 

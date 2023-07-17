@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,14 +24,18 @@ from google.protobuf import timestamp_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import tensorboard as gca_tensorboard
+from google.cloud.aiplatform.compat.types import (
+    tensorboard as gca_tensorboard,
+)
 from google.cloud.aiplatform.compat.types import (
     tensorboard_data as gca_tensorboard_data,
 )
 from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
-from google.cloud.aiplatform.compat.types import tensorboard_run as gca_tensorboard_run
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_run as gca_tensorboard_run,
+)
 from google.cloud.aiplatform.compat.types import (
     tensorboard_service as gca_tensorboard_service,
 )
@@ -101,6 +105,7 @@ class Tensorboard(_TensorboardServiceResource):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
+        is_default: bool = False,
     ) -> "Tensorboard":
         """Creates a new tensorboard.
 
@@ -156,6 +161,10 @@ class Tensorboard(_TensorboardServiceResource):
                 Overrides encryption_spec_key_name set in aiplatform.init.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            is_default (bool):
+                If the TensorBoard instance is default or not. The default
+                TensorBoard instance will be used by Experiment/ExperimentRun
+                when needed if no TensorBoard instance is explicitly specified.
 
         Returns:
             tensorboard (Tensorboard):
@@ -182,6 +191,7 @@ class Tensorboard(_TensorboardServiceResource):
             display_name=display_name,
             description=description,
             labels=labels,
+            is_default=is_default,
             encryption_spec=encryption_spec,
         )
 
@@ -210,6 +220,7 @@ class Tensorboard(_TensorboardServiceResource):
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
+        is_default: Optional[bool] = None,
     ) -> "Tensorboard":
         """Updates an existing tensorboard.
 
@@ -251,6 +262,11 @@ class Tensorboard(_TensorboardServiceResource):
                 If set, this Tensorboard and all sub-resources of this Tensorboard will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+            is_default (bool):
+                Optional. If the TensorBoard instance is default or not.
+                The default TensorBoard instance will be used by
+                Experiment/ExperimentRun when needed if no TensorBoard instance
+                is explicitly specified.
 
         Returns:
             Tensorboard: The managed tensorboard resource.
@@ -268,6 +284,9 @@ class Tensorboard(_TensorboardServiceResource):
             utils.validate_labels(labels)
             update_mask.append("labels")
 
+        if is_default is not None:
+            update_mask.append("is_default")
+
         encryption_spec = None
         if encryption_spec_key_name:
             encryption_spec = initializer.global_config.get_encryption_spec(
@@ -282,6 +301,7 @@ class Tensorboard(_TensorboardServiceResource):
             display_name=display_name,
             description=description,
             labels=labels,
+            is_default=is_default,
             encryption_spec=encryption_spec,
         )
 

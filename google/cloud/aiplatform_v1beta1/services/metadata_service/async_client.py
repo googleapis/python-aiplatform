@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1146,8 +1146,6 @@ class MetadataServiceAsyncClient:
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Optional. A FieldMask indicating
                 which fields should be updated.
-                Functionality of this field is not yet
-                supported.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1849,8 +1847,6 @@ class MetadataServiceAsyncClient:
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Optional. A FieldMask indicating
                 which fields should be updated.
-                Functionality of this field is not yet
-                supported.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -3038,8 +3034,6 @@ class MetadataServiceAsyncClient:
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Optional. A FieldMask indicating
                 which fields should be updated.
-                Functionality of this field is not yet
-                supported.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -4728,7 +4722,7 @@ class MetadataServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "MetadataServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

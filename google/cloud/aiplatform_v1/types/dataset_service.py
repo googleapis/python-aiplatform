@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -48,6 +50,7 @@ __protobuf__ = proto.module(
         "DataItemView",
         "ListSavedQueriesRequest",
         "ListSavedQueriesResponse",
+        "DeleteSavedQueryRequest",
         "GetAnnotationSpecRequest",
         "ListAnnotationsRequest",
         "ListAnnotationsResponse",
@@ -761,6 +764,23 @@ class ListSavedQueriesResponse(proto.Message):
     next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class DeleteSavedQueryRequest(proto.Message):
+    r"""Request message for
+    [DatasetService.DeleteSavedQuery][google.cloud.aiplatform.v1.DatasetService.DeleteSavedQuery].
+
+    Attributes:
+        name (str):
+            Required. The resource name of the SavedQuery to delete.
+            Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}/savedQueries/{saved_query}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
     )
 
 

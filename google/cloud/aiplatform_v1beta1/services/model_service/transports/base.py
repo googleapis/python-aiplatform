@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -186,6 +186,11 @@ class ModelServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.copy_model: gapic_v1.method.wrap_method(
+                self.copy_model,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
             self.import_model_evaluation: gapic_v1.method.wrap_method(
                 self.import_model_evaluation,
                 default_timeout=None,
@@ -193,6 +198,11 @@ class ModelServiceTransport(abc.ABC):
             ),
             self.batch_import_model_evaluation_slices: gapic_v1.method.wrap_method(
                 self.batch_import_model_evaluation_slices,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_import_evaluated_annotations: gapic_v1.method.wrap_method(
+                self.batch_import_evaluated_annotations,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -328,6 +338,15 @@ class ModelServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def copy_model(
+        self,
+    ) -> Callable[
+        [model_service.CopyModelRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def import_model_evaluation(
         self,
     ) -> Callable[
@@ -347,6 +366,18 @@ class ModelServiceTransport(abc.ABC):
         Union[
             model_service.BatchImportModelEvaluationSlicesResponse,
             Awaitable[model_service.BatchImportModelEvaluationSlicesResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_import_evaluated_annotations(
+        self,
+    ) -> Callable[
+        [model_service.BatchImportEvaluatedAnnotationsRequest],
+        Union[
+            model_service.BatchImportEvaluatedAnnotationsResponse,
+            Awaitable[model_service.BatchImportEvaluatedAnnotationsResponse],
         ],
     ]:
         raise NotImplementedError()

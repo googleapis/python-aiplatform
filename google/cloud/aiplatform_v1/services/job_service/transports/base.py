@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,6 +44,8 @@ from google.cloud.aiplatform_v1.types import model_deployment_monitoring_job
 from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
+from google.cloud.aiplatform_v1.types import nas_job
+from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -59,7 +61,10 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
 class JobServiceTransport(abc.ABC):
     """Abstract transport class for JobService."""
 
-    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
+    AUTH_SCOPES = (
+        "https://www.googleapis.com/auth/cloud-platform",
+        "https://www.googleapis.com/auth/cloud-platform.read-only",
+    )
 
     DEFAULT_HOST: str = "aiplatform.googleapis.com"
 
@@ -218,6 +223,41 @@ class JobServiceTransport(abc.ABC):
             ),
             self.cancel_hyperparameter_tuning_job: gapic_v1.method.wrap_method(
                 self.cancel_hyperparameter_tuning_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_nas_job: gapic_v1.method.wrap_method(
+                self.create_nas_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_nas_job: gapic_v1.method.wrap_method(
+                self.get_nas_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_nas_jobs: gapic_v1.method.wrap_method(
+                self.list_nas_jobs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_nas_job: gapic_v1.method.wrap_method(
+                self.delete_nas_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.cancel_nas_job: gapic_v1.method.wrap_method(
+                self.cancel_nas_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_nas_trial_detail: gapic_v1.method.wrap_method(
+                self.get_nas_trial_detail,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_nas_trial_details: gapic_v1.method.wrap_method(
+                self.list_nas_trial_details,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -455,6 +495,73 @@ class JobServiceTransport(abc.ABC):
     ) -> Callable[
         [job_service.CancelHyperparameterTuningJobRequest],
         Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_nas_job(
+        self,
+    ) -> Callable[
+        [job_service.CreateNasJobRequest],
+        Union[gca_nas_job.NasJob, Awaitable[gca_nas_job.NasJob]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_nas_job(
+        self,
+    ) -> Callable[
+        [job_service.GetNasJobRequest], Union[nas_job.NasJob, Awaitable[nas_job.NasJob]]
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_nas_jobs(
+        self,
+    ) -> Callable[
+        [job_service.ListNasJobsRequest],
+        Union[
+            job_service.ListNasJobsResponse, Awaitable[job_service.ListNasJobsResponse]
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_nas_job(
+        self,
+    ) -> Callable[
+        [job_service.DeleteNasJobRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def cancel_nas_job(
+        self,
+    ) -> Callable[
+        [job_service.CancelNasJobRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_nas_trial_detail(
+        self,
+    ) -> Callable[
+        [job_service.GetNasTrialDetailRequest],
+        Union[nas_job.NasTrialDetail, Awaitable[nas_job.NasTrialDetail]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_nas_trial_details(
+        self,
+    ) -> Callable[
+        [job_service.ListNasTrialDetailsRequest],
+        Union[
+            job_service.ListNasTrialDetailsResponse,
+            Awaitable[job_service.ListNasTrialDetailsResponse],
+        ],
     ]:
         raise NotImplementedError()
 

@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import upload_new_aliased_model_version_sample
-
+from model_registry import upload_new_aliased_model_version_sample
 import test_constants as constants
 
 

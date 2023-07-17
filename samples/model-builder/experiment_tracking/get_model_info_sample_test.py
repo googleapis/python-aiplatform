@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import get_model_info_sample
-
 import pytest
 
+from experiment_tracking import get_model_info_sample
 import test_constants as constants
 
 

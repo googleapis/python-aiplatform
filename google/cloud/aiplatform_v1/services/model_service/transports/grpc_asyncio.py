@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -398,6 +398,36 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         return self._stubs["update_model"]
 
     @property
+    def update_explanation_dataset(
+        self,
+    ) -> Callable[
+        [model_service.UpdateExplanationDatasetRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the update explanation dataset method over gRPC.
+
+        Incrementally update the dataset used for an examples
+        model.
+
+        Returns:
+            Callable[[~.UpdateExplanationDatasetRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_explanation_dataset" not in self._stubs:
+            self._stubs["update_explanation_dataset"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/UpdateExplanationDataset",
+                request_serializer=model_service.UpdateExplanationDatasetRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["update_explanation_dataset"]
+
+    @property
     def delete_model(
         self,
     ) -> Callable[
@@ -443,8 +473,9 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         Deletes a Model version.
 
         Model version can only be deleted if there are no
-        [DeployedModels][] created from it. Deleting the only version in
-        the Model is not allowed. Use
+        [DeployedModels][google.cloud.aiplatform.v1.DeployedModel]
+        created from it. Deleting the only version in the Model is not
+        allowed. Use
         [DeleteModel][google.cloud.aiplatform.v1.ModelService.DeleteModel]
         for deleting the Model instead.
 
@@ -524,6 +555,39 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         return self._stubs["export_model"]
 
     @property
+    def copy_model(
+        self,
+    ) -> Callable[
+        [model_service.CopyModelRequest], Awaitable[operations_pb2.Operation]
+    ]:
+        r"""Return a callable for the copy model method over gRPC.
+
+        Copies an already existing Vertex AI Model into the specified
+        Location. The source Model must exist in the same Project. When
+        copying custom Models, the users themselves are responsible for
+        [Model.metadata][google.cloud.aiplatform.v1.Model.metadata]
+        content to be region-agnostic, as well as making sure that any
+        resources (e.g. files) it depends on remain accessible.
+
+        Returns:
+            Callable[[~.CopyModelRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "copy_model" not in self._stubs:
+            self._stubs["copy_model"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/CopyModel",
+                request_serializer=model_service.CopyModelRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["copy_model"]
+
+    @property
     def import_model_evaluation(
         self,
     ) -> Callable[
@@ -584,6 +648,39 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
                 response_deserializer=model_service.BatchImportModelEvaluationSlicesResponse.deserialize,
             )
         return self._stubs["batch_import_model_evaluation_slices"]
+
+    @property
+    def batch_import_evaluated_annotations(
+        self,
+    ) -> Callable[
+        [model_service.BatchImportEvaluatedAnnotationsRequest],
+        Awaitable[model_service.BatchImportEvaluatedAnnotationsResponse],
+    ]:
+        r"""Return a callable for the batch import evaluated
+        annotations method over gRPC.
+
+        Imports a list of externally generated
+        EvaluatedAnnotations.
+
+        Returns:
+            Callable[[~.BatchImportEvaluatedAnnotationsRequest],
+                    Awaitable[~.BatchImportEvaluatedAnnotationsResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_import_evaluated_annotations" not in self._stubs:
+            self._stubs[
+                "batch_import_evaluated_annotations"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/BatchImportEvaluatedAnnotations",
+                request_serializer=model_service.BatchImportEvaluatedAnnotationsRequest.serialize,
+                response_deserializer=model_service.BatchImportEvaluatedAnnotationsResponse.deserialize,
+            )
+        return self._stubs["batch_import_evaluated_annotations"]
 
     @property
     def get_model_evaluation(

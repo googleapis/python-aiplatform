@@ -20,6 +20,11 @@
                 "delete_dataset"
               ]
             },
+            "DeleteSavedQuery": {
+              "methods": [
+                "delete_saved_query"
+              ]
+            },
             "ExportData": {
               "methods": [
                 "export_data"
@@ -83,6 +88,11 @@
             "DeleteDataset": {
               "methods": [
                 "delete_dataset"
+              ]
+            },
+            "DeleteSavedQuery": {
+              "methods": [
+                "delete_saved_query"
               ]
             },
             "ExportData": {
@@ -169,6 +179,11 @@
                 "list_endpoints"
               ]
             },
+            "MutateDeployedModel": {
+              "methods": [
+                "mutate_deployed_model"
+              ]
+            },
             "UndeployModel": {
               "methods": [
                 "undeploy_model"
@@ -207,6 +222,11 @@
             "ListEndpoints": {
               "methods": [
                 "list_endpoints"
+              ]
+            },
+            "MutateDeployedModel": {
+              "methods": [
+                "mutate_deployed_model"
               ]
             },
             "UndeployModel": {
@@ -305,6 +325,11 @@
             "DeleteFeature": {
               "methods": [
                 "delete_feature"
+              ]
+            },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
               ]
             },
             "DeleteFeaturestore": {
@@ -410,6 +435,11 @@
             "DeleteFeature": {
               "methods": [
                 "delete_feature"
+              ]
+            },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
               ]
             },
             "DeleteFeaturestore": {
@@ -684,6 +714,11 @@
                 "cancel_hyperparameter_tuning_job"
               ]
             },
+            "CancelNasJob": {
+              "methods": [
+                "cancel_nas_job"
+              ]
+            },
             "CreateBatchPredictionJob": {
               "methods": [
                 "create_batch_prediction_job"
@@ -707,6 +742,11 @@
             "CreateModelDeploymentMonitoringJob": {
               "methods": [
                 "create_model_deployment_monitoring_job"
+              ]
+            },
+            "CreateNasJob": {
+              "methods": [
+                "create_nas_job"
               ]
             },
             "DeleteBatchPredictionJob": {
@@ -734,6 +774,11 @@
                 "delete_model_deployment_monitoring_job"
               ]
             },
+            "DeleteNasJob": {
+              "methods": [
+                "delete_nas_job"
+              ]
+            },
             "GetBatchPredictionJob": {
               "methods": [
                 "get_batch_prediction_job"
@@ -759,6 +804,16 @@
                 "get_model_deployment_monitoring_job"
               ]
             },
+            "GetNasJob": {
+              "methods": [
+                "get_nas_job"
+              ]
+            },
+            "GetNasTrialDetail": {
+              "methods": [
+                "get_nas_trial_detail"
+              ]
+            },
             "ListBatchPredictionJobs": {
               "methods": [
                 "list_batch_prediction_jobs"
@@ -782,6 +837,16 @@
             "ListModelDeploymentMonitoringJobs": {
               "methods": [
                 "list_model_deployment_monitoring_jobs"
+              ]
+            },
+            "ListNasJobs": {
+              "methods": [
+                "list_nas_jobs"
+              ]
+            },
+            "ListNasTrialDetails": {
+              "methods": [
+                "list_nas_trial_details"
               ]
             },
             "PauseModelDeploymentMonitoringJob": {
@@ -829,6 +894,11 @@
                 "cancel_hyperparameter_tuning_job"
               ]
             },
+            "CancelNasJob": {
+              "methods": [
+                "cancel_nas_job"
+              ]
+            },
             "CreateBatchPredictionJob": {
               "methods": [
                 "create_batch_prediction_job"
@@ -852,6 +922,11 @@
             "CreateModelDeploymentMonitoringJob": {
               "methods": [
                 "create_model_deployment_monitoring_job"
+              ]
+            },
+            "CreateNasJob": {
+              "methods": [
+                "create_nas_job"
               ]
             },
             "DeleteBatchPredictionJob": {
@@ -879,6 +954,11 @@
                 "delete_model_deployment_monitoring_job"
               ]
             },
+            "DeleteNasJob": {
+              "methods": [
+                "delete_nas_job"
+              ]
+            },
             "GetBatchPredictionJob": {
               "methods": [
                 "get_batch_prediction_job"
@@ -902,6 +982,16 @@
             "GetModelDeploymentMonitoringJob": {
               "methods": [
                 "get_model_deployment_monitoring_job"
+              ]
+            },
+            "GetNasJob": {
+              "methods": [
+                "get_nas_job"
+              ]
+            },
+            "GetNasTrialDetail": {
+              "methods": [
+                "get_nas_trial_detail"
               ]
             },
             "ListBatchPredictionJobs": {
@@ -929,6 +1019,16 @@
                 "list_model_deployment_monitoring_jobs"
               ]
             },
+            "ListNasJobs": {
+              "methods": [
+                "list_nas_jobs"
+              ]
+            },
+            "ListNasTrialDetails": {
+              "methods": [
+                "list_nas_trial_details"
+              ]
+            },
             "PauseModelDeploymentMonitoringJob": {
               "methods": [
                 "pause_model_deployment_monitoring_job"
@@ -947,6 +1047,40 @@
             "UpdateModelDeploymentMonitoringJob": {
               "methods": [
                 "update_model_deployment_monitoring_job"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "MatchService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "MatchServiceClient",
+          "rpcs": {
+            "FindNeighbors": {
+              "methods": [
+                "find_neighbors"
+              ]
+            },
+            "ReadIndexDatapoints": {
+              "methods": [
+                "read_index_datapoints"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "MatchServiceAsyncClient",
+          "rpcs": {
+            "FindNeighbors": {
+              "methods": [
+                "find_neighbors"
+              ]
+            },
+            "ReadIndexDatapoints": {
+              "methods": [
+                "read_index_datapoints"
               ]
             }
           }
@@ -1321,14 +1455,48 @@
         }
       }
     },
+    "ModelGardenService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ModelGardenServiceClient",
+          "rpcs": {
+            "GetPublisherModel": {
+              "methods": [
+                "get_publisher_model"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ModelGardenServiceAsyncClient",
+          "rpcs": {
+            "GetPublisherModel": {
+              "methods": [
+                "get_publisher_model"
+              ]
+            }
+          }
+        }
+      }
+    },
     "ModelService": {
       "clients": {
         "grpc": {
           "libraryClient": "ModelServiceClient",
           "rpcs": {
+            "BatchImportEvaluatedAnnotations": {
+              "methods": [
+                "batch_import_evaluated_annotations"
+              ]
+            },
             "BatchImportModelEvaluationSlices": {
               "methods": [
                 "batch_import_model_evaluation_slices"
+              ]
+            },
+            "CopyModel": {
+              "methods": [
+                "copy_model"
               ]
             },
             "DeleteModel": {
@@ -1389,6 +1557,11 @@
             "MergeVersionAliases": {
               "methods": [
                 "merge_version_aliases"
+              ]
+            },
+            "UpdateExplanationDataset": {
+              "methods": [
+                "update_explanation_dataset"
               ]
             },
             "UpdateModel": {
@@ -1406,9 +1579,19 @@
         "grpc-async": {
           "libraryClient": "ModelServiceAsyncClient",
           "rpcs": {
+            "BatchImportEvaluatedAnnotations": {
+              "methods": [
+                "batch_import_evaluated_annotations"
+              ]
+            },
             "BatchImportModelEvaluationSlices": {
               "methods": [
                 "batch_import_model_evaluation_slices"
+              ]
+            },
+            "CopyModel": {
+              "methods": [
+                "copy_model"
               ]
             },
             "DeleteModel": {
@@ -1469,6 +1652,11 @@
             "MergeVersionAliases": {
               "methods": [
                 "merge_version_aliases"
+              ]
+            },
+            "UpdateExplanationDataset": {
+              "methods": [
+                "update_explanation_dataset"
               ]
             },
             "UpdateModel": {

@@ -52,11 +52,15 @@ _TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
 
 # ENDPOINT
 _TEST_INDEX_ENDPOINT_DISPLAY_NAME = "endpoint_name"
+_TEST_PUBLIC_INDEX_ENDPOINT_DISPLAY_NAME = "public_endpoint_name"
 _TEST_INDEX_ENDPOINT_DESCRIPTION = "my endpoint"
+_TEST_PUBLIC_INDEX_ENDPOINT_DESCRIPTION = "my public endpoint"
 
 # DEPLOYED INDEX
 _TEST_DEPLOYED_INDEX_ID = f"deployed_index_id_{uuid.uuid4()}".replace("-", "_")
 _TEST_DEPLOYED_INDEX_DISPLAY_NAME = f"deployed_index_display_name_{uuid.uuid4()}"
+_TEST_DEPLOYED_INDEX_ID_PUBLIC = f"deployed_index_id_{uuid.uuid4()}".replace("-", "_")
+_TEST_DEPLOYED_INDEX_DISPLAY_NAME_PUBLIC = f"deployed_index_display_name_{uuid.uuid4()}"
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4
 
@@ -241,6 +245,27 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         assert my_index_endpoint.display_name == _TEST_INDEX_ENDPOINT_DISPLAY_NAME
         assert my_index_endpoint.description == _TEST_INDEX_ENDPOINT_DESCRIPTION
 
+        # Create endpoint and check that it is listed
+        public_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
+            display_name=_TEST_PUBLIC_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_PUBLIC_INDEX_ENDPOINT_DESCRIPTION,
+            public_endpoint_enabled=True,
+            labels=_TEST_LABELS,
+        )
+        assert public_index_endpoint.resource_name in [
+            index_endpoint.resource_name
+            for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
+        ]
+
+        assert public_index_endpoint.labels == _TEST_LABELS
+        assert (
+            public_index_endpoint.display_name
+            == _TEST_PUBLIC_INDEX_ENDPOINT_DISPLAY_NAME
+        )
+        assert (
+            public_index_endpoint.description == _TEST_PUBLIC_INDEX_ENDPOINT_DESCRIPTION
+        )
+
         shared_state["resources"].append(my_index_endpoint)
 
         # Deploy endpoint
@@ -248,6 +273,15 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             index=index,
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+        )
+
+        # Deploy public endpoint
+        public_index_endpoint = public_index_endpoint.deploy_index(
+            index=index,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID_PUBLIC,
+            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME_PUBLIC,
+            min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
+            max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
         )
 
         # Update endpoint
@@ -268,6 +302,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
         )
 
+        # deployed index on private endpoint.
         deployed_index = my_index_endpoint.deployed_indexes[0]
 
         assert deployed_index.id == _TEST_DEPLOYED_INDEX_ID
@@ -278,6 +313,20 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         )
         assert (
             deployed_index.automatic_resources.max_replica_count
+            == _TEST_MAX_REPLICA_COUNT_UPDATED
+        )
+
+        # deployed index on public endpoint.
+        deployed_index_public = public_index_endpoint.deployed_indexes[0]
+
+        assert deployed_index_public.id == _TEST_DEPLOYED_INDEX_ID_PUBLIC
+        assert deployed_index_public.index == index.resource_name
+        assert (
+            deployed_index_public.automatic_resources.min_replica_count
+            == _TEST_MIN_REPLICA_COUNT_UPDATED
+        )
+        assert (
+            deployed_index_public.automatic_resources.max_replica_count
             == _TEST_MAX_REPLICA_COUNT_UPDATED
         )
 
@@ -298,9 +347,14 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         # )
         # assert results[0][0].id == 9999
 
-        # Undeploy index
+        # Undeploy index from private endpoint
         my_index_endpoint = my_index_endpoint.undeploy_index(
             deployed_index_id=deployed_index.id
+        )
+
+        # Undeploy index from public endpoint
+        public_index_endpoint = public_index_endpoint.undeploy_index(
+            deployed_index_id=deployed_index_public.id
         )
 
         # Delete index and check that it is no longer listed
@@ -313,6 +367,13 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         # Delete index endpoint and check that it is no longer listed
         my_index_endpoint.delete()
         assert my_index_endpoint.resource_name not in [
+            index_endpoint.resource_name
+            for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
+        ]
+
+        # Delete public index endpoint
+        public_index_endpoint.delete()
+        assert public_index_endpoint.resource_name not in [
             index_endpoint.resource_name
             for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
         ]

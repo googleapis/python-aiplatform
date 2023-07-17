@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import evaluated_annotation
+from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
@@ -37,15 +42,23 @@ __protobuf__ = proto.module(
         "ListModelVersionsRequest",
         "ListModelVersionsResponse",
         "UpdateModelRequest",
+        "UpdateExplanationDatasetRequest",
+        "UpdateExplanationDatasetOperationMetadata",
         "DeleteModelRequest",
         "DeleteModelVersionRequest",
         "MergeVersionAliasesRequest",
         "ExportModelRequest",
         "ExportModelOperationMetadata",
+        "UpdateExplanationDatasetResponse",
         "ExportModelResponse",
+        "CopyModelRequest",
+        "CopyModelOperationMetadata",
+        "CopyModelResponse",
         "ImportModelEvaluationRequest",
         "BatchImportModelEvaluationSlicesRequest",
         "BatchImportModelEvaluationSlicesResponse",
+        "BatchImportEvaluatedAnnotationsRequest",
+        "BatchImportEvaluatedAnnotationsResponse",
         "GetModelEvaluationRequest",
         "ListModelEvaluationsRequest",
         "ListModelEvaluationsResponse",
@@ -298,8 +311,10 @@ class ListModelVersionsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            [ListModelVersionsResponse.next_page_token][google.cloud.aiplatform.v1.ListModelVersionsResponse.next_page_token]
-            of the previous [ModelService.ListModelversions][] call.
+            [next_page_token][google.cloud.aiplatform.v1.ListModelVersionsResponse.next_page_token]
+            of the previous
+            [ListModelVersions][google.cloud.aiplatform.v1.ModelService.ListModelVersions]
+            call.
         filter (str):
             An expression for filtering the results of the request. For
             field names both snake_case and camelCase are supported.
@@ -427,6 +442,46 @@ class UpdateModelRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=field_mask_pb2.FieldMask,
+    )
+
+
+class UpdateExplanationDatasetRequest(proto.Message):
+    r"""Request message for
+    [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1.ModelService.UpdateExplanationDataset].
+
+    Attributes:
+        model (str):
+            Required. The resource name of the Model to update. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+        examples (google.cloud.aiplatform_v1.types.Examples):
+            The example config containing the location of
+            the dataset.
+    """
+
+    model: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    examples: explanation.Examples = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=explanation.Examples,
+    )
+
+
+class UpdateExplanationDatasetOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1.ModelService.UpdateExplanationDataset].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
@@ -626,12 +681,128 @@ class ExportModelOperationMetadata(proto.Message):
     )
 
 
+class UpdateExplanationDatasetResponse(proto.Message):
+    r"""Response message of
+    [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1.ModelService.UpdateExplanationDataset]
+    operation.
+
+    """
+
+
 class ExportModelResponse(proto.Message):
     r"""Response message of
     [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel]
     operation.
 
     """
+
+
+class CopyModelRequest(proto.Message):
+    r"""Request message for
+    [ModelService.CopyModel][google.cloud.aiplatform.v1.ModelService.CopyModel].
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        model_id (str):
+            Optional. Copy source_model into a new Model with this ID.
+            The ID will become the final component of the model resource
+            name.
+
+            This value may be up to 63 characters, and valid characters
+            are ``[a-z0-9_-]``. The first character cannot be a number
+            or hyphen.
+
+            This field is a member of `oneof`_ ``destination_model``.
+        parent_model (str):
+            Optional. Specify this field to copy source_model into this
+            existing Model as a new version. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+
+            This field is a member of `oneof`_ ``destination_model``.
+        parent (str):
+            Required. The resource name of the Location into which to
+            copy the Model. Format:
+            ``projects/{project}/locations/{location}``
+        source_model (str):
+            Required. The resource name of the Model to copy. That Model
+            must be in the same Project. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Customer-managed encryption key options. If
+            this is set, then the Model copy will be
+            encrypted with the provided encryption key.
+    """
+
+    model_id: str = proto.Field(
+        proto.STRING,
+        number=4,
+        oneof="destination_model",
+    )
+    parent_model: str = proto.Field(
+        proto.STRING,
+        number=5,
+        oneof="destination_model",
+    )
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    source_model: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=gca_encryption_spec.EncryptionSpec,
+    )
+
+
+class CopyModelOperationMetadata(proto.Message):
+    r"""Details of
+    [ModelService.CopyModel][google.cloud.aiplatform.v1.ModelService.CopyModel]
+    operation.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class CopyModelResponse(proto.Message):
+    r"""Response message of
+    [ModelService.CopyModel][google.cloud.aiplatform.v1.ModelService.CopyModel]
+    operation.
+
+    Attributes:
+        model (str):
+            The name of the copied Model resource. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+        model_version_id (str):
+            Output only. The version ID of the model that
+            is copied.
+    """
+
+    model: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    model_version_id: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class ImportModelEvaluationRequest(proto.Message):
@@ -697,6 +868,49 @@ class BatchImportModelEvaluationSlicesResponse(proto.Message):
 
     imported_model_evaluation_slices: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
+        number=1,
+    )
+
+
+class BatchImportEvaluatedAnnotationsRequest(proto.Message):
+    r"""Request message for
+    [ModelService.BatchImportEvaluatedAnnotations][google.cloud.aiplatform.v1.ModelService.BatchImportEvaluatedAnnotations]
+
+    Attributes:
+        parent (str):
+            Required. The name of the parent ModelEvaluationSlice
+            resource. Format:
+            ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}``
+        evaluated_annotations (MutableSequence[google.cloud.aiplatform_v1.types.EvaluatedAnnotation]):
+            Required. Evaluated annotations resource to
+            be imported.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    evaluated_annotations: MutableSequence[
+        evaluated_annotation.EvaluatedAnnotation
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=evaluated_annotation.EvaluatedAnnotation,
+    )
+
+
+class BatchImportEvaluatedAnnotationsResponse(proto.Message):
+    r"""Response message for
+    [ModelService.BatchImportEvaluatedAnnotations][google.cloud.aiplatform.v1.ModelService.BatchImportEvaluatedAnnotations]
+
+    Attributes:
+        imported_evaluated_annotations_count (int):
+            Output only. Number of EvaluatedAnnotations
+            imported.
+    """
+
+    imported_evaluated_annotations_count: int = proto.Field(
+        proto.INT32,
         number=1,
     )
 

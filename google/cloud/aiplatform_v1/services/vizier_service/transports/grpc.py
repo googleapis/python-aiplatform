@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -399,7 +399,7 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
         suggested by Vertex AI Vizier. Returns a long-running operation
         associated with the generation of Trial suggestions. When this
         long-running operation succeeds, it will contain a
-        [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
+        [SuggestTrialsResponse][google.cloud.aiplatform.v1.SuggestTrialsResponse].
 
         Returns:
             Callable[[~.SuggestTrialsRequest],
@@ -589,7 +589,7 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
         Checks whether a Trial should stop or not. Returns a
         long-running operation. When the operation is successful, it
         will contain a
-        [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
+        [CheckTrialEarlyStoppingStateResponse][google.cloud.aiplatform.v1.CheckTrialEarlyStoppingStateResponse].
 
         Returns:
             Callable[[~.CheckTrialEarlyStoppingStateRequest],

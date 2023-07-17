@@ -486,7 +486,7 @@ class LocalModel:
         push images to it. Otherwise, you will hit the error, "Repository {REPOSITORY} not found".
         To create Artifact Registry repositories, use UI or call the following gcloud command.
 
-        .. code-block:: python
+        .. code-block:: bash
 
             gcloud artifacts repositories create {REPOSITORY} \
                 --project {PROJECT} \
@@ -494,6 +494,15 @@ class LocalModel:
                 --repository-format docker
 
         See https://cloud.google.com/artifact-registry/docs/manage-repos#create for more details.
+
+        If you hit a "Permission artifactregistry.repositories.uploadArtifacts denied" error,
+        set up authentication for Docker.
+
+        .. code-block:: bash
+
+            gcloud auth configure-docker {REPOSITORY}
+
+        See https://cloud.google.com/artifact-registry/docs/docker/authentication for mode details.
 
         Raises:
             ValueError: If the image uri is not a container registry or artifact registry

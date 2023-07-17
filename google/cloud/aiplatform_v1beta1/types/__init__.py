@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ from .data_labeling_job import (
 from .dataset import (
     Dataset,
     ExportDataConfig,
+    ExportFractionSplit,
     ImportDataConfig,
 )
 from .dataset_service import (
@@ -58,6 +59,7 @@ from .dataset_service import (
     CreateDatasetRequest,
     DataItemView,
     DeleteDatasetRequest,
+    DeleteSavedQueryRequest,
     ExportDataOperationMetadata,
     ExportDataRequest,
     ExportDataResponse,
@@ -117,6 +119,9 @@ from .endpoint_service import (
     GetEndpointRequest,
     ListEndpointsRequest,
     ListEndpointsResponse,
+    MutateDeployedModelOperationMetadata,
+    MutateDeployedModelRequest,
+    MutateDeployedModelResponse,
     UndeployModelOperationMetadata,
     UndeployModelRequest,
     UndeployModelResponse,
@@ -127,6 +132,11 @@ from .entity_type import (
 )
 from .env_var import (
     EnvVar,
+)
+from .evaluated_annotation import (
+    ErrorAnalysisAnnotation,
+    EvaluatedAnnotation,
+    EvaluatedAnnotationExplanation,
 )
 from .event import (
     Event,
@@ -290,21 +300,26 @@ from .job_service import (
     CancelCustomJobRequest,
     CancelDataLabelingJobRequest,
     CancelHyperparameterTuningJobRequest,
+    CancelNasJobRequest,
     CreateBatchPredictionJobRequest,
     CreateCustomJobRequest,
     CreateDataLabelingJobRequest,
     CreateHyperparameterTuningJobRequest,
     CreateModelDeploymentMonitoringJobRequest,
+    CreateNasJobRequest,
     DeleteBatchPredictionJobRequest,
     DeleteCustomJobRequest,
     DeleteDataLabelingJobRequest,
     DeleteHyperparameterTuningJobRequest,
     DeleteModelDeploymentMonitoringJobRequest,
+    DeleteNasJobRequest,
     GetBatchPredictionJobRequest,
     GetCustomJobRequest,
     GetDataLabelingJobRequest,
     GetHyperparameterTuningJobRequest,
     GetModelDeploymentMonitoringJobRequest,
+    GetNasJobRequest,
+    GetNasTrialDetailRequest,
     ListBatchPredictionJobsRequest,
     ListBatchPredictionJobsResponse,
     ListCustomJobsRequest,
@@ -315,6 +330,10 @@ from .job_service import (
     ListHyperparameterTuningJobsResponse,
     ListModelDeploymentMonitoringJobsRequest,
     ListModelDeploymentMonitoringJobsResponse,
+    ListNasJobsRequest,
+    ListNasJobsResponse,
+    ListNasTrialDetailsRequest,
+    ListNasTrialDetailsResponse,
     PauseModelDeploymentMonitoringJobRequest,
     ResumeModelDeploymentMonitoringJobRequest,
     SearchModelDeploymentMonitoringStatsAnomaliesRequest,
@@ -337,6 +356,12 @@ from .machine_resources import (
 )
 from .manual_batch_tuning_parameters import (
     ManualBatchTuningParameters,
+)
+from .match_service import (
+    FindNeighborsRequest,
+    FindNeighborsResponse,
+    ReadIndexDatapointsRequest,
+    ReadIndexDatapointsResponse,
 )
 from .metadata_schema import (
     MetadataSchema,
@@ -408,6 +433,7 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
+    LargeModelReference,
     Model,
     ModelContainerSpec,
     ModelSourceInfo,
@@ -428,6 +454,10 @@ from .model_evaluation import (
 from .model_evaluation_slice import (
     ModelEvaluationSlice,
 )
+from .model_garden_service import (
+    GetPublisherModelRequest,
+    PublisherModelView,
+)
 from .model_monitoring import (
     ModelMonitoringAlertConfig,
     ModelMonitoringConfig,
@@ -436,8 +466,13 @@ from .model_monitoring import (
     ThresholdConfig,
 )
 from .model_service import (
+    BatchImportEvaluatedAnnotationsRequest,
+    BatchImportEvaluatedAnnotationsResponse,
     BatchImportModelEvaluationSlicesRequest,
     BatchImportModelEvaluationSlicesResponse,
+    CopyModelOperationMetadata,
+    CopyModelRequest,
+    CopyModelResponse,
     DeleteModelRequest,
     DeleteModelVersionRequest,
     ExportModelOperationMetadata,
@@ -464,9 +499,30 @@ from .model_service import (
     UploadModelRequest,
     UploadModelResponse,
 )
+from .nas_job import (
+    NasJob,
+    NasJobOutput,
+    NasJobSpec,
+    NasTrial,
+    NasTrialDetail,
+)
 from .operation import (
     DeleteOperationMetadata,
     GenericOperationMetadata,
+)
+from .persistent_resource import (
+    PersistentResource,
+    ResourcePool,
+    ResourceRuntimeSpec,
+    ServiceAccountSpec,
+)
+from .persistent_resource_service import (
+    CreatePersistentResourceOperationMetadata,
+    CreatePersistentResourceRequest,
+    DeletePersistentResourceRequest,
+    GetPersistentResourceRequest,
+    ListPersistentResourcesRequest,
+    ListPersistentResourcesResponse,
 )
 from .pipeline_job import (
     PipelineJob,
@@ -496,8 +552,27 @@ from .prediction_service import (
     PredictResponse,
     RawPredictRequest,
 )
+from .publisher_model import (
+    PublisherModel,
+)
 from .saved_query import (
     SavedQuery,
+)
+from .schedule import (
+    Schedule,
+)
+from .schedule_service import (
+    CreateScheduleRequest,
+    DeleteScheduleRequest,
+    GetScheduleRequest,
+    ListSchedulesRequest,
+    ListSchedulesResponse,
+    PauseScheduleRequest,
+    ResumeScheduleRequest,
+    UpdateScheduleRequest,
+)
+from .service_networking import (
+    PrivateServiceConnectConfig,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -567,6 +642,8 @@ from .tensorboard_service import (
     ListTensorboardTimeSeriesResponse,
     ReadTensorboardBlobDataRequest,
     ReadTensorboardBlobDataResponse,
+    ReadTensorboardSizeRequest,
+    ReadTensorboardSizeResponse,
     ReadTensorboardTimeSeriesDataRequest,
     ReadTensorboardTimeSeriesDataResponse,
     ReadTensorboardUsageRequest,
@@ -654,11 +731,13 @@ __all__ = (
     "TrainingConfig",
     "Dataset",
     "ExportDataConfig",
+    "ExportFractionSplit",
     "ImportDataConfig",
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
     "DataItemView",
     "DeleteDatasetRequest",
+    "DeleteSavedQueryRequest",
     "ExportDataOperationMetadata",
     "ExportDataRequest",
     "ExportDataResponse",
@@ -704,12 +783,18 @@ __all__ = (
     "GetEndpointRequest",
     "ListEndpointsRequest",
     "ListEndpointsResponse",
+    "MutateDeployedModelOperationMetadata",
+    "MutateDeployedModelRequest",
+    "MutateDeployedModelResponse",
     "UndeployModelOperationMetadata",
     "UndeployModelRequest",
     "UndeployModelResponse",
     "UpdateEndpointRequest",
     "EntityType",
     "EnvVar",
+    "ErrorAnalysisAnnotation",
+    "EvaluatedAnnotation",
+    "EvaluatedAnnotationExplanation",
     "Event",
     "Execution",
     "Attribution",
@@ -837,21 +922,26 @@ __all__ = (
     "CancelCustomJobRequest",
     "CancelDataLabelingJobRequest",
     "CancelHyperparameterTuningJobRequest",
+    "CancelNasJobRequest",
     "CreateBatchPredictionJobRequest",
     "CreateCustomJobRequest",
     "CreateDataLabelingJobRequest",
     "CreateHyperparameterTuningJobRequest",
     "CreateModelDeploymentMonitoringJobRequest",
+    "CreateNasJobRequest",
     "DeleteBatchPredictionJobRequest",
     "DeleteCustomJobRequest",
     "DeleteDataLabelingJobRequest",
     "DeleteHyperparameterTuningJobRequest",
     "DeleteModelDeploymentMonitoringJobRequest",
+    "DeleteNasJobRequest",
     "GetBatchPredictionJobRequest",
     "GetCustomJobRequest",
     "GetDataLabelingJobRequest",
     "GetHyperparameterTuningJobRequest",
     "GetModelDeploymentMonitoringJobRequest",
+    "GetNasJobRequest",
+    "GetNasTrialDetailRequest",
     "ListBatchPredictionJobsRequest",
     "ListBatchPredictionJobsResponse",
     "ListCustomJobsRequest",
@@ -862,6 +952,10 @@ __all__ = (
     "ListHyperparameterTuningJobsResponse",
     "ListModelDeploymentMonitoringJobsRequest",
     "ListModelDeploymentMonitoringJobsResponse",
+    "ListNasJobsRequest",
+    "ListNasJobsResponse",
+    "ListNasTrialDetailsRequest",
+    "ListNasTrialDetailsResponse",
     "PauseModelDeploymentMonitoringJobRequest",
     "ResumeModelDeploymentMonitoringJobRequest",
     "SearchModelDeploymentMonitoringStatsAnomaliesRequest",
@@ -879,6 +973,10 @@ __all__ = (
     "NfsMount",
     "ResourcesConsumed",
     "ManualBatchTuningParameters",
+    "FindNeighborsRequest",
+    "FindNeighborsResponse",
+    "ReadIndexDatapointsRequest",
+    "ReadIndexDatapointsResponse",
     "MetadataSchema",
     "AddContextArtifactsAndExecutionsRequest",
     "AddContextArtifactsAndExecutionsResponse",
@@ -938,6 +1036,7 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "LargeModelReference",
     "Model",
     "ModelContainerSpec",
     "ModelSourceInfo",
@@ -951,13 +1050,20 @@ __all__ = (
     "ModelDeploymentMonitoringObjectiveType",
     "ModelEvaluation",
     "ModelEvaluationSlice",
+    "GetPublisherModelRequest",
+    "PublisherModelView",
     "ModelMonitoringAlertConfig",
     "ModelMonitoringConfig",
     "ModelMonitoringObjectiveConfig",
     "SamplingStrategy",
     "ThresholdConfig",
+    "BatchImportEvaluatedAnnotationsRequest",
+    "BatchImportEvaluatedAnnotationsResponse",
     "BatchImportModelEvaluationSlicesRequest",
     "BatchImportModelEvaluationSlicesResponse",
+    "CopyModelOperationMetadata",
+    "CopyModelRequest",
+    "CopyModelResponse",
     "DeleteModelRequest",
     "DeleteModelVersionRequest",
     "ExportModelOperationMetadata",
@@ -983,8 +1089,23 @@ __all__ = (
     "UploadModelOperationMetadata",
     "UploadModelRequest",
     "UploadModelResponse",
+    "NasJob",
+    "NasJobOutput",
+    "NasJobSpec",
+    "NasTrial",
+    "NasTrialDetail",
     "DeleteOperationMetadata",
     "GenericOperationMetadata",
+    "PersistentResource",
+    "ResourcePool",
+    "ResourceRuntimeSpec",
+    "ServiceAccountSpec",
+    "CreatePersistentResourceOperationMetadata",
+    "CreatePersistentResourceRequest",
+    "DeletePersistentResourceRequest",
+    "GetPersistentResourceRequest",
+    "ListPersistentResourcesRequest",
+    "ListPersistentResourcesResponse",
     "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
@@ -1009,7 +1130,18 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
+    "PublisherModel",
     "SavedQuery",
+    "Schedule",
+    "CreateScheduleRequest",
+    "DeleteScheduleRequest",
+    "GetScheduleRequest",
+    "ListSchedulesRequest",
+    "ListSchedulesResponse",
+    "PauseScheduleRequest",
+    "ResumeScheduleRequest",
+    "UpdateScheduleRequest",
+    "PrivateServiceConnectConfig",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
@@ -1063,6 +1195,8 @@ __all__ = (
     "ListTensorboardTimeSeriesResponse",
     "ReadTensorboardBlobDataRequest",
     "ReadTensorboardBlobDataResponse",
+    "ReadTensorboardSizeRequest",
+    "ReadTensorboardSizeResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
     "ReadTensorboardUsageRequest",

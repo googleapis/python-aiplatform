@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ from google.cloud.aiplatform_v1 import (
     AddContextArtifactsAndExecutionsResponse,
 )
 
-import test_models
+import constants as test_constants
 
 # project
 _TEST_PROJECT = "test-project"
@@ -151,6 +151,53 @@ def update_context_mock():
             metadata=_TEST_UPDATED_METADATA,
         )
         yield update_context_mock
+
+
+@pytest.fixture
+def update_context_with_errors_mock():
+    with patch.object(
+        MetadataServiceClient, "update_context"
+    ) as update_context_with_errors_mock:
+        update_context_with_errors_mock.side_effect = [
+            exceptions.Aborted(
+                "Specified Context `etag`: `1` does not match server `etag`: `2`"
+            ),
+            GapicContext(
+                name=_TEST_CONTEXT_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                schema_title=_TEST_SCHEMA_TITLE,
+                schema_version=_TEST_SCHEMA_VERSION,
+                description=_TEST_DESCRIPTION,
+                metadata=_TEST_UPDATED_METADATA,
+            ),
+        ]
+        yield update_context_with_errors_mock
+
+
+@pytest.fixture
+def update_context_with_errors_mock_2():
+    with patch.object(
+        MetadataServiceClient, "update_context"
+    ) as update_context_with_errors_mock_2:
+        update_context_with_errors_mock_2.side_effect = [
+            exceptions.Aborted(
+                "Specified Context `etag`: `2` does not match server `etag`: `1`"
+            )
+        ]
+        yield update_context_with_errors_mock_2
+
+
+@pytest.fixture
+def update_context_with_errors_mock_3():
+    with patch.object(
+        MetadataServiceClient, "update_context"
+    ) as update_context_with_errors_mock_3:
+        update_context_with_errors_mock_3.side_effect = [
+            exceptions.Aborted(
+                "Specified Context `etag`: `1` does not match server `etag`: `2`"
+            )
+        ] * 6
+        yield update_context_with_errors_mock_2
 
 
 @pytest.fixture
@@ -483,6 +530,70 @@ class TestContext:
         assert my_context._gca_resource == updated_context
 
     @pytest.mark.usefixtures("get_context_mock")
+    @pytest.mark.usefixtures("create_context_mock")
+    def test_update_context_with_retry_success(self, update_context_with_errors_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_context = context.Context._create(
+            resource_id=_TEST_CONTEXT_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+        my_context.update(_TEST_UPDATED_METADATA)
+
+        updated_context = GapicContext(
+            name=_TEST_CONTEXT_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+
+        update_context_with_errors_mock.assert_called_with(context=updated_context)
+        assert my_context._gca_resource == updated_context
+
+    @pytest.mark.usefixtures("get_context_mock")
+    @pytest.mark.usefixtures("create_context_mock")
+    @pytest.mark.usefixtures("update_context_with_errors_mock_2")
+    def test_update_context_with_retry_etag_order_failure(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_context = context.Context._create(
+            resource_id=_TEST_CONTEXT_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+        with pytest.raises(exceptions.Aborted):
+            my_context.update(_TEST_UPDATED_METADATA)
+
+    @pytest.mark.usefixtures("get_context_mock")
+    @pytest.mark.usefixtures("create_context_mock")
+    @pytest.mark.usefixtures("update_context_with_errors_mock_3")
+    def test_update_context_with_retry_too_many_error_failure(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_context = context.Context._create(
+            resource_id=_TEST_CONTEXT_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+        with pytest.raises(exceptions.Aborted):
+            my_context.update(_TEST_UPDATED_METADATA)
+
+    @pytest.mark.usefixtures("get_context_mock")
     def test_list_contexts(self, list_contexts_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -586,8 +697,7 @@ class TestContext:
         )
 
 
-get_model_with_version_mock = test_models.get_model_with_version
-_VERTEX_MODEL_ARTIFACT_URI = f"https://{_TEST_LOCATION}-aiplatform.googleapis.com/v1/{test_models._TEST_MODEL_OBJ_WITH_VERSION.name}"
+_VERTEX_MODEL_ARTIFACT_URI = f"https://{_TEST_LOCATION}-aiplatform.googleapis.com/v1/{test_constants.ModelConstants._TEST_MODEL_OBJ_WITH_VERSION.name}"
 
 
 @pytest.fixture
@@ -795,7 +905,7 @@ class TestExecution:
             metadata_store_id=_TEST_METADATA_STORE,
         )
 
-        my_model = aiplatform.Model(test_models._TEST_MODEL_NAME)
+        my_model = aiplatform.Model(test_constants.ModelConstants._TEST_MODEL_NAME)
         my_execution.assign_output_artifacts(artifacts=[my_model])
 
         list_vertex_model_artifact_mock.assert_called_once_with(
@@ -830,7 +940,7 @@ class TestExecution:
             metadata_store_id=_TEST_METADATA_STORE,
         )
 
-        my_model = aiplatform.Model(test_models._TEST_MODEL_NAME)
+        my_model = aiplatform.Model(test_constants.ModelConstants._TEST_MODEL_NAME)
         my_execution.assign_output_artifacts(artifacts=[my_model])
 
         list_artifact_empty_mock.assert_called_once_with(
@@ -844,9 +954,11 @@ class TestExecution:
 
         expected_artifact = GapicArtifact(
             schema_title="google.VertexModel",
-            display_name=test_models._TEST_MODEL_OBJ_WITH_VERSION.display_name,
+            display_name=test_constants.ModelConstants._TEST_MODEL_OBJ_WITH_VERSION.display_name,
             uri=_VERTEX_MODEL_ARTIFACT_URI,
-            metadata={"resourceName": test_models._TEST_MODEL_OBJ_WITH_VERSION.name},
+            metadata={
+                "resourceName": test_constants.ModelConstants._TEST_MODEL_OBJ_WITH_VERSION.name
+            },
             state=GapicArtifact.State.LIVE,
         )
 

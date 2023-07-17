@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import log_pipeline_job_to_experiment_sample
-
+from experiment_tracking import log_pipeline_job_to_experiment_sample
 import test_constants as constants
 
 

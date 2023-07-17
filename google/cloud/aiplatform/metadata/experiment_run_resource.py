@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.compat.types import (
@@ -385,6 +386,56 @@ class ExperimentRun(
                 ),
                 metadata=tensorboard_run_artifact,
             )
+
+    @classmethod
+    def get(
+        cls,
+        run_name: str,
+        *,
+        experiment: Optional[Union[experiment_resources.Experiment, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> Optional["ExperimentRun"]:
+        """Gets experiment run if one exists with this run_name.
+
+        Args:
+            run_name (str):
+                Required. The name of this run.
+            experiment (Union[experiment_resources.Experiment, str]):
+                Optional. The name or instance of this experiment.
+                If not set, use the default experiment in `aiplatform.init`
+            project (str):
+                Optional. Project where this experiment run is located.
+                Overrides project set in aiplatform.init.
+            location (str):
+                Optional. Location where this experiment run is located.
+                Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to retrieve this experiment run.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            Vertex AI experimentRun or None if no resource was found.
+        """
+        experiment = experiment or metadata._experiment_tracker.experiment
+
+        if not experiment:
+            raise ValueError(
+                "experiment must be provided or "
+                "experiment should be set using aiplatform.init"
+            )
+
+        try:
+            return cls(
+                run_name=run_name,
+                experiment=experiment,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+        except exceptions.NotFound:
+            return None
 
     @classmethod
     def list(
@@ -1009,12 +1060,12 @@ class ExperimentRun(
         tpr: Optional[List[float]] = None,
         threshold: Optional[List[float]] = None,
         display_name: Optional[str] = None,
-    ):
+    ) -> google_artifact_schema.ClassificationMetrics:
         """Create an artifact for classification metrics and log to ExperimentRun. Currently supports confusion matrix and ROC curve.
 
         ```
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
-        my_run.log_classification_metrics(
+        classification_metrics = my_run.log_classification_metrics(
             display_name='my-classification-metrics',
             labels=['cat', 'dog'],
             matrix=[[9, 1], [1, 9]],
@@ -1037,6 +1088,9 @@ class ExperimentRun(
                 Optional. List of thresholds for the ROC curve. Must be set if 'fpr' or 'tpr' is set.
             display_name (str):
                 Optional. The user-defined name for the classification metric artifact.
+
+        Returns:
+            ClassificationMetrics artifact.
 
         Raises:
             ValueError: if 'labels' and 'matrix' are not set together
@@ -1102,6 +1156,7 @@ class ExperimentRun(
         self._metadata_node.add_artifacts_and_executions(
             artifact_resource_names=[classfication_metrics.resource_name]
         )
+        return classification_metrics
 
     @_v1_not_supported
     def log_model(
@@ -1248,6 +1303,24 @@ class ExperimentRun(
                 credentials=c.credentials,
             )
             for c in pipeline_job_contexts
+        ]
+
+    @_v1_not_supported
+    def get_logged_custom_jobs(self) -> List[jobs.CustomJob]:
+        """Get all CustomJobs associated to this experiment run.
+
+        Returns:
+            List of CustomJobs associated this run.
+        """
+
+        custom_jobs = self._metadata_node.metadata.get(constants._CUSTOM_JOB_KEY)
+
+        return [
+            jobs.CustomJob.get(
+                resource_name=custom_job.get(constants._CUSTOM_JOB_RESOURCE_NAME),
+                credentials=self.credentials,
+            )
+            for custom_job in custom_jobs
         ]
 
     def __enter__(self):
@@ -1418,34 +1491,14 @@ class ExperimentRun(
         Returns:
             List of ExperimentModel instances associated this run.
         """
-        # TODO(b/264194064) Replace this by ExperimentModel.list
-        artifact_list = artifact.Artifact.list(
-            filter=metadata_utils._make_filter_string(
-                in_context=[self.resource_name],
-                schema_title=google_artifact_schema.ExperimentModel.schema_title,
-            ),
+        experiment_model_list = google_artifact_schema.ExperimentModel.list(
+            filter=metadata_utils._make_filter_string(in_context=[self.resource_name]),
             project=self.project,
             location=self.location,
             credentials=self.credentials,
         )
 
-        res = []
-        for model_artifact in artifact_list:
-            experiment_model = google_artifact_schema.ExperimentModel(
-                framework_name="",
-                framework_version="",
-                model_file="",
-                uri="",
-            )
-            experiment_model._gca_resource = model_artifact._gca_resource
-            experiment_model.project = model_artifact.project
-            experiment_model.location = model_artifact.location
-            experiment_model.credentials = model_artifact.credentials
-            experiment_model.api_client = model_artifact.api_client
-
-            res.append(experiment_model)
-
-        return res
+        return experiment_model_list
 
     @_v1_not_supported
     def associate_execution(self, execution: execution.Execution):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -499,113 +499,6 @@ class TensorboardServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def read_tensorboard_usage(
-        self,
-        request: Optional[
-            Union[tensorboard_service.ReadTensorboardUsageRequest, dict]
-        ] = None,
-        *,
-        tensorboard: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> tensorboard_service.ReadTensorboardUsageResponse:
-        r"""Returns a list of monthly active users for a given
-        TensorBoard instance.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1
-
-            async def sample_read_tensorboard_usage():
-                # Create a client
-                client = aiplatform_v1.TensorboardServiceAsyncClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1.ReadTensorboardUsageRequest(
-                    tensorboard="tensorboard_value",
-                )
-
-                # Make the request
-                response = await client.read_tensorboard_usage(request=request)
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Optional[Union[google.cloud.aiplatform_v1.types.ReadTensorboardUsageRequest, dict]]):
-                The request object. Request message for
-                [TensorboardService.GetTensorboardUsage][].
-            tensorboard (:class:`str`):
-                Required. The name of the Tensorboard resource. Format:
-                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
-
-                This corresponds to the ``tensorboard`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1.types.ReadTensorboardUsageResponse:
-                Response message for
-                [TensorboardService.GetTensorboardUsage][].
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        request = tensorboard_service.ReadTensorboardUsageRequest(request)
-
-        # If we have keyword arguments corresponding to fields on the
-        # request, apply these.
-        if tensorboard is not None:
-            request.tensorboard = tensorboard
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = gapic_v1.method_async.wrap_method(
-            self._client._transport.read_tensorboard_usage,
-            default_timeout=None,
-            client_info=DEFAULT_CLIENT_INFO,
-        )
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("tensorboard", request.tensorboard),)
-            ),
-        )
-
-        # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
     async def update_tensorboard(
         self,
         request: Optional[
@@ -987,6 +880,113 @@ class TensorboardServiceAsyncClient:
             self._client._transport.operations_client,
             empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def read_tensorboard_usage(
+        self,
+        request: Optional[
+            Union[tensorboard_service.ReadTensorboardUsageRequest, dict]
+        ] = None,
+        *,
+        tensorboard: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.ReadTensorboardUsageResponse:
+        r"""Returns a list of monthly active users for a given
+        TensorBoard instance.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_read_tensorboard_usage():
+                # Create a client
+                client = aiplatform_v1.TensorboardServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ReadTensorboardUsageRequest(
+                    tensorboard="tensorboard_value",
+                )
+
+                # Make the request
+                response = await client.read_tensorboard_usage(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ReadTensorboardUsageRequest, dict]]):
+                The request object. Request message for
+                [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardUsage].
+            tensorboard (:class:`str`):
+                Required. The name of the Tensorboard resource. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                This corresponds to the ``tensorboard`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.ReadTensorboardUsageResponse:
+                Response message for
+                   [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardUsage].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([tensorboard])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = tensorboard_service.ReadTensorboardUsageRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if tensorboard is not None:
+            request.tensorboard = tensorboard
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.read_tensorboard_usage,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard", request.tensorboard),)
+            ),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -4487,7 +4487,7 @@ class TensorboardServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "TensorboardServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

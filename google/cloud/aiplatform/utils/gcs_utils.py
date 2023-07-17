@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,14 +18,19 @@
 import datetime
 import glob
 import logging
+import os
 import pathlib
-from typing import Optional
+import tempfile
+from typing import Optional, TYPE_CHECKING
 
 from google.auth import credentials as auth_credentials
 from google.cloud import storage
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import resource_manager_utils
+
+if TYPE_CHECKING:
+    import pandas
 
 _logger = logging.getLogger(__name__)
 
@@ -293,3 +298,99 @@ def download_file_from_gcs(
     _logger.debug(f'Downloading "{source_file_uri}" to "{destination_file_path}"')
 
     source_blob.download_to_filename(filename=destination_file_path)
+
+
+def download_from_gcs(
+    source_uri: str,
+    destination_path: str,
+    project: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+):
+    """Downloads GCS files to local path.
+
+    Args:
+        source_uri (str):
+            Required. GCS URI(or prefix) of the file(s) to download.
+        destination_path (str):
+            Required. local path where the data should be downloaded.
+            If provided a file path, then `source_uri` must refer to a file.
+            If provided a directory path, then `source_uri` must refer to a prefix.
+        project (str):
+            Optional. Google Cloud Project that contains the staging bucket.
+        credentials (auth_credentials.Credentials):
+            Optional. The custom credentials to use when making API calls.
+            If not provided, default credentials will be used.
+
+    Raises:
+        GoogleCloudError: When the download process fails.
+    """
+    project = project or initializer.global_config.project
+    credentials = credentials or initializer.global_config.credentials
+
+    storage_client = storage.Client(project=project, credentials=credentials)
+
+    validate_gcs_path(source_uri)
+    bucket_name, prefix = source_uri.replace("gs://", "").split("/", maxsplit=1)
+
+    blobs = storage_client.list_blobs(bucket_or_name=bucket_name, prefix=prefix)
+    for blob in blobs:
+        # In SDK 2.0 remote training, we'll create some empty files.
+        # These files ends with '/', and we'll skip them.
+        if not blob.name.endswith("/"):
+            rel_path = os.path.relpath(blob.name, prefix)
+            filename = (
+                destination_path
+                if rel_path == "."
+                else os.path.join(destination_path, rel_path)
+            )
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            blob.download_to_filename(filename=filename)
+
+
+def _upload_pandas_df_to_gcs(
+    df: "pandas.DataFrame", upload_gcs_path: str, file_format: str = "jsonl"
+) -> None:
+    """Uploads the provided Pandas DataFrame to a GCS bucket.
+
+    Args:
+        df (pandas.DataFrame):
+            Required. The Pandas DataFrame to upload.
+        upload_gcs_path (str):
+            Required. The GCS path to upload the data file.
+        file_format (str):
+            Required. The format to export the DataFrame to. Currently
+            only JSONL is supported.
+
+    Raises:
+        ValueError: When a file format other than JSONL is provided.
+    """
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        local_dataset_path = os.path.join(temp_dir, "dataset.jsonl")
+
+        if file_format == "jsonl":
+            df.to_json(path_or_buf=local_dataset_path, orient="records", lines=True)
+        else:
+            raise ValueError(f"Unsupported file format: {file_format}")
+
+        storage_client = storage.Client(
+            credentials=initializer.global_config.credentials
+        )
+        storage.Blob.from_string(
+            uri=upload_gcs_path, client=storage_client
+        ).upload_from_filename(filename=local_dataset_path)
+
+
+def validate_gcs_path(gcs_path: str) -> None:
+    """Validates a GCS path.
+
+    Args:
+        gcs_path (str):
+            Required. A GCS path to validate.
+    Raises:
+        ValueError if gcs_path is invalid.
+    """
+    if not gcs_path.startswith("gs://"):
+        raise ValueError(
+            f"Invalid GCS path {gcs_path}. Please provide a valid GCS path starting with 'gs://'"
+        )

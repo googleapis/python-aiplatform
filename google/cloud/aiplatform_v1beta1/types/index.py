@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -109,11 +111,12 @@ class Index(proto.Message):
                 Should not be used.
             BATCH_UPDATE (1):
                 BatchUpdate: user can call UpdateIndex with
-                files on Cloud Storage of datapoints to update.
+                files on Cloud Storage of
+                datapoints to update.
             STREAM_UPDATE (2):
                 StreamUpdate: user can call
-                UpsertDatapoints/DeleteDatapoints to update the
-                Index and the updates will be applied in
+                UpsertDatapoints/DeleteDatapoints to update
+                the Index and the updates will be applied in
                 corresponding DeployedIndexes in nearly
                 real-time.
         """

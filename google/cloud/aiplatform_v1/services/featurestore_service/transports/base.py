@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -229,6 +229,11 @@ class FeaturestoreServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.delete_feature_values: gapic_v1.method.wrap_method(
+                self.delete_feature_values,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.search_features: gapic_v1.method.wrap_method(
                 self.search_features,
                 default_timeout=None,
@@ -426,6 +431,15 @@ class FeaturestoreServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [featurestore_service.ExportFeatureValuesRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_service.DeleteFeatureValuesRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

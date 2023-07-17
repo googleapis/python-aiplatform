@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -30,6 +32,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 from google.cloud.aiplatform_v1beta1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
+from google.cloud.aiplatform_v1beta1.types import nas_job as gca_nas_job
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -56,6 +59,15 @@ __protobuf__ = proto.module(
         "ListHyperparameterTuningJobsResponse",
         "DeleteHyperparameterTuningJobRequest",
         "CancelHyperparameterTuningJobRequest",
+        "CreateNasJobRequest",
+        "GetNasJobRequest",
+        "ListNasJobsRequest",
+        "ListNasJobsResponse",
+        "DeleteNasJobRequest",
+        "CancelNasJobRequest",
+        "GetNasTrialDetailRequest",
+        "ListNasTrialDetailsRequest",
+        "ListNasTrialDetailsResponse",
         "CreateBatchPredictionJobRequest",
         "GetBatchPredictionJobRequest",
         "ListBatchPredictionJobsRequest",
@@ -594,6 +606,254 @@ class CancelHyperparameterTuningJobRequest(proto.Message):
     name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class CreateNasJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.CreateNasJob][google.cloud.aiplatform.v1beta1.JobService.CreateNasJob].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Location to create the
+            NasJob in. Format:
+            ``projects/{project}/locations/{location}``
+        nas_job (google.cloud.aiplatform_v1beta1.types.NasJob):
+            Required. The NasJob to create.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    nas_job: gca_nas_job.NasJob = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_nas_job.NasJob,
+    )
+
+
+class GetNasJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.GetNasJob][google.cloud.aiplatform.v1beta1.JobService.GetNasJob].
+
+    Attributes:
+        name (str):
+            Required. The name of the NasJob resource. Format:
+            ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ListNasJobsRequest(proto.Message):
+    r"""Request message for
+    [JobService.ListNasJobs][google.cloud.aiplatform.v1beta1.JobService.ListNasJobs].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Location to list the
+            NasJobs from. Format:
+            ``projects/{project}/locations/{location}``
+        filter (str):
+            The standard list filter.
+
+            Supported fields:
+
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
+            -  ``labels`` supports general map functions that is:
+               ``labels.key=value`` - key:value equality \`labels.key:\*
+               - key existence
+
+            Some examples of using the filter are:
+
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
+            -  ``NOT display_name="my_job"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
+            -  ``labels.keyA=valueA``
+            -  ``labels.keyB:*``
+        page_size (int):
+            The standard list page size.
+        page_token (str):
+            The standard list page token. Typically obtained via
+            [ListNasJobsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListNasJobsResponse.next_page_token]
+            of the previous
+            [JobService.ListNasJobs][google.cloud.aiplatform.v1beta1.JobService.ListNasJobs]
+            call.
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Mask specifying which fields to read.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=field_mask_pb2.FieldMask,
+    )
+
+
+class ListNasJobsResponse(proto.Message):
+    r"""Response message for
+    [JobService.ListNasJobs][google.cloud.aiplatform.v1beta1.JobService.ListNasJobs]
+
+    Attributes:
+        nas_jobs (MutableSequence[google.cloud.aiplatform_v1beta1.types.NasJob]):
+            List of NasJobs in the requested page.
+            [NasJob.nas_job_output][google.cloud.aiplatform.v1beta1.NasJob.nas_job_output]
+            of the jobs will not be returned.
+        next_page_token (str):
+            A token to retrieve the next page of results. Pass to
+            [ListNasJobsRequest.page_token][google.cloud.aiplatform.v1beta1.ListNasJobsRequest.page_token]
+            to obtain that page.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    nas_jobs: MutableSequence[gca_nas_job.NasJob] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_nas_job.NasJob,
+    )
+    next_page_token: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class DeleteNasJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.DeleteNasJob][google.cloud.aiplatform.v1beta1.JobService.DeleteNasJob].
+
+    Attributes:
+        name (str):
+            Required. The name of the NasJob resource to be deleted.
+            Format:
+            ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class CancelNasJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.CancelNasJob][google.cloud.aiplatform.v1beta1.JobService.CancelNasJob].
+
+    Attributes:
+        name (str):
+            Required. The name of the NasJob to cancel. Format:
+            ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class GetNasTrialDetailRequest(proto.Message):
+    r"""Request message for
+    [JobService.GetNasTrialDetail][google.cloud.aiplatform.v1beta1.JobService.GetNasTrialDetail].
+
+    Attributes:
+        name (str):
+            Required. The name of the NasTrialDetail resource. Format:
+            ``projects/{project}/locations/{location}/nasJobs/{nas_job}/nasTrialDetails/{nas_trial_detail}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ListNasTrialDetailsRequest(proto.Message):
+    r"""Request message for
+    [JobService.ListNasTrialDetails][google.cloud.aiplatform.v1beta1.JobService.ListNasTrialDetails].
+
+    Attributes:
+        parent (str):
+            Required. The name of the NasJob resource. Format:
+            ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+        page_size (int):
+            The standard list page size.
+        page_token (str):
+            The standard list page token. Typically obtained via
+            [ListNasTrialDetailsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListNasTrialDetailsResponse.next_page_token]
+            of the previous
+            [JobService.ListNasTrialDetails][google.cloud.aiplatform.v1beta1.JobService.ListNasTrialDetails]
+            call.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    page_size: int = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    page_token: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+
+
+class ListNasTrialDetailsResponse(proto.Message):
+    r"""Response message for
+    [JobService.ListNasTrialDetails][google.cloud.aiplatform.v1beta1.JobService.ListNasTrialDetails]
+
+    Attributes:
+        nas_trial_details (MutableSequence[google.cloud.aiplatform_v1beta1.types.NasTrialDetail]):
+            List of top NasTrials in the requested page.
+        next_page_token (str):
+            A token to retrieve the next page of results. Pass to
+            [ListNasTrialDetailsRequest.page_token][google.cloud.aiplatform.v1beta1.ListNasTrialDetailsRequest.page_token]
+            to obtain that page.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    nas_trial_details: MutableSequence[
+        gca_nas_job.NasTrialDetail
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_nas_job.NasTrialDetail,
+    )
+    next_page_token: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 

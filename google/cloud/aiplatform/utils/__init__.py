@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,18 +37,22 @@ from google.cloud.aiplatform import initializer
 
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
+    deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
     index_service_client_v1beta1,
     index_endpoint_service_client_v1beta1,
     job_service_client_v1beta1,
+    match_service_client_v1beta1,
     metadata_service_client_v1beta1,
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
+    schedule_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
     vizier_service_client_v1beta1,
+    model_garden_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -59,6 +63,7 @@ from google.cloud.aiplatform.compat.services import (
     index_endpoint_service_client_v1,
     job_service_client_v1,
     metadata_service_client_v1,
+    model_garden_service_client_v1,
     model_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
@@ -74,6 +79,7 @@ VertexAiServiceClient = TypeVar(
     "VertexAiServiceClient",
     # v1beta1
     dataset_service_client_v1beta1.DatasetServiceClient,
+    deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
     endpoint_service_client_v1beta1.EndpointServiceClient,
     featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1beta1.FeaturestoreServiceClient,
@@ -83,7 +89,9 @@ VertexAiServiceClient = TypeVar(
     prediction_service_client_v1beta1.PredictionServiceClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
     job_service_client_v1beta1.JobServiceClient,
+    match_service_client_v1beta1.MatchServiceClient,
     metadata_service_client_v1beta1.MetadataServiceClient,
+    schedule_service_client_v1beta1.ScheduleServiceClient,
     tensorboard_service_client_v1beta1.TensorboardServiceClient,
     vizier_service_client_v1beta1.VizierServiceClient,
     # v1
@@ -486,6 +494,17 @@ class DatasetClientWithOverride(ClientWithOverride):
     )
 
 
+class DeploymentResourcePoolClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
+        ),
+    )
+
+
 class EndpointClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION
@@ -576,6 +595,14 @@ class PipelineJobClientWithOverride(ClientWithOverride):
     )
 
 
+class ScheduleClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (compat.V1BETA1, schedule_service_client_v1beta1.ScheduleServiceClient),
+    )
+
+
 class PredictionClientWithOverride(ClientWithOverride):
     _is_temporary = False
     _default_version = compat.DEFAULT_VERSION
@@ -583,6 +610,12 @@ class PredictionClientWithOverride(ClientWithOverride):
         (compat.V1, prediction_service_client_v1.PredictionServiceClient),
         (compat.V1BETA1, prediction_service_client_v1beta1.PredictionServiceClient),
     )
+
+
+class MatchClientWithOverride(ClientWithOverride):
+    _is_temporary = False
+    _default_version = compat.V1BETA1
+    _version_map = ((compat.V1BETA1, match_service_client_v1beta1.MatchServiceClient),)
 
 
 class MetadataClientWithOverride(ClientWithOverride):
@@ -612,6 +645,15 @@ class VizierClientWithOverride(ClientWithOverride):
     )
 
 
+class ModelGardenClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, model_garden_service_client_v1.ModelGardenServiceClient),
+        (compat.V1BETA1, model_garden_service_client_v1beta1.ModelGardenServiceClient),
+    )
+
+
 VertexAiServiceClientWithOverride = TypeVar(
     "VertexAiServiceClientWithOverride",
     DatasetClientWithOverride,
@@ -619,12 +661,15 @@ VertexAiServiceClientWithOverride = TypeVar(
     FeaturestoreClientWithOverride,
     JobClientWithOverride,
     ModelClientWithOverride,
+    MatchClientWithOverride,
     PipelineClientWithOverride,
     PipelineJobClientWithOverride,
     PredictionClientWithOverride,
     MetadataClientWithOverride,
+    ScheduleClientWithOverride,
     TensorboardClientWithOverride,
     VizierClientWithOverride,
+    ModelGardenClientWithOverride,
 )
 
 

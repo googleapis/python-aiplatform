@@ -8,7 +8,7 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-    "version": "0.1.0"
+    "version": "1.28.0"
   },
   "snippets": [
     {
@@ -340,6 +340,167 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_dataset_service_delete_dataset_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient",
+          "shortName": "DatasetServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient.delete_saved_query",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.DeleteSavedQuery",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "DeleteSavedQuery"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteSavedQueryRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_saved_query"
+      },
+      "description": "Sample for DeleteSavedQuery",
+      "file": "aiplatform_v1beta1_generated_dataset_service_delete_saved_query_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_DeleteSavedQuery_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_delete_saved_query_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient",
+          "shortName": "DatasetServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient.delete_saved_query",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.DeleteSavedQuery",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "DeleteSavedQuery"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteSavedQueryRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_saved_query"
+      },
+      "description": "Sample for DeleteSavedQuery",
+      "file": "aiplatform_v1beta1_generated_dataset_service_delete_saved_query_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_DeleteSavedQuery_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_delete_saved_query_sync.py"
     },
     {
       "canonical": true,
@@ -3624,6 +3785,183 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_endpoint_service_list_endpoints_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.EndpointServiceAsyncClient",
+          "shortName": "EndpointServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.EndpointServiceAsyncClient.mutate_deployed_model",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.EndpointService.MutateDeployedModel",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.EndpointService",
+            "shortName": "EndpointService"
+          },
+          "shortName": "MutateDeployedModel"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.MutateDeployedModelRequest"
+          },
+          {
+            "name": "endpoint",
+            "type": "str"
+          },
+          {
+            "name": "deployed_model",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeployedModel"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "mutate_deployed_model"
+      },
+      "description": "Sample for MutateDeployedModel",
+      "file": "aiplatform_v1beta1_generated_endpoint_service_mutate_deployed_model_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_EndpointService_MutateDeployedModel_async",
+      "segments": [
+        {
+          "end": 60,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 60,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 50,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 57,
+          "start": 51,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 61,
+          "start": 58,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_endpoint_service_mutate_deployed_model_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.EndpointServiceClient",
+          "shortName": "EndpointServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.EndpointServiceClient.mutate_deployed_model",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.EndpointService.MutateDeployedModel",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.EndpointService",
+            "shortName": "EndpointService"
+          },
+          "shortName": "MutateDeployedModel"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.MutateDeployedModelRequest"
+          },
+          {
+            "name": "endpoint",
+            "type": "str"
+          },
+          {
+            "name": "deployed_model",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeployedModel"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "mutate_deployed_model"
+      },
+      "description": "Sample for MutateDeployedModel",
+      "file": "aiplatform_v1beta1_generated_endpoint_service_mutate_deployed_model_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_EndpointService_MutateDeployedModel_sync",
+      "segments": [
+        {
+          "end": 60,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 60,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 50,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 57,
+          "start": 51,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 61,
+          "start": 58,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_endpoint_service_mutate_deployed_model_sync.py"
     },
     {
       "canonical": true,
@@ -11030,6 +11368,161 @@
           "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient",
           "shortName": "JobServiceAsyncClient"
         },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.cancel_nas_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.CancelNasJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "CancelNasJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CancelNasJobRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "shortName": "cancel_nas_job"
+      },
+      "description": "Sample for CancelNasJob",
+      "file": "aiplatform_v1beta1_generated_job_service_cancel_nas_job_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_CancelNasJob_async",
+      "segments": [
+        {
+          "end": 49,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 49,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_cancel_nas_job_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient",
+          "shortName": "JobServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient.cancel_nas_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.CancelNasJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "CancelNasJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CancelNasJobRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "shortName": "cancel_nas_job"
+      },
+      "description": "Sample for CancelNasJob",
+      "file": "aiplatform_v1beta1_generated_job_service_cancel_nas_job_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_CancelNasJob_sync",
+      "segments": [
+        {
+          "end": 49,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 49,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_cancel_nas_job_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient",
+          "shortName": "JobServiceAsyncClient"
+        },
         "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.create_batch_prediction_job",
         "method": {
           "fullName": "google.cloud.aiplatform.v1beta1.JobService.CreateBatchPredictionJob",
@@ -11875,6 +12368,175 @@
           "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient",
           "shortName": "JobServiceAsyncClient"
         },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.create_nas_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.CreateNasJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "CreateNasJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateNasJobRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "nas_job",
+            "type": "google.cloud.aiplatform_v1beta1.types.NasJob"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.NasJob",
+        "shortName": "create_nas_job"
+      },
+      "description": "Sample for CreateNasJob",
+      "file": "aiplatform_v1beta1_generated_job_service_create_nas_job_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_CreateNasJob_async",
+      "segments": [
+        {
+          "end": 58,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 58,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 55,
+          "start": 53,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 59,
+          "start": 56,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_create_nas_job_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient",
+          "shortName": "JobServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient.create_nas_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.CreateNasJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "CreateNasJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateNasJobRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "nas_job",
+            "type": "google.cloud.aiplatform_v1beta1.types.NasJob"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.NasJob",
+        "shortName": "create_nas_job"
+      },
+      "description": "Sample for CreateNasJob",
+      "file": "aiplatform_v1beta1_generated_job_service_create_nas_job_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_CreateNasJob_sync",
+      "segments": [
+        {
+          "end": 58,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 58,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 55,
+          "start": 53,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 59,
+          "start": 56,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_create_nas_job_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient",
+          "shortName": "JobServiceAsyncClient"
+        },
         "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.delete_batch_prediction_job",
         "method": {
           "fullName": "google.cloud.aiplatform.v1beta1.JobService.DeleteBatchPredictionJob",
@@ -12671,6 +13333,167 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_job_service_delete_model_deployment_monitoring_job_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient",
+          "shortName": "JobServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.delete_nas_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.DeleteNasJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "DeleteNasJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteNasJobRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_nas_job"
+      },
+      "description": "Sample for DeleteNasJob",
+      "file": "aiplatform_v1beta1_generated_job_service_delete_nas_job_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_DeleteNasJob_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_delete_nas_job_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient",
+          "shortName": "JobServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient.delete_nas_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.DeleteNasJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "DeleteNasJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteNasJobRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_nas_job"
+      },
+      "description": "Sample for DeleteNasJob",
+      "file": "aiplatform_v1beta1_generated_job_service_delete_nas_job_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_DeleteNasJob_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_delete_nas_job_sync.py"
     },
     {
       "canonical": true,
@@ -13485,6 +14308,328 @@
           "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient",
           "shortName": "JobServiceAsyncClient"
         },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.get_nas_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.GetNasJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "GetNasJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetNasJobRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.NasJob",
+        "shortName": "get_nas_job"
+      },
+      "description": "Sample for GetNasJob",
+      "file": "aiplatform_v1beta1_generated_job_service_get_nas_job_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_GetNasJob_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_get_nas_job_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient",
+          "shortName": "JobServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient.get_nas_job",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.GetNasJob",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "GetNasJob"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetNasJobRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.NasJob",
+        "shortName": "get_nas_job"
+      },
+      "description": "Sample for GetNasJob",
+      "file": "aiplatform_v1beta1_generated_job_service_get_nas_job_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_GetNasJob_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_get_nas_job_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient",
+          "shortName": "JobServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.get_nas_trial_detail",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.GetNasTrialDetail",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "GetNasTrialDetail"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetNasTrialDetailRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.NasTrialDetail",
+        "shortName": "get_nas_trial_detail"
+      },
+      "description": "Sample for GetNasTrialDetail",
+      "file": "aiplatform_v1beta1_generated_job_service_get_nas_trial_detail_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_GetNasTrialDetail_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_get_nas_trial_detail_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient",
+          "shortName": "JobServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient.get_nas_trial_detail",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.GetNasTrialDetail",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "GetNasTrialDetail"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetNasTrialDetailRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.NasTrialDetail",
+        "shortName": "get_nas_trial_detail"
+      },
+      "description": "Sample for GetNasTrialDetail",
+      "file": "aiplatform_v1beta1_generated_job_service_get_nas_trial_detail_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_GetNasTrialDetail_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_get_nas_trial_detail_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient",
+          "shortName": "JobServiceAsyncClient"
+        },
         "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.list_batch_prediction_jobs",
         "method": {
           "fullName": "google.cloud.aiplatform.v1beta1.JobService.ListBatchPredictionJobs",
@@ -14290,6 +15435,328 @@
           "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient",
           "shortName": "JobServiceAsyncClient"
         },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.list_nas_jobs",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.ListNasJobs",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "ListNasJobs"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListNasJobsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListNasJobsAsyncPager",
+        "shortName": "list_nas_jobs"
+      },
+      "description": "Sample for ListNasJobs",
+      "file": "aiplatform_v1beta1_generated_job_service_list_nas_jobs_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_ListNasJobs_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_list_nas_jobs_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient",
+          "shortName": "JobServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient.list_nas_jobs",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.ListNasJobs",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "ListNasJobs"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListNasJobsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListNasJobsPager",
+        "shortName": "list_nas_jobs"
+      },
+      "description": "Sample for ListNasJobs",
+      "file": "aiplatform_v1beta1_generated_job_service_list_nas_jobs_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_ListNasJobs_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_list_nas_jobs_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient",
+          "shortName": "JobServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.list_nas_trial_details",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.ListNasTrialDetails",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "ListNasTrialDetails"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListNasTrialDetailsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListNasTrialDetailsAsyncPager",
+        "shortName": "list_nas_trial_details"
+      },
+      "description": "Sample for ListNasTrialDetails",
+      "file": "aiplatform_v1beta1_generated_job_service_list_nas_trial_details_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_ListNasTrialDetails_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_list_nas_trial_details_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient",
+          "shortName": "JobServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.JobServiceClient.list_nas_trial_details",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.JobService.ListNasTrialDetails",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.JobService",
+            "shortName": "JobService"
+          },
+          "shortName": "ListNasTrialDetails"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListNasTrialDetailsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListNasTrialDetailsPager",
+        "shortName": "list_nas_trial_details"
+      },
+      "description": "Sample for ListNasTrialDetails",
+      "file": "aiplatform_v1beta1_generated_job_service_list_nas_trial_details_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_JobService_ListNasTrialDetails_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_job_service_list_nas_trial_details_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient",
+          "shortName": "JobServiceAsyncClient"
+        },
         "fullName": "google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.pause_model_deployment_monitoring_job",
         "method": {
           "fullName": "google.cloud.aiplatform.v1beta1.JobService.PauseModelDeploymentMonitoringJob",
@@ -14929,6 +16396,312 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_job_service_update_model_deployment_monitoring_job_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.MatchServiceAsyncClient",
+          "shortName": "MatchServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.MatchServiceAsyncClient.find_neighbors",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.MatchService.FindNeighbors",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.MatchService",
+            "shortName": "MatchService"
+          },
+          "shortName": "FindNeighbors"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.FindNeighborsRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FindNeighborsResponse",
+        "shortName": "find_neighbors"
+      },
+      "description": "Sample for FindNeighbors",
+      "file": "aiplatform_v1beta1_generated_match_service_find_neighbors_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_MatchService_FindNeighbors_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_match_service_find_neighbors_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.MatchServiceClient",
+          "shortName": "MatchServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.MatchServiceClient.find_neighbors",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.MatchService.FindNeighbors",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.MatchService",
+            "shortName": "MatchService"
+          },
+          "shortName": "FindNeighbors"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.FindNeighborsRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FindNeighborsResponse",
+        "shortName": "find_neighbors"
+      },
+      "description": "Sample for FindNeighbors",
+      "file": "aiplatform_v1beta1_generated_match_service_find_neighbors_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_MatchService_FindNeighbors_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_match_service_find_neighbors_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.MatchServiceAsyncClient",
+          "shortName": "MatchServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.MatchServiceAsyncClient.read_index_datapoints",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.MatchService.ReadIndexDatapoints",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.MatchService",
+            "shortName": "MatchService"
+          },
+          "shortName": "ReadIndexDatapoints"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ReadIndexDatapointsRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.ReadIndexDatapointsResponse",
+        "shortName": "read_index_datapoints"
+      },
+      "description": "Sample for ReadIndexDatapoints",
+      "file": "aiplatform_v1beta1_generated_match_service_read_index_datapoints_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_MatchService_ReadIndexDatapoints_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_match_service_read_index_datapoints_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.MatchServiceClient",
+          "shortName": "MatchServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.MatchServiceClient.read_index_datapoints",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.MatchService.ReadIndexDatapoints",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.MatchService",
+            "shortName": "MatchService"
+          },
+          "shortName": "ReadIndexDatapoints"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ReadIndexDatapointsRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.ReadIndexDatapointsResponse",
+        "shortName": "read_index_datapoints"
+      },
+      "description": "Sample for ReadIndexDatapoints",
+      "file": "aiplatform_v1beta1_generated_match_service_read_index_datapoints_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_MatchService_ReadIndexDatapoints_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_match_service_read_index_datapoints_sync.py"
     },
     {
       "canonical": true,
@@ -20561,6 +22334,336 @@
       "clientMethod": {
         "async": true,
         "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceAsyncClient",
+          "shortName": "ModelGardenServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceAsyncClient.get_publisher_model",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService.GetPublisherModel",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+            "shortName": "ModelGardenService"
+          },
+          "shortName": "GetPublisherModel"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetPublisherModelRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.PublisherModel",
+        "shortName": "get_publisher_model"
+      },
+      "description": "Sample for GetPublisherModel",
+      "file": "aiplatform_v1beta1_generated_model_garden_service_get_publisher_model_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelGardenService_GetPublisherModel_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_garden_service_get_publisher_model_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceClient",
+          "shortName": "ModelGardenServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceClient.get_publisher_model",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService.GetPublisherModel",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+            "shortName": "ModelGardenService"
+          },
+          "shortName": "GetPublisherModel"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetPublisherModelRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.PublisherModel",
+        "shortName": "get_publisher_model"
+      },
+      "description": "Sample for GetPublisherModel",
+      "file": "aiplatform_v1beta1_generated_model_garden_service_get_publisher_model_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelGardenService_GetPublisherModel_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_garden_service_get_publisher_model_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient",
+          "shortName": "ModelServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient.batch_import_evaluated_annotations",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelService.BatchImportEvaluatedAnnotations",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelService",
+            "shortName": "ModelService"
+          },
+          "shortName": "BatchImportEvaluatedAnnotations"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.BatchImportEvaluatedAnnotationsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "evaluated_annotations",
+            "type": "MutableSequence[google.cloud.aiplatform_v1beta1.types.EvaluatedAnnotation]"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.BatchImportEvaluatedAnnotationsResponse",
+        "shortName": "batch_import_evaluated_annotations"
+      },
+      "description": "Sample for BatchImportEvaluatedAnnotations",
+      "file": "aiplatform_v1beta1_generated_model_service_batch_import_evaluated_annotations_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelService_BatchImportEvaluatedAnnotations_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_service_batch_import_evaluated_annotations_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelServiceClient",
+          "shortName": "ModelServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelServiceClient.batch_import_evaluated_annotations",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelService.BatchImportEvaluatedAnnotations",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelService",
+            "shortName": "ModelService"
+          },
+          "shortName": "BatchImportEvaluatedAnnotations"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.BatchImportEvaluatedAnnotationsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "evaluated_annotations",
+            "type": "MutableSequence[google.cloud.aiplatform_v1beta1.types.EvaluatedAnnotation]"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.BatchImportEvaluatedAnnotationsResponse",
+        "shortName": "batch_import_evaluated_annotations"
+      },
+      "description": "Sample for BatchImportEvaluatedAnnotations",
+      "file": "aiplatform_v1beta1_generated_model_service_batch_import_evaluated_annotations_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelService_BatchImportEvaluatedAnnotations_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_service_batch_import_evaluated_annotations_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
           "fullName": "google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient",
           "shortName": "ModelServiceAsyncClient"
         },
@@ -20724,6 +22827,175 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_model_service_batch_import_model_evaluation_slices_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient",
+          "shortName": "ModelServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient.copy_model",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelService.CopyModel",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelService",
+            "shortName": "ModelService"
+          },
+          "shortName": "CopyModel"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CopyModelRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "source_model",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "copy_model"
+      },
+      "description": "Sample for CopyModel",
+      "file": "aiplatform_v1beta1_generated_model_service_copy_model_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelService_CopyModel_async",
+      "segments": [
+        {
+          "end": 57,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 57,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 47,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 54,
+          "start": 48,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 58,
+          "start": 55,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_service_copy_model_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelServiceClient",
+          "shortName": "ModelServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelServiceClient.copy_model",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelService.CopyModel",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelService",
+            "shortName": "ModelService"
+          },
+          "shortName": "CopyModel"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CopyModelRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "source_model",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "copy_model"
+      },
+      "description": "Sample for CopyModel",
+      "file": "aiplatform_v1beta1_generated_model_service_copy_model_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelService_CopyModel_sync",
+      "segments": [
+        {
+          "end": 57,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 57,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 47,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 54,
+          "start": 48,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 58,
+          "start": 55,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_service_copy_model_sync.py"
     },
     {
       "canonical": true,
@@ -23185,6 +25457,666 @@
       "clientMethod": {
         "async": true,
         "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceAsyncClient",
+          "shortName": "PersistentResourceServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceAsyncClient.create_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService.CreatePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "CreatePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreatePersistentResourceRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "persistent_resource",
+            "type": "google.cloud.aiplatform_v1beta1.types.PersistentResource"
+          },
+          {
+            "name": "persistent_resource_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "create_persistent_resource"
+      },
+      "description": "Sample for CreatePersistentResource",
+      "file": "aiplatform_v1beta1_generated_persistent_resource_service_create_persistent_resource_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_PersistentResourceService_CreatePersistentResource_async",
+      "segments": [
+        {
+          "end": 56,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 56,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 46,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 53,
+          "start": 47,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 57,
+          "start": 54,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_persistent_resource_service_create_persistent_resource_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceClient",
+          "shortName": "PersistentResourceServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceClient.create_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService.CreatePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "CreatePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreatePersistentResourceRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "persistent_resource",
+            "type": "google.cloud.aiplatform_v1beta1.types.PersistentResource"
+          },
+          {
+            "name": "persistent_resource_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "create_persistent_resource"
+      },
+      "description": "Sample for CreatePersistentResource",
+      "file": "aiplatform_v1beta1_generated_persistent_resource_service_create_persistent_resource_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_PersistentResourceService_CreatePersistentResource_sync",
+      "segments": [
+        {
+          "end": 56,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 56,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 46,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 53,
+          "start": 47,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 57,
+          "start": 54,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_persistent_resource_service_create_persistent_resource_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceAsyncClient",
+          "shortName": "PersistentResourceServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceAsyncClient.delete_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService.DeletePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "DeletePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeletePersistentResourceRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_persistent_resource"
+      },
+      "description": "Sample for DeletePersistentResource",
+      "file": "aiplatform_v1beta1_generated_persistent_resource_service_delete_persistent_resource_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_PersistentResourceService_DeletePersistentResource_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_persistent_resource_service_delete_persistent_resource_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceClient",
+          "shortName": "PersistentResourceServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceClient.delete_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService.DeletePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "DeletePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeletePersistentResourceRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_persistent_resource"
+      },
+      "description": "Sample for DeletePersistentResource",
+      "file": "aiplatform_v1beta1_generated_persistent_resource_service_delete_persistent_resource_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_PersistentResourceService_DeletePersistentResource_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_persistent_resource_service_delete_persistent_resource_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceAsyncClient",
+          "shortName": "PersistentResourceServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceAsyncClient.get_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService.GetPersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "GetPersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetPersistentResourceRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.PersistentResource",
+        "shortName": "get_persistent_resource"
+      },
+      "description": "Sample for GetPersistentResource",
+      "file": "aiplatform_v1beta1_generated_persistent_resource_service_get_persistent_resource_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_PersistentResourceService_GetPersistentResource_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_persistent_resource_service_get_persistent_resource_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceClient",
+          "shortName": "PersistentResourceServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceClient.get_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService.GetPersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "GetPersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetPersistentResourceRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.PersistentResource",
+        "shortName": "get_persistent_resource"
+      },
+      "description": "Sample for GetPersistentResource",
+      "file": "aiplatform_v1beta1_generated_persistent_resource_service_get_persistent_resource_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_PersistentResourceService_GetPersistentResource_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_persistent_resource_service_get_persistent_resource_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceAsyncClient",
+          "shortName": "PersistentResourceServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceAsyncClient.list_persistent_resources",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService.ListPersistentResources",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "ListPersistentResources"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListPersistentResourcesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.persistent_resource_service.pagers.ListPersistentResourcesAsyncPager",
+        "shortName": "list_persistent_resources"
+      },
+      "description": "Sample for ListPersistentResources",
+      "file": "aiplatform_v1beta1_generated_persistent_resource_service_list_persistent_resources_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_PersistentResourceService_ListPersistentResources_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_persistent_resource_service_list_persistent_resources_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceClient",
+          "shortName": "PersistentResourceServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceClient.list_persistent_resources",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService.ListPersistentResources",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "ListPersistentResources"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListPersistentResourcesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.persistent_resource_service.pagers.ListPersistentResourcesPager",
+        "shortName": "list_persistent_resources"
+      },
+      "description": "Sample for ListPersistentResources",
+      "file": "aiplatform_v1beta1_generated_persistent_resource_service_list_persistent_resources_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_PersistentResourceService_ListPersistentResources_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_persistent_resource_service_list_persistent_resources_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
           "fullName": "google.cloud.aiplatform_v1beta1.PipelineServiceAsyncClient",
           "shortName": "PipelineServiceAsyncClient"
         },
@@ -25332,6 +28264,1145 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_prediction_service_raw_predict_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient.create_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.CreateSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "CreateSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateScheduleRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "schedule",
+            "type": "google.cloud.aiplatform_v1beta1.types.Schedule"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.Schedule",
+        "shortName": "create_schedule"
+      },
+      "description": "Sample for CreateSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_create_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_CreateSchedule_async",
+      "segments": [
+        {
+          "end": 58,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 58,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 55,
+          "start": 53,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 59,
+          "start": 56,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_create_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient.create_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.CreateSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "CreateSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateScheduleRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "schedule",
+            "type": "google.cloud.aiplatform_v1beta1.types.Schedule"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.Schedule",
+        "shortName": "create_schedule"
+      },
+      "description": "Sample for CreateSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_create_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_CreateSchedule_sync",
+      "segments": [
+        {
+          "end": 58,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 58,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 55,
+          "start": 53,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 59,
+          "start": 56,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_create_schedule_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient.delete_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.DeleteSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "DeleteSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_schedule"
+      },
+      "description": "Sample for DeleteSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_delete_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_DeleteSchedule_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_delete_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient.delete_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.DeleteSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "DeleteSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_schedule"
+      },
+      "description": "Sample for DeleteSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_delete_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_DeleteSchedule_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_delete_schedule_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient.get_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.GetSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "GetSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.Schedule",
+        "shortName": "get_schedule"
+      },
+      "description": "Sample for GetSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_get_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_GetSchedule_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_get_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient.get_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.GetSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "GetSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.Schedule",
+        "shortName": "get_schedule"
+      },
+      "description": "Sample for GetSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_get_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_GetSchedule_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_get_schedule_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient.list_schedules",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.ListSchedules",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "ListSchedules"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListSchedulesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.schedule_service.pagers.ListSchedulesAsyncPager",
+        "shortName": "list_schedules"
+      },
+      "description": "Sample for ListSchedules",
+      "file": "aiplatform_v1beta1_generated_schedule_service_list_schedules_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_ListSchedules_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_list_schedules_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient.list_schedules",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.ListSchedules",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "ListSchedules"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListSchedulesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.schedule_service.pagers.ListSchedulesPager",
+        "shortName": "list_schedules"
+      },
+      "description": "Sample for ListSchedules",
+      "file": "aiplatform_v1beta1_generated_schedule_service_list_schedules_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_ListSchedules_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_list_schedules_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient.pause_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.PauseSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "PauseSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.PauseScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "shortName": "pause_schedule"
+      },
+      "description": "Sample for PauseSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_pause_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_PauseSchedule_async",
+      "segments": [
+        {
+          "end": 49,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 49,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_pause_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient.pause_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.PauseSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "PauseSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.PauseScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "shortName": "pause_schedule"
+      },
+      "description": "Sample for PauseSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_pause_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_PauseSchedule_sync",
+      "segments": [
+        {
+          "end": 49,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 49,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_pause_schedule_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient.resume_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.ResumeSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "ResumeSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ResumeScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "catch_up",
+            "type": "bool"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "shortName": "resume_schedule"
+      },
+      "description": "Sample for ResumeSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_resume_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_ResumeSchedule_async",
+      "segments": [
+        {
+          "end": 49,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 49,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_resume_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient.resume_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.ResumeSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "ResumeSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ResumeScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "catch_up",
+            "type": "bool"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "shortName": "resume_schedule"
+      },
+      "description": "Sample for ResumeSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_resume_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_ResumeSchedule_sync",
+      "segments": [
+        {
+          "end": 49,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 49,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_resume_schedule_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient.update_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.UpdateSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "UpdateSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateScheduleRequest"
+          },
+          {
+            "name": "schedule",
+            "type": "google.cloud.aiplatform_v1beta1.types.Schedule"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.Schedule",
+        "shortName": "update_schedule"
+      },
+      "description": "Sample for UpdateSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_update_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_UpdateSchedule_async",
+      "segments": [
+        {
+          "end": 57,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 57,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 54,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 58,
+          "start": 55,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_update_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceClient.update_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService.UpdateSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "UpdateSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateScheduleRequest"
+          },
+          {
+            "name": "schedule",
+            "type": "google.cloud.aiplatform_v1beta1.types.Schedule"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.Schedule",
+        "shortName": "update_schedule"
+      },
+      "description": "Sample for UpdateSchedule",
+      "file": "aiplatform_v1beta1_generated_schedule_service_update_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ScheduleService_UpdateSchedule_sync",
+      "segments": [
+        {
+          "end": 57,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 57,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 54,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 58,
+          "start": 55,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_schedule_service_update_schedule_sync.py"
     },
     {
       "canonical": true,
@@ -29598,6 +33669,167 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_tensorboard_service_read_tensorboard_blob_data_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.TensorboardServiceAsyncClient",
+          "shortName": "TensorboardServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.TensorboardServiceAsyncClient.read_tensorboard_size",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardSize",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.TensorboardService",
+            "shortName": "TensorboardService"
+          },
+          "shortName": "ReadTensorboardSize"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ReadTensorboardSizeRequest"
+          },
+          {
+            "name": "tensorboard",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.ReadTensorboardSizeResponse",
+        "shortName": "read_tensorboard_size"
+      },
+      "description": "Sample for ReadTensorboardSize",
+      "file": "aiplatform_v1beta1_generated_tensorboard_service_read_tensorboard_size_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_TensorboardService_ReadTensorboardSize_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_tensorboard_service_read_tensorboard_size_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.TensorboardServiceClient",
+          "shortName": "TensorboardServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.TensorboardServiceClient.read_tensorboard_size",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardSize",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.TensorboardService",
+            "shortName": "TensorboardService"
+          },
+          "shortName": "ReadTensorboardSize"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ReadTensorboardSizeRequest"
+          },
+          {
+            "name": "tensorboard",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.ReadTensorboardSizeResponse",
+        "shortName": "read_tensorboard_size"
+      },
+      "description": "Sample for ReadTensorboardSize",
+      "file": "aiplatform_v1beta1_generated_tensorboard_service_read_tensorboard_size_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_TensorboardService_ReadTensorboardSize_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_tensorboard_service_read_tensorboard_size_sync.py"
     },
     {
       "canonical": true,

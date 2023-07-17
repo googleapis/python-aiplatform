@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -92,7 +94,7 @@ class Endpoint(proto.Message):
             sub-resources of this Endpoint will be secured
             by this key.
         network (str):
-            The full name of the Google Compute Engine
+            Optional. The full name of the Google Compute Engine
             `network <https://cloud.google.com//compute/docs/networks-and-firewalls#networks>`__
             to which the Endpoint should be peered.
 
@@ -122,7 +124,8 @@ class Endpoint(proto.Message):
         model_deployment_monitoring_job (str):
             Output only. Resource name of the Model Monitoring job
             associated with this Endpoint if monitoring is enabled by
-            [CreateModelDeploymentMonitoringJob][]. Format:
+            [JobService.CreateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.CreateModelDeploymentMonitoringJob].
+            Format:
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
         predict_request_response_logging_config (google.cloud.aiplatform_v1beta1.types.PredictRequestResponseLoggingConfig):
             Configures the request-response logging for
@@ -233,15 +236,17 @@ class DeployedModel(proto.Message):
             This value should be 1-10 characters, and valid characters
             are /[0-9]/.
         model (str):
-            Required. The resource name of the Model that
-            this is the deployment of. Note that the Model
-            may be in a different location than the
-            DeployedModel's Endpoint.
+            Required. The resource name of the Model that this is the
+            deployment of. Note that the Model may be in a different
+            location than the DeployedModel's Endpoint.
 
-            The resource name may contain version id or
-            version alias to specify the version, if no
-            version is specified, the default version will
-            be deployed.
+            The resource name may contain version id or version alias to
+            specify the version. Example:
+            ``projects/{project}/locations/{location}/models/{model}@2``
+            or
+            ``projects/{project}/locations/{location}/models/{model}@golden``
+            if no version is specified, the default version will be
+            deployed.
         model_version_id (str):
             Output only. The version ID of the model that
             is deployed.
@@ -269,6 +274,12 @@ class DeployedModel(proto.Message):
             is not populated, all fields of the
             [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
             will be used for the explanation configuration.
+        disable_explanations (bool):
+            If true, deploy the model without explainable feature,
+            regardless the existence of
+            [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec]
+            or
+            [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec].
         service_account (str):
             The service account that the DeployedModel's container runs
             as. Specify the email address of the service account. If
@@ -281,20 +292,20 @@ class DeployedModel(proto.Message):
             account.
         enable_container_logging (bool):
             If true, the container of the DeployedModel instances will
-            send ``stderr`` and ``stdout`` streams to Stackdriver
-            Logging.
+            send ``stderr`` and ``stdout`` streams to Cloud Logging.
 
             Only supported for custom-trained Models and AutoML Tabular
             Models.
         enable_access_logging (bool):
-            These logs are like standard server access
-            logs, containing information like timestamp and
+            If true, online prediction access logs are
+            sent to Cloud Logging.
+            These logs are like standard server access logs,
+            containing information like timestamp and
             latency for each prediction request.
-            Note that Stackdriver logs may incur a cost,
-            especially if your project receives prediction
-            requests at a high queries per second rate
-            (QPS). Estimate your costs before enabling this
-            option.
+            Note that logs may incur a cost, especially if
+            your project receives prediction requests at a
+            high queries per second rate (QPS). Estimate
+            your costs before enabling this option.
         private_endpoints (google.cloud.aiplatform_v1beta1.types.PrivateEndpoints):
             Output only. Provide paths for users to send
             predict/explain/health requests directly to the deployed
@@ -346,6 +357,10 @@ class DeployedModel(proto.Message):
         proto.MESSAGE,
         number=9,
         message=explanation.ExplanationSpec,
+    )
+    disable_explanations: bool = proto.Field(
+        proto.BOOL,
+        number=19,
     )
     service_account: str = proto.Field(
         proto.STRING,

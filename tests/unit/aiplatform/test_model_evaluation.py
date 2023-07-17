@@ -15,9 +15,12 @@
 # limitations under the License.
 #
 
+import datetime
 import pytest
 
 from unittest import mock
+
+from google.api_core import datetime_helpers
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -34,15 +37,15 @@ from google.cloud.aiplatform.compat.types import (
     model_evaluation as gca_model_evaluation,
 )
 
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
+import constants as test_constants
+
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
 _TEST_MODEL_NAME = "test-model"
-_TEST_MODEL_ID = "1028944691210842416"
+_TEST_MODEL_ID = test_constants.ModelConstants._TEST_ID
 _TEST_EVAL_ID = "1028944691210842622"
 
-_TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
-    _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_ID
-)
+_TEST_MODEL_RESOURCE_NAME = test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
 
 _TEST_MODEL_EVAL_RESOURCE_NAME = (
     model_service_client.ModelServiceClient.model_evaluation_path(
@@ -53,38 +56,7 @@ _TEST_MODEL_EVAL_RESOURCE_NAME = (
     )
 )
 
-_TEST_MODEL_EVAL_METRICS = {
-    "auPrc": 0.80592036,
-    "auRoc": 0.8100363,
-    "logLoss": 0.53061414,
-    "confidenceMetrics": [
-        {
-            "confidenceThreshold": -0.01,
-            "recall": 1.0,
-            "precision": 0.5,
-            "falsePositiveRate": 1.0,
-            "f1Score": 0.6666667,
-            "recallAt1": 1.0,
-            "precisionAt1": 0.5,
-            "falsePositiveRateAt1": 1.0,
-            "f1ScoreAt1": 0.6666667,
-            "truePositiveCount": "415",
-            "falsePositiveCount": "415",
-        },
-        {
-            "recall": 1.0,
-            "precision": 0.5,
-            "falsePositiveRate": 1.0,
-            "f1Score": 0.6666667,
-            "recallAt1": 0.74216866,
-            "precisionAt1": 0.74216866,
-            "falsePositiveRateAt1": 0.25783134,
-            "f1ScoreAt1": 0.74216866,
-            "truePositiveCount": "415",
-            "falsePositiveCount": "415",
-        },
-    ],
-}
+_TEST_MODEL_EVAL_METRICS = test_constants.ModelConstants._TEST_MODEL_EVAL_METRICS
 
 
 @pytest.fixture
@@ -125,6 +97,37 @@ def mock_model_eval_get():
             metrics=_TEST_MODEL_EVAL_METRICS,
         )
         yield mock_get_model_eval
+
+
+_TEST_MODEL_EVAL_LIST = [
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+        create_time=datetime_helpers.DatetimeWithNanoseconds(
+            2023, 5, 14, 16, 24, 3, 299558, tzinfo=datetime.timezone.utc
+        ),
+    ),
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+        create_time=datetime_helpers.DatetimeWithNanoseconds(
+            2023, 6, 14, 16, 24, 3, 299558, tzinfo=datetime.timezone.utc
+        ),
+    ),
+    gca_model_evaluation.ModelEvaluation(
+        name=_TEST_MODEL_EVAL_RESOURCE_NAME,
+        create_time=datetime_helpers.DatetimeWithNanoseconds(
+            2023, 7, 14, 16, 24, 3, 299558, tzinfo=datetime.timezone.utc
+        ),
+    ),
+]
+
+
+@pytest.fixture
+def list_model_evaluations_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "list_model_evaluations"
+    ) as list_model_evaluations_mock:
+        list_model_evaluations_mock.return_value = _TEST_MODEL_EVAL_LIST
+        yield list_model_evaluations_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -187,3 +190,29 @@ class TestModelEvaluation:
 
         with pytest.raises(NotImplementedError):
             my_eval.delete()
+
+    def test_list_model_evaluations(
+        self,
+        mock_model_eval_get,
+        get_model_mock,
+        list_model_evaluations_mock,
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        metrics_list = aiplatform.ModelEvaluation.list(model=_TEST_MODEL_RESOURCE_NAME)
+
+        assert isinstance(metrics_list[0], aiplatform.ModelEvaluation)
+
+    def test_list_model_evaluations_with_order_by(
+        self,
+        mock_model_eval_get,
+        get_model_mock,
+        list_model_evaluations_mock,
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        metrics_list = aiplatform.ModelEvaluation.list(
+            model=_TEST_MODEL_RESOURCE_NAME, order_by="create_time desc"
+        )
+
+        assert metrics_list[0].create_time > metrics_list[1].create_time

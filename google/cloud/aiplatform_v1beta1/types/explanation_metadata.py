@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -115,7 +117,8 @@ class ExplanationMetadata(proto.Message):
                 input tensor. Defaults to IDENTITY.
             modality (str):
                 Modality of the feature. Valid values are:
-                numeric, image. Defaults to numeric.
+                numeric, image. Defaults to
+                numeric.
             feature_value_domain (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.FeatureValueDomain):
                 The domain details of the input feature
                 value. Like min/max, original mean or standard
@@ -379,10 +382,10 @@ class ExplanationMetadata(proto.Message):
                         Positive: green. Negative: pink.
                     VIRIDIS (2):
                         Viridis color map: A perceptually uniform
-                        color mapping which is easier to see by those
-                        with colorblindness and progresses from yellow
-                        to green to blue. Positive: yellow. Negative:
-                        blue.
+                        color mapping which is
+                        easier to see by those with colorblindness and
+                        progresses from yellow to green to blue.
+                        Positive: yellow. Negative: blue.
                     RED (3):
                         Positive: red. Negative: red.
                     GREEN (4):

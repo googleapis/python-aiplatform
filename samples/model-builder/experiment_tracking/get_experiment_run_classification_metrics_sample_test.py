@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import get_experiment_run_classification_metrics_sample
-
 import pytest
 
+from experiment_tracking import get_experiment_run_classification_metrics_sample
 import test_constants as constants
 
 
 @pytest.mark.usefixtures("mock_get_run")
-def test_get_experiment_run_classification_metrics_sample(mock_get_classification_metrics, mock_classification_metrics):
+def test_get_experiment_run_classification_metrics_sample(
+    mock_get_classification_metrics, mock_classification_metrics
+):
 
     classification_metrics = get_experiment_run_classification_metrics_sample.get_experiment_run_classification_metrics_sample(
         run_name=constants.EXPERIMENT_RUN_NAME,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 #
 import json
 import pathlib
-import proto
 import re
 import shutil
 import tempfile
@@ -37,6 +36,7 @@ from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 from google.auth.transport import requests as google_auth_requests
+import proto
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -147,14 +147,14 @@ class Prediction(NamedTuple):
             of elements as instances to be explained. Default is None.
     """
 
-    predictions: List[Dict[str, Any]]
+    predictions: List[Any]
     deployed_model_id: str
     model_version_id: Optional[str] = None
     model_resource_name: Optional[str] = None
     explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
 
 
-class Endpoint(base.VertexAiResourceNounWithFutureManager):
+class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
     client_class = utils.EndpointClientWithOverride
     _resource_noun = "endpoints"
@@ -163,6 +163,19 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
     _delete_method = "delete_endpoint"
     _parse_resource_name_method = "parse_endpoint_path"
     _format_resource_name_method = "endpoint_path"
+    _preview_class = "google.cloud.aiplatform.aiplatform.preview.models.Endpoint"
+
+    @property
+    def preview(self):
+        """Return an Endpoint instance with preview features enabled."""
+        from google.cloud.aiplatform.preview import models as preview_models
+
+        if not hasattr(self, "_preview_instance"):
+            self._preview_instance = preview_models.Endpoint(
+                self.resource_name, credentials=self.credentials
+            )
+
+        return self._preview_instance
 
     def __init__(
         self,
@@ -547,11 +560,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             Endpoint (aiplatform.Endpoint):
                 An initialized Endpoint resource.
         """
-        endpoint = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
+        endpoint = super()._construct_sdk_resource_from_gapic(
+            gapic_resource=gapic_resource,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
-
-        endpoint._gca_resource = gapic_resource
 
         endpoint._prediction_client = cls._instantiate_prediction_client(
             location=endpoint.location,
@@ -740,6 +754,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -820,6 +835,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -854,6 +871,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
     @base.optional_sync()
@@ -875,6 +893,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -949,6 +968,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -974,6 +995,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1002,7 +1024,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
-    ):
+        enable_access_logging=False,
+    ) -> None:
         """Helper method to deploy model to endpoint.
 
         Args:
@@ -1082,6 +1105,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is specified.
@@ -1109,6 +1134,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             model=model.versioned_resource_name,
             display_name=deployed_model_display_name,
             service_account=service_account,
+            enable_access_logging=enable_access_logging,
         )
 
         supports_automatic_resources = (
@@ -1190,7 +1216,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 )
             )
         else:
-            raise ValueError(
+            _LOGGER.warning(
                 "Model does not support deployment. "
                 "See https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1#google.cloud.aiplatform.v1.Model.FIELDS.repeated.google.cloud.aiplatform.v1.Model.DeploymentResourcesType.google.cloud.aiplatform.v1.Model.supported_deployment_resources_types"
             )
@@ -1228,7 +1254,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             "Deploy", "model", cls, operation_future
         )
 
-        operation_future.result()
+        operation_future.result(timeout=None)
 
     def undeploy(
         self,
@@ -1577,7 +1603,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             )
             self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
 
-        return self.authorized_session.post(self.raw_predict_request_url, body, headers)
+        return self.authorized_session.post(
+            url=self.raw_predict_request_url, data=body, headers=headers
+        )
 
     def explain(
         self,
@@ -1994,11 +2022,12 @@ class PrivateEndpoint(Endpoint):
                 "Cannot import the urllib3 HTTP client. Please install google-cloud-aiplatform[private_endpoints]."
             )
 
-        endpoint = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
+        endpoint = super()._construct_sdk_resource_from_gapic(
+            gapic_resource=gapic_resource,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
-
-        endpoint._gca_resource = gapic_resource
 
         endpoint._http_client = urllib3.PoolManager()
 
@@ -2418,7 +2447,7 @@ class PrivateEndpoint(Endpoint):
         super().delete(force=False, sync=sync)
 
 
-class Model(base.VertexAiResourceNounWithFutureManager):
+class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
     client_class = utils.ModelClientWithOverride
     _resource_noun = "models"
@@ -2427,6 +2456,19 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     _delete_method = "delete_model"
     _parse_resource_name_method = "parse_model_path"
     _format_resource_name_method = "model_path"
+    _preview_class = "google.cloud.aiplatform.aiplatform.preview.models.Model"
+
+    @property
+    def preview(self):
+        """Return a Model instance with preview features enabled."""
+        from google.cloud.aiplatform.preview import models as preview_models
+
+        if not hasattr(self, "_preview_instance"):
+            self._preview_instance = preview_models.Model(
+                self.resource_name, credentials=self.credentials
+            )
+
+        return self._preview_instance
 
     @property
     def uri(self) -> Optional[str]:
@@ -2770,7 +2812,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
-    # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
     @classmethod
     @base.optional_sync()
@@ -3164,6 +3205,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3262,6 +3304,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3314,6 +3358,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -3337,6 +3382,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3428,6 +3474,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3462,7 +3510,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             endpoint.resource_name,
             self,
             endpoint._gca_resource.traffic_split,
-            network=network,
+            network=network or endpoint.network,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
             traffic_split=traffic_split,
@@ -3477,6 +3525,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
@@ -3569,8 +3618,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 When only the project is specified, the Dataset and Table is created.
                 When the full table reference is specified, the Dataset must exist and
                 table must not exist. Accepted forms: ``bq://projectId`` or
-                ``bq://projectId.bqDatasetId`` or
-                ``bq://projectId.bqDatasetId.bqTableId``. If no Dataset is specified,
+                ``bq://projectId.bqDatasetId``. If no Dataset is specified,
                 a new one is created with the name
                 ``prediction_<model-display-name>_<job-create-time>``
                 where the table name is made BigQuery-dataset-name compatible
@@ -3980,8 +4028,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
 
-        Note: This function is *experimental* and can be changed in the future.
-
         Example usage:
             my_model = Model.upload_xgboost_model_file(
                 model_file_path="iris.xgboost_model.bst"
@@ -4221,8 +4267,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
-
-        Note: This function is *experimental* and can be changed in the future.
 
         Example usage:
             my_model = Model.upload_scikit_learn_model_file(
@@ -4469,8 +4513,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
 
-        Note: This function is *experimental* and can be changed in the future.
-
         Example usage:
             my_model = Model.upload_scikit_learn_model_file(
                 model_file_path="iris.tensorflow_model.SavedModel"
@@ -4653,6 +4695,125 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             upload_request_timeout=upload_request_timeout,
         )
+
+    # TODO(b/273499620): Add async support.
+    def copy(
+        self,
+        destination_location: str,
+        destination_model_id: Optional[str] = None,
+        destination_parent_model: Optional[str] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        copy_request_timeout: Optional[float] = None,
+    ) -> "Model":
+        """Copys a model and returns a Model representing the copied Model
+        resource. This method is a blocking call.
+
+        Example usage:
+            copied_model = my_model.copy(
+                destination_location="us-central1"
+            )
+
+        Args:
+            destination_location (str):
+                The destination location to copy the model to.
+            destination_model_id (str):
+                Optional. The ID to use for the copied Model, which will
+                become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+
+                Only set this field when copying as a new model. If this field is not set,
+                a numeric model id will be generated.
+            destination_parent_model (str):
+                Optional. The resource name or model ID of an existing model that the
+                newly-copied model will be a version of.
+
+                Only set this field when copying as a new version of an existing model.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Model and all sub-resources of this Model will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            copy_request_timeout (float):
+                Optional. The timeout for the copy request in seconds.
+
+        Returns:
+            model (aiplatform.Model):
+                Instantiated representation of the copied model resource.
+
+        Raises:
+            ValueError: If both `destination_model_id` and `destination_parent_model` are set.
+        """
+        if destination_model_id is not None and destination_parent_model is not None:
+            raise ValueError(
+                "`destination_model_id` and `destination_parent_model` can not be set together."
+            )
+
+        parent = initializer.global_config.common_location_path(
+            initializer.global_config.project, destination_location
+        )
+
+        source_model = self.versioned_resource_name
+
+        destination_parent_model = ModelRegistry._get_true_version_parent(
+            parent_model=destination_parent_model,
+            project=initializer.global_config.project,
+            location=destination_location,
+        )
+
+        encryption_spec = initializer.global_config.get_encryption_spec(
+            encryption_spec_key_name=encryption_spec_key_name,
+        )
+
+        if destination_model_id is not None:
+            request = gca_model_service_compat.CopyModelRequest(
+                parent=parent,
+                source_model=source_model,
+                model_id=destination_model_id,
+                encryption_spec=encryption_spec,
+            )
+        else:
+            request = gca_model_service_compat.CopyModelRequest(
+                parent=parent,
+                source_model=source_model,
+                parent_model=destination_parent_model,
+                encryption_spec=encryption_spec,
+            )
+
+        api_client = initializer.global_config.create_client(
+            client_class=utils.ModelClientWithOverride,
+            location_override=destination_location,
+            credentials=initializer.global_config.credentials,
+        )
+
+        _LOGGER.log_action_start_against_resource("Copying", "", self)
+
+        lro = api_client.copy_model(
+            request=request,
+            timeout=copy_request_timeout,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Copy", "", self.__class__, lro
+        )
+
+        model_copy_response = lro.result(timeout=None)
+
+        this_model = models.Model(
+            model_copy_response.model,
+            version=model_copy_response.model_version_id,
+            location=destination_location,
+        )
+
+        _LOGGER.log_action_completed_against_resource("", "copied", this_model)
+
+        return this_model
 
     def list_model_evaluations(
         self,
@@ -4902,6 +5063,60 @@ class ModelRegistry:
         lro.result()
 
         _LOGGER.info(f"Deleted version {version} for {self.model_resource_name}")
+
+    def update_version(
+        self,
+        version: str,
+        version_description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+    ) -> None:
+        """Updates a model version.
+
+        Args:
+            version (str): Required. The version ID to receive the new alias(es).
+            version_description (str):
+                The description of the model version.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Model versions.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+
+        Raises:
+            ValueError: If `labels` is not the correct format.
+        """
+
+        current_model_proto = self.get_model(version).gca_resource
+        copied_model_proto = current_model_proto.__class__(current_model_proto)
+
+        update_mask: List[str] = []
+
+        if version_description:
+            copied_model_proto.version_description = version_description
+            update_mask.append("version_description")
+
+        if labels:
+            utils.validate_labels(labels)
+
+            copied_model_proto.labels = labels
+            update_mask.append("labels")
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+        versioned_name = self._get_versioned_name(self.model_resource_name, version)
+
+        _LOGGER.info(f"Updating model {versioned_name}")
+
+        self.client.update_model(
+            model=copied_model_proto,
+            update_mask=update_mask,
+        )
+
+        _LOGGER.info(f"Completed updating model {versioned_name}")
 
     def add_version_aliases(
         self,

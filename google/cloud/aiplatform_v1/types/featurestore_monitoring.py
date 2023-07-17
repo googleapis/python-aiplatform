@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -70,15 +72,9 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 the EntityType-level config. Explicitly Disable the snapshot
                 analysis based monitoring.
             monitoring_interval_days (int):
-                Configuration of the snapshot analysis based monitoring
-                pipeline running interval. The value indicates number of
-                days. If both
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days][google.cloud.aiplatform.v1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
-                and
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval][]
-                are set when creating/updating EntityTypes/Features,
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days][google.cloud.aiplatform.v1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
-                will be used.
+                Configuration of the snapshot analysis based
+                monitoring pipeline running interval. The value
+                indicates number of days.
             staleness_days (int):
                 Customized export features time window for
                 snapshot analysis. Unit is one day. Default
@@ -102,7 +98,9 @@ class FeaturestoreMonitoringConfig(proto.Message):
     class ImportFeaturesAnalysis(proto.Message):
         r"""Configuration of the Featurestore's ImportFeature Analysis Based
         Monitoring. This type of analysis generates statistics for values of
-        each Feature imported by every [ImportFeatureValues][] operation.
+        each Feature imported by every
+        [ImportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ImportFeatureValues]
+        operation.
 
         Attributes:
             state (google.cloud.aiplatform_v1.types.FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.State):
@@ -148,7 +146,9 @@ class FeaturestoreMonitoringConfig(proto.Message):
 
         class Baseline(proto.Enum):
             r"""Defines the baseline to do anomaly detection for feature values
-            imported by each [ImportFeatureValues][] operation.
+            imported by each
+            [ImportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ImportFeatureValues]
+            operation.
 
             Values:
                 BASELINE_UNSPECIFIED (0):

@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import create_artifact_with_sdk_sample
-
+from experiment_tracking import create_artifact_with_sdk_sample
 import test_constants as constants
 
 
-def test_create_artifact_with_sdk_sample(mock_artifact, mock_create_schema_base_artifact):
+def test_create_artifact_with_sdk_sample(
+    mock_artifact, mock_create_schema_base_artifact
+):
     artifact = create_artifact_with_sdk_sample.create_artifact_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
@@ -30,6 +31,7 @@ def test_create_artifact_with_sdk_sample(mock_artifact, mock_create_schema_base_
     )
 
     mock_create_schema_base_artifact.assert_called_with(
-        project='abc', location='us-central1')
+        project="abc", location="us-central1"
+    )
 
     assert artifact is mock_artifact

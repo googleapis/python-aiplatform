@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -774,7 +774,7 @@ class VizierServiceAsyncClient:
         suggested by Vertex AI Vizier. Returns a long-running operation
         associated with the generation of Trial suggestions. When this
         long-running operation succeeds, it will contain a
-        [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
+        [SuggestTrialsResponse][google.cloud.aiplatform.v1beta1.SuggestTrialsResponse].
 
         .. code-block:: python
 
@@ -1472,7 +1472,7 @@ class VizierServiceAsyncClient:
         r"""Checks whether a Trial should stop or not. Returns a
         long-running operation. When the operation is successful, it
         will contain a
-        [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
+        [CheckTrialEarlyStoppingStateResponse][google.cloud.aiplatform.v1beta1.CheckTrialEarlyStoppingStateResponse].
 
         .. code-block:: python
 
@@ -2433,7 +2433,7 @@ class VizierServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "VizierServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
