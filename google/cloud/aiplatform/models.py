@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 #
 import json
 import pathlib
-import proto
 import re
 import shutil
 import tempfile
@@ -37,6 +36,7 @@ from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 from google.auth.transport import requests as google_auth_requests
+import proto
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -147,14 +147,14 @@ class Prediction(NamedTuple):
             of elements as instances to be explained. Default is None.
     """
 
-    predictions: List[Dict[str, Any]]
+    predictions: List[Any]
     deployed_model_id: str
     model_version_id: Optional[str] = None
     model_resource_name: Optional[str] = None
     explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
 
 
-class Endpoint(base.VertexAiResourceNounWithFutureManager):
+class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
     client_class = utils.EndpointClientWithOverride
     _resource_noun = "endpoints"
@@ -163,6 +163,19 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
     _delete_method = "delete_endpoint"
     _parse_resource_name_method = "parse_endpoint_path"
     _format_resource_name_method = "endpoint_path"
+    _preview_class = "google.cloud.aiplatform.aiplatform.preview.models.Endpoint"
+
+    @property
+    def preview(self):
+        """Return an Endpoint instance with preview features enabled."""
+        from google.cloud.aiplatform.preview import models as preview_models
+
+        if not hasattr(self, "_preview_instance"):
+            self._preview_instance = preview_models.Endpoint(
+                self.resource_name, credentials=self.credentials
+            )
+
+        return self._preview_instance
 
     def __init__(
         self,
@@ -547,11 +560,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             Endpoint (aiplatform.Endpoint):
                 An initialized Endpoint resource.
         """
-        endpoint = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
+        endpoint = super()._construct_sdk_resource_from_gapic(
+            gapic_resource=gapic_resource,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
-
-        endpoint._gca_resource = gapic_resource
 
         endpoint._prediction_client = cls._instantiate_prediction_client(
             location=endpoint.location,
@@ -740,6 +754,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -820,6 +835,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -854,6 +871,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
     @base.optional_sync()
@@ -875,6 +893,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -949,6 +968,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -974,6 +995,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1002,7 +1024,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
-    ):
+        enable_access_logging=False,
+    ) -> None:
         """Helper method to deploy model to endpoint.
 
         Args:
@@ -1082,6 +1105,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is specified.
@@ -1109,6 +1134,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             model=model.versioned_resource_name,
             display_name=deployed_model_display_name,
             service_account=service_account,
+            enable_access_logging=enable_access_logging,
         )
 
         supports_automatic_resources = (
@@ -1190,7 +1216,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 )
             )
         else:
-            raise ValueError(
+            _LOGGER.warning(
                 "Model does not support deployment. "
                 "See https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1#google.cloud.aiplatform.v1.Model.FIELDS.repeated.google.cloud.aiplatform.v1.Model.DeploymentResourcesType.google.cloud.aiplatform.v1.Model.supported_deployment_resources_types"
             )
@@ -1996,11 +2022,12 @@ class PrivateEndpoint(Endpoint):
                 "Cannot import the urllib3 HTTP client. Please install google-cloud-aiplatform[private_endpoints]."
             )
 
-        endpoint = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
+        endpoint = super()._construct_sdk_resource_from_gapic(
+            gapic_resource=gapic_resource,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
-
-        endpoint._gca_resource = gapic_resource
 
         endpoint._http_client = urllib3.PoolManager()
 
@@ -2420,7 +2447,7 @@ class PrivateEndpoint(Endpoint):
         super().delete(force=False, sync=sync)
 
 
-class Model(base.VertexAiResourceNounWithFutureManager):
+class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
     client_class = utils.ModelClientWithOverride
     _resource_noun = "models"
@@ -2429,6 +2456,19 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     _delete_method = "delete_model"
     _parse_resource_name_method = "parse_model_path"
     _format_resource_name_method = "model_path"
+    _preview_class = "google.cloud.aiplatform.aiplatform.preview.models.Model"
+
+    @property
+    def preview(self):
+        """Return a Model instance with preview features enabled."""
+        from google.cloud.aiplatform.preview import models as preview_models
+
+        if not hasattr(self, "_preview_instance"):
+            self._preview_instance = preview_models.Model(
+                self.resource_name, credentials=self.credentials
+            )
+
+        return self._preview_instance
 
     @property
     def uri(self) -> Optional[str]:
@@ -2772,7 +2812,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
-    # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
     @classmethod
     @base.optional_sync()
@@ -3166,6 +3205,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3264,6 +3304,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3316,6 +3358,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -3339,6 +3382,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        enable_access_logging=False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3430,6 +3474,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            enable_access_logging (bool):
+                Whether to enable endpoint access logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3464,7 +3510,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             endpoint.resource_name,
             self,
             endpoint._gca_resource.traffic_split,
-            network=network,
+            network=network or endpoint.network,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
             traffic_split=traffic_split,
@@ -3479,6 +3525,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            enable_access_logging=enable_access_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
@@ -3571,8 +3618,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 When only the project is specified, the Dataset and Table is created.
                 When the full table reference is specified, the Dataset must exist and
                 table must not exist. Accepted forms: ``bq://projectId`` or
-                ``bq://projectId.bqDatasetId`` or
-                ``bq://projectId.bqDatasetId.bqTableId``. If no Dataset is specified,
+                ``bq://projectId.bqDatasetId``. If no Dataset is specified,
                 a new one is created with the name
                 ``prediction_<model-display-name>_<job-create-time>``
                 where the table name is made BigQuery-dataset-name compatible
@@ -3982,8 +4028,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
 
-        Note: This function is *experimental* and can be changed in the future.
-
         Example usage:
             my_model = Model.upload_xgboost_model_file(
                 model_file_path="iris.xgboost_model.bst"
@@ -4223,8 +4267,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
-
-        Note: This function is *experimental* and can be changed in the future.
 
         Example usage:
             my_model = Model.upload_scikit_learn_model_file(
@@ -4470,8 +4512,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
-
-        Note: This function is *experimental* and can be changed in the future.
 
         Example usage:
             my_model = Model.upload_scikit_learn_model_file(

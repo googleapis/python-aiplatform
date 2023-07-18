@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -565,7 +565,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             parent (str):
                 Required. The resource name of the Location to create
                 Featurestores. Format:
-                ``projects/{project}/locations/{location}'``
+                ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -955,7 +955,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 -  ``labels``
                 -  ``online_serving_config.fixed_node_count``
                 -  ``online_serving_config.scaling``
-                -  ``online_storage_ttl_days`` (available in Preview)
+                -  ``online_storage_ttl_days``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1617,7 +1617,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
                 -  ``monitoring_config.numerical_threshold_config.value``
                 -  ``monitoring_config.categorical_threshold_config.value``
-                -  ``offline_storage_ttl_days`` (available in Preview)
+                -  ``offline_storage_ttl_days``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2624,12 +2624,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         There are also scenarios where the caller can cause
         inconsistency.
          - Source data for import contains multiple distinct
-        Feature values for    the same entity ID and timestamp.
+          Feature values for    the same entity ID and
+          timestamp.
          - Source is modified during an import. This includes
-        adding, updating, or  removing source data and/or
-        metadata. Examples of updating metadata  include but are
-        not limited to changing storage location, storage class,
-        or retention policy.
+          adding, updating, or  removing source data and/or
+          metadata. Examples of updating metadata  include but
+          are not limited to changing storage location, storage
+          class,  or retention policy.
          - Online serving cluster is under-provisioned.
 
         .. code-block:: python

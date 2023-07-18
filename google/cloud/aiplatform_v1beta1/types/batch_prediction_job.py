@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -78,6 +78,10 @@ class BatchPredictionJob(proto.Message):
             ``projects/{project}/locations/{location}/models/{model}@golden``
             if no version is specified, the default version will be
             deployed.
+
+            The model resource could also be a publisher model. Example:
+            ``publishers/{publisher}/models/{model}`` or
+            ``projects/{project}/locations/{location}/publishers/{publisher}/models/{model}``
         model_version_id (str):
             Output only. The version ID of the Model that
             produces the predictions via this job.
@@ -242,10 +246,10 @@ class BatchPredictionJob(proto.Message):
         disable_container_logging (bool):
             For custom-trained Models and AutoML Tabular Models, the
             container of the DeployedModel instances will send
-            ``stderr`` and ``stdout`` streams to Stackdriver Logging by
+            ``stderr`` and ``stdout`` streams to Cloud Logging by
             default. Please note that the logs incur cost, which are
             subject to `Cloud Logging
-            pricing <https://cloud.google.com/stackdriver/pricing>`__.
+            pricing <https://cloud.google.com/logging/pricing>`__.
 
             User can disable container logging by setting this flag to
             true.

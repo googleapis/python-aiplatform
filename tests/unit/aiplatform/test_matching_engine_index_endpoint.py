@@ -32,12 +32,15 @@ from google.cloud.aiplatform.compat.types import (
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
     index_endpoint as gca_index_endpoint,
     index as gca_index,
+    match_service_v1beta1 as gca_match_service_v1beta1,
+    index_v1beta1 as gca_index_v1beta1,
 )
-
 from google.cloud.aiplatform.compat.services import (
     index_endpoint_service_client,
     index_service_client,
+    match_service_client_v1beta1,
 )
+import constants as test_constants
 
 from google.protobuf import field_mask_pb2
 
@@ -46,29 +49,38 @@ import grpc
 import pytest
 
 # project
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
 
 # index
-_TEST_INDEX_ID = "index_id"
-_TEST_INDEX_NAME = f"{_TEST_PARENT}/indexes/{_TEST_INDEX_ID}"
-_TEST_INDEX_DISPLAY_NAME = "index_display_name"
+_TEST_INDEX_ID = test_constants.MatchingEngineConstants._TEST_INDEX_ID
+_TEST_INDEX_NAME = test_constants.MatchingEngineConstants._TEST_INDEX_NAME
+_TEST_INDEX_DISPLAY_NAME = (
+    test_constants.MatchingEngineConstants._TEST_INDEX_DISPLAY_NAME
+)
 
 # index_endpoint
 _TEST_INDEX_ENDPOINT_ID = "index_endpoint_id"
+_TEST_INDEX_ENDPOINT_PUBLIC_DNS = (
+    "1114627793.us-central1-249381615684.vdb.vertexai.goog"
+)
 _TEST_INDEX_ENDPOINT_NAME = f"{_TEST_PARENT}/indexEndpoints/{_TEST_INDEX_ENDPOINT_ID}"
 _TEST_INDEX_ENDPOINT_DISPLAY_NAME = "index_endpoint_display_name"
 _TEST_INDEX_ENDPOINT_DESCRIPTION = "index_endpoint_description"
-_TEST_INDEX_DESCRIPTION = "index_description"
+_TEST_INDEX_DESCRIPTION = test_constants.MatchingEngineConstants._TEST_INDEX_DESCRIPTION
 _TEST_INDEX_ENDPOINT_VPC_NETWORK = "projects/{}/global/networks/{}".format(
     "12345", "network"
 )
 
-_TEST_LABELS = {"my_key": "my_value"}
-_TEST_DISPLAY_NAME_UPDATE = "my new display name"
-_TEST_DESCRIPTION_UPDATE = "my description update"
-_TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
+_TEST_LABELS = test_constants.MatchingEngineConstants._TEST_LABELS
+_TEST_DISPLAY_NAME_UPDATE = (
+    test_constants.MatchingEngineConstants._TEST_DISPLAY_NAME_UPDATE
+)
+_TEST_DESCRIPTION_UPDATE = (
+    test_constants.MatchingEngineConstants._TEST_DESCRIPTION_UPDATE
+)
+_TEST_LABELS_UPDATE = test_constants.MatchingEngineConstants._TEST_LABELS_UPDATE
 
 # deployment
 _TEST_DEPLOYED_INDEX_ID = "deployed_index_id"
@@ -89,7 +101,7 @@ _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4
 
 # request_metadata
-_TEST_REQUEST_METADATA = ()
+_TEST_REQUEST_METADATA = test_constants.MatchingEngineConstants._TEST_REQUEST_METADATA
 
 # Lists
 _TEST_INDEX_ENDPOINT_LIST = [
@@ -219,6 +231,7 @@ _TEST_NUM_NEIGHBOURS = 1
 _TEST_FILTER = [
     Namespace(name="class", allow_tokens=["token_1"], deny_tokens=["token_2"])
 ]
+_TEST_IDS = ["123", "456", "789"]
 
 
 def uuid_mock():
@@ -299,6 +312,57 @@ def get_index_endpoint_mock():
         ]
         get_index_endpoint_mock.return_value = index_endpoint
         yield get_index_endpoint_mock
+
+
+@pytest.fixture
+def get_index_public_endpoint_mock():
+    with patch.object(
+        index_endpoint_service_client.IndexEndpointServiceClient, "get_index_endpoint"
+    ) as get_index_public_endpoint_mock:
+        index_endpoint = gca_index_endpoint.IndexEndpoint(
+            name=_TEST_INDEX_ENDPOINT_NAME,
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            public_endpoint_domain_name=_TEST_INDEX_ENDPOINT_PUBLIC_DNS,
+        )
+        index_endpoint.deployed_indexes = [
+            gca_index_endpoint.DeployedIndex(
+                id=_TEST_DEPLOYED_INDEX_ID,
+                index=_TEST_INDEX_NAME,
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+            ),
+            gca_index_endpoint.DeployedIndex(
+                id=f"{_TEST_DEPLOYED_INDEX_ID}_2",
+                index=f"{_TEST_INDEX_NAME}_2",
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+            ),
+        ]
+        get_index_public_endpoint_mock.return_value = index_endpoint
+        yield get_index_public_endpoint_mock
 
 
 @pytest.fixture
@@ -413,6 +477,49 @@ def index_endpoint_match_queries_mock():
             )
         )
         yield index_endpoint_match_queries_mock
+
+
+@pytest.fixture
+def index_public_endpoint_match_queries_mock():
+    with patch.object(
+        match_service_client_v1beta1.MatchServiceClient, "find_neighbors"
+    ) as index_public_endpoint_match_queries_mock:
+        index_public_endpoint_match_queries_mock.return_value = (
+            gca_match_service_v1beta1.FindNeighborsResponse(
+                nearest_neighbors=[
+                    gca_match_service_v1beta1.FindNeighborsResponse.NearestNeighbors(
+                        id="1",
+                        neighbors=[
+                            gca_match_service_v1beta1.FindNeighborsResponse.Neighbor(
+                                datapoint=gca_index_v1beta1.IndexDatapoint(
+                                    datapoint_id="1"
+                                ),
+                                distance=0.1,
+                            )
+                        ],
+                    )
+                ]
+            )
+        )
+        yield index_public_endpoint_match_queries_mock
+
+
+@pytest.fixture
+def index_public_endpoint_read_index_datapoints_mock():
+    with patch.object(
+        match_service_client_v1beta1.MatchServiceClient, "read_index_datapoints"
+    ) as index_public_endpoint_read_index_datapoints_mock:
+        index_public_endpoint_read_index_datapoints_mock.return_value = (
+            gca_match_service_v1beta1.ReadIndexDatapointsResponse(
+                datapoints=[
+                    gca_index_v1beta1.IndexDatapoint(
+                        datapoint_id="1",
+                        feature_vector=[0, 1, 2, 3],
+                    )
+                ]
+            )
+        )
+        yield index_public_endpoint_read_index_datapoints_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -540,6 +647,7 @@ class TestMatchingEngineIndexEndpoint:
             network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
+            public_endpoint_enabled=False,
         )
 
         create_index_endpoint_mock.assert_called_once_with(
@@ -547,6 +655,75 @@ class TestMatchingEngineIndexEndpoint:
             index_endpoint=expected,
             metadata=_TEST_REQUEST_METADATA,
         )
+
+    @pytest.mark.usefixtures("get_index_public_endpoint_mock")
+    def test_create_index_endpoint_with_public_endpoint_enabled(
+        self, create_index_endpoint_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.MatchingEngineIndexEndpoint.create(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            public_endpoint_enabled=True,
+            labels=_TEST_LABELS,
+        )
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        expected = gca_index_endpoint.IndexEndpoint(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            public_endpoint_enabled=True,
+            labels=_TEST_LABELS,
+        )
+
+        create_index_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            index_endpoint=expected,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+        assert (
+            my_index_endpoint.public_endpoint_domain_name
+            == _TEST_INDEX_ENDPOINT_PUBLIC_DNS
+        )
+
+    def test_create_index_endpoint_missing_argument_throw_error(
+        self, create_index_endpoint_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        expected_message = "Please provide `network` argument for private endpoint or provide `public_endpoint_enabled` to deploy this index to a public endpoint"
+
+        with pytest.raises(ValueError) as exception:
+            _ = aiplatform.MatchingEngineIndexEndpoint.create(
+                display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+                description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+                labels=_TEST_LABELS,
+            )
+
+        assert str(exception.value) == expected_message
+
+    def test_create_index_endpoint_set_both_throw_error(
+        self, create_index_endpoint_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        expected_message = "`network` and `public_endpoint_enabled` argument should not be set at the same time"
+
+        with pytest.raises(ValueError) as exception:
+            _ = aiplatform.MatchingEngineIndexEndpoint.create(
+                display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+                description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+                public_endpoint_enabled=True,
+                network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
+                labels=_TEST_LABELS,
+            )
+
+        assert str(exception.value) == expected_message
 
     @pytest.mark.usefixtures("get_index_endpoint_mock", "get_index_mock")
     def test_deploy_index(self, deploy_index_mock, undeploy_index_mock):
@@ -714,3 +891,71 @@ class TestMatchingEngineIndexEndpoint:
         )
 
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
+
+    @pytest.mark.usefixtures("get_index_public_endpoint_mock")
+    def test_index_public_endpoint_match_queries(
+        self, index_public_endpoint_match_queries_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_pubic_index_endpoint.find_neighbors(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+        )
+
+        find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest(
+            index_endpoint=my_pubic_index_endpoint.resource_name,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=[
+                gca_match_service_v1beta1.FindNeighborsRequest.Query(
+                    neighbor_count=_TEST_NUM_NEIGHBOURS,
+                    datapoint=gca_index_v1beta1.IndexDatapoint(
+                        feature_vector=_TEST_QUERIES[0],
+                        restricts=[
+                            gca_index_v1beta1.IndexDatapoint.Restriction(
+                                namespace="class",
+                                allow_list=["token_1"],
+                                deny_list=["token_2"],
+                            )
+                        ],
+                    ),
+                )
+            ],
+        )
+
+        index_public_endpoint_match_queries_mock.assert_called_with(
+            find_neighbors_request
+        )
+
+    @pytest.mark.usefixtures("get_index_public_endpoint_mock")
+    def test_index_public_endpoint_read_index_datapoints(
+        self, index_public_endpoint_read_index_datapoints_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_pubic_index_endpoint.read_index_datapoints(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            ids=_TEST_IDS,
+        )
+
+        read_index_datapoints_request = (
+            gca_match_service_v1beta1.ReadIndexDatapointsRequest(
+                index_endpoint=my_pubic_index_endpoint.resource_name,
+                deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                ids=_TEST_IDS,
+            )
+        )
+
+        index_public_endpoint_read_index_datapoints_mock.assert_called_with(
+            read_index_datapoints_request
+        )

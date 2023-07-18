@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -177,7 +177,7 @@ class ReadFeatureValuesResponse(proto.Message):
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``.
             feature_descriptors (MutableSequence[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse.FeatureDescriptor]):
                 List of Feature metadata corresponding to each piece of
-                [ReadFeatureValuesResponse.data][].
+                [ReadFeatureValuesResponse.EntityView.data][google.cloud.aiplatform.v1beta1.ReadFeatureValuesResponse.EntityView.data].
         """
 
         entity_type: str = proto.Field(

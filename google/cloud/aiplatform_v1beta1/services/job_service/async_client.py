@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -105,6 +105,8 @@ class JobServiceAsyncClient:
     parse_batch_prediction_job_path = staticmethod(
         JobServiceClient.parse_batch_prediction_job_path
     )
+    context_path = staticmethod(JobServiceClient.context_path)
+    parse_context_path = staticmethod(JobServiceClient.parse_context_path)
     custom_job_path = staticmethod(JobServiceClient.custom_job_path)
     parse_custom_job_path = staticmethod(JobServiceClient.parse_custom_job_path)
     data_labeling_job_path = staticmethod(JobServiceClient.data_labeling_job_path)
@@ -137,6 +139,14 @@ class JobServiceAsyncClient:
     )
     network_path = staticmethod(JobServiceClient.network_path)
     parse_network_path = staticmethod(JobServiceClient.parse_network_path)
+    notification_channel_path = staticmethod(JobServiceClient.notification_channel_path)
+    parse_notification_channel_path = staticmethod(
+        JobServiceClient.parse_notification_channel_path
+    )
+    persistent_resource_path = staticmethod(JobServiceClient.persistent_resource_path)
+    parse_persistent_resource_path = staticmethod(
+        JobServiceClient.parse_persistent_resource_path
+    )
     tensorboard_path = staticmethod(JobServiceClient.tensorboard_path)
     parse_tensorboard_path = staticmethod(JobServiceClient.parse_tensorboard_path)
     trial_path = staticmethod(JobServiceClient.trial_path)
@@ -2629,7 +2639,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.NasTrialDetail:
                 Represents a NasTrial details along
-                with it's parameters. If there is a
+                with its parameters. If there is a
                 corresponding train NasTrial, the train
                 NasTrial is also returned.
 
@@ -5045,7 +5055,7 @@ class JobServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "JobServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

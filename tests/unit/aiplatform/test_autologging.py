@@ -51,24 +51,26 @@ from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
 from google.cloud.aiplatform.metadata import constants
+import constants as test_constants
 
 from google.cloud.aiplatform.compat.services import (
     tensorboard_service_client,
 )
 
 from google.cloud.aiplatform.compat.types import (
-    encryption_spec as gca_encryption_spec,
     tensorboard as gca_tensorboard,
 )
+from google.cloud.aiplatform.metadata import metadata
+
 
 import test_tensorboard
 import test_metadata
 
 import numpy as np
 
-_TEST_PROJECT = "test-project"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
 _TEST_OTHER_PROJECT = "test-project-1"
-_TEST_LOCATION = "us-central1"
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
 _TEST_PARENT = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default"
 )
@@ -167,10 +169,8 @@ _TEST_TENSORBOARD_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/tensorboards/{_TEST_TB_ID}"
 )
 _TEST_TB_DISPLAY_NAME = "my_tensorboard_1234"
-_TEST_ENCRYPTION_KEY_NAME = "key_1234"
-_TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
-    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
-)
+_TEST_ENCRYPTION_KEY_NAME = test_constants.ProjectConstants._TEST_ENCRYPTION_KEY_NAME
+_TEST_ENCRYPTION_SPEC = test_constants.ProjectConstants._TEST_ENCRYPTION_SPEC
 _TEST_TB_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/tensorboards/{_TEST_TB_ID}"
 )
@@ -456,6 +456,15 @@ def update_context_mock():
         yield update_context_mock
 
 
+@pytest.fixture
+def get_or_create_default_tb_none_mock():
+    with patch.object(
+        metadata, "_get_or_create_default_tensorboard"
+    ) as get_or_create_default_tb_none_mock:
+        get_or_create_default_tb_none_mock.return_value = None
+        yield get_or_create_default_tb_none_mock
+
+
 _TEST_EXPERIMENT_RUN_CONTEXT_NAME = f"{_TEST_PARENT}/contexts/{_TEST_EXECUTION_ID}"
 _TEST_OTHER_EXPERIMENT_RUN_CONTEXT_NAME = (
     f"{_TEST_PARENT}/contexts/{_TEST_OTHER_EXECUTION_ID}"
@@ -704,6 +713,7 @@ class TestAutologging:
         "get_experiment_mock_without_tensorboard",
         "get_metadata_store_mock",
         "update_context_mock",
+        "get_or_create_default_tb_none_mock",
     )
     def test_autologging_raises_if_experiment_tensorboard_not_set(
         self,

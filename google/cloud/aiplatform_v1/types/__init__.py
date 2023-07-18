@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ from .dataset_service import (
     CreateDatasetRequest,
     DataItemView,
     DeleteDatasetRequest,
+    DeleteSavedQueryRequest,
     ExportDataOperationMetadata,
     ExportDataRequest,
     ExportDataResponse,
@@ -104,6 +105,9 @@ from .endpoint_service import (
     GetEndpointRequest,
     ListEndpointsRequest,
     ListEndpointsResponse,
+    MutateDeployedModelOperationMetadata,
+    MutateDeployedModelRequest,
+    MutateDeployedModelResponse,
     UndeployModelOperationMetadata,
     UndeployModelRequest,
     UndeployModelResponse,
@@ -129,6 +133,7 @@ from .execution import (
 from .explanation import (
     Attribution,
     BlurBaselineConfig,
+    Examples,
     ExamplesOverride,
     ExamplesRestrictionsNamespace,
     Explanation,
@@ -140,6 +145,7 @@ from .explanation import (
     IntegratedGradientsAttribution,
     ModelExplanation,
     Neighbor,
+    Presets,
     SampledShapleyAttribution,
     SmoothGradConfig,
     XraiAttribution,
@@ -337,6 +343,12 @@ from .machine_resources import (
 from .manual_batch_tuning_parameters import (
     ManualBatchTuningParameters,
 )
+from .match_service import (
+    FindNeighborsRequest,
+    FindNeighborsResponse,
+    ReadIndexDatapointsRequest,
+    ReadIndexDatapointsResponse,
+)
 from .metadata_schema import (
     MetadataSchema,
 )
@@ -407,6 +419,7 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
+    LargeModelReference,
     Model,
     ModelContainerSpec,
     ModelSourceInfo,
@@ -426,6 +439,10 @@ from .model_evaluation import (
 )
 from .model_evaluation_slice import (
     ModelEvaluationSlice,
+)
+from .model_garden_service import (
+    GetPublisherModelRequest,
+    PublisherModelView,
 )
 from .model_monitoring import (
     ModelMonitoringAlertConfig,
@@ -459,6 +476,9 @@ from .model_service import (
     ListModelVersionsRequest,
     ListModelVersionsResponse,
     MergeVersionAliasesRequest,
+    UpdateExplanationDatasetOperationMetadata,
+    UpdateExplanationDatasetRequest,
+    UpdateExplanationDatasetResponse,
     UpdateModelRequest,
     UploadModelOperationMetadata,
     UploadModelRequest,
@@ -502,6 +522,9 @@ from .prediction_service import (
     PredictRequest,
     PredictResponse,
     RawPredictRequest,
+)
+from .publisher_model import (
+    PublisherModel,
 )
 from .saved_query import (
     SavedQuery,
@@ -670,6 +693,7 @@ __all__ = (
     "CreateDatasetRequest",
     "DataItemView",
     "DeleteDatasetRequest",
+    "DeleteSavedQueryRequest",
     "ExportDataOperationMetadata",
     "ExportDataRequest",
     "ExportDataResponse",
@@ -705,6 +729,9 @@ __all__ = (
     "GetEndpointRequest",
     "ListEndpointsRequest",
     "ListEndpointsResponse",
+    "MutateDeployedModelOperationMetadata",
+    "MutateDeployedModelRequest",
+    "MutateDeployedModelResponse",
     "UndeployModelOperationMetadata",
     "UndeployModelRequest",
     "UndeployModelResponse",
@@ -718,6 +745,7 @@ __all__ = (
     "Execution",
     "Attribution",
     "BlurBaselineConfig",
+    "Examples",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
     "Explanation",
@@ -729,6 +757,7 @@ __all__ = (
     "IntegratedGradientsAttribution",
     "ModelExplanation",
     "Neighbor",
+    "Presets",
     "SampledShapleyAttribution",
     "SmoothGradConfig",
     "XraiAttribution",
@@ -890,6 +919,10 @@ __all__ = (
     "NfsMount",
     "ResourcesConsumed",
     "ManualBatchTuningParameters",
+    "FindNeighborsRequest",
+    "FindNeighborsResponse",
+    "ReadIndexDatapointsRequest",
+    "ReadIndexDatapointsResponse",
     "MetadataSchema",
     "AddContextArtifactsAndExecutionsRequest",
     "AddContextArtifactsAndExecutionsResponse",
@@ -949,6 +982,7 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "LargeModelReference",
     "Model",
     "ModelContainerSpec",
     "ModelSourceInfo",
@@ -962,6 +996,8 @@ __all__ = (
     "ModelDeploymentMonitoringObjectiveType",
     "ModelEvaluation",
     "ModelEvaluationSlice",
+    "GetPublisherModelRequest",
+    "PublisherModelView",
     "ModelMonitoringAlertConfig",
     "ModelMonitoringObjectiveConfig",
     "SamplingStrategy",
@@ -991,6 +1027,9 @@ __all__ = (
     "ListModelVersionsRequest",
     "ListModelVersionsResponse",
     "MergeVersionAliasesRequest",
+    "UpdateExplanationDatasetOperationMetadata",
+    "UpdateExplanationDatasetRequest",
+    "UpdateExplanationDatasetResponse",
     "UpdateModelRequest",
     "UploadModelOperationMetadata",
     "UploadModelRequest",
@@ -1026,6 +1065,7 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
+    "PublisherModel",
     "SavedQuery",
     "PrivateServiceConnectConfig",
     "SpecialistPool",

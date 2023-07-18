@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,8 +59,8 @@ class ModelEvaluation(proto.Message):
             ModelEvaluation was created.
         slice_dimensions (MutableSequence[str]):
             All possible
-            [dimensions][ModelEvaluationSlice.slice.dimension] of
-            ModelEvaluationSlices. The dimensions can be used as the
+            [dimensions][google.cloud.aiplatform.v1.ModelEvaluationSlice.Slice.dimension]
+            of ModelEvaluationSlices. The dimensions can be used as the
             filter of the
             [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices]
             request, in the form of ``slice.dimension = <dimension>``.

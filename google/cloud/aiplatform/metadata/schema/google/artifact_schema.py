@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -617,39 +617,41 @@ class ExperimentModel(base_artifact.BaseArtifactSchema):
         metadata: Optional[Dict] = None,
         state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
-        """Args:
-        framework_name (str):
-            Required. The name of the model's framework. E.g., 'sklearn'
-        framework_version (str):
-            Required. The version of the model's framework. E.g., '1.1.0'
-        model_file (str):
-            Required. The file name of the model. E.g., 'model.pkl'
-        uri (str):
-            Required. The uniform resource identifier of the model artifact directory.
-        model_class (str):
-            Optional. The class name of the model. E.g., 'sklearn.linear_model._base.LinearRegression'
-        predict_schemata (PredictSchemata):
-            Optional. An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
-        artifact_id (str):
-            Optional. The <resource_id> portion of the Artifact name with
-            the format. This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-        display_name (str):
-            Optional. The user-defined name of the Artifact.
-        schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
-            If not set, defaults to use the latest version.
-        description (str):
-            Optional. Describes the purpose of the Artifact to be created.
-        metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
-        state (google.cloud.gapic.types.Artifact.State):
-            Optional. The state of this Artifact. This is a
-            property of the Artifact, and does not imply or
-            apture any ongoing process. This property is
-            managed by clients (such as Vertex AI
-            Pipelines), and the system does not prescribe or
-            check the validity of state transitions.
+        """Instantiates an ExperimentModel that represents a saved ML model.
+
+        Args:
+            framework_name (str):
+                Required. The name of the model's framework. E.g., 'sklearn'
+            framework_version (str):
+                Required. The version of the model's framework. E.g., '1.1.0'
+            model_file (str):
+                Required. The file name of the model. E.g., 'model.pkl'
+            uri (str):
+                Required. The uniform resource identifier of the model artifact directory.
+            model_class (str):
+                Optional. The class name of the model. E.g., 'sklearn.linear_model._base.LinearRegression'
+            predict_schemata (PredictSchemata):
+                Optional. An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
+            artifact_id (str):
+                Optional. The <resource_id> portion of the Artifact name with
+                the format. This is globally unique in a metadataStore:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+            display_name (str):
+                Optional. The user-defined name of the Artifact.
+            schema_version (str):
+                Optional. schema_version specifies the version used by the Artifact.
+                If not set, defaults to use the latest version.
+            description (str):
+                Optional. Describes the purpose of the Artifact to be created.
+            metadata (Dict):
+                Optional. Contains the metadata information that will be stored in the Artifact.
+            state (google.cloud.gapic.types.Artifact.State):
+                Optional. The state of this Artifact. This is a
+                property of the Artifact, and does not imply or
+                apture any ongoing process. This property is
+                managed by clients (such as Vertex AI
+                Pipelines), and the system does not prescribe or
+                check the validity of state transitions.
         """
         if metadata:
             for k in metadata:
@@ -732,14 +734,17 @@ class ExperimentModel(base_artifact.BaseArtifactSchema):
 
     @property
     def framework_name(self) -> Optional[str]:
+        """The framework name of the saved ML model."""
         return self.metadata.get("frameworkName")
 
     @property
     def framework_version(self) -> Optional[str]:
+        """The framework version of the saved ML model."""
         return self.metadata.get("frameworkVersion")
 
     @property
     def model_class(self) -> Optional[str]:
+        "The class name of the saved ML model."
         return self.metadata.get("modelClass")
 
     def get_model_info(self) -> Dict[str, Any]:
@@ -756,10 +761,12 @@ class ExperimentModel(base_artifact.BaseArtifactSchema):
     ) -> Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]:  # noqa: F821
         """Retrieves the original ML model from an ExperimentModel.
 
-        Example usage:
-            experiment_model = aiplatform.get_experiment_model("my-sklearn-model")
-            sk_model = experiment_model.load_model()
-            pred_y = model.predict(test_X)
+        Example Usage:
+        ```
+        experiment_model = aiplatform.get_experiment_model("my-sklearn-model")
+        sk_model = experiment_model.load_model()
+        pred_y = model.predict(test_X)
+        ```
 
         Returns:
             The original ML model.
@@ -803,10 +810,12 @@ class ExperimentModel(base_artifact.BaseArtifactSchema):
     ) -> Model:
         """Register an ExperimentModel to Model Registry and returns a Model representing the registered Model resource.
 
-        Example usage:
-            experiment_model = aiplatform.get_experiment_model("my-sklearn-model")
-            registered_model = experiment_model.register_model()
-            registered_model.deploy(endpoint=my_endpoint)
+        Example Usage:
+        ```
+        experiment_model = aiplatform.get_experiment_model("my-sklearn-model")
+        registered_model = experiment_model.register_model()
+        registered_model.deploy(endpoint=my_endpoint)
+        ```
 
         Args:
             model_id (str):

@@ -22,48 +22,53 @@ import logging
 import os
 import re
 import tempfile
+import threading
+import time
 from unittest import mock
 
+from google.api_core import datetime_helpers
+from google.cloud import storage
+from google.cloud.aiplatform.compat.services import (
+    tensorboard_service_client,
+)
+from google.cloud.aiplatform.compat.types import tensorboard_data
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_experiment as tensorboard_experiment_type,
+)
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_run as tensorboard_run_type,
+)
+from google.cloud.aiplatform.compat.types import tensorboard_service
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_time_series as tensorboard_time_series_type,
+)
+from google.cloud.aiplatform.tensorboard import uploader as uploader_lib
+from google.cloud.aiplatform.tensorboard import uploader_utils
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
+    profile_uploader,
+)
+from google.cloud.aiplatform_v1.services.tensorboard_service.transports import (
+    grpc as transports_grpc,
+)
 import grpc
 import grpc_testing
+import tensorflow as tf
+
+from google.protobuf import timestamp_pb2
+from google.protobuf import message
 from tensorboard.compat.proto import event_pb2
 from tensorboard.compat.proto import graph_pb2
 from tensorboard.compat.proto import meta_graph_pb2
 from tensorboard.compat.proto import summary_pb2
 from tensorboard.compat.proto import tensor_pb2
 from tensorboard.compat.proto import types_pb2
-from tensorboard.plugins.scalar import metadata as scalars_metadata
 from tensorboard.plugins.graph import metadata as graphs_metadata
+from tensorboard.plugins.scalar import metadata as scalars_metadata
 from tensorboard.summary import v1 as summary_v1
 from tensorboard.uploader import logdir_loader
 from tensorboard.uploader import upload_tracker
 from tensorboard.uploader import util
 from tensorboard.uploader.proto import server_info_pb2
-import tensorflow as tf
-
-from google.api_core import datetime_helpers
-from google.cloud.aiplatform.tensorboard import uploader_utils
-from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
-from google.cloud.aiplatform.tensorboard import uploader as uploader_lib
-from google.cloud import storage
-from google.cloud.aiplatform.compat.services import (
-    tensorboard_service_client,
-)
-from google.cloud.aiplatform_v1.services.tensorboard_service.transports import (
-    grpc as transports_grpc,
-)
-
-from google.cloud.aiplatform.compat.types import tensorboard_data
-from google.cloud.aiplatform.compat.types import tensorboard_service
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_experiment as tensorboard_experiment_type,
-)
-from google.cloud.aiplatform.compat.types import tensorboard_run as tensorboard_run_type
-from google.cloud.aiplatform.compat.types import (
-    tensorboard_time_series as tensorboard_time_series_type,
-)
-from google.protobuf import timestamp_pb2
-from google.protobuf import message
 
 data_compat = uploader_lib.event_file_loader.data_compat
 dataclass_compat = uploader_lib.event_file_loader.dataclass_compat
@@ -656,6 +661,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
                 rpc_rate_limiter=mock_rate_limiter,
                 verbosity=1,  # In order to test the upload tracker.
                 one_shot=True,
+                description="Test Description",
             )
             uploader.create_experiment()
 
@@ -1078,6 +1084,102 @@ class TensorboardUploaderTest(tf.test.TestCase):
             profile_sender = senders["profile"]
             self.assertIn(run_name, profile_sender._run_to_profile_loaders)
             self.assertIn(run_name, profile_sender._run_to_file_request_sender)
+
+
+# TODO(b/276368161)
+
+
+class _TensorBoardTrackerTest(tf.test.TestCase):
+    def test_thread_continuously_uploads(self):
+        """Test Tensorboard Tracker by mimicking its implementation: Call start_upload through a thread and subsequently end the thread by calling _end_uploading()."""
+
+        logdir = self.get_temp_dir()
+        mock_client = _create_mock_client()
+        uploader = _create_uploader(mock_client, logdir)
+        uploader.create_experiment()
+
+        # Convenience helpers for constructing expected requests.
+        data = tensorboard_data.TimeSeriesData
+        point = tensorboard_data.TimeSeriesDataPoint
+        scalar = tensorboard_data.Scalar
+
+        # Directory with scalar data
+        writer = FileWriter(logdir)
+        metadata = summary_pb2.SummaryMetadata(
+            plugin_data=summary_pb2.SummaryMetadata.PluginData(
+                plugin_name="scalars", content=b"12345"
+            ),
+            data_class=summary_pb2.DATA_CLASS_SCALAR,
+        )
+        writer.add_test_summary("foo", simple_value=5.0, step=1)
+        writer.add_test_summary("foo", simple_value=6.0, step=2)
+        writer.add_test_summary("foo", simple_value=7.0, step=3)
+        writer.add_test_tensor_summary(
+            "bar",
+            tensor=tensor_pb2.TensorProto(dtype=types_pb2.DT_FLOAT, float_val=[8.0]),
+            step=3,
+            value_metadata=metadata,
+        )
+        writer.flush()
+        writer_a = FileWriter(os.path.join(logdir, "a"))
+        writer_a.add_test_summary("qux", simple_value=9.0, step=2)
+        writer_a.flush()
+        uploader_thread = threading.Thread(target=uploader.start_uploading)
+        uploader_thread.start()
+        time.sleep(10)
+        self.assertEqual(3, mock_client.create_tensorboard_time_series.call_count)
+        call_args_list = mock_client.create_tensorboard_time_series.call_args_list
+        request = call_args_list[1][1]["tensorboard_time_series"]
+        self.assertEqual("scalars", request.plugin_name)
+        self.assertEqual(b"12345", request.plugin_data)
+
+        self.assertEqual(1, mock_client.write_tensorboard_experiment_data.call_count)
+        call_args_list = mock_client.write_tensorboard_experiment_data.call_args_list
+        request1, request2 = (
+            call_args_list[0][1]["write_run_data_requests"][0].time_series_data,
+            call_args_list[0][1]["write_run_data_requests"][1].time_series_data,
+        )
+        _clear_wall_times(request1)
+        _clear_wall_times(request2)
+
+        expected_request1 = [
+            data(
+                tensorboard_time_series_id="foo",
+                value_type=tensorboard_time_series_type.TensorboardTimeSeries.ValueType.SCALAR,
+                values=[
+                    point(step=1, scalar=scalar(value=5.0)),
+                    point(step=2, scalar=scalar(value=6.0)),
+                    point(step=3, scalar=scalar(value=7.0)),
+                ],
+            ),
+            data(
+                tensorboard_time_series_id="bar",
+                value_type=tensorboard_time_series_type.TensorboardTimeSeries.ValueType.SCALAR,
+                values=[point(step=3, scalar=scalar(value=8.0))],
+            ),
+        ]
+        expected_request2 = [
+            data(
+                tensorboard_time_series_id="qux",
+                value_type=tensorboard_time_series_type.TensorboardTimeSeries.ValueType.SCALAR,
+                values=[point(step=2, scalar=scalar(value=9.0))],
+            )
+        ]
+        self.assertProtoEquals(expected_request1[0], request1[0])
+        self.assertProtoEquals(expected_request1[1], request1[1])
+        self.assertProtoEquals(expected_request2[0], request2[0])
+
+        uploader._end_uploading()
+        time.sleep(2)
+        self.assertFalse(uploader_thread.is_alive())
+        mock_client.write_tensorboard_experiment_data.reset_mock()
+
+        # Empty directory
+        uploader._upload_once()
+        mock_client.write_tensorboard_experiment_data.assert_not_called()
+        uploader._end_uploading()
+        time.sleep(2)
+        self.assertFalse(uploader_thread.is_alive())
 
 
 class BatchedRequestSenderTest(tf.test.TestCase):

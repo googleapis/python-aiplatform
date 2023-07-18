@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@
 
 from concurrent import futures
 import logging
-import pkg_resources
+import pkg_resources  # Note this is used after copybara replacement
 import os
-from typing import List, Optional, Type, Union
+from typing import List, Optional, Type, TypeVar, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -41,9 +41,55 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
 )
 
+_TVertexAiServiceClientWithOverride = TypeVar(
+    "_TVertexAiServiceClientWithOverride",
+    bound=utils.VertexAiServiceClientWithOverride,
+)
+
 
 class _Config:
     """Stores common parameters and options for API calls."""
+
+    def _set_project_as_env_var_or_google_auth_default(self):
+        """Tries to set the project from the environment variable or calls google.auth.default().
+
+        Stores the returned project and credentials as instance attributes.
+
+        This prevents google.auth.default() from being called multiple times when
+        the project and credentials have already been set.
+        """
+
+        if not self._project:
+            # Project is not set. Trying to get it from the environment.
+            # See https://github.com/googleapis/python-aiplatform/issues/852
+            # See https://github.com/googleapis/google-auth-library-python/issues/924
+            # TODO: Remove when google.auth.default() learns the
+            # CLOUD_ML_PROJECT_ID env variable or Vertex AI starts setting GOOGLE_CLOUD_PROJECT env variable.
+            project_number = os.environ.get("CLOUD_ML_PROJECT_ID")
+            if project_number:
+                if not self._credentials:
+                    credentials, _ = google.auth.default()
+                    self._credentials = credentials
+                # Try to convert project number to project ID which is more readable.
+                try:
+                    project_id = resource_manager_utils.get_project_id(
+                        project_number=project_number,
+                        credentials=self._credentials,
+                    )
+                    self._project = project_id
+                except Exception:
+                    logging.getLogger(__name__).warning(
+                        "Failed to convert project number to project ID.", exc_info=True
+                    )
+                    self._project = project_number
+            else:
+                credentials, project = google.auth.default()
+                self._credentials = self._credentials or credentials
+                self._project = project
+
+        if not self._credentials:
+            credentials, _ = google.auth.default()
+            self._credentials = credentials
 
     def __init__(self):
         self._project = None
@@ -191,26 +237,6 @@ class _Config:
         if self._project:
             return self._project
 
-        # Project is not set. Trying to get it from the environment.
-        # See https://github.com/googleapis/python-aiplatform/issues/852
-        # See https://github.com/googleapis/google-auth-library-python/issues/924
-        # TODO: Remove when google.auth.default() learns the
-        # CLOUD_ML_PROJECT_ID env variable or Vertex AI starts setting GOOGLE_CLOUD_PROJECT env variable.
-        project_number = os.environ.get("CLOUD_ML_PROJECT_ID")
-        if project_number:
-            # Try to convert project number to project ID which is more readable.
-            try:
-                project_id = resource_manager_utils.get_project_id(
-                    project_number=project_number,
-                    credentials=self.credentials,
-                )
-                return project_id
-            except Exception:
-                logging.getLogger(__name__).warning(
-                    "Failed to convert project number to project ID.", exc_info=True
-                )
-                return project_number
-
         project_not_found_exception_str = (
             "Unable to find your project. Please provide a project ID by:"
             "\n- Passing a constructor argument"
@@ -220,7 +246,8 @@ class _Config:
         )
 
         try:
-            _, project_id = google.auth.default()
+            self._set_project_as_env_var_or_google_auth_default()
+            project_id = self._project
         except GoogleAuthError as exc:
             raise GoogleAuthError(project_not_found_exception_str) from exc
 
@@ -232,7 +259,15 @@ class _Config:
     @property
     def location(self) -> str:
         """Default location."""
-        return self._location or constants.DEFAULT_REGION
+        if self._location:
+            return self._location
+
+        location = os.getenv("CLOUD_ML_REGION")
+        if location:
+            utils.validate_region(location)
+            return location
+
+        return constants.DEFAULT_REGION
 
     @property
     def staging_bucket(self) -> Optional[str]:
@@ -247,7 +282,8 @@ class _Config:
         logger = logging.getLogger("google.auth._default")
         logging_warning_filter = utils.LoggingFilter(logging.WARNING)
         logger.addFilter(logging_warning_filter)
-        credentials, _ = google.auth.default()
+        self._set_project_as_env_var_or_google_auth_default()
+        credentials = self._credentials
         logger.removeFilter(logging_warning_filter)
         return credentials
 
@@ -271,6 +307,7 @@ class _Config:
         location_override: Optional[str] = None,
         prediction_client: bool = False,
         api_base_path_override: Optional[str] = None,
+        api_path_override: Optional[str] = None,
     ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 
@@ -281,6 +318,7 @@ class _Config:
                 Vertex AI.
             prediction_client (str): Optional. flag to use a prediction endpoint.
             api_base_path_override (str): Optional. Override default API base path.
+            api_path_override (str): Optional. Override default api path.
         Returns:
             clients_options (google.api_core.client_options.ClientOptions):
                 A ClientOptions object set with regionalized API endpoint, i.e.
@@ -303,9 +341,12 @@ class _Config:
             else constants.API_BASE_PATH
         )
 
-        return client_options.ClientOptions(
-            api_endpoint=f"{region}-{service_base_path}"
+        api_endpoint = (
+            f"{region}-{service_base_path}"
+            if not api_path_override
+            else api_path_override
         )
+        return client_options.ClientOptions(api_endpoint=api_endpoint)
 
     def common_location_path(
         self, project: Optional[str] = None, location: Optional[str] = None
@@ -332,13 +373,14 @@ class _Config:
 
     def create_client(
         self,
-        client_class: Type[utils.VertexAiServiceClientWithOverride],
+        client_class: Type[_TVertexAiServiceClientWithOverride],
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
         prediction_client: bool = False,
         api_base_path_override: Optional[str] = None,
+        api_path_override: Optional[str] = None,
         appended_user_agent: Optional[List[str]] = None,
-    ) -> utils.VertexAiServiceClientWithOverride:
+    ) -> _TVertexAiServiceClientWithOverride:
         """Instantiates a given VertexAiServiceClient with optional
         overrides.
 
@@ -350,6 +392,7 @@ class _Config:
             location_override (str): Optional. location override.
             prediction_client (str): Optional. flag to use a prediction endpoint.
             api_base_path_override (str): Optional. Override default api base path.
+            api_path_override (str): Optional. Override default api path.
             appended_user_agent (List[str]):
                 Optional. User agent appended in the client info. If more than one, it will be
                 separated by spaces.
@@ -375,6 +418,7 @@ class _Config:
                 location_override=location_override,
                 prediction_client=prediction_client,
                 api_base_path_override=api_base_path_override,
+                api_path_override=api_path_override,
             ),
             "client_info": client_info,
         }

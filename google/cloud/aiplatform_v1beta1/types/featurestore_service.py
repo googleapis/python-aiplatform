@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ class CreateFeaturestoreRequest(proto.Message):
         parent (str):
             Required. The resource name of the Location to create
             Featurestores. Format:
-            ``projects/{project}/locations/{location}'``
+            ``projects/{project}/locations/{location}``
         featurestore (google.cloud.aiplatform_v1beta1.types.Featurestore):
             Required. The Featurestore to create.
         featurestore_id (str):
@@ -270,7 +270,7 @@ class UpdateFeaturestoreRequest(proto.Message):
             -  ``labels``
             -  ``online_serving_config.fixed_node_count``
             -  ``online_serving_config.scaling``
-            -  ``online_storage_ttl_days`` (available in Preview)
+            -  ``online_storage_ttl_days``
     """
 
     featurestore: gca_featurestore.Featurestore = proto.Field(
@@ -349,7 +349,7 @@ class ImportFeatureValuesRequest(proto.Message):
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``
         entity_id_field (str):
             Source column that holds entity IDs. If not provided, entity
-            IDs are extracted from the column named ``entity_id``.
+            IDs are extracted from the column named entity_id.
         feature_specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.ImportFeatureValuesRequest.FeatureSpec]):
             Required. Specifications defining which Feature values to
             import from the entity. The request fails if no
@@ -555,11 +555,8 @@ class BatchReadFeatureValuesRequest(proto.Message):
             will be automatically inferred. For CSV source, the
             pass-through values will be passed as opaque bytes.
         entity_type_specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesRequest.EntityTypeSpec]):
-            Required. Specifies EntityType grouping Features to read
-            values of and settings. Each EntityType referenced in
-            [BatchReadFeatureValuesRequest.entity_type_specs] must have
-            a column specifying entity IDs in the EntityType in
-            [BatchReadFeatureValuesRequest.request][] .
+            Required. Specifies EntityType grouping
+            Features to read values of and settings.
         start_time (google.protobuf.timestamp_pb2.Timestamp):
             Optional. Excludes Feature values with
             feature generation timestamp before this
@@ -1079,7 +1076,7 @@ class UpdateEntityTypeRequest(proto.Message):
             -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
             -  ``monitoring_config.numerical_threshold_config.value``
             -  ``monitoring_config.categorical_threshold_config.value``
-            -  ``offline_storage_ttl_days`` (available in Preview)
+            -  ``offline_storage_ttl_days``
     """
 
     entity_type: gca_entity_type.EntityType = proto.Field(
@@ -1603,6 +1600,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
             The number rows that weren't ingested due to
             having timestamps outside the retention
             boundary.
+        blocking_operation_ids (MutableSequence[int]):
+            List of ImportFeatureValues operations
+            running under a single EntityType that are
+            blocking this operation.
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(
@@ -1629,6 +1630,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
     timestamp_outside_retention_rows_count: int = proto.Field(
         proto.INT64,
         number=7,
+    )
+    blocking_operation_ids: MutableSequence[int] = proto.RepeatedField(
+        proto.INT64,
+        number=8,
     )
 
 
@@ -1941,7 +1946,7 @@ class EntityIdSelector(proto.Message):
             This field is a member of `oneof`_ ``EntityIdsSource``.
         entity_id_field (str):
             Source column that holds entity IDs. If not provided, entity
-            IDs are extracted from the column named ``entity_id``.
+            IDs are extracted from the column named entity_id.
     """
 
     csv_source: io.CsvSource = proto.Field(

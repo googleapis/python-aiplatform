@@ -20,6 +20,7 @@ import uuid
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
+from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
@@ -31,7 +32,10 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import featurestore_utils, resource_manager_utils
+from google.cloud.aiplatform.utils import (
+    featurestore_utils,
+    resource_manager_utils,
+)
 
 from google.cloud import bigquery
 
@@ -476,8 +480,6 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-            request_metadata (Sequence[Tuple[str, str]]):
-                Optional. Strings which should be sent along with the request as metadata.
             encryption_spec (str):
                 Optional. Customer-managed encryption key
                 spec for data storage. If set, both of the
@@ -695,6 +697,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         read_instances: Union[gca_io.BigQuerySource, gca_io.CsvSource],
         pass_through_fields: Optional[List[str]] = None,
         feature_destination_fields: Optional[Dict[str, str]] = None,
+        start_time: [timestamp_pb2.Timestamp] = None,
     ) -> gca_featurestore_service.BatchReadFeatureValuesRequest:
         """Validates and gets batch_read_feature_values_request
 
@@ -735,6 +738,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
+
+            start_time (timestamp_pb2.Timestamp):
+                Optional. Excludes Feature values with feature generation timestamp before this timestamp. If not set, retrieve
+                oldest values kept in Feature Store. Timestamp, if present, must not have higher than millisecond precision.
 
         Returns:
             gca_featurestore_service.BatchReadFeatureValuesRequest: batch read feature values request
@@ -819,6 +826,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 for pass_through_field in pass_through_fields
             ]
 
+        if start_time is not None:
+            batch_read_feature_values_request.start_time = start_time
+
         return batch_read_feature_values_request
 
     @base.optional_sync(return_input_arg="self")
@@ -829,6 +839,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         read_instances_uri: str,
         pass_through_fields: Optional[List[str]] = None,
         feature_destination_fields: Optional[Dict[str, str]] = None,
+        start_time: Optional[timestamp_pb2.Timestamp] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         serve_request_timeout: Optional[float] = None,
         sync: bool = True,
@@ -903,8 +914,14 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
+
+            start_time (timestamp_pb2.Timestamp):
+                Optional. Excludes Feature values with feature generation timestamp before this timestamp. If not set, retrieve
+                oldest values kept in Feature Store. Timestamp, if present, must not have higher than millisecond precision.
+
             serve_request_timeout (float):
                 Optional. The timeout for the serve request in seconds.
+
         Returns:
             Featurestore: The featurestore resource object batch read feature values from.
 
@@ -924,6 +941,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 feature_destination_fields=feature_destination_fields,
                 read_instances=read_instances,
                 pass_through_fields=pass_through_fields,
+                start_time=start_time,
             )
         )
 
@@ -942,6 +960,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         read_instances_uri: str,
         pass_through_fields: Optional[List[str]] = None,
         feature_destination_fields: Optional[Dict[str, str]] = None,
+        start_time: Optional[timestamp_pb2.Timestamp] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
         serve_request_timeout: Optional[float] = None,
@@ -1037,6 +1056,11 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
+
+            start_time (timestamp_pb2.Timestamp):
+                Optional. Excludes Feature values with feature generation timestamp before this timestamp. If not set, retrieve
+                oldest values kept in Feature Store. Timestamp, if present, must not have higher than millisecond precision.
+
             serve_request_timeout (float):
                 Optional. The timeout for the serve request in seconds.
 
@@ -1075,6 +1099,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 feature_destination_fields=feature_destination_fields,
                 read_instances=read_instances,
                 pass_through_fields=pass_through_fields,
+                start_time=start_time,
             )
         )
 
@@ -1090,6 +1115,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         read_instances_df: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
         pass_through_fields: Optional[List[str]] = None,
         feature_destination_fields: Optional[Dict[str, str]] = None,
+        start_time: Optional[timestamp_pb2.Timestamp] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         serve_request_timeout: Optional[float] = None,
         bq_dataset_id: Optional[str] = None,
@@ -1182,6 +1208,11 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 for temporarily staging data. If specified, caller must have
                 `bigquery.tables.create` permissions for Dataset.
 
+
+            start_time (timestamp_pb2.Timestamp):
+                Optional. Excludes Feature values with feature generation timestamp before this timestamp. If not set, retrieve
+                oldest values kept in Feature Store. Timestamp, if present, must not have higher than millisecond precision.
+
         Returns:
             pd.DataFrame: The pandas DataFrame containing feature values from batch serving.
 
@@ -1264,6 +1295,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 feature_destination_fields=feature_destination_fields,
                 request_metadata=request_metadata,
                 serve_request_timeout=serve_request_timeout,
+                start_time=start_time,
             )
 
             bigquery_storage_read_client = bigquery_storage.BigQueryReadClient(

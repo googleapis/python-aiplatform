@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -89,10 +89,6 @@ class EvaluatedAnnotation(proto.Message):
             ancestor ModelEvaluation. The EvaluatedDataItemView consists
             of all ground truths and predictions on
             [data_item_payload][google.cloud.aiplatform.v1beta1.EvaluatedAnnotation.data_item_payload].
-
-            Can be passed in
-            [GetEvaluatedDataItemView's][ModelService.GetEvaluatedDataItemView][]
-            [id][GetEvaluatedDataItemViewRequest.id].
         explanations (MutableSequence[google.cloud.aiplatform_v1beta1.types.EvaluatedAnnotationExplanation]):
             Explanations of
             [predictions][google.cloud.aiplatform.v1beta1.EvaluatedAnnotation.predictions].

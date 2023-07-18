@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1041,7 +1041,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         suggested by Vertex AI Vizier. Returns a long-running operation
         associated with the generation of Trial suggestions. When this
         long-running operation succeeds, it will contain a
-        [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
+        [SuggestTrialsResponse][google.cloud.aiplatform.v1beta1.SuggestTrialsResponse].
 
         .. code-block:: python
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ class FindNeighborsRequest(proto.Message):
             Required. The name of the index endpoint. Format:
             ``projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}``
         deployed_index_id (str):
-            The ID of the DeploydIndex that will serve the request. This
-            request is sent to a specific IndexEndpoint, as per the
+            The ID of the DeployedIndex that will serve the request.
+            This request is sent to a specific IndexEndpoint, as per the
             IndexEndpoint.network. That IndexEndpoint also has
             IndexEndpoint.deployed_indexes, and each such index has a
             DeployedIndex.id field. The value of the field below must
@@ -208,7 +208,7 @@ class ReadIndexDatapointsRequest(proto.Message):
             Required. The name of the index endpoint. Format:
             ``projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}``
         deployed_index_id (str):
-            The ID of the DeploydIndex that will serve
+            The ID of the DeployedIndex that will serve
             the request.
         ids (MutableSequence[str]):
             IDs of the datapoints to be searched for.

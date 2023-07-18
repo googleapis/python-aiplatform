@@ -1,0 +1,47 @@
+{
+    "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+    "packages": {
+      ".": {
+        "release-type": "python",
+        "extra-files": [
+          "google/cloud/aiplatform/version.py",
+          "google/cloud/aiplatform/gapic_version.py",
+          "google/cloud/aiplatform_v1/gapic_version.py",
+          "google/cloud/aiplatform/v1/schema/trainingjob/definition_v1/gapic_version.py",
+          "google/cloud/aiplatform/v1/schema/trainingjob/definition/gapic_version.py",
+          "google/cloud/aiplatform/v1/schema/predict/instance/gapic_version.py",
+          "google/cloud/aiplatform/v1/schema/predict/instance_v1/gapic_version.py",
+          "google/cloud/aiplatform/v1/schema/predict/prediction/gapic_version.py",
+          "google/cloud/aiplatform/v1/schema/predict/prediction_v1/gapic_version.py",
+          "google/cloud/aiplatform/v1/schema/predict/params/gapic_version.py",
+          "google/cloud/aiplatform/v1/schema/predict/params_v1/gapic_version.py",
+          "google/cloud/aiplatform/v1beta1/schema/trainingjob/definition/gapic_version.py",
+          "google/cloud/aiplatform/v1beta1/schema/trainingjob/definition_v1beta1/gapic_version.py",
+          "google/cloud/aiplatform/v1beta1/schema/predict/instance/gapic_version.py",
+          "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/gapic_version.py",
+          "google/cloud/aiplatform/v1beta1/schema/predict/prediction/gapic_version.py",
+          "google/cloud/aiplatform/v1beta1/schema/predict/params/gapic_version.py",
+          "google/cloud/aiplatform/v1beta1/schema/predict/params_v1beta1/gapic_version.py",
+          "google/cloud/aiplatform/v1beta1/schema/predict/instance_v1beta1/gapic_version.py",
+          "google/cloud/aiplatform_v1beta1/gapic_version.py",
+          {
+            "type": "json",
+            "path": "samples/generated_samples/snippet_metadata_google.cloud.aiplatform.v1beta1.json",
+            "jsonpath": "$.clientLibrary.version"
+          },
+          {
+            "type": "json",
+            "path": "samples/generated_samples/snippet_metadata_google.cloud.aiplatform.v1.json",
+            "jsonpath": "$.clientLibrary.version"
+          }
+        ]
+      }
+    },
+    "release-type": "python",
+    "plugins": [
+      {
+        "type": "sentence-case"
+      }
+    ],
+    "initial-version": "0.1.0"
+}

@@ -62,24 +62,24 @@ import constants as test_constants
 _TEST_API_CLIENT = job_service_client.JobServiceClient
 _TEST_API_CLIENT_BETA = job_service_client_v1beta1.JobServiceClient
 
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_ID = "1028944691210842416"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
+_TEST_ID = test_constants.TrainingJobConstants._TEST_ID
 _TEST_ALT_ID = "8834795523125638878"
-_TEST_DISPLAY_NAME = "my_job_1234"
+_TEST_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_DISPLAY_NAME
 _TEST_BQ_PROJECT_ID = "projectId"
 _TEST_BQ_DATASET_ID = "bqDatasetId"
 _TEST_BQ_TABLE_NAME = "someBqTable"
 _TEST_BQ_JOB_ID = "123459876"
 _TEST_BQ_MAX_RESULTS = 100
 _TEST_GCS_BUCKET_NAME = "my-bucket"
-_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+_TEST_SERVICE_ACCOUNT = test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT
 
 
 _TEST_BQ_PATH = f"bq://{_TEST_BQ_PROJECT_ID}.{_TEST_BQ_DATASET_ID}"
 _TEST_GCS_BUCKET_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}"
 _TEST_GCS_JSONL_SOURCE_URI = f"{_TEST_GCS_BUCKET_PATH}/bp_input_config.jsonl"
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
 
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ALT_ID}"
@@ -87,6 +87,10 @@ _TEST_MODEL_NAME = (
 
 _TEST_MODEL_VERSION_ID = "2"
 _TEST_VERSIONED_MODEL_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ALT_ID}@{_TEST_MODEL_VERSION_ID}"
+
+_TEST_PUBLISHER_MODEL_NAME = (
+    f"publishers/google/models/text-model-name@{_TEST_MODEL_VERSION_ID}"
+)
 
 _TEST_BATCH_PREDICTION_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/batchPredictionJobs/{_TEST_ID}"
 _TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME = "test-batch-prediction-job"
@@ -1265,6 +1269,28 @@ class TestBatchPredictionJob:
                 "batch_prediction_job"
             ].model
             == _TEST_VERSIONED_MODEL_NAME
+        )
+
+    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+    def test_batch_predict_job_with_publisher_model(
+        self, create_batch_prediction_job_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        # Make SDK batch_predict method call
+        _ = jobs.BatchPredictionJob.create(
+            model_name=_TEST_PUBLISHER_MODEL_NAME,
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=True,
+            service_account=_TEST_SERVICE_ACCOUNT,
+        )
+        assert (
+            create_batch_prediction_job_mock.call_args_list[0][1][
+                "batch_prediction_job"
+            ].model
+            == _TEST_PUBLISHER_MODEL_NAME
         )
 
 

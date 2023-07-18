@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1017,6 +1017,7 @@ def test_get_featurestore(request_type, transport: str = "grpc"):
             name="name_value",
             etag="etag_value",
             state=featurestore.Featurestore.State.STABLE,
+            online_storage_ttl_days=2460,
         )
         response = client.get_featurestore(request)
 
@@ -1030,6 +1031,7 @@ def test_get_featurestore(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.state == featurestore.Featurestore.State.STABLE
+    assert response.online_storage_ttl_days == 2460
 
 
 def test_get_featurestore_empty_call():
@@ -1070,6 +1072,7 @@ async def test_get_featurestore_async(
                 name="name_value",
                 etag="etag_value",
                 state=featurestore.Featurestore.State.STABLE,
+                online_storage_ttl_days=2460,
             )
         )
         response = await client.get_featurestore(request)
@@ -1084,6 +1087,7 @@ async def test_get_featurestore_async(
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.state == featurestore.Featurestore.State.STABLE
+    assert response.online_storage_ttl_days == 2460
 
 
 @pytest.mark.asyncio
@@ -1669,9 +1673,11 @@ async def test_list_featurestores_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_featurestores(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -2464,6 +2470,7 @@ def test_get_entity_type(request_type, transport: str = "grpc"):
             name="name_value",
             description="description_value",
             etag="etag_value",
+            offline_storage_ttl_days=2554,
         )
         response = client.get_entity_type(request)
 
@@ -2477,6 +2484,7 @@ def test_get_entity_type(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 def test_get_entity_type_empty_call():
@@ -2517,6 +2525,7 @@ async def test_get_entity_type_async(
                 name="name_value",
                 description="description_value",
                 etag="etag_value",
+                offline_storage_ttl_days=2554,
             )
         )
         response = await client.get_entity_type(request)
@@ -2531,6 +2540,7 @@ async def test_get_entity_type_async(
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 @pytest.mark.asyncio
@@ -3116,9 +3126,11 @@ async def test_list_entity_types_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_entity_types(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -3150,6 +3162,7 @@ def test_update_entity_type(request_type, transport: str = "grpc"):
             name="name_value",
             description="description_value",
             etag="etag_value",
+            offline_storage_ttl_days=2554,
         )
         response = client.update_entity_type(request)
 
@@ -3163,6 +3176,7 @@ def test_update_entity_type(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 def test_update_entity_type_empty_call():
@@ -3207,6 +3221,7 @@ async def test_update_entity_type_async(
                 name="name_value",
                 description="description_value",
                 etag="etag_value",
+                offline_storage_ttl_days=2554,
             )
         )
         response = await client.update_entity_type(request)
@@ -3221,6 +3236,7 @@ async def test_update_entity_type_async(
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 @pytest.mark.asyncio
@@ -4795,9 +4811,11 @@ async def test_list_features_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_features(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -6672,9 +6690,11 @@ async def test_search_features_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.search_features(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token

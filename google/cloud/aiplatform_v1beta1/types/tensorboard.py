@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -84,6 +84,14 @@ class Tensorboard(proto.Message):
             Used to perform a consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
+        is_default (bool):
+            Used to indicate if the TensorBoard instance
+            is the default one. Each project & region can
+            have at most one default TensorBoard instance.
+            Creation of a default TensorBoard instance and
+            updating an existing TensorBoard instance to be
+            default will mark all other TensorBoard
+            instances (if any) as non default.
     """
 
     name: str = proto.Field(
@@ -129,6 +137,10 @@ class Tensorboard(proto.Message):
     etag: str = proto.Field(
         proto.STRING,
         number=9,
+    )
+    is_default: bool = proto.Field(
+        proto.BOOL,
+        number=12,
     )
 
 

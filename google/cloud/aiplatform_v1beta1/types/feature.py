@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,8 +100,8 @@ class Feature(proto.Message):
             If set to true, all types of data monitoring are disabled
             despite the config on EntityType.
         monitoring_stats (MutableSequence[google.cloud.aiplatform_v1beta1.types.FeatureStatsAnomaly]):
-            Output only. A list of historical [Snapshot
-            Analysis][FeaturestoreMonitoringConfig.SnapshotAnalysis]
+            Output only. A list of historical
+            [SnapshotAnalysis][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.SnapshotAnalysis]
             stats requested by user, sorted by
             [FeatureStatsAnomaly.start_time][google.cloud.aiplatform.v1beta1.FeatureStatsAnomaly.start_time]
             descending.
@@ -147,11 +147,11 @@ class Feature(proto.Message):
         BYTES = 13
 
     class MonitoringStatsAnomaly(proto.Message):
-        r"""A list of historical [Snapshot
-        Analysis][FeaturestoreMonitoringConfig.SnapshotAnalysis] or [Import
-        Feature Analysis]
-        [FeaturestoreMonitoringConfig.ImportFeatureAnalysis] stats requested
-        by user, sorted by
+        r"""A list of historical
+        [SnapshotAnalysis][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.SnapshotAnalysis]
+        or
+        [ImportFeaturesAnalysis][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.ImportFeaturesAnalysis]
+        stats requested by user, sorted by
         [FeatureStatsAnomaly.start_time][google.cloud.aiplatform.v1beta1.FeatureStatsAnomaly.start_time]
         descending.
 

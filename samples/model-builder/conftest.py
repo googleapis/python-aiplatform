@@ -280,6 +280,21 @@ def mock_run_automl_forecasting_tft_training_job(mock_forecasting_training_job):
 
 
 @pytest.fixture
+def mock_get_automl_forecasting_tide_training_job(mock_forecasting_training_job):
+    with patch.object(
+        aiplatform, "TimeSeriesDenseEncoderForecastingTrainingJob"
+    ) as mock:
+        mock.return_value = mock_forecasting_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_automl_forecasting_tide_training_job(mock_forecasting_training_job):
+    with patch.object(mock_forecasting_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
 def mock_get_automl_image_training_job(mock_image_training_job):
     with patch.object(aiplatform, "AutoMLImageTrainingJob") as mock:
         mock.return_value = mock_image_training_job
@@ -357,6 +372,19 @@ def mock_get_custom_job(mock_custom_job):
         yield mock
 
 
+@pytest.fixture
+def mock_get_custom_job_from_local_script(mock_custom_job):
+    with patch.object(aiplatform.CustomJob, "from_local_script") as mock:
+        mock.return_value = mock_custom_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_job(mock_custom_job):
+    with patch.object(mock_custom_job, "run") as mock:
+        yield mock
+
+
 """
 ----------------------------------------------------------------------------
 Model Fixtures
@@ -418,9 +446,45 @@ Tensorboard Fixtures
 
 
 @pytest.fixture
-def mock_create_tensorboard():
-    with patch.object(aiplatform.tensorboard.Tensorboard, "create") as mock:
+def mock_tensorboard():
+    mock = MagicMock(aiplatform.Tensorboard)
+    yield mock
+
+
+@pytest.fixture
+def mock_TensorBoard_uploaderTracker():
+    mock = MagicMock(aiplatform.uploader_tracker)
+    yield mock
+
+
+@pytest.fixture
+def mock_create_tensorboard(mock_tensorboard):
+    with patch.object(aiplatform.Tensorboard, "create") as mock:
+        mock.return_value = mock_tensorboard
         yield mock
+
+
+@pytest.fixture
+def mock_tensorboard_uploader_onetime():
+    with patch.object(aiplatform, "upload_tb_log") as mock_tensorboard_uploader_onetime:
+        mock_tensorboard_uploader_onetime.return_value = None
+        yield mock_tensorboard_uploader_onetime
+
+
+@pytest.fixture
+def mock_tensorboard_uploader_start():
+    with patch.object(
+        aiplatform, "start_upload_tb_log"
+    ) as mock_tensorboard_uploader_start:
+        mock_tensorboard_uploader_start.return_value = None
+        yield mock_tensorboard_uploader_start
+
+
+@pytest.fixture
+def mock_tensorboard_uploader_end():
+    with patch.object(aiplatform, "end_upload_tb_log") as mock_tensorboard_uploader_end:
+        mock_tensorboard_uploader_end.return_value = None
+        yield mock_tensorboard_uploader_end
 
 
 """
@@ -1032,6 +1096,13 @@ def mock_register_model(mock_experiment_model, mock_model):
     with patch.object(mock_experiment_model, "register_model") as mock_register_model:
         mock_register_model.return_value = mock_model
         yield mock_register_model
+
+
+@pytest.fixture
+def mock_update_run_state(mock_experiment_run):
+    with patch.object(mock_experiment_run, "update_state") as mock_update_run_state:
+        mock_update_run_state.return_value = None
+        yield mock_update_run_state
 
 
 """

@@ -14,29 +14,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
-
-
-from unittest import mock
 from importlib import reload
-from unittest.mock import patch
+from unittest import mock
 from unittest.mock import ANY
+from unittest.mock import patch
 
+import attr
 from google.api_core import exceptions
 from google.api_core import operation
-
 from google.cloud import aiplatform
-from google.cloud.aiplatform.vizier import Study
-from google.cloud.aiplatform.vizier import Trial
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.vizier import pyvizier
-
 from google.cloud.aiplatform.compat.services import vizier_service_client
+from google.cloud.aiplatform.compat.types import study as study_pb2
+from google.cloud.aiplatform.compat.types import study as gca_study
 from google.cloud.aiplatform.compat.types import (
-    study as gca_study,
     vizier_service as gca_vizier_service,
 )
+from google.cloud.aiplatform.vizier import pyvizier
+from google.cloud.aiplatform.vizier import Study
+from google.cloud.aiplatform.vizier import Trial
+from google.cloud.aiplatform.vizier.pyvizier import proto_converters
+import pytest
+
 from google.protobuf import duration_pb2
+from google.protobuf import struct_pb2
+from google.protobuf import timestamp_pb2
 
 
 # project
@@ -619,3 +621,402 @@ class TestTrial:
             materialize_trial.parameters.get_value(_TEST_PARAMETER_ID_1)
             == _TEST_PARAMETER_ID_MIN_VALUE_1
         )
+
+
+class TestMeasurementConverter:
+    def test_measurement_proto_with_empty_named_metric(self):
+        proto = study_pb2.Measurement()
+        proto.metrics.append(study_pb2.Measurement.Metric(metric_id="", value=0.8))
+
+        measurement = proto_converters.MeasurementConverter.from_proto(proto)
+        assert measurement.metrics[""] == pyvizier.Metric(value=0.8)
+
+    def test_measurement_creation(self):
+        measurement = pyvizier.Measurement(
+            metrics={
+                "": pyvizier.Metric(value=0),
+                # The empty metric always exists in Measurement.
+                "pr-auc:": pyvizier.Metric(value=0.8),
+                "latency": pyvizier.Metric(value=32),
+            },
+            elapsed_secs=12,
+            steps=12,
+        )
+        proto = proto_converters.MeasurementConverter.to_proto(measurement)
+        assert attr.asdict(
+            proto_converters.MeasurementConverter.from_proto(proto)
+        ) == attr.asdict(measurement)
+
+
+class TestParameterValueConverter:
+    def test_to_double_proto(self):
+        value = pyvizier.ParameterValue(True)
+        assert proto_converters.ParameterValueConverter.to_proto(
+            value, "aa"
+        ) == study_pb2.Trial.Parameter(
+            parameter_id="aa", value=struct_pb2.Value(number_value=1.0)
+        )
+
+    def test_to_discrete_proto(self):
+        value = pyvizier.ParameterValue(True)
+        assert proto_converters.ParameterValueConverter.to_proto(
+            value, "aa"
+        ) == study_pb2.Trial.Parameter(
+            parameter_id="aa", value=struct_pb2.Value(number_value=1.0)
+        )
+
+    def testto_string_proto(self):
+        value = pyvizier.ParameterValue("category")
+        assert proto_converters.ParameterValueConverter.to_proto(
+            value, "aa"
+        ) == study_pb2.Trial.Parameter(
+            parameter_id="aa", value=struct_pb2.Value(string_value="category")
+        )
+
+    def test_to_integer_proto(self):
+        value = pyvizier.ParameterValue(True)
+        assert proto_converters.ParameterValueConverter.to_proto(
+            value, "aa"
+        ) == study_pb2.Trial.Parameter(
+            parameter_id="aa", value=struct_pb2.Value(number_value=1.0)
+        )
+
+
+class TestTrialConverter:
+    def test_from_proto_completed(self):
+        proto = study_pb2.Trial(name=str(1))
+        proto.state = study_pb2.Trial.State.SUCCEEDED
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="float", value=struct_pb2.Value(number_value=1.0)
+            )
+        )
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="int", value=struct_pb2.Value(number_value=2)
+            )
+        )
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="str", value=struct_pb2.Value(string_value="3")
+            )
+        )
+        proto.final_measurement.metrics.append(
+            study_pb2.Measurement.Metric(metric_id="pr-auc", value=0.8)
+        )
+        proto.final_measurement.metrics.append(
+            study_pb2.Measurement.Metric(metric_id="latency", value=32)
+        )
+
+        creation_secs = 1586649600
+        start_time = timestamp_pb2.Timestamp(
+            seconds=int(creation_secs),
+            nanos=int(1e9 * (creation_secs - int(creation_secs))),
+        )
+        setattr(proto, "start_time", start_time)
+
+        completion_secs = 1586649600 + 10
+        end_time = timestamp_pb2.Timestamp(
+            seconds=int(completion_secs),
+            nanos=int(1e9 * (completion_secs - int(completion_secs))),
+        )
+        setattr(proto, "end_time", end_time)
+
+        proto.measurements.append(
+            study_pb2.Measurement(
+                step_count=10, elapsed_duration=duration_pb2.Duration(seconds=15)
+            )
+        )
+        proto.measurements[-1].metrics.append(
+            study_pb2.Measurement.Metric(metric_id="pr-auc", value=0.7)
+        )
+        proto.measurements[-1].metrics.append(
+            study_pb2.Measurement.Metric(metric_id="latency", value=42)
+        )
+
+        proto.measurements.append(
+            study_pb2.Measurement(
+                step_count=20, elapsed_duration=duration_pb2.Duration(seconds=30)
+            )
+        )
+        proto.measurements[-1].metrics.append(
+            study_pb2.Measurement.Metric(metric_id="pr-auc", value=0.75)
+        )
+        proto.measurements[-1].metrics.append(
+            study_pb2.Measurement.Metric(metric_id="latency", value=37)
+        )
+
+        test = proto_converters.TrialConverter.from_proto(proto=proto)
+        assert test.id == 1
+        assert test.status == pyvizier.TrialStatus.COMPLETED
+        assert test.is_completed
+        assert not test.infeasible
+        assert test.infeasibility_reason is None
+        assert len(test.parameters) == 3
+        assert test.parameters["float"].value == 1.0
+        assert test.parameters["int"].value == 2
+        assert test.parameters["str"].value == "3"
+
+        # Final measurement
+        assert len(test.final_measurement.metrics) == 2
+        assert test.final_measurement.metrics["pr-auc"].value == 0.8
+        assert test.final_measurement.metrics["latency"].value == 32
+
+        # Intermediate measurement
+        assert test.measurements[0] == pyvizier.Measurement(
+            metrics={"pr-auc": 0.7, "latency": 42}, steps=10, elapsed_secs=15
+        )
+
+        assert test.measurements[1] == pyvizier.Measurement(
+            metrics={"pr-auc": 0.75, "latency": 37}, steps=20, elapsed_secs=30
+        )
+
+        assert test.id == 1
+
+        assert test.creation_time is not None
+        assert test.creation_time.timestamp() == start_time.seconds
+        assert test.completion_time is not None
+        assert test.completion_time.timestamp() == end_time.seconds
+        assert test.duration.total_seconds() == 10
+
+        assert not test.infeasible
+
+    def test_from_proto_pending(self):
+        proto = study_pb2.Trial(name=str(2))
+        proto.state = study_pb2.Trial.State.ACTIVE
+
+        start_time = timestamp_pb2.Timestamp(seconds=int(1586649600))
+        setattr(proto, "start_time", start_time)
+
+        test = proto_converters.TrialConverter.from_proto(proto=proto)
+        assert test.status == pyvizier.TrialStatus.ACTIVE
+        assert not test.is_completed
+        assert not test.infeasible
+        assert test.infeasibility_reason is None
+        assert test.creation_time is not None
+        assert test.completion_time is None
+        assert test.duration is None
+
+    def test_from_proto_infeasible(self):
+        proto = study_pb2.Trial(name=str(1))
+        proto.state = study_pb2.Trial.State.INFEASIBLE
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="float", value=struct_pb2.Value(number_value=1.0)
+            )
+        )
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="int", value=struct_pb2.Value(number_value=2)
+            )
+        )
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="str", value=struct_pb2.Value(string_value="3")
+            )
+        )
+
+        start_time = timestamp_pb2.Timestamp(seconds=int(1586649600))
+        setattr(proto, "start_time", start_time)
+        end_time = timestamp_pb2.Timestamp(seconds=int(1586649600 + 10))
+        setattr(proto, "end_time", end_time)
+        setattr(proto, "infeasible_reason", "A reason")
+
+        test = proto_converters.TrialConverter.from_proto(proto=proto)
+        assert test.status == pyvizier.TrialStatus.COMPLETED
+        assert test.is_completed
+        assert test.infeasible
+        assert test.infeasibility_reason == "A reason"
+
+    def test_from_proto_invalid_trial(self):
+        proto = study_pb2.Trial(name=str(2))
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="float", value=struct_pb2.Value(number_value=1.0)
+            )
+        )
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="float", value=struct_pb2.Value(number_value=2.0)
+            )
+        )
+        proto.state = study_pb2.Trial.State.ACTIVE
+        start_time = timestamp_pb2.Timestamp(seconds=int(1586649600))
+        setattr(proto, "start_time", start_time)
+        try:
+            proto_converters.TrialConverter.from_proto(proto=proto)
+        except ValueError as e:
+            assert "Invalid trial proto" in str(e)
+
+
+class TestTrialConverterToProto:
+    def _get_single_objective_base_trial(self):
+        proto = study_pb2.Trial(
+            name="owners/my_username/studies/2", id="2", client_id="worker0"
+        )
+
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="activation", value=struct_pb2.Value(string_value="relu")
+            )
+        )
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="synchronus", value=struct_pb2.Value(string_value="true")
+            )
+        )
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="batch_size", value=struct_pb2.Value(number_value=32)
+            )
+        )
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="floating_point_param",
+                value=struct_pb2.Value(number_value=32.0),
+            )
+        )
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="learning_rate", value=struct_pb2.Value(number_value=0.5)
+            )
+        )
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="units", value=struct_pb2.Value(number_value=50)
+            )
+        )
+        creation_secs = 1630505100
+        start_time = timestamp_pb2.Timestamp(
+            seconds=int(creation_secs),
+            nanos=int(1e9 * (creation_secs - int(creation_secs))),
+        )
+        setattr(proto, "start_time", start_time)
+        return proto
+
+    def test_parameter_back_to_back_conversion(self):
+        proto = self._get_single_objective_base_trial()
+        proto.state = study_pb2.Trial.State.ACTIVE
+        pytrial = proto_converters.TrialConverter.from_proto(proto)
+        got = proto_converters.TrialConverter.to_proto(pytrial)
+        assert proto == got
+
+    def test_final_measurement_back_to_back_conversion(self):
+        proto = study_pb2.Trial(
+            name=str(1),
+            id=str(1),
+            state=study_pb2.Trial.State.SUCCEEDED,
+            final_measurement=gca_study.Measurement(
+                step_count=101, elapsed_duration=duration_pb2.Duration(seconds=67)
+            ),
+        )
+        creation_secs = 12456
+        start_time = timestamp_pb2.Timestamp(
+            seconds=int(creation_secs),
+            nanos=int(1e9 * (creation_secs - int(creation_secs))),
+        )
+        setattr(proto, "start_time", start_time)
+
+        completion_secs = 12456 + 10
+        end_time = timestamp_pb2.Timestamp(
+            seconds=int(completion_secs),
+            nanos=int(1e9 * (completion_secs - int(completion_secs))),
+        )
+        setattr(proto, "end_time", end_time)
+        proto.parameters.append(
+            study_pb2.Trial.Parameter(
+                parameter_id="learning_rate", value=struct_pb2.Value(number_value=0.5)
+            )
+        )
+        proto.final_measurement.metrics.append(
+            study_pb2.Measurement.Metric(metric_id="loss", value=56.8)
+        )
+        proto.final_measurement.metrics.append(
+            study_pb2.Measurement.Metric(metric_id="objective", value=77.7)
+        )
+        proto.final_measurement.metrics.append(
+            study_pb2.Measurement.Metric(metric_id="objective2", value=-0.2)
+        )
+
+        pytrial = proto_converters.TrialConverter.from_proto(proto)
+        got = proto_converters.TrialConverter.to_proto(pytrial)
+        assert proto == got
+
+    def test_measurement_back_to_back_conversion(self):
+        proto = study_pb2.Trial(
+            name=str(2),
+            id=str(2),
+            state=study_pb2.Trial.State.ACTIVE,
+            client_id="worker0",
+        )
+        creation_secs = 1630505100
+        start_time = timestamp_pb2.Timestamp(
+            seconds=int(creation_secs),
+            nanos=int(1e9 * (creation_secs - int(creation_secs))),
+        )
+        setattr(proto, "start_time", start_time)
+        proto.measurements.append(
+            study_pb2.Measurement(
+                step_count=123, elapsed_duration=duration_pb2.Duration(seconds=22)
+            )
+        )
+        proto.measurements[-1].metrics.append(
+            study_pb2.Measurement.Metric(metric_id="objective", value=0.4321)
+        )
+        proto.measurements[-1].metrics.append(
+            study_pb2.Measurement.Metric(metric_id="loss", value=0.001)
+        )
+
+        proto.measurements.append(
+            study_pb2.Measurement(
+                step_count=789, elapsed_duration=duration_pb2.Duration(seconds=55)
+            )
+        )
+        proto.measurements[-1].metrics.append(
+            study_pb2.Measurement.Metric(metric_id="objective", value=0.21)
+        )
+        proto.measurements[-1].metrics.append(
+            study_pb2.Measurement.Metric(metric_id="loss", value=0.0001)
+        )
+
+        pytrial = proto_converters.TrialConverter.from_proto(proto)
+        got = proto_converters.TrialConverter.to_proto(pytrial)
+        assert proto == got
+
+
+class TestParameterConfigConverterToProto:
+    def test_discrete_config_to_proto(self):
+        feasible_values = (-1, 3, 2)
+        parameter_config = pyvizier.ParameterConfig.factory(
+            "name",
+            feasible_values=feasible_values,
+            scale_type=pyvizier.ScaleType.LOG,
+            default_value=2,
+        )
+
+        proto = proto_converters.ParameterConfigConverter.to_proto(parameter_config)
+        assert proto.parameter_id == "name"
+        assert proto.discrete_value_spec.values == [-1.0, 2.0, 3.0]
+        assert proto.discrete_value_spec.default_value == 2
+        assert (
+            proto.scale_type
+            == study_pb2.StudySpec.ParameterSpec.ScaleType.UNIT_LOG_SCALE
+        )
+
+
+class TestParameterConfigConverterFromProto:
+    def test_creates_from_good_proto(self):
+        proto = study_pb2.StudySpec.ParameterSpec(
+            parameter_id="name",
+            discrete_value_spec=study_pb2.StudySpec.ParameterSpec.DiscreteValueSpec(
+                values=[1.0, 2.0, 3.0], default_value=2.0
+            ),
+        )
+
+        parameter_config = proto_converters.ParameterConfigConverter.from_proto(proto)
+
+        assert parameter_config.name == proto.parameter_id
+        assert parameter_config.type == pyvizier.ParameterType.DISCRETE
+        assert parameter_config.bounds == (1.0, 3.0)
+        assert parameter_config.feasible_values == [1.0, 2.0, 3.0]
+        assert parameter_config.default_value == 2.0

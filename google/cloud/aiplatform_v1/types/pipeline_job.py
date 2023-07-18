@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -75,15 +75,22 @@ class PipelineJob(proto.Message):
             pipeline execution. Only populated when the
             pipeline's state is FAILED or CANCELLED.
         labels (MutableMapping[str, str]):
-            The labels with user-defined metadata to
-            organize PipelineJob.
-            Label keys and values can be no longer than 64
-            characters (Unicode codepoints), can only
-            contain lowercase letters, numeric characters,
-            underscores and dashes. International characters
-            are allowed.
-            See https://goo.gl/xmQnxf for more information
-            and examples of labels.
+            The labels with user-defined metadata to organize
+            PipelineJob.
+
+            Label keys and values can be no longer than 64 characters
+            (Unicode codepoints), can only contain lowercase letters,
+            numeric characters, underscores and dashes. International
+            characters are allowed.
+
+            See https://goo.gl/xmQnxf for more information and examples
+            of labels.
+
+            Note there is some reserved label key for Vertex AI
+            Pipelines.
+
+            -  ``vertex-ai-pipelines-run-billing-id``, user set value
+               will get overrided.
         runtime_config (google.cloud.aiplatform_v1.types.PipelineJob.RuntimeConfig):
             Runtime config of the pipeline.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
@@ -115,6 +122,15 @@ class PipelineJob(proto.Message):
             to the Google Cloud resources being launched, if applied,
             such as Vertex AI Training or Dataflow job. If left
             unspecified, the workload is not peered with any network.
+        reserved_ip_ranges (MutableSequence[str]):
+            A list of names for the reserved ip ranges under the VPC
+            network that can be used for this Pipeline Job's workload.
+
+            If set, we will deploy the Pipeline Job's workload within
+            the provided ip ranges. Otherwise, the job will be deployed
+            to any ip ranges under the provided VPC network.
+
+            Example: ['vertex-ai-ip-range'].
         template_uri (str):
             A template uri from where the
             [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec],
@@ -296,6 +312,10 @@ class PipelineJob(proto.Message):
         proto.STRING,
         number=18,
     )
+    reserved_ip_ranges: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=25,
+    )
     template_uri: str = proto.Field(
         proto.STRING,
         number=19,
@@ -374,7 +394,8 @@ class PipelineTaskDetail(proto.Message):
             task is at the root level.
         task_name (str):
             Output only. The user specified name of the task that is
-            defined in [PipelineJob.spec][].
+            defined in
+            [pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec].
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Task create time.
         start_time (google.protobuf.timestamp_pb2.Timestamp):

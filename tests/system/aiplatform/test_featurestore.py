@@ -27,15 +27,13 @@ import pandas as pd
 _TEST_USERS_ENTITY_TYPE_GCS_SRC = (
     "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/users.avro"
 )
-_TEST_MOVIES_ENTITY_TYPE_GCS_SRC = (
-    "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movies.avro"
-)
 
 _TEST_READ_INSTANCE_SRC = "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movie_prediction.csv"
 
 _TEST_FEATURESTORE_ID = "movie_prediction"
 _TEST_USER_ENTITY_TYPE_ID = "users"
 _TEST_MOVIE_ENTITY_TYPE_ID = "movies"
+_TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS = {"my_key_update": "my_value_update"}
 
 _TEST_USER_AGE_FEATURE_ID = "age"
 _TEST_USER_GENDER_FEATURE_ID = "gender"
@@ -46,7 +44,6 @@ _TEST_MOVIE_GENRES_FEATURE_ID = "genres"
 _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID = "average_rating"
 
 
-@pytest.mark.skip(reason="temporarily skipping due to resource quota")
 @pytest.mark.usefixtures(
     "prepare_staging_bucket",
     "delete_staging_bucket",
@@ -129,6 +126,15 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert get_movie_entity_type.resource_name in [
             entity_type.resource_name for entity_type in list_entity_types
         ]
+
+        # Update information about the movie entity type.
+        assert movie_entity_type.labels != _TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS
+
+        movie_entity_type.update(
+            labels=_TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS,
+        )
+
+        assert movie_entity_type.labels == _TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS
 
     def test_create_get_list_features(self, shared_state):
 

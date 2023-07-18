@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ __protobuf__ = proto.module(
 
 class AcceleratorType(proto.Enum):
     r"""Represents a hardware accelerator type.
-    NEXT ID: 11.
 
     Values:
         ACCELERATOR_TYPE_UNSPECIFIED (0):
@@ -49,7 +48,9 @@ class AcceleratorType(proto.Enum):
         NVIDIA_TESLA_A100 (8):
             Nvidia Tesla A100 GPU.
         NVIDIA_A100_80GB (9):
-            Nvidia A2 Ultra GPU.
+            Nvidia A100 80GB GPU.
+        NVIDIA_L4 (11):
+            Nvidia L4 GPU.
         TPU_V2 (6):
             TPU v2.
         TPU_V3 (7):
@@ -65,6 +66,7 @@ class AcceleratorType(proto.Enum):
     NVIDIA_TESLA_T4 = 5
     NVIDIA_TESLA_A100 = 8
     NVIDIA_A100_80GB = 9
+    NVIDIA_L4 = 11
     TPU_V2 = 6
     TPU_V3 = 7
     TPU_V4_POD = 10

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,6 +60,9 @@ class Dataset(proto.Message):
         metadata (google.protobuf.struct_pb2.Value):
             Required. Additional information about the
             Dataset.
+        data_item_count (int):
+            Output only. The number of DataItems in this
+            Dataset. Only apply for non-structured Dataset.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Dataset was
             created.
@@ -91,8 +94,7 @@ class Dataset(proto.Message):
                title.
         saved_queries (MutableSequence[google.cloud.aiplatform_v1.types.SavedQuery]):
             All SavedQueries belong to the Dataset will be returned in
-            List/Get Dataset response. The
-            [annotation_specs][SavedQuery.annotation_specs] field will
+            List/Get Dataset response. The annotation_specs field will
             not be populated except for UI cases which will only use
             [annotation_spec_count][google.cloud.aiplatform.v1.SavedQuery.annotation_spec_count].
             In CreateDataset request, a SavedQuery is created together
@@ -131,6 +133,10 @@ class Dataset(proto.Message):
         proto.MESSAGE,
         number=8,
         message=struct_pb2.Value,
+    )
+    data_item_count: int = proto.Field(
+        proto.INT64,
+        number=10,
     )
     create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
@@ -266,10 +272,9 @@ class ExportDataConfig(proto.Message):
 
             This field is a member of `oneof`_ ``split``.
         annotations_filter (str):
-            A filter on Annotations of the Dataset. Only Annotations on
-            to-be-exported DataItems(specified by [data_items_filter][])
-            that match this filter will be exported. The filter syntax
-            is the same as in
+            An expression for filtering what part of the Dataset is to
+            be exported. Only Annotations that match this filter will be
+            exported. The filter syntax is the same as in
             [ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
     """
 

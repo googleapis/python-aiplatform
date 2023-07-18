@@ -74,14 +74,8 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 from google.cloud import bigquery
-
-try:
-    from google.cloud import bigquery_storage
-    from google.cloud.bigquery_storage_v1.types import stream as gcbqs_stream
-
-    _USE_BQ_STORAGE = True
-except ImportError:
-    _USE_BQ_STORAGE = False
+from google.cloud import bigquery_storage
+from google.cloud.bigquery_storage_v1.types import stream as gcbqs_stream
 
 from google.cloud import resourcemanager
 
@@ -94,6 +88,18 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_FEATURE_TIME_DATETIME = datetime.datetime(
     year=2022, month=1, day=1, hour=11, minute=59, second=59
 )
+
+_TEST_FEATURE_TIME_DATETIME_UTC = datetime.datetime(
+    year=2022,
+    month=1,
+    day=1,
+    hour=11,
+    minute=59,
+    second=59,
+    tzinfo=datetime.timezone.utc,
+)
+_TEST_FEATURE_TIMESTAMP = timestamp_pb2.Timestamp(seconds=1681323171)
+
 
 # featurestore
 _TEST_FEATURESTORE_ID = "featurestore_id"
@@ -283,6 +289,7 @@ _TEST_GCS_SOURCE_TYPE_CSV = "csv"
 _TEST_GCS_SOURCE_TYPE_AVRO = "avro"
 _TEST_GCS_SOURCE_TYPE_INVALID = "json"
 
+_TEST_BATCH_SERVE_START_TIME = datetime.datetime.now()
 _TEST_BQ_DESTINATION_URI = "bq://project.dataset.table_name"
 _TEST_GCS_OUTPUT_URI_PREFIX = "gs://my_bucket/path/to_prefix"
 
@@ -584,8 +591,10 @@ def update_entity_type_mock():
     with patch.object(
         featurestore_service_client.FeaturestoreServiceClient, "update_entity_type"
     ) as update_entity_type_mock:
-        update_entity_type_lro_mock = mock.Mock(operation.Operation)
-        update_entity_type_mock.return_value = update_entity_type_lro_mock
+        update_entity_type_mock.return_value = gca_entity_type.EntityType(
+            name=_TEST_ENTITY_TYPE_NAME,
+            labels=_TEST_LABELS_UPDATE,
+        )
         yield update_entity_type_mock
 
 
@@ -1615,6 +1624,57 @@ class TestFeaturestore:
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_featurestore_mock")
+    def test_batch_serve_to_bq_with_start_time(
+        self, batch_read_feature_values_mock, sync
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+
+        expected_entity_type_specs = [
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_1",
+                feature_ids=["my_feature_id_1_1", "my_feature_id_1_2"],
+            ),
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_2",
+                feature_ids=["my_feature_id_2_1", "my_feature_id_2_2"],
+            ),
+        ]
+
+        expected_batch_read_feature_values_request = (
+            gca_featurestore_service.BatchReadFeatureValuesRequest(
+                featurestore=my_featurestore.resource_name,
+                destination=gca_featurestore_service.FeatureValueDestination(
+                    bigquery_destination=_TEST_BQ_DESTINATION,
+                ),
+                entity_type_specs=expected_entity_type_specs,
+                bigquery_read_instances=_TEST_BQ_SOURCE,
+                start_time=_TEST_BATCH_SERVE_START_TIME,
+            )
+        )
+
+        my_featurestore.batch_serve_to_bq(
+            bq_destination_output_uri=_TEST_BQ_DESTINATION_URI,
+            serving_feature_ids=_TEST_SERVING_FEATURE_IDS,
+            read_instances_uri=_TEST_BQ_SOURCE_URI,
+            sync=sync,
+            serve_request_timeout=None,
+            start_time=_TEST_BATCH_SERVE_START_TIME,
+        )
+
+        if not sync:
+            my_featurestore.wait()
+
+        batch_read_feature_values_mock.assert_called_once_with(
+            request=expected_batch_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_featurestore_mock")
     def test_batch_serve_to_gcs(self, batch_read_feature_values_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
         my_featurestore = aiplatform.Featurestore(
@@ -1677,9 +1737,58 @@ class TestFeaturestore:
                 read_instances_uri=_TEST_GCS_CSV_SOURCE_URI,
             )
 
-    @pytest.mark.skipif(
-        _USE_BQ_STORAGE is False, reason="batch_serve_to_df requires bigquery_storage"
-    )
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    def test_batch_serve_to_gcs_with_start_time(
+        self, batch_read_feature_values_mock, sync
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+
+        expected_entity_type_specs = [
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_1",
+                feature_ids=["my_feature_id_1_1", "my_feature_id_1_2"],
+            ),
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_2",
+                feature_ids=["my_feature_id_2_1", "my_feature_id_2_2"],
+            ),
+        ]
+
+        expected_batch_read_feature_values_request = (
+            gca_featurestore_service.BatchReadFeatureValuesRequest(
+                featurestore=my_featurestore.resource_name,
+                destination=gca_featurestore_service.FeatureValueDestination(
+                    tfrecord_destination=_TEST_TFRECORD_DESTINATION,
+                ),
+                entity_type_specs=expected_entity_type_specs,
+                csv_read_instances=_TEST_CSV_SOURCE,
+                start_time=_TEST_BATCH_SERVE_START_TIME,
+            )
+        )
+
+        my_featurestore.batch_serve_to_gcs(
+            gcs_destination_output_uri_prefix=_TEST_GCS_OUTPUT_URI_PREFIX,
+            gcs_destination_type=_TEST_GCS_DESTINATION_TYPE_TFRECORD,
+            serving_feature_ids=_TEST_SERVING_FEATURE_IDS,
+            read_instances_uri=_TEST_GCS_CSV_SOURCE_URI,
+            sync=sync,
+            serve_request_timeout=None,
+            start_time=_TEST_BATCH_SERVE_START_TIME,
+        )
+
+        if not sync:
+            my_featurestore.wait()
+
+        batch_read_feature_values_mock.assert_called_once_with(
+            request=expected_batch_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures(
         "get_featurestore_mock",
         "bq_init_client_mock",
@@ -1753,9 +1862,6 @@ class TestFeaturestore:
             timeout=None,
         )
 
-    @pytest.mark.skipif(
-        _USE_BQ_STORAGE is False, reason="batch_serve_to_df requires bigquery_storage"
-    )
     @pytest.mark.usefixtures(
         "get_featurestore_mock",
         "bq_init_client_mock",
@@ -1850,6 +1956,81 @@ class TestFeaturestore:
         bq_create_dataset_mock.assert_not_called()
         bq_delete_dataset_mock.assert_not_called()
 
+    @pytest.mark.usefixtures(
+        "get_featurestore_mock",
+        "bq_init_client_mock",
+        "bq_init_dataset_mock",
+        "bq_create_dataset_mock",
+        "bq_load_table_from_dataframe_mock",
+        "bq_delete_dataset_mock",
+        "bqs_init_client_mock",
+        "bqs_create_read_session",
+        "get_project_mock",
+    )
+    @patch("uuid.uuid4", uuid_mock)
+    def test_batch_serve_to_df_with_start_time(self, batch_read_feature_values_mock):
+
+        aiplatform.init(project=_TEST_PROJECT_DIFF)
+
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+
+        read_instances_df = pd.DataFrame()
+
+        expected_temp_bq_dataset_name = (
+            f"temp_{_TEST_FEATURESTORE_ID}_{uuid.uuid4()}".replace("-", "_")
+        )
+        expecte_temp_bq_dataset_id = f"{_TEST_PROJECT}.{expected_temp_bq_dataset_name}"[
+            :1024
+        ]
+        expected_temp_bq_read_instances_table_id = (
+            f"{expecte_temp_bq_dataset_id}.read_instances"
+        )
+        expected_temp_bq_batch_serve_table_id = (
+            f"{expecte_temp_bq_dataset_id}.batch_serve"
+        )
+
+        expected_entity_type_specs = [
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_1",
+                feature_ids=["my_feature_id_1_1", "my_feature_id_1_2"],
+            ),
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_2",
+                feature_ids=["my_feature_id_2_1", "my_feature_id_2_2"],
+            ),
+        ]
+
+        expected_batch_read_feature_values_request = (
+            gca_featurestore_service.BatchReadFeatureValuesRequest(
+                featurestore=my_featurestore.resource_name,
+                destination=gca_featurestore_service.FeatureValueDestination(
+                    bigquery_destination=gca_io.BigQueryDestination(
+                        output_uri=f"bq://{expected_temp_bq_batch_serve_table_id}"
+                    ),
+                ),
+                entity_type_specs=expected_entity_type_specs,
+                bigquery_read_instances=gca_io.BigQuerySource(
+                    input_uri=f"bq://{expected_temp_bq_read_instances_table_id}"
+                ),
+                start_time=_TEST_BATCH_SERVE_START_TIME,
+            )
+        )
+
+        my_featurestore.batch_serve_to_df(
+            serving_feature_ids=_TEST_SERVING_FEATURE_IDS,
+            read_instances_df=read_instances_df,
+            serve_request_timeout=None,
+            start_time=_TEST_BATCH_SERVE_START_TIME,
+        )
+
+        batch_read_feature_values_mock.assert_called_once_with(
+            request=expected_batch_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestEntityType:
@@ -1924,6 +2105,8 @@ class TestEntityType:
             metadata=_TEST_REQUEST_METADATA,
             timeout=None,
         )
+
+        assert my_entity_type.labels == _TEST_LABELS_UPDATE
 
     @pytest.mark.parametrize(
         "featurestore_name", [_TEST_FEATURESTORE_NAME, _TEST_FEATURESTORE_ID]
@@ -2671,10 +2854,11 @@ class TestEntityType:
 
     @pytest.mark.usefixtures("get_entity_type_mock")
     @pytest.mark.parametrize(
-        "instance, entity_id, expected_feature_values",
+        "instance, feature_time, entity_id, expected_feature_values",
         [
-            (
+            (  # 0. Instance is Dict, no feature_time provided.
                 {"string_test_entity": {"string_feature": "test_string"}},
+                None,
                 "string_test_entity",
                 {
                     "string_feature": gca_featurestore_online_service.FeatureValue(
@@ -2682,12 +2866,13 @@ class TestEntityType:
                     )
                 },
             ),
-            (
+            (  # 1. Instance is dataframe, no feature_time provided.
                 pd.DataFrame(
                     data=[{"test_feature_1": 4.9, "test_feature_2": 10}],
                     columns=["test_feature_1", "test_feature_2"],
                     index=["pd_test_entity"],
                 ),
+                None,
                 "pd_test_entity",
                 {
                     "test_feature_1": gca_featurestore_online_service.FeatureValue(
@@ -2698,15 +2883,230 @@ class TestEntityType:
                     ),
                 },
             ),
+            (  # 2. Instance is payload, no feature_time provided.
+                [
+                    gca_featurestore_online_service.WriteFeatureValuesPayload(
+                        entity_id="string_test_entity",
+                        feature_values={
+                            "string_feature": gca_featurestore_online_service.FeatureValue(
+                                string_value="test_string"
+                            )
+                        },
+                    )
+                ],
+                None,
+                "string_test_entity",
+                {
+                    "string_feature": gca_featurestore_online_service.FeatureValue(
+                        string_value="test_string"
+                    )
+                },
+            ),
+            (  # 3 Instance is Dict, feature_time provided, indicating timestamp column.
+                # Timestamp is datetime.
+                {
+                    "string_test_entity": {
+                        "string_feature": "test_string",
+                        "timestamp_col": _TEST_FEATURE_TIME_DATETIME_UTC,
+                    }
+                },
+                "timestamp_col",
+                "string_test_entity",
+                {
+                    "string_feature": gca_featurestore_online_service.FeatureValue(
+                        string_value="test_string",
+                        metadata=gca_featurestore_online_service.FeatureValue.Metadata(
+                            generate_time=_TEST_FEATURE_TIME_DATETIME_UTC
+                        ),
+                    )
+                },
+            ),
+            (  # 4. Instance is dataframe, feature_time provided, indicating timestamp column.
+                # Timestamp is datetime
+                pd.DataFrame(
+                    data=[
+                        {
+                            "test_feature_1": 4.9,
+                            "test_feature_2": 10,
+                            "feature_timestamp": _TEST_FEATURE_TIME_DATETIME_UTC,
+                        }
+                    ],
+                    columns=["test_feature_1", "test_feature_2", "feature_timestamp"],
+                    index=["pd_test_entity"],
+                ),
+                "feature_timestamp",
+                "pd_test_entity",
+                {
+                    "test_feature_1": gca_featurestore_online_service.FeatureValue(
+                        double_value=4.9,
+                        metadata=gca_featurestore_online_service.FeatureValue.Metadata(
+                            generate_time=_TEST_FEATURE_TIME_DATETIME_UTC
+                        ),
+                    ),
+                    "test_feature_2": gca_featurestore_online_service.FeatureValue(
+                        int64_value=10,
+                        metadata=gca_featurestore_online_service.FeatureValue.Metadata(
+                            generate_time=_TEST_FEATURE_TIME_DATETIME_UTC
+                        ),
+                    ),
+                },
+            ),
+            (  # 5. Instance is Payload, feature_time provided but ignored.
+                # Timestamp is datetime.
+                [
+                    gca_featurestore_online_service.WriteFeatureValuesPayload(
+                        entity_id="string_test_entity",
+                        feature_values={
+                            "string_feature": gca_featurestore_online_service.FeatureValue(
+                                string_value="test_string",
+                                metadata=gca_featurestore_online_service.FeatureValue.Metadata(
+                                    generate_time=_TEST_FEATURE_TIME_DATETIME_UTC
+                                ),
+                            )
+                        },
+                    )
+                ],
+                None,
+                "string_test_entity",
+                {
+                    "string_feature": gca_featurestore_online_service.FeatureValue(
+                        string_value="test_string",
+                        metadata=gca_featurestore_online_service.FeatureValue.Metadata(
+                            generate_time=_TEST_FEATURE_TIME_DATETIME_UTC
+                        ),
+                    )
+                },
+            ),
+            (  # 6. Instance is dict, feature_time provided, indicating timestamp column.
+                # Timestamp is Timestamp proto.
+                {
+                    "string_test_entity": {
+                        "string_feature": "test_string",
+                        "timestamp_col": _TEST_FEATURE_TIMESTAMP,
+                    }
+                },
+                "timestamp_col",
+                "string_test_entity",
+                {
+                    "string_feature": gca_featurestore_online_service.FeatureValue(
+                        string_value="test_string",
+                        metadata=gca_featurestore_online_service.FeatureValue.Metadata(
+                            generate_time=_TEST_FEATURE_TIMESTAMP
+                        ),
+                    )
+                },
+            ),
+            (  # 7. Instance is dataframe, feature_time provided, indicating
+                # timestamp column. Timestamp is Timestamp proto.
+                pd.DataFrame(
+                    data=[
+                        {
+                            "test_feature_1": 4.9,
+                            "test_feature_2": 10,
+                            "feature_timestamp": _TEST_FEATURE_TIMESTAMP,
+                        }
+                    ],
+                    columns=["test_feature_1", "test_feature_2", "feature_timestamp"],
+                    index=["pd_test_entity"],
+                ),
+                "feature_timestamp",
+                "pd_test_entity",
+                {
+                    "test_feature_1": gca_featurestore_online_service.FeatureValue(
+                        double_value=4.9,
+                        metadata=gca_featurestore_online_service.FeatureValue.Metadata(
+                            generate_time=_TEST_FEATURE_TIMESTAMP
+                        ),
+                    ),
+                    "test_feature_2": gca_featurestore_online_service.FeatureValue(
+                        int64_value=10,
+                        metadata=gca_featurestore_online_service.FeatureValue.Metadata(
+                            generate_time=_TEST_FEATURE_TIMESTAMP
+                        ),
+                    ),
+                },
+            ),
+            (  # 8. Instance is dataframe, feature_time provided, indicating
+                # timestamp column but no timestamp in instance.
+                pd.DataFrame(
+                    data=[{"test_feature_1": 4.9, "test_feature_2": 10}],
+                    columns=["test_feature_1", "test_feature_2", "feature_timestamp"],
+                    index=["pd_test_entity"],
+                ),
+                "feature_timestamp",
+                "pd_test_entity",
+                {
+                    "test_feature_1": gca_featurestore_online_service.FeatureValue(
+                        double_value=4.9,
+                    ),
+                    "test_feature_2": gca_featurestore_online_service.FeatureValue(
+                        int64_value=10,
+                    ),
+                },
+            ),
+            (  # 9 Instance is dict, feature_time provided, indicating timestamp column.
+                # but no timestamp in instance.
+                {"string_test_entity": {"string_feature": "test_string"}},
+                "timestamp_col",
+                "string_test_entity",
+                {
+                    "string_feature": gca_featurestore_online_service.FeatureValue(
+                        string_value="test_string",
+                    )
+                },
+            ),
+            (  # 10 Instance is dict, feature_time provided with datetime value.
+                {"string_test_entity": {"string_feature": "test_string"}},
+                _TEST_FEATURE_TIME_DATETIME_UTC,
+                "string_test_entity",
+                {
+                    "string_feature": gca_featurestore_online_service.FeatureValue(
+                        string_value="test_string",
+                        metadata=gca_featurestore_online_service.FeatureValue.Metadata(
+                            generate_time=_TEST_FEATURE_TIME_DATETIME_UTC
+                        ),
+                    )
+                },
+            ),
+            (  # 11 Instance is Dataframe, feature_time provided with datetime value.
+                pd.DataFrame(
+                    data=[{"test_feature_1": 4.9, "test_feature_2": 10}],
+                    columns=["test_feature_1", "test_feature_2"],
+                    index=["pd_test_entity"],
+                ),
+                _TEST_FEATURE_TIME_DATETIME_UTC,
+                "pd_test_entity",
+                {
+                    "test_feature_1": gca_featurestore_online_service.FeatureValue(
+                        double_value=4.9,
+                        metadata=gca_featurestore_online_service.FeatureValue.Metadata(
+                            generate_time=_TEST_FEATURE_TIME_DATETIME_UTC
+                        ),
+                    ),
+                    "test_feature_2": gca_featurestore_online_service.FeatureValue(
+                        int64_value=10,
+                        metadata=gca_featurestore_online_service.FeatureValue.Metadata(
+                            generate_time=_TEST_FEATURE_TIME_DATETIME_UTC
+                        ),
+                    ),
+                },
+            ),
         ],
     )
     def test_write_feature_values(
-        self, instance, entity_id, expected_feature_values, write_feature_values_mock
+        self,
+        instance,
+        feature_time,
+        entity_id,
+        expected_feature_values,
+        write_feature_values_mock,
     ):
         aiplatform.init(project=_TEST_PROJECT)
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
 
-        my_entity_type.write_feature_values(instances=instance)
+        my_entity_type.write_feature_values(
+            instances=instance, feature_time=feature_time
+        )
 
         write_feature_values_mock.assert_called_once_with(
             entity_type=my_entity_type.resource_name,
