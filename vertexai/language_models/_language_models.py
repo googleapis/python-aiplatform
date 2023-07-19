@@ -436,8 +436,7 @@ class TextGenerationModel(_TextGenerationModel, _ModelWithBatchPredict):
 class _PreviewTextGenerationModel(
     _TextGenerationModel, _TunableModelMixin, _PreviewModelWithBatchPredict
 ):
-    """Preview text generation model."""
-
+    # Do not add docstring so that it's inherited from the base class.
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
