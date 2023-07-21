@@ -1389,6 +1389,10 @@ class TestLanguageModels:
                 tuned_model._endpoint_name
                 == test_constants.EndpointConstants._TEST_ENDPOINT_NAME
             )
+            assert (
+                tuned_model.tuned_model_name
+                == test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
+            )
 
     @pytest.mark.parametrize(
         "job_spec",
