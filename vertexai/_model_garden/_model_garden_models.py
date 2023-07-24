@@ -117,7 +117,7 @@ def _get_model_info(
 
     if short_model_id in _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP:
         tuning_pipeline_uri = _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP[short_model_id]
-        tuning_model_id = short_model_id + "-" + publisher_model_res.version_id
+        tuning_model_id = publisher_model_template.rsplit("/", 1)[-1]
     else:
         tuning_pipeline_uri = None
         tuning_model_id = None

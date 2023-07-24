@@ -672,6 +672,7 @@ class TestLanguageModels:
                 "pipeline_job"
             ].runtime_config.parameter_values
             assert pipeline_arguments["learning_rate"] == 0.1
+            assert pipeline_arguments["large_model_reference"] == "text-bison@001"
             assert (
                 call_kwargs["pipeline_job"].encryption_spec.kms_key_name
                 == _TEST_ENCRYPTION_KEY_NAME
