@@ -54,7 +54,9 @@ def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
         return tuning_model_id.replace(
             "text-bison-", "publishers/google/models/text-bison@"
         )
-    raise ValueError(f"Unsupported tuning model ID {tuning_model_id}")
+    if "/" not in tuning_model_id:
+        return "publishers/google/models/" + tuning_model_id
+    return tuning_model_id
 
 
 class _LanguageModel(_model_garden_models._ModelGardenModel):
@@ -1005,6 +1007,10 @@ class CodeGenerationModel(_LanguageModel):
             text=prediction_response.predictions[0]["content"],
             _prediction_response=prediction_response,
         )
+
+
+class _PreviewCodeGenerationModel(CodeGenerationModel, _TunableModelMixin):
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
 ###### Model tuning
