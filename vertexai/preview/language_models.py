@@ -16,6 +16,7 @@
 
 from vertexai.language_models._language_models import (
     _PreviewChatModel,
+    _PreviewCodeGenerationModel,
     _PreviewTextEmbeddingModel,
     _PreviewTextGenerationModel,
     ChatMessage,
@@ -23,13 +24,13 @@ from vertexai.language_models._language_models import (
     ChatSession,
     CodeChatModel,
     CodeChatSession,
-    CodeGenerationModel,
     InputOutputTextPair,
     TextEmbedding,
     TextGenerationResponse,
 )
 
 ChatModel = _PreviewChatModel
+CodeGenerationModel = _PreviewCodeGenerationModel
 TextGenerationModel = _PreviewTextGenerationModel
 TextEmbeddingModel = _PreviewTextEmbeddingModel
 
