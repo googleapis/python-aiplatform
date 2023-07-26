@@ -50,10 +50,9 @@ def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
     Raises:
         ValueError: If tuning model ID is unsupported
     """
-    if tuning_model_id.startswith("text-bison-"):
-        return tuning_model_id.replace(
-            "text-bison-", "publishers/google/models/text-bison@"
-        )
+    if "@" not in tuning_model_id:
+        model_name, _, version = tuning_model_id.rpartition("-")
+        tuning_model_id = f"{model_name}@{version}"
     if "/" not in tuning_model_id:
         return "publishers/google/models/" + tuning_model_id
     return tuning_model_id
@@ -101,7 +100,14 @@ class _TunableModelMixin(_LanguageModel):
             model_id=self._model_id,
             schema_to_class_map={self._INSTANCE_SCHEMA_URI: type(self)},
         )
-        return _list_tuned_model_names(model_id=model_info.tuning_model_id)
+        model_id = model_info.tuning_model_id
+        tuned_models = aiplatform.Model.list(
+            filter=f'labels.{_TUNING_BASE_MODEL_ID_LABEL_KEY}="{model_id}"',
+            # TODO(b/275444096): Remove the explicit location once models are deployed to the user's selected location
+            location=_TUNED_MODEL_LOCATION,
+        )
+        model_names = [model.resource_name for model in tuned_models]
+        return model_names
 
     @classmethod
     def get_tuned_model(cls, tuned_model_name: str) -> "_LanguageModel":
@@ -1121,27 +1127,7 @@ def _launch_tuning_job(
     else:
         raise TypeError(f"Unsupported training_data type: {type(training_data)}")
 
-    job = _launch_tuning_job_on_jsonl_data(
-        model_id=model_id,
-        dataset_name_or_uri=dataset_uri,
-        train_steps=train_steps,
-        tuning_pipeline_uri=tuning_pipeline_uri,
-        model_display_name=model_display_name,
-        learning_rate=learning_rate,
-        tuning_job_location=tuning_job_location,
-    )
-    return job
-
-
-def _launch_tuning_job_on_jsonl_data(
-    model_id: str,
-    dataset_name_or_uri: str,
-    tuning_pipeline_uri: str,
-    train_steps: Optional[int] = None,
-    learning_rate: Optional[float] = None,
-    model_display_name: Optional[str] = None,
-    tuning_job_location: str = _TUNING_LOCATIONS[0],
-) -> aiplatform.PipelineJob:
+    dataset_name_or_uri = dataset_uri,
     if not model_display_name:
         # Creating a human-readable model display name
         name = f"{model_id} tuned for {train_steps} steps"
