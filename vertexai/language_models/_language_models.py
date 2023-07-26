@@ -728,6 +728,7 @@ class CodeChatModel(_ChatModelBase):
         *,
         max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: float = _DEFAULT_TEMPERATURE,
+        message_history: Optional[List[ChatMessage]] = None,
     ) -> "CodeChatSession":
         """Starts a chat session with the code chat model.
 
@@ -742,6 +743,7 @@ class CodeChatModel(_ChatModelBase):
             model=self,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
+            message_history=message_history
         )
 
 
@@ -916,12 +918,14 @@ class CodeChatSession(_ChatSessionBase):
         model: CodeChatModel,
         max_output_tokens: int = CodeChatModel._DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: float = CodeChatModel._DEFAULT_TEMPERATURE,
+        message_history: Optional[List[ChatMessage]] = None,
     ):
         super().__init__(
             model=model,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             is_code_chat_session=True,
+            message_history=message_history,
         )
 
     def send_message(
