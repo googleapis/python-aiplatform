@@ -586,9 +586,7 @@ class TextEmbeddingModel(_LanguageModel):
         ]
 
 
-class _PreviewTextEmbeddingModel(TextEmbeddingModel):
-    """Preview text embedding model."""
-
+class _PreviewTextEmbeddingModel(TextEmbeddingModel, _ModelWithBatchPredict):
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
