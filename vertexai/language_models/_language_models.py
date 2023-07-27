@@ -149,7 +149,8 @@ class _TunableModelMixin(_LanguageModel):
 
         Args:
             training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
-                The dataset must have the "input_text" and "output_text" columns.
+                The dataset schema is model-specific.
+                See https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models#dataset_format
             train_steps: Number of training batches to tune on (batch size is 8 samples).
             learning_rate: Learning rate for the tuning
             tuning_job_location: GCP location where the tuning job should be run.
@@ -1109,7 +1110,6 @@ def _launch_tuning_job(
         dataset_uri = training_data
     elif pandas and isinstance(training_data, pandas.DataFrame):
         dataset_uri = _uri_join(output_dir_uri, "training_data.jsonl")
-        training_data = training_data[["input_text", "output_text"]]
 
         gcs_utils._upload_pandas_df_to_gcs(
             df=training_data, upload_gcs_path=dataset_uri
