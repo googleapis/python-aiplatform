@@ -88,14 +88,14 @@ s.remove_staging_dirs()
 # only run post processor when there are changes to the generated code
 if has_generator_updates:
 
-# ----------------------------------------------------------------------------
-# Add templated files
-# ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
+    # Add templated files
+    # ----------------------------------------------------------------------------
 
     templated_files = common.py_library(
         cov_level=98,
         system_test_python_versions=["3.8"],
-        unit_test_python_versions=["3.7", "3.8", "3.9", "3.10"],
+        unit_test_python_versions=["3.8", "3.9", "3.10", "3.11"],
         unit_test_extras=["testing"],
         system_test_extras=["testing"],
         microgenerator=True,
@@ -118,11 +118,11 @@ if has_generator_updates:
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/workflows",  # exclude gh actions as credentials are needed for tests
             "README.rst",
-            ".github/release-please.yml", # use release please manifest
         ],
     )  # the microgenerator has a good coveragerc file
 
-    python.py_samples(skip_readmes=True)
+    # commenting out this line to omit method deletion
+    # python.py_samples(skip_readmes=True)
 
     python.configure_previous_major_version_branches()
 
@@ -130,13 +130,13 @@ if has_generator_updates:
     s.replace(
         ".kokoro/samples/python3.*/common.cfg",
         """env_vars: \{
-    key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
-    value: "python-docs-samples-tests-.*?"
-\}""",
+        key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
+        value: "python-docs-samples-tests-.*?"
+    \}""",
         """env_vars: {
-    key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
-    value: "ucaip-sample-tests"
-}""",
+        key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
+        value: "ucaip-sample-tests"
+    }""",
     )
 
     s.replace(
