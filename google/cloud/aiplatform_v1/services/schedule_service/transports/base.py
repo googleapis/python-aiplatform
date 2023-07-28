@@ -16,30 +16,34 @@
 import abc
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Union
 
-from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 import google.auth  # type: ignore
 import google.api_core
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api import httpbody_pb2  # type: ignore
-from google.cloud.aiplatform_v1beta1.types import prediction_service
+from google.cloud.aiplatform_v1.types import schedule
+from google.cloud.aiplatform_v1.types import schedule as gca_schedule
+from google.cloud.aiplatform_v1.types import schedule_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
 
 
-class PredictionServiceTransport(abc.ABC):
-    """Abstract transport class for PredictionService."""
+class ScheduleServiceTransport(abc.ABC):
+    """Abstract transport class for ScheduleService."""
 
     AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
@@ -128,24 +132,39 @@ class PredictionServiceTransport(abc.ABC):
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
-            self.predict: gapic_v1.method.wrap_method(
-                self.predict,
-                default_timeout=5.0,
-                client_info=client_info,
-            ),
-            self.raw_predict: gapic_v1.method.wrap_method(
-                self.raw_predict,
+            self.create_schedule: gapic_v1.method.wrap_method(
+                self.create_schedule,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.server_streaming_predict: gapic_v1.method.wrap_method(
-                self.server_streaming_predict,
+            self.delete_schedule: gapic_v1.method.wrap_method(
+                self.delete_schedule,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.explain: gapic_v1.method.wrap_method(
-                self.explain,
-                default_timeout=5.0,
+            self.get_schedule: gapic_v1.method.wrap_method(
+                self.get_schedule,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_schedules: gapic_v1.method.wrap_method(
+                self.list_schedules,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.pause_schedule: gapic_v1.method.wrap_method(
+                self.pause_schedule,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.resume_schedule: gapic_v1.method.wrap_method(
+                self.resume_schedule,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_schedule: gapic_v1.method.wrap_method(
+                self.update_schedule,
+                default_timeout=None,
                 client_info=client_info,
             ),
         }
@@ -160,47 +179,73 @@ class PredictionServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
-    def predict(
+    def operations_client(self):
+        """Return the client designed to process long-running operations."""
+        raise NotImplementedError()
+
+    @property
+    def create_schedule(
         self,
     ) -> Callable[
-        [prediction_service.PredictRequest],
+        [schedule_service.CreateScheduleRequest],
+        Union[gca_schedule.Schedule, Awaitable[gca_schedule.Schedule]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_schedule(
+        self,
+    ) -> Callable[
+        [schedule_service.DeleteScheduleRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_schedule(
+        self,
+    ) -> Callable[
+        [schedule_service.GetScheduleRequest],
+        Union[schedule.Schedule, Awaitable[schedule.Schedule]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_schedules(
+        self,
+    ) -> Callable[
+        [schedule_service.ListSchedulesRequest],
         Union[
-            prediction_service.PredictResponse,
-            Awaitable[prediction_service.PredictResponse],
+            schedule_service.ListSchedulesResponse,
+            Awaitable[schedule_service.ListSchedulesResponse],
         ],
     ]:
         raise NotImplementedError()
 
     @property
-    def raw_predict(
+    def pause_schedule(
         self,
     ) -> Callable[
-        [prediction_service.RawPredictRequest],
-        Union[httpbody_pb2.HttpBody, Awaitable[httpbody_pb2.HttpBody]],
+        [schedule_service.PauseScheduleRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
     ]:
         raise NotImplementedError()
 
     @property
-    def server_streaming_predict(
+    def resume_schedule(
         self,
     ) -> Callable[
-        [prediction_service.StreamingPredictRequest],
-        Union[
-            prediction_service.StreamingPredictResponse,
-            Awaitable[prediction_service.StreamingPredictResponse],
-        ],
+        [schedule_service.ResumeScheduleRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
     ]:
         raise NotImplementedError()
 
     @property
-    def explain(
+    def update_schedule(
         self,
     ) -> Callable[
-        [prediction_service.ExplainRequest],
-        Union[
-            prediction_service.ExplainResponse,
-            Awaitable[prediction_service.ExplainResponse],
-        ],
+        [schedule_service.UpdateScheduleRequest],
+        Union[gca_schedule.Schedule, Awaitable[gca_schedule.Schedule]],
     ]:
         raise NotImplementedError()
 
@@ -302,4 +347,4 @@ class PredictionServiceTransport(abc.ABC):
         raise NotImplementedError()
 
 
-__all__ = ("PredictionServiceTransport",)
+__all__ = ("ScheduleServiceTransport",)

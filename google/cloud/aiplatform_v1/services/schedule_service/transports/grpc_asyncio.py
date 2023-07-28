@@ -18,26 +18,32 @@ from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers_async
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
-from google.api import httpbody_pb2  # type: ignore
-from google.cloud.aiplatform_v1beta1.types import prediction_service
+from google.cloud.aiplatform_v1.types import schedule
+from google.cloud.aiplatform_v1.types import schedule as gca_schedule
+from google.cloud.aiplatform_v1.types import schedule_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
-from .base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
-from .grpc import PredictionServiceGrpcTransport
+from google.longrunning import operations_pb2  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
+from .base import ScheduleServiceTransport, DEFAULT_CLIENT_INFO
+from .grpc import ScheduleServiceGrpcTransport
 
 
-class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
-    """gRPC AsyncIO backend transport for PredictionService.
+class ScheduleServiceGrpcAsyncIOTransport(ScheduleServiceTransport):
+    """gRPC AsyncIO backend transport for ScheduleService.
 
-    A service for online predictions and explanations.
+    A service for creating and managing Vertex AI's Schedule
+    resources to periodically launch shceudled runs to make API
+    calls.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
@@ -162,6 +168,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
         self._stubs: Dict[str, Callable] = {}
+        self._operations_client: Optional[operations_v1.OperationsAsyncClient] = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -238,57 +245,34 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         return self._grpc_channel
 
     @property
-    def predict(
-        self,
-    ) -> Callable[
-        [prediction_service.PredictRequest],
-        Awaitable[prediction_service.PredictResponse],
-    ]:
-        r"""Return a callable for the predict method over gRPC.
+    def operations_client(self) -> operations_v1.OperationsAsyncClient:
+        """Create the client designed to process long-running operations.
 
-        Perform an online prediction.
-
-        Returns:
-            Callable[[~.PredictRequest],
-                    Awaitable[~.PredictResponse]]:
-                A function that, when called, will call the underlying RPC
-                on the server.
+        This property caches on the instance; repeated calls return the same
+        client.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "predict" not in self._stubs:
-            self._stubs["predict"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PredictionService/Predict",
-                request_serializer=prediction_service.PredictRequest.serialize,
-                response_deserializer=prediction_service.PredictResponse.deserialize,
+        # Quick check: Only create a new client if we do not already have one.
+        if self._operations_client is None:
+            self._operations_client = operations_v1.OperationsAsyncClient(
+                self.grpc_channel
             )
-        return self._stubs["predict"]
+
+        # Return the client from cache.
+        return self._operations_client
 
     @property
-    def raw_predict(
+    def create_schedule(
         self,
     ) -> Callable[
-        [prediction_service.RawPredictRequest], Awaitable[httpbody_pb2.HttpBody]
+        [schedule_service.CreateScheduleRequest], Awaitable[gca_schedule.Schedule]
     ]:
-        r"""Return a callable for the raw predict method over gRPC.
+        r"""Return a callable for the create schedule method over gRPC.
 
-        Perform an online prediction with an arbitrary HTTP payload.
-
-        The response includes the following HTTP headers:
-
-        -  ``X-Vertex-AI-Endpoint-Id``: ID of the
-           [Endpoint][google.cloud.aiplatform.v1beta1.Endpoint] that
-           served this prediction.
-
-        -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
-           [DeployedModel][google.cloud.aiplatform.v1beta1.DeployedModel]
-           that served this prediction.
+        Creates a Schedule.
 
         Returns:
-            Callable[[~.RawPredictRequest],
-                    Awaitable[~.HttpBody]]:
+            Callable[[~.CreateScheduleRequest],
+                    Awaitable[~.Schedule]]:
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
@@ -296,29 +280,27 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "raw_predict" not in self._stubs:
-            self._stubs["raw_predict"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PredictionService/RawPredict",
-                request_serializer=prediction_service.RawPredictRequest.serialize,
-                response_deserializer=httpbody_pb2.HttpBody.FromString,
+        if "create_schedule" not in self._stubs:
+            self._stubs["create_schedule"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ScheduleService/CreateSchedule",
+                request_serializer=schedule_service.CreateScheduleRequest.serialize,
+                response_deserializer=gca_schedule.Schedule.deserialize,
             )
-        return self._stubs["raw_predict"]
+        return self._stubs["create_schedule"]
 
     @property
-    def server_streaming_predict(
+    def delete_schedule(
         self,
     ) -> Callable[
-        [prediction_service.StreamingPredictRequest],
-        Awaitable[prediction_service.StreamingPredictResponse],
+        [schedule_service.DeleteScheduleRequest], Awaitable[operations_pb2.Operation]
     ]:
-        r"""Return a callable for the server streaming predict method over gRPC.
+        r"""Return a callable for the delete schedule method over gRPC.
 
-        Perform a server-side streaming online prediction
-        request for Vertex LLM streaming.
+        Deletes a Schedule.
 
         Returns:
-            Callable[[~.StreamingPredictRequest],
-                    Awaitable[~.StreamingPredictResponse]]:
+            Callable[[~.DeleteScheduleRequest],
+                    Awaitable[~.Operation]]:
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
@@ -326,38 +308,25 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "server_streaming_predict" not in self._stubs:
-            self._stubs["server_streaming_predict"] = self.grpc_channel.unary_stream(
-                "/google.cloud.aiplatform.v1beta1.PredictionService/ServerStreamingPredict",
-                request_serializer=prediction_service.StreamingPredictRequest.serialize,
-                response_deserializer=prediction_service.StreamingPredictResponse.deserialize,
+        if "delete_schedule" not in self._stubs:
+            self._stubs["delete_schedule"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ScheduleService/DeleteSchedule",
+                request_serializer=schedule_service.DeleteScheduleRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs["server_streaming_predict"]
+        return self._stubs["delete_schedule"]
 
     @property
-    def explain(
+    def get_schedule(
         self,
-    ) -> Callable[
-        [prediction_service.ExplainRequest],
-        Awaitable[prediction_service.ExplainResponse],
-    ]:
-        r"""Return a callable for the explain method over gRPC.
+    ) -> Callable[[schedule_service.GetScheduleRequest], Awaitable[schedule.Schedule]]:
+        r"""Return a callable for the get schedule method over gRPC.
 
-        Perform an online explanation.
-
-        If
-        [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
-        is specified, the corresponding DeployModel must have
-        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
-        populated. If
-        [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
-        is not specified, all DeployedModels must have
-        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
-        populated.
+        Gets a Schedule.
 
         Returns:
-            Callable[[~.ExplainRequest],
-                    Awaitable[~.ExplainResponse]]:
+            Callable[[~.GetScheduleRequest],
+                    Awaitable[~.Schedule]]:
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
@@ -365,13 +334,139 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "explain" not in self._stubs:
-            self._stubs["explain"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PredictionService/Explain",
-                request_serializer=prediction_service.ExplainRequest.serialize,
-                response_deserializer=prediction_service.ExplainResponse.deserialize,
+        if "get_schedule" not in self._stubs:
+            self._stubs["get_schedule"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ScheduleService/GetSchedule",
+                request_serializer=schedule_service.GetScheduleRequest.serialize,
+                response_deserializer=schedule.Schedule.deserialize,
             )
-        return self._stubs["explain"]
+        return self._stubs["get_schedule"]
+
+    @property
+    def list_schedules(
+        self,
+    ) -> Callable[
+        [schedule_service.ListSchedulesRequest],
+        Awaitable[schedule_service.ListSchedulesResponse],
+    ]:
+        r"""Return a callable for the list schedules method over gRPC.
+
+        Lists Schedules in a Location.
+
+        Returns:
+            Callable[[~.ListSchedulesRequest],
+                    Awaitable[~.ListSchedulesResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_schedules" not in self._stubs:
+            self._stubs["list_schedules"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ScheduleService/ListSchedules",
+                request_serializer=schedule_service.ListSchedulesRequest.serialize,
+                response_deserializer=schedule_service.ListSchedulesResponse.deserialize,
+            )
+        return self._stubs["list_schedules"]
+
+    @property
+    def pause_schedule(
+        self,
+    ) -> Callable[[schedule_service.PauseScheduleRequest], Awaitable[empty_pb2.Empty]]:
+        r"""Return a callable for the pause schedule method over gRPC.
+
+        Pauses a Schedule. Will mark
+        [Schedule.state][google.cloud.aiplatform.v1.Schedule.state] to
+        'PAUSED'. If the schedule is paused, no new runs will be
+        created. Already created runs will NOT be paused or canceled.
+
+        Returns:
+            Callable[[~.PauseScheduleRequest],
+                    Awaitable[~.Empty]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "pause_schedule" not in self._stubs:
+            self._stubs["pause_schedule"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ScheduleService/PauseSchedule",
+                request_serializer=schedule_service.PauseScheduleRequest.serialize,
+                response_deserializer=empty_pb2.Empty.FromString,
+            )
+        return self._stubs["pause_schedule"]
+
+    @property
+    def resume_schedule(
+        self,
+    ) -> Callable[[schedule_service.ResumeScheduleRequest], Awaitable[empty_pb2.Empty]]:
+        r"""Return a callable for the resume schedule method over gRPC.
+
+        Resumes a paused Schedule to start scheduling new runs. Will
+        mark [Schedule.state][google.cloud.aiplatform.v1.Schedule.state]
+        to 'ACTIVE'. Only paused Schedule can be resumed.
+
+        When the Schedule is resumed, new runs will be scheduled
+        starting from the next execution time after the current time
+        based on the time_specification in the Schedule. If
+        [Schedule.catchUp][] is set up true, all missed runs will be
+        scheduled for backfill first.
+
+        Returns:
+            Callable[[~.ResumeScheduleRequest],
+                    Awaitable[~.Empty]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "resume_schedule" not in self._stubs:
+            self._stubs["resume_schedule"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ScheduleService/ResumeSchedule",
+                request_serializer=schedule_service.ResumeScheduleRequest.serialize,
+                response_deserializer=empty_pb2.Empty.FromString,
+            )
+        return self._stubs["resume_schedule"]
+
+    @property
+    def update_schedule(
+        self,
+    ) -> Callable[
+        [schedule_service.UpdateScheduleRequest], Awaitable[gca_schedule.Schedule]
+    ]:
+        r"""Return a callable for the update schedule method over gRPC.
+
+        Updates an active or paused Schedule.
+
+        When the Schedule is updated, new runs will be scheduled
+        starting from the updated next execution time after the update
+        time based on the time_specification in the updated Schedule.
+        All unstarted runs before the update time will be skipped while
+        already created runs will NOT be paused or canceled.
+
+        Returns:
+            Callable[[~.UpdateScheduleRequest],
+                    Awaitable[~.Schedule]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_schedule" not in self._stubs:
+            self._stubs["update_schedule"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ScheduleService/UpdateSchedule",
+                request_serializer=schedule_service.UpdateScheduleRequest.serialize,
+                response_deserializer=gca_schedule.Schedule.deserialize,
+            )
+        return self._stubs["update_schedule"]
 
     def close(self):
         return self.grpc_channel.close()
@@ -580,4 +675,4 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         return self._stubs["test_iam_permissions"]
 
 
-__all__ = ("PredictionServiceGrpcAsyncIOTransport",)
+__all__ = ("ScheduleServiceGrpcAsyncIOTransport",)
