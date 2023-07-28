@@ -512,7 +512,9 @@ from .operation import (
 )
 from .persistent_resource import (
     PersistentResource,
+    RaySpec,
     ResourcePool,
+    ResourceRuntime,
     ResourceRuntimeSpec,
     ServiceAccountSpec,
 )
@@ -1100,7 +1102,9 @@ __all__ = (
     "DeleteOperationMetadata",
     "GenericOperationMetadata",
     "PersistentResource",
+    "RaySpec",
     "ResourcePool",
+    "ResourceRuntime",
     "ResourceRuntimeSpec",
     "ServiceAccountSpec",
     "CreatePersistentResourceOperationMetadata",
