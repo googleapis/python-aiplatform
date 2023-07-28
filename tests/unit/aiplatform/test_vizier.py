@@ -292,7 +292,7 @@ class TestStudy:
         create_study_mock.assert_called_once_with(
             parent=_TEST_PARENT, study=_TEST_STUDY
         )
-        assert isinstance(study, Study)
+        assert type(study) == Study
 
     @pytest.mark.usefixtures("get_study_mock")
     def test_create_study_already_exists(
@@ -320,7 +320,7 @@ class TestStudy:
         lookup_study_mock.assert_called_once_with(
             request={"parent": _TEST_PARENT, "display_name": _TEST_DISPLAY_NAME}
         )
-        assert isinstance(study, Study)
+        assert type(study) == Study
 
     @pytest.mark.usefixtures("get_study_mock")
     def test_materialize_study_config(self, create_study_mock):
@@ -347,7 +347,7 @@ class TestStudy:
         create_study_mock.assert_called_once_with(
             parent=_TEST_PARENT, study=_TEST_STUDY
         )
-        assert isinstance(study_config, pyvizier.StudyConfig)
+        assert type(study_config) == pyvizier.StudyConfig
 
     @pytest.mark.usefixtures("get_study_mock", "get_trial_mock")
     def test_suggest(self, create_study_mock, suggest_trials_mock):
@@ -378,7 +378,7 @@ class TestStudy:
                 "client_id": "test_worker",
             }
         )
-        assert isinstance(trials[0], Trial)
+        assert type(trials[0]) == Trial
 
     @pytest.mark.usefixtures("get_study_mock")
     def test_from_uid(self):
@@ -386,7 +386,7 @@ class TestStudy:
 
         study = Study.from_uid(uid=_TEST_STUDY_ID)
 
-        assert isinstance(study, Study)
+        assert type(study) == Study
         assert study.name == _TEST_STUDY_ID
 
     @pytest.mark.usefixtures("get_study_mock")
@@ -438,7 +438,7 @@ class TestStudy:
         list_optimal_trials_mock.assert_called_once_with(
             request={"parent": _TEST_STUDY_NAME}
         )
-        assert isinstance(trials[0], Trial)
+        assert type(trials[0]) == Trial
 
     @pytest.mark.usefixtures("get_study_mock", "create_study_mock", "get_trial_mock")
     def test_list_trials(self, list_trials_mock):
@@ -463,7 +463,7 @@ class TestStudy:
         trials = study.trials()
 
         list_trials_mock.assert_called_once_with(request={"parent": _TEST_STUDY_NAME})
-        assert isinstance(trials[0], Trial)
+        assert type(trials[0]) == Trial
 
     @pytest.mark.usefixtures("get_study_mock", "create_study_mock")
     def test_get_trial(self, get_trial_mock):
@@ -488,7 +488,7 @@ class TestStudy:
         trial = study.get_trial(1)
 
         get_trial_mock.assert_called_once_with(name=_TEST_TRIAL_NAME, retry=ANY)
-        assert isinstance(trial, Trial)
+        assert type(trial) == Trial
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -508,7 +508,7 @@ class TestTrial:
         trial.delete()
 
         delete_trial_mock.assert_called_once_with(name=_TEST_TRIAL_NAME)
-        assert isinstance(trial, Trial)
+        assert type(trial) == Trial
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_complete(self, complete_trial_mock):
@@ -532,7 +532,7 @@ class TestTrial:
                 ),
             }
         )
-        assert isinstance(measurement, pyvizier.Measurement)
+        assert type(measurement) == pyvizier.Measurement
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_complete_empty_measurement(self, complete_trial_empty_measurement_mock):

@@ -34,4 +34,4 @@ def test_ucaip_generated_explain_tabular_sample(capsys):
     )
 
     out, _ = capsys.readouterr()
-    assert "attribution" in out
+    assert 'attribution' in out

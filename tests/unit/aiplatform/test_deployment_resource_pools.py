@@ -324,7 +324,7 @@ class TestDeploymentResourcePool:
         list_drp_mock.assert_called_once()
 
         for drp in drp_list:
-            assert isinstance(drp, models.DeploymentResourcePool)
+            assert type(drp) == models.DeploymentResourcePool
 
     @pytest.mark.usefixtures("delete_drp_mock", "get_drp_mock")
     @pytest.mark.parametrize("sync", [True, False])

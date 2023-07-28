@@ -586,7 +586,7 @@ class TestMatchingEngineIndexEndpoint:
         )
         assert len(my_index_endpoints_list) == len(_TEST_INDEX_ENDPOINT_LIST)
         for my_index_endpoint in my_index_endpoints_list:
-            assert isinstance(my_index_endpoint, aiplatform.MatchingEngineIndexEndpoint)
+            assert type(my_index_endpoint) == aiplatform.MatchingEngineIndexEndpoint
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_index_endpoint_mock")

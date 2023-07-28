@@ -24,7 +24,7 @@ from typing import Callable
 
 
 def get_name(out, key="name"):
-    pattern = re.compile(rf'{key}:\s*"([\-a-zA-Z0-9/]+)"')
+    pattern = re.compile(fr'{key}:\s*"([\-a-zA-Z0-9/]+)"')
     name = re.search(pattern, out).group(1)
 
     return name
@@ -38,7 +38,7 @@ def get_state(out):
 
 
 def get_featurestore_resource_name(out, key="name"):
-    pattern = re.compile(rf'{key}:\s*"([\_\-a-zA-Z0-9/]+)"')
+    pattern = re.compile(fr'{key}:\s*"([\_\-a-zA-Z0-9/]+)"')
     name = re.search(pattern, out).group(1)
 
     return name
@@ -51,7 +51,7 @@ def wait_for_job_state(
     timeout: int = 90,
     freq: float = 1.5,
 ) -> None:
-    """Waits until the Job state of provided resource name is a particular state.
+    """ Waits until the Job state of provided resource name is a particular state.
 
     Args:
         get_job_method: Callable[[str], "proto.Message"]
@@ -91,12 +91,12 @@ def flaky_test_diagnostic(file_name, test_name, N=20):
     timing_dict = collections.defaultdict(list)
     for ri in range(N):
         start = timer()
-        result = pytest.main(["-s", f"{file_name}::{test_name}"])
+        result = pytest.main(['-s', f'{file_name}::{test_name}'])
         end = timer()
-        delta = end - start
+        delta = end-start
         if result == pytest.ExitCode.OK:
-            timing_dict["SUCCESS"].append(delta)
+            timing_dict['SUCCESS'].append(delta)
         else:
-            timing_dict["FAILURE"].append(delta)
+            timing_dict['FAILURE'].append(delta)
 
     return timing_dict

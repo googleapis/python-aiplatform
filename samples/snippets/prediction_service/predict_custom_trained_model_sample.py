@@ -37,7 +37,7 @@ def predict_custom_trained_model_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
     # The format of each instance should conform to the deployed model's prediction input schema.
-    instances = instances if isinstance(instances, list) else [instances]
+    instances = instances if type(instances) == list else [instances]
     instances = [
         json_format.ParseDict(instance_dict, Value()) for instance_dict in instances
     ]
