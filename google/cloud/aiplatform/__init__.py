@@ -47,6 +47,7 @@ from google.cloud.aiplatform.tensorboard import uploader_tracker
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import PrivateEndpoint
 from google.cloud.aiplatform.models import Model
+from google.cloud.aiplatform.preview.models import Model as ModelPreview
 from google.cloud.aiplatform.models import ModelRegistry
 from google.cloud.aiplatform.model_evaluation import ModelEvaluation
 from google.cloud.aiplatform.jobs import (
@@ -163,6 +164,7 @@ __all__ = (
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",
+    "ModelPreview",
     "ModelRegistry",
     "ModelEvaluation",
     "ModelDeploymentMonitoringJob",
