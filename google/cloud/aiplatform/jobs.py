@@ -1154,7 +1154,7 @@ class DataLabelingJob(_Job):
     pass
 
 
-class CustomJob(_RunnableJob):
+class CustomJob(_RunnableJob, base.PreviewMixin):
     """Vertex AI Custom Job."""
 
     _resource_noun = "customJobs"
@@ -1165,6 +1165,7 @@ class CustomJob(_RunnableJob):
     _parse_resource_name_method = "parse_custom_job_path"
     _format_resource_name_method = "custom_job_path"
     _job_type = "training"
+    _preview_class = "google.cloud.aiplatform.aiplatform.preview.jobs.CustomJob"
 
     def __init__(
         self,
