@@ -685,7 +685,7 @@ class BatchPredictionJob(_Job):
         else:
             input_config.instances_format = instances_format
             input_config.gcs_source = gca_io_compat.GcsSource(
-                uris=gcs_source if type(gcs_source) == list else [gcs_source]
+                uris=gcs_source if isinstance(gcs_source, list) else [gcs_source]
             )
 
         if bigquery_destination_prefix:
