@@ -256,7 +256,7 @@ class TestMatchingEngineIndex:
         list_indexes_mock.assert_called_once_with(request={"parent": _TEST_PARENT})
         assert len(my_indexes_list) == len(_TEST_INDEX_LIST)
         for my_index in my_indexes_list:
-            assert type(my_index) == aiplatform.MatchingEngineIndex
+            assert isinstance(my_index, aiplatform.MatchingEngineIndex)
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_index_mock")
