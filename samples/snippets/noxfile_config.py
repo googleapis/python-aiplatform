@@ -30,6 +30,6 @@ TEST_CONFIG_OVERRIDE = {
     # secrets here. These values will override predefined values.
     "envs": {
         "DATA_LABELING_API_ENDPOINT": "us-central1-autopush-aiplatform.sandbox.googleapis.com",
-        "PYTEST_ADDOPTS": "-n=auto"  # Run tests parallel using all available CPUs
+        "PYTEST_ADDOPTS": "-n=auto",  # Run tests parallel using all available CPUs
     },
 }

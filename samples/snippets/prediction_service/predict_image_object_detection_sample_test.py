@@ -31,4 +31,4 @@ def test_ucaip_generated_predict_image_object_detection_sample(capsys):
     )
 
     out, _ = capsys.readouterr()
-    assert 'Salad' in out
+    assert "Salad" in out
