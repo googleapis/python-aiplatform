@@ -42,6 +42,8 @@ from .services.pipeline_service import PipelineServiceClient
 from .services.pipeline_service import PipelineServiceAsyncClient
 from .services.prediction_service import PredictionServiceClient
 from .services.prediction_service import PredictionServiceAsyncClient
+from .services.schedule_service import ScheduleServiceClient
+from .services.schedule_service import ScheduleServiceAsyncClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
 from .services.specialist_pool_service import SpecialistPoolServiceAsyncClient
 from .services.tensorboard_service import TensorboardServiceClient
@@ -393,6 +395,20 @@ from .types.prediction_service import ExplainResponse
 from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
+from .types.prediction_service import StreamingPredictRequest
+from .types.prediction_service import StreamingPredictResponse
+from .types.publisher_model import PublisherModel
+from .types.saved_query import SavedQuery
+from .types.schedule import Schedule
+from .types.schedule_service import CreateScheduleRequest
+from .types.schedule_service import DeleteScheduleRequest
+from .types.schedule_service import GetScheduleRequest
+from .types.schedule_service import ListSchedulesRequest
+from .types.schedule_service import ListSchedulesResponse
+from .types.schedule_service import PauseScheduleRequest
+from .types.schedule_service import ResumeScheduleRequest
+from .types.schedule_service import UpdateScheduleRequest
+from .types.service_networking import PrivateServiceConnectConfig
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -469,6 +485,7 @@ from .types.types import BoolArray
 from .types.types import DoubleArray
 from .types.types import Int64Array
 from .types.types import StringArray
+from .types.types import Tensor
 from .types.unmanaged_container_model import UnmanagedContainerModel
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
@@ -508,6 +525,7 @@ __all__ = (
     "ModelServiceAsyncClient",
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
+    "ScheduleServiceAsyncClient",
     "SpecialistPoolServiceAsyncClient",
     "TensorboardServiceAsyncClient",
     "VizierServiceAsyncClient",
@@ -588,6 +606,7 @@ __all__ = (
     "CreateMetadataStoreRequest",
     "CreateModelDeploymentMonitoringJobRequest",
     "CreatePipelineJobRequest",
+    "CreateScheduleRequest",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
     "CreateStudyRequest",
@@ -628,6 +647,8 @@ __all__ = (
     "DeleteModelVersionRequest",
     "DeleteOperationMetadata",
     "DeletePipelineJobRequest",
+    "DeleteSavedQueryRequest",
+    "DeleteScheduleRequest",
     "DeleteSpecialistPoolRequest",
     "DeleteStudyRequest",
     "DeleteTensorboardExperimentRequest",
@@ -717,6 +738,8 @@ __all__ = (
     "GetModelEvaluationSliceRequest",
     "GetModelRequest",
     "GetPipelineJobRequest",
+    "GetPublisherModelRequest",
+    "GetScheduleRequest",
     "GetSpecialistPoolRequest",
     "GetStudyRequest",
     "GetTensorboardExperimentRequest",
@@ -796,6 +819,10 @@ __all__ = (
     "ListOptimalTrialsResponse",
     "ListPipelineJobsRequest",
     "ListPipelineJobsResponse",
+    "ListSavedQueriesRequest",
+    "ListSavedQueriesResponse",
+    "ListSchedulesRequest",
+    "ListSchedulesResponse",
     "ListSpecialistPoolsRequest",
     "ListSpecialistPoolsResponse",
     "ListStudiesRequest",
@@ -845,6 +872,7 @@ __all__ = (
     "Neighbor",
     "NfsMount",
     "PauseModelDeploymentMonitoringJobRequest",
+    "PauseScheduleRequest",
     "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
@@ -883,10 +911,13 @@ __all__ = (
     "ReadTensorboardTimeSeriesDataResponse",
     "ResourcesConsumed",
     "ResumeModelDeploymentMonitoringJobRequest",
+    "ResumeScheduleRequest",
     "SampleConfig",
     "SampledShapleyAttribution",
     "SamplingStrategy",
     "Scalar",
+    "Schedule",
+    "ScheduleServiceClient",
     "Scheduling",
     "SearchFeaturesRequest",
     "SearchFeaturesResponse",
@@ -899,6 +930,8 @@ __all__ = (
     "SpecialistPoolServiceClient",
     "StopTrialRequest",
     "StratifiedSplit",
+    "StreamingPredictRequest",
+    "StreamingPredictResponse",
     "StreamingReadFeatureValuesRequest",
     "StringArray",
     "Study",
@@ -907,6 +940,7 @@ __all__ = (
     "SuggestTrialsRequest",
     "SuggestTrialsResponse",
     "TFRecordDestination",
+    "Tensor",
     "Tensorboard",
     "TensorboardBlob",
     "TensorboardBlobSequence",
@@ -944,6 +978,7 @@ __all__ = (
     "UpdateModelDeploymentMonitoringJobOperationMetadata",
     "UpdateModelDeploymentMonitoringJobRequest",
     "UpdateModelRequest",
+    "UpdateScheduleRequest",
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",
     "UpdateTensorboardExperimentRequest",

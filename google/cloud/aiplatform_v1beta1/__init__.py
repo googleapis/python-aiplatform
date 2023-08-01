@@ -377,6 +377,18 @@ from .types.model_service import UploadModelRequest
 from .types.model_service import UploadModelResponse
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
+from .types.persistent_resource import PersistentResource
+from .types.persistent_resource import RaySpec
+from .types.persistent_resource import ResourcePool
+from .types.persistent_resource import ResourceRuntime
+from .types.persistent_resource import ResourceRuntimeSpec
+from .types.persistent_resource import ServiceAccountSpec
+from .types.persistent_resource_service import CreatePersistentResourceOperationMetadata
+from .types.persistent_resource_service import CreatePersistentResourceRequest
+from .types.persistent_resource_service import DeletePersistentResourceRequest
+from .types.persistent_resource_service import GetPersistentResourceRequest
+from .types.persistent_resource_service import ListPersistentResourcesRequest
+from .types.persistent_resource_service import ListPersistentResourcesResponse
 from .types.pipeline_failure_policy import PipelineFailurePolicy
 from .types.pipeline_job import PipelineJob
 from .types.pipeline_job import PipelineJobDetail
@@ -401,6 +413,20 @@ from .types.prediction_service import ExplainResponse
 from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
+from .types.prediction_service import StreamingPredictRequest
+from .types.prediction_service import StreamingPredictResponse
+from .types.publisher_model import PublisherModel
+from .types.saved_query import SavedQuery
+from .types.schedule import Schedule
+from .types.schedule_service import CreateScheduleRequest
+from .types.schedule_service import DeleteScheduleRequest
+from .types.schedule_service import GetScheduleRequest
+from .types.schedule_service import ListSchedulesRequest
+from .types.schedule_service import ListSchedulesResponse
+from .types.schedule_service import PauseScheduleRequest
+from .types.schedule_service import ResumeScheduleRequest
+from .types.schedule_service import UpdateScheduleRequest
+from .types.service_networking import PrivateServiceConnectConfig
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -477,6 +503,7 @@ from .types.types import BoolArray
 from .types.types import DoubleArray
 from .types.types import Int64Array
 from .types.types import StringArray
+from .types.types import Tensor
 from .types.unmanaged_container_model import UnmanagedContainerModel
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
@@ -888,12 +915,22 @@ __all__ = (
     "QueryContextLineageSubgraphRequest",
     "QueryExecutionInputsAndOutputsRequest",
     "RawPredictRequest",
+    "RaySpec",
     "ReadFeatureValuesRequest",
     "ReadFeatureValuesResponse",
     "ReadTensorboardBlobDataRequest",
     "ReadTensorboardBlobDataResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
+    "ReadTensorboardUsageRequest",
+    "ReadTensorboardUsageResponse",
+    "RemoveContextChildrenRequest",
+    "RemoveContextChildrenResponse",
+    "RemoveDatapointsRequest",
+    "RemoveDatapointsResponse",
+    "ResourcePool",
+    "ResourceRuntime",
+    "ResourceRuntimeSpec",
     "ResourcesConsumed",
     "ResumeModelDeploymentMonitoringJobRequest",
     "SampleConfig",
@@ -912,6 +949,8 @@ __all__ = (
     "SpecialistPoolServiceClient",
     "StopTrialRequest",
     "StratifiedSplit",
+    "StreamingPredictRequest",
+    "StreamingPredictResponse",
     "StreamingReadFeatureValuesRequest",
     "StringArray",
     "Study",
@@ -920,6 +959,7 @@ __all__ = (
     "SuggestTrialsRequest",
     "SuggestTrialsResponse",
     "TFRecordDestination",
+    "Tensor",
     "Tensorboard",
     "TensorboardBlob",
     "TensorboardBlobSequence",

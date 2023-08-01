@@ -137,6 +137,129 @@ class Index(proto.Message):
         number=11,
         message=timestamp_pb2.Timestamp,
     )
+    index_stats: "IndexStats" = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        message="IndexStats",
+    )
+    index_update_method: IndexUpdateMethod = proto.Field(
+        proto.ENUM,
+        number=16,
+        enum=IndexUpdateMethod,
+    )
+
+
+class IndexDatapoint(proto.Message):
+    r"""A datapoint of Index.
+
+    Attributes:
+        datapoint_id (str):
+            Required. Unique identifier of the datapoint.
+        feature_vector (MutableSequence[float]):
+            Required. Feature embedding vector. An array of numbers with
+            the length of [NearestNeighborSearchConfig.dimensions].
+        restricts (MutableSequence[google.cloud.aiplatform_v1.types.IndexDatapoint.Restriction]):
+            Optional. List of Restrict of the datapoint,
+            used to perform "restricted searches" where
+            boolean rule are used to filter the subset of
+            the database eligible for matching. See:
+
+            https://cloud.google.com/vertex-ai/docs/matching-engine/filtering
+        crowding_tag (google.cloud.aiplatform_v1.types.IndexDatapoint.CrowdingTag):
+            Optional. CrowdingTag of the datapoint, the
+            number of neighbors to return in each crowding
+            can be configured during query.
+    """
+
+    class Restriction(proto.Message):
+        r"""Restriction of a datapoint which describe its
+        attributes(tokens) from each of several attribute
+        categories(namespaces).
+
+        Attributes:
+            namespace (str):
+                The namespace of this restriction. eg: color.
+            allow_list (MutableSequence[str]):
+                The attributes to allow in this namespace.
+                eg: 'red'
+            deny_list (MutableSequence[str]):
+                The attributes to deny in this namespace. eg:
+                'blue'
+        """
+
+        namespace: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        allow_list: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=2,
+        )
+        deny_list: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=3,
+        )
+
+    class CrowdingTag(proto.Message):
+        r"""Crowding tag is a constraint on a neighbor list produced by nearest
+        neighbor search requiring that no more than some value k' of the k
+        neighbors returned have the same value of crowding_attribute.
+
+        Attributes:
+            crowding_attribute (str):
+                The attribute value used for crowding. The maximum number of
+                neighbors to return per crowding attribute value
+                (per_crowding_attribute_num_neighbors) is configured
+                per-query. This field is ignored if
+                per_crowding_attribute_num_neighbors is larger than the
+                total number of neighbors to return for a given query.
+        """
+
+        crowding_attribute: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
+    datapoint_id: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    feature_vector: MutableSequence[float] = proto.RepeatedField(
+        proto.FLOAT,
+        number=2,
+    )
+    restricts: MutableSequence[Restriction] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=Restriction,
+    )
+    crowding_tag: CrowdingTag = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=CrowdingTag,
+    )
+
+
+class IndexStats(proto.Message):
+    r"""Stats of the Index.
+
+    Attributes:
+        vectors_count (int):
+            Output only. The number of vectors in the
+            Index.
+        shards_count (int):
+            Output only. The number of shards in the
+            Index.
+    """
+
+    vectors_count: int = proto.Field(
+        proto.INT64,
+        number=1,
+    )
+    shards_count: int = proto.Field(
+        proto.INT32,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

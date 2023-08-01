@@ -125,6 +125,7 @@ class ModelDeploymentMonitoringJob(proto.Message):
             the job under customer project. Customer could
             do their own query & analysis. There could be 4
             log tables in maximum:
+
             1. Training data logging predict
             request/response 2. Serving data logging predict
             request/response

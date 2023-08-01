@@ -16,8 +16,21 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    AsyncIterable,
+    Awaitable,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
+
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
@@ -34,6 +47,7 @@ except AttributeError:  # pragma: NO COVER
 from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import prediction_service
+from google.cloud.aiplatform_v1.types import types
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -514,6 +528,95 @@ class PredictionServiceAsyncClient:
 
         # Send the request.
         response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def server_streaming_predict(
+        self,
+        request: Optional[
+            Union[prediction_service.StreamingPredictRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> Awaitable[AsyncIterable[prediction_service.StreamingPredictResponse]]:
+        r"""Perform a server-side streaming online prediction
+        request for Vertex LLM streaming.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_server_streaming_predict():
+                # Create a client
+                client = aiplatform_v1.PredictionServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.StreamingPredictRequest(
+                    endpoint="endpoint_value",
+                )
+
+                # Make the request
+                stream = await client.server_streaming_predict(request=request)
+
+                # Handle the response
+                async for response in stream:
+                    print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.StreamingPredictRequest, dict]]):
+                The request object. Request message for
+                [PredictionService.StreamingPredict][google.cloud.aiplatform.v1.PredictionService.StreamingPredict].
+
+                The first message must contain
+                [endpoint][google.cloud.aiplatform.v1.StreamingPredictRequest.endpoint]
+                field and optionally [input][]. The subsequent messages
+                must contain [input][].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            AsyncIterable[google.cloud.aiplatform_v1.types.StreamingPredictResponse]:
+                Response message for
+                   [PredictionService.StreamingPredict][google.cloud.aiplatform.v1.PredictionService.StreamingPredict].
+
+        """
+        # Create or coerce a protobuf request object.
+        request = prediction_service.StreamingPredictRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.server_streaming_predict,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
+        )
+
+        # Send the request.
+        response = rpc(
             request,
             retry=retry,
             timeout=timeout,
