@@ -59,14 +59,16 @@ featurestore_extra_require = [
     "pyarrow >= 6.0.1",
 ]
 pipelines_extra_require = [
-    "pyyaml>=5.3,<6",
+    "pyyaml==5.3.1",
 ]
 datasets_extra_require = [
-    "pyarrow >= 3.0.0, < 8.0dev",
+    "pyarrow >= 3.0.0, < 8.0dev; python_version<'3.11'",
+    "pyarrow >= 10.0.1; python_version>='3.11'",
 ]
 
 vizier_extra_require = [
-    "google-vizier==0.0.4",
+    "google-vizier==0.0.4; python_version<'3.11'",
+    "google-vizier>=0.1.6; python_version>='3.11'",
 ]
 
 prediction_extra_require = [
@@ -170,6 +172,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],

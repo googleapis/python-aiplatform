@@ -42,7 +42,7 @@ def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
     """Gets the base model ID for the model ID labels used the tuned models.
 
     Args:
-        tuning_model_id: The model ID used in tuning
+        tuning_model_id: The model ID used in tuning. E.g. `text-bison-001`
 
     Returns:
         The publisher model ID
@@ -50,11 +50,9 @@ def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
     Raises:
         ValueError: If tuning model ID is unsupported
     """
-    if tuning_model_id.startswith("text-bison-"):
-        return tuning_model_id.replace(
-            "text-bison-", "publishers/google/models/text-bison@"
-        )
-    raise ValueError(f"Unsupported tuning model ID {tuning_model_id}")
+    model_name, _, version = tuning_model_id.rpartition("-")
+    # "publishers/google/models/text-bison@001"
+    return f"publishers/google/models/{model_name}@{version}"
 
 
 class _LanguageModel(_model_garden_models._ModelGardenModel):
@@ -151,7 +149,8 @@ class _TunableModelMixin(_LanguageModel):
 
         Args:
             training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
-                The dataset must have the "input_text" and "output_text" columns.
+                The dataset schema is model-specific.
+                See https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models#dataset_format
             train_steps: Number of training batches to tune on (batch size is 8 samples).
             learning_rate: Learning rate for the tuning
             tuning_job_location: GCP location where the tuning job should be run.
@@ -201,6 +200,7 @@ class _TunableModelMixin(_LanguageModel):
         tuned_model = job.result()
         # The UXR study attendees preferred to tune model in place
         self._endpoint = tuned_model._endpoint
+        self._endpoint_name = tuned_model._endpoint_name
 
 
 @dataclasses.dataclass
@@ -436,8 +436,7 @@ class TextGenerationModel(_TextGenerationModel, _ModelWithBatchPredict):
 class _PreviewTextGenerationModel(
     _TextGenerationModel, _TunableModelMixin, _PreviewModelWithBatchPredict
 ):
-    """Preview text generation model."""
-
+    # Do not add docstring so that it's inherited from the base class.
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
@@ -587,9 +586,7 @@ class TextEmbeddingModel(_LanguageModel):
         ]
 
 
-class _PreviewTextEmbeddingModel(TextEmbeddingModel):
-    """Preview text embedding model."""
-
+class _PreviewTextEmbeddingModel(TextEmbeddingModel, _ModelWithBatchPredict):
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
@@ -727,6 +724,7 @@ class CodeChatModel(_ChatModelBase):
         *,
         max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: float = _DEFAULT_TEMPERATURE,
+        message_history: Optional[List[ChatMessage]] = None,
     ) -> "CodeChatSession":
         """Starts a chat session with the code chat model.
 
@@ -741,6 +739,7 @@ class CodeChatModel(_ChatModelBase):
             model=self,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
+            message_history=message_history
         )
 
 
@@ -915,12 +914,14 @@ class CodeChatSession(_ChatSessionBase):
         model: CodeChatModel,
         max_output_tokens: int = CodeChatModel._DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: float = CodeChatModel._DEFAULT_TEMPERATURE,
+        message_history: Optional[List[ChatMessage]] = None,
     ):
         super().__init__(
             model=model,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             is_code_chat_session=True,
+            message_history=message_history,
         )
 
     def send_message(
@@ -1006,6 +1007,10 @@ class CodeGenerationModel(_LanguageModel):
             text=prediction_response.predictions[0]["content"],
             _prediction_response=prediction_response,
         )
+
+
+class _PreviewCodeGenerationModel(CodeGenerationModel, _TunableModelMixin):
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
 ###### Model tuning
@@ -1103,7 +1108,6 @@ def _launch_tuning_job(
         dataset_uri = training_data
     elif pandas and isinstance(training_data, pandas.DataFrame):
         dataset_uri = _uri_join(output_dir_uri, "training_data.jsonl")
-        training_data = training_data[["input_text", "output_text"]]
 
         gcs_utils._upload_pandas_df_to_gcs(
             df=training_data, upload_gcs_path=dataset_uri
