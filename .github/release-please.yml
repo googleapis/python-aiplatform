@@ -5,4 +5,5 @@ handleGHRelease: true
 branches:
 - branch: v0
   handleGHRelease: true
+  manifest: true
   releaseType: python
