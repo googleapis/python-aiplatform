@@ -583,7 +583,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             "average_rating",
         ]
 
-        assert type(df) == pd.DataFrame
+        assert isinstance(df, pd.DataFrame)
         assert list(df.columns) == expected_df_columns
         assert df.size == 54
         assert "Featurestore feature values served." in caplog.text
@@ -699,16 +699,16 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         movie_entity_type = shared_state["movie_entity_type"]
 
         user_entity_views = user_entity_type.read(entity_ids="alice")
-        assert type(user_entity_views) == pd.DataFrame
+        assert isinstance(user_entity_views, pd.DataFrame)
 
         movie_entity_views = movie_entity_type.read(
             entity_ids=["movie_01", "movie_04"],
             feature_ids=[_TEST_MOVIE_TITLE_FEATURE_ID, _TEST_MOVIE_GENRES_FEATURE_ID],
         )
-        assert type(movie_entity_views) == pd.DataFrame
+        assert isinstance(movie_entity_views, pd.DataFrame)
 
         movie_entity_views = movie_entity_type.read(
             entity_ids="movie_01",
             feature_ids=[_TEST_MOVIE_TITLE_FEATURE_ID, _TEST_MOVIE_GENRES_FEATURE_ID],
         )
-        assert type(movie_entity_views) == pd.DataFrame
+        assert isinstance(movie_entity_views, pd.DataFrame)
