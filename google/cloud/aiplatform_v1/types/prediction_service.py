@@ -21,7 +21,6 @@ import proto  # type: ignore
 
 from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1.types import explanation
-from google.cloud.aiplatform_v1.types import types
 from google.protobuf import struct_pb2  # type: ignore
 
 
@@ -31,8 +30,6 @@ __protobuf__ = proto.module(
         "PredictRequest",
         "PredictResponse",
         "RawPredictRequest",
-        "StreamingPredictRequest",
-        "StreamingPredictResponse",
         "ExplainRequest",
         "ExplainResponse",
     },
@@ -112,10 +109,6 @@ class PredictResponse(proto.Message):
             name][google.cloud.aiplatform.v1.Model.display_name] of the
             Model which is deployed as the DeployedModel that this
             prediction hits.
-        metadata (google.protobuf.struct_pb2.Value):
-            Output only. Request-level metadata returned
-            by the model. The metadata type will be
-            dependent upon the model implementation.
     """
 
     predictions: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
@@ -138,11 +131,6 @@ class PredictResponse(proto.Message):
     model_display_name: str = proto.Field(
         proto.STRING,
         number=4,
-    )
-    metadata: struct_pb2.Value = proto.Field(
-        proto.MESSAGE,
-        number=6,
-        message=struct_pb2.Value,
     )
 
 
@@ -185,65 +173,6 @@ class RawPredictRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=httpbody_pb2.HttpBody,
-    )
-
-
-class StreamingPredictRequest(proto.Message):
-    r"""Request message for
-    [PredictionService.StreamingPredict][google.cloud.aiplatform.v1.PredictionService.StreamingPredict].
-
-    The first message must contain
-    [endpoint][google.cloud.aiplatform.v1.StreamingPredictRequest.endpoint]
-    field and optionally [input][]. The subsequent messages must contain
-    [input][].
-
-    Attributes:
-        endpoint (str):
-            Required. The name of the Endpoint requested to serve the
-            prediction. Format:
-            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
-        inputs (MutableSequence[google.cloud.aiplatform_v1.types.Tensor]):
-            The prediction input.
-        parameters (google.cloud.aiplatform_v1.types.Tensor):
-            The parameters that govern the prediction.
-    """
-
-    endpoint: str = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    inputs: MutableSequence[types.Tensor] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message=types.Tensor,
-    )
-    parameters: types.Tensor = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message=types.Tensor,
-    )
-
-
-class StreamingPredictResponse(proto.Message):
-    r"""Response message for
-    [PredictionService.StreamingPredict][google.cloud.aiplatform.v1.PredictionService.StreamingPredict].
-
-    Attributes:
-        outputs (MutableSequence[google.cloud.aiplatform_v1.types.Tensor]):
-            The prediction output.
-        parameters (google.cloud.aiplatform_v1.types.Tensor):
-            The parameters that govern the prediction.
-    """
-
-    outputs: MutableSequence[types.Tensor] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=types.Tensor,
-    )
-    parameters: types.Tensor = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=types.Tensor,
     )
 
 
