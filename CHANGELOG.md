@@ -1,6 +1,28 @@
 # Changelog
 
 
+## [1.29.0](https://github.com/googleapis/python-aiplatform/compare/v1.28.1...v1.29.0) (2023-08-02)
+
+
+### Features
+
+* Add preview CustomJob which can be run on persistent resource ([2ce1330](https://github.com/googleapis/python-aiplatform/commit/2ce1330488d9e26c58f33c59ac51f47b3bcfdabf))
+* Add preview CustomJob which can be run on persistent resource ([56906b0](https://github.com/googleapis/python-aiplatform/commit/56906b08d80bee64334f6ba0c713e30dae39cef4))
+* Add RaySepc to ResourceRuntimeSpec, and add ResourceRuntime to PersistentResource ([#2387](https://github.com/googleapis/python-aiplatform/issues/2387)) ([6987f69](https://github.com/googleapis/python-aiplatform/commit/6987f69de1e03984c2b7804229154b0359985a99))
+* LLM - Support for Batch Prediction for the `textembedding` models (preview) ([a368538](https://github.com/googleapis/python-aiplatform/commit/a36853869e627aabf3dc563400d184f44c8ae876))
+* LLM - Support tuning for the code-bison model (preview) ([e4b23a2](https://github.com/googleapis/python-aiplatform/commit/e4b23a254aadfae821e326b238555cee2ecb463a))
+
+
+### Bug Fixes
+
+* LLM - Fixed `get_tuned_model` for the future models that are not `text-bison` ([1adf72b](https://github.com/googleapis/python-aiplatform/commit/1adf72b866021b9e857166778dbddf83fd808fb7))
+
+
+### Documentation
+
+* Fix auto-generated pydoc for language_models ([7d72bd1](https://github.com/googleapis/python-aiplatform/commit/7d72bd1c3740039d7c63d1042aa6bcadbd3e4946))
+* LLM - Made it possible to provide message history to `CodeChatModel` when starting chat. ([cf46145](https://github.com/googleapis/python-aiplatform/commit/cf46145b3de8de794d4295f59d8af3ea9dd57826))
+
 ## [1.28.1](https://github.com/googleapis/python-aiplatform/compare/v1.28.0...v1.28.1) (2023-07-18)
 
 
