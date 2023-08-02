@@ -465,9 +465,7 @@ from .types.nas_job import NasTrialDetail
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
 from .types.persistent_resource import PersistentResource
-from .types.persistent_resource import RaySpec
 from .types.persistent_resource import ResourcePool
-from .types.persistent_resource import ResourceRuntime
 from .types.persistent_resource import ResourceRuntimeSpec
 from .types.persistent_resource import ServiceAccountSpec
 from .types.persistent_resource_service import CreatePersistentResourceOperationMetadata
@@ -500,8 +498,6 @@ from .types.prediction_service import ExplainResponse
 from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
-from .types.prediction_service import StreamingPredictRequest
-from .types.prediction_service import StreamingPredictResponse
 from .types.publisher_model import PublisherModel
 from .types.saved_query import SavedQuery
 from .types.schedule import Schedule
@@ -594,7 +590,6 @@ from .types.types import BoolArray
 from .types.types import DoubleArray
 from .types.types import Int64Array
 from .types.types import StringArray
-from .types.types import Tensor
 from .types.unmanaged_container_model import UnmanagedContainerModel
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
@@ -1081,7 +1076,6 @@ __all__ = (
     "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
     "RawPredictRequest",
-    "RaySpec",
     "ReadFeatureValuesRequest",
     "ReadFeatureValuesResponse",
     "ReadIndexDatapointsRequest",
@@ -1099,7 +1093,6 @@ __all__ = (
     "RemoveDatapointsRequest",
     "RemoveDatapointsResponse",
     "ResourcePool",
-    "ResourceRuntime",
     "ResourceRuntimeSpec",
     "ResourcesConsumed",
     "ResumeModelDeploymentMonitoringJobRequest",
@@ -1126,8 +1119,6 @@ __all__ = (
     "SpecialistPoolServiceClient",
     "StopTrialRequest",
     "StratifiedSplit",
-    "StreamingPredictRequest",
-    "StreamingPredictResponse",
     "StreamingReadFeatureValuesRequest",
     "StringArray",
     "Study",
@@ -1136,7 +1127,6 @@ __all__ = (
     "SuggestTrialsRequest",
     "SuggestTrialsResponse",
     "TFRecordDestination",
-    "Tensor",
     "Tensorboard",
     "TensorboardBlob",
     "TensorboardBlobSequence",

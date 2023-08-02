@@ -197,7 +197,6 @@ class IndexDatapoint(proto.Message):
             used to perform "restricted searches" where
             boolean rule are used to filter the subset of
             the database eligible for matching. See:
-
             https://cloud.google.com/vertex-ai/docs/matching-engine/filtering
         crowding_tag (google.cloud.aiplatform_v1.types.IndexDatapoint.CrowdingTag):
             Optional. CrowdingTag of the datapoint, the
