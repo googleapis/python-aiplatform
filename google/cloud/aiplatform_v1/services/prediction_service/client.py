@@ -22,7 +22,6 @@ from typing import (
     MutableMapping,
     MutableSequence,
     Optional,
-    Iterable,
     Sequence,
     Tuple,
     Type,
@@ -50,7 +49,6 @@ except AttributeError:  # pragma: NO COVER
 from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import prediction_service
-from google.cloud.aiplatform_v1.types import types
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -779,96 +777,6 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = self._transport._wrapped_methods[self._transport.raw_predict]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def server_streaming_predict(
-        self,
-        request: Optional[
-            Union[prediction_service.StreamingPredictRequest, dict]
-        ] = None,
-        *,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> Iterable[prediction_service.StreamingPredictResponse]:
-        r"""Perform a server-side streaming online prediction
-        request for Vertex LLM streaming.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1
-
-            def sample_server_streaming_predict():
-                # Create a client
-                client = aiplatform_v1.PredictionServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1.StreamingPredictRequest(
-                    endpoint="endpoint_value",
-                )
-
-                # Make the request
-                stream = client.server_streaming_predict(request=request)
-
-                # Handle the response
-                for response in stream:
-                    print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1.types.StreamingPredictRequest, dict]):
-                The request object. Request message for
-                [PredictionService.StreamingPredict][google.cloud.aiplatform.v1.PredictionService.StreamingPredict].
-
-                The first message must contain
-                [endpoint][google.cloud.aiplatform.v1.StreamingPredictRequest.endpoint]
-                field and optionally [input][]. The subsequent messages
-                must contain [input][].
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            Iterable[google.cloud.aiplatform_v1.types.StreamingPredictResponse]:
-                Response message for
-                   [PredictionService.StreamingPredict][google.cloud.aiplatform.v1.PredictionService.StreamingPredict].
-
-        """
-        # Create or coerce a protobuf request object.
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.StreamingPredictRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, prediction_service.StreamingPredictRequest):
-            request = prediction_service.StreamingPredictRequest(request)
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.server_streaming_predict]
 
         # Certain fields should be provided within the metadata header;
         # add these here.

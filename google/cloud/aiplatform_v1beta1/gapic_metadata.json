@@ -1924,11 +1924,6 @@
               "methods": [
                 "raw_predict"
               ]
-            },
-            "ServerStreamingPredict": {
-              "methods": [
-                "server_streaming_predict"
-              ]
             }
           }
         },
@@ -1948,11 +1943,6 @@
             "RawPredict": {
               "methods": [
                 "raw_predict"
-              ]
-            },
-            "ServerStreamingPredict": {
-              "methods": [
-                "server_streaming_predict"
               ]
             }
           }

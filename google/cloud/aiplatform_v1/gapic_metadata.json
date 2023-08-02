@@ -1806,11 +1806,6 @@
               "methods": [
                 "raw_predict"
               ]
-            },
-            "ServerStreamingPredict": {
-              "methods": [
-                "server_streaming_predict"
-              ]
             }
           }
         },
@@ -1830,95 +1825,6 @@
             "RawPredict": {
               "methods": [
                 "raw_predict"
-              ]
-            },
-            "ServerStreamingPredict": {
-              "methods": [
-                "server_streaming_predict"
-              ]
-            }
-          }
-        }
-      }
-    },
-    "ScheduleService": {
-      "clients": {
-        "grpc": {
-          "libraryClient": "ScheduleServiceClient",
-          "rpcs": {
-            "CreateSchedule": {
-              "methods": [
-                "create_schedule"
-              ]
-            },
-            "DeleteSchedule": {
-              "methods": [
-                "delete_schedule"
-              ]
-            },
-            "GetSchedule": {
-              "methods": [
-                "get_schedule"
-              ]
-            },
-            "ListSchedules": {
-              "methods": [
-                "list_schedules"
-              ]
-            },
-            "PauseSchedule": {
-              "methods": [
-                "pause_schedule"
-              ]
-            },
-            "ResumeSchedule": {
-              "methods": [
-                "resume_schedule"
-              ]
-            },
-            "UpdateSchedule": {
-              "methods": [
-                "update_schedule"
-              ]
-            }
-          }
-        },
-        "grpc-async": {
-          "libraryClient": "ScheduleServiceAsyncClient",
-          "rpcs": {
-            "CreateSchedule": {
-              "methods": [
-                "create_schedule"
-              ]
-            },
-            "DeleteSchedule": {
-              "methods": [
-                "delete_schedule"
-              ]
-            },
-            "GetSchedule": {
-              "methods": [
-                "get_schedule"
-              ]
-            },
-            "ListSchedules": {
-              "methods": [
-                "list_schedules"
-              ]
-            },
-            "PauseSchedule": {
-              "methods": [
-                "pause_schedule"
-              ]
-            },
-            "ResumeSchedule": {
-              "methods": [
-                "resume_schedule"
-              ]
-            },
-            "UpdateSchedule": {
-              "methods": [
-                "update_schedule"
               ]
             }
           }
