@@ -88,9 +88,9 @@ s.remove_staging_dirs()
 # only run post processor when there are changes to the generated code
 # if has_generator_updates:
 
-# ----------------------------------------------------------------------------
-# Add templated files
-# ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
+    # Add templated files
+    # ----------------------------------------------------------------------------
 
 templated_files = common.py_library(
     cov_level=98,
