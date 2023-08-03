@@ -255,7 +255,6 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
 
         instance = {
             "image": {"bytesBase64Encoded": image._as_base64_string()},
-            "features": [{"type": "IMAGE_EMBEDDING"}],
         }
 
         if contextual_text:
