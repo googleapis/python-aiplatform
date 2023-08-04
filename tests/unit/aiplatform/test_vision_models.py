@@ -264,3 +264,33 @@ class TestMultiModalEmbeddingModels:
 
         assert embedding_response.image_embedding == test_embeddings
         assert embedding_response.text_embedding == test_embeddings
+
+    def test_image_embedding_model_with_only_text(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = vision_models.MultiModalEmbeddingModel.from_pretrained(
+                "multimodalembedding@001"
+            )
+
+        test_embeddings = [0, 0]
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append({"textEmbedding": test_embeddings})
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            embedding_response = model.get_embeddings(contextual_text="hello world")
+
+        assert not embedding_response.image_embedding
+        assert embedding_response.text_embedding == test_embeddings
