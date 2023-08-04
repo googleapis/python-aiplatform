@@ -29,7 +29,7 @@ from typing import (
     cast,
 )
 
-from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
@@ -48,9 +48,9 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
-from google.cloud.aiplatform_v1beta1.types import migratable_resource
-from google.cloud.aiplatform_v1beta1.types import migration_service
+from google.cloud.aiplatform_v1.services.migration_service import pagers
+from google.cloud.aiplatform_v1.types import migratable_resource
+from google.cloud.aiplatform_v1.types import migration_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -201,28 +201,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         """Parses a annotated_dataset path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)/annotatedDatasets/(?P<annotated_dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -601,14 +579,14 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             # - It may require specifying regional endpoints when creating the service
             #   client as shown in:
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
+            from google.cloud import aiplatform_v1
 
             def sample_search_migratable_resources():
                 # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
+                client = aiplatform_v1.MigrationServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.SearchMigratableResourcesRequest(
+                request = aiplatform_v1.SearchMigratableResourcesRequest(
                     parent="parent_value",
                 )
 
@@ -620,9 +598,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1.types.SearchMigratableResourcesRequest, dict]):
                 The request object. Request message for
-                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
+                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
             parent (str):
                 Required. The location that the migratable resources
                 should be searched from. It's the Vertex AI location
@@ -640,9 +618,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            google.cloud.aiplatform_v1beta1.services.migration_service.pagers.SearchMigratableResourcesPager:
+            google.cloud.aiplatform_v1.services.migration_service.pagers.SearchMigratableResourcesPager:
                 Response message for
-                   [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
+                   [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -728,19 +706,19 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             # - It may require specifying regional endpoints when creating the service
             #   client as shown in:
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
+            from google.cloud import aiplatform_v1
 
             def sample_batch_migrate_resources():
                 # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
+                client = aiplatform_v1.MigrationServiceClient()
 
                 # Initialize request argument(s)
-                migrate_resource_requests = aiplatform_v1beta1.MigrateResourceRequest()
+                migrate_resource_requests = aiplatform_v1.MigrateResourceRequest()
                 migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
                 migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
                 migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
 
-                request = aiplatform_v1beta1.BatchMigrateResourcesRequest(
+                request = aiplatform_v1.BatchMigrateResourcesRequest(
                     parent="parent_value",
                     migrate_resource_requests=migrate_resource_requests,
                 )
@@ -756,9 +734,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1.types.BatchMigrateResourcesRequest, dict]):
                 The request object. Request message for
-                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
+                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
             parent (str):
                 Required. The location of the migrated resource will
                 live in. Format:
@@ -767,7 +745,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            migrate_resource_requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest]):
+            migrate_resource_requests (MutableSequence[google.cloud.aiplatform_v1.types.MigrateResourceRequest]):
                 Required. The request messages
                 specifying the resources to migrate.
                 They must be in the same location as the
@@ -787,8 +765,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesResponse` Response message for
-                   [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.BatchMigrateResourcesResponse` Response message for
+                   [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
 
         """
         # Create or coerce a protobuf request object.

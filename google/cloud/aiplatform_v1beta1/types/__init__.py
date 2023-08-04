@@ -1137,11 +1137,8 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
-<<<<<<< HEAD
     "StreamingPredictRequest",
     "StreamingPredictResponse",
-=======
->>>>>>> ff475130d9457640b94a1d834cfa2e03fdd89c5a
     "PublisherModel",
     "SavedQuery",
     "Schedule",

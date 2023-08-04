@@ -8,11 +8,7 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-<<<<<<< HEAD
-    "version": "0.1.0"
-=======
     "version": "1.29.0"
->>>>>>> ff475130d9457640b94a1d834cfa2e03fdd89c5a
   },
   "snippets": [
     {
@@ -28274,7 +28270,6 @@
       "clientMethod": {
         "async": true,
         "client": {
-<<<<<<< HEAD
           "fullName": "google.cloud.aiplatform_v1beta1.PredictionServiceAsyncClient",
           "shortName": "PredictionServiceAsyncClient"
         },
@@ -28428,8 +28423,6 @@
       "clientMethod": {
         "async": true,
         "client": {
-=======
->>>>>>> ff475130d9457640b94a1d834cfa2e03fdd89c5a
           "fullName": "google.cloud.aiplatform_v1beta1.ScheduleServiceAsyncClient",
           "shortName": "ScheduleServiceAsyncClient"
         },
