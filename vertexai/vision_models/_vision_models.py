@@ -234,28 +234,32 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
     )
 
     def get_embeddings(
-        self, image: Image, contextual_text: Optional[str] = None
+        self, image: Optional[Image] = None, contextual_text: Optional[str] = None
     ) -> "MultiModalEmbeddingResponse":
         """Gets embedding vectors from the provided image.
 
         Args:
             image (Image):
-                The image to generate embeddings for.
+                Optional. The image to generate embeddings for. One of `image` or `contextual_text` is required.
             contextual_text (str):
                 Optional. Contextual text for your input image. If provided, the model will also
                 generate an embedding vector for the provided contextual text. The returned image
                 and text embedding vectors are in the same semantic space with the same dimensionality,
                 and the vectors can be used interchangeably for use cases like searching image by text
-                or searching text by image.
+                or searching text by image. One of `image` or `contextual_text` is required.
 
         Returns:
             ImageEmbeddingResponse:
                 The image and text embedding vectors.
         """
 
-        instance = {
-            "image": {"bytesBase64Encoded": image._as_base64_string()},
-        }
+        if not image and not contextual_text:
+            raise ValueError("One of `image` or `contextual_text` is required.")
+
+        instance = {}
+
+        if image:
+            instance["image"] = {"bytesBase64Encoded": image._as_base64_string()}
 
         if contextual_text:
             instance["text"] = contextual_text
@@ -280,11 +284,11 @@ class MultiModalEmbeddingResponse:
 
     Attributes:
         image_embedding (List[float]):
-            The emebedding vector generated from your image.
+            Optional. The embedding vector generated from your image.
         text_embedding (List[float]):
             Optional. The embedding vector generated from the contextual text provided for your image.
     """
 
-    image_embedding: List[float]
     _prediction_response: Any
+    image_embedding: Optional[List[float]] = None
     text_embedding: Optional[List[float]] = None
