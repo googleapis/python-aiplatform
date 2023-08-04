@@ -2021,9 +2021,9 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "winkle",
+        "project": "nautilus",
         "location": "scallop",
-        "dataset": "nautilus",
+        "dataset": "abalone",
     }
     path = MigrationServiceClient.dataset_path(**expected)
 
@@ -2033,9 +2033,9 @@ def test_parse_dataset_path():
 
 
 def test_dataset_path():
-    project = "scallop"
-    location = "abalone"
-    dataset = "squid"
+    project = "squid"
+    location = "clam"
+    dataset = "whelk"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project,
         location=location,
