@@ -360,12 +360,14 @@ def make_pipeline_job(state):
             task_details=[
                 gca_pipeline_job.PipelineTaskDetail(
                     task_id=456,
-                    task_name="upload-llm-model",
+                    task_name="tune-large-model-20230724214903",
                     execution=GapicExecution(
-                        name="test-execution-name",
-                        display_name="evaluation_metrics",
+                        name="projects/123/locations/europe-west4/metadataStores/default/executions/...",
+                        display_name="tune-large-model-20230724214903",
+                        schema_title="system.Run",
                         metadata={
-                            "output:model_resource_name": "projects/123/locations/us-central1/models/456"
+                            "output:model_resource_name": "projects/123/locations/us-central1/models/456",
+                            "output:endpoint_resource_name": "projects/123/locations/us-central1/endpoints/456",
                         },
                     ),
                 ),
