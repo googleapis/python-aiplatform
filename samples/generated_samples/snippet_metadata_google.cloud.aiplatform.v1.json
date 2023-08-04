@@ -26789,6 +26789,1298 @@
       "clientMethod": {
         "async": true,
         "client": {
+          "fullName": "google.cloud.aiplatform_v1.PredictionServiceAsyncClient",
+          "shortName": "PredictionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PredictionServiceAsyncClient.server_streaming_predict",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PredictionService.ServerStreamingPredict",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PredictionService",
+            "shortName": "PredictionService"
+          },
+          "shortName": "ServerStreamingPredict"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.StreamingPredictRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "Iterable[google.cloud.aiplatform_v1.types.StreamingPredictResponse]",
+        "shortName": "server_streaming_predict"
+      },
+      "description": "Sample for ServerStreamingPredict",
+      "file": "aiplatform_v1_generated_prediction_service_server_streaming_predict_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PredictionService_ServerStreamingPredict_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_prediction_service_server_streaming_predict_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PredictionServiceClient",
+          "shortName": "PredictionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PredictionServiceClient.server_streaming_predict",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PredictionService.ServerStreamingPredict",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PredictionService",
+            "shortName": "PredictionService"
+          },
+          "shortName": "ServerStreamingPredict"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.StreamingPredictRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "Iterable[google.cloud.aiplatform_v1.types.StreamingPredictResponse]",
+        "shortName": "server_streaming_predict"
+      },
+      "description": "Sample for ServerStreamingPredict",
+      "file": "aiplatform_v1_generated_prediction_service_server_streaming_predict_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PredictionService_ServerStreamingPredict_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_prediction_service_server_streaming_predict_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient.create_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.CreateSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "CreateSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.CreateScheduleRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "schedule",
+            "type": "google.cloud.aiplatform_v1.types.Schedule"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.Schedule",
+        "shortName": "create_schedule"
+      },
+      "description": "Sample for CreateSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_create_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_CreateSchedule_async",
+      "segments": [
+        {
+          "end": 58,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 58,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 55,
+          "start": 53,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 59,
+          "start": 56,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_create_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient.create_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.CreateSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "CreateSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.CreateScheduleRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "schedule",
+            "type": "google.cloud.aiplatform_v1.types.Schedule"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.Schedule",
+        "shortName": "create_schedule"
+      },
+      "description": "Sample for CreateSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_create_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_CreateSchedule_sync",
+      "segments": [
+        {
+          "end": 58,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 58,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 55,
+          "start": 53,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 59,
+          "start": 56,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_create_schedule_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient.delete_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.DeleteSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "DeleteSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeleteScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_schedule"
+      },
+      "description": "Sample for DeleteSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_delete_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_DeleteSchedule_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_delete_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient.delete_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.DeleteSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "DeleteSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeleteScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_schedule"
+      },
+      "description": "Sample for DeleteSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_delete_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_DeleteSchedule_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_delete_schedule_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient.get_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.GetSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "GetSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.Schedule",
+        "shortName": "get_schedule"
+      },
+      "description": "Sample for GetSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_get_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_GetSchedule_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_get_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient.get_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.GetSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "GetSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.Schedule",
+        "shortName": "get_schedule"
+      },
+      "description": "Sample for GetSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_get_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_GetSchedule_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_get_schedule_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient.list_schedules",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.ListSchedules",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "ListSchedules"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListSchedulesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.schedule_service.pagers.ListSchedulesAsyncPager",
+        "shortName": "list_schedules"
+      },
+      "description": "Sample for ListSchedules",
+      "file": "aiplatform_v1_generated_schedule_service_list_schedules_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_ListSchedules_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_list_schedules_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient.list_schedules",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.ListSchedules",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "ListSchedules"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListSchedulesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.schedule_service.pagers.ListSchedulesPager",
+        "shortName": "list_schedules"
+      },
+      "description": "Sample for ListSchedules",
+      "file": "aiplatform_v1_generated_schedule_service_list_schedules_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_ListSchedules_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_list_schedules_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient.pause_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.PauseSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "PauseSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.PauseScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "shortName": "pause_schedule"
+      },
+      "description": "Sample for PauseSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_pause_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_PauseSchedule_async",
+      "segments": [
+        {
+          "end": 49,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 49,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_pause_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient.pause_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.PauseSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "PauseSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.PauseScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "shortName": "pause_schedule"
+      },
+      "description": "Sample for PauseSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_pause_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_PauseSchedule_sync",
+      "segments": [
+        {
+          "end": 49,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 49,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_pause_schedule_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient.resume_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.ResumeSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "ResumeSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ResumeScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "catch_up",
+            "type": "bool"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "shortName": "resume_schedule"
+      },
+      "description": "Sample for ResumeSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_resume_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_ResumeSchedule_async",
+      "segments": [
+        {
+          "end": 49,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 49,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_resume_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient.resume_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.ResumeSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "ResumeSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ResumeScheduleRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "catch_up",
+            "type": "bool"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "shortName": "resume_schedule"
+      },
+      "description": "Sample for ResumeSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_resume_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_ResumeSchedule_sync",
+      "segments": [
+        {
+          "end": 49,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 49,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_resume_schedule_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient",
+          "shortName": "ScheduleServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceAsyncClient.update_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.UpdateSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "UpdateSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.UpdateScheduleRequest"
+          },
+          {
+            "name": "schedule",
+            "type": "google.cloud.aiplatform_v1.types.Schedule"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.Schedule",
+        "shortName": "update_schedule"
+      },
+      "description": "Sample for UpdateSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_update_schedule_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_UpdateSchedule_async",
+      "segments": [
+        {
+          "end": 57,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 57,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 54,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 58,
+          "start": 55,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_update_schedule_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient",
+          "shortName": "ScheduleServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.ScheduleServiceClient.update_schedule",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.ScheduleService.UpdateSchedule",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.ScheduleService",
+            "shortName": "ScheduleService"
+          },
+          "shortName": "UpdateSchedule"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.UpdateScheduleRequest"
+          },
+          {
+            "name": "schedule",
+            "type": "google.cloud.aiplatform_v1.types.Schedule"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.Schedule",
+        "shortName": "update_schedule"
+      },
+      "description": "Sample for UpdateSchedule",
+      "file": "aiplatform_v1_generated_schedule_service_update_schedule_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_ScheduleService_UpdateSchedule_sync",
+      "segments": [
+        {
+          "end": 57,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 57,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 54,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 58,
+          "start": 55,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_schedule_service_update_schedule_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
           "fullName": "google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient",
           "shortName": "SpecialistPoolServiceAsyncClient"
         },
