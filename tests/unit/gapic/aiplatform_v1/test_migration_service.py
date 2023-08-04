@@ -41,16 +41,14 @@ from google.api_core import operations_v1
 from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1beta1.services.migration_service import (
+from google.cloud.aiplatform_v1.services.migration_service import (
     MigrationServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.migration_service import (
-    MigrationServiceClient,
-)
-from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
-from google.cloud.aiplatform_v1beta1.services.migration_service import transports
-from google.cloud.aiplatform_v1beta1.types import migratable_resource
-from google.cloud.aiplatform_v1beta1.types import migration_service
+from google.cloud.aiplatform_v1.services.migration_service import MigrationServiceClient
+from google.cloud.aiplatform_v1.services.migration_service import pagers
+from google.cloud.aiplatform_v1.services.migration_service import transports
+from google.cloud.aiplatform_v1.types import migratable_resource
+from google.cloud.aiplatform_v1.types import migration_service
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -623,7 +621,7 @@ def test_migration_service_client_client_options_credentials_file(
 
 def test_migration_service_client_client_options_from_dict():
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.migration_service.transports.MigrationServiceGrpcTransport.__init__"
+        "google.cloud.aiplatform_v1.services.migration_service.transports.MigrationServiceGrpcTransport.__init__"
     ) as grpc_transport:
         grpc_transport.return_value = None
         client = MigrationServiceClient(
@@ -1572,7 +1570,7 @@ def test_migration_service_base_transport_error():
 def test_migration_service_base_transport():
     # Instantiate the base transport.
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.migration_service.transports.MigrationServiceTransport.__init__"
+        "google.cloud.aiplatform_v1.services.migration_service.transports.MigrationServiceTransport.__init__"
     ) as Transport:
         Transport.return_value = None
         transport = transports.MigrationServiceTransport(
@@ -1621,7 +1619,7 @@ def test_migration_service_base_transport_with_credentials_file():
     with mock.patch.object(
         google.auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.migration_service.transports.MigrationServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1.services.migration_service.transports.MigrationServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
@@ -1640,7 +1638,7 @@ def test_migration_service_base_transport_with_credentials_file():
 def test_migration_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
     with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.migration_service.transports.MigrationServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1.services.migration_service.transports.MigrationServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
@@ -2057,18 +2055,21 @@ def test_parse_dataset_path():
 
 def test_dataset_path():
     project = "oyster"
+    location = "nudibranch"
     dataset = "cuttlefish"
-    expected = "projects/{project}/datasets/{dataset}".format(
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project,
+        location=location,
         dataset=dataset,
     )
-    actual = MigrationServiceClient.dataset_path(project, dataset)
+    actual = MigrationServiceClient.dataset_path(project, location, dataset)
     assert expected == actual
 
 
 def test_parse_dataset_path():
     expected = {
         "project": "mussel",
+        "location": "winkle",
         "dataset": "nautilus",
     }
     path = MigrationServiceClient.dataset_path(**expected)
