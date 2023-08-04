@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -40,7 +44,7 @@ class AvroSource(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_source = proto.Field(
+    gcs_source: "GcsSource" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="GcsSource",
@@ -55,7 +59,7 @@ class CsvSource(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_source = proto.Field(
+    gcs_source: "GcsSource" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="GcsSource",
@@ -66,14 +70,14 @@ class GcsSource(proto.Message):
     r"""The Google Cloud Storage location for the input content.
 
     Attributes:
-        uris (Sequence[str]):
+        uris (MutableSequence[str]):
             Required. Google Cloud Storage URI(-s) to the
             input file(s). May contain wildcards. For more
             information on wildcards, see
             https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
     """
 
-    uris = proto.RepeatedField(
+    uris: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=1,
     )
@@ -86,12 +90,12 @@ class GcsDestination(proto.Message):
     Attributes:
         output_uri_prefix (str):
             Required. Google Cloud Storage URI to output
-            directory. If the uri doesn't end with '/', a
-            '/' will be automatically appended. The
+            directory. If the uri doesn't end with
+            '/', a '/' will be automatically appended. The
             directory is created if it doesn't exist.
     """
 
-    output_uri_prefix = proto.Field(
+    output_uri_prefix: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -109,7 +113,7 @@ class BigQuerySource(proto.Message):
                ``bq://projectId.bqDatasetId.bqTableId``.
     """
 
-    input_uri = proto.Field(
+    input_uri: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -134,7 +138,7 @@ class BigQueryDestination(proto.Message):
                ``bq://projectId.bqDatasetId.bqTableId``.
     """
 
-    output_uri = proto.Field(
+    output_uri: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -148,7 +152,7 @@ class CsvDestination(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_destination = proto.Field(
+    gcs_destination: "GcsDestination" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="GcsDestination",
@@ -163,7 +167,7 @@ class TFRecordDestination(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_destination = proto.Field(
+    gcs_destination: "GcsDestination" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="GcsDestination",
@@ -189,7 +193,7 @@ class ContainerRegistryDestination(proto.Message):
             default tag.
     """
 
-    output_uri = proto.Field(
+    output_uri: str = proto.Field(
         proto.STRING,
         number=1,
     )

@@ -43,13 +43,17 @@ from google.cloud.aiplatform.matching_engine import (
     MatchingEngineIndexEndpoint,
 )
 from google.cloud.aiplatform import metadata
+from google.cloud.aiplatform.tensorboard import uploader_tracker
 from google.cloud.aiplatform.models import Endpoint
+from google.cloud.aiplatform.models import PrivateEndpoint
 from google.cloud.aiplatform.models import Model
+from google.cloud.aiplatform.models import ModelRegistry
 from google.cloud.aiplatform.model_evaluation import ModelEvaluation
 from google.cloud.aiplatform.jobs import (
     BatchPredictionJob,
     CustomJob,
     HyperparameterTuningJob,
+    ModelDeploymentMonitoringJob,
 )
 from google.cloud.aiplatform.pipeline_jobs import PipelineJob
 from google.cloud.aiplatform.tensorboard import (
@@ -65,10 +69,13 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTabularTrainingJob,
     AutoMLForecastingTrainingJob,
     SequenceToSequencePlusForecastingTrainingJob,
+    TemporalFusionTransformerForecastingTrainingJob,
+    TimeSeriesDenseEncoderForecastingTrainingJob,
     AutoMLImageTrainingJob,
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
 )
+
 from google.cloud.aiplatform import helpers
 
 """
@@ -83,17 +90,30 @@ get_pipeline_df = metadata.metadata._LegacyExperimentService.get_pipeline_df
 
 log_params = metadata.metadata._experiment_tracker.log_params
 log_metrics = metadata.metadata._experiment_tracker.log_metrics
+log_classification_metrics = (
+    metadata.metadata._experiment_tracker.log_classification_metrics
+)
+log_model = metadata.metadata._experiment_tracker.log_model
 get_experiment_df = metadata.metadata._experiment_tracker.get_experiment_df
 start_run = metadata.metadata._experiment_tracker.start_run
+autolog = metadata.metadata._experiment_tracker.autolog
 start_execution = metadata.metadata._experiment_tracker.start_execution
 log = metadata.metadata._experiment_tracker.log
 log_time_series_metrics = metadata.metadata._experiment_tracker.log_time_series_metrics
 end_run = metadata.metadata._experiment_tracker.end_run
 
+upload_tb_log = uploader_tracker._tensorboard_tracker.upload_tb_log
+start_upload_tb_log = uploader_tracker._tensorboard_tracker.start_upload_tb_log
+end_upload_tb_log = uploader_tracker._tensorboard_tracker.end_upload_tb_log
+
+save_model = metadata._models.save_model
+get_experiment_model = metadata.schema.google.artifact_schema.ExperimentModel.get
+
 Experiment = metadata.experiment_resources.Experiment
 ExperimentRun = metadata.experiment_run_resource.ExperimentRun
 Artifact = metadata.artifact.Artifact
 Execution = metadata.execution.Execution
+Context = metadata.context.Context
 
 
 __all__ = (
@@ -106,11 +126,15 @@ __all__ = (
     "log",
     "log_params",
     "log_metrics",
+    "log_classification_metrics",
+    "log_model",
     "log_time_series_metrics",
     "get_experiment_df",
     "get_pipeline_df",
     "start_run",
     "start_execution",
+    "save_model",
+    "get_experiment_model",
     "Artifact",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
@@ -122,7 +146,12 @@ __all__ = (
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",
+    "EmailAlertConfig",
     "Endpoint",
+    "DriftDetectionConfig",
+    "ExplanationConfig",
+    "ObjectiveConfig",
+    "SkewDetectionConfig",
     "EntityType",
     "Execution",
     "Experiment",
@@ -134,15 +163,22 @@ __all__ = (
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",
+    "ModelRegistry",
     "ModelEvaluation",
+    "ModelDeploymentMonitoringJob",
     "PipelineJob",
+    "PrivateEndpoint",
+    "RandomSampleConfig",
     "SequenceToSequencePlusForecastingTrainingJob",
+    "ScheduleConfig",
     "TabularDataset",
     "Tensorboard",
     "TensorboardExperiment",
     "TensorboardRun",
     "TensorboardTimeSeries",
     "TextDataset",
+    "TemporalFusionTransformerForecastingTrainingJob",
     "TimeSeriesDataset",
+    "TimeSeriesDenseEncoderForecastingTrainingJob",
     "VideoDataset",
 )

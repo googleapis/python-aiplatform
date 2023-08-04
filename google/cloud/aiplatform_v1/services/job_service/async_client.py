@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,19 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
+
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
@@ -59,6 +70,8 @@ from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
 from google.cloud.aiplatform_v1.types import model_monitoring
+from google.cloud.aiplatform_v1.types import nas_job
+from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import study
 from google.cloud.aiplatform_v1.types import unmanaged_container_model
@@ -90,6 +103,8 @@ class JobServiceAsyncClient:
     parse_batch_prediction_job_path = staticmethod(
         JobServiceClient.parse_batch_prediction_job_path
     )
+    context_path = staticmethod(JobServiceClient.context_path)
+    parse_context_path = staticmethod(JobServiceClient.parse_context_path)
     custom_job_path = staticmethod(JobServiceClient.custom_job_path)
     parse_custom_job_path = staticmethod(JobServiceClient.parse_custom_job_path)
     data_labeling_job_path = staticmethod(JobServiceClient.data_labeling_job_path)
@@ -113,6 +128,12 @@ class JobServiceAsyncClient:
     )
     parse_model_deployment_monitoring_job_path = staticmethod(
         JobServiceClient.parse_model_deployment_monitoring_job_path
+    )
+    nas_job_path = staticmethod(JobServiceClient.nas_job_path)
+    parse_nas_job_path = staticmethod(JobServiceClient.parse_nas_job_path)
+    nas_trial_detail_path = staticmethod(JobServiceClient.nas_trial_detail_path)
+    parse_nas_trial_detail_path = staticmethod(
+        JobServiceClient.parse_nas_trial_detail_path
     )
     network_path = staticmethod(JobServiceClient.network_path)
     parse_network_path = staticmethod(JobServiceClient.parse_network_path)
@@ -188,7 +209,7 @@ class JobServiceAsyncClient:
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -224,9 +245,9 @@ class JobServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, JobServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the job service client.
@@ -270,12 +291,12 @@ class JobServiceAsyncClient:
 
     async def create_custom_job(
         self,
-        request: Union[job_service.CreateCustomJobRequest, dict] = None,
+        request: Optional[Union[job_service.CreateCustomJobRequest, dict]] = None,
         *,
-        parent: str = None,
-        custom_job: gca_custom_job.CustomJob = None,
+        parent: Optional[str] = None,
+        custom_job: Optional[gca_custom_job.CustomJob] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_custom_job.CustomJob:
         r"""Creates a CustomJob. A created CustomJob right away
@@ -283,6 +304,13 @@ class JobServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_create_custom_job():
@@ -306,7 +334,7 @@ class JobServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateCustomJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateCustomJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.CreateCustomJob][google.cloud.aiplatform.v1.JobService.CreateCustomJob].
             parent (:class:`str`):
@@ -386,17 +414,24 @@ class JobServiceAsyncClient:
 
     async def get_custom_job(
         self,
-        request: Union[job_service.GetCustomJobRequest, dict] = None,
+        request: Optional[Union[job_service.GetCustomJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> custom_job.CustomJob:
         r"""Gets a CustomJob.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_get_custom_job():
@@ -415,7 +450,7 @@ class JobServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetCustomJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetCustomJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.GetCustomJob][google.cloud.aiplatform.v1.JobService.GetCustomJob].
             name (:class:`str`):
@@ -487,17 +522,24 @@ class JobServiceAsyncClient:
 
     async def list_custom_jobs(
         self,
-        request: Union[job_service.ListCustomJobsRequest, dict] = None,
+        request: Optional[Union[job_service.ListCustomJobsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListCustomJobsAsyncPager:
         r"""Lists CustomJobs in a Location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_list_custom_jobs():
@@ -517,7 +559,7 @@ class JobServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListCustomJobsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListCustomJobsRequest, dict]]):
                 The request object. Request message for
                 [JobService.ListCustomJobs][google.cloud.aiplatform.v1.JobService.ListCustomJobs].
             parent (:class:`str`):
@@ -537,7 +579,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.job_service.pagers.ListCustomJobsAsyncPager:
                 Response message for
-                [JobService.ListCustomJobs][google.cloud.aiplatform.v1.JobService.ListCustomJobs]
+                   [JobService.ListCustomJobs][google.cloud.aiplatform.v1.JobService.ListCustomJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -596,17 +638,24 @@ class JobServiceAsyncClient:
 
     async def delete_custom_job(
         self,
-        request: Union[job_service.DeleteCustomJobRequest, dict] = None,
+        request: Optional[Union[job_service.DeleteCustomJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a CustomJob.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_delete_custom_job():
@@ -623,13 +672,13 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteCustomJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteCustomJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.DeleteCustomJob][google.cloud.aiplatform.v1.JobService.DeleteCustomJob].
             name (:class:`str`):
@@ -660,9 +709,6 @@ class JobServiceAsyncClient:
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -717,11 +763,11 @@ class JobServiceAsyncClient:
 
     async def cancel_custom_job(
         self,
-        request: Union[job_service.CancelCustomJobRequest, dict] = None,
+        request: Optional[Union[job_service.CancelCustomJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a CustomJob. Starts asynchronous cancellation on the
@@ -740,6 +786,13 @@ class JobServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_cancel_custom_job():
@@ -755,7 +808,7 @@ class JobServiceAsyncClient:
                 await client.cancel_custom_job(request=request)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CancelCustomJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CancelCustomJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.CancelCustomJob][google.cloud.aiplatform.v1.JobService.CancelCustomJob].
             name (:class:`str`):
@@ -812,18 +865,25 @@ class JobServiceAsyncClient:
 
     async def create_data_labeling_job(
         self,
-        request: Union[job_service.CreateDataLabelingJobRequest, dict] = None,
+        request: Optional[Union[job_service.CreateDataLabelingJobRequest, dict]] = None,
         *,
-        parent: str = None,
-        data_labeling_job: gca_data_labeling_job.DataLabelingJob = None,
+        parent: Optional[str] = None,
+        data_labeling_job: Optional[gca_data_labeling_job.DataLabelingJob] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_data_labeling_job.DataLabelingJob:
         r"""Creates a DataLabelingJob.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_create_data_labeling_job():
@@ -833,7 +893,7 @@ class JobServiceAsyncClient:
                 # Initialize request argument(s)
                 data_labeling_job = aiplatform_v1.DataLabelingJob()
                 data_labeling_job.display_name = "display_name_value"
-                data_labeling_job.datasets = ['datasets_value_1', 'datasets_value_2']
+                data_labeling_job.datasets = ['datasets_value1', 'datasets_value2']
                 data_labeling_job.labeler_count = 1375
                 data_labeling_job.instruction_uri = "instruction_uri_value"
                 data_labeling_job.inputs_schema_uri = "inputs_schema_uri_value"
@@ -851,7 +911,7 @@ class JobServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateDataLabelingJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateDataLabelingJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.CreateDataLabelingJob][google.cloud.aiplatform.v1.JobService.CreateDataLabelingJob].
             parent (:class:`str`):
@@ -927,17 +987,24 @@ class JobServiceAsyncClient:
 
     async def get_data_labeling_job(
         self,
-        request: Union[job_service.GetDataLabelingJobRequest, dict] = None,
+        request: Optional[Union[job_service.GetDataLabelingJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> data_labeling_job.DataLabelingJob:
         r"""Gets a DataLabelingJob.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_get_data_labeling_job():
@@ -956,7 +1023,7 @@ class JobServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetDataLabelingJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetDataLabelingJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.GetDataLabelingJob][google.cloud.aiplatform.v1.JobService.GetDataLabelingJob].
             name (:class:`str`):
@@ -1023,17 +1090,24 @@ class JobServiceAsyncClient:
 
     async def list_data_labeling_jobs(
         self,
-        request: Union[job_service.ListDataLabelingJobsRequest, dict] = None,
+        request: Optional[Union[job_service.ListDataLabelingJobsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDataLabelingJobsAsyncPager:
         r"""Lists DataLabelingJobs in a Location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_list_data_labeling_jobs():
@@ -1053,7 +1127,7 @@ class JobServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListDataLabelingJobsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListDataLabelingJobsRequest, dict]]):
                 The request object. Request message for
                 [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1.JobService.ListDataLabelingJobs].
             parent (:class:`str`):
@@ -1072,7 +1146,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.job_service.pagers.ListDataLabelingJobsAsyncPager:
                 Response message for
-                [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1.JobService.ListDataLabelingJobs].
+                   [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1.JobService.ListDataLabelingJobs].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1131,17 +1205,24 @@ class JobServiceAsyncClient:
 
     async def delete_data_labeling_job(
         self,
-        request: Union[job_service.DeleteDataLabelingJobRequest, dict] = None,
+        request: Optional[Union[job_service.DeleteDataLabelingJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a DataLabelingJob.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_delete_data_labeling_job():
@@ -1158,13 +1239,13 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteDataLabelingJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteDataLabelingJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.DeleteDataLabelingJob][google.cloud.aiplatform.v1.JobService.DeleteDataLabelingJob].
             name (:class:`str`):
@@ -1195,9 +1276,6 @@ class JobServiceAsyncClient:
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -1252,11 +1330,11 @@ class JobServiceAsyncClient:
 
     async def cancel_data_labeling_job(
         self,
-        request: Union[job_service.CancelDataLabelingJobRequest, dict] = None,
+        request: Optional[Union[job_service.CancelDataLabelingJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a DataLabelingJob. Success of cancellation is
@@ -1264,6 +1342,13 @@ class JobServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_cancel_data_labeling_job():
@@ -1279,7 +1364,7 @@ class JobServiceAsyncClient:
                 await client.cancel_data_labeling_job(request=request)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CancelDataLabelingJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CancelDataLabelingJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.CancelDataLabelingJob][google.cloud.aiplatform.v1.JobService.CancelDataLabelingJob].
             name (:class:`str`):
@@ -1336,18 +1421,29 @@ class JobServiceAsyncClient:
 
     async def create_hyperparameter_tuning_job(
         self,
-        request: Union[job_service.CreateHyperparameterTuningJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.CreateHyperparameterTuningJobRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        hyperparameter_tuning_job: gca_hyperparameter_tuning_job.HyperparameterTuningJob = None,
+        parent: Optional[str] = None,
+        hyperparameter_tuning_job: Optional[
+            gca_hyperparameter_tuning_job.HyperparameterTuningJob
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Creates a HyperparameterTuningJob
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_create_hyperparameter_tuning_job():
@@ -1378,7 +1474,7 @@ class JobServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateHyperparameterTuningJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateHyperparameterTuningJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.CreateHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.CreateHyperparameterTuningJob].
             parent (:class:`str`):
@@ -1456,17 +1552,26 @@ class JobServiceAsyncClient:
 
     async def get_hyperparameter_tuning_job(
         self,
-        request: Union[job_service.GetHyperparameterTuningJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.GetHyperparameterTuningJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Gets a HyperparameterTuningJob
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_get_hyperparameter_tuning_job():
@@ -1485,7 +1590,7 @@ class JobServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetHyperparameterTuningJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetHyperparameterTuningJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.GetHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.GetHyperparameterTuningJob].
             name (:class:`str`):
@@ -1554,17 +1659,26 @@ class JobServiceAsyncClient:
 
     async def list_hyperparameter_tuning_jobs(
         self,
-        request: Union[job_service.ListHyperparameterTuningJobsRequest, dict] = None,
+        request: Optional[
+            Union[job_service.ListHyperparameterTuningJobsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListHyperparameterTuningJobsAsyncPager:
         r"""Lists HyperparameterTuningJobs in a Location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_list_hyperparameter_tuning_jobs():
@@ -1584,7 +1698,7 @@ class JobServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListHyperparameterTuningJobsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListHyperparameterTuningJobsRequest, dict]]):
                 The request object. Request message for
                 [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1.JobService.ListHyperparameterTuningJobs].
             parent (:class:`str`):
@@ -1604,7 +1718,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.job_service.pagers.ListHyperparameterTuningJobsAsyncPager:
                 Response message for
-                [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1.JobService.ListHyperparameterTuningJobs]
+                   [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1.JobService.ListHyperparameterTuningJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1663,17 +1777,26 @@ class JobServiceAsyncClient:
 
     async def delete_hyperparameter_tuning_job(
         self,
-        request: Union[job_service.DeleteHyperparameterTuningJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.DeleteHyperparameterTuningJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a HyperparameterTuningJob.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_delete_hyperparameter_tuning_job():
@@ -1690,13 +1813,13 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteHyperparameterTuningJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteHyperparameterTuningJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.DeleteHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.DeleteHyperparameterTuningJob].
             name (:class:`str`):
@@ -1727,9 +1850,6 @@ class JobServiceAsyncClient:
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -1784,11 +1904,13 @@ class JobServiceAsyncClient:
 
     async def cancel_hyperparameter_tuning_job(
         self,
-        request: Union[job_service.CancelHyperparameterTuningJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.CancelHyperparameterTuningJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a HyperparameterTuningJob. Starts asynchronous
@@ -1808,6 +1930,13 @@ class JobServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_cancel_hyperparameter_tuning_job():
@@ -1823,7 +1952,7 @@ class JobServiceAsyncClient:
                 await client.cancel_hyperparameter_tuning_job(request=request)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CancelHyperparameterTuningJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CancelHyperparameterTuningJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.CancelHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.CancelHyperparameterTuningJob].
             name (:class:`str`):
@@ -1879,14 +2008,801 @@ class JobServiceAsyncClient:
             metadata=metadata,
         )
 
+    async def create_nas_job(
+        self,
+        request: Optional[Union[job_service.CreateNasJobRequest, dict]] = None,
+        *,
+        parent: Optional[str] = None,
+        nas_job: Optional[gca_nas_job.NasJob] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_nas_job.NasJob:
+        r"""Creates a NasJob
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_create_nas_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceAsyncClient()
+
+                # Initialize request argument(s)
+                nas_job = aiplatform_v1.NasJob()
+                nas_job.display_name = "display_name_value"
+                nas_job.nas_job_spec.multi_trial_algorithm_spec.search_trial_spec.search_trial_job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
+                nas_job.nas_job_spec.multi_trial_algorithm_spec.search_trial_spec.max_trial_count = 1609
+                nas_job.nas_job_spec.multi_trial_algorithm_spec.search_trial_spec.max_parallel_trial_count = 2549
+
+                request = aiplatform_v1.CreateNasJobRequest(
+                    parent="parent_value",
+                    nas_job=nas_job,
+                )
+
+                # Make the request
+                response = await client.create_nas_job(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateNasJobRequest, dict]]):
+                The request object. Request message for
+                [JobService.CreateNasJob][google.cloud.aiplatform.v1.JobService.CreateNasJob].
+            parent (:class:`str`):
+                Required. The resource name of the Location to create
+                the NasJob in. Format:
+                ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            nas_job (:class:`google.cloud.aiplatform_v1.types.NasJob`):
+                Required. The NasJob to create.
+                This corresponds to the ``nas_job`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.NasJob:
+                Represents a Neural Architecture
+                Search (NAS) job.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, nas_job])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = job_service.CreateNasJobRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+        if nas_job is not None:
+            request.nas_job = nas_job
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_nas_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_nas_job(
+        self,
+        request: Optional[Union[job_service.GetNasJobRequest, dict]] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> nas_job.NasJob:
+        r"""Gets a NasJob
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_get_nas_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetNasJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = await client.get_nas_job(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetNasJobRequest, dict]]):
+                The request object. Request message for
+                [JobService.GetNasJob][google.cloud.aiplatform.v1.JobService.GetNasJob].
+            name (:class:`str`):
+                Required. The name of the NasJob resource. Format:
+                ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.NasJob:
+                Represents a Neural Architecture
+                Search (NAS) job.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = job_service.GetNasJobRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_nas_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def list_nas_jobs(
+        self,
+        request: Optional[Union[job_service.ListNasJobsRequest, dict]] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListNasJobsAsyncPager:
+        r"""Lists NasJobs in a Location.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_list_nas_jobs():
+                # Create a client
+                client = aiplatform_v1.JobServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListNasJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_nas_jobs(request=request)
+
+                # Handle the response
+                async for response in page_result:
+                    print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListNasJobsRequest, dict]]):
+                The request object. Request message for
+                [JobService.ListNasJobs][google.cloud.aiplatform.v1.JobService.ListNasJobs].
+            parent (:class:`str`):
+                Required. The resource name of the Location to list the
+                NasJobs from. Format:
+                ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.services.job_service.pagers.ListNasJobsAsyncPager:
+                Response message for
+                   [JobService.ListNasJobs][google.cloud.aiplatform.v1.JobService.ListNasJobs]
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = job_service.ListNasJobsRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_nas_jobs,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__aiter__` convenience method.
+        response = pagers.ListNasJobsAsyncPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def delete_nas_job(
+        self,
+        request: Optional[Union[job_service.DeleteNasJobRequest, dict]] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Deletes a NasJob.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_delete_nas_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteNasJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_nas_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteNasJobRequest, dict]]):
+                The request object. Request message for
+                [JobService.DeleteNasJob][google.cloud.aiplatform.v1.JobService.DeleteNasJob].
+            name (:class:`str`):
+                Required. The name of the NasJob resource to be deleted.
+                Format:
+                ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = job_service.DeleteNasJobRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_nas_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def cancel_nas_job(
+        self,
+        request: Optional[Union[job_service.CancelNasJobRequest, dict]] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
+        r"""Cancels a NasJob. Starts asynchronous cancellation on the
+        NasJob. The server makes a best effort to cancel the job, but
+        success is not guaranteed. Clients can use
+        [JobService.GetNasJob][google.cloud.aiplatform.v1.JobService.GetNasJob]
+        or other methods to check whether the cancellation succeeded or
+        whether the job completed despite cancellation. On successful
+        cancellation, the NasJob is not deleted; instead it becomes a
+        job with a
+        [NasJob.error][google.cloud.aiplatform.v1.NasJob.error] value
+        with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+        corresponding to ``Code.CANCELLED``, and
+        [NasJob.state][google.cloud.aiplatform.v1.NasJob.state] is set
+        to ``CANCELLED``.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_cancel_nas_job():
+                # Create a client
+                client = aiplatform_v1.JobServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CancelNasJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                await client.cancel_nas_job(request=request)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CancelNasJobRequest, dict]]):
+                The request object. Request message for
+                [JobService.CancelNasJob][google.cloud.aiplatform.v1.JobService.CancelNasJob].
+            name (:class:`str`):
+                Required. The name of the NasJob to cancel. Format:
+                ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = job_service.CancelNasJobRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.cancel_nas_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+    async def get_nas_trial_detail(
+        self,
+        request: Optional[Union[job_service.GetNasTrialDetailRequest, dict]] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> nas_job.NasTrialDetail:
+        r"""Gets a NasTrialDetail.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_get_nas_trial_detail():
+                # Create a client
+                client = aiplatform_v1.JobServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetNasTrialDetailRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = await client.get_nas_trial_detail(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetNasTrialDetailRequest, dict]]):
+                The request object. Request message for
+                [JobService.GetNasTrialDetail][google.cloud.aiplatform.v1.JobService.GetNasTrialDetail].
+            name (:class:`str`):
+                Required. The name of the NasTrialDetail resource.
+                Format:
+                ``projects/{project}/locations/{location}/nasJobs/{nas_job}/nasTrialDetails/{nas_trial_detail}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.NasTrialDetail:
+                Represents a NasTrial details along
+                with its parameters. If there is a
+                corresponding train NasTrial, the train
+                NasTrial is also returned.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = job_service.GetNasTrialDetailRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_nas_trial_detail,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def list_nas_trial_details(
+        self,
+        request: Optional[Union[job_service.ListNasTrialDetailsRequest, dict]] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListNasTrialDetailsAsyncPager:
+        r"""List top NasTrialDetails of a NasJob.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_list_nas_trial_details():
+                # Create a client
+                client = aiplatform_v1.JobServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListNasTrialDetailsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_nas_trial_details(request=request)
+
+                # Handle the response
+                async for response in page_result:
+                    print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListNasTrialDetailsRequest, dict]]):
+                The request object. Request message for
+                [JobService.ListNasTrialDetails][google.cloud.aiplatform.v1.JobService.ListNasTrialDetails].
+            parent (:class:`str`):
+                Required. The name of the NasJob resource. Format:
+                ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.services.job_service.pagers.ListNasTrialDetailsAsyncPager:
+                Response message for
+                   [JobService.ListNasTrialDetails][google.cloud.aiplatform.v1.JobService.ListNasTrialDetails]
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = job_service.ListNasTrialDetailsRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_nas_trial_details,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__aiter__` convenience method.
+        response = pagers.ListNasTrialDetailsAsyncPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
     async def create_batch_prediction_job(
         self,
-        request: Union[job_service.CreateBatchPredictionJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.CreateBatchPredictionJobRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        batch_prediction_job: gca_batch_prediction_job.BatchPredictionJob = None,
+        parent: Optional[str] = None,
+        batch_prediction_job: Optional[
+            gca_batch_prediction_job.BatchPredictionJob
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_batch_prediction_job.BatchPredictionJob:
         r"""Creates a BatchPredictionJob. A BatchPredictionJob
@@ -1894,6 +2810,13 @@ class JobServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_create_batch_prediction_job():
@@ -1903,7 +2826,7 @@ class JobServiceAsyncClient:
                 # Initialize request argument(s)
                 batch_prediction_job = aiplatform_v1.BatchPredictionJob()
                 batch_prediction_job.display_name = "display_name_value"
-                batch_prediction_job.input_config.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+                batch_prediction_job.input_config.gcs_source.uris = ['uris_value1', 'uris_value2']
                 batch_prediction_job.input_config.instances_format = "instances_format_value"
                 batch_prediction_job.output_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
                 batch_prediction_job.output_config.predictions_format = "predictions_format_value"
@@ -1920,7 +2843,7 @@ class JobServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateBatchPredictionJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateBatchPredictionJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.CreateBatchPredictionJob][google.cloud.aiplatform.v1.JobService.CreateBatchPredictionJob].
             parent (:class:`str`):
@@ -1946,8 +2869,9 @@ class JobServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1.types.BatchPredictionJob:
-                A job that uses a [Model][google.cloud.aiplatform.v1.BatchPredictionJob.model] to produce predictions
-                   on multiple [input
+                A job that uses a
+                   [Model][google.cloud.aiplatform.v1.BatchPredictionJob.model]
+                   to produce predictions on multiple [input
                    instances][google.cloud.aiplatform.v1.BatchPredictionJob.input_config].
                    If predictions for significant portion of the
                    instances fail, the job may finish without attempting
@@ -2000,17 +2924,24 @@ class JobServiceAsyncClient:
 
     async def get_batch_prediction_job(
         self,
-        request: Union[job_service.GetBatchPredictionJobRequest, dict] = None,
+        request: Optional[Union[job_service.GetBatchPredictionJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> batch_prediction_job.BatchPredictionJob:
         r"""Gets a BatchPredictionJob
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_get_batch_prediction_job():
@@ -2029,7 +2960,7 @@ class JobServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetBatchPredictionJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetBatchPredictionJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.GetBatchPredictionJob][google.cloud.aiplatform.v1.JobService.GetBatchPredictionJob].
             name (:class:`str`):
@@ -2048,8 +2979,9 @@ class JobServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1.types.BatchPredictionJob:
-                A job that uses a [Model][google.cloud.aiplatform.v1.BatchPredictionJob.model] to produce predictions
-                   on multiple [input
+                A job that uses a
+                   [Model][google.cloud.aiplatform.v1.BatchPredictionJob.model]
+                   to produce predictions on multiple [input
                    instances][google.cloud.aiplatform.v1.BatchPredictionJob.input_config].
                    If predictions for significant portion of the
                    instances fail, the job may finish without attempting
@@ -2100,17 +3032,26 @@ class JobServiceAsyncClient:
 
     async def list_batch_prediction_jobs(
         self,
-        request: Union[job_service.ListBatchPredictionJobsRequest, dict] = None,
+        request: Optional[
+            Union[job_service.ListBatchPredictionJobsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListBatchPredictionJobsAsyncPager:
         r"""Lists BatchPredictionJobs in a Location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_list_batch_prediction_jobs():
@@ -2130,7 +3071,7 @@ class JobServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListBatchPredictionJobsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListBatchPredictionJobsRequest, dict]]):
                 The request object. Request message for
                 [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1.JobService.ListBatchPredictionJobs].
             parent (:class:`str`):
@@ -2150,7 +3091,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.job_service.pagers.ListBatchPredictionJobsAsyncPager:
                 Response message for
-                [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1.JobService.ListBatchPredictionJobs]
+                   [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1.JobService.ListBatchPredictionJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2209,11 +3150,13 @@ class JobServiceAsyncClient:
 
     async def delete_batch_prediction_job(
         self,
-        request: Union[job_service.DeleteBatchPredictionJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.DeleteBatchPredictionJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a BatchPredictionJob. Can only be called on
@@ -2221,6 +3164,13 @@ class JobServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_delete_batch_prediction_job():
@@ -2237,13 +3187,13 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteBatchPredictionJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteBatchPredictionJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.DeleteBatchPredictionJob][google.cloud.aiplatform.v1.JobService.DeleteBatchPredictionJob].
             name (:class:`str`):
@@ -2274,9 +3224,6 @@ class JobServiceAsyncClient:
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -2331,11 +3278,13 @@ class JobServiceAsyncClient:
 
     async def cancel_batch_prediction_job(
         self,
-        request: Union[job_service.CancelBatchPredictionJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.CancelBatchPredictionJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a BatchPredictionJob.
@@ -2353,6 +3302,13 @@ class JobServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_cancel_batch_prediction_job():
@@ -2368,7 +3324,7 @@ class JobServiceAsyncClient:
                 await client.cancel_batch_prediction_job(request=request)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CancelBatchPredictionJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CancelBatchPredictionJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.CancelBatchPredictionJob][google.cloud.aiplatform.v1.JobService.CancelBatchPredictionJob].
             name (:class:`str`):
@@ -2426,14 +3382,16 @@ class JobServiceAsyncClient:
 
     async def create_model_deployment_monitoring_job(
         self,
-        request: Union[
-            job_service.CreateModelDeploymentMonitoringJobRequest, dict
+        request: Optional[
+            Union[job_service.CreateModelDeploymentMonitoringJobRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = None,
+        parent: Optional[str] = None,
+        model_deployment_monitoring_job: Optional[
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         r"""Creates a ModelDeploymentMonitoringJob. It will run
@@ -2441,6 +3399,13 @@ class JobServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_create_model_deployment_monitoring_job():
@@ -2464,7 +3429,7 @@ class JobServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateModelDeploymentMonitoringJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateModelDeploymentMonitoringJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.CreateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.CreateModelDeploymentMonitoringJob].
             parent (:class:`str`):
@@ -2543,14 +3508,16 @@ class JobServiceAsyncClient:
 
     async def search_model_deployment_monitoring_stats_anomalies(
         self,
-        request: Union[
-            job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict
+        request: Optional[
+            Union[
+                job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict
+            ]
         ] = None,
         *,
-        model_deployment_monitoring_job: str = None,
-        deployed_model_id: str = None,
+        model_deployment_monitoring_job: Optional[str] = None,
+        deployed_model_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.SearchModelDeploymentMonitoringStatsAnomaliesAsyncPager:
         r"""Searches Model Monitoring Statistics generated within
@@ -2558,6 +3525,13 @@ class JobServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_search_model_deployment_monitoring_stats_anomalies():
@@ -2578,7 +3552,7 @@ class JobServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict]]):
                 The request object. Request message for
                 [JobService.SearchModelDeploymentMonitoringStatsAnomalies][google.cloud.aiplatform.v1.JobService.SearchModelDeploymentMonitoringStatsAnomalies].
             model_deployment_monitoring_job (:class:`str`):
@@ -2675,17 +3649,26 @@ class JobServiceAsyncClient:
 
     async def get_model_deployment_monitoring_job(
         self,
-        request: Union[job_service.GetModelDeploymentMonitoringJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.GetModelDeploymentMonitoringJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         r"""Gets a ModelDeploymentMonitoringJob.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_get_model_deployment_monitoring_job():
@@ -2704,7 +3687,7 @@ class JobServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetModelDeploymentMonitoringJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetModelDeploymentMonitoringJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.GetModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.GetModelDeploymentMonitoringJob].
             name (:class:`str`):
@@ -2774,19 +3757,26 @@ class JobServiceAsyncClient:
 
     async def list_model_deployment_monitoring_jobs(
         self,
-        request: Union[
-            job_service.ListModelDeploymentMonitoringJobsRequest, dict
+        request: Optional[
+            Union[job_service.ListModelDeploymentMonitoringJobsRequest, dict]
         ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelDeploymentMonitoringJobsAsyncPager:
         r"""Lists ModelDeploymentMonitoringJobs in a Location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_list_model_deployment_monitoring_jobs():
@@ -2806,7 +3796,7 @@ class JobServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListModelDeploymentMonitoringJobsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListModelDeploymentMonitoringJobsRequest, dict]]):
                 The request object. Request message for
                 [JobService.ListModelDeploymentMonitoringJobs][google.cloud.aiplatform.v1.JobService.ListModelDeploymentMonitoringJobs].
             parent (:class:`str`):
@@ -2885,20 +3875,29 @@ class JobServiceAsyncClient:
 
     async def update_model_deployment_monitoring_job(
         self,
-        request: Union[
-            job_service.UpdateModelDeploymentMonitoringJobRequest, dict
+        request: Optional[
+            Union[job_service.UpdateModelDeploymentMonitoringJobRequest, dict]
         ] = None,
         *,
-        model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        model_deployment_monitoring_job: Optional[
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+        ] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates a ModelDeploymentMonitoringJob.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_update_model_deployment_monitoring_job():
@@ -2919,13 +3918,13 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.UpdateModelDeploymentMonitoringJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateModelDeploymentMonitoringJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.UpdateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.UpdateModelDeploymentMonitoringJob].
             model_deployment_monitoring_job (:class:`google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob`):
@@ -3045,19 +4044,26 @@ class JobServiceAsyncClient:
 
     async def delete_model_deployment_monitoring_job(
         self,
-        request: Union[
-            job_service.DeleteModelDeploymentMonitoringJobRequest, dict
+        request: Optional[
+            Union[job_service.DeleteModelDeploymentMonitoringJobRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a ModelDeploymentMonitoringJob.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_delete_model_deployment_monitoring_job():
@@ -3074,13 +4080,13 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteModelDeploymentMonitoringJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteModelDeploymentMonitoringJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.DeleteModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.DeleteModelDeploymentMonitoringJob].
             name (:class:`str`):
@@ -3111,9 +4117,6 @@ class JobServiceAsyncClient:
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -3168,13 +4171,13 @@ class JobServiceAsyncClient:
 
     async def pause_model_deployment_monitoring_job(
         self,
-        request: Union[
-            job_service.PauseModelDeploymentMonitoringJobRequest, dict
+        request: Optional[
+            Union[job_service.PauseModelDeploymentMonitoringJobRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Pauses a ModelDeploymentMonitoringJob. If the job is running,
@@ -3184,6 +4187,13 @@ class JobServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_pause_model_deployment_monitoring_job():
@@ -3199,7 +4209,7 @@ class JobServiceAsyncClient:
                 await client.pause_model_deployment_monitoring_job(request=request)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.PauseModelDeploymentMonitoringJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.PauseModelDeploymentMonitoringJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.PauseModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.PauseModelDeploymentMonitoringJob].
             name (:class:`str`):
@@ -3257,13 +4267,13 @@ class JobServiceAsyncClient:
 
     async def resume_model_deployment_monitoring_job(
         self,
-        request: Union[
-            job_service.ResumeModelDeploymentMonitoringJobRequest, dict
+        request: Optional[
+            Union[job_service.ResumeModelDeploymentMonitoringJobRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Resumes a paused ModelDeploymentMonitoringJob. It
@@ -3272,6 +4282,13 @@ class JobServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_resume_model_deployment_monitoring_job():
@@ -3287,7 +4304,7 @@ class JobServiceAsyncClient:
                 await client.resume_model_deployment_monitoring_job(request=request)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ResumeModelDeploymentMonitoringJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ResumeModelDeploymentMonitoringJobRequest, dict]]):
                 The request object. Request message for
                 [JobService.ResumeModelDeploymentMonitoringJob][google.cloud.aiplatform.v1.JobService.ResumeModelDeploymentMonitoringJob].
             name (:class:`str`):
@@ -3345,10 +4362,10 @@ class JobServiceAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -3399,10 +4416,10 @@ class JobServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -3453,10 +4470,10 @@ class JobServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -3508,10 +4525,10 @@ class JobServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -3562,10 +4579,10 @@ class JobServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -3622,10 +4639,10 @@ class JobServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -3656,8 +4673,11 @@ class JobServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -3681,8 +4701,11 @@ class JobServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -3697,6 +4720,7 @@ class JobServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -3735,10 +4759,10 @@ class JobServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -3770,8 +4794,11 @@ class JobServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -3795,8 +4822,11 @@ class JobServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -3811,6 +4841,7 @@ class JobServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -3849,10 +4880,10 @@ class JobServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -3908,10 +4939,10 @@ class JobServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -3962,10 +4993,10 @@ class JobServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -4014,21 +5045,16 @@ class JobServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "JobServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         await self.transport.close()
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("JobServiceAsyncClient",)

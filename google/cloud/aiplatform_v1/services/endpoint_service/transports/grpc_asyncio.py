@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -100,17 +100,18 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
-        channel: aio.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-        quota_project_id=None,
+        channel: Optional[aio.Channel] = None,
+        api_mtls_endpoint: Optional[str] = None,
+        client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
+        client_cert_source_for_mtls: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
     ) -> None:
         """Instantiate the transport.
 
@@ -207,6 +208,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
             quota_project_id=quota_project_id,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            api_audience=api_audience,
         )
 
         if not self._grpc_channel:
@@ -452,6 +454,38 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["undeploy_model"]
+
+    @property
+    def mutate_deployed_model(
+        self,
+    ) -> Callable[
+        [endpoint_service.MutateDeployedModelRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the mutate deployed model method over gRPC.
+
+        Updates an existing deployed model. Updatable fields include
+        ``min_replica_count``, ``max_replica_count``,
+        ``autoscaling_metric_specs``, ``disable_container_logging`` (v1
+        only), and ``enable_container_logging`` (v1beta1 only).
+
+        Returns:
+            Callable[[~.MutateDeployedModelRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "mutate_deployed_model" not in self._stubs:
+            self._stubs["mutate_deployed_model"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.EndpointService/MutateDeployedModel",
+                request_serializer=endpoint_service.MutateDeployedModelRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["mutate_deployed_model"]
 
     def close(self):
         return self.grpc_channel.close()

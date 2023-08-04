@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import struct_pb2  # type: ignore
@@ -45,7 +49,7 @@ class Artifact(proto.Message):
             An eTag used to perform consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             organize your Artifacts.
             Label keys and values can be no longer than 64
@@ -85,67 +89,83 @@ class Artifact(proto.Message):
             metadata store.
         metadata (google.protobuf.struct_pb2.Struct):
             Properties of the Artifact.
-            The size of this field should not exceed 200KB.
+            Top level metadata keys' heading and trailing
+            spaces will be trimmed. The size of this field
+            should not exceed 200KB.
         description (str):
             Description of the Artifact
     """
 
     class State(proto.Enum):
-        r"""Describes the state of the Artifact."""
+        r"""Describes the state of the Artifact.
+
+        Values:
+            STATE_UNSPECIFIED (0):
+                Unspecified state for the Artifact.
+            PENDING (1):
+                A state used by systems like Vertex AI
+                Pipelines to indicate that the underlying data
+                item represented by this Artifact is being
+                created.
+            LIVE (2):
+                A state indicating that the Artifact should
+                exist, unless something external to the system
+                deletes it.
+        """
         STATE_UNSPECIFIED = 0
         PENDING = 1
         LIVE = 2
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    uri = proto.Field(
+    uri: str = proto.Field(
         proto.STRING,
         number=6,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=9,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=10,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=11,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=12,
         message=timestamp_pb2.Timestamp,
     )
-    state = proto.Field(
+    state: State = proto.Field(
         proto.ENUM,
         number=13,
         enum=State,
     )
-    schema_title = proto.Field(
+    schema_title: str = proto.Field(
         proto.STRING,
         number=14,
     )
-    schema_version = proto.Field(
+    schema_version: str = proto.Field(
         proto.STRING,
         number=15,
     )
-    metadata = proto.Field(
+    metadata: struct_pb2.Struct = proto.Field(
         proto.MESSAGE,
         number=16,
         message=struct_pb2.Struct,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=17,
     )

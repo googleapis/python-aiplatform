@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,20 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
+
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
@@ -75,7 +87,7 @@ class FeaturestoreServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[FeaturestoreServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -347,7 +359,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -402,8 +414,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, FeaturestoreServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, FeaturestoreServiceTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the featurestore service client.
@@ -417,7 +429,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             transport (Union[str, FeaturestoreServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -447,6 +459,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -494,17 +507,20 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
                 always_use_jwt_access=True,
+                api_audience=client_options.api_audience,
             )
 
     def create_featurestore(
         self,
-        request: Union[featurestore_service.CreateFeaturestoreRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.CreateFeaturestoreRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        featurestore: gca_featurestore.Featurestore = None,
-        featurestore_id: str = None,
+        parent: Optional[str] = None,
+        featurestore: Optional[gca_featurestore.Featurestore] = None,
+        featurestore_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates a new Featurestore in a given project and
@@ -512,6 +528,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_create_featurestore():
@@ -541,7 +564,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             parent (str):
                 Required. The resource name of the Location to create
                 Featurestores. Format:
-                ``projects/{project}/locations/{location}'``
+                ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -638,17 +661,26 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_featurestore(
         self,
-        request: Union[featurestore_service.GetFeaturestoreRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.GetFeaturestoreRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> featurestore.Featurestore:
         r"""Gets details of a single Featurestore.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_get_featurestore():
@@ -736,17 +768,26 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_featurestores(
         self,
-        request: Union[featurestore_service.ListFeaturestoresRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.ListFeaturestoresRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListFeaturestoresPager:
         r"""Lists Featurestores in a given project and location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_list_featurestores():
@@ -786,7 +827,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.featurestore_service.pagers.ListFeaturestoresPager:
                 Response message for
-                [FeaturestoreService.ListFeaturestores][google.cloud.aiplatform.v1.FeaturestoreService.ListFeaturestores].
+                   [FeaturestoreService.ListFeaturestores][google.cloud.aiplatform.v1.FeaturestoreService.ListFeaturestores].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -845,18 +886,27 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def update_featurestore(
         self,
-        request: Union[featurestore_service.UpdateFeaturestoreRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.UpdateFeaturestoreRequest, dict]
+        ] = None,
         *,
-        featurestore: gca_featurestore.Featurestore = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        featurestore: Optional[gca_featurestore.Featurestore] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Updates the parameters of a single Featurestore.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_update_featurestore():
@@ -904,6 +954,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 -  ``labels``
                 -  ``online_serving_config.fixed_node_count``
                 -  ``online_serving_config.scaling``
+                -  ``online_storage_ttl_days``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -980,12 +1031,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_featurestore(
         self,
-        request: Union[featurestore_service.DeleteFeaturestoreRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.DeleteFeaturestoreRequest, dict]
+        ] = None,
         *,
-        name: str = None,
-        force: bool = None,
+        name: Optional[str] = None,
+        force: Optional[bool] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a single Featurestore. The Featurestore must not contain
@@ -994,6 +1047,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_delete_featurestore():
@@ -1058,9 +1118,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -1116,19 +1173,28 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def create_entity_type(
         self,
-        request: Union[featurestore_service.CreateEntityTypeRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.CreateEntityTypeRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        entity_type: gca_entity_type.EntityType = None,
-        entity_type_id: str = None,
+        parent: Optional[str] = None,
+        entity_type: Optional[gca_entity_type.EntityType] = None,
+        entity_type_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates a new EntityType in a given Featurestore.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_create_entity_type():
@@ -1254,17 +1320,26 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_entity_type(
         self,
-        request: Union[featurestore_service.GetEntityTypeRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.GetEntityTypeRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> entity_type.EntityType:
         r"""Gets details of a single EntityType.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_get_entity_type():
@@ -1353,17 +1428,26 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_entity_types(
         self,
-        request: Union[featurestore_service.ListEntityTypesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.ListEntityTypesRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListEntityTypesPager:
         r"""Lists EntityTypes in a given Featurestore.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_list_entity_types():
@@ -1403,7 +1487,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.featurestore_service.pagers.ListEntityTypesPager:
                 Response message for
-                [FeaturestoreService.ListEntityTypes][google.cloud.aiplatform.v1.FeaturestoreService.ListEntityTypes].
+                   [FeaturestoreService.ListEntityTypes][google.cloud.aiplatform.v1.FeaturestoreService.ListEntityTypes].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1462,18 +1546,27 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def update_entity_type(
         self,
-        request: Union[featurestore_service.UpdateEntityTypeRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.UpdateEntityTypeRequest, dict]
+        ] = None,
         *,
-        entity_type: gca_entity_type.EntityType = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        entity_type: Optional[gca_entity_type.EntityType] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_entity_type.EntityType:
         r"""Updates the parameters of a single EntityType.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_update_entity_type():
@@ -1523,6 +1616,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
                 -  ``monitoring_config.numerical_threshold_config.value``
                 -  ``monitoring_config.categorical_threshold_config.value``
+                -  ``offline_storage_ttl_days``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1591,12 +1685,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_entity_type(
         self,
-        request: Union[featurestore_service.DeleteEntityTypeRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.DeleteEntityTypeRequest, dict]
+        ] = None,
         *,
-        name: str = None,
-        force: bool = None,
+        name: Optional[str] = None,
+        force: Optional[bool] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a single EntityType. The EntityType must not have any
@@ -1605,6 +1701,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_delete_entity_type():
@@ -1668,9 +1771,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -1726,19 +1826,28 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def create_feature(
         self,
-        request: Union[featurestore_service.CreateFeatureRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.CreateFeatureRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        feature: gca_feature.Feature = None,
-        feature_id: str = None,
+        parent: Optional[str] = None,
+        feature: Optional[gca_feature.Feature] = None,
+        feature_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates a new Feature in a given EntityType.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_create_feature():
@@ -1787,7 +1896,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 become the final component of the Feature's resource
                 name.
 
-                This value may be up to 60 characters, and valid
+                This value may be up to 128 characters, and valid
                 characters are ``[a-z0-9_]``. The first character cannot
                 be a number.
 
@@ -1867,18 +1976,29 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def batch_create_features(
         self,
-        request: Union[featurestore_service.BatchCreateFeaturesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.BatchCreateFeaturesRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        requests: Sequence[featurestore_service.CreateFeatureRequest] = None,
+        parent: Optional[str] = None,
+        requests: Optional[
+            MutableSequence[featurestore_service.CreateFeatureRequest]
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates a batch of Features in a given EntityType.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_batch_create_features():
@@ -1918,7 +2038,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            requests (Sequence[google.cloud.aiplatform_v1.types.CreateFeatureRequest]):
+            requests (MutableSequence[google.cloud.aiplatform_v1.types.CreateFeatureRequest]):
                 Required. The request message specifying the Features to
                 create. All Features must be created under the same
                 parent EntityType. The ``parent`` field in each child
@@ -1939,10 +2059,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.BatchCreateFeaturesResponse`
-                Response message for
-                [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeaturestoreService.BatchCreateFeatures].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.BatchCreateFeaturesResponse` Response message for
+                   [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeaturestoreService.BatchCreateFeatures].
 
         """
         # Create or coerce a protobuf request object.
@@ -1999,17 +2117,24 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_feature(
         self,
-        request: Union[featurestore_service.GetFeatureRequest, dict] = None,
+        request: Optional[Union[featurestore_service.GetFeatureRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> feature.Feature:
         r"""Gets details of a single Feature.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_get_feature():
@@ -2097,17 +2222,24 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_features(
         self,
-        request: Union[featurestore_service.ListFeaturesRequest, dict] = None,
+        request: Optional[Union[featurestore_service.ListFeaturesRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListFeaturesPager:
         r"""Lists Features in a given EntityType.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_list_features():
@@ -2147,7 +2279,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.featurestore_service.pagers.ListFeaturesPager:
                 Response message for
-                [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1.FeaturestoreService.ListFeatures].
+                   [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1.FeaturestoreService.ListFeatures].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2206,18 +2338,27 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def update_feature(
         self,
-        request: Union[featurestore_service.UpdateFeatureRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.UpdateFeatureRequest, dict]
+        ] = None,
         *,
-        feature: gca_feature.Feature = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        feature: Optional[gca_feature.Feature] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_feature.Feature:
         r"""Updates the parameters of a single Feature.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_update_feature():
@@ -2332,17 +2473,26 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_feature(
         self,
-        request: Union[featurestore_service.DeleteFeatureRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.DeleteFeatureRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a single Feature.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_delete_feature():
@@ -2397,9 +2547,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -2453,11 +2600,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def import_feature_values(
         self,
-        request: Union[featurestore_service.ImportFeatureValuesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.ImportFeatureValuesRequest, dict]
+        ] = None,
         *,
-        entity_type: str = None,
+        entity_type: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Imports Feature values into the Featurestore from a
@@ -2474,16 +2623,24 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         There are also scenarios where the caller can cause
         inconsistency.
          - Source data for import contains multiple distinct
-        Feature values for    the same entity ID and timestamp.
+          Feature values for    the same entity ID and
+          timestamp.
          - Source is modified during an import. This includes
-        adding, updating, or  removing source data and/or
-        metadata. Examples of updating metadata  include but are
-        not limited to changing storage location, storage class,
-        or retention policy.
+          adding, updating, or  removing source data and/or
+          metadata. Examples of updating metadata  include but
+          are not limited to changing storage location, storage
+          class,  or retention policy.
          - Online serving cluster is under-provisioned.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_import_feature_values():
@@ -2492,7 +2649,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                 # Initialize request argument(s)
                 avro_source = aiplatform_v1.AvroSource()
-                avro_source.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+                avro_source.gcs_source.uris = ['uris_value1', 'uris_value2']
 
                 feature_specs = aiplatform_v1.FeatureSpec()
                 feature_specs.id = "id_value"
@@ -2537,10 +2694,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.ImportFeatureValuesResponse`
-                Response message for
-                [FeaturestoreService.ImportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ImportFeatureValues].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.ImportFeatureValuesResponse` Response message for
+                   [FeaturestoreService.ImportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ImportFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -2597,11 +2752,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def batch_read_feature_values(
         self,
-        request: Union[featurestore_service.BatchReadFeatureValuesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.BatchReadFeatureValuesRequest, dict]
+        ] = None,
         *,
-        featurestore: str = None,
+        featurestore: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Batch reads Feature values from a Featurestore.
@@ -2613,6 +2770,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_batch_read_feature_values():
@@ -2621,14 +2785,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                 # Initialize request argument(s)
                 csv_read_instances = aiplatform_v1.CsvSource()
-                csv_read_instances.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+                csv_read_instances.gcs_source.uris = ['uris_value1', 'uris_value2']
 
                 destination = aiplatform_v1.FeatureValueDestination()
                 destination.bigquery_destination.output_uri = "output_uri_value"
 
                 entity_type_specs = aiplatform_v1.EntityTypeSpec()
                 entity_type_specs.entity_type_id = "entity_type_id_value"
-                entity_type_specs.feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+                entity_type_specs.feature_selector.id_matcher.ids = ['ids_value1', 'ids_value2']
 
                 request = aiplatform_v1.BatchReadFeatureValuesRequest(
                     csv_read_instances=csv_read_instances,
@@ -2669,10 +2833,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.BatchReadFeatureValuesResponse`
-                Response message for
-                [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.BatchReadFeatureValues].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.BatchReadFeatureValuesResponse` Response message for
+                   [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.BatchReadFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -2731,11 +2893,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def export_feature_values(
         self,
-        request: Union[featurestore_service.ExportFeatureValuesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.ExportFeatureValuesRequest, dict]
+        ] = None,
         *,
-        entity_type: str = None,
+        entity_type: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Exports Feature values from all the entities of a
@@ -2743,6 +2907,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_export_feature_values():
@@ -2754,7 +2925,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 destination.bigquery_destination.output_uri = "output_uri_value"
 
                 feature_selector = aiplatform_v1.FeatureSelector()
-                feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+                feature_selector.id_matcher.ids = ['ids_value1', 'ids_value2']
 
                 request = aiplatform_v1.ExportFeatureValuesRequest(
                     entity_type="entity_type_value",
@@ -2794,10 +2965,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.ExportFeatureValuesResponse`
-                Response message for
-                [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ExportFeatureValues].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.ExportFeatureValuesResponse` Response message for
+                   [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ExportFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -2852,14 +3021,152 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
+    def delete_feature_values(
+        self,
+        request: Optional[
+            Union[featurestore_service.DeleteFeatureValuesRequest, dict]
+        ] = None,
+        *,
+        entity_type: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Delete Feature values from Featurestore.
+        The progress of the deletion is tracked by the returned
+        operation. The deleted feature values are guaranteed to
+        be invisible to subsequent read operations after the
+        operation is marked as successfully done.
+        If a delete feature values operation fails, the feature
+        values returned from reads and exports may be
+        inconsistent. If consistency is required, the caller
+        must retry the same delete request again and wait till
+        the new operation returned is marked as successfully
+        done.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_feature_values():
+                # Create a client
+                client = aiplatform_v1.FeaturestoreServiceClient()
+
+                # Initialize request argument(s)
+                select_entity = aiplatform_v1.SelectEntity()
+                select_entity.entity_id_selector.csv_source.gcs_source.uris = ['uris_value1', 'uris_value2']
+
+                request = aiplatform_v1.DeleteFeatureValuesRequest(
+                    select_entity=select_entity,
+                    entity_type="entity_type_value",
+                )
+
+                # Make the request
+                operation = client.delete_feature_values(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.DeleteFeatureValuesRequest, dict]):
+                The request object. Request message for
+                [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.DeleteFeatureValues].
+            entity_type (str):
+                Required. The resource name of the EntityType grouping
+                the Features for which values are being deleted from.
+                Format:
+                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``
+
+                This corresponds to the ``entity_type`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.DeleteFeatureValuesResponse` Response message for
+                   [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.DeleteFeatureValues].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([entity_type])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a featurestore_service.DeleteFeatureValuesRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, featurestore_service.DeleteFeatureValuesRequest):
+            request = featurestore_service.DeleteFeatureValuesRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if entity_type is not None:
+                request.entity_type = entity_type
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.delete_feature_values]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("entity_type", request.entity_type),)
+            ),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            featurestore_service.DeleteFeatureValuesResponse,
+            metadata_type=featurestore_service.DeleteFeatureValuesOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
     def search_features(
         self,
-        request: Union[featurestore_service.SearchFeaturesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.SearchFeaturesRequest, dict]
+        ] = None,
         *,
-        location: str = None,
-        query: str = None,
+        location: Optional[str] = None,
+        query: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.SearchFeaturesPager:
         r"""Searches Features matching a query in a given
@@ -2867,6 +3174,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_search_features():
@@ -2981,7 +3295,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.featurestore_service.pagers.SearchFeaturesPager:
                 Response message for
-                [FeaturestoreService.SearchFeatures][google.cloud.aiplatform.v1.FeaturestoreService.SearchFeatures].
+                   [FeaturestoreService.SearchFeatures][google.cloud.aiplatform.v1.FeaturestoreService.SearchFeatures].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -3040,7 +3354,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
-    def __enter__(self):
+    def __enter__(self) -> "FeaturestoreServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -3055,10 +3369,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -3109,10 +3423,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -3163,10 +3477,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -3218,10 +3532,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -3272,10 +3586,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -3332,10 +3646,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -3366,8 +3680,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -3391,8 +3708,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -3407,6 +3727,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -3445,10 +3766,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -3480,8 +3801,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -3505,8 +3829,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -3521,6 +3848,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -3559,10 +3887,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -3618,10 +3946,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -3672,10 +4000,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -3725,14 +4053,9 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         return response
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("FeaturestoreServiceClient",)

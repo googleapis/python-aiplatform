@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
+from google.cloud.aiplatform_v1beta1.types import saved_query
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -27,6 +32,7 @@ __protobuf__ = proto.module(
         "Dataset",
         "ImportDataConfig",
         "ExportDataConfig",
+        "ExportFractionSplit",
     },
 )
 
@@ -41,9 +47,9 @@ class Dataset(proto.Message):
         display_name (str):
             Required. The user-defined name of the
             Dataset. The name can be up to 128 characters
-            long and can be consist of any UTF-8 characters.
+            long and can consist of any UTF-8 characters.
         description (str):
-            Optional. The description of the Dataset.
+            The description of the Dataset.
         metadata_schema_uri (str):
             Required. Points to a YAML file stored on
             Google Cloud Storage describing additional
@@ -54,6 +60,9 @@ class Dataset(proto.Message):
         metadata (google.protobuf.struct_pb2.Value):
             Required. Additional information about the
             Dataset.
+        data_item_count (int):
+            Output only. The number of DataItems in this
+            Dataset. Only apply for non-structured Dataset.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Dataset was
             created.
@@ -64,7 +73,7 @@ class Dataset(proto.Message):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to organize your
             Datasets.
 
@@ -83,57 +92,84 @@ class Dataset(proto.Message):
                output only, its value is the
                [metadata_schema's][google.cloud.aiplatform.v1beta1.Dataset.metadata_schema_uri]
                title.
+        saved_queries (MutableSequence[google.cloud.aiplatform_v1beta1.types.SavedQuery]):
+            All SavedQueries belong to the Dataset will be returned in
+            List/Get Dataset response. The annotation_specs field will
+            not be populated except for UI cases which will only use
+            [annotation_spec_count][google.cloud.aiplatform.v1beta1.SavedQuery.annotation_spec_count].
+            In CreateDataset request, a SavedQuery is created together
+            if this field is set, up to one SavedQuery can be set in
+            CreateDatasetRequest. The SavedQuery should not contain any
+            AnnotationSpec.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Customer-managed encryption key spec for a
             Dataset. If set, this Dataset and all
             sub-resources of this Dataset will be secured by
             this key.
+        metadata_artifact (str):
+            Output only. The resource name of the Artifact that was
+            created in MetadataStore when creating the Dataset. The
+            Artifact resource name pattern is
+            ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=16,
     )
-    metadata_schema_uri = proto.Field(
+    metadata_schema_uri: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    metadata = proto.Field(
+    metadata: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=8,
         message=struct_pb2.Value,
     )
-    create_time = proto.Field(
+    data_item_count: int = proto.Field(
+        proto.INT64,
+        number=10,
+    )
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=5,
         message=timestamp_pb2.Timestamp,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=6,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=7,
     )
-    encryption_spec = proto.Field(
+    saved_queries: MutableSequence[saved_query.SavedQuery] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message=saved_query.SavedQuery,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
         number=11,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    metadata_artifact: str = proto.Field(
+        proto.STRING,
+        number=17,
     )
 
 
@@ -151,7 +187,7 @@ class ImportDataConfig(proto.Message):
             input content.
 
             This field is a member of `oneof`_ ``source``.
-        data_item_labels (Mapping[str, str]):
+        data_item_labels (MutableMapping[str, str]):
             Labels that will be applied to newly imported DataItems. If
             an identical DataItem as one being imported already exists
             in the Dataset, then these labels will be appended to these
@@ -166,6 +202,18 @@ class ImportDataConfig(proto.Message):
             labels specified inside index file referenced by
             [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
             e.g. jsonl file.
+        annotation_labels (MutableMapping[str, str]):
+            Labels that will be applied to newly imported Annotations.
+            If two Annotations are identical, one of them will be
+            deduped. Two Annotations are considered identical if their
+            [payload][google.cloud.aiplatform.v1beta1.Annotation.payload],
+            [payload_schema_uri][google.cloud.aiplatform.v1beta1.Annotation.payload_schema_uri]
+            and all of their
+            [labels][google.cloud.aiplatform.v1beta1.Annotation.labels]
+            are the same. These labels will be overridden by Annotation
+            labels specified inside index file referenced by
+            [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
+            e.g. jsonl file.
         import_schema_uri (str):
             Required. Points to a YAML file stored on Google Cloud
             Storage describing the import format. Validation will be
@@ -174,18 +222,23 @@ class ImportDataConfig(proto.Message):
             Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
     """
 
-    gcs_source = proto.Field(
+    gcs_source: io.GcsSource = proto.Field(
         proto.MESSAGE,
         number=1,
         oneof="source",
         message=io.GcsSource,
     )
-    data_item_labels = proto.MapField(
+    data_item_labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=2,
     )
-    import_schema_uri = proto.Field(
+    annotation_labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=3,
+    )
+    import_schema_uri: str = proto.Field(
         proto.STRING,
         number=4,
     )
@@ -213,23 +266,68 @@ class ExportDataConfig(proto.Message):
             describe the output format.
 
             This field is a member of `oneof`_ ``destination``.
+        fraction_split (google.cloud.aiplatform_v1beta1.types.ExportFractionSplit):
+            Split based on fractions defining the size of
+            each set.
+
+            This field is a member of `oneof`_ ``split``.
         annotations_filter (str):
-            A filter on Annotations of the Dataset. Only Annotations on
-            to-be-exported DataItems(specified by [data_items_filter][])
-            that match this filter will be exported. The filter syntax
-            is the same as in
+            An expression for filtering what part of the Dataset is to
+            be exported. Only Annotations that match this filter will be
+            exported. The filter syntax is the same as in
             [ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
     """
 
-    gcs_destination = proto.Field(
+    gcs_destination: io.GcsDestination = proto.Field(
         proto.MESSAGE,
         number=1,
         oneof="destination",
         message=io.GcsDestination,
     )
-    annotations_filter = proto.Field(
+    fraction_split: "ExportFractionSplit" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="split",
+        message="ExportFractionSplit",
+    )
+    annotations_filter: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class ExportFractionSplit(proto.Message):
+    r"""Assigns the input data to training, validation, and test sets as per
+    the given fractions. Any of ``training_fraction``,
+    ``validation_fraction`` and ``test_fraction`` may optionally be
+    provided, they must sum to up to 1. If the provided ones sum to less
+    than 1, the remainder is assigned to sets as decided by Vertex AI.
+    If none of the fractions are set, by default roughly 80% of data is
+    used for training, 10% for validation, and 10% for test.
+
+    Attributes:
+        training_fraction (float):
+            The fraction of the input data that is to be
+            used to train the Model.
+        validation_fraction (float):
+            The fraction of the input data that is to be
+            used to validate the Model.
+        test_fraction (float):
+            The fraction of the input data that is to be
+            used to evaluate the Model.
+    """
+
+    training_fraction: float = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
+    validation_fraction: float = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+    test_fraction: float = proto.Field(
+        proto.DOUBLE,
+        number=3,
     )
 
 

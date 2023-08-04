@@ -31,8 +31,11 @@ __protobuf__ = proto.module(
         "PersistentResource",
         "ResourcePool",
         "ResourceRuntimeSpec",
+<<<<<<< HEAD
         "RaySpec",
         "ResourceRuntime",
+=======
+>>>>>>> ff475130d9457640b94a1d834cfa2e03fdd89c5a
         "ServiceAccountSpec",
     },
 )
@@ -46,7 +49,11 @@ class PersistentResource(proto.Message):
 
     Attributes:
         name (str):
+<<<<<<< HEAD
             Immutable. Resource name of a
+=======
+            Output only. Resource name of a
+>>>>>>> ff475130d9457640b94a1d834cfa2e03fdd89c5a
             PersistentResource.
         display_name (str):
             Optional. The display name of the
@@ -106,9 +113,12 @@ class PersistentResource(proto.Message):
         resource_runtime_spec (google.cloud.aiplatform_v1beta1.types.ResourceRuntimeSpec):
             Optional. Persistent Resource runtime spec.
             Used for e.g. Ray cluster configuration.
+<<<<<<< HEAD
         resource_runtime (google.cloud.aiplatform_v1beta1.types.ResourceRuntime):
             Output only. Runtime information of the
             Persistent Resource.
+=======
+>>>>>>> ff475130d9457640b94a1d834cfa2e03fdd89c5a
         reserved_ip_ranges (MutableSequence[str]):
             Optional. A list of names for the reserved ip ranges under
             the VPC network that can be used for this persistent
@@ -203,11 +213,14 @@ class PersistentResource(proto.Message):
         number=13,
         message="ResourceRuntimeSpec",
     )
+<<<<<<< HEAD
     resource_runtime: "ResourceRuntime" = proto.Field(
         proto.MESSAGE,
         number=14,
         message="ResourceRuntime",
     )
+=======
+>>>>>>> ff475130d9457640b94a1d834cfa2e03fdd89c5a
     reserved_ip_ranges: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=15,
@@ -327,10 +340,13 @@ class ResourceRuntimeSpec(proto.Message):
         service_account_spec (google.cloud.aiplatform_v1beta1.types.ServiceAccountSpec):
             Optional. Configure the use of workload
             identity on the PersistentResource
+<<<<<<< HEAD
         ray_spec (google.cloud.aiplatform_v1beta1.types.RaySpec):
             Ray cluster configuration.
             Required when creating a dedicated RayCluster on
             the PersistentResource.
+=======
+>>>>>>> ff475130d9457640b94a1d834cfa2e03fdd89c5a
     """
 
     service_account_spec: "ServiceAccountSpec" = proto.Field(
@@ -338,6 +354,7 @@ class ResourceRuntimeSpec(proto.Message):
         number=2,
         message="ServiceAccountSpec",
     )
+<<<<<<< HEAD
     ray_spec: "RaySpec" = proto.Field(
         proto.MESSAGE,
         number=1,
@@ -384,6 +401,8 @@ class ResourceRuntime(proto.Message):
         proto.STRING,
         number=1,
     )
+=======
+>>>>>>> ff475130d9457640b94a1d834cfa2e03fdd89c5a
 
 
 class ServiceAccountSpec(proto.Message):

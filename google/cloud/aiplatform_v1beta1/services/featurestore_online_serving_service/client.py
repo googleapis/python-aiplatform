@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,21 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Iterable, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Iterable,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
+
+from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
@@ -67,7 +80,7 @@ class FeaturestoreOnlineServingServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[FeaturestoreOnlineServingServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -291,7 +304,7 @@ class FeaturestoreOnlineServingServiceClient(
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -346,8 +359,10 @@ class FeaturestoreOnlineServingServiceClient(
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, FeaturestoreOnlineServingServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[
+            Union[str, FeaturestoreOnlineServingServiceTransport]
+        ] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the featurestore online serving service client.
@@ -361,7 +376,7 @@ class FeaturestoreOnlineServingServiceClient(
             transport (Union[str, FeaturestoreOnlineServingServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -391,6 +406,7 @@ class FeaturestoreOnlineServingServiceClient(
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -438,17 +454,18 @@ class FeaturestoreOnlineServingServiceClient(
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
                 always_use_jwt_access=True,
+                api_audience=client_options.api_audience,
             )
 
     def read_feature_values(
         self,
-        request: Union[
-            featurestore_online_service.ReadFeatureValuesRequest, dict
+        request: Optional[
+            Union[featurestore_online_service.ReadFeatureValuesRequest, dict]
         ] = None,
         *,
-        entity_type: str = None,
+        entity_type: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> featurestore_online_service.ReadFeatureValuesResponse:
         r"""Reads Feature values of a specific entity of an
@@ -458,6 +475,13 @@ class FeaturestoreOnlineServingServiceClient(
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_read_feature_values():
@@ -466,7 +490,7 @@ class FeaturestoreOnlineServingServiceClient(
 
                 # Initialize request argument(s)
                 feature_selector = aiplatform_v1beta1.FeatureSelector()
-                feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+                feature_selector.id_matcher.ids = ['ids_value1', 'ids_value2']
 
                 request = aiplatform_v1beta1.ReadFeatureValuesRequest(
                     entity_type="entity_type_value",
@@ -504,7 +528,7 @@ class FeaturestoreOnlineServingServiceClient(
         Returns:
             google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse:
                 Response message for
-                [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
+                   [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -555,13 +579,13 @@ class FeaturestoreOnlineServingServiceClient(
 
     def streaming_read_feature_values(
         self,
-        request: Union[
-            featurestore_online_service.StreamingReadFeatureValuesRequest, dict
+        request: Optional[
+            Union[featurestore_online_service.StreamingReadFeatureValuesRequest, dict]
         ] = None,
         *,
-        entity_type: str = None,
+        entity_type: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> Iterable[featurestore_online_service.ReadFeatureValuesResponse]:
         r"""Reads Feature values for multiple entities. Depending
@@ -570,6 +594,13 @@ class FeaturestoreOnlineServingServiceClient(
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_streaming_read_feature_values():
@@ -578,11 +609,11 @@ class FeaturestoreOnlineServingServiceClient(
 
                 # Initialize request argument(s)
                 feature_selector = aiplatform_v1beta1.FeatureSelector()
-                feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+                feature_selector.id_matcher.ids = ['ids_value1', 'ids_value2']
 
                 request = aiplatform_v1beta1.StreamingReadFeatureValuesRequest(
                     entity_type="entity_type_value",
-                    entity_ids=['entity_ids_value_1', 'entity_ids_value_2'],
+                    entity_ids=['entity_ids_value1', 'entity_ids_value2'],
                     feature_selector=feature_selector,
                 )
 
@@ -617,7 +648,7 @@ class FeaturestoreOnlineServingServiceClient(
         Returns:
             Iterable[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse]:
                 Response message for
-                [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
+                   [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -670,7 +701,139 @@ class FeaturestoreOnlineServingServiceClient(
         # Done; return the response.
         return response
 
-    def __enter__(self):
+    def write_feature_values(
+        self,
+        request: Optional[
+            Union[featurestore_online_service.WriteFeatureValuesRequest, dict]
+        ] = None,
+        *,
+        entity_type: Optional[str] = None,
+        payloads: Optional[
+            MutableSequence[featurestore_online_service.WriteFeatureValuesPayload]
+        ] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> featurestore_online_service.WriteFeatureValuesResponse:
+        r"""Writes Feature values of one or more entities of an
+        EntityType.
+        The Feature values are merged into existing entities if
+        any. The Feature values to be written must have
+        timestamp within the online storage retention.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_write_feature_values():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreOnlineServingServiceClient()
+
+                # Initialize request argument(s)
+                payloads = aiplatform_v1beta1.WriteFeatureValuesPayload()
+                payloads.entity_id = "entity_id_value"
+
+                request = aiplatform_v1beta1.WriteFeatureValuesRequest(
+                    entity_type="entity_type_value",
+                    payloads=payloads,
+                )
+
+                # Make the request
+                response = client.write_feature_values(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.WriteFeatureValuesRequest, dict]):
+                The request object. Request message for
+                [FeaturestoreOnlineServingService.WriteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.WriteFeatureValues].
+            entity_type (str):
+                Required. The resource name of the EntityType for the
+                entities being written. Value format:
+                ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
+                For example, for a machine learning model predicting
+                user clicks on a website, an EntityType ID could be
+                ``user``.
+
+                This corresponds to the ``entity_type`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            payloads (MutableSequence[google.cloud.aiplatform_v1beta1.types.WriteFeatureValuesPayload]):
+                Required. The entities to be written. Up to 100,000
+                feature values can be written across all ``payloads``.
+
+                This corresponds to the ``payloads`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.WriteFeatureValuesResponse:
+                Response message for
+                   [FeaturestoreOnlineServingService.WriteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.WriteFeatureValues].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([entity_type, payloads])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a featurestore_online_service.WriteFeatureValuesRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(
+            request, featurestore_online_service.WriteFeatureValuesRequest
+        ):
+            request = featurestore_online_service.WriteFeatureValuesRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if entity_type is not None:
+                request.entity_type = entity_type
+            if payloads is not None:
+                request.payloads = payloads
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.write_feature_values]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("entity_type", request.entity_type),)
+            ),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def __enter__(self) -> "FeaturestoreOnlineServingServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -685,10 +848,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -739,10 +902,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -793,10 +956,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -848,10 +1011,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -902,10 +1065,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -962,10 +1125,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -996,8 +1159,11 @@ class FeaturestoreOnlineServingServiceClient(
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1021,8 +1187,11 @@ class FeaturestoreOnlineServingServiceClient(
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1037,6 +1206,7 @@ class FeaturestoreOnlineServingServiceClient(
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1075,10 +1245,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -1110,8 +1280,11 @@ class FeaturestoreOnlineServingServiceClient(
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1135,8 +1308,11 @@ class FeaturestoreOnlineServingServiceClient(
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1151,6 +1327,7 @@ class FeaturestoreOnlineServingServiceClient(
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1189,10 +1366,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -1248,10 +1425,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1302,10 +1479,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -1355,14 +1532,9 @@ class FeaturestoreOnlineServingServiceClient(
         return response
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("FeaturestoreOnlineServingServiceClient",)

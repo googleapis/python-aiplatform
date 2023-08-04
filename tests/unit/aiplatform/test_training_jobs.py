@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,13 +32,11 @@ import uuid
 from unittest import mock
 from unittest.mock import patch
 
-import test_training_jobs
-
-from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
+from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
@@ -47,9 +45,9 @@ from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
 
 from google.cloud.aiplatform.compat.services import (
+    job_service_client,
     model_service_client,
     pipeline_service_client,
-    job_service_client,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -68,67 +66,92 @@ from google.cloud import storage
 from google.protobuf import json_format
 from google.protobuf import struct_pb2
 from google.protobuf import duration_pb2  # type: ignore
+import constants as test_constants
 
 _TEST_BUCKET_NAME = "test-bucket"
 _TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
 _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
 _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
-_TEST_LOCAL_SCRIPT_FILE_NAME = "____test____script.py"
+_TEST_LOCAL_SCRIPT_FILE_NAME = (
+    test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME
+)
 _TEST_TEMPDIR = tempfile.mkdtemp()
 _TEST_LOCAL_SCRIPT_FILE_PATH = os.path.join(_TEST_TEMPDIR, _TEST_LOCAL_SCRIPT_FILE_NAME)
 _TEST_PYTHON_SOURCE = """
 print('hello world')
 """
-_TEST_REQUIREMENTS = ["pandas", "numpy", "tensorflow"]
+_TEST_REQUIREMENTS = test_constants.TrainingJobConstants._TEST_REQUIREMENTS
 
 _TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
 _TEST_DATASET_NAME = "test-dataset-name"
 _TEST_DISPLAY_NAME = "test-display-name"
 _TEST_METADATA_SCHEMA_URI_TABULAR = schema.dataset.metadata.tabular
-_TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
+_TEST_TRAINING_CONTAINER_IMAGE = (
+    test_constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE
+)
 _TEST_TRAINING_CONTAINER_CMD = ["python3", "task.py"]
-_TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
-_TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
-_TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
-_TEST_MODULE_NAME = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}.task"
+_TEST_SERVING_CONTAINER_IMAGE = (
+    test_constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE
+)
+_TEST_SERVING_CONTAINER_PREDICTION_ROUTE = (
+    test_constants.TrainingJobConstants._TEST_SERVING_CONTAINER_PREDICTION_ROUTE
+)
+_TEST_SERVING_CONTAINER_HEALTH_ROUTE = (
+    test_constants.TrainingJobConstants._TEST_SERVING_CONTAINER_HEALTH_ROUTE
+)
+_TEST_MODULE_NAME = test_constants.TrainingJobConstants._TEST_MODULE_NAME
 
 _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
 _TEST_ANNOTATION_SCHEMA_URI = schema.dataset.annotation.image.classification
 
 _TEST_BASE_OUTPUT_DIR = "gs://test-base-output-dir"
-_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
-_TEST_BIGQUERY_DESTINATION = "bq://test-project"
-_TEST_RUN_ARGS = ["-v", 0.1, "--test=arg"]
-_TEST_REPLICA_COUNT = 1
-_TEST_MACHINE_TYPE = "n1-standard-4"
-_TEST_REDUCTION_SERVER_REPLICA_COUNT = 1
-_TEST_REDUCTION_SERVER_MACHINE_TYPE = "n1-highcpu-16"
-_TEST_REDUCTION_SERVER_CONTAINER_URI = (
-    "us-docker.pkg.dev/vertex-ai-restricted/training/reductionserver:latest"
+_TEST_SERVICE_ACCOUNT = test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT
+_TEST_BIGQUERY_DESTINATION = "bq://my-project"
+_TEST_RUN_ARGS = test_constants.TrainingJobConstants._TEST_RUN_ARGS
+_TEST_REPLICA_COUNT = test_constants.TrainingJobConstants._TEST_REPLICA_COUNT
+_TEST_MACHINE_TYPE = test_constants.TrainingJobConstants._TEST_MACHINE_TYPE
+_TEST_REDUCTION_SERVER_REPLICA_COUNT = (
+    test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_REPLICA_COUNT
 )
-_TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_K80"
+_TEST_REDUCTION_SERVER_MACHINE_TYPE = (
+    test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_MACHINE_TYPE
+)
+_TEST_REDUCTION_SERVER_CONTAINER_URI = (
+    test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_CONTAINER_URI
+)
+_TEST_ACCELERATOR_TYPE = test_constants.TrainingJobConstants._TEST_ACCELERATOR_TYPE
 _TEST_INVALID_ACCELERATOR_TYPE = "NVIDIA_DOES_NOT_EXIST"
-_TEST_ACCELERATOR_COUNT = 1
-_TEST_BOOT_DISK_TYPE_DEFAULT = "pd-ssd"
-_TEST_BOOT_DISK_SIZE_GB_DEFAULT = 100
-_TEST_BOOT_DISK_TYPE = "pd-standard"
-_TEST_BOOT_DISK_SIZE_GB = 300
-_TEST_MODEL_DISPLAY_NAME = "model-display-name"
-_TEST_LABELS = {"key": "value"}
-_TEST_MODEL_LABELS = {"model_key": "model_value"}
+_TEST_ACCELERATOR_COUNT = test_constants.TrainingJobConstants._TEST_ACCELERATOR_COUNT
+_TEST_BOOT_DISK_TYPE_DEFAULT = (
+    test_constants.TrainingJobConstants._TEST_BOOT_DISK_TYPE_DEFAULT
+)
+_TEST_BOOT_DISK_SIZE_GB_DEFAULT = (
+    test_constants.TrainingJobConstants._TEST_BOOT_DISK_SIZE_GB_DEFAULT
+)
+_TEST_BOOT_DISK_TYPE = test_constants.TrainingJobConstants._TEST_BOOT_DISK_TYPE
+_TEST_BOOT_DISK_SIZE_GB = test_constants.TrainingJobConstants._TEST_BOOT_DISK_SIZE_GB
+_TEST_MODEL_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_MODEL_DISPLAY_NAME
+_TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
+_TEST_MODEL_LABELS = test_constants.TrainingJobConstants._TEST_MODEL_LABELS
 
-_TEST_TRAINING_FRACTION_SPLIT = 0.6
-_TEST_VALIDATION_FRACTION_SPLIT = 0.2
-_TEST_TEST_FRACTION_SPLIT = 0.2
+_TEST_TRAINING_FRACTION_SPLIT = (
+    test_constants.TrainingJobConstants._TEST_TRAINING_FRACTION_SPLIT
+)
+_TEST_VALIDATION_FRACTION_SPLIT = (
+    test_constants.TrainingJobConstants._TEST_VALIDATION_FRACTION_SPLIT
+)
+_TEST_TEST_FRACTION_SPLIT = (
+    test_constants.TrainingJobConstants._TEST_TEST_FRACTION_SPLIT
+)
 _TEST_TRAINING_FILTER_SPLIT = "train"
 _TEST_VALIDATION_FILTER_SPLIT = "validate"
 _TEST_TEST_FILTER_SPLIT = "test"
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 _TEST_TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp"
 
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_ID = "12345"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
+_TEST_ID = test_constants.TrainingJobConstants._TEST_ID
 _TEST_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/{_TEST_ID}"
 )
@@ -138,9 +161,11 @@ _TEST_TENSORBOARD_RESOURCE_NAME = (
 _TEST_CUSTOM_JOB_RESOURCE_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/customJobs/{_TEST_ID}"
 )
+_TEST_MODEL_VERSION_DESCRIPTION = "My version description"
+_TEST_MODEL_VERSION_ID = "2"
 _TEST_ALT_PROJECT = "test-project-alt"
 _TEST_ALT_LOCATION = "europe-west4"
-_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
+_TEST_NETWORK = test_constants.TrainingJobConstants._TEST_NETWORK
 
 _TEST_MODEL_INSTANCE_SCHEMA_URI = "instance_schema_uri.yaml"
 _TEST_MODEL_PARAMETERS_SCHEMA_URI = "parameters_schema_uri.yaml"
@@ -151,21 +176,41 @@ _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
     "learning_rate": 0.01,
     "loss_fn": "mse",
 }
-_TEST_ENVIRONMENT_VARIABLES = {
-    "MY_PATH": "/path/to/my_path",
-}
+_TEST_ENVIRONMENT_VARIABLES = (
+    test_constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES
+)
 _TEST_MODEL_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_MODEL_DESCRIPTION = "test description"
 
-_TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
+_TEST_OUTPUT_PYTHON_PACKAGE_PATH = (
+    test_constants.TrainingJobConstants._TEST_OUTPUT_PYTHON_PACKAGE_PATH
+)
+_TEST_PACKAGE_GCS_URIS = [_TEST_OUTPUT_PYTHON_PACKAGE_PATH] * 2
 _TEST_PYTHON_MODULE_NAME = "aiplatform.task"
 
-_TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
+_TEST_MODEL_NAME = f"projects/{_TEST_PROJECT}/locations/us-central1/models/{_TEST_ID}"
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    "projects/my-project/locations/us-central1/trainingPipelines/12345"
+    f"projects/{_TEST_PROJECT}/locations/us-central1/trainingPipelines/{_TEST_ID}"
 )
-_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_CREDENTIALS = test_constants.TrainingJobConstants._TEST_CREDENTIALS
+
+
+# Explanation Spec
+_TEST_EXPLANATION_METADATA = explain.ExplanationMetadata(
+    inputs={
+        "features": {
+            "input_tensor_name": "dense_input",
+            "encoding": "BAG_OF_FEATURES",
+            "modality": "numeric",
+            "index_feature_mapping": ["abc", "def", "ghj"],
+        }
+    },
+    outputs={"medv": {"output_tensor_name": "dense_2"}},
+)
+_TEST_EXPLANATION_PARAMETERS = explain.ExplanationParameters(
+    {"sampled_shapley_attribution": {"path_count": 10}}
+)
 
 # CMEK encryption
 _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
@@ -184,10 +229,14 @@ _TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 )
 
 _TEST_TIMEOUT = 1000
-_TEST_RESTART_JOB_ON_WORKER_RESTART = True
+_TEST_RESTART_JOB_ON_WORKER_RESTART = (
+    test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
+)
 
-_TEST_ENABLE_WEB_ACCESS = True
-_TEST_WEB_ACCESS_URIS = {"workerpool0-0": "uri"}
+_TEST_ENABLE_WEB_ACCESS = test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS
+_TEST_ENABLE_DASHBOARD_ACCESS = True
+_TEST_WEB_ACCESS_URIS = test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS
+_TEST_DASHBOARD_ACCESS_URIS = {"workerpool0-0:8888": "uri"}
 
 _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job.CustomJob(
     job_spec=gca_custom_job.CustomJobSpec(),
@@ -202,6 +251,19 @@ def _get_custom_job_proto_with_enable_web_access(state=None, name=None, version=
     custom_job_proto.job_spec.enable_web_access = _TEST_ENABLE_WEB_ACCESS
     if state == gca_job_state.JobState.JOB_STATE_RUNNING:
         custom_job_proto.web_access_uris = _TEST_WEB_ACCESS_URIS
+    return custom_job_proto
+
+
+def _get_custom_job_proto_with_enable_dashboard_access(
+    state=None, name=None, version="v1"
+):
+    custom_job_proto = copy.deepcopy(_TEST_BASE_CUSTOM_JOB_PROTO)
+    custom_job_proto.name = name
+    custom_job_proto.state = state
+
+    custom_job_proto.job_spec.enable_dashboard_access = _TEST_ENABLE_DASHBOARD_ACCESS
+    if state == gca_job_state.JobState.JOB_STATE_RUNNING:
+        custom_job_proto.web_access_uris = _TEST_DASHBOARD_ACCESS_URIS
     return custom_job_proto
 
 
@@ -323,6 +385,40 @@ def mock_get_backing_custom_job_with_enable_web_access():
                 state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
             ),
             _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+            ),
+        ]
+        yield get_custom_job_mock
+
+
+@pytest.fixture
+def mock_get_backing_custom_job_with_enable_dashboard_access():
+    with patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as get_custom_job_mock:
+        get_custom_job_mock.side_effect = [
+            _get_custom_job_proto_with_enable_dashboard_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_PENDING,
+            ),
+            _get_custom_job_proto_with_enable_dashboard_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_dashboard_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_dashboard_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_enable_dashboard_access(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+            ),
+            _get_custom_job_proto_with_enable_dashboard_access(
                 name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
                 state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
             ),
@@ -551,11 +647,42 @@ def mock_pipeline_service_create():
         yield mock_create_training_pipeline
 
 
+@pytest.fixture
+def mock_pipeline_service_create_with_version():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(
+                    name=_TEST_MODEL_NAME, version_id=_TEST_MODEL_VERSION_ID
+                ),
+            )
+        )
+        yield mock_create_training_pipeline
+
+
 def make_training_pipeline(state, add_training_task_metadata=True):
     return gca_training_pipeline.TrainingPipeline(
         name=_TEST_PIPELINE_RESOURCE_NAME,
         state=state,
         model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        training_task_inputs={"tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME},
+        training_task_metadata={"backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME}
+        if add_training_task_metadata
+        else None,
+    )
+
+
+def make_training_pipeline_with_version(state, add_training_task_metadata=True):
+    return gca_training_pipeline.TrainingPipeline(
+        name=_TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
+        model_to_upload=gca_model.Model(
+            name=_TEST_MODEL_NAME, version_id=_TEST_MODEL_VERSION_ID
+        ),
         training_task_inputs={"tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME},
         training_task_metadata={"backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME}
         if add_training_task_metadata
@@ -583,6 +710,19 @@ def make_training_pipeline_with_enable_web_access(state):
     return training_pipeline
 
 
+def make_training_pipeline_with_enable_dashboard_access(state):
+    training_pipeline = gca_training_pipeline.TrainingPipeline(
+        name=_TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
+        training_task_inputs={"enable_dashboard_access": _TEST_ENABLE_DASHBOARD_ACCESS},
+    )
+    if state == gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING:
+        training_pipeline.training_task_metadata = {
+            "backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME
+        }
+    return training_pipeline
+
+
 def make_training_pipeline_with_scheduling(state):
     training_pipeline = gca_training_pipeline.TrainingPipeline(
         name=_TEST_PIPELINE_RESOURCE_NAME,
@@ -600,42 +740,26 @@ def make_training_pipeline_with_scheduling(state):
 
 
 @pytest.fixture
-def mock_pipeline_service_get():
+def mock_pipeline_service_get(make_call=make_training_pipeline):
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as mock_get_training_pipeline:
         mock_get_training_pipeline.side_effect = [
-            make_training_pipeline(
+            make_call(
                 gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
                 add_training_task_metadata=False,
             ),
-            make_training_pipeline(
+            make_call(
                 gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
             ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
         ]
 
         yield mock_get_training_pipeline
@@ -663,6 +787,35 @@ def mock_pipeline_service_get_with_enable_web_access():
                 state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
             ),
             make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+        ]
+
+        yield mock_get_training_pipeline
+
+
+@pytest.fixture
+def mock_pipeline_service_get_with_enable_dashboard_access():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as mock_get_training_pipeline:
+        mock_get_training_pipeline.side_effect = [
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            ),
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            ),
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            ),
+            make_training_pipeline_with_enable_dashboard_access(
                 state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
             ),
         ]
@@ -735,6 +888,19 @@ def mock_pipeline_service_create_with_enable_web_access():
 
 
 @pytest.fixture
+def mock_pipeline_service_create_with_enable_dashboard_access():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = (
+            make_training_pipeline_with_enable_dashboard_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            )
+        )
+        yield mock_create_training_pipeline
+
+
+@pytest.fixture
 def mock_pipeline_service_create_with_scheduling():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
@@ -792,6 +958,21 @@ def mock_model_service_get():
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
         mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
+        mock_get_model.return_value.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        mock_get_model.return_value.version_id = "1"
+        yield mock_get_model
+
+
+@pytest.fixture
+def mock_model_service_get_with_version():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as mock_get_model:
+        mock_get_model.return_value = gca_model.Model(
+            name=_TEST_MODEL_NAME, version_id=_TEST_MODEL_VERSION_ID
+        )
         mock_get_model.return_value.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
         )
@@ -891,6 +1072,8 @@ class TestCustomTrainingJob:
             model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
             model_description=_TEST_MODEL_DESCRIPTION,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
         )
 
         model_from_job = job.run(
@@ -986,7 +1169,12 @@ class TestCustomTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            explanation_spec=gca_model.explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1041,6 +1229,70 @@ class TestCustomTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
         assert job._has_logged_custom_job
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    def test_custom_training_job_run_raises_with_impartial_explanation_spec(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            # Missing the required explanations_parameters field
+        )
+
+        with pytest.raises(ValueError) as e:
+            job.run(
+                dataset=mock_tabular_dataset,
+                base_output_dir=_TEST_BASE_OUTPUT_DIR,
+                service_account=_TEST_SERVICE_ACCOUNT,
+                network=_TEST_NETWORK,
+                args=_TEST_RUN_ARGS,
+                environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                model_labels=_TEST_MODEL_LABELS,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
+                tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+                sync=False,
+                create_request_timeout=None,
+            )
+
+        assert e.match(
+            regexp=r"To get model explanation, `explanation_parameters` "
+            "must be specified."
+        )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
@@ -1229,6 +1481,7 @@ class TestCustomTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1390,6 +1643,7 @@ class TestCustomTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1500,7 +1754,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": test_training_jobs._TEST_MODULE_NAME,
+                "python_module": _TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -1537,6 +1791,7 @@ class TestCustomTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1819,7 +2074,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": test_training_jobs._TEST_MODULE_NAME,
+                "python_module": _TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -1833,7 +2088,9 @@ class TestCustomTrainingJob:
         )
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            container_spec=true_container_spec,
+            version_aliases=["default"],
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -1911,6 +2168,54 @@ class TestCustomTrainingJob:
         print(caplog.text)
         assert "workerpool0-0" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    # TODO: Update test to address Mutant issue b/270708320
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_dashboard_access",
+        "mock_pipeline_service_get_with_enable_dashboard_access",
+        "mock_get_backing_custom_job_with_enable_dashboard_access",
+        "mock_python_package_to_gcs",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_dashboard_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_dashboard_access=_TEST_ENABLE_DASHBOARD_ACCESS,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            job.wait()
+
+        print(caplog.text)
+        assert "workerpool0-0:8888" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_dashboard_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
@@ -2191,7 +2496,7 @@ class TestCustomTrainingJob:
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "python_module": test_training_jobs._TEST_MODULE_NAME,
+                    "python_module": _TEST_MODULE_NAME,
                     "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
@@ -2232,6 +2537,7 @@ class TestCustomTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -2364,7 +2670,7 @@ class TestCustomTrainingJob:
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "python_module": test_training_jobs._TEST_MODULE_NAME,
+                    "python_module": _TEST_MODULE_NAME,
                     "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
@@ -2606,7 +2912,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": test_training_jobs._TEST_MODULE_NAME,
+                "python_module": _TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
@@ -2648,6 +2954,7 @@ class TestCustomTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -2885,6 +3192,8 @@ class TestCustomContainerTrainingJob:
             model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
             model_description=_TEST_MODEL_DESCRIPTION,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
         )
 
         model_from_job = job.run(
@@ -2962,7 +3271,12 @@ class TestCustomContainerTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            explanation_spec=gca_model.explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -3018,6 +3332,62 @@ class TestCustomContainerTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
         assert job._has_logged_custom_job
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    def test_custom_container_training_job_run_raises_with_impartial_explanation_spec(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            # Missing the required explanations_parameters field
+        )
+
+        with pytest.raises(ValueError) as e:
+            job.run(
+                dataset=mock_tabular_dataset,
+                base_output_dir=_TEST_BASE_OUTPUT_DIR,
+                args=_TEST_RUN_ARGS,
+                environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                model_labels=_TEST_MODEL_LABELS,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+                service_account=_TEST_SERVICE_ACCOUNT,
+                tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+                create_request_timeout=None,
+            )
+        assert e.match(
+            regexp=r"To get model explanation, `explanation_parameters` "
+            "must be specified."
+        )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
@@ -3130,6 +3500,7 @@ class TestCustomContainerTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -3296,6 +3667,7 @@ class TestCustomContainerTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -3443,6 +3815,7 @@ class TestCustomContainerTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -3717,7 +4090,9 @@ class TestCustomContainerTrainingJob:
         )
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            container_spec=true_container_spec,
+            version_aliases=["default"],
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -3794,6 +4169,53 @@ class TestCustomContainerTrainingJob:
         print(caplog.text)
         assert "workerpool0-0" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    # TODO: Update test to address Mutant issue b/270708320
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_dashboard_access",
+        "mock_pipeline_service_get_with_enable_dashboard_access",
+        "mock_get_backing_custom_job_with_enable_dashboard_access",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_dashboard_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_dashboard_access=_TEST_ENABLE_DASHBOARD_ACCESS,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            job.wait()
+
+        print(caplog.text)
+        assert "workerpool0-0:8888" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_dashboard_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
@@ -4095,6 +4517,7 @@ class TestCustomContainerTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -4370,6 +4793,7 @@ class TestCustomContainerTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -4789,6 +5213,10 @@ class TestCustomPythonPackageTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "python_package_gcs_uri",
+        [_TEST_OUTPUT_PYTHON_PACKAGE_PATH, _TEST_PACKAGE_GCS_URIS],
+    )
     def test_run_call_pipeline_service_create_with_tabular_dataset(
         self,
         mock_pipeline_service_create,
@@ -4796,6 +5224,7 @@ class TestCustomPythonPackageTrainingJob:
         mock_tabular_dataset,
         mock_model_service_get,
         sync,
+        python_package_gcs_uri,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -4806,7 +5235,7 @@ class TestCustomPythonPackageTrainingJob:
         job = training_jobs.CustomPythonPackageTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
-            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_package_gcs_uri=python_package_gcs_uri,
             python_module_name=_TEST_PYTHON_MODULE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -4820,6 +5249,8 @@ class TestCustomPythonPackageTrainingJob:
             model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
             model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
             model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
         )
 
         model_from_job = job.run(
@@ -4850,6 +5281,11 @@ class TestCustomPythonPackageTrainingJob:
             for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
         ]
 
+        if isinstance(python_package_gcs_uri, str):
+            package_uris = [python_package_gcs_uri]
+        else:
+            package_uris = python_package_gcs_uri
+
         true_worker_pool_spec = {
             "replica_count": _TEST_REPLICA_COUNT,
             "machine_spec": {
@@ -4864,7 +5300,7 @@ class TestCustomPythonPackageTrainingJob:
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": _TEST_PYTHON_MODULE_NAME,
-                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "package_uris": package_uris,
                 "args": true_args,
                 "env": true_env,
             },
@@ -4907,6 +5343,11 @@ class TestCustomPythonPackageTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            explanation_spec=gca_model.explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -4958,6 +5399,105 @@ class TestCustomPythonPackageTrainingJob:
         assert not job.has_failed
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    def test_custom_python_package_training_job_run_raises_with_wrong_package_uris(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        wrong_package_gcs_uri = {"package": _TEST_OUTPUT_PYTHON_PACKAGE_PATH}
+
+        with pytest.raises(ValueError) as e:
+            training_jobs.CustomPythonPackageTrainingJob(
+                display_name=_TEST_DISPLAY_NAME,
+                labels=_TEST_LABELS,
+                python_package_gcs_uri=wrong_package_gcs_uri,
+                python_module_name=_TEST_PYTHON_MODULE_NAME,
+                container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+                model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+                model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+                model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+                model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+                model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+                model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+                model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+                model_description=_TEST_MODEL_DESCRIPTION,
+                model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+                model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+                model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+                explanation_metadata=_TEST_EXPLANATION_METADATA,
+                explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
+            )
+
+        assert e.match("'python_package_gcs_uri' must be a string or list.")
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    def test_custom_python_package_training_job_run_raises_with_impartial_explanation_spec(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            # Missing the required explanations_parameters field
+        )
+
+        with pytest.raises(ValueError) as e:
+            job.run(
+                dataset=mock_tabular_dataset,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                model_labels=_TEST_MODEL_LABELS,
+                base_output_dir=_TEST_BASE_OUTPUT_DIR,
+                service_account=_TEST_SERVICE_ACCOUNT,
+                network=_TEST_NETWORK,
+                args=_TEST_RUN_ARGS,
+                environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                create_request_timeout=None,
+            )
+        assert e.match(
+            regexp=r"To get model explanation, `explanation_parameters` "
+            "must be specified."
+        )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
@@ -5080,6 +5620,7 @@ class TestCustomPythonPackageTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -5236,6 +5777,7 @@ class TestCustomPythonPackageTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -5376,6 +5918,7 @@ class TestCustomPythonPackageTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -5539,6 +6082,7 @@ class TestCustomPythonPackageTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -5819,7 +6363,9 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            container_spec=true_container_spec,
+            version_aliases=["default"],
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -5897,6 +6443,53 @@ class TestCustomPythonPackageTrainingJob:
         print(caplog.text)
         assert "workerpool0-0" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_web_access(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    # TODO: Update test to address Mutant issue b/270708320
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_enable_dashboard_access",
+        "mock_pipeline_service_get_with_enable_dashboard_access",
+        "mock_get_backing_custom_job_with_enable_dashboard_access",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_enable_dashboard_access(
+        self, sync, caplog
+    ):
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomPythonPackageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_module_name=_TEST_PYTHON_MODULE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            enable_dashboard_access=_TEST_ENABLE_DASHBOARD_ACCESS,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            job.wait()
+        print(caplog.text)
+        assert "workerpool0-0:8888" in caplog.text
+        assert job._gca_resource == make_training_pipeline_with_enable_dashboard_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
@@ -6208,6 +6801,7 @@ class TestCustomPythonPackageTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -6486,6 +7080,7 @@ class TestCustomPythonPackageTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -6578,3 +7173,131 @@ class TestCustomPythonPackageTrainingJob:
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
             )
+
+
+class TestVersionedTrainingJobs:
+    @pytest.mark.usefixtures("mock_pipeline_service_get")
+    @pytest.mark.parametrize(
+        "mock_pipeline_service_get",
+        ["make_training_pipeline_with_version"],
+        indirect=True,
+    )
+    @pytest.mark.parametrize(
+        "parent,location,project,model_id",
+        [
+            (_TEST_ID, _TEST_LOCATION, _TEST_PROJECT, None),
+            (_TEST_MODEL_NAME, None, None, None),
+            (None, None, None, _TEST_ID),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "aliases,default,goal",
+        [
+            (["alias1", "alias2"], True, ["alias1", "alias2", "default"]),
+            (None, True, ["default"]),
+            (["alias1", "alias2", "default"], True, ["alias1", "alias2", "default"]),
+            (["alias1", "alias2", "default"], False, ["alias1", "alias2", "default"]),
+            (["alias1", "alias2"], False, ["alias1", "alias2"]),
+            (None, False, []),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "callable",
+        [
+            training_jobs.CustomTrainingJob,
+            training_jobs.CustomContainerTrainingJob,
+            training_jobs.CustomPythonPackageTrainingJob,
+        ],
+    )
+    def test_run_pipeline_for_versioned_model(
+        self,
+        mock_pipeline_service_create_with_version,
+        mock_python_package_to_gcs,
+        mock_nontabular_dataset,
+        mock_model_service_get_with_version,
+        parent,
+        location,
+        project,
+        model_id,
+        aliases,
+        default,
+        goal,
+        callable,
+    ):
+        aiplatform.init(
+            project=project,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+            location=location,
+        )
+        job_args = {
+            "display_name": _TEST_DISPLAY_NAME,
+            "model_serving_container_image_uri": _TEST_SERVING_CONTAINER_IMAGE,
+            "model_serving_container_predict_route": _TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            "model_serving_container_health_route": _TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            "model_instance_schema_uri": _TEST_MODEL_INSTANCE_SCHEMA_URI,
+            "model_parameters_schema_uri": _TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            "model_prediction_schema_uri": _TEST_MODEL_PREDICTION_SCHEMA_URI,
+            "model_serving_container_command": _TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            "model_serving_container_args": _TEST_MODEL_SERVING_CONTAINER_ARGS,
+            "model_serving_container_environment_variables": _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            "model_serving_container_ports": _TEST_MODEL_SERVING_CONTAINER_PORTS,
+            "model_description": _TEST_MODEL_DESCRIPTION,
+            "labels": _TEST_LABELS,
+        }
+
+        run_args = {
+            "dataset": mock_nontabular_dataset,
+            "annotation_schema_uri": _TEST_ANNOTATION_SCHEMA_URI,
+            "base_output_dir": _TEST_BASE_OUTPUT_DIR,
+            "args": _TEST_RUN_ARGS,
+            "machine_type": _TEST_MACHINE_TYPE,
+            "accelerator_type": _TEST_ACCELERATOR_TYPE,
+            "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            "training_filter_split": _TEST_TRAINING_FILTER_SPLIT,
+            "validation_filter_split": _TEST_VALIDATION_FILTER_SPLIT,
+            "test_filter_split": _TEST_TEST_FILTER_SPLIT,
+            "create_request_timeout": None,
+            "model_id": model_id,
+            "parent_model": parent,
+            "is_default_version": default,
+            "model_version_aliases": aliases,
+            "model_version_description": _TEST_MODEL_VERSION_DESCRIPTION,
+        }
+
+        if issubclass(callable, (training_jobs.CustomContainerTrainingJob)):
+            job_args = {
+                "container_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                **job_args,
+            }
+        elif issubclass(callable, (training_jobs.CustomTrainingJob)):
+            job_args = {
+                "container_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "script_path": _TEST_LOCAL_SCRIPT_FILE_NAME,
+                **job_args,
+            }
+        elif issubclass(callable, training_jobs.CustomPythonPackageTrainingJob):
+            job_args = {
+                "python_package_gcs_uri": _TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+                "python_module_name": _TEST_PYTHON_MODULE_NAME,
+                "container_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                **job_args,
+            }
+
+        job = callable(**job_args)
+
+        model_from_job = job.run(**run_args)
+
+        mock_pipeline_service_create_with_version.assert_called_once()
+        _, tp_kwargs = mock_pipeline_service_create_with_version.call_args_list[0]
+        training_pipeline = tp_kwargs["training_pipeline"]
+
+        assert training_pipeline.model_id == (model_id if model_id else "")
+        assert training_pipeline.parent_model == (_TEST_MODEL_NAME if parent else "")
+        assert training_pipeline.model_to_upload.version_aliases == goal
+        assert (
+            training_pipeline.model_to_upload.version_description
+            == _TEST_MODEL_VERSION_DESCRIPTION
+        )
+
+        assert model_from_job.version_id == _TEST_MODEL_VERSION_ID

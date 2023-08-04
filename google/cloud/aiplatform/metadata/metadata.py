@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,15 +15,16 @@
 # limitations under the License.
 #
 
-
-from typing import Dict, Union, Optional, Any
+import datetime
+import logging
+import os
+from typing import Dict, Union, Optional, Any, List
 
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import gapic
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.metadata import constants
@@ -31,9 +32,25 @@ from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import experiment_run_resource
+from google.cloud.aiplatform.metadata.schema.google import (
+    artifact_schema as google_artifact_schema,
+)
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
+from google.cloud.aiplatform.utils import autologging_utils
+
+from google.cloud.aiplatform_v1.types import execution as execution_v1
 
 _LOGGER = base.Logger(__name__)
+
+
+class _MLFlowLogFilter(logging.Filter):
+    """Log filter to only show MLFlow logs for unsupported framework versions."""
+
+    def filter(self, record) -> bool:
+        if record.msg.startswith("You are using an unsupported version"):
+            return True
+        else:
+            return False
 
 
 def _get_experiment_schema_version() -> str:
@@ -43,6 +60,24 @@ def _get_experiment_schema_version() -> str:
         str: schema version of the currently set experiment tracking version
     """
     return constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT]
+
+
+def _get_or_create_default_tensorboard() -> tensorboard_resource.Tensorboard:
+    """Helper method to get the default TensorBoard instance if already exists, or create a default TensorBoard instance.
+
+    Returns:
+         tensorboard_resource.Tensorboard: the default TensorBoard instance.
+    """
+    tensorboards = tensorboard_resource.Tensorboard.list(filter="is_default=true")
+    if tensorboards:
+        return tensorboards[0]
+    else:
+        default_tensorboard = tensorboard_resource.Tensorboard.create(
+            display_name="Default Tensorboard "
+            + datetime.datetime.now().isoformat(sep=" "),
+            is_default=True,
+        )
+        return default_tensorboard
 
 
 # Legacy Experiment tracking
@@ -95,7 +130,7 @@ class _LegacyExperimentService:
             NotFound exception if experiment or pipeline does not exist.
         """
 
-        this_context = context._Context(resource_name=name)
+        this_context = context.Context(resource_name=name)
 
         if this_context.schema_title != expected_schema:
             raise ValueError(
@@ -186,6 +221,8 @@ class _ExperimentTracker:
     def __init__(self):
         self._experiment: Optional[experiment_resources.Experiment] = None
         self._experiment_run: Optional[experiment_run_resource.ExperimentRun] = None
+        self._global_tensorboard: Optional[tensorboard_resource.Tensorboard] = None
+        self._existing_tracking_uri: Optional[str] = None
 
     def reset(self):
         """Resets this experiment tracker, clearing the current experiment and run."""
@@ -195,19 +232,34 @@ class _ExperimentTracker:
     @property
     def experiment_name(self) -> Optional[str]:
         """Return the currently set experiment name, if experiment is not set, return None"""
-        if self._experiment:
-            return self._experiment.name
+        if self.experiment:
+            return self.experiment.name
         return None
 
     @property
     def experiment(self) -> Optional[experiment_resources.Experiment]:
-        "Returns the currently set Experiment."
-        return self._experiment
+        """Returns the currently set Experiment or Experiment set via env variable AIP_EXPERIMENT_NAME."""
+        if self._experiment:
+            return self._experiment
+        if os.getenv(constants.ENV_EXPERIMENT_KEY):
+            self._experiment = experiment_resources.Experiment.get(
+                os.getenv(constants.ENV_EXPERIMENT_KEY)
+            )
+            return self._experiment
+        return None
 
     @property
     def experiment_run(self) -> Optional[experiment_run_resource.ExperimentRun]:
-        """Returns the currently set experiment run."""
-        return self._experiment_run
+        """Returns the currently set experiment run or experiment run set via env variable AIP_EXPERIMENT_RUN_NAME."""
+        if self._experiment_run:
+            return self._experiment_run
+        if os.getenv(constants.ENV_EXPERIMENT_RUN_KEY):
+            self._experiment_run = experiment_run_resource.ExperimentRun.get(
+                os.getenv(constants.ENV_EXPERIMENT_RUN_KEY),
+                experiment=self.experiment,
+            )
+            return self._experiment_run
+        return None
 
     def set_experiment(
         self,
@@ -235,10 +287,84 @@ class _ExperimentTracker:
             experiment_name=experiment, description=description
         )
 
-        if backing_tensorboard:
-            experiment.assign_backing_tensorboard(tensorboard=backing_tensorboard)
+        backing_tb = (
+            backing_tensorboard
+            or self._global_tensorboard
+            or _get_or_create_default_tensorboard()
+        )
+
+        current_backing_tb = experiment.backing_tensorboard_resource_name
+
+        if not current_backing_tb and backing_tb:
+            experiment.assign_backing_tensorboard(tensorboard=backing_tb)
 
         self._experiment = experiment
+
+    def set_tensorboard(
+        self,
+        tensorboard: Union[
+            tensorboard_resource.Tensorboard,
+            str,
+        ],
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Sets the global Tensorboard resource for this session.
+
+        Args:
+            tensorboard (Union[str, aiplatform.Tensorboard]):
+                Required. The Tensorboard resource to set as the global Tensorboard.
+            project (str):
+                Optional. Project associated with this Tensorboard resource.
+            location (str):
+                Optional. Location associated with this Tensorboard resource.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to set this Tensorboard resource.
+        """
+        if isinstance(tensorboard, str):
+            tensorboard = tensorboard_resource.Tensorboard(
+                tensorboard,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+
+        self._global_tensorboard = tensorboard
+
+    def _initialize_mlflow_plugin():
+        """Invokes the Vertex MLFlow plugin.
+
+        Adding our log filter to MLFlow before calling mlflow.autolog() with
+        silent=False will only surface warning logs when the installed ML
+        framework version used for autologging is not supported by MLFlow.
+        """
+
+        import mlflow
+        from mlflow.tracking._tracking_service import utils as mlflow_tracking_utils
+        from google.cloud.aiplatform._mlflow_plugin._vertex_mlflow_tracking import (
+            _VertexMlflowTracking,
+        )
+
+        # Only show MLFlow warning logs for ML framework version mismatches
+        logging.getLogger("mlflow").setLevel(logging.WARNING)
+        logging.getLogger("mlflow.tracking.fluent").disabled = True
+        logging.getLogger("mlflow.utils.autologging_utils").addFilter(
+            _MLFlowLogFilter()
+        )
+
+        mlflow_tracking_utils._tracking_store_registry.register(
+            "vertex-mlflow-plugin", _VertexMlflowTracking
+        )
+
+        mlflow.set_tracking_uri("vertex-mlflow-plugin://")
+
+        mlflow.autolog(
+            log_input_examples=False,
+            log_model_signatures=False,
+            log_models=False,
+            silent=False,  # using False to show unsupported framework version warnings with _MLFlowLogFilter
+        )
 
     def start_run(
         self,
@@ -265,7 +391,7 @@ class _ExperimentTracker:
         Resume a previously started run:
         ```
         aiplatform.init(experiment='my-experiment')
-        with aiplatform.start_run('my-run') as my_run:
+        with aiplatform.start_run('my-run', resume=True) as my_run:
             my_run.log_params({'learning_rate':0.1})
         ```
 
@@ -287,32 +413,37 @@ class _ExperimentTracker:
                 but with a different schema.
         """
 
-        if not self._experiment:
+        if not self.experiment:
             raise ValueError(
                 "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
                 "before invoking start_run. "
             )
 
-        if self._experiment_run:
+        if self.experiment_run:
             self.end_run()
 
         if resume:
             self._experiment_run = experiment_run_resource.ExperimentRun(
-                run_name=run, experiment=self._experiment
+                run_name=run, experiment=self.experiment
             )
             if tensorboard:
                 self._experiment_run.assign_backing_tensorboard(tensorboard=tensorboard)
 
-            self._experiment_run.update_state(state=gapic.Execution.State.RUNNING)
+            self._experiment_run.update_state(
+                state=execution_v1.Execution.State.RUNNING
+            )
 
         else:
             self._experiment_run = experiment_run_resource.ExperimentRun.create(
-                run_name=run, experiment=self._experiment, tensorboard=tensorboard
+                run_name=run, experiment=self.experiment, tensorboard=tensorboard
             )
 
         return self._experiment_run
 
-    def end_run(self, state: gapic.Execution.State = gapic.Execution.State.COMPLETE):
+    def end_run(
+        self,
+        state: execution_v1.Execution.State = execution_v1.Execution.State.COMPLETE,
+    ):
         """Ends the the current experiment run.
 
         ```
@@ -324,14 +455,78 @@ class _ExperimentTracker:
         """
         self._validate_experiment_and_run(method_name="end_run")
         try:
-            self._experiment_run.end_run(state=state)
+            self.experiment_run.end_run(state=state)
         except exceptions.NotFound:
-            _LOGGER.warn(
-                f"Experiment run {self._experiment_run.name} was not found."
+            _LOGGER.warning(
+                f"Experiment run {self.experiment_run.name} was not found."
                 "It may have been deleted"
             )
         finally:
             self._experiment_run = None
+
+    def autolog(self, disable=False):
+        """Enables autologging of parameters and metrics to Vertex Experiments.
+
+        After calling `aiplatform.autolog()`, any metrics and parameters from
+        model training calls with supported ML frameworks will be automatically
+        logged to Vertex Experiments.
+
+        Using autologging requires setting an experiment and experiment_tensorboard.
+
+        Args:
+            disable (bool):
+                Optional. Whether to disable autologging. Defaults to False.
+                If set to True, this resets the MLFlow tracking URI to its
+                previous state before autologging was called and remove logging
+                filters.
+        Raises:
+            ImportError:
+                If MLFlow is not installed. MLFlow is required to use
+                autologging in Vertex.
+            ValueError:
+                If experiment or experiment_tensorboard is not set.
+                If `disable` is passed and autologging hasn't been enbaled.
+        """
+
+        try:
+            import mlflow
+        except ImportError:
+            raise ImportError(
+                "MLFlow is not installed. Please install MLFlow using pip install google-cloud-aiplatform[autologging] to use autologging in the Vertex SDK."
+            )
+
+        if disable:
+            if not autologging_utils._is_autologging_enabled():
+                raise ValueError(
+                    "Autologging is not enabled. Enable autologging by calling aiplatform.autolog()."
+                )
+            if self._existing_tracking_uri:
+                mlflow.set_tracking_uri(self._existing_tracking_uri)
+            mlflow.autolog(disable=True)
+
+            # Remove the log filters we applied in the plugin
+            logging.getLogger("mlflow").setLevel(logging.INFO)
+            logging.getLogger("mlflow.tracking.fluent").disabled = False
+            logging.getLogger("mlflow.utils.autologging_utils").removeFilter(
+                _MLFlowLogFilter()
+            )
+        elif not self.experiment:
+            raise ValueError(
+                "No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
+                "before calling aiplatform.autolog()."
+            )
+        elif not self.experiment._metadata_context.metadata.get(
+            constants._BACKING_TENSORBOARD_RESOURCE_KEY
+        ):
+            raise ValueError(
+                "Setting an experiment tensorboard is required to use autologging. "
+                "Please set a backing tensorboard resource by calling "
+                "aiplatform.init(experiment_tensorboard=aiplatform.Tensorboard(...))."
+            )
+        else:
+            self._existing_tracking_uri = mlflow.get_tracking_uri()
+
+            _ExperimentTracker._initialize_mlflow_plugin()
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         """Log single or multiple parameters with specified key and value pairs.
@@ -350,7 +545,7 @@ class _ExperimentTracker:
 
         self._validate_experiment_and_run(method_name="log_params")
         # query the latest run execution resource before logging.
-        self._experiment_run.log_params(params=params)
+        self.experiment_run.log_params(params=params)
 
     def log_metrics(self, metrics: Dict[str, Union[float, int, str]]):
         """Log single or multiple Metrics with specified key and value pairs.
@@ -369,7 +564,148 @@ class _ExperimentTracker:
 
         self._validate_experiment_and_run(method_name="log_metrics")
         # query the latest metrics artifact resource before logging.
-        self._experiment_run.log_metrics(metrics=metrics)
+        self.experiment_run.log_metrics(metrics=metrics)
+
+    def log_classification_metrics(
+        self,
+        *,
+        labels: Optional[List[str]] = None,
+        matrix: Optional[List[List[int]]] = None,
+        fpr: Optional[List[float]] = None,
+        tpr: Optional[List[float]] = None,
+        threshold: Optional[List[float]] = None,
+        display_name: Optional[str] = None,
+    ) -> google_artifact_schema.ClassificationMetrics:
+        """Create an artifact for classification metrics and log to ExperimentRun. Currently support confusion matrix and ROC curve.
+
+        ```
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
+        classification_metrics = my_run.log_classification_metrics(
+            display_name='my-classification-metrics',
+            labels=['cat', 'dog'],
+            matrix=[[9, 1], [1, 9]],
+            fpr=[0.1, 0.5, 0.9],
+            tpr=[0.1, 0.7, 0.9],
+            threshold=[0.9, 0.5, 0.1],
+        )
+        ```
+
+        Args:
+            labels (List[str]):
+                Optional. List of label names for the confusion matrix. Must be set if 'matrix' is set.
+            matrix (List[List[int]):
+                Optional. Values for the confusion matrix. Must be set if 'labels' is set.
+            fpr (List[float]):
+                Optional. List of false positive rates for the ROC curve. Must be set if 'tpr' or 'thresholds' is set.
+            tpr (List[float]):
+                Optional. List of true positive rates for the ROC curve. Must be set if 'fpr' or 'thresholds' is set.
+            threshold (List[float]):
+                Optional. List of thresholds for the ROC curve. Must be set if 'fpr' or 'tpr' is set.
+            display_name (str):
+                Optional. The user-defined name for the classification metric artifact.
+
+        Raises:
+            ValueError: if 'labels' and 'matrix' are not set together
+                        or if 'labels' and 'matrix' are not in the same length
+                        or if 'fpr' and 'tpr' and 'threshold' are not set together
+                        or if 'fpr' and 'tpr' and 'threshold' are not in the same length
+        """
+
+        self._validate_experiment_and_run(method_name="log_classification_metrics")
+        # query the latest metrics artifact resource before logging.
+        return self.experiment_run.log_classification_metrics(
+            display_name=display_name,
+            labels=labels,
+            matrix=matrix,
+            fpr=fpr,
+            tpr=tpr,
+            threshold=threshold,
+        )
+
+    def log_model(
+        self,
+        model: Union[
+            "sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"  # noqa: F821
+        ],
+        artifact_id: Optional[str] = None,
+        *,
+        uri: Optional[str] = None,
+        input_example: Union[
+            list, dict, "pd.DataFrame", "np.ndarray"  # noqa: F821
+        ] = None,
+        display_name: Optional[str] = None,
+        metadata_store_id: Optional[str] = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> google_artifact_schema.ExperimentModel:
+        """Saves a ML model into a MLMD artifact and log it to this ExperimentRun.
+
+        Supported model frameworks: sklearn, xgboost, tensorflow.
+
+        Example usage:
+            model = LinearRegression()
+            model.fit(X, y)
+            aiplatform.init(
+                project="my-project",
+                location="my-location",
+                staging_bucket="gs://my-bucket",
+                experiment="my-exp"
+            )
+            with aiplatform.start_run("my-run"):
+                aiplatform.log_model(model, "my-sklearn-model")
+
+        Args:
+            model (Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]):
+                Required. A machine learning model.
+            artifact_id (str):
+                Optional. The resource id of the artifact. This id must be globally unique
+                in a metadataStore. It may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            uri (str):
+                Optional. A gcs directory to save the model file. If not provided,
+                `gs://default-bucket/timestamp-uuid-frameworkName-model` will be used.
+                If default staging bucket is not set, a new bucket will be created.
+            input_example (Union[list, dict, pd.DataFrame, np.ndarray]):
+                Optional. An example of a valid model input. Will be stored as a yaml file
+                in the gcs uri. Accepts list, dict, pd.DataFrame, and np.ndarray
+                The value inside a list must be a scalar or list. The value inside
+                a dict must be a scalar, list, or np.ndarray.
+            display_name (str):
+                Optional. The display name of the artifact.
+            metadata_store_id (str):
+                Optional. The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Optional. Project used to create this Artifact. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location used to create this Artifact. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to create this Artifact. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            An ExperimentModel instance.
+
+        Raises:
+            ValueError: if model type is not supported.
+        """
+        self._validate_experiment_and_run(method_name="log_model")
+        self.experiment_run.log_model(
+            model=model,
+            artifact_id=artifact_id,
+            uri=uri,
+            input_example=input_example,
+            display_name=display_name,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
 
     def _validate_experiment_and_run(self, method_name: str):
         """Validates Experiment and Run are set and raises informative error message.
@@ -381,12 +717,12 @@ class _ExperimentTracker:
             ValueError: If Experiment or Run are not set.
         """
 
-        if not self._experiment:
+        if not self.experiment:
             raise ValueError(
                 f"No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
                 f"before trying to {method_name}. "
             )
-        if not self._experiment_run:
+        if not self.experiment_run:
             raise ValueError(
                 f"No run set. Make sure to call aiplatform.start_run('my-run') before trying to {method_name}. "
             )
@@ -430,7 +766,7 @@ class _ExperimentTracker:
         """
 
         if not experiment:
-            experiment = self._experiment
+            experiment = self.experiment
         else:
             experiment = experiment_resources.Experiment(experiment)
 
@@ -455,7 +791,7 @@ class _ExperimentTracker:
                 Optional. Vertex PipelineJob to associate to this Experiment Run.
         """
         self._validate_experiment_and_run(method_name="log")
-        self._experiment_run.log(pipeline_job=pipeline_job)
+        self.experiment_run.log(pipeline_job=pipeline_job)
 
     def log_time_series_metrics(
         self,
@@ -499,7 +835,7 @@ class _ExperimentTracker:
             RuntimeError: If current experiment run doesn't have a backing Tensorboard resource.
         """
         self._validate_experiment_and_run(method_name="log_time_series_metrics")
-        self._experiment_run.log_time_series_metrics(
+        self.experiment_run.log_time_series_metrics(
             metrics=metrics, step=step, wall_time=wall_time
         )
 
@@ -575,18 +911,15 @@ class _ExperimentTracker:
             ValueError: If creating a new executin and schema_title is not provided.
         """
 
-        if (
-            self._experiment_run
-            and not self._experiment_run._is_legacy_experiment_run()
-        ):
-            if project and project != self._experiment_run.project:
+        if self.experiment_run and not self.experiment_run._is_legacy_experiment_run():
+            if project and project != self.experiment_run.project:
                 raise ValueError(
-                    f"Currently set Experiment run project {self._experiment_run.project} must"
+                    f"Currently set Experiment run project {self.experiment_run.project} must"
                     f"match provided project {project}"
                 )
-            if location and location != self._experiment_run.location:
+            if location and location != self.experiment_run.location:
                 raise ValueError(
-                    f"Currently set Experiment run location {self._experiment_run.location} must"
+                    f"Currently set Experiment run location {self.experiment_run.location} must"
                     f"match provided location {project}"
                 )
 
@@ -624,7 +957,7 @@ class _ExperimentTracker:
 
         if self.experiment_run:
             if self.experiment_run._is_legacy_experiment_run():
-                _LOGGER.warn(
+                _LOGGER.warning(
                     f"{self.experiment_run._run_name} is an Experiment run created in Vertex Experiment Preview",
                     " and does not support tracking Executions."
                     " Please create a new Experiment run to track executions against an Experiment run.",

@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import delete_experiment_sample
-
+from experiment_tracking import delete_experiment_sample
 import test_constants
 
 

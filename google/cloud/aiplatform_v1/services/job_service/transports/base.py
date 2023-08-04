@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
 #
 import abc
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Union
-import pkg_resources
+
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 import google.auth  # type: ignore
 import google.api_core
@@ -43,6 +44,8 @@ from google.cloud.aiplatform_v1.types import model_deployment_monitoring_job
 from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
+from google.cloud.aiplatform_v1.types import nas_job
+from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -50,20 +53,18 @@ from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 class JobServiceTransport(abc.ABC):
     """Abstract transport class for JobService."""
 
-    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
+    AUTH_SCOPES = (
+        "https://www.googleapis.com/auth/cloud-platform",
+        "https://www.googleapis.com/auth/cloud-platform.read-only",
+    )
 
     DEFAULT_HOST: str = "aiplatform.googleapis.com"
 
@@ -71,12 +72,13 @@ class JobServiceTransport(abc.ABC):
         self,
         *,
         host: str = DEFAULT_HOST,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
         **kwargs,
     ) -> None:
         """Instantiate the transport.
@@ -104,11 +106,6 @@ class JobServiceTransport(abc.ABC):
                 be used for service account credentials.
         """
 
-        # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ":" not in host:
-            host += ":443"
-        self._host = host
-
         scopes_kwargs = {"scopes": scopes, "default_scopes": self.AUTH_SCOPES}
 
         # Save the scopes.
@@ -129,6 +126,11 @@ class JobServiceTransport(abc.ABC):
             credentials, _ = google.auth.default(
                 **scopes_kwargs, quota_project_id=quota_project_id
             )
+            # Don't apply audience if the credentials file passed from user.
+            if hasattr(credentials, "with_gdch_audience"):
+                credentials = credentials.with_gdch_audience(
+                    api_audience if api_audience else host
+                )
 
         # If the credentials are service account credentials, then always try to use self signed JWT.
         if (
@@ -140,6 +142,11 @@ class JobServiceTransport(abc.ABC):
 
         # Save the credentials.
         self._credentials = credentials
+
+        # Save the hostname. Default to port 443 (HTTPS) if none is specified.
+        if ":" not in host:
+            host += ":443"
+        self._host = host
 
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
@@ -216,6 +223,41 @@ class JobServiceTransport(abc.ABC):
             ),
             self.cancel_hyperparameter_tuning_job: gapic_v1.method.wrap_method(
                 self.cancel_hyperparameter_tuning_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_nas_job: gapic_v1.method.wrap_method(
+                self.create_nas_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_nas_job: gapic_v1.method.wrap_method(
+                self.get_nas_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_nas_jobs: gapic_v1.method.wrap_method(
+                self.list_nas_jobs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_nas_job: gapic_v1.method.wrap_method(
+                self.delete_nas_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.cancel_nas_job: gapic_v1.method.wrap_method(
+                self.cancel_nas_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_nas_trial_detail: gapic_v1.method.wrap_method(
+                self.get_nas_trial_detail,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_nas_trial_details: gapic_v1.method.wrap_method(
+                self.list_nas_trial_details,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -453,6 +495,73 @@ class JobServiceTransport(abc.ABC):
     ) -> Callable[
         [job_service.CancelHyperparameterTuningJobRequest],
         Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_nas_job(
+        self,
+    ) -> Callable[
+        [job_service.CreateNasJobRequest],
+        Union[gca_nas_job.NasJob, Awaitable[gca_nas_job.NasJob]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_nas_job(
+        self,
+    ) -> Callable[
+        [job_service.GetNasJobRequest], Union[nas_job.NasJob, Awaitable[nas_job.NasJob]]
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_nas_jobs(
+        self,
+    ) -> Callable[
+        [job_service.ListNasJobsRequest],
+        Union[
+            job_service.ListNasJobsResponse, Awaitable[job_service.ListNasJobsResponse]
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_nas_job(
+        self,
+    ) -> Callable[
+        [job_service.DeleteNasJobRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def cancel_nas_job(
+        self,
+    ) -> Callable[
+        [job_service.CancelNasJobRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_nas_trial_detail(
+        self,
+    ) -> Callable[
+        [job_service.GetNasTrialDetailRequest],
+        Union[nas_job.NasTrialDetail, Awaitable[nas_job.NasTrialDetail]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_nas_trial_details(
+        self,
+    ) -> Callable[
+        [job_service.ListNasTrialDetailsRequest],
+        Union[
+            job_service.ListNasTrialDetailsResponse,
+            Awaitable[job_service.ListNasTrialDetailsResponse],
+        ],
     ]:
         raise NotImplementedError()
 

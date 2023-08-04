@@ -27,15 +27,13 @@ import pandas as pd
 _TEST_USERS_ENTITY_TYPE_GCS_SRC = (
     "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/users.avro"
 )
-_TEST_MOVIES_ENTITY_TYPE_GCS_SRC = (
-    "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movies.avro"
-)
 
 _TEST_READ_INSTANCE_SRC = "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/datasets/movie_prediction.csv"
 
 _TEST_FEATURESTORE_ID = "movie_prediction"
 _TEST_USER_ENTITY_TYPE_ID = "users"
 _TEST_MOVIE_ENTITY_TYPE_ID = "movies"
+_TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS = {"my_key_update": "my_value_update"}
 
 _TEST_USER_AGE_FEATURE_ID = "age"
 _TEST_USER_GENDER_FEATURE_ID = "gender"
@@ -128,6 +126,15 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert get_movie_entity_type.resource_name in [
             entity_type.resource_name for entity_type in list_entity_types
         ]
+
+        # Update information about the movie entity type.
+        assert movie_entity_type.labels != _TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS
+
+        movie_entity_type.update(
+            labels=_TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS,
+        )
+
+        assert movie_entity_type.labels == _TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS
 
     def test_create_get_list_features(self, shared_state):
 
@@ -323,7 +330,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             ],
             columns=["movie_id", "average_rating", "title", "genres", "update_time"],
         )
-        movies_df = movies_df.astype({"update_time": "datetime64"})
+        movies_df["update_time"] = pd.to_datetime(movies_df["update_time"], utc=True)
         feature_time_column = "update_time"
 
         movie_entity_type.ingest_from_df(
@@ -434,6 +441,66 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         caplog.clear()
 
+    def test_write_features(self, shared_state, caplog):
+        assert shared_state["movie_entity_type"]
+        movie_entity_type = shared_state["movie_entity_type"]
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+
+        # Create pandas DataFrame
+        movies_df = pd.DataFrame(
+            data=[
+                {
+                    "entity_id": "movie_01",
+                    "average_rating": 4.9,
+                    "title": "The Shawshank Redemption",
+                    "genres": ["Drama", "Action"],
+                },
+                {
+                    "entity_id": "movie_02",
+                    "average_rating": 4.4,
+                    "title": "The Shining",
+                    "genres": ["Horror", "Action"],
+                },
+            ],
+            columns=["entity_id", "average_rating", "title", "genres"],
+        )
+        movies_df = movies_df.set_index("entity_id")
+
+        # Write feature values
+        movie_entity_type.preview.write_feature_values(instances=movies_df)
+        movie_entity_type.write_feature_values(
+            instances={"movie_02": {"average_rating": 4.5}}
+        )
+
+        # Ensure writing feature values overwrites previous values
+        movie_entity_df_avg_rating_genres = movie_entity_type.read(
+            entity_ids="movie_02", feature_ids=["average_rating", "genres"]
+        )
+        expected_data_avg_rating = [
+            {
+                "entity_id": "movie_02",
+                "average_rating": 4.5,
+                "genres": ["Horror", "Action"],
+            },
+        ]
+        expected_movie_entity_df_avg_rating_genres = pd.DataFrame(
+            data=expected_data_avg_rating,
+            columns=["entity_id", "average_rating", "genres"],
+        )
+        expected_movie_entity_df_avg_rating_genres.equals(
+            movie_entity_df_avg_rating_genres
+        )
+
+        assert "EntityType feature values written." in caplog.text
+
+        caplog.clear()
+
     def test_search_features(self, shared_state):
 
         aiplatform.init(
@@ -479,7 +546,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             ],
             columns=["users", "movies", "timestamp"],
         )
-        read_instances_df = read_instances_df.astype({"timestamp": "datetime64"})
+        read_instances_df["timestamp"] = pd.to_datetime(
+            read_instances_df["timestamp"], utc=True
+        )
 
         df = featurestore.batch_serve_to_df(
             serving_feature_ids={
@@ -514,7 +583,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             "average_rating",
         ]
 
-        assert type(df) == pd.DataFrame
+        assert isinstance(df, pd.DataFrame)
         assert list(df.columns) == expected_df_columns
         assert df.size == 54
         assert "Featurestore feature values served." in caplog.text
@@ -630,16 +699,16 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         movie_entity_type = shared_state["movie_entity_type"]
 
         user_entity_views = user_entity_type.read(entity_ids="alice")
-        assert type(user_entity_views) == pd.DataFrame
+        assert isinstance(user_entity_views, pd.DataFrame)
 
         movie_entity_views = movie_entity_type.read(
             entity_ids=["movie_01", "movie_04"],
             feature_ids=[_TEST_MOVIE_TITLE_FEATURE_ID, _TEST_MOVIE_GENRES_FEATURE_ID],
         )
-        assert type(movie_entity_views) == pd.DataFrame
+        assert isinstance(movie_entity_views, pd.DataFrame)
 
         movie_entity_views = movie_entity_type.read(
             entity_ids="movie_01",
             feature_ids=[_TEST_MOVIE_TITLE_FEATURE_ID, _TEST_MOVIE_GENRES_FEATURE_ID],
         )
-        assert type(movie_entity_views) == pd.DataFrame
+        assert isinstance(movie_entity_views, pd.DataFrame)

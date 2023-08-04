@@ -33,17 +33,20 @@ from google.cloud.aiplatform.compat.services import (
 )
 
 from google.cloud.aiplatform.compat.types import index as gca_index
+import constants as test_constants
 
 # project
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
 
 
 # index
-_TEST_INDEX_ID = "index_id"
-_TEST_INDEX_NAME = f"{_TEST_PARENT}/indexes/{_TEST_INDEX_ID}"
-_TEST_INDEX_DISPLAY_NAME = "index_display_name"
+_TEST_INDEX_ID = test_constants.MatchingEngineConstants._TEST_INDEX_ID
+_TEST_INDEX_NAME = test_constants.MatchingEngineConstants._TEST_INDEX_NAME
+_TEST_INDEX_DISPLAY_NAME = (
+    test_constants.MatchingEngineConstants._TEST_INDEX_DISPLAY_NAME
+)
 _TEST_CONTENTS_DELTA_URI = "gs://contents"
 _TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
 
@@ -55,16 +58,20 @@ _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT = 150
 _TEST_LEAF_NODE_EMBEDDING_COUNT = 123
 _TEST_LEAF_NODES_TO_SEARCH_PERCENT = 50
 
-_TEST_INDEX_DESCRIPTION = "index_description"
+_TEST_INDEX_DESCRIPTION = test_constants.MatchingEngineConstants._TEST_INDEX_DESCRIPTION
 
 
-_TEST_LABELS = {"my_key": "my_value"}
-_TEST_DISPLAY_NAME_UPDATE = "my new display name"
-_TEST_DESCRIPTION_UPDATE = "my description update"
-_TEST_LABELS_UPDATE = {"my_key_update": "my_value_update"}
+_TEST_LABELS = test_constants.MatchingEngineConstants._TEST_LABELS
+_TEST_DISPLAY_NAME_UPDATE = (
+    test_constants.MatchingEngineConstants._TEST_DISPLAY_NAME_UPDATE
+)
+_TEST_DESCRIPTION_UPDATE = (
+    test_constants.MatchingEngineConstants._TEST_DESCRIPTION_UPDATE
+)
+_TEST_LABELS_UPDATE = test_constants.MatchingEngineConstants._TEST_LABELS_UPDATE
 
 # request_metadata
-_TEST_REQUEST_METADATA = ()
+_TEST_REQUEST_METADATA = test_constants.MatchingEngineConstants._TEST_REQUEST_METADATA
 
 # Lists
 _TEST_INDEX_LIST = [
@@ -246,12 +253,10 @@ class TestMatchingEngineIndex:
 
         my_indexes_list = aiplatform.MatchingEngineIndex.list()
 
-        list_indexes_mock.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "filter": None}
-        )
+        list_indexes_mock.assert_called_once_with(request={"parent": _TEST_PARENT})
         assert len(my_indexes_list) == len(_TEST_INDEX_LIST)
         for my_index in my_indexes_list:
-            assert type(my_index) == aiplatform.MatchingEngineIndex
+            assert isinstance(my_index, aiplatform.MatchingEngineIndex)
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_index_mock")

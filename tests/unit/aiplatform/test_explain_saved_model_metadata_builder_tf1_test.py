@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ import pytest
 import tensorflow.compat.v1 as tf
 
 from google.cloud.aiplatform import models
-from google.cloud.aiplatform.explain.metadata.tf.v1 import saved_model_metadata_builder
+from google.cloud.aiplatform.explain.metadata.tf.v1 import (
+    saved_model_metadata_builder,
+)
 from google.cloud.aiplatform.compat.types import explanation_metadata
-
-import test_models
-from test_models import upload_model_mock, get_model_mock  # noqa: F401
+import constants as test_constants
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -128,11 +128,11 @@ class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
 
         try:
             models.Model.upload(
-                display_name=test_models._TEST_MODEL_NAME,
-                serving_container_image_uri=test_models._TEST_SERVING_CONTAINER_IMAGE,
-                explanation_parameters=test_models._TEST_EXPLANATION_PARAMETERS,
+                display_name=test_constants.ModelConstants._TEST_MODEL_NAME,
+                serving_container_image_uri=test_constants.ModelConstants._TEST_SERVING_CONTAINER_IMAGE,
+                explanation_parameters=test_constants.ModelConstants._TEST_EXPLANATION_PARAMETERS,
                 explanation_metadata=generated_md,  # Test metadata from builder
-                labels=test_models._TEST_LABEL,
+                labels=test_constants.ModelConstants._TEST_LABEL,
             )
         except TypeError as e:
             if "Parameter to MergeFrom() must be instance of same class" in str(e):

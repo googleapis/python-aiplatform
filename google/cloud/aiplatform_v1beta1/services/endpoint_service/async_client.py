@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,19 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
+
+from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
@@ -59,6 +70,12 @@ class EndpointServiceAsyncClient:
     DEFAULT_ENDPOINT = EndpointServiceClient.DEFAULT_ENDPOINT
     DEFAULT_MTLS_ENDPOINT = EndpointServiceClient.DEFAULT_MTLS_ENDPOINT
 
+    deployment_resource_pool_path = staticmethod(
+        EndpointServiceClient.deployment_resource_pool_path
+    )
+    parse_deployment_resource_pool_path = staticmethod(
+        EndpointServiceClient.parse_deployment_resource_pool_path
+    )
     endpoint_path = staticmethod(EndpointServiceClient.endpoint_path)
     parse_endpoint_path = staticmethod(EndpointServiceClient.parse_endpoint_path)
     model_path = staticmethod(EndpointServiceClient.model_path)
@@ -145,7 +162,7 @@ class EndpointServiceAsyncClient:
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -181,9 +198,9 @@ class EndpointServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, EndpointServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the endpoint service client.
@@ -227,19 +244,26 @@ class EndpointServiceAsyncClient:
 
     async def create_endpoint(
         self,
-        request: Union[endpoint_service.CreateEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.CreateEndpointRequest, dict]] = None,
         *,
-        parent: str = None,
-        endpoint: gca_endpoint.Endpoint = None,
-        endpoint_id: str = None,
+        parent: Optional[str] = None,
+        endpoint: Optional[gca_endpoint.Endpoint] = None,
+        endpoint_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates an Endpoint.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_create_endpoint():
@@ -260,13 +284,13 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CreateEndpointRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CreateEndpointRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.CreateEndpoint].
             parent (:class:`str`):
@@ -288,11 +312,19 @@ class EndpointServiceAsyncClient:
                 not provided, Vertex AI will generate a value for this
                 ID.
 
-                This value should be 1-10 characters, and valid
-                characters are /[0-9]/. When using HTTP/JSON, this field
-                is populated based on a query string argument, such as
-                ``?endpoint_id=12345``. This is the fallback for fields
-                that are not included in either the URI or the body.
+                If the first character is a letter, this value may be up
+                to 63 characters, and valid characters are
+                ``[a-z0-9-]``. The last character must be a letter or
+                number.
+
+                If the first character is a number, this value may be up
+                to 9 characters, and valid characters are ``[0-9]`` with
+                no leading zeros.
+
+                When using HTTP/JSON, this field is populated based on a
+                query string argument, such as ``?endpoint_id=12345``.
+                This is the fallback for fields that are not included in
+                either the URI or the body.
 
                 This corresponds to the ``endpoint_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -367,17 +399,24 @@ class EndpointServiceAsyncClient:
 
     async def get_endpoint(
         self,
-        request: Union[endpoint_service.GetEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.GetEndpointRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> endpoint.Endpoint:
         r"""Gets an Endpoint.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_get_endpoint():
@@ -396,7 +435,7 @@ class EndpointServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetEndpointRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetEndpointRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.GetEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.GetEndpoint]
             name (:class:`str`):
@@ -463,17 +502,24 @@ class EndpointServiceAsyncClient:
 
     async def list_endpoints(
         self,
-        request: Union[endpoint_service.ListEndpointsRequest, dict] = None,
+        request: Optional[Union[endpoint_service.ListEndpointsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListEndpointsAsyncPager:
         r"""Lists Endpoints in a Location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_list_endpoints():
@@ -493,7 +539,7 @@ class EndpointServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListEndpointsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListEndpointsRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
             parent (:class:`str`):
@@ -513,7 +559,7 @@ class EndpointServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.endpoint_service.pagers.ListEndpointsAsyncPager:
                 Response message for
-                [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
+                   [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -572,18 +618,25 @@ class EndpointServiceAsyncClient:
 
     async def update_endpoint(
         self,
-        request: Union[endpoint_service.UpdateEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.UpdateEndpointRequest, dict]] = None,
         *,
-        endpoint: gca_endpoint.Endpoint = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        endpoint: Optional[gca_endpoint.Endpoint] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_endpoint.Endpoint:
         r"""Updates an Endpoint.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_update_endpoint():
@@ -605,7 +658,7 @@ class EndpointServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateEndpointRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.UpdateEndpointRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpoint].
             endpoint (:class:`google.cloud.aiplatform_v1beta1.types.Endpoint`):
@@ -683,17 +736,24 @@ class EndpointServiceAsyncClient:
 
     async def delete_endpoint(
         self,
-        request: Union[endpoint_service.DeleteEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.DeleteEndpointRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes an Endpoint.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_delete_endpoint():
@@ -710,13 +770,13 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteEndpointRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeleteEndpointRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.DeleteEndpoint].
             name (:class:`str`):
@@ -747,9 +807,6 @@ class EndpointServiceAsyncClient:
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -804,13 +861,13 @@ class EndpointServiceAsyncClient:
 
     async def deploy_model(
         self,
-        request: Union[endpoint_service.DeployModelRequest, dict] = None,
+        request: Optional[Union[endpoint_service.DeployModelRequest, dict]] = None,
         *,
-        endpoint: str = None,
-        deployed_model: gca_endpoint.DeployedModel = None,
-        traffic_split: Mapping[str, int] = None,
+        endpoint: Optional[str] = None,
+        deployed_model: Optional[gca_endpoint.DeployedModel] = None,
+        traffic_split: Optional[MutableMapping[str, int]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deploys a Model into this Endpoint, creating a
@@ -818,6 +875,13 @@ class EndpointServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_deploy_model():
@@ -839,13 +903,13 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeployModelRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeployModelRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
             endpoint (:class:`str`):
@@ -867,7 +931,7 @@ class EndpointServiceAsyncClient:
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Mapping[str, int]`):
+            traffic_split (:class:`MutableMapping[str, int]`):
                 A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that
                 DeployedModel.
@@ -897,10 +961,8 @@ class EndpointServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.DeployModelResponse`
-                Response message for
-                [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.DeployModelResponse` Response message for
+                   [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
 
         """
         # Create or coerce a protobuf request object.
@@ -960,13 +1022,13 @@ class EndpointServiceAsyncClient:
 
     async def undeploy_model(
         self,
-        request: Union[endpoint_service.UndeployModelRequest, dict] = None,
+        request: Optional[Union[endpoint_service.UndeployModelRequest, dict]] = None,
         *,
-        endpoint: str = None,
-        deployed_model_id: str = None,
-        traffic_split: Mapping[str, int] = None,
+        endpoint: Optional[str] = None,
+        deployed_model_id: Optional[str] = None,
+        traffic_split: Optional[MutableMapping[str, int]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Undeploys a Model from an Endpoint, removing a
@@ -975,6 +1037,13 @@ class EndpointServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_undeploy_model():
@@ -992,13 +1061,13 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.UndeployModelRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.UndeployModelRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
             endpoint (:class:`str`):
@@ -1016,7 +1085,7 @@ class EndpointServiceAsyncClient:
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Mapping[str, int]`):
+            traffic_split (:class:`MutableMapping[str, int]`):
                 If this field is provided, then the Endpoint's
                 [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 will be overwritten with it. If last DeployedModel is
@@ -1040,10 +1109,8 @@ class EndpointServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.UndeployModelResponse`
-                Response message for
-                [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.UndeployModelResponse` Response message for
+                   [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
 
         """
         # Create or coerce a protobuf request object.
@@ -1101,12 +1168,171 @@ class EndpointServiceAsyncClient:
         # Done; return the response.
         return response
 
+    async def mutate_deployed_model(
+        self,
+        request: Optional[
+            Union[endpoint_service.MutateDeployedModelRequest, dict]
+        ] = None,
+        *,
+        endpoint: Optional[str] = None,
+        deployed_model: Optional[gca_endpoint.DeployedModel] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Updates an existing deployed model. Updatable fields include
+        ``min_replica_count``, ``max_replica_count``,
+        ``autoscaling_metric_specs``, ``disable_container_logging`` (v1
+        only), and ``enable_container_logging`` (v1beta1 only).
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_mutate_deployed_model():
+                # Create a client
+                client = aiplatform_v1beta1.EndpointServiceAsyncClient()
+
+                # Initialize request argument(s)
+                deployed_model = aiplatform_v1beta1.DeployedModel()
+                deployed_model.dedicated_resources.min_replica_count = 1803
+                deployed_model.model = "model_value"
+
+                request = aiplatform_v1beta1.MutateDeployedModelRequest(
+                    endpoint="endpoint_value",
+                    deployed_model=deployed_model,
+                )
+
+                # Make the request
+                operation = client.mutate_deployed_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.MutateDeployedModelRequest, dict]]):
+                The request object. Request message for
+                [EndpointService.MutateDeployedModel][google.cloud.aiplatform.v1beta1.EndpointService.MutateDeployedModel].
+            endpoint (:class:`str`):
+                Required. The name of the Endpoint resource into which
+                to mutate a DeployedModel. Format:
+                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
+                This corresponds to the ``endpoint`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            deployed_model (:class:`google.cloud.aiplatform_v1beta1.types.DeployedModel`):
+                Required. The DeployedModel to be mutated within the
+                Endpoint. Only the following fields can be mutated:
+
+                -  ``min_replica_count`` in either
+                   [DedicatedResources][google.cloud.aiplatform.v1beta1.DedicatedResources]
+                   or
+                   [AutomaticResources][google.cloud.aiplatform.v1beta1.AutomaticResources]
+                -  ``max_replica_count`` in either
+                   [DedicatedResources][google.cloud.aiplatform.v1beta1.DedicatedResources]
+                   or
+                   [AutomaticResources][google.cloud.aiplatform.v1beta1.AutomaticResources]
+                -  [autoscaling_metric_specs][google.cloud.aiplatform.v1beta1.DedicatedResources.autoscaling_metric_specs]
+                -  ``disable_container_logging`` (v1 only)
+                -  ``enable_container_logging`` (v1beta1 only)
+
+                This corresponds to the ``deployed_model`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
+                Required. The update mask applies to the resource. See
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
+
+                This corresponds to the ``update_mask`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.MutateDeployedModelResponse` Response message for
+                   [EndpointService.MutateDeployedModel][google.cloud.aiplatform.v1beta1.EndpointService.MutateDeployedModel].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([endpoint, deployed_model, update_mask])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = endpoint_service.MutateDeployedModelRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if endpoint is not None:
+            request.endpoint = endpoint
+        if deployed_model is not None:
+            request.deployed_model = deployed_model
+        if update_mask is not None:
+            request.update_mask = update_mask
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.mutate_deployed_model,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            endpoint_service.MutateDeployedModelResponse,
+            metadata_type=endpoint_service.MutateDeployedModelOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1157,10 +1383,10 @@ class EndpointServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1211,10 +1437,10 @@ class EndpointServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -1266,10 +1492,10 @@ class EndpointServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1320,10 +1546,10 @@ class EndpointServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1380,10 +1606,10 @@ class EndpointServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1414,8 +1640,11 @@ class EndpointServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1439,8 +1668,11 @@ class EndpointServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1455,6 +1687,7 @@ class EndpointServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1493,10 +1726,10 @@ class EndpointServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -1528,8 +1761,11 @@ class EndpointServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1553,8 +1789,11 @@ class EndpointServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1569,6 +1808,7 @@ class EndpointServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1607,10 +1847,10 @@ class EndpointServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -1666,10 +1906,10 @@ class EndpointServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1720,10 +1960,10 @@ class EndpointServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -1772,21 +2012,16 @@ class EndpointServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "EndpointServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         await self.transport.close()
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("EndpointServiceAsyncClient",)

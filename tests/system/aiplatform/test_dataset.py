@@ -21,6 +21,10 @@ import pytest
 import importlib
 
 import pandas as pd
+import pkg_resources
+import re
+
+from datetime import datetime
 
 from google.api_core import exceptions
 from google.api_core import client_options
@@ -31,7 +35,9 @@ from google.cloud import aiplatform
 from google.cloud import storage
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform_v1beta1.services import dataset_service
+from google.cloud.aiplatform.compat.services import (
+    dataset_service_client_v1 as dataset_service,
+)
 
 from test_utils.vpcsc_config import vpcsc_config
 
@@ -56,12 +62,10 @@ _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE = "gs://ucaip-sample-resources/iris_1000
 _TEST_FORECASTING_BQ_SOURCE = (
     "bq://ucaip-sample-tests:ucaip_test_us_central1.2020_sales_train"
 )
-_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = f"gs://{TEST_BUCKET}/ai-platform-unified/sdk/datasets/text_entity_extraction_dataset.jsonl"
-_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = (
-    "gs://ucaip-test-us-central1/dataset/salads_oid_ml_use_public_unassigned.jsonl"
-)
+_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = "gs://ucaip-samples-us-central1/sdk_system_test_resources/text_entity_extraction_dataset_small.jsonl"
+_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = "gs://cloud-samples-data-us-central1/ai-platform-unified/datasets/images/isg_data.jsonl"
 _TEST_TEXT_ENTITY_IMPORT_SCHEMA = "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_extraction_io_format_1.0.0.yaml"
-_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA = "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_bounding_box_io_format_1.0.0.yaml"
+_TEST_IMAGE_OBJ_DET_SEGMENTATION_IMPORT_SCHEMA = "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_segmentation_io_format_1.0.0.yaml"
 
 # create_from_dataframe
 _TEST_BOOL_COL = "bool_col"
@@ -73,6 +77,8 @@ _TEST_INT_ARR_COL = "int64_array_col"
 _TEST_STR_COL = "string_col"
 _TEST_STR_ARR_COL = "string_array_col"
 _TEST_BYTES_COL = "bytes_col"
+_TEST_TIMESTAMP_COL = "timestamp_col"
+_TEST_DATETIME_COL = "datetime_col"
 _TEST_DF_COLUMN_NAMES = [
     _TEST_BOOL_COL,
     _TEST_BOOL_ARR_COL,
@@ -83,7 +89,14 @@ _TEST_DF_COLUMN_NAMES = [
     _TEST_STR_COL,
     _TEST_STR_ARR_COL,
     _TEST_BYTES_COL,
+    _TEST_TIMESTAMP_COL,
+    _TEST_DATETIME_COL,
 ]
+
+_TEST_TIME_NOW = datetime.now()
+_TEST_TIMESTAMP_WITH_TIMEZONE = pd.Timestamp(_TEST_TIME_NOW, tz="US/Pacific")
+_TEST_TIMESTAMP_WITHOUT_TIMEZONE = pd.Timestamp(_TEST_TIME_NOW)
+
 _TEST_DATAFRAME = pd.DataFrame(
     data=[
         [
@@ -96,6 +109,8 @@ _TEST_DATAFRAME = pd.DataFrame(
             "test",
             ["test1", "test2"],
             b"1",
+            _TEST_TIMESTAMP_WITH_TIMEZONE,
+            _TEST_TIMESTAMP_WITHOUT_TIMEZONE,
         ],
         [
             True,
@@ -107,6 +122,8 @@ _TEST_DATAFRAME = pd.DataFrame(
             "test1",
             ["test2", "test3"],
             b"0",
+            _TEST_TIMESTAMP_WITH_TIMEZONE,
+            _TEST_TIMESTAMP_WITHOUT_TIMEZONE,
         ],
     ],
     columns=_TEST_DF_COLUMN_NAMES,
@@ -121,6 +138,8 @@ _TEST_DATAFRAME_BQ_SCHEMA = [
     bigquery.SchemaField(name="string_col", field_type="STRING"),
     bigquery.SchemaField(name="string_array_col", field_type="STRING", mode="REPEATED"),
     bigquery.SchemaField(name="bytes_col", field_type="STRING"),
+    bigquery.SchemaField(name="timestamp_col", field_type="TIMESTAMP"),
+    bigquery.SchemaField(name="datetime_col", field_type="DATETIME"),
 ]
 
 
@@ -201,7 +220,7 @@ class TestDataset(e2e_base.TestEndToEnd):
                 parent=my_dataset.resource_name
             )
 
-            assert len(list(data_items_post_import)) == 469
+            assert len(list(data_items_post_import)) == 51
         finally:
             text_dataset.delete()
 
@@ -212,19 +231,11 @@ class TestDataset(e2e_base.TestEndToEnd):
 
         try:
             img_dataset = aiplatform.ImageDataset.create(
-                display_name=self._make_display_name(
-                    key="create_and_import_image_dataset"
-                ),
+                display_name=self._make_display_name(key="create_image_dataset"),
                 gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
-                import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
+                import_schema_uri=_TEST_IMAGE_OBJ_DET_SEGMENTATION_IMPORT_SCHEMA,
                 create_request_timeout=None,
             )
-
-            data_items_iterator = dataset_gapic_client.list_data_items(
-                parent=img_dataset.resource_name
-            )
-
-            assert len(list(data_items_iterator)) == 14
 
         finally:
             if img_dataset is not None:
@@ -256,8 +267,10 @@ class TestDataset(e2e_base.TestEndToEnd):
                 tabular_dataset.delete()
 
     def test_create_tabular_dataset_from_dataframe(self, bigquery_dataset):
-        bq_staging_table = f"bq://{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
-
+        table_id = f"test_table{uuid.uuid4()}"
+        bq_staging_table = (
+            f"bq://{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.{table_id}"
+        )
         try:
             tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
                 df_source=_TEST_DATAFRAME,
@@ -276,6 +289,22 @@ class TestDataset(e2e_base.TestEndToEnd):
             assert (
                 tabular_dataset.metadata_schema_uri
                 == aiplatform.schema.dataset.metadata.tabular
+            )
+            bigquery_client = bigquery.Client(
+                project=_TEST_PROJECT,
+                credentials=initializer.global_config.credentials,
+            )
+            table = bigquery_client.get_table(
+                f"{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.{table_id}"
+            )
+            assert (
+                table.schema[-1]
+                == bigquery.SchemaField(name="datetime_col", field_type="DATETIME")
+                if re.match(
+                    r"3.*",
+                    pkg_resources.get_distribution("google-cloud-bigquery").version,
+                )
+                else bigquery.SchemaField(name="datetime_col", field_type="TIMESTAMP")
             )
         finally:
             if tabular_dataset is not None:

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -36,15 +40,15 @@ class TabularRegressionPredictionResult(proto.Message):
             The upper bound of the prediction interval.
     """
 
-    value = proto.Field(
+    value: float = proto.Field(
         proto.FLOAT,
         number=1,
     )
-    lower_bound = proto.Field(
+    lower_bound: float = proto.Field(
         proto.FLOAT,
         number=2,
     )
-    upper_bound = proto.Field(
+    upper_bound: float = proto.Field(
         proto.FLOAT,
         number=3,
     )

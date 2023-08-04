@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,17 +60,18 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
-        scopes: Sequence[str] = None,
-        channel: grpc.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        channel: Optional[grpc.Channel] = None,
+        api_mtls_endpoint: Optional[str] = None,
+        client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
+        client_cert_source_for_mtls: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
         quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
     ) -> None:
         """Instantiate the transport.
 
@@ -167,6 +168,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
             quota_project_id=quota_project_id,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            api_audience=api_audience,
         )
 
         if not self._grpc_channel:
@@ -193,8 +195,8 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
         **kwargs,
@@ -458,8 +460,9 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         Deletes a Model version.
 
         Model version can only be deleted if there are no
-        [DeployedModels][] created from it. Deleting the only version in
-        the Model is not allowed. Use
+        [DeployedModels][google.cloud.aiplatform.v1beta1.DeployedModel]
+        created from it. Deleting the only version in the Model is not
+        allowed. Use
         [DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel]
         for deleting the Model instead.
 
@@ -537,6 +540,37 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         return self._stubs["export_model"]
 
     @property
+    def copy_model(
+        self,
+    ) -> Callable[[model_service.CopyModelRequest], operations_pb2.Operation]:
+        r"""Return a callable for the copy model method over gRPC.
+
+        Copies an already existing Vertex AI Model into the specified
+        Location. The source Model must exist in the same Project. When
+        copying custom Models, the users themselves are responsible for
+        [Model.metadata][google.cloud.aiplatform.v1beta1.Model.metadata]
+        content to be region-agnostic, as well as making sure that any
+        resources (e.g. files) it depends on remain accessible.
+
+        Returns:
+            Callable[[~.CopyModelRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "copy_model" not in self._stubs:
+            self._stubs["copy_model"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelService/CopyModel",
+                request_serializer=model_service.CopyModelRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["copy_model"]
+
+    @property
     def import_model_evaluation(
         self,
     ) -> Callable[
@@ -597,6 +631,39 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
                 response_deserializer=model_service.BatchImportModelEvaluationSlicesResponse.deserialize,
             )
         return self._stubs["batch_import_model_evaluation_slices"]
+
+    @property
+    def batch_import_evaluated_annotations(
+        self,
+    ) -> Callable[
+        [model_service.BatchImportEvaluatedAnnotationsRequest],
+        model_service.BatchImportEvaluatedAnnotationsResponse,
+    ]:
+        r"""Return a callable for the batch import evaluated
+        annotations method over gRPC.
+
+        Imports a list of externally generated
+        EvaluatedAnnotations.
+
+        Returns:
+            Callable[[~.BatchImportEvaluatedAnnotationsRequest],
+                    ~.BatchImportEvaluatedAnnotationsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_import_evaluated_annotations" not in self._stubs:
+            self._stubs[
+                "batch_import_evaluated_annotations"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelService/BatchImportEvaluatedAnnotations",
+                request_serializer=model_service.BatchImportEvaluatedAnnotationsRequest.serialize,
+                response_deserializer=model_service.BatchImportEvaluatedAnnotationsResponse.deserialize,
+            )
+        return self._stubs["batch_import_evaluated_annotations"]
 
     @property
     def get_model_evaluation(

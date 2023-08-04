@@ -67,22 +67,22 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
                 example:
                     "bq://project.dataset.table_name"
             project (str):
-                Project to upload this model to. Overrides project set in
+                Project to upload this dataset to. Overrides project set in
                 aiplatform.init.
             location (str):
-                Location to upload this model to. Overrides location set in
+                Location to upload this dataset to. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Custom credentials to use to upload this dataset. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
             labels (Dict[str, str]):
-                Optional. Labels with user-defined metadata to organize your Tensorboards.
+                Optional. Labels with user-defined metadata to organize your datasets.
                 Label keys and values can be no longer than 64 characters
                 (Unicode codepoints), can only contain lowercase letters, numeric
                 characters, underscores and dashes. International characters are allowed.
-                No more than 64 user labels can be associated with one Tensorboard
+                No more than 64 user labels can be associated with one TimeSeriesDataset
                 (System labels are excluded).
                 See https://goo.gl/xmQnxf for more information and examples of labels.
                 System reserved label keys are prefixed with "aiplatform.googleapis.com/"

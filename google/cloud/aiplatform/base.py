@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import datetime
 import functools
 import inspect
 import logging
+import re
 import sys
 import threading
 import time
@@ -34,17 +35,22 @@ from typing import (
     Sequence,
     Tuple,
     Type,
+    TypeVar,
     Union,
 )
 
-import proto
-
-from google.api_core import retry
 from google.api_core import operation
+from google.api_core import retry
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform.compat.types import (
+    encryption_spec as gca_encryption_spec,
+)
+from google.cloud.aiplatform.constants import base as base_constants
+import proto
+
+from google.protobuf import field_mask_pb2 as field_mask
 from google.protobuf import json_format
 
 # This is the default retry callback to be used with get methods.
@@ -62,6 +68,10 @@ class Logger:
         """
         self._logger = logging.getLogger(name)
         self._logger.setLevel(logging.INFO)
+
+        if self._logger.handlers:
+            # Avoid writing duplicate logs if the logger is created twice.
+            return
 
         handler = logging.StreamHandler(sys.stdout)
         handler.setLevel(logging.INFO)
@@ -239,7 +249,7 @@ class FutureManager(metaclass=abc.ABCMeta):
             return self.__latest_future is None
 
     def wait(self):
-        """Helper method to that blocks until all futures are complete."""
+        """Helper method that blocks until all futures are complete."""
         future = self.__latest_future
         if future:
             futures.wait([future], return_when=futures.FIRST_EXCEPTION)
@@ -454,6 +464,24 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     # to use custom resource id validators per resource
     _resource_id_validator: Optional[Callable[[str], None]] = None
 
+    @staticmethod
+    def _revisioned_resource_id_validator(
+        resource_id: str,
+    ) -> None:
+        """Some revisioned resource names can have '@' in them
+        to separate the resource ID from the revision ID.
+        Thus, they need their own resource id validator.
+        See https://google.aip.dev/162
+
+        Args:
+            resource_id(str): A resource ID for a resource type that accepts revision syntax.
+                See https://google.aip.dev/162.
+        Raises:
+            ValueError: If a `resource_id` doesn't conform to appropriate revision syntax.
+        """
+        if not re.compile(r"^[\w-]+@?[\w-]+$").match(resource_id):
+            raise ValueError(f"Resource {resource_id} is not a valid resource ID.")
+
     def __init__(
         self,
         project: Optional[str] = None,
@@ -480,13 +508,26 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         self.location = location or initializer.global_config.location
         self.credentials = credentials or initializer.global_config.credentials
 
-        self.api_client = self._instantiate_client(self.location, self.credentials)
+        appended_user_agent = None
+        if base_constants.USER_AGENT_SDK_COMMAND:
+            appended_user_agent = [
+                f"sdk_command/{base_constants.USER_AGENT_SDK_COMMAND}"
+            ]
+            # Reset the value for the USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
+            base_constants.USER_AGENT_SDK_COMMAND = ""
+
+        self.api_client = self._instantiate_client(
+            location=self.location,
+            credentials=self.credentials,
+            appended_user_agent=appended_user_agent,
+        )
 
     @classmethod
     def _instantiate_client(
         cls,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        appended_user_agent: Optional[List[str]] = None,
     ) -> utils.VertexAiServiceClientWithOverride:
         """Helper method to instantiate service client for resource noun.
 
@@ -495,6 +536,9 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             credentials (google.auth.credentials.Credentials):
                 Optional custom credentials to use when accessing interacting with
                 resource noun.
+            appended_user_agent (List[str]):
+                Optional. User agent appended in the client info. If more than one,
+                it will be separated by spaces.
         Returns:
             client (utils.VertexAiServiceClientWithOverride):
                 Initialized service client for this service noun with optional overrides.
@@ -503,6 +547,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             client_class=cls.client_class,
             credentials=credentials,
             location_override=location,
+            appended_user_agent=appended_user_agent,
         )
 
     @classmethod
@@ -703,7 +748,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
 
     def to_dict(self) -> Dict[str, Any]:
         """Returns the resource proto as a dictionary."""
-        return json_format.MessageToDict(self.gca_resource._pb)
+        return json_format.MessageToDict(self._gca_resource._pb)
 
     @classmethod
     def _generate_display_name(cls, prefix: Optional[str] = None) -> str:
@@ -937,7 +982,11 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             "_gca_resource",
             "credentials",
         ]
-        optional_sync_attributes = ["_prediction_client"]
+        optional_sync_attributes = [
+            "_prediction_client",
+            "_authorized_session",
+            "_raw_predict_request_url",
+        ]
 
         for attribute in sync_attributes:
             setattr(self, attribute, getattr(result, attribute))
@@ -975,8 +1024,13 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             VertexAiResourceNoun:
                 An initialized SDK object that represents GAPIC type.
         """
+        resource_name_parts = utils.extract_project_and_location_from_parent(
+            gapic_resource.name
+        )
         sdk_resource = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
+            project=resource_name_parts.get("project") or project,
+            location=resource_name_parts.get("location") or location,
+            credentials=credentials,
         )
         sdk_resource._gca_resource = gapic_resource
         return sdk_resource
@@ -989,6 +1043,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         cls_filter: Callable[[proto.Message], bool] = lambda _: True,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
+        read_mask: Optional[field_mask.FieldMask] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1011,6 +1066,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
+            read_mask (field_mask.FieldMask):
+                Optional. A FieldMask with a list of strings passed via `paths`
+                indicating which fields to return for each resource in the response.
+                For example, passing
+                field_mask.FieldMask(paths=["create_time", "update_time"])
+                as `read_mask` would result in each returned VertexAiResourceNoun
+                in the result list only having the "create_time" and
+                "update_time" attributes.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
@@ -1026,6 +1089,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
         """
+        if parent:
+            parent_resources = utils.extract_project_and_location_from_parent(parent)
+            if parent_resources:
+                project, location = (
+                    parent_resources["project"],
+                    parent_resources["location"],
+                )
+
         resource = cls._empty_constructor(
             project=project, location=location, credentials=credentials
         )
@@ -1040,8 +1111,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             or initializer.global_config.common_location_path(
                 project=project, location=location
             ),
-            "filter": filter,
         }
+
+        # `read_mask` is only passed from PipelineJob.list() for now
+        if read_mask is not None:
+            list_request["read_mask"] = read_mask
+
+        if filter:
+            list_request["filter"] = filter
 
         if order_by:
             list_request["order_by"] = order_by
@@ -1062,9 +1139,11 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         cls_filter: Callable[[proto.Message], bool] = lambda _: True,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
+        read_mask: Optional[field_mask.FieldMask] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        parent: Optional[str] = None,
     ) -> List[VertexAiResourceNoun]:
         """Private method to list all instances of this Vertex AI Resource,
         takes a `cls_filter` arg to filter to a particular SDK resource
@@ -1084,6 +1163,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
+            read_mask (field_mask.FieldMask):
+                Optional. A FieldMask with a list of strings passed via `paths`
+                indicating which fields to return for each resource in the response.
+                For example, passing
+                field_mask.FieldMask(paths=["create_time", "update_time"])
+                as `read_mask` would result in each returned VertexAiResourceNoun
+                in the result list only having the "create_time" and
+                "update_time" attributes.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
@@ -1093,6 +1180,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
+            parent (str):
+                Optional. The parent resource name if any to retrieve resource list from.
 
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
@@ -1102,9 +1191,11 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             cls_filter=cls_filter,
             filter=filter,
             order_by=None,  # This method will handle the ordering locally
+            read_mask=read_mask,
             project=project,
             location=location,
             credentials=credentials,
+            parent=parent,
         )
 
         if order_by:
@@ -1257,8 +1348,8 @@ def get_annotation_class(annotation: type) -> type:
     # typing.Optional
     if getattr(annotation, "__origin__", None) is Union:
         return annotation.__args__[0]
-    else:
-        return annotation
+
+    return annotation
 
 
 class DoneMixin(abc.ABC):
@@ -1297,8 +1388,8 @@ class StatefulResource(DoneMixin):
         """
         if self.state in self._valid_done_states:
             return True
-        else:
-            return False
+
+        return False
 
 
 class VertexAiStatefulResource(VertexAiResourceNounWithFutureManager, StatefulResource):
@@ -1312,5 +1403,35 @@ class VertexAiStatefulResource(VertexAiResourceNounWithFutureManager, StatefulRe
         """
         if self._gca_resource and self._gca_resource.name:
             return super().done()
-        else:
-            return False
+
+        return False
+
+
+# PreviewClass type variable
+PreviewClass = TypeVar("PreviewClass", bound=VertexAiResourceNoun)
+
+
+class PreviewMixin(abc.ABC):
+    """An abstract class for adding preview functionality to certain classes.
+    A child class that inherits from both this Mixin and another parent
+    class allows the child class to introduce preview features.
+    """
+
+    @classmethod
+    @property
+    @abc.abstractmethod
+    def _preview_class(cls: Type[PreviewClass]) -> Type[PreviewClass]:
+        """Class that is currently in preview or has a preview feature.
+        Class must have `resource_name` and `credentials` attributes.
+        """
+        pass
+
+    @property
+    def preview(self) -> PreviewClass:
+        """Exposes features available in preview for this class."""
+        if not hasattr(self, "_preview_instance"):
+            self._preview_instance = self._preview_class(
+                self.resource_name, credentials=self.credentials
+            )
+
+        return self._preview_instance

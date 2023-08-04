@@ -35,17 +35,17 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform.compat.services import job_service_client
 
-import test_custom_job
+import constants as test_constants
 
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_ID = "1028944691210842416"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
+_TEST_ID = test_constants.TrainingJobConstants._TEST_ID
 _TEST_DISPLAY_NAME = "my_hp_job_1234"
 
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
 
-_TEST_STAGING_BUCKET = test_custom_job._TEST_STAGING_BUCKET
-_TEST_BASE_OUTPUT_DIR = test_custom_job._TEST_BASE_OUTPUT_DIR
+_TEST_STAGING_BUCKET = test_constants.TrainingJobConstants._TEST_STAGING_BUCKET
+_TEST_BASE_OUTPUT_DIR = test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR
 
 _TEST_HYPERPARAMETERTUNING_JOB_NAME = (
     f"{_TEST_PARENT}/hyperparameterTuningJobs/{_TEST_ID}"
@@ -57,13 +57,15 @@ _TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec_compat.EncryptionSpec(
     kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
 )
 
-_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+_TEST_SERVICE_ACCOUNT = test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT
 
 
-_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
+_TEST_NETWORK = test_constants.TrainingJobConstants._TEST_NETWORK
 
-_TEST_TIMEOUT = 8000
-_TEST_RESTART_JOB_ON_WORKER_RESTART = True
+_TEST_TIMEOUT = test_constants.TrainingJobConstants._TEST_TIMEOUT
+_TEST_RESTART_JOB_ON_WORKER_RESTART = (
+    test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
+)
 
 _TEST_METRIC_SPEC_KEY = "test-metric"
 _TEST_METRIC_SPEC_VALUE = "maximize"
@@ -74,7 +76,14 @@ _TEST_MAX_FAILED_TRIAL_COUNT = 4
 _TEST_SEARCH_ALGORITHM = "random"
 _TEST_MEASUREMENT_SELECTION = "best"
 
-_TEST_LABELS = {"my_hp_key": "my_hp_value"}
+_TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
+
+_TEST_CONDITIONAL_PARAMETER_DECAY = hpt.DoubleParameterSpec(
+    min=1e-07, max=1, scale="linear", parent_values=[32, 64]
+)
+_TEST_CONDITIONAL_PARAMETER_LR = hpt.DoubleParameterSpec(
+    min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
+)
 
 _TEST_BASE_HYPERPARAMETER_TUNING_JOB_PROTO = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
     display_name=_TEST_DISPLAY_NAME,
@@ -109,8 +118,34 @@ _TEST_BASE_HYPERPARAMETER_TUNING_JOB_PROTO = gca_hyperparameter_tuning_job_compa
                 parameter_id="batch_size",
                 scale_type=gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
                 discrete_value_spec=gca_study_compat.StudySpec.ParameterSpec.DiscreteValueSpec(
-                    values=[16, 32]
+                    values=[4, 8, 16, 32, 64]
                 ),
+                conditional_parameter_specs=[
+                    gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec(
+                        parent_discrete_values=gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition(
+                            values=[32, 64]
+                        ),
+                        parameter_spec=gca_study_compat.StudySpec.ParameterSpec(
+                            double_value_spec=gca_study_compat.StudySpec.ParameterSpec.DoubleValueSpec(
+                                min_value=1e-07, max_value=1
+                            ),
+                            scale_type=gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
+                            parameter_id="decay",
+                        ),
+                    ),
+                    gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec(
+                        parent_discrete_values=gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition(
+                            values=[4, 8, 16]
+                        ),
+                        parameter_spec=gca_study_compat.StudySpec.ParameterSpec(
+                            double_value_spec=gca_study_compat.StudySpec.ParameterSpec.DoubleValueSpec(
+                                min_value=1e-07, max_value=1
+                            ),
+                            scale_type=gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
+                            parameter_id="learning_rate",
+                        ),
+                    ),
+                ],
             ),
         ],
         algorithm=gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
@@ -119,7 +154,7 @@ _TEST_BASE_HYPERPARAMETER_TUNING_JOB_PROTO = gca_hyperparameter_tuning_job_compa
     parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
     max_trial_count=_TEST_MAX_TRIAL_COUNT,
     max_failed_trial_count=_TEST_MAX_FAILED_TRIAL_COUNT,
-    trial_job_spec=test_custom_job._TEST_BASE_CUSTOM_JOB_PROTO.job_spec,
+    trial_job_spec=test_constants.TrainingJobConstants._TEST_BASE_CUSTOM_JOB_PROTO.job_spec,
     labels=_TEST_LABELS,
     encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
 )
@@ -143,7 +178,9 @@ def _get_trial_proto(id=None, state=None):
     trial_proto.id = id
     trial_proto.state = state
     if state == gca_study_compat.Trial.State.ACTIVE:
-        trial_proto.web_access_uris = test_custom_job._TEST_WEB_ACCESS_URIS
+        trial_proto.web_access_uris = (
+            test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS
+        )
     return trial_proto
 
 
@@ -156,7 +193,7 @@ def _get_hyperparameter_tuning_job_proto_with_enable_web_access(
         error=error,
     )
     hyperparameter_tuning_job_proto.trial_job_spec.enable_web_access = (
-        test_custom_job._TEST_ENABLE_WEB_ACCESS
+        test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS
     )
     if state == gca_job_state_compat.JobState.JOB_STATE_RUNNING:
         hyperparameter_tuning_job_proto.trials = trials
@@ -339,7 +376,7 @@ def create_hyperparameter_tuning_job_mock_with_tensorboard():
             state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
         )
         hyperparameter_tuning_job_proto.trial_job_spec.tensorboard = (
-            test_custom_job._TEST_TENSORBOARD_NAME
+            test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME
         )
         create_hyperparameter_tuning_job_mock.return_value = (
             hyperparameter_tuning_job_proto
@@ -372,9 +409,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -388,7 +425,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -438,9 +480,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -454,7 +496,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -499,9 +546,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -515,7 +562,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -558,9 +610,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -574,7 +626,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -623,9 +680,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -639,7 +696,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32, 64], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -681,9 +743,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -697,7 +759,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -713,7 +780,7 @@ class TestHyperparameterTuningJob:
             network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-            tensorboard=test_custom_job._TEST_TENSORBOARD_NAME,
+            tensorboard=test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME,
             sync=sync,
             create_request_timeout=None,
         )
@@ -722,7 +789,7 @@ class TestHyperparameterTuningJob:
 
         expected_hyperparameter_tuning_job = _get_hyperparameter_tuning_job_proto()
         expected_hyperparameter_tuning_job.trial_job_spec.tensorboard = (
-            test_custom_job._TEST_TENSORBOARD_NAME
+            test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME
         )
 
         create_hyperparameter_tuning_job_mock_with_tensorboard.assert_called_once_with(
@@ -753,9 +820,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -769,7 +836,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -785,7 +857,7 @@ class TestHyperparameterTuningJob:
             network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-            enable_web_access=test_custom_job._TEST_ENABLE_WEB_ACCESS,
+            enable_web_access=test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS,
             sync=sync,
             create_request_timeout=None,
         )
@@ -820,5 +892,5 @@ class TestHyperparameterTuningJob:
         )
         hp_job._block_until_complete()
         assert hp_job._logged_web_access_uris == set(
-            test_custom_job._TEST_WEB_ACCESS_URIS.values()
+            test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS.values()
         )

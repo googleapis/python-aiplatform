@@ -20,6 +20,7 @@ import filecmp
 import json
 import os
 import pytest
+import sys
 import tempfile
 
 from google.cloud.aiplatform.training_utils import environment_variables
@@ -220,6 +221,9 @@ class TestTrainingUtils:
 
         file.close()
 
+    @pytest.mark.skipif(
+        sys.executable is None, reason="requires python path to invoke subprocess"
+    )
     def test_package_file(self, mock_temp_file_name):
         # Test that the packager properly copies the source file to the destination file
 
@@ -254,6 +258,9 @@ class TestTrainingUtils:
 
         folder.cleanup()
 
+    @pytest.mark.skipif(
+        sys.executable is None, reason="requires python path to invoke subprocess"
+    )
     def test_package_folder(self, mock_temp_folder_name):
         # Test that the packager properly copies the source folder to the destination folder
 

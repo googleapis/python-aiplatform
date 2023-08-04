@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
@@ -26,9 +26,13 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
     machine_resources as gca_machine_resources_compat,
     matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
+    match_service_v1beta1 as gca_match_service_v1beta1,
+    index_v1beta1 as gca_index_v1beta1,
 )
 from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
-from google.cloud.aiplatform.matching_engine._protos import match_service_pb2_grpc
+from google.cloud.aiplatform.matching_engine._protos import (
+    match_service_pb2_grpc,
+)
 from google.protobuf import field_mask_pb2
 
 import grpc
@@ -49,6 +53,25 @@ class MatchNeighbor:
 
     id: str
     distance: float
+
+
+@dataclass
+class Namespace:
+    """Namespace specifies the rules for determining the datapoints that are eligible for each matching query, overall query is an AND across namespaces.
+    Args:
+        name (str):
+            Required. The name of this Namespace.
+        allow_tokens (List(str)):
+            Optional. The allowed tokens in the namespace.
+        deny_tokens (List(str)):
+            Optional. The denied tokens in the namespace. When a token is denied, then matches will be excluded whenever the other datapoint has that token.
+            For example, if a query specifies [Namespace("color", ["red","blue"], ["purple"])], then that query will match datapoints that are red or blue,
+            but if those points are also purple, then they will be excluded even if they are red/blue.
+    """
+
+    name: str
+    allow_tokens: list = field(default_factory=list)
+    deny_tokens: list = field(default_factory=list)
 
 
 class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
@@ -106,12 +129,15 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(resource_name=index_endpoint_name)
 
+        if self.public_endpoint_domain_name:
+            self._public_match_client = self._instantiate_public_match_client()
+
     @classmethod
-    @base.optional_sync()
     def create(
         cls,
         display_name: str,
-        network: str,
+        network: Optional[str] = None,
+        public_endpoint_enabled: Optional[bool] = False,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
@@ -134,18 +160,20 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
             network (str):
-                Required. The full name of the Google Compute Engine
+                Optional. The full name of the Google Compute Engine
                 `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
                 to which the IndexEndpoint should be peered.
 
-                Private services access must already be configured for the
-                network. If left unspecified, the Endpoint is not peered
-                with any network.
+                Private services access must already be configured for the network.
+                If left unspecified, the network set with aiplatform.init will be used.
 
                 `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
                 projects/{project}/global/networks/{network}. Where
                 {project} is a project number, as in '12345', and {network}
                 is network name.
+            public_endpoint_enabled (bool):
+                Optional. If true, the deployed index will be
+                accessible through public endpoint.
             description (str):
                 Optional. The description of the IndexEndpoint.
             labels (Dict[str, str]):
@@ -163,13 +191,13 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 System reserved label keys are prefixed with
                 "aiplatform.googleapis.com/" and are immutable.
             project (str):
-                Optional. Project to create EntityType in. If not set, project
+                Optional. Project to create IndexEndpoint in. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional. Location to create EntityType in. If not set, location
+                Optional. Location to create IndexEndpoint in. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to create EntityTypes. Overrides
+                Optional. Custom credentials to use to create IndexEndpoints. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
@@ -181,12 +209,116 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
 
+        Raises:
+            ValueError: A network must be instantiated when creating a IndexEndpoint.
         """
-        gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
+        network = network or initializer.global_config.network
+
+        if not network and not public_endpoint_enabled:
+            raise ValueError(
+                "Please provide `network` argument for private endpoint or provide `public_endpoint_enabled` to deploy this index to a public endpoint"
+            )
+
+        if network and public_endpoint_enabled:
+            raise ValueError(
+                "`network` and `public_endpoint_enabled` argument should not be set at the same time"
+            )
+
+        return cls._create(
             display_name=display_name,
-            description=description,
             network=network,
+            public_endpoint_enabled=public_endpoint_enabled,
+            description=description,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            request_metadata=request_metadata,
+            sync=sync,
         )
+
+    @classmethod
+    @base.optional_sync()
+    def _create(
+        cls,
+        display_name: str,
+        network: Optional[str] = None,
+        public_endpoint_enabled: Optional[bool] = False,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: bool = True,
+    ) -> "MatchingEngineIndexEndpoint":
+        """Helper method to ensure network synchronization and to
+        create a MatchingEngineIndexEndpoint resource.
+
+        Args:
+            display_name (str):
+                Required. The display name of the IndexEndpoint.
+                The name can be up to 128 characters long and
+                can be consist of any UTF-8 characters.
+            network (str):
+                Optional. The full name of the Google Compute Engine
+                `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
+                to which the IndexEndpoint should be peered.
+                Private services access must already be configured for the network.
+
+                `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
+                projects/{project}/global/networks/{network}. Where
+                {project} is a project number, as in '12345', and {network}
+                is network name.
+            public_endpoint_enabled (bool):
+                Optional. If true, the deployed index will be
+                accessible through public endpoint.
+            description (str):
+                Optional. The description of the IndexEndpoint.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined
+                metadata to organize your IndexEndpoint.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                on and examples of labels. No more than 64 user
+                labels can be associated with one
+                IndexEndpoint (System labels are excluded)."
+                System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            project (str):
+                Optional. Project to create IndexEndpoint in. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to create IndexEndpoint in. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create IndexEndpoints. Overrides
+                credentials set in aiplatform.init.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            sync (bool):
+                Optional. Whether to execute this creation synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            MatchingEngineIndexEndpoint - IndexEndpoint resource object
+        """
+
+        if public_endpoint_enabled:
+            gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
+                display_name=display_name,
+                description=description,
+                public_endpoint_enabled=public_endpoint_enabled,
+            )
+        else:
+            gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
+                display_name=display_name, description=description, network=network
+            )
 
         if labels:
             utils.validate_labels(labels)
@@ -216,6 +348,28 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
         return index_obj
+
+    def _instantiate_public_match_client(
+        self,
+    ) -> utils.MatchClientWithOverride:
+        """Helper method to instantiates match client with optional
+        overrides for this endpoint.
+        Returns:
+            match_client (match_service_client.MatchServiceClient):
+                Initialized match client with optional overrides.
+        """
+        return initializer.global_config.create_client(
+            client_class=utils.MatchClientWithOverride,
+            credentials=self.credentials,
+            location_override=self.location,
+            api_path_override=self.public_endpoint_domain_name,
+        )
+
+    @property
+    def public_endpoint_domain_name(self) -> Optional[str]:
+        """Public endpoint DNS name."""
+        self._assert_gca_resource_is_available()
+        return self._gca_resource.public_endpoint_domain_name
 
     def update(
         self,
@@ -573,7 +727,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             "Deploy index", "index_endpoint", self.__class__, deploy_lro
         )
 
-        deploy_lro.result()
+        deploy_lro.result(timeout=None)
 
         _LOGGER.log_action_completed_against_resource(
             "index_endpoint", "Deployed index", self
@@ -795,8 +949,130 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self._assert_gca_resource_is_available()
         return self._gca_resource.description
 
+    def find_neighbors(
+        self,
+        *,
+        deployed_index_id: str,
+        queries: List[List[float]],
+        num_neighbors: int = 10,
+        filter: Optional[List[Namespace]] = [],
+    ) -> List[List[MatchNeighbor]]:
+        """Retrieves nearest neighbors for the given embedding queries on the specified deployed index which is deployed to public endpoint.
+
+        ```
+        Example usage:
+            my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+                index_endpoint_name='projects/123/locations/us-central1/index_endpoint/my_index_id'
+            )
+            my_index_endpoint.find_neighbors(deployed_index_id="public_test1", queries= [[1, 1]],)
+        ```
+        Args:
+            deployed_index_id (str):
+                Required. The ID of the DeployedIndex to match the queries against.
+            queries (List[List[float]]):
+                Required. A list of queries. Each query is a list of floats, representing a single embedding.
+            num_neighbors (int):
+                Required. The number of nearest neighbors to be retrieved from database for
+                each query.
+            filter (List[Namespace]):
+                Optional. A list of Namespaces for filtering the matching results.
+                For example, [Namespace("color", ["red"], []), Namespace("shape", [], ["squared"])] will match datapoints
+                that satisfy "red color" but not include datapoints with "squared shape".
+                Please refer to https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#json for more detail.
+        Returns:
+            List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
+        """
+
+        if not self._public_match_client:
+            raise ValueError(
+                "Please make sure index has been deployed to public endpoint, and follow the example usage to call this method."
+            )
+
+        # Create the FindNeighbors request
+        find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest()
+        find_neighbors_request.index_endpoint = self.resource_name
+        find_neighbors_request.deployed_index_id = deployed_index_id
+
+        for query in queries:
+            find_neighbors_query = (
+                gca_match_service_v1beta1.FindNeighborsRequest.Query()
+            )
+            find_neighbors_query.neighbor_count = num_neighbors
+            datapoint = gca_index_v1beta1.IndexDatapoint(feature_vector=query)
+            for namespace in filter:
+                restrict = gca_index_v1beta1.IndexDatapoint.Restriction()
+                restrict.namespace = namespace.name
+                restrict.allow_list.extend(namespace.allow_tokens)
+                restrict.deny_list.extend(namespace.deny_tokens)
+                datapoint.restricts.append(restrict)
+            find_neighbors_query.datapoint = datapoint
+            find_neighbors_request.queries.append(find_neighbors_query)
+
+        response = self._public_match_client.find_neighbors(find_neighbors_request)
+
+        # Wrap the results in MatchNeighbor objects and return
+        return [
+            [
+                MatchNeighbor(
+                    id=neighbor.datapoint.datapoint_id, distance=neighbor.distance
+                )
+                for neighbor in embedding_neighbors.neighbors
+            ]
+            for embedding_neighbors in response.nearest_neighbors
+        ]
+
+    def read_index_datapoints(
+        self,
+        *,
+        deployed_index_id: str,
+        ids: List[str] = [],
+    ) -> List[gca_index_v1beta1.IndexDatapoint]:
+        """Reads the datapoints/vectors of the given IDs on the specified deployed index which is deployed to public endpoint.
+
+        ```
+        Example Usage:
+            my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+                index_endpoint_name='projects/123/locations/us-central1/index_endpoint/my_index_id'
+            )
+            my_index_endpoint.read_index_datapoints(deployed_index_id="public_test1", ids= ["606431", "896688"],)
+        ```
+
+        Args:
+            deployed_index_id (str):
+                Required. The ID of the DeployedIndex to match the queries against.
+            ids (List[str]):
+                Required. IDs of the datapoints to be searched for.
+        Returns:
+            List[gca_index_v1beta1.IndexDatapoint] - A list of datapoints/vectors of the given IDs.
+        """
+        if not self._public_match_client:
+            raise ValueError(
+                "Please make sure index has been deployed to public endpoint, and follow the example usage to call this method."
+            )
+
+        # Create the ReadIndexDatapoints request
+        read_index_datapoints_request = (
+            gca_match_service_v1beta1.ReadIndexDatapointsRequest()
+        )
+        read_index_datapoints_request.index_endpoint = self.resource_name
+        read_index_datapoints_request.deployed_index_id = deployed_index_id
+
+        for id in ids:
+            read_index_datapoints_request.ids.append(id)
+
+        response = self._public_match_client.read_index_datapoints(
+            read_index_datapoints_request
+        )
+
+        # Wrap the results and return
+        return response.datapoints
+
     def match(
-        self, deployed_index_id: str, queries: List[List[float]], num_neighbors: int = 1
+        self,
+        deployed_index_id: str,
+        queries: List[List[float]],
+        num_neighbors: int = 1,
+        filter: Optional[List[Namespace]] = [],
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the specified deployed index.
 
@@ -808,6 +1084,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             num_neighbors (int):
                 Required. The number of nearest neighbors to be retrieved from database for
                 each query.
+            filter (List[Namespace]):
+                Optional. A list of Namespaces for filtering the matching results.
+                For example, [Namespace("color", ["red"], []), Namespace("shape", [], ["squared"])] will match datapoints
+                that satisfy "red color" but not include datapoints with "squared shape".
+                Please refer to https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#json for more detail.
 
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
@@ -836,16 +1117,22 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex()
         )
         batch_request_for_index.deployed_index_id = deployed_index_id
-        batch_request_for_index.requests.extend(
-            [
-                match_service_pb2.MatchRequest(
-                    num_neighbors=num_neighbors,
-                    deployed_index_id=deployed_index_id,
-                    float_val=query,
-                )
-                for query in queries
-            ]
-        )
+        requests = []
+        for query in queries:
+            request = match_service_pb2.MatchRequest(
+                num_neighbors=num_neighbors,
+                deployed_index_id=deployed_index_id,
+                float_val=query,
+            )
+            for namespace in filter:
+                restrict = match_service_pb2.Namespace()
+                restrict.name = namespace.name
+                restrict.allow_tokens.extend(namespace.allow_tokens)
+                restrict.deny_tokens.extend(namespace.deny_tokens)
+                request.restricts.append(restrict)
+            requests.append(request)
+
+        batch_request_for_index.requests.extend(requests)
         batch_request.requests.append(batch_request_for_index)
 
         # Perform the request

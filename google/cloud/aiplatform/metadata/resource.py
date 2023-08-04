@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 import abc
 import collections
 import re
+import threading
 from copy import deepcopy
 from typing import Dict, Optional, Union, Any, List
 
@@ -102,6 +103,8 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 name=full_resource_name, retry=base._DEFAULT_RETRY
             )
 
+        self._threading_lock = threading.Lock()
+
     @property
     def metadata(self) -> Dict:
         return self.to_dict()["metadata"]
@@ -113,6 +116,14 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     @property
     def description(self) -> str:
         return self._gca_resource.description
+
+    @property
+    def display_name(self) -> str:
+        return self._gca_resource.display_name
+
+    @property
+    def schema_version(self) -> str:
+        return self._gca_resource.schema_version
 
     @classmethod
     def get_or_create(
@@ -189,6 +200,50 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             )
         return resource
 
+    @classmethod
+    def get(
+        cls,
+        resource_id: str,
+        metadata_store_id: str = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "_Resource":
+        """Retrieves a Metadata resource.
+
+        Args:
+            resource_id (str):
+                Required. The <resource_id> portion of the resource name with the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/<resource_noun>/<resource_id>.
+            metadata_store_id (str):
+                The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/<resource_noun>/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Project used to retrieve or create this resource. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Location used to retrieve or create this resource. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Custom credentials used to retrieve or create this resource. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            resource (_Resource):
+                Instantiated representation of the managed Metadata resource or None if no resource was found.
+
+        """
+        resource = cls._get(
+            resource_name=resource_id,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        return resource
+
     def sync_resource(self):
         """Syncs local resource with the resource in metadata store."""
         self._gca_resource = getattr(self.api_client, self._getter_method)(
@@ -242,32 +297,37 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 Custom credentials to use to update this resource. Overrides
                 credentials set in aiplatform.init.
         """
+        if not hasattr(self, "_threading_lock"):
+            self._threading_lock = threading.Lock()
 
-        gca_resource = deepcopy(self._gca_resource)
-        if metadata:
-            self._nested_update_metadata(gca_resource=gca_resource, metadata=metadata)
-        if description:
-            gca_resource.description = description
+        with self._threading_lock:
+            gca_resource = deepcopy(self._gca_resource)
+            if metadata:
+                self._nested_update_metadata(
+                    gca_resource=gca_resource, metadata=metadata
+                )
+            if description:
+                gca_resource.description = description
 
-        api_client = self._instantiate_client(credentials=credentials)
-
-        # TODO: if etag is not valid sync and retry
-        update_gca_resource = self._update_resource(
-            client=api_client,
-            resource=gca_resource,
-        )
-        self._gca_resource = update_gca_resource
+            api_client = self._instantiate_client(credentials=credentials)
+            # TODO: if etag is not valid sync and retry
+            update_gca_resource = self._update_resource(
+                client=api_client,
+                resource=gca_resource,
+            )
+            self._gca_resource = update_gca_resource
 
     @classmethod
     def list(
         cls,
-        filter: Optional[str] = None,
+        filter: Optional[str] = None,  # pylint: disable=redefined-builtin
         metadata_store_id: str = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        order_by: Optional[str] = None,
     ) -> List["_Resource"]:
-        """List Metadata resources that match the list filter in target metadataStore.
+        """List resources that match the list filter in target metadataStore.
 
         Args:
             filter (str):
@@ -287,6 +347,14 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             credentials (auth_credentials.Credentials):
                 Custom credentials used to create this resource. Overrides
                 credentials set in aiplatform.init.
+            order_by (str):
+              Optional. How the list of messages is ordered.
+              Specify the values to order by and an ordering operation. The
+              default sorting order is ascending. To specify descending order
+              for a field, users append a " desc" suffix; for example: "foo
+              desc, bar". Subfields are specified with a ``.`` character, such
+              as foo.bar. see https://google.aip.dev/132#ordering for more
+              details.
 
         Returns:
             resources (sequence[_Resource]):
@@ -306,6 +374,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             location=location,
             credentials=credentials,
             parent=parent,
+            order_by=order_by,
         )
 
     @classmethod
@@ -391,7 +460,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         )
 
         self._gca_resource = resource
-
+        self._threading_lock = threading.Lock()
         return self
 
     @classmethod
@@ -487,7 +556,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         pattern = re.compile(
             r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/metadataStores\/(?P<store>[\w-]+)\/"
             + resource_noun
-            + r"\/(?P<id>[\w-]+)$"
+            + r"\/(?P<id>[\w-]+)(?P<version>@[\w-]+)?$"
         )
         match = pattern.match(resource_name)
         if not match:

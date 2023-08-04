@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import end_experiment_run_sample
-
+from experiment_tracking import end_experiment_run_sample
 import test_constants as constants
 
 
@@ -27,7 +26,7 @@ def test_end_experiment_run_sample(mock_sdk_init, mock_start_run, mock_end_run):
     )
 
     mock_sdk_init.assert_called_with(
-        experiment_name=constants.EXPERIMENT_NAME,
+        experiment=constants.EXPERIMENT_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
     )

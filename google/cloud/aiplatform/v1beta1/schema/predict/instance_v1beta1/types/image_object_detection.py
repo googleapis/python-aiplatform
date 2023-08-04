@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -34,7 +38,8 @@ class ImageObjectDetectionPredictionInstance(proto.Message):
         mime_type (str):
             The MIME type of the content of the image.
             Only the images in below listed MIME types are
-            supported. - image/jpeg
+            supported.
+            - image/jpeg
             - image/gif
             - image/png
             - image/webp
@@ -43,11 +48,11 @@ class ImageObjectDetectionPredictionInstance(proto.Message):
             - image/vnd.microsoft.icon
     """
 
-    content = proto.Field(
+    content: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    mime_type = proto.Field(
+    mime_type: str = proto.Field(
         proto.STRING,
         number=2,
     )

@@ -14,8 +14,7 @@
 
 from google.cloud import aiplatform
 
-import start_execution_sample
-
+from experiment_tracking import start_execution_sample
 import test_constants as constants
 
 

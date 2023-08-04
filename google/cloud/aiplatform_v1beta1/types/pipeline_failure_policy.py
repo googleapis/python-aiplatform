@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -32,6 +36,18 @@ class PipelineFailurePolicy(proto.Enum):
     PIPELINE_FAILURE_POLICY_FAIL_FAST, it will stop scheduling any new
     tasks when a task has failed. Any scheduled tasks will continue to
     completion.
+
+    Values:
+        PIPELINE_FAILURE_POLICY_UNSPECIFIED (0):
+            Default value, and follows fail slow
+            behavior.
+        PIPELINE_FAILURE_POLICY_FAIL_SLOW (1):
+            Indicates that the pipeline should continue
+            to run until all possible tasks have been
+            scheduled and completed.
+        PIPELINE_FAILURE_POLICY_FAIL_FAST (2):
+            Indicates that the pipeline should stop
+            scheduling new tasks after a task has failed.
     """
     PIPELINE_FAILURE_POLICY_UNSPECIFIED = 0
     PIPELINE_FAILURE_POLICY_FAIL_SLOW = 1

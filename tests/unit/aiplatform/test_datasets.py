@@ -484,60 +484,89 @@ def bigquery_table_schema_mock():
         bigquery.Table, "schema", new_callable=mock.PropertyMock
     ) as bigquery_table_schema_mock:
         bigquery_table_schema_mock.return_value = [
-            bigquery.SchemaField("column_1", "FLOAT", "NULLABLE", "", (), None),
-            bigquery.SchemaField("column_2", "FLOAT", "NULLABLE", "", (), None),
             bigquery.SchemaField(
-                "column_3",
-                "RECORD",
-                "NULLABLE",
-                "",
-                (
+                name="column_1",
+                field_type="FLOAT",
+                mode="NULLABLE",
+                description="",
+                fields=(),
+                policy_tags=None,
+            ),
+            bigquery.SchemaField(
+                name="column_2",
+                field_type="FLOAT",
+                mode="NULLABLE",
+                description="",
+                fields=(),
+                policy_tags=None,
+            ),
+            bigquery.SchemaField(
+                name="column_3",
+                field_type="RECORD",
+                mode="NULLABLE",
+                description="",
+                fields=(
                     bigquery.SchemaField(
-                        "nested_3_1",
-                        "RECORD",
-                        "NULLABLE",
-                        "",
-                        (
+                        name="nested_3_1",
+                        field_type="RECORD",
+                        mode="NULLABLE",
+                        description="",
+                        fields=(
                             bigquery.SchemaField(
-                                "nested_3_1_1", "FLOAT", "NULLABLE", "", (), None
+                                name="nested_3_1_1",
+                                field_type="FLOAT",
+                                mode="NULLABLE",
+                                description="",
+                                fields=(),
+                                policy_tags=None,
                             ),
                             bigquery.SchemaField(
-                                "nested_3_1_2", "FLOAT", "NULLABLE", "", (), None
+                                name="nested_3_1_2",
+                                field_type="FLOAT",
+                                mode="NULLABLE",
+                                description="",
+                                fields=(),
+                                policy_tags=None,
                             ),
                         ),
-                        None,
+                        policy_tags=None,
                     ),
                     bigquery.SchemaField(
-                        "nested_3_2", "FLOAT", "NULLABLE", "", (), None
+                        name="nested_3_2",
+                        field_type="FLOAT",
+                        mode="NULLABLE",
+                        description="",
+                        fields=(),
+                        policy_tags=None,
                     ),
                     bigquery.SchemaField(
-                        "nested_3_3",
-                        "RECORD",
-                        "NULLABLE",
-                        "",
-                        (
+                        name="nested_3_3",
+                        field_type="RECORD",
+                        mode="NULLABLE",
+                        description="",
+                        fields=(
                             bigquery.SchemaField(
-                                "nested_3_3_1",
-                                "RECORD",
-                                "NULLABLE",
-                                "",
-                                (
+                                name="nested_3_3_1",
+                                field_type="RECORD",
+                                mode="NULLABLE",
+                                description="",
+                                fields=(
                                     bigquery.SchemaField(
-                                        "nested_3_3_1_1",
-                                        "FLOAT",
-                                        "NULLABLE",
-                                        "",
-                                        (),
-                                        None,
+                                        name="nested_3_3_1_1",
+                                        field_type="FLOAT",
+                                        mode="NULLABLE",
+                                        description="",
+                                        fields=(),
+                                        policy_tags=None,
                                     ),
                                 ),
-                                None,
+                                policy_tags=None,
                             ),
                         ),
-                        None,
+                        policy_tags=None,
                     ),
                 ),
-                None,
+                policy_tags=None,
             ),
         ]
         yield bigquery_table_schema_mock
@@ -1415,21 +1444,19 @@ class TestTabularDataset:
         assert len(ds_list) < len(_TEST_DATASET_LIST)
 
         for ds in ds_list:
-            assert type(ds) == aiplatform.TabularDataset
+            assert isinstance(ds, aiplatform.TabularDataset)
 
     def test_list_dataset_no_order_or_filter(self, list_datasets_mock):
 
         ds_list = aiplatform.TabularDataset.list()
 
-        list_datasets_mock.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "filter": None}
-        )
+        list_datasets_mock.assert_called_once_with(request={"parent": _TEST_PARENT})
 
         # Ensure returned list is smaller since it filtered out non-tabular datasets
         assert len(ds_list) < len(_TEST_DATASET_LIST)
 
         for ds in ds_list:
-            assert type(ds) == aiplatform.TabularDataset
+            assert isinstance(ds, aiplatform.TabularDataset)
 
     @pytest.mark.usefixtures("get_dataset_tabular_missing_metadata_mock")
     def test_tabular_dataset_column_name_missing_metadata(self):

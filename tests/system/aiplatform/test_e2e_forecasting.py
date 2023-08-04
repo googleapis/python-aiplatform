@@ -17,6 +17,7 @@
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import training_jobs
+
 from google.cloud.aiplatform.compat.types import job_state
 from google.cloud.aiplatform.compat.types import pipeline_state
 import pytest
@@ -40,10 +41,9 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
         "training_job",
         [
             training_jobs.AutoMLForecastingTrainingJob,
-            pytest.param(
-                training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-                marks=pytest.mark.skip(reason="Seq2Seq not yet released."),
-            ),
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+            training_jobs.TemporalFusionTransformerForecastingTrainingJob,
+            training_jobs.TimeSeriesDenseEncoderForecastingTrainingJob,
         ],
     )
     def test_end_to_end_forecasting(self, shared_state, training_job):
@@ -117,6 +117,7 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
             resources.append(batch_prediction_job)
 
             batch_prediction_job.wait()
+            model.wait()
             assert job.state == pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
             assert batch_prediction_job.state == job_state.JobState.JOB_STATE_SUCCEEDED
         finally:

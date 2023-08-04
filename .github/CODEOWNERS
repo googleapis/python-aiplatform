@@ -4,28 +4,5 @@
 # For syntax help see:
 # https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners#codeowners-syntax
 
-# @googleapis/cdpe-cloudai and yoshi-python are the default owners
-*                                      @googleapis/cdpe-cloudai @googleapis/yoshi-python
-
-# The AI Platform GAPIC libraries are owned by Cloud AI DPE
-/google/cloud/aiplatform_*/**          @googleapis/cdpe-cloudai
-
-# The Vertex SDK is owned by Vertex SDK Dev team
-/google/cloud/aiplatform/**            @googleapis/cloud-aiplatform-model-builder-sdk
-/tests/system/aiplatform/**            @googleapis/cloud-aiplatform-model-builder-sdk
-/tests/unit/aiplatform/**              @googleapis/cloud-aiplatform-model-builder-sdk
-
-# The Cloud AI DPE team is the default owner for samples
-/samples/**/*.py                       @googleapis/cdpe-cloudai @googleapis/python-samples-reviewers
-/.sample_configs/**                    @googleapis/cdpe-cloudai
-
-# The enhanced client library tests are owned by Cloud AI DPE
-/tests/unit/enhanced_library/*.py      @googleapis/cdpe-cloudai
-
-# Core library files owned by Cloud AI DPE and Vertex SDK Dev teams
-CHANGELOG.md                           @googleapis/cloud-aiplatform-model-builder-sdk @googleapis/cdpe-cloudai
-README.rst                             @googleapis/cloud-aiplatform-model-builder-sdk @googleapis/cdpe-cloudai
-setup.py                               @googleapis/cloud-aiplatform-model-builder-sdk @googleapis/cdpe-cloudai
-
-# Vertex AI product team-specific ownership
-/google/cloud/aiplatform/constants/prediction.py                        @googleapis/vertex-prediction-team
+# The Vertex SDK dev team is the default owner for approving PRs.
+*                                      @googleapis/cloud-aiplatform-model-builder-sdk

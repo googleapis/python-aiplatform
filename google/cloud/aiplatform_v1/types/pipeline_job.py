@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import artifact
@@ -49,7 +53,7 @@ class PipelineJob(proto.Message):
         display_name (str):
             The display name of the Pipeline.
             The name can be up to 128 characters long and
-            can be consist of any UTF-8 characters.
+            can consist of any UTF-8 characters.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Pipeline creation time.
         start_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -70,16 +74,23 @@ class PipelineJob(proto.Message):
             Output only. The error that occurred during
             pipeline execution. Only populated when the
             pipeline's state is FAILED or CANCELLED.
-        labels (Mapping[str, str]):
-            The labels with user-defined metadata to
-            organize PipelineJob.
-            Label keys and values can be no longer than 64
-            characters (Unicode codepoints), can only
-            contain lowercase letters, numeric characters,
-            underscores and dashes. International characters
-            are allowed.
-            See https://goo.gl/xmQnxf for more information
-            and examples of labels.
+        labels (MutableMapping[str, str]):
+            The labels with user-defined metadata to organize
+            PipelineJob.
+
+            Label keys and values can be no longer than 64 characters
+            (Unicode codepoints), can only contain lowercase letters,
+            numeric characters, underscores and dashes. International
+            characters are allowed.
+
+            See https://goo.gl/xmQnxf for more information and examples
+            of labels.
+
+            Note there is some reserved label key for Vertex AI
+            Pipelines.
+
+            -  ``vertex-ai-pipelines-run-billing-id``, user set value
+               will get overrided.
         runtime_config (google.cloud.aiplatform_v1.types.PipelineJob.RuntimeConfig):
             Runtime config of the pipeline.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
@@ -108,9 +119,18 @@ class PipelineJob(proto.Message):
 
             Private services access must already be configured for the
             network. Pipeline job will apply the network configuration
-            to the GCP resources being launched, if applied, such as
-            Vertex AI Training or Dataflow job. If left unspecified, the
-            workload is not peered with any network.
+            to the Google Cloud resources being launched, if applied,
+            such as Vertex AI Training or Dataflow job. If left
+            unspecified, the workload is not peered with any network.
+        reserved_ip_ranges (MutableSequence[str]):
+            A list of names for the reserved ip ranges under the VPC
+            network that can be used for this Pipeline Job's workload.
+
+            If set, we will deploy the Pipeline Job's workload within
+            the provided ip ranges. Otherwise, the job will be deployed
+            to any ip ranges under the provided VPC network.
+
+            Example: ['vertex-ai-ip-range'].
         template_uri (str):
             A template uri from where the
             [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec],
@@ -126,7 +146,7 @@ class PipelineJob(proto.Message):
         r"""The runtime config of a PipelineJob.
 
         Attributes:
-            parameters (Mapping[str, google.cloud.aiplatform_v1.types.Value]):
+            parameters (MutableMapping[str, google.cloud.aiplatform_v1.types.Value]):
                 Deprecated. Use
                 [RuntimeConfig.parameter_values][google.cloud.aiplatform.v1.PipelineJob.RuntimeConfig.parameter_values]
                 instead. The runtime parameters of the PipelineJob. The
@@ -146,7 +166,7 @@ class PipelineJob(proto.Message):
                 specified output directory. The service account specified in
                 this pipeline must have the ``storage.objects.get`` and
                 ``storage.objects.create`` permissions for this bucket.
-            parameter_values (Mapping[str, google.protobuf.struct_pb2.Value]):
+            parameter_values (MutableMapping[str, google.protobuf.struct_pb2.Value]):
                 The runtime parameters of the PipelineJob. The parameters
                 will be passed into
                 [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec]
@@ -163,106 +183,144 @@ class PipelineJob(proto.Message):
                 set to PIPELINE_FAILURE_POLICY_FAIL_FAST, it will stop
                 scheduling any new tasks when a task has failed. Any
                 scheduled tasks will continue to completion.
+            input_artifacts (MutableMapping[str, google.cloud.aiplatform_v1.types.PipelineJob.RuntimeConfig.InputArtifact]):
+                The runtime artifacts of the PipelineJob. The
+                key will be the input artifact name and the
+                value would be one of the InputArtifact.
         """
 
-        parameters = proto.MapField(
+        class InputArtifact(proto.Message):
+            r"""The type of an input artifact.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                artifact_id (str):
+                    Artifact resource id from MLMD. Which is the last portion of
+                    an artifact resource name:
+                    ``projects/{project}/locations/{location}/metadataStores/default/artifacts/{artifact_id}``.
+                    The artifact must stay within the same project, location and
+                    default metadatastore as the pipeline.
+
+                    This field is a member of `oneof`_ ``kind``.
+            """
+
+            artifact_id: str = proto.Field(
+                proto.STRING,
+                number=1,
+                oneof="kind",
+            )
+
+        parameters: MutableMapping[str, gca_value.Value] = proto.MapField(
             proto.STRING,
             proto.MESSAGE,
             number=1,
             message=gca_value.Value,
         )
-        gcs_output_directory = proto.Field(
+        gcs_output_directory: str = proto.Field(
             proto.STRING,
             number=2,
         )
-        parameter_values = proto.MapField(
+        parameter_values: MutableMapping[str, struct_pb2.Value] = proto.MapField(
             proto.STRING,
             proto.MESSAGE,
             number=3,
             message=struct_pb2.Value,
         )
-        failure_policy = proto.Field(
+        failure_policy: pipeline_failure_policy.PipelineFailurePolicy = proto.Field(
             proto.ENUM,
             number=4,
             enum=pipeline_failure_policy.PipelineFailurePolicy,
         )
+        input_artifacts: MutableMapping[
+            str, "PipelineJob.RuntimeConfig.InputArtifact"
+        ] = proto.MapField(
+            proto.STRING,
+            proto.MESSAGE,
+            number=5,
+            message="PipelineJob.RuntimeConfig.InputArtifact",
+        )
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=3,
         message=timestamp_pb2.Timestamp,
     )
-    start_time = proto.Field(
+    start_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    end_time = proto.Field(
+    end_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=5,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=6,
         message=timestamp_pb2.Timestamp,
     )
-    pipeline_spec = proto.Field(
+    pipeline_spec: struct_pb2.Struct = proto.Field(
         proto.MESSAGE,
         number=7,
         message=struct_pb2.Struct,
     )
-    state = proto.Field(
+    state: pipeline_state.PipelineState = proto.Field(
         proto.ENUM,
         number=8,
         enum=pipeline_state.PipelineState,
     )
-    job_detail = proto.Field(
+    job_detail: "PipelineJobDetail" = proto.Field(
         proto.MESSAGE,
         number=9,
         message="PipelineJobDetail",
     )
-    error = proto.Field(
+    error: status_pb2.Status = proto.Field(
         proto.MESSAGE,
         number=10,
         message=status_pb2.Status,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=11,
     )
-    runtime_config = proto.Field(
+    runtime_config: RuntimeConfig = proto.Field(
         proto.MESSAGE,
         number=12,
         message=RuntimeConfig,
     )
-    encryption_spec = proto.Field(
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
         number=16,
         message=gca_encryption_spec.EncryptionSpec,
     )
-    service_account = proto.Field(
+    service_account: str = proto.Field(
         proto.STRING,
         number=17,
     )
-    network = proto.Field(
+    network: str = proto.Field(
         proto.STRING,
         number=18,
     )
-    template_uri = proto.Field(
+    reserved_ip_ranges: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=25,
+    )
+    template_uri: str = proto.Field(
         proto.STRING,
         number=19,
     )
-    template_metadata = proto.Field(
+    template_metadata: "PipelineTemplateMetadata" = proto.Field(
         proto.MESSAGE,
         number=20,
         message="PipelineTemplateMetadata",
@@ -286,7 +344,7 @@ class PipelineTemplateMetadata(proto.Message):
             Format is "sha256:abcdef123456...".
     """
 
-    version = proto.Field(
+    version: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -301,22 +359,22 @@ class PipelineJobDetail(proto.Message):
         pipeline_run_context (google.cloud.aiplatform_v1.types.Context):
             Output only. The context of the current
             pipeline run.
-        task_details (Sequence[google.cloud.aiplatform_v1.types.PipelineTaskDetail]):
+        task_details (MutableSequence[google.cloud.aiplatform_v1.types.PipelineTaskDetail]):
             Output only. The runtime details of the tasks
             under the pipeline.
     """
 
-    pipeline_context = proto.Field(
+    pipeline_context: context.Context = proto.Field(
         proto.MESSAGE,
         number=1,
         message=context.Context,
     )
-    pipeline_run_context = proto.Field(
+    pipeline_run_context: context.Context = proto.Field(
         proto.MESSAGE,
         number=2,
         message=context.Context,
     )
-    task_details = proto.RepeatedField(
+    task_details: MutableSequence["PipelineTaskDetail"] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
         message="PipelineTaskDetail",
@@ -336,7 +394,8 @@ class PipelineTaskDetail(proto.Message):
             task is at the root level.
         task_name (str):
             Output only. The user specified name of the task that is
-            defined in [PipelineJob.spec][].
+            defined in
+            [pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec].
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Task create time.
         start_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -354,20 +413,46 @@ class PipelineTaskDetail(proto.Message):
             Output only. The error that occurred during
             task execution. Only populated when the task's
             state is FAILED or CANCELLED.
-        pipeline_task_status (Sequence[google.cloud.aiplatform_v1.types.PipelineTaskDetail.PipelineTaskStatus]):
+        pipeline_task_status (MutableSequence[google.cloud.aiplatform_v1.types.PipelineTaskDetail.PipelineTaskStatus]):
             Output only. A list of task status. This
             field keeps a record of task status evolving
             over time.
-        inputs (Mapping[str, google.cloud.aiplatform_v1.types.PipelineTaskDetail.ArtifactList]):
+        inputs (MutableMapping[str, google.cloud.aiplatform_v1.types.PipelineTaskDetail.ArtifactList]):
             Output only. The runtime input artifacts of
             the task.
-        outputs (Mapping[str, google.cloud.aiplatform_v1.types.PipelineTaskDetail.ArtifactList]):
+        outputs (MutableMapping[str, google.cloud.aiplatform_v1.types.PipelineTaskDetail.ArtifactList]):
             Output only. The runtime output artifacts of
             the task.
     """
 
     class State(proto.Enum):
-        r"""Specifies state of TaskExecution"""
+        r"""Specifies state of TaskExecution
+
+        Values:
+            STATE_UNSPECIFIED (0):
+                Unspecified.
+            PENDING (1):
+                Specifies pending state for the task.
+            RUNNING (2):
+                Specifies task is being executed.
+            SUCCEEDED (3):
+                Specifies task completed successfully.
+            CANCEL_PENDING (4):
+                Specifies Task cancel is in pending state.
+            CANCELLING (5):
+                Specifies task is being cancelled.
+            CANCELLED (6):
+                Specifies task was cancelled.
+            FAILED (7):
+                Specifies task failed.
+            SKIPPED (8):
+                Specifies task was skipped due to cache hit.
+            NOT_TRIGGERED (9):
+                Specifies that the task was not triggered because the task's
+                trigger policy is not satisfied. The trigger policy is
+                specified in the ``condition`` field of
+                [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec].
+        """
         STATE_UNSPECIFIED = 0
         PENDING = 1
         RUNNING = 2
@@ -397,17 +482,17 @@ class PipelineTaskDetail(proto.Message):
                 indicates a system-error being retried.
         """
 
-        update_time = proto.Field(
+        update_time: timestamp_pb2.Timestamp = proto.Field(
             proto.MESSAGE,
             number=1,
             message=timestamp_pb2.Timestamp,
         )
-        state = proto.Field(
+        state: "PipelineTaskDetail.State" = proto.Field(
             proto.ENUM,
             number=2,
             enum="PipelineTaskDetail.State",
         )
-        error = proto.Field(
+        error: status_pb2.Status = proto.Field(
             proto.MESSAGE,
             number=3,
             message=status_pb2.Status,
@@ -417,75 +502,75 @@ class PipelineTaskDetail(proto.Message):
         r"""A list of artifact metadata.
 
         Attributes:
-            artifacts (Sequence[google.cloud.aiplatform_v1.types.Artifact]):
+            artifacts (MutableSequence[google.cloud.aiplatform_v1.types.Artifact]):
                 Output only. A list of artifact metadata.
         """
 
-        artifacts = proto.RepeatedField(
+        artifacts: MutableSequence[artifact.Artifact] = proto.RepeatedField(
             proto.MESSAGE,
             number=1,
             message=artifact.Artifact,
         )
 
-    task_id = proto.Field(
+    task_id: int = proto.Field(
         proto.INT64,
         number=1,
     )
-    parent_task_id = proto.Field(
+    parent_task_id: int = proto.Field(
         proto.INT64,
         number=12,
     )
-    task_name = proto.Field(
+    task_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=3,
         message=timestamp_pb2.Timestamp,
     )
-    start_time = proto.Field(
+    start_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    end_time = proto.Field(
+    end_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=5,
         message=timestamp_pb2.Timestamp,
     )
-    executor_detail = proto.Field(
+    executor_detail: "PipelineTaskExecutorDetail" = proto.Field(
         proto.MESSAGE,
         number=6,
         message="PipelineTaskExecutorDetail",
     )
-    state = proto.Field(
+    state: State = proto.Field(
         proto.ENUM,
         number=7,
         enum=State,
     )
-    execution = proto.Field(
+    execution: gca_execution.Execution = proto.Field(
         proto.MESSAGE,
         number=8,
         message=gca_execution.Execution,
     )
-    error = proto.Field(
+    error: status_pb2.Status = proto.Field(
         proto.MESSAGE,
         number=9,
         message=status_pb2.Status,
     )
-    pipeline_task_status = proto.RepeatedField(
+    pipeline_task_status: MutableSequence[PipelineTaskStatus] = proto.RepeatedField(
         proto.MESSAGE,
         number=13,
         message=PipelineTaskStatus,
     )
-    inputs = proto.MapField(
+    inputs: MutableMapping[str, ArtifactList] = proto.MapField(
         proto.STRING,
         proto.MESSAGE,
         number=10,
         message=ArtifactList,
     )
-    outputs = proto.MapField(
+    outputs: MutableMapping[str, ArtifactList] = proto.MapField(
         proto.STRING,
         proto.MESSAGE,
         number=11,
@@ -533,15 +618,37 @@ class PipelineTaskExecutorDetail(proto.Message):
                 [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec]
                 specifies the ``pre_caching_check`` hook in the lifecycle
                 events.
+            failed_main_jobs (MutableSequence[str]):
+                Output only. The names of the previously failed
+                [CustomJob][google.cloud.aiplatform.v1.CustomJob] for the
+                main container executions. The list includes the all
+                attempts in chronological order.
+            failed_pre_caching_check_jobs (MutableSequence[str]):
+                Output only. The names of the previously failed
+                [CustomJob][google.cloud.aiplatform.v1.CustomJob] for the
+                pre-caching-check container executions. This job will be
+                available if the
+                [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec]
+                specifies the ``pre_caching_check`` hook in the lifecycle
+                events. The list includes the all attempts in chronological
+                order.
         """
 
-        main_job = proto.Field(
+        main_job: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        pre_caching_check_job = proto.Field(
+        pre_caching_check_job: str = proto.Field(
             proto.STRING,
             number=2,
+        )
+        failed_main_jobs: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=3,
+        )
+        failed_pre_caching_check_jobs: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=4,
         )
 
     class CustomJobDetail(proto.Message):
@@ -551,20 +658,28 @@ class PipelineTaskExecutorDetail(proto.Message):
             job (str):
                 Output only. The name of the
                 [CustomJob][google.cloud.aiplatform.v1.CustomJob].
+            failed_jobs (MutableSequence[str]):
+                Output only. The names of the previously failed
+                [CustomJob][google.cloud.aiplatform.v1.CustomJob]. The list
+                includes the all attempts in chronological order.
         """
 
-        job = proto.Field(
+        job: str = proto.Field(
             proto.STRING,
             number=1,
         )
+        failed_jobs: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=3,
+        )
 
-    container_detail = proto.Field(
+    container_detail: ContainerDetail = proto.Field(
         proto.MESSAGE,
         number=1,
         oneof="details",
         message=ContainerDetail,
     )
-    custom_job_detail = proto.Field(
+    custom_job_detail: CustomJobDetail = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="details",

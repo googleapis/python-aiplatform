@@ -41,12 +41,15 @@ from google.cloud.aiplatform.compat.types import (
     pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
 )
+import constants as test_constants
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
-_TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
-_TEST_DATASET_NAME = "test-dataset-name"
-_TEST_DISPLAY_NAME = "test-display-name"
+_TEST_DATASET_DISPLAY_NAME = (
+    test_constants.TrainingJobConstants._TEST_DATASET_DISPLAY_NAME
+)
+_TEST_DATASET_NAME = test_constants.TrainingJobConstants._TEST_DATASET_NAME
+_TEST_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_DISPLAY_NAME
 _TEST_METADATA_SCHEMA_URI_VIDEO = schema.dataset.metadata.video
 
 _TEST_MODEL_TYPE_CLOUD = "CLOUD"
@@ -56,11 +59,11 @@ _TEST_PREDICTION_TYPE_VAR = "action_recognition"
 _TEST_PREDICTION_TYPE_VCN = "classification"
 _TEST_PREDICTION_TYPE_VOR = "object_tracking"
 
-_TEST_DATASET_NAME = "test-dataset-name"
-_TEST_MODEL_DISPLAY_NAME = "model-display-name"
+_TEST_DATASET_NAME = test_constants.TrainingJobConstants._TEST_DATASET_NAME
+_TEST_MODEL_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_MODEL_DISPLAY_NAME
 
-_TEST_LABELS = {"key": "value"}
-_TEST_MODEL_LABELS = {"model_key": "model_value"}
+_TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
+_TEST_MODEL_LABELS = test_constants.TrainingJobConstants._TEST_MODEL_LABELS
 
 _TEST_MODEL_ID = "98777645321"  # TODO
 
@@ -83,11 +86,13 @@ _TEST_MODEL_NAME = (
 )
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/12345"
+    test_constants.TrainingJobConstants._TEST_PIPELINE_RESOURCE_NAME
 )
 
 # CMEK encryption
-_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = (
+    test_constants.TrainingJobConstants._TEST_DEFAULT_ENCRYPTION_KEY_NAME
+)
 _TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
 )
@@ -163,7 +168,7 @@ def mock_model_service_get():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
-        mock_get_model.return_value = gca_model.Model()
+        mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
         yield mock_get_model
 
 
@@ -281,6 +286,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -361,6 +367,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -433,6 +440,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -497,6 +505,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -567,6 +576,7 @@ class TestAutoMLVideoTrainingJob:
             labels=_TEST_MODEL_LABELS,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -648,6 +658,7 @@ class TestAutoMLVideoTrainingJob:
             labels=_TEST_MODEL_LABELS,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -711,6 +722,7 @@ class TestAutoMLVideoTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(

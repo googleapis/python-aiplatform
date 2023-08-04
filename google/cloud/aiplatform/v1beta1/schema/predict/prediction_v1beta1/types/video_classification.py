@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import duration_pb2  # type: ignore
@@ -40,7 +44,8 @@ class VideoClassificationPredictionResult(proto.Message):
         type_ (str):
             The type of the prediction. The requested
             types can be configured via parameters. This
-            will be one of - segment-classification
+            will be one of
+            - segment-classification
             - shot-classification
             - one-sec-interval-classification
         time_segment_start (google.protobuf.duration_pb2.Duration):
@@ -71,29 +76,29 @@ class VideoClassificationPredictionResult(proto.Message):
             confidence.
     """
 
-    id = proto.Field(
+    id: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    type_ = proto.Field(
+    type_: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    time_segment_start = proto.Field(
+    time_segment_start: duration_pb2.Duration = proto.Field(
         proto.MESSAGE,
         number=4,
         message=duration_pb2.Duration,
     )
-    time_segment_end = proto.Field(
+    time_segment_end: duration_pb2.Duration = proto.Field(
         proto.MESSAGE,
         number=5,
         message=duration_pb2.Duration,
     )
-    confidence = proto.Field(
+    confidence: wrappers_pb2.FloatValue = proto.Field(
         proto.MESSAGE,
         number=6,
         message=wrappers_pb2.FloatValue,

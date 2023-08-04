@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,20 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
+
+from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
@@ -41,6 +53,7 @@ from google.cloud.aiplatform_v1beta1.types import index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -69,7 +82,7 @@ class IndexEndpointServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[IndexEndpointServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -311,7 +324,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -366,8 +379,8 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, IndexEndpointServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, IndexEndpointServiceTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the index endpoint service client.
@@ -381,7 +394,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
             transport (Union[str, IndexEndpointServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -411,6 +424,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -458,22 +472,32 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
                 always_use_jwt_access=True,
+                api_audience=client_options.api_audience,
             )
 
     def create_index_endpoint(
         self,
-        request: Union[index_endpoint_service.CreateIndexEndpointRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.CreateIndexEndpointRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        index_endpoint: gca_index_endpoint.IndexEndpoint = None,
+        parent: Optional[str] = None,
+        index_endpoint: Optional[gca_index_endpoint.IndexEndpoint] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates an IndexEndpoint.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_create_index_endpoint():
@@ -586,17 +610,26 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def get_index_endpoint(
         self,
-        request: Union[index_endpoint_service.GetIndexEndpointRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.GetIndexEndpointRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> index_endpoint.IndexEndpoint:
         r"""Gets an IndexEndpoint.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_get_index_endpoint():
@@ -683,17 +716,26 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def list_index_endpoints(
         self,
-        request: Union[index_endpoint_service.ListIndexEndpointsRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.ListIndexEndpointsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListIndexEndpointsPager:
         r"""Lists IndexEndpoints in a Location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_list_index_endpoints():
@@ -733,7 +775,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.index_endpoint_service.pagers.ListIndexEndpointsPager:
                 Response message for
-                [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints].
+                   [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -792,18 +834,27 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def update_index_endpoint(
         self,
-        request: Union[index_endpoint_service.UpdateIndexEndpointRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.UpdateIndexEndpointRequest, dict]
+        ] = None,
         *,
-        index_endpoint: gca_index_endpoint.IndexEndpoint = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        index_endpoint: Optional[gca_index_endpoint.IndexEndpoint] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_index_endpoint.IndexEndpoint:
         r"""Updates an IndexEndpoint.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_update_index_endpoint():
@@ -903,17 +954,26 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def delete_index_endpoint(
         self,
-        request: Union[index_endpoint_service.DeleteIndexEndpointRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.DeleteIndexEndpointRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes an IndexEndpoint.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_delete_index_endpoint():
@@ -968,9 +1028,6 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -1024,12 +1081,14 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def deploy_index(
         self,
-        request: Union[index_endpoint_service.DeployIndexRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.DeployIndexRequest, dict]
+        ] = None,
         *,
-        index_endpoint: str = None,
-        deployed_index: gca_index_endpoint.DeployedIndex = None,
+        index_endpoint: Optional[str] = None,
+        deployed_index: Optional[gca_index_endpoint.DeployedIndex] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deploys an Index into this IndexEndpoint, creating a
@@ -1038,6 +1097,13 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_deploy_index():
@@ -1093,10 +1159,8 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.DeployIndexResponse`
-                Response message for
-                [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.DeployIndexResponse` Response message for
+                   [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
 
         """
         # Create or coerce a protobuf request object.
@@ -1155,12 +1219,14 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def undeploy_index(
         self,
-        request: Union[index_endpoint_service.UndeployIndexRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.UndeployIndexRequest, dict]
+        ] = None,
         *,
-        index_endpoint: str = None,
-        deployed_index_id: str = None,
+        index_endpoint: Optional[str] = None,
+        deployed_index_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Undeploys an Index from an IndexEndpoint, removing a
@@ -1169,6 +1235,13 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_undeploy_index():
@@ -1220,10 +1293,8 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.UndeployIndexResponse`
-                Response message for
-                [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.UndeployIndexResponse` Response message for
+                   [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
 
         """
         # Create or coerce a protobuf request object.
@@ -1282,12 +1353,14 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def mutate_deployed_index(
         self,
-        request: Union[index_endpoint_service.MutateDeployedIndexRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.MutateDeployedIndexRequest, dict]
+        ] = None,
         *,
-        index_endpoint: str = None,
-        deployed_index: gca_index_endpoint.DeployedIndex = None,
+        index_endpoint: Optional[str] = None,
+        deployed_index: Optional[gca_index_endpoint.DeployedIndex] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Update an existing DeployedIndex under an
@@ -1295,6 +1368,13 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_mutate_deployed_index():
@@ -1352,10 +1432,8 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.MutateDeployedIndexResponse`
-                Response message for
-                [IndexEndpointService.MutateDeployedIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.MutateDeployedIndex].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.MutateDeployedIndexResponse` Response message for
+                   [IndexEndpointService.MutateDeployedIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.MutateDeployedIndex].
 
         """
         # Create or coerce a protobuf request object.
@@ -1412,7 +1490,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         # Done; return the response.
         return response
 
-    def __enter__(self):
+    def __enter__(self) -> "IndexEndpointServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -1427,10 +1505,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1481,10 +1559,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1535,10 +1613,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -1590,10 +1668,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1644,10 +1722,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1704,10 +1782,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1738,8 +1816,11 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1763,8 +1844,11 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1779,6 +1863,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1817,10 +1902,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -1852,8 +1937,11 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1877,8 +1965,11 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1893,6 +1984,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1931,10 +2023,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -1990,10 +2082,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -2044,10 +2136,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -2097,14 +2189,9 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         return response
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("IndexEndpointServiceClient",)

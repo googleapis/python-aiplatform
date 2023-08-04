@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@
 
 from concurrent import futures
 import logging
-import pkg_resources
+import pkg_resources  # Note this is used after copybara replacement
 import os
-from typing import Optional, Type, Union
+from typing import List, Optional, Type, TypeVar, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -41,9 +41,55 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
 )
 
+_TVertexAiServiceClientWithOverride = TypeVar(
+    "_TVertexAiServiceClientWithOverride",
+    bound=utils.VertexAiServiceClientWithOverride,
+)
+
 
 class _Config:
     """Stores common parameters and options for API calls."""
+
+    def _set_project_as_env_var_or_google_auth_default(self):
+        """Tries to set the project from the environment variable or calls google.auth.default().
+
+        Stores the returned project and credentials as instance attributes.
+
+        This prevents google.auth.default() from being called multiple times when
+        the project and credentials have already been set.
+        """
+
+        if not self._project:
+            # Project is not set. Trying to get it from the environment.
+            # See https://github.com/googleapis/python-aiplatform/issues/852
+            # See https://github.com/googleapis/google-auth-library-python/issues/924
+            # TODO: Remove when google.auth.default() learns the
+            # CLOUD_ML_PROJECT_ID env variable or Vertex AI starts setting GOOGLE_CLOUD_PROJECT env variable.
+            project_number = os.environ.get("CLOUD_ML_PROJECT_ID")
+            if project_number:
+                if not self._credentials:
+                    credentials, _ = google.auth.default()
+                    self._credentials = credentials
+                # Try to convert project number to project ID which is more readable.
+                try:
+                    project_id = resource_manager_utils.get_project_id(
+                        project_number=project_number,
+                        credentials=self._credentials,
+                    )
+                    self._project = project_id
+                except Exception:
+                    logging.getLogger(__name__).warning(
+                        "Failed to convert project number to project ID.", exc_info=True
+                    )
+                    self._project = project_number
+            else:
+                credentials, project = google.auth.default()
+                self._credentials = self._credentials or credentials
+                self._project = project
+
+        if not self._credentials:
+            credentials, _ = google.auth.default()
+            self._credentials = credentials
 
     def __init__(self):
         self._project = None
@@ -51,6 +97,7 @@ class _Config:
         self._staging_bucket = None
         self._credentials = None
         self._encryption_spec_key_name = None
+        self._network = None
 
     def init(
         self,
@@ -65,6 +112,7 @@ class _Config:
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
+        network: Optional[str] = None,
     ):
         """Updates common initialization parameters with provided options.
 
@@ -81,6 +129,12 @@ class _Config:
 
                 Example tensorboard resource name format:
                 "projects/123/locations/us-central1/tensorboards/456"
+
+                If `experiment_tensorboard` is provided and `experiment` is not,
+                the provided `experiment_tensorboard` will be set as the global Tensorboard.
+                Any subsequent calls to aiplatform.init() with `experiment` and without
+                `experiment_tensorboard` will automatically assign the global Tensorboard
+                to the `experiment`.
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
             credentials (google.auth.credentials.Credentials): The default custom
@@ -95,10 +149,15 @@ class _Config:
                 resource is created.
 
                 If set, this resource and all sub-resources will be secured by this key.
+            network (str):
+                Optional. The full name of the Compute Engine network to which jobs
+                and resources should be peered. E.g. "projects/12345/global/networks/myVPC".
+                Private services access must already be configured for the network.
+                If specified, all eligible jobs and resources created will be peered
+                with this VPC.
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
-                If experiment_tensorboard is provided but expeirment is not.
         """
 
         if experiment_description and experiment is None:
@@ -106,9 +165,12 @@ class _Config:
                 "Experiment needs to be set in `init` in order to add experiment descriptions."
             )
 
-        if experiment_tensorboard and experiment is None:
-            raise ValueError(
-                "Experiment needs to be set in `init` in order to add experiment_tensorboard."
+        if experiment_tensorboard:
+            metadata._experiment_tracker.set_tensorboard(
+                tensorboard=experiment_tensorboard,
+                project=project,
+                location=location,
+                credentials=credentials,
             )
 
         # reset metadata_service config if project or location is updated.
@@ -130,6 +192,8 @@ class _Config:
             self._credentials = credentials
         if encryption_spec_key_name:
             self._encryption_spec_key_name = encryption_spec_key_name
+        if network is not None:
+            self._network = network
 
         if experiment:
             metadata._experiment_tracker.set_experiment(
@@ -173,37 +237,19 @@ class _Config:
         if self._project:
             return self._project
 
-        # Project is not set. Trying to get it from the environment.
-        # See https://github.com/googleapis/python-aiplatform/issues/852
-        # See https://github.com/googleapis/google-auth-library-python/issues/924
-        # TODO: Remove when google.auth.default() learns the
-        # CLOUD_ML_PROJECT_ID env variable or Vertex AI starts setting GOOGLE_CLOUD_PROJECT env variable.
-        project_number = os.environ.get("CLOUD_ML_PROJECT_ID")
-        if project_number:
-            # Try to convert project number to project ID which is more readable.
-            try:
-                project_id = resource_manager_utils.get_project_id(
-                    project_number=project_number,
-                    credentials=self.credentials,
-                )
-                return project_id
-            except Exception:
-                logging.getLogger(__name__).warning(
-                    "Failed to convert project number to project ID.", exc_info=True
-                )
-                return project_number
-
         project_not_found_exception_str = (
             "Unable to find your project. Please provide a project ID by:"
             "\n- Passing a constructor argument"
             "\n- Using aiplatform.init()"
+            "\n- Setting project using 'gcloud config set project my-project'"
             "\n- Setting a GCP environment variable"
         )
 
         try:
-            _, project_id = google.auth.default()
-        except GoogleAuthError:
-            raise GoogleAuthError(project_not_found_exception_str)
+            self._set_project_as_env_var_or_google_auth_default()
+            project_id = self._project
+        except GoogleAuthError as exc:
+            raise GoogleAuthError(project_not_found_exception_str) from exc
 
         if not project_id:
             raise ValueError(project_not_found_exception_str)
@@ -213,7 +259,15 @@ class _Config:
     @property
     def location(self) -> str:
         """Default location."""
-        return self._location or constants.DEFAULT_REGION
+        if self._location:
+            return self._location
+
+        location = os.getenv("CLOUD_ML_REGION")
+        if location:
+            utils.validate_region(location)
+            return location
+
+        return constants.DEFAULT_REGION
 
     @property
     def staging_bucket(self) -> Optional[str]:
@@ -228,7 +282,8 @@ class _Config:
         logger = logging.getLogger("google.auth._default")
         logging_warning_filter = utils.LoggingFilter(logging.WARNING)
         logger.addFilter(logging_warning_filter)
-        credentials, _ = google.auth.default()
+        self._set_project_as_env_var_or_google_auth_default()
+        credentials = self._credentials
         logger.removeFilter(logging_warning_filter)
         return credentials
 
@@ -236,6 +291,11 @@ class _Config:
     def encryption_spec_key_name(self) -> Optional[str]:
         """Default encryption spec key name, if provided."""
         return self._encryption_spec_key_name
+
+    @property
+    def network(self) -> Optional[str]:
+        """Default Compute Engine network to peer to, if provided."""
+        return self._network
 
     @property
     def experiment_name(self) -> Optional[str]:
@@ -247,6 +307,7 @@ class _Config:
         location_override: Optional[str] = None,
         prediction_client: bool = False,
         api_base_path_override: Optional[str] = None,
+        api_path_override: Optional[str] = None,
     ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 
@@ -257,6 +318,7 @@ class _Config:
                 Vertex AI.
             prediction_client (str): Optional. flag to use a prediction endpoint.
             api_base_path_override (str): Optional. Override default API base path.
+            api_path_override (str): Optional. Override default api path.
         Returns:
             clients_options (google.api_core.client_options.ClientOptions):
                 A ClientOptions object set with regionalized API endpoint, i.e.
@@ -279,9 +341,12 @@ class _Config:
             else constants.API_BASE_PATH
         )
 
-        return client_options.ClientOptions(
-            api_endpoint=f"{region}-{service_base_path}"
+        api_endpoint = (
+            f"{region}-{service_base_path}"
+            if not api_path_override
+            else api_path_override
         )
+        return client_options.ClientOptions(api_endpoint=api_endpoint)
 
     def common_location_path(
         self, project: Optional[str] = None, location: Optional[str] = None
@@ -308,12 +373,14 @@ class _Config:
 
     def create_client(
         self,
-        client_class: Type[utils.VertexAiServiceClientWithOverride],
+        client_class: Type[_TVertexAiServiceClientWithOverride],
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
         prediction_client: bool = False,
         api_base_path_override: Optional[str] = None,
-    ) -> utils.VertexAiServiceClientWithOverride:
+        api_path_override: Optional[str] = None,
+        appended_user_agent: Optional[List[str]] = None,
+    ) -> _TVertexAiServiceClientWithOverride:
         """Instantiates a given VertexAiServiceClient with optional
         overrides.
 
@@ -325,15 +392,24 @@ class _Config:
             location_override (str): Optional. location override.
             prediction_client (str): Optional. flag to use a prediction endpoint.
             api_base_path_override (str): Optional. Override default api base path.
+            api_path_override (str): Optional. Override default api path.
+            appended_user_agent (List[str]):
+                Optional. User agent appended in the client info. If more than one, it will be
+                separated by spaces.
         Returns:
             client: Instantiated Vertex AI Service client with optional overrides
         """
         gapic_version = pkg_resources.get_distribution(
             "google-cloud-aiplatform",
         ).version
+
+        user_agent = f"{constants.USER_AGENT_PRODUCT}/{gapic_version}"
+        if appended_user_agent:
+            user_agent = f"{user_agent} {' '.join(appended_user_agent)}"
+
         client_info = gapic_v1.client_info.ClientInfo(
             gapic_version=gapic_version,
-            user_agent=f"{constants.USER_AGENT_PRODUCT}/{gapic_version}",
+            user_agent=user_agent,
         )
 
         kwargs = {
@@ -342,6 +418,7 @@ class _Config:
                 location_override=location_override,
                 prediction_client=prediction_client,
                 api_base_path_override=api_base_path_override,
+                api_path_override=api_path_override,
             ),
             "client_info": client_info,
         }

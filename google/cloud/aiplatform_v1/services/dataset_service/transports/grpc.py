@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ from .base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 class DatasetServiceGrpcTransport(DatasetServiceTransport):
     """gRPC backend transport for DatasetService.
 
-    The service that handles the CRUD of Vertex AI Dataset and
-    its child resources.
+    The service that manages Vertex AI Dataset and its child
+    resources.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
@@ -57,17 +57,18 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
-        scopes: Sequence[str] = None,
-        channel: grpc.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        channel: Optional[grpc.Channel] = None,
+        api_mtls_endpoint: Optional[str] = None,
+        client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
+        client_cert_source_for_mtls: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
         quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
     ) -> None:
         """Instantiate the transport.
 
@@ -164,6 +165,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
             quota_project_id=quota_project_id,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            api_audience=api_audience,
         )
 
         if not self._grpc_channel:
@@ -190,8 +192,8 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
         **kwargs,
@@ -463,6 +465,90 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
                 response_deserializer=dataset_service.ListDataItemsResponse.deserialize,
             )
         return self._stubs["list_data_items"]
+
+    @property
+    def search_data_items(
+        self,
+    ) -> Callable[
+        [dataset_service.SearchDataItemsRequest],
+        dataset_service.SearchDataItemsResponse,
+    ]:
+        r"""Return a callable for the search data items method over gRPC.
+
+        Searches DataItems in a Dataset.
+
+        Returns:
+            Callable[[~.SearchDataItemsRequest],
+                    ~.SearchDataItemsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "search_data_items" not in self._stubs:
+            self._stubs["search_data_items"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.DatasetService/SearchDataItems",
+                request_serializer=dataset_service.SearchDataItemsRequest.serialize,
+                response_deserializer=dataset_service.SearchDataItemsResponse.deserialize,
+            )
+        return self._stubs["search_data_items"]
+
+    @property
+    def list_saved_queries(
+        self,
+    ) -> Callable[
+        [dataset_service.ListSavedQueriesRequest],
+        dataset_service.ListSavedQueriesResponse,
+    ]:
+        r"""Return a callable for the list saved queries method over gRPC.
+
+        Lists SavedQueries in a Dataset.
+
+        Returns:
+            Callable[[~.ListSavedQueriesRequest],
+                    ~.ListSavedQueriesResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_saved_queries" not in self._stubs:
+            self._stubs["list_saved_queries"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.DatasetService/ListSavedQueries",
+                request_serializer=dataset_service.ListSavedQueriesRequest.serialize,
+                response_deserializer=dataset_service.ListSavedQueriesResponse.deserialize,
+            )
+        return self._stubs["list_saved_queries"]
+
+    @property
+    def delete_saved_query(
+        self,
+    ) -> Callable[[dataset_service.DeleteSavedQueryRequest], operations_pb2.Operation]:
+        r"""Return a callable for the delete saved query method over gRPC.
+
+        Deletes a SavedQuery.
+
+        Returns:
+            Callable[[~.DeleteSavedQueryRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_saved_query" not in self._stubs:
+            self._stubs["delete_saved_query"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.DatasetService/DeleteSavedQuery",
+                request_serializer=dataset_service.DeleteSavedQueryRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_saved_query"]
 
     @property
     def get_annotation_spec(

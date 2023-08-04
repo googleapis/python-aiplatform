@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import duration_pb2  # type: ignore
@@ -70,19 +74,18 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 the EntityType-level config. Explicitly Disable the snapshot
                 analysis based monitoring.
             monitoring_interval (google.protobuf.duration_pb2.Duration):
+                Configuration of the snapshot analysis based monitoring
+                pipeline running interval. The value is rolled up to full
+                day. If both
+                [monitoring_interval_days][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
+                and the deprecated ``monitoring_interval`` field are set
+                when creating/updating EntityTypes/Features,
+                [monitoring_interval_days][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
+                will be used.
+            monitoring_interval_days (int):
                 Configuration of the snapshot analysis based
                 monitoring pipeline running interval. The value
-                is rolled up to full day.
-            monitoring_interval_days (int):
-                Configuration of the snapshot analysis based monitoring
-                pipeline running interval. The value indicates number of
-                days. If both
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
-                and
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval]
-                are set when creating/updating EntityTypes/Features,
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
-                will be used.
+                indicates number of days.
             staleness_days (int):
                 Customized export features time window for
                 snapshot analysis. Unit is one day. Default
@@ -90,20 +93,20 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 Maximum value is 4000 days.
         """
 
-        disabled = proto.Field(
+        disabled: bool = proto.Field(
             proto.BOOL,
             number=1,
         )
-        monitoring_interval = proto.Field(
+        monitoring_interval: duration_pb2.Duration = proto.Field(
             proto.MESSAGE,
             number=2,
             message=duration_pb2.Duration,
         )
-        monitoring_interval_days = proto.Field(
+        monitoring_interval_days: int = proto.Field(
             proto.INT32,
             number=3,
         )
-        staleness_days = proto.Field(
+        staleness_days: int = proto.Field(
             proto.INT32,
             number=4,
         )
@@ -111,7 +114,9 @@ class FeaturestoreMonitoringConfig(proto.Message):
     class ImportFeaturesAnalysis(proto.Message):
         r"""Configuration of the Featurestore's ImportFeature Analysis Based
         Monitoring. This type of analysis generates statistics for values of
-        each Feature imported by every [ImportFeatureValues][] operation.
+        each Feature imported by every
+        [ImportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ImportFeatureValues]
+        operation.
 
         Attributes:
             state (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.State):
@@ -124,7 +129,32 @@ class FeaturestoreMonitoringConfig(proto.Message):
         """
 
         class State(proto.Enum):
-            r"""The state defines whether to enable ImportFeature analysis."""
+            r"""The state defines whether to enable ImportFeature analysis.
+
+            Values:
+                STATE_UNSPECIFIED (0):
+                    Should not be used.
+                DEFAULT (1):
+                    The default behavior of whether to enable the
+                    monitoring. EntityType-level config: disabled.
+                    Feature-level config: inherited from the
+                    configuration of EntityType this Feature belongs
+                    to.
+                ENABLED (2):
+                    Explicitly enables import features analysis.
+                    EntityType-level config: by default enables
+                    import features analysis for all Features under
+                    it. Feature-level config: enables import
+                    features analysis regardless of the
+                    EntityType-level config.
+                DISABLED (3):
+                    Explicitly disables import features analysis.
+                    EntityType-level config: by default disables
+                    import features analysis for all Features under
+                    it. Feature-level config: disables import
+                    features analysis regardless of the
+                    EntityType-level config.
+            """
             STATE_UNSPECIFIED = 0
             DEFAULT = 1
             ENABLED = 2
@@ -132,19 +162,39 @@ class FeaturestoreMonitoringConfig(proto.Message):
 
         class Baseline(proto.Enum):
             r"""Defines the baseline to do anomaly detection for feature values
-            imported by each [ImportFeatureValues][] operation.
+            imported by each
+            [ImportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ImportFeatureValues]
+            operation.
+
+            Values:
+                BASELINE_UNSPECIFIED (0):
+                    Should not be used.
+                LATEST_STATS (1):
+                    Choose the later one statistics generated by
+                    either most recent snapshot analysis or previous
+                    import features analysis. If non of them exists,
+                    skip anomaly detection and only generate a
+                    statistics.
+                MOST_RECENT_SNAPSHOT_STATS (2):
+                    Use the statistics generated by the most
+                    recent snapshot analysis if exists.
+                PREVIOUS_IMPORT_FEATURES_STATS (3):
+                    Use the statistics generated by the previous
+                    import features analysis if exists.
             """
             BASELINE_UNSPECIFIED = 0
             LATEST_STATS = 1
             MOST_RECENT_SNAPSHOT_STATS = 2
             PREVIOUS_IMPORT_FEATURES_STATS = 3
 
-        state = proto.Field(
-            proto.ENUM,
-            number=1,
-            enum="FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.State",
+        state: "FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.State" = (
+            proto.Field(
+                proto.ENUM,
+                number=1,
+                enum="FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.State",
+            )
         )
-        anomaly_detection_baseline = proto.Field(
+        anomaly_detection_baseline: "FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.Baseline" = proto.Field(
             proto.ENUM,
             number=2,
             enum="FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.Baseline",
@@ -171,28 +221,28 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 This field is a member of `oneof`_ ``threshold``.
         """
 
-        value = proto.Field(
+        value: float = proto.Field(
             proto.DOUBLE,
             number=1,
             oneof="threshold",
         )
 
-    snapshot_analysis = proto.Field(
+    snapshot_analysis: SnapshotAnalysis = proto.Field(
         proto.MESSAGE,
         number=1,
         message=SnapshotAnalysis,
     )
-    import_features_analysis = proto.Field(
+    import_features_analysis: ImportFeaturesAnalysis = proto.Field(
         proto.MESSAGE,
         number=2,
         message=ImportFeaturesAnalysis,
     )
-    numerical_threshold_config = proto.Field(
+    numerical_threshold_config: ThresholdConfig = proto.Field(
         proto.MESSAGE,
         number=3,
         message=ThresholdConfig,
     )
-    categorical_threshold_config = proto.Field(
+    categorical_threshold_config: ThresholdConfig = proto.Field(
         proto.MESSAGE,
         number=4,
         message=ThresholdConfig,

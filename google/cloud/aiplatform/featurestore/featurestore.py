@@ -20,6 +20,7 @@ import uuid
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
+from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
@@ -31,7 +32,10 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import featurestore_utils, resource_manager_utils
+from google.cloud.aiplatform.utils import (
+    featurestore_utils,
+    resource_manager_utils,
+)
 
 from google.cloud import bigquery
 
@@ -476,8 +480,6 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-            request_metadata (Sequence[Tuple[str, str]]):
-                Optional. Strings which should be sent along with the request as metadata.
             encryption_spec (str):
                 Optional. Customer-managed encryption key
                 spec for data storage. If set, both of the
@@ -695,6 +697,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         read_instances: Union[gca_io.BigQuerySource, gca_io.CsvSource],
         pass_through_fields: Optional[List[str]] = None,
         feature_destination_fields: Optional[Dict[str, str]] = None,
+        start_time: [timestamp_pb2.Timestamp] = None,
     ) -> gca_featurestore_service.BatchReadFeatureValuesRequest:
         """Validates and gets batch_read_feature_values_request
 
@@ -735,6 +738,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
+
+            start_time (timestamp_pb2.Timestamp):
+                Optional. Excludes Feature values with feature generation timestamp before this timestamp. If not set, retrieve
+                oldest values kept in Feature Store. Timestamp, if present, must not have higher than millisecond precision.
 
         Returns:
             gca_featurestore_service.BatchReadFeatureValuesRequest: batch read feature values request
@@ -819,6 +826,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 for pass_through_field in pass_through_fields
             ]
 
+        if start_time is not None:
+            batch_read_feature_values_request.start_time = start_time
+
         return batch_read_feature_values_request
 
     @base.optional_sync(return_input_arg="self")
@@ -829,6 +839,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         read_instances_uri: str,
         pass_through_fields: Optional[List[str]] = None,
         feature_destination_fields: Optional[Dict[str, str]] = None,
+        start_time: Optional[timestamp_pb2.Timestamp] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         serve_request_timeout: Optional[float] = None,
         sync: bool = True,
@@ -903,8 +914,14 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
+
+            start_time (timestamp_pb2.Timestamp):
+                Optional. Excludes Feature values with feature generation timestamp before this timestamp. If not set, retrieve
+                oldest values kept in Feature Store. Timestamp, if present, must not have higher than millisecond precision.
+
             serve_request_timeout (float):
                 Optional. The timeout for the serve request in seconds.
+
         Returns:
             Featurestore: The featurestore resource object batch read feature values from.
 
@@ -924,6 +941,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 feature_destination_fields=feature_destination_fields,
                 read_instances=read_instances,
                 pass_through_fields=pass_through_fields,
+                start_time=start_time,
             )
         )
 
@@ -942,6 +960,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         read_instances_uri: str,
         pass_through_fields: Optional[List[str]] = None,
         feature_destination_fields: Optional[Dict[str, str]] = None,
+        start_time: Optional[timestamp_pb2.Timestamp] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
         serve_request_timeout: Optional[float] = None,
@@ -1037,6 +1056,11 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id1/features/f_id11': 'foo',
                         'projects/123/locations/us-central1/featurestores/fs_id/entityTypes/et_id2/features/f_id22': 'bar',
                      }
+
+            start_time (timestamp_pb2.Timestamp):
+                Optional. Excludes Feature values with feature generation timestamp before this timestamp. If not set, retrieve
+                oldest values kept in Feature Store. Timestamp, if present, must not have higher than millisecond precision.
+
             serve_request_timeout (float):
                 Optional. The timeout for the serve request in seconds.
 
@@ -1075,6 +1099,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 feature_destination_fields=feature_destination_fields,
                 read_instances=read_instances,
                 pass_through_fields=pass_through_fields,
+                start_time=start_time,
             )
         )
 
@@ -1090,8 +1115,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         read_instances_df: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
         pass_through_fields: Optional[List[str]] = None,
         feature_destination_fields: Optional[Dict[str, str]] = None,
+        start_time: Optional[timestamp_pb2.Timestamp] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         serve_request_timeout: Optional[float] = None,
+        bq_dataset_id: Optional[str] = None,
     ) -> "pd.DataFrame":  # noqa: F821 - skip check for undefined name 'pd'
         """Batch serves feature values to pandas DataFrame
 
@@ -1176,6 +1203,16 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             serve_request_timeout (float):
                 Optional. The timeout for the serve request in seconds.
 
+            bq_dataset_id (str):
+                Optional. The full dataset ID for the BigQuery dataset to use
+                for temporarily staging data. If specified, caller must have
+                `bigquery.tables.create` permissions for Dataset.
+
+
+            start_time (timestamp_pb2.Timestamp):
+                Optional. Excludes Feature values with feature generation timestamp before this timestamp. If not set, retrieve
+                oldest values kept in Feature Store. Timestamp, if present, must not have higher than millisecond precision.
+
         Returns:
             pd.DataFrame: The pandas DataFrame containing feature values from batch serving.
 
@@ -1210,34 +1247,43 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         self.wait()
         featurestore_name_components = self._parse_resource_name(self.resource_name)
-        featurestore_id = featurestore_name_components["featurestore"]
 
-        temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
-            "-", "_"
-        )
+        # if user didn't specify BigQuery dataset, create an ephemeral one
+        if bq_dataset_id is None:
+            temp_bq_full_dataset_id = self._get_ephemeral_bq_full_dataset_id(
+                featurestore_name_components["featurestore"],
+                featurestore_name_components["project"],
+            )
+            temp_bq_dataset = self._create_ephemeral_bq_dataset(
+                bigquery_client, temp_bq_full_dataset_id
+            )
+            temp_bq_batch_serve_table_name = "batch_serve"
+            temp_bq_read_instances_table_name = "read_instances"
 
-        project_id = resource_manager_utils.get_project_id(
-            project_number=featurestore_name_components["project"],
-            credentials=self.credentials,
-        )
-        temp_bq_dataset_id = f"{project_id}.{temp_bq_dataset_name}"[:1024]
-        temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_dataset_id)
-        temp_bq_dataset.location = self.location
-        temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
+        # if user specified BigQuery dataset, create ephemeral tables
+        else:
+            temp_bq_full_dataset_id = bq_dataset_id
+            temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_full_dataset_id)
+            temp_bq_batch_serve_table_name = f"tmp_batch_serve_{uuid.uuid4()}".replace(
+                "-", "_"
+            )
+            temp_bq_read_instances_table_name = (
+                f"tmp_read_instances_{uuid.uuid4()}".replace("-", "_")
+            )
 
-        temp_bq_batch_serve_table_name = "batch_serve"
-        temp_bq_read_instances_table_name = "read_instances"
         temp_bq_batch_serve_table_id = (
-            f"{temp_bq_dataset_id}.{temp_bq_batch_serve_table_name}"
+            f"{temp_bq_full_dataset_id}.{temp_bq_batch_serve_table_name}"
         )
+
         temp_bq_read_instances_table_id = (
-            f"{temp_bq_dataset_id}.{temp_bq_read_instances_table_name}"
+            f"{temp_bq_full_dataset_id}.{temp_bq_read_instances_table_name}"
         )
 
         try:
 
             job = bigquery_client.load_table_from_dataframe(
-                dataframe=read_instances_df, destination=temp_bq_read_instances_table_id
+                dataframe=read_instances_df,
+                destination=temp_bq_read_instances_table_id,
             )
             job.result()
 
@@ -1249,6 +1295,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 feature_destination_fields=feature_destination_fields,
                 request_metadata=request_metadata,
                 serve_request_timeout=serve_request_timeout,
+                start_time=start_time,
             )
 
             bigquery_storage_read_client = bigquery_storage.BigQueryReadClient(
@@ -1259,7 +1306,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 read_session=bigquery_storage.types.ReadSession(
                     table="projects/{project}/datasets/{dataset}/tables/{table}".format(
                         project=self.project,
-                        dataset=temp_bq_dataset_name,
+                        dataset=temp_bq_dataset.dataset_id,
                         table=temp_bq_batch_serve_table_name,
                     ),
                     data_format=bigquery_storage.types.DataFormat.ARROW,
@@ -1273,9 +1320,60 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                     frames.append(message.to_dataframe())
 
         finally:
-            bigquery_client.delete_dataset(
-                dataset=temp_bq_dataset.dataset_id,
-                delete_contents=True,
-            )
+            # clean up: if user didn't specify dataset, delete ephemeral dataset
+            if bq_dataset_id is None:
+                bigquery_client.delete_dataset(
+                    dataset=temp_bq_dataset.dataset_id,
+                    delete_contents=True,
+                )
+
+            # clean up: if user specified BigQuery dataset, delete ephemeral tables
+            else:
+                bigquery_client.delete_table(temp_bq_batch_serve_table_id)
+                bigquery_client.delete_table(temp_bq_read_instances_table_id)
 
         return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(frames)
+
+    def _get_ephemeral_bq_full_dataset_id(
+        self, featurestore_id: str, project_number: str
+    ) -> str:
+        """Helper method to generate an id for an ephemeral dataset in BigQuery
+        used to temporarily stage data.
+
+        Args:
+            featurestore_id (str):
+                Required. The ID to use for this featurestore.
+            project_number (str):
+                Required. Project to retrieve featurestore from.
+        Returns:
+            str - full BigQuery dataset ID
+        """
+        temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
+            "-", "_"
+        )
+
+        project_id = resource_manager_utils.get_project_id(
+            project_number=project_number,
+            credentials=self.credentials,
+        )
+
+        return f"{project_id}.{temp_bq_dataset_name}"[:1024]
+
+    def _create_ephemeral_bq_dataset(
+        self, bigquery_client: bigquery.Client, dataset_id: str
+    ) -> "bigquery.Dataset":
+        """Helper method to create an ephemeral dataset in BigQuery used to
+        temporarily stage data.
+
+        Args:
+            bigquery_client (bigquery.Client):
+                Required. BigQuery client to use to generate the BigQuery dataset.
+            dataset_id (str):
+                Required. Identifier to use for the BigQuery dataset.
+        Returns:
+            bigquery.Dataset - new BigQuery dataset used to temporarily stage data
+        """
+        temp_bq_dataset = bigquery.Dataset(dataset_ref=dataset_id)
+        temp_bq_dataset.location = self.location
+
+        return bigquery_client.create_dataset(temp_bq_dataset)

@@ -157,7 +157,7 @@ class _ColumnNamesDataset(datasets._Dataset):
                 "There was a problem extracting the headers from the CSV file at '{}': {}".format(
                     gcs_csv_file_path, err
                 )
-            )
+            ) from err
         finally:
             logger.removeFilter(logging_warning_filter)
 

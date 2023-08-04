@@ -28,7 +28,9 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform_v1 import MetadataServiceClient
 from google.cloud.aiplatform_v1 import MetadataStore as GapicMetadataStore
-from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform.compat.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform.compat.types import metadata_service
 
 # project
@@ -134,6 +136,7 @@ def delete_metadata_store_mock():
         yield delete_metadata_store_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataStore:
     def setup_method(self):
         reload(initializer)

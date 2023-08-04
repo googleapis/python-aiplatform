@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -40,44 +44,44 @@ class SpecialistPool(proto.Message):
         display_name (str):
             Required. The user-defined name of the
             SpecialistPool. The name can be up to 128
-            characters long and can be consist of any UTF-8
+            characters long and can consist of any UTF-8
             characters.
             This field should be unique on project-level.
         specialist_managers_count (int):
             Output only. The number of managers in this
             SpecialistPool.
-        specialist_manager_emails (Sequence[str]):
+        specialist_manager_emails (MutableSequence[str]):
             The email addresses of the managers in the
             SpecialistPool.
-        pending_data_labeling_jobs (Sequence[str]):
+        pending_data_labeling_jobs (MutableSequence[str]):
             Output only. The resource name of the pending
             data labeling jobs.
-        specialist_worker_emails (Sequence[str]):
+        specialist_worker_emails (MutableSequence[str]):
             The email addresses of workers in the
             SpecialistPool.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    specialist_managers_count = proto.Field(
+    specialist_managers_count: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    specialist_manager_emails = proto.RepeatedField(
+    specialist_manager_emails: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=4,
     )
-    pending_data_labeling_jobs = proto.RepeatedField(
+    pending_data_labeling_jobs: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=5,
     )
-    specialist_worker_emails = proto.RepeatedField(
+    specialist_worker_emails: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=7,
     )

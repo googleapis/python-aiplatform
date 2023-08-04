@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -146,7 +146,7 @@ class PredictionServiceAsyncClient:
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -182,9 +182,9 @@ class PredictionServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, PredictionServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the prediction service client.
@@ -228,19 +228,26 @@ class PredictionServiceAsyncClient:
 
     async def predict(
         self,
-        request: Union[prediction_service.PredictRequest, dict] = None,
+        request: Optional[Union[prediction_service.PredictRequest, dict]] = None,
         *,
-        endpoint: str = None,
-        instances: Sequence[struct_pb2.Value] = None,
-        parameters: struct_pb2.Value = None,
+        endpoint: Optional[str] = None,
+        instances: Optional[MutableSequence[struct_pb2.Value]] = None,
+        parameters: Optional[struct_pb2.Value] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.PredictResponse:
         r"""Perform an online prediction.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_predict():
@@ -263,7 +270,7 @@ class PredictionServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.PredictRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.PredictRequest, dict]]):
                 The request object. Request message for
                 [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
             endpoint (:class:`str`):
@@ -274,7 +281,7 @@ class PredictionServiceAsyncClient:
                 This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            instances (:class:`Sequence[google.protobuf.struct_pb2.Value]`):
+            instances (:class:`MutableSequence[google.protobuf.struct_pb2.Value]`):
                 Required. The instances that are the input to the
                 prediction call. A DeployedModel may have an upper limit
                 on the number of instances it supports per request, and
@@ -310,7 +317,7 @@ class PredictionServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.PredictResponse:
                 Response message for
-                [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
+                   [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
 
         """
         # Create or coerce a protobuf request object.
@@ -361,12 +368,12 @@ class PredictionServiceAsyncClient:
 
     async def raw_predict(
         self,
-        request: Union[prediction_service.RawPredictRequest, dict] = None,
+        request: Optional[Union[prediction_service.RawPredictRequest, dict]] = None,
         *,
-        endpoint: str = None,
-        http_body: httpbody_pb2.HttpBody = None,
+        endpoint: Optional[str] = None,
+        http_body: Optional[httpbody_pb2.HttpBody] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> httpbody_pb2.HttpBody:
         r"""Perform an online prediction with an arbitrary HTTP payload.
@@ -383,6 +390,13 @@ class PredictionServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_raw_predict():
@@ -401,7 +415,7 @@ class PredictionServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.RawPredictRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.RawPredictRequest, dict]]):
                 The request object. Request message for
                 [PredictionService.RawPredict][google.cloud.aiplatform.v1beta1.PredictionService.RawPredict].
             endpoint (:class:`str`):
@@ -629,14 +643,14 @@ class PredictionServiceAsyncClient:
 
     async def explain(
         self,
-        request: Union[prediction_service.ExplainRequest, dict] = None,
+        request: Optional[Union[prediction_service.ExplainRequest, dict]] = None,
         *,
-        endpoint: str = None,
-        instances: Sequence[struct_pb2.Value] = None,
-        parameters: struct_pb2.Value = None,
-        deployed_model_id: str = None,
+        endpoint: Optional[str] = None,
+        instances: Optional[MutableSequence[struct_pb2.Value]] = None,
+        parameters: Optional[struct_pb2.Value] = None,
+        deployed_model_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.ExplainResponse:
         r"""Perform an online explanation.
@@ -649,11 +663,17 @@ class PredictionServiceAsyncClient:
         [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
         is not specified, all DeployedModels must have
         [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
-        populated. Only deployed AutoML tabular Models have
-        explanation_spec.
+        populated.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_explain():
@@ -676,7 +696,7 @@ class PredictionServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ExplainRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ExplainRequest, dict]]):
                 The request object. Request message for
                 [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
             endpoint (:class:`str`):
@@ -687,7 +707,7 @@ class PredictionServiceAsyncClient:
                 This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            instances (:class:`Sequence[google.protobuf.struct_pb2.Value]`):
+            instances (:class:`MutableSequence[google.protobuf.struct_pb2.Value]`):
                 Required. The instances that are the input to the
                 explanation call. A DeployedModel may have an upper
                 limit on the number of instances it supports per
@@ -731,7 +751,7 @@ class PredictionServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.ExplainResponse:
                 Response message for
-                [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
+                   [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
 
         """
         # Create or coerce a protobuf request object.
@@ -784,10 +804,10 @@ class PredictionServiceAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -838,10 +858,10 @@ class PredictionServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -892,10 +912,10 @@ class PredictionServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -947,10 +967,10 @@ class PredictionServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1001,10 +1021,10 @@ class PredictionServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1061,10 +1081,10 @@ class PredictionServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1095,8 +1115,11 @@ class PredictionServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1120,8 +1143,11 @@ class PredictionServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1136,6 +1162,7 @@ class PredictionServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1174,10 +1201,10 @@ class PredictionServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -1209,8 +1236,11 @@ class PredictionServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1234,8 +1264,11 @@ class PredictionServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1250,6 +1283,7 @@ class PredictionServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1288,10 +1322,10 @@ class PredictionServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -1347,10 +1381,10 @@ class PredictionServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1401,10 +1435,10 @@ class PredictionServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -1453,21 +1487,16 @@ class PredictionServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "PredictionServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         await self.transport.close()
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("PredictionServiceAsyncClient",)

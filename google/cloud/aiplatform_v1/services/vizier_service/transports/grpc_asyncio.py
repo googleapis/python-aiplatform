@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -104,17 +104,18 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
-        channel: aio.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-        quota_project_id=None,
+        channel: Optional[aio.Channel] = None,
+        api_mtls_endpoint: Optional[str] = None,
+        client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
+        client_cert_source_for_mtls: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
     ) -> None:
         """Instantiate the transport.
 
@@ -211,6 +212,7 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
             quota_project_id=quota_project_id,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            api_audience=api_audience,
         )
 
         if not self._grpc_channel:
@@ -407,7 +409,7 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         suggested by Vertex AI Vizier. Returns a long-running operation
         associated with the generation of Trial suggestions. When this
         long-running operation succeeds, it will contain a
-        [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
+        [SuggestTrialsResponse][google.cloud.aiplatform.v1.SuggestTrialsResponse].
 
         Returns:
             Callable[[~.SuggestTrialsRequest],
@@ -600,7 +602,7 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         Checks whether a Trial should stop or not. Returns a
         long-running operation. When the operation is successful, it
         will contain a
-        [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
+        [CheckTrialEarlyStoppingStateResponse][google.cloud.aiplatform.v1.CheckTrialEarlyStoppingStateResponse].
 
         Returns:
             Callable[[~.CheckTrialEarlyStoppingStateRequest],

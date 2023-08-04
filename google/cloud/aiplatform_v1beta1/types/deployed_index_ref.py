@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -36,11 +40,11 @@ class DeployedIndexRef(proto.Message):
             above IndexEndpoint.
     """
 
-    index_endpoint = proto.Field(
+    index_endpoint: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    deployed_index_id = proto.Field(
+    deployed_index_id: str = proto.Field(
         proto.STRING,
         number=2,
     )

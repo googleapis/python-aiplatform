@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,9 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import machine_resources
+from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -45,14 +50,14 @@ class IndexEndpoint(proto.Message):
             characters.
         description (str):
             The description of the IndexEndpoint.
-        deployed_indexes (Sequence[google.cloud.aiplatform_v1.types.DeployedIndex]):
+        deployed_indexes (MutableSequence[google.cloud.aiplatform_v1.types.DeployedIndex]):
             Output only. The indexes deployed in this
             endpoint.
         etag (str):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             organize your IndexEndpoints.
             Label keys and values can be no longer than 64
@@ -87,7 +92,7 @@ class IndexEndpoint(proto.Message):
             are mutually exclusive.
 
             `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
-            projects/{project}/global/networks/{network}. Where
+            ``projects/{project}/global/networks/{network}``. Where
             {project} is a project number, as in '12345', and {network}
             is network name.
         enable_private_service_connect (bool):
@@ -99,51 +104,81 @@ class IndexEndpoint(proto.Message):
             or
             [enable_private_service_connect][google.cloud.aiplatform.v1.IndexEndpoint.enable_private_service_connect],
             can be set.
+        private_service_connect_config (google.cloud.aiplatform_v1.types.PrivateServiceConnectConfig):
+            Optional. Configuration for private service connect.
+
+            [network][google.cloud.aiplatform.v1.IndexEndpoint.network]
+            and
+            [private_service_connect_config][google.cloud.aiplatform.v1.IndexEndpoint.private_service_connect_config]
+            are mutually exclusive.
+        public_endpoint_enabled (bool):
+            Optional. If true, the deployed index will be
+            accessible through public endpoint.
+        public_endpoint_domain_name (str):
+            Output only. If
+            [public_endpoint_enabled][google.cloud.aiplatform.v1.IndexEndpoint.public_endpoint_enabled]
+            is true, this field will be populated with the domain name
+            to use for this index endpoint.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    deployed_indexes = proto.RepeatedField(
+    deployed_indexes: MutableSequence["DeployedIndex"] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
         message="DeployedIndex",
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=6,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=7,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=8,
         message=timestamp_pb2.Timestamp,
     )
-    network = proto.Field(
+    network: str = proto.Field(
         proto.STRING,
         number=9,
     )
-    enable_private_service_connect = proto.Field(
+    enable_private_service_connect: bool = proto.Field(
         proto.BOOL,
         number=10,
+    )
+    private_service_connect_config: service_networking.PrivateServiceConnectConfig = (
+        proto.Field(
+            proto.MESSAGE,
+            number=12,
+            message=service_networking.PrivateServiceConnectConfig,
+        )
+    )
+    public_endpoint_enabled: bool = proto.Field(
+        proto.BOOL,
+        number=13,
+    )
+    public_endpoint_domain_name: str = proto.Field(
+        proto.STRING,
+        number=14,
     )
 
 
@@ -180,18 +215,17 @@ class DeployedIndex(proto.Message):
             its original Index. Additionally when certain changes to the
             original Index are being done (e.g. when what the Index
             contains is being changed) the DeployedIndex may be
-            asynchronously updated in the background to reflect this
+            asynchronously updated in the background to reflect these
             changes. If this timestamp's value is at least the
             [Index.update_time][google.cloud.aiplatform.v1.Index.update_time]
             of the original Index, it means that this DeployedIndex and
             the original Index are in sync. If this timestamp is older,
             then to see which updates this DeployedIndex already
-            contains (and which not), one must
-            [list][Operations.ListOperations] [Operations][Operation]
-            [working][Operation.name] on the original Index. Only the
+            contains (and which it does not), one must
+            [list][google.longrunning.Operations.ListOperations] the
+            operations that are running on the original Index. Only the
             successfully completed Operations with
-            [Operations.metadata.generic_metadata.update_time]
-            [google.cloud.aiplatform.v1.GenericOperationMetadata.update_time]
+            [update_time][google.cloud.aiplatform.v1.GenericOperationMetadata.update_time]
             equal or before this sync time are contained in this
             DeployedIndex.
         automatic_resources (google.cloud.aiplatform_v1.types.AutomaticResources):
@@ -210,21 +244,33 @@ class DeployedIndex(proto.Message):
             If max_replica_count is not set, the default value is
             min_replica_count. The max allowed replica count is 1000.
 
-            Available machine types: n1-standard-16 n1-standard-32
+            Available machine types for SMALL shard: e2-standard-2 and
+            all machine types available for MEDIUM and LARGE shard.
+
+            Available machine types for MEDIUM shard: e2-standard-16 and
+            all machine types available for LARGE shard.
+
+            Available machine types for LARGE shard: e2-highmem-16,
+            n2d-standard-32.
+
+            n1-standard-16 and n1-standard-32 are still available, but
+            we recommend e2-standard-16 and e2-highmem-16 for cost
+            efficiency.
         enable_access_logging (bool):
             Optional. If true, private endpoint's access
-            logs are sent to StackDriver Logging.
+            logs are sent to Cloud Logging.
+
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each MatchRequest.
-            Note that Stackdriver logs may incur a cost,
-            especially if the deployed index receives a high
-            queries per second rate (QPS). Estimate your
-            costs before enabling this option.
+            Note that logs may incur a cost, especially if
+            the deployed index receives a high queries per
+            second rate (QPS). Estimate your costs before
+            enabling this option.
         deployed_index_auth_config (google.cloud.aiplatform_v1.types.DeployedIndexAuthConfig):
             Optional. If set, the authentication is
             enabled for the private endpoint.
-        reserved_ip_ranges (Sequence[str]):
+        reserved_ip_ranges (MutableSequence[str]):
             Optional. A list of reserved ip ranges under
             the VPC network that can be used for this
             DeployedIndex.
@@ -233,7 +279,7 @@ class DeployedIndex(proto.Message):
             be deployed to any ip ranges under the provided
             VPC network.
 
-            The value sohuld be the name of the address
+            The value should be the name of the address
             (https://cloud.google.com/compute/docs/reference/rest/v1/addresses)
             Example: 'vertex-ai-ip-range'.
         deployment_group (str):
@@ -254,57 +300,57 @@ class DeployedIndex(proto.Message):
             including 'default').
     """
 
-    id = proto.Field(
+    id: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    index = proto.Field(
+    index: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    private_endpoints = proto.Field(
+    private_endpoints: "IndexPrivateEndpoints" = proto.Field(
         proto.MESSAGE,
         number=5,
         message="IndexPrivateEndpoints",
     )
-    index_sync_time = proto.Field(
+    index_sync_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=6,
         message=timestamp_pb2.Timestamp,
     )
-    automatic_resources = proto.Field(
+    automatic_resources: machine_resources.AutomaticResources = proto.Field(
         proto.MESSAGE,
         number=7,
         message=machine_resources.AutomaticResources,
     )
-    dedicated_resources = proto.Field(
+    dedicated_resources: machine_resources.DedicatedResources = proto.Field(
         proto.MESSAGE,
         number=16,
         message=machine_resources.DedicatedResources,
     )
-    enable_access_logging = proto.Field(
+    enable_access_logging: bool = proto.Field(
         proto.BOOL,
         number=8,
     )
-    deployed_index_auth_config = proto.Field(
+    deployed_index_auth_config: "DeployedIndexAuthConfig" = proto.Field(
         proto.MESSAGE,
         number=9,
         message="DeployedIndexAuthConfig",
     )
-    reserved_ip_ranges = proto.RepeatedField(
+    reserved_ip_ranges: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=10,
     )
-    deployment_group = proto.Field(
+    deployment_group: str = proto.Field(
         proto.STRING,
         number=11,
     )
@@ -326,28 +372,28 @@ class DeployedIndexAuthConfig(proto.Message):
         (JWT) <https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32>`__.
 
         Attributes:
-            audiences (Sequence[str]):
+            audiences (MutableSequence[str]):
                 The list of JWT
                 `audiences <https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.3>`__.
                 that are allowed to access. A JWT containing any of these
                 audiences will be accepted.
-            allowed_issuers (Sequence[str]):
+            allowed_issuers (MutableSequence[str]):
                 A list of allowed JWT issuers. Each entry must be a valid
                 Google service account, in the following format:
 
                 ``service-account-name@project-id.iam.gserviceaccount.com``
         """
 
-        audiences = proto.RepeatedField(
+        audiences: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=1,
         )
-        allowed_issuers = proto.RepeatedField(
+        allowed_issuers: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=2,
         )
 
-    auth_provider = proto.Field(
+    auth_provider: AuthProvider = proto.Field(
         proto.MESSAGE,
         number=1,
         message=AuthProvider,
@@ -371,11 +417,11 @@ class IndexPrivateEndpoints(proto.Message):
             service connect is enabled.
     """
 
-    match_grpc_address = proto.Field(
+    match_grpc_address: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    service_attachment = proto.Field(
+    service_attachment: str = proto.Field(
         proto.STRING,
         number=2,
     )

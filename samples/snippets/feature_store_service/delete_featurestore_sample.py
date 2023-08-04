@@ -25,7 +25,7 @@ def delete_featurestore_sample(
     featurestore_id: str,
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
-    timeout: int = 300,
+    timeout: int = 1200,
 ):
     # The AI Platform services require regional API endpoints, which need to be
     # in the same region or multi-region overlap with the Feature Store location.

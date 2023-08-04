@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -85,11 +89,11 @@ class MigratableResource(proto.Message):
                 ``projects/{project}/models/{model}/versions/{version}``.
         """
 
-        endpoint = proto.Field(
+        endpoint: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        version = proto.Field(
+        version: str = proto.Field(
             proto.STRING,
             number=2,
         )
@@ -106,11 +110,11 @@ class MigratableResource(proto.Message):
                 automl.googleapis.com.
         """
 
-        model = proto.Field(
+        model: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        model_display_name = proto.Field(
+        model_display_name: str = proto.Field(
             proto.STRING,
             number=3,
         )
@@ -127,11 +131,11 @@ class MigratableResource(proto.Message):
                 automl.googleapis.com.
         """
 
-        dataset = proto.Field(
+        dataset: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        dataset_display_name = proto.Field(
+        dataset_display_name: str = proto.Field(
             proto.STRING,
             number=4,
         )
@@ -146,7 +150,7 @@ class MigratableResource(proto.Message):
             dataset_display_name (str):
                 The Dataset's display name in
                 datalabeling.googleapis.com.
-            data_labeling_annotated_datasets (Sequence[google.cloud.aiplatform_v1.types.MigratableResource.DataLabelingDataset.DataLabelingAnnotatedDataset]):
+            data_labeling_annotated_datasets (MutableSequence[google.cloud.aiplatform_v1.types.MigratableResource.DataLabelingDataset.DataLabelingAnnotatedDataset]):
                 The migratable AnnotatedDataset in
                 datalabeling.googleapis.com belongs to the data
                 labeling Dataset.
@@ -166,59 +170,61 @@ class MigratableResource(proto.Message):
                     datalabeling.googleapis.com.
             """
 
-            annotated_dataset = proto.Field(
+            annotated_dataset: str = proto.Field(
                 proto.STRING,
                 number=1,
             )
-            annotated_dataset_display_name = proto.Field(
+            annotated_dataset_display_name: str = proto.Field(
                 proto.STRING,
                 number=3,
             )
 
-        dataset = proto.Field(
+        dataset: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        dataset_display_name = proto.Field(
+        dataset_display_name: str = proto.Field(
             proto.STRING,
             number=4,
         )
-        data_labeling_annotated_datasets = proto.RepeatedField(
+        data_labeling_annotated_datasets: MutableSequence[
+            "MigratableResource.DataLabelingDataset.DataLabelingAnnotatedDataset"
+        ] = proto.RepeatedField(
             proto.MESSAGE,
             number=3,
             message="MigratableResource.DataLabelingDataset.DataLabelingAnnotatedDataset",
         )
 
-    ml_engine_model_version = proto.Field(
+    ml_engine_model_version: MlEngineModelVersion = proto.Field(
         proto.MESSAGE,
         number=1,
         oneof="resource",
         message=MlEngineModelVersion,
     )
-    automl_model = proto.Field(
+    automl_model: AutomlModel = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="resource",
         message=AutomlModel,
     )
-    automl_dataset = proto.Field(
+    automl_dataset: AutomlDataset = proto.Field(
         proto.MESSAGE,
         number=3,
         oneof="resource",
         message=AutomlDataset,
     )
-    data_labeling_dataset = proto.Field(
+    data_labeling_dataset: DataLabelingDataset = proto.Field(
         proto.MESSAGE,
         number=4,
         oneof="resource",
         message=DataLabelingDataset,
     )
-    last_migrate_time = proto.Field(
+    last_migrate_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=5,
         message=timestamp_pb2.Timestamp,
     )
-    last_update_time = proto.Field(
+    last_update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=6,
         message=timestamp_pb2.Timestamp,

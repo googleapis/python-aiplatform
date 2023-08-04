@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import user_action_reference
@@ -61,7 +65,7 @@ class Annotation(proto.Message):
             "overwrite" update happens.
         annotation_source (google.cloud.aiplatform_v1.types.UserActionReference):
             Output only. The source of the Annotation.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             Optional. The labels with user-defined metadata to organize
             your Annotations.
 
@@ -87,39 +91,39 @@ class Annotation(proto.Message):
                title.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    payload_schema_uri = proto.Field(
+    payload_schema_uri: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    payload = proto.Field(
+    payload: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Value,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=7,
         message=timestamp_pb2.Timestamp,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=8,
     )
-    annotation_source = proto.Field(
+    annotation_source: user_action_reference.UserActionReference = proto.Field(
         proto.MESSAGE,
         number=5,
         message=user_action_reference.UserActionReference,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=6,

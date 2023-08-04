@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,12 +21,15 @@ import abc
 import copy
 import datetime
 import time
+import tempfile
+import uuid
 
 from google.cloud import storage
 from google.cloud import bigquery
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 from google.rpc import status_pb2
 
 from google.cloud import aiplatform
@@ -36,34 +39,52 @@ from google.cloud.aiplatform.compat.types import (
     completion_stats as gca_completion_stats,
     custom_job as gca_custom_job_compat,
     explanation as gca_explanation_compat,
+    encryption_spec as gca_encryption_spec_compat,
     io as gca_io_compat,
     job_state as gca_job_state,
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
-    machine_resources as gca_machine_resources_compat,
-    manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
     study as gca_study_compat,
-)
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job_compat,
+    job_state_v1beta1 as gca_job_state_v1beta1,
+    model_monitoring_v1beta1 as gca_model_monitoring_v1beta1,
+)  # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
+
 from google.cloud.aiplatform.constants import base as constants
+from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import hyperparameter_tuning
+from google.cloud.aiplatform import model_monitoring
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform import _publisher_models
 from google.cloud.aiplatform.utils import console_utils
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
 
+from google.cloud.aiplatform_v1.types import (
+    batch_prediction_job as batch_prediction_job_v1,
+)
+from google.cloud.aiplatform_v1.types import custom_job as custom_job_v1
+from google.cloud.aiplatform_v1.types import execution as execution_v1
 
 _LOGGER = base.Logger(__name__)
 
+# TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
 _JOB_COMPLETE_STATES = (
     gca_job_state.JobState.JOB_STATE_SUCCEEDED,
     gca_job_state.JobState.JOB_STATE_FAILED,
     gca_job_state.JobState.JOB_STATE_CANCELLED,
     gca_job_state.JobState.JOB_STATE_PAUSED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_SUCCEEDED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_FAILED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_PAUSED,
 )
 
 _JOB_ERROR_STATES = (
     gca_job_state.JobState.JOB_STATE_FAILED,
     gca_job_state.JobState.JOB_STATE_CANCELLED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_FAILED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLED,
 )
 
 # _block_until_complete wait times
@@ -109,10 +130,10 @@ class _Job(base.VertexAiStatefulResource):
                 Example: "projects/123/locations/us-central1/batchPredictionJobs/456" or
                 "456" when project, location and job_type are initialized or passed.
             project: Optional[str] = None,
-                Optional project to retrieve Job subclass from. If not set,
+                Optional. project to retrieve Job subclass from. If not set,
                 project set in aiplatform.init will be used.
             location: Optional[str] = None,
-                Optional location to retrieve Job subclass from. If not set,
+                Optional. location to retrieve Job subclass from. If not set,
                 location set in aiplatform.init will be used.
             credentials: Optional[auth_credentials.Credentials] = None,
                 Custom credentials to use. If not set, credentials set in
@@ -257,7 +278,7 @@ class _Job(base.VertexAiStatefulResource):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[VertexAiResourceNoun] - A list of Job resource objects
+            List[VertexAiResourceNoun] - A list of Job resource objects.
         """
 
         return cls._list_with_local_order(
@@ -306,10 +327,10 @@ class BatchPredictionJob(_Job):
                 Example: "projects/.../locations/.../batchPredictionJobs/456" or
                 "456" when project and location are initialized or passed.
             project: Optional[str] = None,
-                Optional project to retrieve BatchPredictionJob from. If not set,
+                Optional. project to retrieve BatchPredictionJob from. If not set,
                 project set in aiplatform.init will be used.
             location: Optional[str] = None,
-                Optional location to retrieve BatchPredictionJob from. If not set,
+                Optional. location to retrieve BatchPredictionJob from. If not set,
                 location set in aiplatform.init will be used.
             credentials: Optional[auth_credentials.Credentials] = None,
                 Custom credentials to use. If not set, credentials set in
@@ -326,7 +347,7 @@ class BatchPredictionJob(_Job):
     @property
     def output_info(
         self,
-    ) -> Optional[aiplatform.gapic.BatchPredictionJob.OutputInfo]:
+    ) -> Optional[batch_prediction_job_v1.BatchPredictionJob.OutputInfo]:
         """Information describing the output of this job, including output location
         into which prediction output is written.
 
@@ -380,6 +401,14 @@ class BatchPredictionJob(_Job):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         batch_size: Optional[int] = None,
+        model_monitoring_objective_config: Optional[
+            "aiplatform.model_monitoring.ObjectiveConfig"
+        ] = None,
+        model_monitoring_alert_config: Optional[
+            "aiplatform.model_monitoring.AlertConfig"
+        ] = None,
+        analysis_instance_schema_uri: Optional[str] = None,
+        service_account: Optional[str] = None,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -392,6 +421,8 @@ class BatchPredictionJob(_Job):
                 Required. A fully-qualified model resource name or model ID.
                 Example: "projects/123/locations/us-central1/models/456" or
                 "456" when project and location are initialized or passed.
+                May optionally contain a version ID or alias in
+                {model_name}@{version} form.
 
                 Or an instance of aiplatform.Model.
             instances_format (str):
@@ -436,27 +467,27 @@ class BatchPredictionJob(_Job):
                 which as value has ```google.rpc.Status`` <Status>`__
                 containing only ``code`` and ``message`` fields.
             bigquery_destination_prefix (Optional[str]):
-                The BigQuery URI to a project or table, up to 2000 characters long.
-                When only the project is specified, the Dataset and Table is created.
-                When the full table reference is specified, the Dataset must exist and
-                table must not exist. Accepted forms: ``bq://projectId`` or
-                ``bq://projectId.bqDatasetId`` or
-                ``bq://projectId.bqDatasetId.bqTableId``. If no Dataset is specified,
-                a new one is created with the name
-                ``prediction_<model-display-name>_<job-create-time>``
-                where the table name is made BigQuery-dataset-name compatible
-                (for example, most special characters become underscores), and
-                timestamp is in YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601"
-                format. In the dataset two tables will be created, ``predictions``,
-                and ``errors``. If the Model has both ``instance`` and
-                ``prediction`` schemata defined then the tables have columns as
-                follows: The ``predictions`` table contains instances for which
-                the prediction succeeded, it has columns as per a concatenation
-                of the Model's instance and prediction schemata. The ``errors``
-                table contains rows for which the prediction has failed, it has
-                instance columns, as per the instance schema, followed by a single
-                "errors" column, which as values has ```google.rpc.Status`` <Status>`__
-                represented as a STRUCT, and containing only ``code`` and ``message``.
+                The BigQuery project or dataset location where the output is
+                to be written to. If project is provided, a new dataset is
+                created with name
+                ``prediction_<model-display-name>_<job-create-time>`` where
+                is made BigQuery-dataset-name compatible (for example, most
+                special characters become underscores), and timestamp is in
+                YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
+                dataset two tables will be created, ``predictions``, and
+                ``errors``. If the Model has both
+                [instance][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri]
+                and
+                [prediction][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri]
+                schemata defined then the tables have columns as follows:
+                The ``predictions`` table contains instances for which the
+                prediction succeeded, it has columns as per a concatenation
+                of the Model's instance and prediction schemata. The
+                ``errors`` table contains rows for which the prediction has
+                failed, it has instance columns, as per the instance schema,
+                followed by a single "errors" column, which as values has
+                [google.rpc.Status][google.rpc.Status] represented as a
+                STRUCT, and containing only ``code`` and ``message``.
             model_parameters (Optional[Dict]):
                 The parameters that govern the predictions. The schema of
                 the parameters may be specified via the Model's `parameters_schema_uri`.
@@ -544,10 +575,47 @@ class BatchPredictionJob(_Job):
                 but too high value will result in a whole batch not fitting in a machine's memory,
                 and the whole operation will fail.
                 The default value is 64.
+            model_monitoring_objective_config (aiplatform.model_monitoring.ObjectiveConfig):
+                Optional. The objective config for model monitoring. Passing this parameter enables
+                monitoring on the model associated with this batch prediction job.
+            model_monitoring_alert_config (aiplatform.model_monitoring.EmailAlertConfig):
+                Optional. Configures how model monitoring alerts are sent to the user. Right now
+                only email alert is supported.
+            analysis_instance_schema_uri (str):
+                Optional. Only applicable if model_monitoring_objective_config is also passed.
+                This parameter specifies the YAML schema file uri describing the format of a single
+                instance that you want Tensorflow Data Validation (TFDV) to
+                analyze. If this field is empty, all the feature data types are
+                inferred from predict_instance_schema_uri, meaning that TFDV
+                will use the data in the exact format as prediction request/response.
+                If there are any data type differences between predict instance
+                and TFDV instance, this field can be used to override the schema.
+                For models trained with Vertex AI, this field must be set as all the
+                fields in predict instance formatted as string.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
         """
+        # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
+        if model_monitoring_objective_config:
+            from google.cloud.aiplatform.compat.types import (
+                batch_prediction_job_v1beta1 as gca_bp_job_compat,
+                io_v1beta1 as gca_io_compat,
+                explanation_v1beta1 as gca_explanation_v1beta1,
+                machine_resources_v1beta1 as gca_machine_resources_compat,
+                manual_batch_tuning_parameters_v1beta1 as gca_manual_batch_tuning_parameters_compat,
+            )
+        else:
+            from google.cloud.aiplatform.compat.types import (
+                batch_prediction_job as gca_bp_job_compat,
+                io as gca_io_compat,
+                explanation as gca_explanation_v1beta1,
+                machine_resources as gca_machine_resources_compat,
+                manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
+            )
         if not job_display_name:
             job_display_name = cls._generate_display_name()
 
@@ -557,14 +625,22 @@ class BatchPredictionJob(_Job):
             utils.validate_labels(labels)
 
         if isinstance(model_name, str):
-            model_name = utils.full_resource_name(
-                resource_name=model_name,
-                resource_noun="models",
-                parse_resource_name_method=aiplatform.Model._parse_resource_name,
-                format_resource_name_method=aiplatform.Model._format_resource_name,
-                project=project,
-                location=location,
-            )
+            try:
+                model_name = utils.full_resource_name(
+                    resource_name=model_name,
+                    resource_noun="models",
+                    parse_resource_name_method=aiplatform.Model._parse_resource_name,
+                    format_resource_name_method=aiplatform.Model._format_resource_name,
+                    project=project,
+                    location=location,
+                    resource_id_validator=super()._revisioned_resource_id_validator,
+                )
+            except ValueError:
+                # Do not raise exception if model_name is a valid PublisherModel name
+                if not _publisher_models._PublisherModel._parse_resource_name(
+                    model_name
+                ):
+                    raise
 
         # Raise error if both or neither source URIs are provided
         if bool(gcs_source) == bool(bigquery_source):
@@ -609,7 +685,7 @@ class BatchPredictionJob(_Job):
         else:
             input_config.instances_format = instances_format
             input_config.gcs_source = gca_io_compat.GcsSource(
-                uris=gcs_source if type(gcs_source) == list else [gcs_source]
+                uris=gcs_source if isinstance(gcs_source, list) else [gcs_source]
             )
 
         if bigquery_destination_prefix:
@@ -674,18 +750,47 @@ class BatchPredictionJob(_Job):
             gapic_batch_prediction_job.generate_explanation = generate_explanation
 
         if explanation_metadata or explanation_parameters:
-            gapic_batch_prediction_job.explanation_spec = (
-                gca_explanation_compat.ExplanationSpec(
-                    metadata=explanation_metadata, parameters=explanation_parameters
-                )
+            explanation_spec = gca_explanation_compat.ExplanationSpec(
+                metadata=explanation_metadata, parameters=explanation_parameters
             )
+            # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
+            if model_monitoring_objective_config:
+
+                explanation_spec = gca_explanation_v1beta1.ExplanationSpec.deserialize(
+                    gca_explanation_compat.ExplanationSpec.serialize(explanation_spec)
+                )
+            gapic_batch_prediction_job.explanation_spec = explanation_spec
+
+        if service_account:
+            gapic_batch_prediction_job.service_account = service_account
 
         empty_batch_prediction_job = cls._empty_constructor(
             project=project,
             location=location,
             credentials=credentials,
         )
+        if model_monitoring_objective_config:
+            empty_batch_prediction_job.api_client = (
+                empty_batch_prediction_job.api_client.select_version("v1beta1")
+            )
 
+        # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
+        if model_monitoring_objective_config:
+            model_monitoring_objective_config._config_for_bp = True
+            if model_monitoring_alert_config is not None:
+                model_monitoring_alert_config._config_for_bp = True
+            gapic_mm_config = gca_model_monitoring_v1beta1.ModelMonitoringConfig(
+                objective_configs=[model_monitoring_objective_config.as_proto()],
+                alert_config=model_monitoring_alert_config.as_proto()
+                if model_monitoring_alert_config is not None
+                else None,
+                analysis_instance_schema_uri=analysis_instance_schema_uri
+                if analysis_instance_schema_uri is not None
+                else None,
+            )
+            gapic_batch_prediction_job.model_monitoring_config = gapic_mm_config
+
+        # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
         return cls._create(
             empty_batch_prediction_job=empty_batch_prediction_job,
             model_or_model_name=model_name,
@@ -713,7 +818,9 @@ class BatchPredictionJob(_Job):
                 Required. BatchPredictionJob without _gca_resource populated.
             model_or_model_name (Union[str, aiplatform.Model]):
                 Required. Required. A fully-qualified model resource name or
-                an instance of aiplatform.Model.
+                an instance of aiplatform.Model. If a resource name, it may
+                optionally contain a version ID or alias in
+                {model_name}@{version} form.
             gca_batch_prediction_job (gca_bp_job.BatchPredictionJob):
                 Required. a batch prediction job proto for creating a batch prediction job on Vertex AI.
             generate_explanation (bool):
@@ -731,7 +838,6 @@ class BatchPredictionJob(_Job):
                 provided instances_format or predictions_format are not supported
                 by Vertex AI.
         """
-        # select v1beta1 if explain else use default v1
 
         parent = initializer.global_config.common_location_path(
             project=empty_batch_prediction_job.project,
@@ -741,7 +847,7 @@ class BatchPredictionJob(_Job):
         model_resource_name = (
             model_or_model_name
             if isinstance(model_or_model_name, str)
-            else model_or_model_name.resource_name
+            else model_or_model_name.versioned_resource_name
         )
 
         gca_batch_prediction_job.model = model_resource_name
@@ -878,7 +984,7 @@ class _RunnableJob(_Job):
         Args:
             project(str): Project of the resource noun.
             location(str): The location of the resource noun.
-            credentials(google.auth.credentials.Credentials): Optional custom
+            credentials(google.auth.credentials.Credentials): Optional. custom
                 credentials to use when accessing interacting with resource noun.
         """
 
@@ -923,6 +1029,12 @@ class _RunnableJob(_Job):
         )
 
         self._logged_web_access_uris = set()
+
+        if isinstance(self, CustomJob):
+            self._experiment = None
+            self._experiment_run = None
+            self._enable_autolog = False
+
         return self
 
     @property
@@ -969,6 +1081,14 @@ class _RunnableJob(_Job):
 
         self._log_job_state()
 
+        if isinstance(self, CustomJob) and self._experiment_run:
+            # sync resource before end run
+            self._experiment_run = aiplatform.ExperimentRun.get(
+                self._experiment_run.name,
+                experiment=self._experiment,
+            )
+            self._experiment_run.end_run()
+
         # Error is only populated when the job state is
         # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
         if self._gca_resource.state in _JOB_ERROR_STATES:
@@ -994,10 +1114,10 @@ class _RunnableJob(_Job):
             resource_name (str):
                 Required. A fully-qualified resource name or ID.
             project (str):
-                Optional project to retrieve dataset from. If not set, project
+                Optional. project to retrieve dataset from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional location to retrieve dataset from. If not set, location
+                Optional. location to retrieve dataset from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
@@ -1034,7 +1154,7 @@ class DataLabelingJob(_Job):
     pass
 
 
-class CustomJob(_RunnableJob):
+class CustomJob(_RunnableJob, base.PreviewMixin):
     """Vertex AI Custom Job."""
 
     _resource_noun = "customJobs"
@@ -1045,12 +1165,13 @@ class CustomJob(_RunnableJob):
     _parse_resource_name_method = "parse_custom_job_path"
     _format_resource_name_method = "custom_job_path"
     _job_type = "training"
+    _preview_class = "google.cloud.aiplatform.aiplatform.preview.jobs.CustomJob"
 
     def __init__(
         self,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
-        worker_pool_specs: Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]],
+        worker_pool_specs: Union[List[Dict], List[custom_job_v1.WorkerPoolSpec]],
         base_output_dir: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -1131,8 +1252,8 @@ class CustomJob(_RunnableJob):
                 staging_bucket set in aiplatform.init.
 
         Raises:
-            RuntimeError: If staging bucket was not set using aiplatform.init and a staging
-            bucket was not passed in.
+            RuntimeError: If staging bucket was not set using aiplatform.init
+                and a staging bucket was not passed in.
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
@@ -1169,6 +1290,10 @@ class CustomJob(_RunnableJob):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
         )
+
+        self._experiment = None
+        self._experiment_run = None
+        self._enable_autolog = False
 
     @property
     def network(self) -> Optional[str]:
@@ -1217,6 +1342,7 @@ class CustomJob(_RunnableJob):
         display_name: str,
         script_path: str,
         container_uri: str,
+        enable_autolog: bool = False,
         args: Optional[Sequence[str]] = None,
         requirements: Optional[Sequence[str]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
@@ -1261,7 +1387,16 @@ class CustomJob(_RunnableJob):
             script_path (str):
                 Required. Local path to training script.
             container_uri (str):
-                Required: Uri of the training container image to use for custom job.
+                Required. Uri of the training container image to use for custom job.
+                Support images in Artifact Registry, Container Registry, or Docker Hub.
+                Vertex AI provides a wide range of executor images with pre-installed
+                packages to meet users' various use cases. See the list of `pre-built containers
+                for training <https://cloud.google.com/vertex-ai/docs/training/pre-built-containers>`.
+                If not using image from this list, please make sure python3 and pip3 are installed in your container.
+            enable_autolog (bool):
+                Optional. If True, the Vertex Experiments autologging feature will be
+                enabled in the CustomJob. Note that this will wrap your training script
+                with some autologging-related code.
             args (Optional[Sequence[str]]):
                 Optional. Command line arguments to be passed to the Python task.
             requirements (Sequence[str]):
@@ -1332,8 +1467,8 @@ class CustomJob(_RunnableJob):
                 staging_bucket set in aiplatform.init.
 
         Raises:
-            RuntimeError: If staging bucket was not set using aiplatform.init and a staging
-            bucket was not passed in.
+            RuntimeError: If staging bucket was not set using aiplatform.init
+                and a staging bucket was not passed in.
         """
 
         project = project or initializer.global_config.project
@@ -1362,15 +1497,53 @@ class CustomJob(_RunnableJob):
             ).pool_specs
         )
 
-        python_packager = source_utils._TrainingScriptPythonPackager(
-            script_path=script_path, requirements=requirements
-        )
+        # if users enable autolog, automatically install SDK in their container image
+        # otherwise users need to manually install SDK
+        if enable_autolog:
+            experiment_requirements = [constants.AIPLATFORM_AUTOLOG_DEPENDENCY_PATH]
+        else:
+            experiment_requirements = []
 
-        package_gcs_uri = python_packager.package_and_copy_to_gcs(
-            gcs_staging_dir=staging_bucket,
-            project=project,
-            credentials=credentials,
-        )
+        if requirements:
+            requirements.extend(experiment_requirements)
+        else:
+            requirements = experiment_requirements
+
+        if enable_autolog:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                autolog_script_path = f"{temp_dir}/trainer_with_autolog.py"
+                with open(autolog_script_path, "w") as f:
+                    autolog_script = (
+                        "# Start a Vertex Experiments autolog session...\n"
+                        "from google.cloud "
+                        "import aiplatform\n"
+                        "aiplatform.autolog()\n\n"
+                        "# Training script...\n"
+                    )
+                    f.write(autolog_script)
+
+                    trainer_script = open(script_path, "r").read()
+                    f.write(trainer_script)
+
+                python_packager = source_utils._TrainingScriptPythonPackager(
+                    script_path=autolog_script_path, requirements=requirements
+                )
+
+                package_gcs_uri = python_packager.package_and_copy_to_gcs(
+                    gcs_staging_dir=staging_bucket,
+                    project=project,
+                    credentials=credentials,
+                )
+        else:
+            python_packager = source_utils._TrainingScriptPythonPackager(
+                script_path=script_path, requirements=requirements
+            )
+
+            package_gcs_uri = python_packager.package_and_copy_to_gcs(
+                gcs_staging_dir=staging_bucket,
+                project=project,
+                credentials=credentials,
+            )
 
         for spec_order, spec in enumerate(worker_pool_specs):
 
@@ -1384,7 +1557,10 @@ class CustomJob(_RunnableJob):
                 spec["container_spec"] = {
                     "image_uri": reduction_server_container_uri,
                 }
-            else:
+            ## check if the container is pre-built
+            elif ("docker.pkg.dev/vertex-ai/" in container_uri) or (
+                "gcr.io/cloud-aiplatform/" in container_uri
+            ):
                 spec["python_package_spec"] = {
                     "executor_image_uri": container_uri,
                     "python_module": python_packager.module_name,
@@ -1399,8 +1575,32 @@ class CustomJob(_RunnableJob):
                         {"name": key, "value": value}
                         for key, value in environment_variables.items()
                     ]
+            else:
+                command = [
+                    "sh",
+                    "-c",
+                    "pip install --upgrade pip && "
+                    + f"pip3 install -q --user {package_gcs_uri} && ".replace(
+                        "gs://", "/gcs/"
+                    )
+                    + f"python3 -m {python_packager.module_name}",
+                ]
 
-        return cls(
+                if args:
+                    command[-1] += " " + " ".join(args)
+
+                spec["container_spec"] = {
+                    "image_uri": container_uri,
+                    "command": command,
+                }
+
+                if environment_variables:
+                    spec["container_spec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
+
+        job = cls(
             display_name=display_name,
             worker_pool_specs=worker_pool_specs,
             base_output_dir=base_output_dir,
@@ -1412,7 +1612,11 @@ class CustomJob(_RunnableJob):
             staging_bucket=staging_bucket,
         )
 
-    @base.optional_sync()
+        if enable_autolog:
+            job._enable_autolog = True
+
+        return job
+
     def run(
         self,
         service_account: Optional[str] = None,
@@ -1420,6 +1624,8 @@ class CustomJob(_RunnableJob):
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
+        experiment: Optional[Union["aiplatform.Experiment", str]] = None,
+        experiment_run: Optional[Union["aiplatform.ExperimentRun", str]] = None,
         tensorboard: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
@@ -1434,7 +1640,8 @@ class CustomJob(_RunnableJob):
                 Optional. The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the job is not peered with any network.
             timeout (int):
                 The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
@@ -1446,6 +1653,19 @@ class CustomJob(_RunnableJob):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
                 https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            experiment (Union[aiplatform.Experiment, str]):
+                Optional. The instance or name of an Experiment resource to which
+                this CustomJob will upload training parameters and metrics.
+
+                `service_account` is required with provided `experiment`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            experiment_run (Union[aiplatform.ExperimentRun, str]):
+                Optional. The instance or name of an ExperimentRun resource to which
+                this CustomJob will upload training parameters and metrics.
+                This arg can only be set when `experiment` is set. If 'experiment'
+                is set but 'experiment_run` is not, an ExperimentRun resource
+                will still be auto-generated.
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1467,7 +1687,182 @@ class CustomJob(_RunnableJob):
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
         """
+        network = network or initializer.global_config.network
 
+        self._run(
+            service_account=service_account,
+            network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
+            enable_web_access=enable_web_access,
+            experiment=experiment,
+            experiment_run=experiment_run,
+            tensorboard=tensorboard,
+            sync=sync,
+            create_request_timeout=create_request_timeout,
+        )
+
+    @base.optional_sync()
+    def _run(
+        self,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
+        enable_web_access: bool = False,
+        experiment: Optional[Union["aiplatform.Experiment", str]] = None,
+        experiment_run: Optional[Union["aiplatform.ExperimentRun", str]] = None,
+        tensorboard: Optional[str] = None,
+        sync: bool = True,
+        create_request_timeout: Optional[float] = None,
+    ) -> None:
+        """Helper method to ensure network synchronization and to run the configured CustomJob.
+
+        Args:
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            experiment (Union[aiplatform.Experiment, str]):
+                Optional. The instance or name of an Experiment resource to which
+                this CustomJob will upload training parameters and metrics.
+
+                `service_account` is required with provided `experiment`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            experiment_run (Union[aiplatform.ExperimentRun, str]):
+                Optional. The instance or name of an ExperimentRun resource to which
+                this CustomJob will upload training parameters and metrics.
+                This arg can only be set when `experiment` is set. If 'experiment'
+                is set but 'experiment_run` is not, an ExperimentRun resource
+                will still be auto-generated.
+            tensorboard (str):
+                Optional. The name of a Vertex AI
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following Vertex AI environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will unblock and it will be executed in a concurrent Future.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+        """
+        self.submit(
+            service_account=service_account,
+            network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
+            enable_web_access=enable_web_access,
+            experiment=experiment,
+            experiment_run=experiment_run,
+            tensorboard=tensorboard,
+            create_request_timeout=create_request_timeout,
+        )
+
+        self._block_until_complete()
+
+    def submit(
+        self,
+        *,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
+        enable_web_access: bool = False,
+        experiment: Optional[Union["aiplatform.Experiment", str]] = None,
+        experiment_run: Optional[Union["aiplatform.ExperimentRun", str]] = None,
+        tensorboard: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
+    ) -> None:
+        """Submit the configured CustomJob.
+
+        Args:
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            experiment (Union[aiplatform.Experiment, str]):
+                Optional. The instance or name of an Experiment resource to which
+                this CustomJob will upload training parameters and metrics.
+
+                `service_account` is required with provided `experiment`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            experiment_run (Union[aiplatform.ExperimentRun, str]):
+                Optional. The instance or name of an ExperimentRun resource to which
+                this CustomJob will upload training parameters and metrics.
+                This arg can only be set when `experiment` is set. If 'experiment'
+                is set but 'experiment_run` is not, an ExperimentRun resource
+                will still be auto-generated.
+            tensorboard (str):
+                Optional. The name of a Vertex AI
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following Vertex AI environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+
+        Raises:
+            ValueError:
+                If both `experiment` and `tensorboard` are specified or if
+                `enable_autolog` is True in `CustomJob.from_local_script` but
+                `experiment` is not specified or the specified experiment
+                doesn't have a backing tensorboard.
+        """
+        if experiment and tensorboard:
+            raise ValueError("'experiment' and 'tensorboard' cannot be set together.")
+        if self._enable_autolog and (not experiment):
+            raise ValueError(
+                "'experiment' is required since you've enabled autolog in 'from_local_script'."
+            )
         if service_account:
             self._gca_resource.job_spec.service_account = service_account
 
@@ -1486,6 +1881,80 @@ class CustomJob(_RunnableJob):
 
         if tensorboard:
             self._gca_resource.job_spec.tensorboard = tensorboard
+
+        # TODO(b/275105711) Update implementation after experiment/run in the proto
+        if experiment:
+            # short-term solution to set experiment/experimentRun in SDK
+            if isinstance(experiment, aiplatform.Experiment):
+                self._experiment = experiment
+                # convert the Experiment instance to string to be passed to env
+                experiment = experiment.name
+            else:
+                self._experiment = aiplatform.Experiment.get(experiment_name=experiment)
+            if not self._experiment:
+                raise ValueError(
+                    f"Experiment '{experiment}' doesn't exist. "
+                    "Please call aiplatform.init(experiment='my-exp') to create an experiment."
+                )
+            elif (
+                not self._experiment.backing_tensorboard_resource_name
+                and self._enable_autolog
+            ):
+                raise ValueError(
+                    f"Experiment '{experiment}' doesn't have a backing tensorboard resource, "
+                    "which is required by the experiment autologging feature. "
+                    "Please call Experiment.assign_backing_tensorboard('my-tb-resource-name')."
+                )
+
+            # if run name is not specified, auto-generate one
+            if not experiment_run:
+                experiment_run = (
+                    # TODO(b/223262536)Once display_name is optional this run name
+                    # might be invalid as well.
+                    f"{self._gca_resource.display_name}-{uuid.uuid4().hex[0:5]}"
+                )
+
+            # get or create the experiment run for the job
+            if isinstance(experiment_run, aiplatform.ExperimentRun):
+                self._experiment_run = experiment_run
+                # convert the ExperimentRun instance to string to be passed to env
+                experiment_run = experiment_run.name
+            else:
+                self._experiment_run = aiplatform.ExperimentRun.get(
+                    run_name=experiment_run,
+                    experiment=self._experiment,
+                )
+            if not self._experiment_run:
+                self._experiment_run = aiplatform.ExperimentRun.create(
+                    run_name=experiment_run,
+                    experiment=self._experiment,
+                )
+            self._experiment_run.update_state(execution_v1.Execution.State.RUNNING)
+
+            worker_pool_specs = self._gca_resource.job_spec.worker_pool_specs
+            for spec in worker_pool_specs:
+                if not spec:
+                    continue
+
+                if "python_package_spec" in spec:
+                    container_spec = spec.python_package_spec
+                else:
+                    container_spec = spec.container_spec
+
+                experiment_env = [
+                    {
+                        "name": metadata_constants.ENV_EXPERIMENT_KEY,
+                        "value": experiment,
+                    },
+                    {
+                        "name": metadata_constants.ENV_EXPERIMENT_RUN_KEY,
+                        "value": experiment_run,
+                    },
+                ]
+                if "env" in container_spec:
+                    container_spec.env.extend(experiment_env)
+                else:
+                    container_spec.env = experiment_env
 
         _LOGGER.log_create_with_lro(self.__class__)
 
@@ -1509,23 +1978,25 @@ class CustomJob(_RunnableJob):
                 )
             )
 
-        self._block_until_complete()
+        if experiment:
+            custom_job = {
+                metadata_constants._CUSTOM_JOB_RESOURCE_NAME: self.resource_name,
+                metadata_constants._CUSTOM_JOB_CONSOLE_URI: self._dashboard_uri(),
+            }
+
+            run_context = self._experiment_run._metadata_node
+            custom_jobs = run_context._gca_resource.metadata.get(
+                metadata_constants._CUSTOM_JOB_KEY
+            )
+            if custom_jobs:
+                custom_jobs.append(custom_job)
+            else:
+                custom_jobs = [custom_job]
+            run_context.update({metadata_constants._CUSTOM_JOB_KEY: custom_jobs})
 
     @property
     def job_spec(self):
         return self._gca_resource.job_spec
-
-
-_SEARCH_ALGORITHM_TO_PROTO_VALUE = {
-    "random": gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
-    "grid": gca_study_compat.StudySpec.Algorithm.GRID_SEARCH,
-    None: gca_study_compat.StudySpec.Algorithm.ALGORITHM_UNSPECIFIED,
-}
-
-_MEASUREMENT_SELECTION_TO_PROTO_VALUE = {
-    "best": gca_study_compat.StudySpec.MeasurementSelectionType.BEST_MEASUREMENT,
-    "last": gca_study_compat.StudySpec.MeasurementSelectionType.LAST_MEASUREMENT,
-}
 
 
 class HyperparameterTuningJob(_RunnableJob):
@@ -1733,8 +2204,10 @@ class HyperparameterTuningJob(_RunnableJob):
         study_spec = gca_study_compat.StudySpec(
             metrics=metrics,
             parameters=parameters,
-            algorithm=_SEARCH_ALGORITHM_TO_PROTO_VALUE[search_algorithm],
-            measurement_selection_type=_MEASUREMENT_SELECTION_TO_PROTO_VALUE[
+            algorithm=hyperparameter_tuning.SEARCH_ALGORITHM_TO_PROTO_VALUE[
+                search_algorithm
+            ],
+            measurement_selection_type=hyperparameter_tuning.MEASUREMENT_SELECTION_TO_PROTO_VALUE[
                 measurement_selection
             ],
         )
@@ -1804,7 +2277,6 @@ class HyperparameterTuningJob(_RunnableJob):
                     )
                     self._logged_web_access_uris.add(uri)
 
-    @base.optional_sync()
     def run(
         self,
         service_account: Optional[str] = None,
@@ -1826,7 +2298,8 @@ class HyperparameterTuningJob(_RunnableJob):
                 Optional. The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the job is not peered with any network.
             timeout (int):
                 Optional. The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
@@ -1859,7 +2332,73 @@ class HyperparameterTuningJob(_RunnableJob):
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
         """
+        network = network or initializer.global_config.network
 
+        self._run(
+            service_account=service_account,
+            network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
+            enable_web_access=enable_web_access,
+            tensorboard=tensorboard,
+            sync=sync,
+            create_request_timeout=create_request_timeout,
+        )
+
+    @base.optional_sync()
+    def _run(
+        self,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        timeout: Optional[int] = None,  # seconds
+        restart_job_on_worker_restart: bool = False,
+        enable_web_access: bool = False,
+        tensorboard: Optional[str] = None,
+        sync: bool = True,
+        create_request_timeout: Optional[float] = None,
+    ) -> None:
+        """Helper method to ensure network synchronization and to run the configured CustomJob.
+
+        Args:
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+            timeout (int):
+                Optional. The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            tensorboard (str):
+                Optional. The name of a Vertex AI
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following Vertex AI environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will unblock and it will be executed in a concurrent Future.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+        """
         if service_account:
             self._gca_resource.trial_job_spec.service_account = service_account
 
@@ -1909,3 +2448,515 @@ class HyperparameterTuningJob(_RunnableJob):
     def trials(self) -> List[gca_study_compat.Trial]:
         self._assert_gca_resource_is_available()
         return list(self._gca_resource.trials)
+
+
+class ModelDeploymentMonitoringJob(_Job):
+    """Vertex AI Model Deployment Monitoring Job.
+
+    This class should be used in conjunction with the Endpoint class
+    in order to configure model monitoring for deployed models.
+    """
+
+    _resource_noun = "modelDeploymentMonitoringJobs"
+    _getter_method = "get_model_deployment_monitoring_job"
+    _list_method = "list_model_deployment_monitoring_jobs"
+    _cancel_method = "cancel_model_deployment_monitoring_jobs"
+    _delete_method = "delete_model_deployment_monitoring_job"
+    _job_type = "model-deployment-monitoring"
+    _parse_resource_name_method = "parse_model_deployment_monitoring_job_path"
+    _format_resource_name_method = "model_deployment_monitoring_job_path"
+
+    def __init__(
+        self,
+        model_deployment_monitoring_job_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Initializer for ModelDeploymentMonitoringJob.
+
+        Args:
+            model_deployment_monitoring_job_name (str):
+                Required. A fully-qualified ModelDeploymentMonitoringJob resource name or ID.
+                Example: "projects/.../locations/.../modelDeploymentMonitoringJobs/456" or
+                "456" when project and location are initialized or passed.
+            project: (str),
+                Optional. project to retrieve ModelDeploymentMonitoringJob from. If not set,
+                project set in aiplatform.init will be used.
+            location: (str),
+                Optional. location to retrieve ModelDeploymentMonitoringJob from. If not set,
+                location set in aiplatform.init will be used.
+            credentials: (auth_credentials.Credentials),
+                Optional. Custom credentials to use. If not set, credentials set in
+                aiplatform.init will be used.
+        """
+        super().__init__(
+            job_name=model_deployment_monitoring_job_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        self._gca_resource = self._get_gca_resource(
+            resource_name=model_deployment_monitoring_job_name
+        )
+
+    @classmethod
+    def _parse_configs(
+        cls,
+        objective_configs: Union[
+            model_monitoring.ObjectiveConfig,
+            Dict[str, model_monitoring.ObjectiveConfig],
+        ],
+        endpoint: "aiplatform.Endpoint",
+        deployed_model_ids: Optional[List[str]] = None,
+    ) -> List[
+        gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig
+    ]:
+        """Helper function for matching objective configs with their corresponding models.
+
+        Args:
+            objective_configs (Union[model_monitoring.objective.ObjectiveConfig,
+                Dict[str, model_monitoring.objective.ObjectiveConfig]):
+                Required. A single config if it applies to all models, or a dictionary of
+                model_id: model_monitoring.objective.ObjectiveConfig if
+                different model IDs have different configs.
+            endpoint (aiplatform.Endpoint):
+                Required. A valid instance of aiplatforn.Endpoint to launch the MDM job on.
+            deployed_model_ids (Optional[List[str]]):
+                Optional. A list of deployed model IDs to apply the objective config to.
+                Note that a model will have a deployed_model_id that is different from the
+                uploaded model ID, and IDs in this list should consist of deployed model IDs
+                on the same endpoint passed in the argument. If `objective_configs` is a dictionary,
+                then this parameter is ignored. If `objective_configs` is an instance of
+                `model_monitoring.ObjectiveConfig` and `deployed_model_ids` is a non-empty
+                list of valid IDs, then the same objective config will apply to all models in this list.
+
+        Returns:
+            A List of ModelDeploymentMonitoringObjectiveConfig objects.
+
+        Raises:
+            ValueError:
+                When the model IDs given are invalid.
+            RuntimeError:
+                When XAI is enabled on a model that doesn't have XAI parameters
+                configured.
+        """
+        all_models = []
+        xai_enabled = []
+        for model in endpoint.list_models():
+            all_models.append(model.id)
+            if str(model.explanation_spec.parameters) != "":
+                xai_enabled.append(model.id)
+
+        all_configs = []
+
+        ## when same objective config is applied to SOME or ALL models
+        if deployed_model_ids is not None:
+            if not all(model in all_models for model in deployed_model_ids):
+                error_string = (
+                    "Invalid model ID. The model ID must be one of ["
+                    + ",".join(all_models)
+                    + "]. Note that deployed model IDs are different from the uploaded model's ID"
+                )
+                raise ValueError(error_string)
+            else:
+                all_models = deployed_model_ids
+
+        if isinstance(objective_configs, model_monitoring.ObjectiveConfig):
+            for model in all_models:
+                if (
+                    model not in xai_enabled
+                    and objective_configs.explanation_config is not None
+                ):
+                    raise RuntimeError(
+                        "Invalid config for model ID %s. `explanation_config` should only be enabled if the model has `explanation_spec populated"
+                        % model
+                    )
+                all_configs.append(
+                    gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
+                        deployed_model_id=model,
+                        objective_config=objective_configs.as_proto(),
+                    )
+                )
+
+        ## when different objective configs are applied to EACH model
+        else:
+            if not all(model in all_models for model in objective_configs.keys()):
+                error_string = (
+                    "Invalid model ID. The model ID must be one of ["
+                    + ",".join(all_models)
+                    + "]. Note that deployed model IDs are different from the uploaded model's ID"
+                )
+                raise ValueError(error_string)
+            for (deployed_model, objective_config) in objective_configs.items():
+                if (
+                    deployed_model not in xai_enabled
+                    and objective_config.explanation_config is not None
+                ):
+                    raise RuntimeError(
+                        "Invalid config for model ID %s. `explanation_config` should only be enabled if the model has `explanation_spec populated"
+                        % deployed_model
+                    )
+                all_configs.append(
+                    gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
+                        deployed_model_id=deployed_model,
+                        objective_config=objective_config.as_proto(),
+                    )
+                )
+
+        return all_configs
+
+    @classmethod
+    def create(
+        cls,
+        endpoint: Union[str, "aiplatform.Endpoint"],
+        objective_configs: Optional[
+            Union[
+                model_monitoring.ObjectiveConfig,
+                Dict[str, model_monitoring.ObjectiveConfig],
+            ]
+        ] = None,
+        logging_sampling_strategy: Optional[model_monitoring.RandomSampleConfig] = None,
+        schedule_config: Optional[model_monitoring.ScheduleConfig] = None,
+        display_name: Optional[str] = None,
+        deployed_model_ids: Optional[List[str]] = None,
+        alert_config: Optional[model_monitoring.EmailAlertConfig] = None,
+        predict_instance_schema_uri: Optional[str] = None,
+        sample_predict_instance: Optional[str] = None,
+        analysis_instance_schema_uri: Optional[str] = None,
+        bigquery_tables_log_ttl: Optional[int] = None,
+        stats_anomalies_base_directory: Optional[str] = None,
+        enable_monitoring_pipeline_logs: Optional[bool] = None,
+        labels: Optional[Dict[str, str]] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        create_request_timeout: Optional[float] = None,
+    ) -> "ModelDeploymentMonitoringJob":
+        """Creates and launches a model monitoring job.
+
+        Args:
+            endpoint (Union[str, "aiplatform.Endpoint"]):
+                Required. Endpoint resource name or an instance of `aiplatform.Endpoint`. Format:
+                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
+            objective_configs (Union[model_monitoring.ObjectiveConfig,
+                Dict[str, model_monitoring.ObjectiveConfig]]):
+                Required. A single config if it applies to all models, or a dictionary of
+                model_id: model_monitoring.objective.ObjectiveConfig if
+                different model IDs have different configs.
+
+            logging_sampling_strategy (model_monitoring.sampling.RandomSampleConfig):
+                Optional. Sample Strategy for logging.
+
+            schedule_config (model_monitoring.schedule.ScheduleConfig):
+                Optional. Configures model monitoring job scheduling interval in hours.
+                This defines how often the monitoring jobs are triggered.
+
+            display_name (str):
+                Optional. The user-defined name of the
+                ModelDeploymentMonitoringJob. The name can be up
+                to 128 characters long and can be consist of any
+                UTF-8 characters.
+                Display name of a ModelDeploymentMonitoringJob.
+
+            deployed_model_ids (List[str]):
+                Optional. Use this argument to specify which deployed models to
+                apply the objective config to. If left unspecified, the same config
+                will be applied to all deployed models.
+
+            alert_config (model_monitoring.alert.EmailAlertConfig):
+                Optional. Configures how alerts are sent to the user. Right now
+                only email alert is supported.
+
+            predict_instance_schema_uri (str):
+                Optional. YAML schema file uri describing the format of
+                a single instance, which are given to format
+                the Endpoint's prediction (and explanation). If
+                not set, the schema will be generated from
+                collected predict requests.
+
+            sample_predict_instance (str):
+                Optional. Sample Predict instance, same format as PredictionRequest.instances,
+                this can be set as a replacement of predict_instance_schema_uri
+                If not set, the schema will be generated from collected predict requests.
+
+            analysis_instance_schema_uri (str):
+                Optional. YAML schema file uri describing the format of a single
+                instance that you want Tensorflow Data Validation (TFDV) to
+                analyze. If this field is empty, all the feature data types are
+                inferred from predict_instance_schema_uri, meaning that TFDV
+                will use the data in the exact format as prediction request/response.
+                If there are any data type differences between predict instance
+                and TFDV instance, this field can be used to override the schema.
+                For models trained with Vertex AI, this field must be set as all the
+                fields in predict instance formatted as string.
+
+            bigquery_tables_log_ttl (int):
+                Optional. The TTL(time to live) of BigQuery tables in user projects
+                which stores logs. A day is the basic unit of
+                the TTL and we take the ceil of TTL/86400(a
+                day). e.g. { second: 3600} indicates ttl = 1
+                day.
+
+            stats_anomalies_base_directory (str):
+                Optional. Stats anomalies base folder path.
+
+            enable_monitoring_pipeline_logs (bool):
+                Optional. If true, the scheduled monitoring pipeline logs are sent to
+                Google Cloud Logging, including pipeline status and
+                anomalies detected. Please note the logs incur cost, which
+                are subject to `Cloud Logging
+                pricing <https://cloud.google.com/logging#pricing>`__.
+
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize the ModelDeploymentMonitoringJob.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed. See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+
+            encryption_spec_key_name (str):
+                Optional. Customer-managed encryption key spec for a
+                ModelDeploymentMonitoringJob. If set, this
+                ModelDeploymentMonitoringJob and all
+                sub-resources of this
+                ModelDeploymentMonitoringJob will be secured by
+                this key.
+
+            create_request_timeout (int):
+                Optional. Timeout in seconds for the model monitoring job creation request.
+
+        Returns:
+            An instance of ModelDeploymentMonitoringJob.
+        """
+        if not display_name:
+            display_name = cls._generate_display_name()
+
+        utils.validate_display_name(display_name)
+
+        if labels:
+            utils.validate_labels(labels)
+
+        if stats_anomalies_base_directory:
+            stats_anomalies_base_directory = gca_io_compat.GcsDestination(
+                output_uri_prefix=stats_anomalies_base_directory
+            )
+
+        if encryption_spec_key_name:
+            encryption_spec_key_name = gca_encryption_spec_compat.EncryptionSpec(
+                kms_key_name=encryption_spec_key_name
+            )
+
+        if credentials is None and isinstance(endpoint, aiplatform.Endpoint):
+            credentials = endpoint.credentials
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+
+        parent = initializer.global_config.common_location_path(
+            project=self.project,
+            location=self.location,
+        )
+
+        if isinstance(endpoint, str):
+            endpoint = aiplatform.Endpoint(endpoint, project, location, credentials)
+
+        mdm_objective_config_seq = cls._parse_configs(
+            objective_configs,
+            endpoint,
+            deployed_model_ids,
+        )
+
+        gapic_mdm_job = (
+            gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
+                display_name=display_name,
+                endpoint=endpoint.resource_name,
+                model_deployment_monitoring_objective_configs=mdm_objective_config_seq,
+                logging_sampling_strategy=logging_sampling_strategy.as_proto(),
+                model_deployment_monitoring_schedule_config=schedule_config.as_proto(),
+                model_monitoring_alert_config=alert_config.as_proto(),
+                predict_instance_schema_uri=predict_instance_schema_uri,
+                analysis_instance_schema_uri=analysis_instance_schema_uri,
+                sample_predict_instance=sample_predict_instance,
+                stats_anomalies_base_directory=stats_anomalies_base_directory,
+                enable_monitoring_pipeline_logs=enable_monitoring_pipeline_logs,
+                labels=labels,
+                encryption_spec=encryption_spec_key_name,
+            )
+        )
+
+        _LOGGER.log_create_with_lro(cls)
+        self._gca_resource = self.api_client.create_model_deployment_monitoring_job(
+            parent=parent,
+            model_deployment_monitoring_job=gapic_mdm_job,
+            timeout=create_request_timeout,
+        )
+
+        _LOGGER.log_create_complete(cls, self._gca_resource, "mdm_job")
+
+        _LOGGER.info(
+            "View Model Deployment Monitoring Job:\n%s" % self._dashboard_uri()
+        )
+
+        return self
+
+    @classmethod
+    def cancel(cls):
+        raise NotImplementedError(
+            "Cancel method is not implemented because it is not applicable. A running model deployment monitoring job can be paused or deleted."
+        )
+
+    @property
+    def end_time(self):
+        _LOGGER.info(
+            "Model deployment monitoring jobs do not have an end time since their inactive states are either PAUSED or PENDING."
+        )
+        return None
+
+    def update(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        schedule_config: Optional[model_monitoring.ScheduleConfig] = None,
+        alert_config: Optional[model_monitoring.EmailAlertConfig] = None,
+        logging_sampling_strategy: Optional[model_monitoring.RandomSampleConfig] = None,
+        labels: Optional[Dict[str, str]] = None,
+        bigquery_tables_log_ttl: Optional[int] = None,
+        enable_monitoring_pipeline_logs: Optional[bool] = None,
+        objective_configs: Optional[
+            Union[
+                model_monitoring.ObjectiveConfig,
+                Dict[str, model_monitoring.ObjectiveConfig],
+            ]
+        ] = None,
+        deployed_model_ids: Optional[List[str]] = None,
+    ) -> "ModelDeploymentMonitoringJob":
+        """Updates an existing ModelDeploymentMonitoringJob.
+
+        Args:
+
+            display_name (str):
+                Optional. The user-defined name of the
+                ModelDeploymentMonitoringJob. The name can be up
+                to 128 characters long and can be consist of any
+                UTF-8 characters.
+                Display name of a ModelDeploymentMonitoringJob.
+
+            schedule_config (model_monitoring.schedule.ScheduleConfig):
+                Required. Configures model monitoring job scheduling interval in hours.
+                This defines how often the monitoring jobs are triggered.
+            alert_config (model_monitoring.alert.EmailAlertConfig):
+                Optional. Configures how alerts are sent to the user. Right now
+                only email alert is supported.
+            logging_sampling_strategy (model_monitoring.sampling.RandomSampleConfig):
+                Required. Sample Strategy for logging.
+
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize the ModelDeploymentMonitoringJob.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed. See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            bigquery_tables_log_ttl (int):
+                Optional. The number of days for which the logs are stored.
+                The TTL(time to live) of BigQuery tables in user projects
+                which stores logs. A day is the basic unit of
+                the TTL and we take the ceil of TTL/86400(a
+                day). e.g. { second: 3600} indicates ttl = 1
+                day.
+
+            enable_monitoring_pipeline_logs (bool):
+                Optional. If true, the scheduled monitoring pipeline logs are sent to
+                Google Cloud Logging, including pipeline status and
+                anomalies detected. Please note the logs incur cost, which
+                are subject to `Cloud Logging
+                pricing <https://cloud.google.com/logging#pricing>`__.
+
+            objective_configs (Union[
+                Required. model_monitoring.objective.ObjectiveConfig,
+                Dict[str, model_monitoring.objective.ObjectiveConfig]):
+                A single config if it applies to all models, or a dictionary of
+                model_id: model_monitoring.objective.ObjectiveConfig if
+                different model IDs have different configs.
+
+            deployed_model_ids (List[str]):
+                Optional. Use this argument to specify which deployed models to
+                apply the updated objective config to. If left unspecified, the same config
+                will be applied to all deployed models.
+        """
+        self._sync_gca_resource()
+        current_job = copy.deepcopy(self._gca_resource)
+        update_mask: List[str] = []
+        if display_name is not None:
+            update_mask.append("display_name")
+            current_job.display_name = display_name
+        if schedule_config is not None:
+            update_mask.append("model_deployment_monitoring_schedule_config")
+            current_job.model_deployment_monitoring_schedule_config = (
+                schedule_config.as_proto()
+            )
+        if alert_config is not None:
+            update_mask.append("model_monitoring_alert_config")
+            current_job.model_monitoring_alert_config = alert_config.as_proto()
+        if logging_sampling_strategy is not None:
+            update_mask.append("logging_sampling_strategy")
+            current_job.logging_sampling_strategy = logging_sampling_strategy.as_proto()
+        if labels is not None:
+            update_mask.append("labels")
+            current_job.labels = labels
+        if bigquery_tables_log_ttl is not None:
+            update_mask.append("log_ttl")
+            current_job.log_ttl = duration_pb2.Duration(
+                seconds=bigquery_tables_log_ttl * 86400
+            )
+        if enable_monitoring_pipeline_logs is not None:
+            update_mask.append("enable_monitoring_pipeline_logs")
+            current_job.enable_monitoring_pipeline_logs = (
+                enable_monitoring_pipeline_logs
+            )
+        if objective_configs is not None:
+            update_mask.append("model_deployment_monitoring_objective_configs")
+            current_job.model_deployment_monitoring_objective_configs = (
+                ModelDeploymentMonitoringJob._parse_configs(
+                    objective_configs=objective_configs,
+                    endpoint=aiplatform.Endpoint(
+                        current_job.endpoint, credentials=self.credentials
+                    ),
+                    deployed_model_ids=deployed_model_ids,
+                )
+            )
+        # TODO(b/254285776): add optional_sync support to model monitoring job
+        lro = self.api_client.update_model_deployment_monitoring_job(
+            model_deployment_monitoring_job=current_job,
+            update_mask=field_mask_pb2.FieldMask(paths=update_mask),
+        )
+        self._gca_resource = lro.result()
+        return self
+
+    def pause(self) -> "ModelDeploymentMonitoringJob":
+        """Pause a running MDM job."""
+        self.api_client.pause_model_deployment_monitoring_job(
+            name=self._gca_resource.name
+        )
+        return self
+
+    def resume(self) -> "ModelDeploymentMonitoringJob":
+        """Resumes a paused MDM job."""
+        self.api_client.resume_model_deployment_monitoring_job(
+            name=self._gca_resource.name
+        )
+        return self
+
+    def delete(self) -> None:
+        """Deletes an MDM job."""
+        self.api_client.delete_model_deployment_monitoring_job(
+            name=self._gca_resource.name
+        )

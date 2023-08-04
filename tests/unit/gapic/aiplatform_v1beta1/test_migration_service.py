@@ -2044,9 +2044,9 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
-        "dataset": "octopus",
+        "project": "nautilus",
+        "location": "scallop",
+        "dataset": "abalone",
     }
     path = MigrationServiceClient.dataset_path(**expected)
 
@@ -2056,9 +2056,9 @@ def test_parse_dataset_path():
 
 
 def test_dataset_path():
-    project = "oyster"
-    location = "nudibranch"
-    dataset = "cuttlefish"
+    project = "squid"
+    location = "clam"
+    dataset = "whelk"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project,
         location=location,
@@ -2070,8 +2070,31 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
+        "project": "octopus",
+        "location": "oyster",
+        "dataset": "nudibranch",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "cuttlefish"
+    dataset = "mussel"
+    expected = "projects/{project}/datasets/{dataset}".format(
+        project=project,
+        dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "winkle",
         "dataset": "nautilus",
     }
     path = MigrationServiceClient.dataset_path(**expected)

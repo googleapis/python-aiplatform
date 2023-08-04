@@ -31,8 +31,12 @@ from werkzeug.test import EnvironBuilder
 from google.api_core import exceptions
 from google.cloud import aiplatform
 from google.cloud.aiplatform import training_utils
-from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
-from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
+    profile_uploader,
+)
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import (
+    base_plugin,
+)
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
     tf_profiler,
 )
@@ -88,7 +92,7 @@ def tf_profile_plugin_mock():
         tensorboard_plugin_profile.profile_plugin.ProfilePlugin, "capture_route"
     ) as profile_mock:
         profile_mock.return_value = (
-            wrappers.BaseResponse(
+            wrappers.Response(
                 json.dumps({"error": "some error"}),
                 content_type="application/json",
                 status=200,
@@ -175,14 +179,20 @@ class TestProfilerPlugin(unittest.TestCase):
     def testCanInitializeTFVersion(self):
         import tensorflow
 
-        with mock.patch.object(tensorflow, "__version__", return_value="1.2.3.4"):
+        with mock.patch.object(tensorflow, "__version__", "1.2.3.4"):
             assert not TFProfiler.can_initialize()
 
     def testCanInitializeOldTFVersion(self):
         import tensorflow
 
-        with mock.patch.object(tensorflow, "__version__", return_value="2.3.0"):
+        with mock.patch.object(tensorflow, "__version__", "2.3.0"):
             assert not TFProfiler.can_initialize()
+
+    def testCanInitializeRcTFVersion(self):
+        import tensorflow as tf
+
+        with mock.patch.object(tf, "__version__", "2.4.0-rc2"):
+            assert TFProfiler.can_initialize()
 
     def testCanInitializeNoProfilePlugin(self):
         orig_find_spec = importlib.util.find_spec
@@ -331,7 +341,7 @@ class TestWebServer(unittest.TestCase):
         res_dict = {"response": "OK"}
 
         def my_callable(var1, var2):
-            return wrappers.BaseResponse(
+            return wrappers.Response(
                 json.dumps(res_dict), content_type="application/json", status=200
             )
 

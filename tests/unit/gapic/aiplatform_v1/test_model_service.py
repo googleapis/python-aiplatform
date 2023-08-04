@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ import os
 # try/except added for compatibility with python < 3.8
 try:
     from unittest import mock
-    from unittest.mock import AsyncMock
-except ImportError:
+    from unittest.mock import AsyncMock  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
     import mock
 
 import grpc
@@ -27,7 +27,7 @@ from grpc.experimental import aio
 import math
 import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
-
+from proto.marshal.rules import wrappers
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -48,6 +48,7 @@ from google.cloud.aiplatform_v1.services.model_service import transports
 from google.cloud.aiplatform_v1.types import deployed_model_ref
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import env_var
+from google.cloud.aiplatform_v1.types import evaluated_annotation
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import explanation_metadata
 from google.cloud.aiplatform_v1.types import io
@@ -64,9 +65,11 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
+from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.protobuf import wrappers_pb2  # type: ignore
 import google.auth
 
 
@@ -243,6 +246,7 @@ def test_model_service_client_client_options(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -260,6 +264,7 @@ def test_model_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -277,6 +282,7 @@ def test_model_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
@@ -306,6 +312,25 @@ def test_model_service_client_client_options(
             quota_project_id="octopus",
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
+        )
+    # Check the case api_endpoint is provided
+    options = client_options.ClientOptions(
+        api_audience="https://language.googleapis.com"
+    )
+    with mock.patch.object(transport_class, "__init__") as patched:
+        patched.return_value = None
+        client = client_class(client_options=options, transport=transport_name)
+        patched.assert_called_once_with(
+            credentials=None,
+            credentials_file=None,
+            host=client.DEFAULT_ENDPOINT,
+            scopes=None,
+            client_cert_source_for_mtls=None,
+            quota_project_id=None,
+            client_info=transports.base.DEFAULT_CLIENT_INFO,
+            always_use_jwt_access=True,
+            api_audience="https://language.googleapis.com",
         )
 
 
@@ -371,6 +396,7 @@ def test_model_service_client_mtls_env_auto(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case ADC client cert is provided. Whether client cert is used depends on
@@ -405,6 +431,7 @@ def test_model_service_client_mtls_env_auto(
                         quota_project_id=None,
                         client_info=transports.base.DEFAULT_CLIENT_INFO,
                         always_use_jwt_access=True,
+                        api_audience=None,
                     )
 
     # Check the case client_cert_source and ADC client cert are not provided.
@@ -427,6 +454,7 @@ def test_model_service_client_mtls_env_auto(
                     quota_project_id=None,
                     client_info=transports.base.DEFAULT_CLIENT_INFO,
                     always_use_jwt_access=True,
+                    api_audience=None,
                 )
 
 
@@ -537,6 +565,7 @@ def test_model_service_client_client_options_scopes(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -575,6 +604,7 @@ def test_model_service_client_client_options_credentials_file(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -593,6 +623,7 @@ def test_model_service_client_client_options_from_dict():
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -631,6 +662,7 @@ def test_model_service_client_create_channel_credentials_file(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
     # test that the credentials from file are saved and used as the credentials.
@@ -927,6 +959,7 @@ def test_get_model(request_type, transport: str = "grpc"):
             version_description="version_description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
+            pipeline_job="pipeline_job_value",
             artifact_uri="artifact_uri_value",
             supported_deployment_resources_types=[
                 model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -934,6 +967,7 @@ def test_get_model(request_type, transport: str = "grpc"):
             supported_input_storage_formats=["supported_input_storage_formats_value"],
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
+            metadata_artifact="metadata_artifact_value",
         )
         response = client.get_model(request)
 
@@ -952,6 +986,7 @@ def test_get_model(request_type, transport: str = "grpc"):
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -963,6 +998,7 @@ def test_get_model(request_type, transport: str = "grpc"):
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
+    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 def test_get_model_empty_call():
@@ -1007,6 +1043,7 @@ async def test_get_model_async(
                 version_description="version_description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
+                pipeline_job="pipeline_job_value",
                 artifact_uri="artifact_uri_value",
                 supported_deployment_resources_types=[
                     model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -1018,6 +1055,7 @@ async def test_get_model_async(
                     "supported_output_storage_formats_value"
                 ],
                 etag="etag_value",
+                metadata_artifact="metadata_artifact_value",
             )
         )
         response = await client.get_model(request)
@@ -1037,6 +1075,7 @@ async def test_get_model_async(
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -1048,6 +1087,7 @@ async def test_get_model_async(
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
+    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 @pytest.mark.asyncio
@@ -1606,9 +1646,11 @@ async def test_list_models_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_models(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -2048,9 +2090,11 @@ async def test_list_model_versions_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_model_versions(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -2085,6 +2129,7 @@ def test_update_model(request_type, transport: str = "grpc"):
             version_description="version_description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
+            pipeline_job="pipeline_job_value",
             artifact_uri="artifact_uri_value",
             supported_deployment_resources_types=[
                 gca_model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2092,6 +2137,7 @@ def test_update_model(request_type, transport: str = "grpc"):
             supported_input_storage_formats=["supported_input_storage_formats_value"],
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
+            metadata_artifact="metadata_artifact_value",
         )
         response = client.update_model(request)
 
@@ -2110,6 +2156,7 @@ def test_update_model(request_type, transport: str = "grpc"):
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         gca_model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2121,6 +2168,7 @@ def test_update_model(request_type, transport: str = "grpc"):
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
+    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 def test_update_model_empty_call():
@@ -2165,6 +2213,7 @@ async def test_update_model_async(
                 version_description="version_description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
+                pipeline_job="pipeline_job_value",
                 artifact_uri="artifact_uri_value",
                 supported_deployment_resources_types=[
                     gca_model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2176,6 +2225,7 @@ async def test_update_model_async(
                     "supported_output_storage_formats_value"
                 ],
                 etag="etag_value",
+                metadata_artifact="metadata_artifact_value",
             )
         )
         response = await client.update_model(request)
@@ -2195,6 +2245,7 @@ async def test_update_model_async(
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         gca_model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2206,6 +2257,7 @@ async def test_update_model_async(
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
+    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 @pytest.mark.asyncio
@@ -2359,6 +2411,247 @@ async def test_update_model_flattened_error_async():
             model_service.UpdateModelRequest(),
             model=gca_model.Model(name="name_value"),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_service.UpdateExplanationDatasetRequest,
+        dict,
+    ],
+)
+def test_update_explanation_dataset(request_type, transport: str = "grpc"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.update_explanation_dataset(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.UpdateExplanationDatasetRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_update_explanation_dataset_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        client.update_explanation_dataset()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.UpdateExplanationDatasetRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_explanation_dataset_async(
+    transport: str = "grpc_asyncio",
+    request_type=model_service.UpdateExplanationDatasetRequest,
+):
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.update_explanation_dataset(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.UpdateExplanationDatasetRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_update_explanation_dataset_async_from_dict():
+    await test_update_explanation_dataset_async(request_type=dict)
+
+
+def test_update_explanation_dataset_field_headers():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.UpdateExplanationDatasetRequest()
+
+    request.model = "model_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.update_explanation_dataset(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "model=model_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_update_explanation_dataset_field_headers_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.UpdateExplanationDatasetRequest()
+
+    request.model = "model_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.update_explanation_dataset(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "model=model_value",
+    ) in kw["metadata"]
+
+
+def test_update_explanation_dataset_flattened():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.update_explanation_dataset(
+            model="model_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].model
+        mock_val = "model_value"
+        assert arg == mock_val
+
+
+def test_update_explanation_dataset_flattened_error():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.update_explanation_dataset(
+            model_service.UpdateExplanationDatasetRequest(),
+            model="model_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_update_explanation_dataset_flattened_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.update_explanation_dataset(
+            model="model_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].model
+        mock_val = "model_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_update_explanation_dataset_flattened_error_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.update_explanation_dataset(
+            model_service.UpdateExplanationDatasetRequest(),
+            model="model_value",
         )
 
 
@@ -2860,6 +3153,7 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
             version_description="version_description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
+            pipeline_job="pipeline_job_value",
             artifact_uri="artifact_uri_value",
             supported_deployment_resources_types=[
                 model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2867,6 +3161,7 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
             supported_input_storage_formats=["supported_input_storage_formats_value"],
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
+            metadata_artifact="metadata_artifact_value",
         )
         response = client.merge_version_aliases(request)
 
@@ -2885,6 +3180,7 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2896,6 +3192,7 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
+    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 def test_merge_version_aliases_empty_call():
@@ -2945,6 +3242,7 @@ async def test_merge_version_aliases_async(
                 version_description="version_description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
+                pipeline_job="pipeline_job_value",
                 artifact_uri="artifact_uri_value",
                 supported_deployment_resources_types=[
                     model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2956,6 +3254,7 @@ async def test_merge_version_aliases_async(
                     "supported_output_storage_formats_value"
                 ],
                 etag="etag_value",
+                metadata_artifact="metadata_artifact_value",
             )
         )
         response = await client.merge_version_aliases(request)
@@ -2975,6 +3274,7 @@ async def test_merge_version_aliases_async(
     assert response.version_description == "version_description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
+    assert response.pipeline_job == "pipeline_job_value"
     assert response.artifact_uri == "artifact_uri_value"
     assert response.supported_deployment_resources_types == [
         model.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2986,6 +3286,7 @@ async def test_merge_version_aliases_async(
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
+    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 @pytest.mark.asyncio
@@ -3401,6 +3702,242 @@ async def test_export_model_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
+        model_service.CopyModelRequest,
+        dict,
+    ],
+)
+def test_copy_model(request_type, transport: str = "grpc"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.copy_model), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.copy_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.CopyModelRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_copy_model_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.copy_model), "__call__") as call:
+        client.copy_model()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.CopyModelRequest()
+
+
+@pytest.mark.asyncio
+async def test_copy_model_async(
+    transport: str = "grpc_asyncio", request_type=model_service.CopyModelRequest
+):
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.copy_model), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.copy_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.CopyModelRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_copy_model_async_from_dict():
+    await test_copy_model_async(request_type=dict)
+
+
+def test_copy_model_field_headers():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.CopyModelRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.copy_model), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.copy_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_copy_model_field_headers_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.CopyModelRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.copy_model), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.copy_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_copy_model_flattened():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.copy_model), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.copy_model(
+            parent="parent_value",
+            source_model="source_model_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].source_model
+        mock_val = "source_model_value"
+        assert arg == mock_val
+
+
+def test_copy_model_flattened_error():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.copy_model(
+            model_service.CopyModelRequest(),
+            parent="parent_value",
+            source_model="source_model_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_copy_model_flattened_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.copy_model), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.copy_model(
+            parent="parent_value",
+            source_model="source_model_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].source_model
+        mock_val = "source_model_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_copy_model_flattened_error_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.copy_model(
+            model_service.CopyModelRequest(),
+            parent="parent_value",
+            source_model="source_model_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         model_service.ImportModelEvaluationRequest,
         dict,
     ],
@@ -3672,6 +4209,558 @@ async def test_import_model_evaluation_flattened_error_async():
             model_service.ImportModelEvaluationRequest(),
             parent="parent_value",
             model_evaluation=gca_model_evaluation.ModelEvaluation(name="name_value"),
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_service.BatchImportModelEvaluationSlicesRequest,
+        dict,
+    ],
+)
+def test_batch_import_model_evaluation_slices(request_type, transport: str = "grpc"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_model_evaluation_slices), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_service.BatchImportModelEvaluationSlicesResponse(
+            imported_model_evaluation_slices=["imported_model_evaluation_slices_value"],
+        )
+        response = client.batch_import_model_evaluation_slices(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.BatchImportModelEvaluationSlicesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, model_service.BatchImportModelEvaluationSlicesResponse)
+    assert response.imported_model_evaluation_slices == [
+        "imported_model_evaluation_slices_value"
+    ]
+
+
+def test_batch_import_model_evaluation_slices_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_model_evaluation_slices), "__call__"
+    ) as call:
+        client.batch_import_model_evaluation_slices()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.BatchImportModelEvaluationSlicesRequest()
+
+
+@pytest.mark.asyncio
+async def test_batch_import_model_evaluation_slices_async(
+    transport: str = "grpc_asyncio",
+    request_type=model_service.BatchImportModelEvaluationSlicesRequest,
+):
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_model_evaluation_slices), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.BatchImportModelEvaluationSlicesResponse(
+                imported_model_evaluation_slices=[
+                    "imported_model_evaluation_slices_value"
+                ],
+            )
+        )
+        response = await client.batch_import_model_evaluation_slices(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.BatchImportModelEvaluationSlicesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, model_service.BatchImportModelEvaluationSlicesResponse)
+    assert response.imported_model_evaluation_slices == [
+        "imported_model_evaluation_slices_value"
+    ]
+
+
+@pytest.mark.asyncio
+async def test_batch_import_model_evaluation_slices_async_from_dict():
+    await test_batch_import_model_evaluation_slices_async(request_type=dict)
+
+
+def test_batch_import_model_evaluation_slices_field_headers():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.BatchImportModelEvaluationSlicesRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_model_evaluation_slices), "__call__"
+    ) as call:
+        call.return_value = model_service.BatchImportModelEvaluationSlicesResponse()
+        client.batch_import_model_evaluation_slices(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_batch_import_model_evaluation_slices_field_headers_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.BatchImportModelEvaluationSlicesRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_model_evaluation_slices), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.BatchImportModelEvaluationSlicesResponse()
+        )
+        await client.batch_import_model_evaluation_slices(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_batch_import_model_evaluation_slices_flattened():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_model_evaluation_slices), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_service.BatchImportModelEvaluationSlicesResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.batch_import_model_evaluation_slices(
+            parent="parent_value",
+            model_evaluation_slices=[
+                model_evaluation_slice.ModelEvaluationSlice(name="name_value")
+            ],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].model_evaluation_slices
+        mock_val = [model_evaluation_slice.ModelEvaluationSlice(name="name_value")]
+        assert arg == mock_val
+
+
+def test_batch_import_model_evaluation_slices_flattened_error():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.batch_import_model_evaluation_slices(
+            model_service.BatchImportModelEvaluationSlicesRequest(),
+            parent="parent_value",
+            model_evaluation_slices=[
+                model_evaluation_slice.ModelEvaluationSlice(name="name_value")
+            ],
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_import_model_evaluation_slices_flattened_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_model_evaluation_slices), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_service.BatchImportModelEvaluationSlicesResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.BatchImportModelEvaluationSlicesResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.batch_import_model_evaluation_slices(
+            parent="parent_value",
+            model_evaluation_slices=[
+                model_evaluation_slice.ModelEvaluationSlice(name="name_value")
+            ],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].model_evaluation_slices
+        mock_val = [model_evaluation_slice.ModelEvaluationSlice(name="name_value")]
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_batch_import_model_evaluation_slices_flattened_error_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.batch_import_model_evaluation_slices(
+            model_service.BatchImportModelEvaluationSlicesRequest(),
+            parent="parent_value",
+            model_evaluation_slices=[
+                model_evaluation_slice.ModelEvaluationSlice(name="name_value")
+            ],
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_service.BatchImportEvaluatedAnnotationsRequest,
+        dict,
+    ],
+)
+def test_batch_import_evaluated_annotations(request_type, transport: str = "grpc"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_evaluated_annotations), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_service.BatchImportEvaluatedAnnotationsResponse(
+            imported_evaluated_annotations_count=3859,
+        )
+        response = client.batch_import_evaluated_annotations(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.BatchImportEvaluatedAnnotationsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, model_service.BatchImportEvaluatedAnnotationsResponse)
+    assert response.imported_evaluated_annotations_count == 3859
+
+
+def test_batch_import_evaluated_annotations_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_evaluated_annotations), "__call__"
+    ) as call:
+        client.batch_import_evaluated_annotations()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.BatchImportEvaluatedAnnotationsRequest()
+
+
+@pytest.mark.asyncio
+async def test_batch_import_evaluated_annotations_async(
+    transport: str = "grpc_asyncio",
+    request_type=model_service.BatchImportEvaluatedAnnotationsRequest,
+):
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_evaluated_annotations), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.BatchImportEvaluatedAnnotationsResponse(
+                imported_evaluated_annotations_count=3859,
+            )
+        )
+        response = await client.batch_import_evaluated_annotations(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.BatchImportEvaluatedAnnotationsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, model_service.BatchImportEvaluatedAnnotationsResponse)
+    assert response.imported_evaluated_annotations_count == 3859
+
+
+@pytest.mark.asyncio
+async def test_batch_import_evaluated_annotations_async_from_dict():
+    await test_batch_import_evaluated_annotations_async(request_type=dict)
+
+
+def test_batch_import_evaluated_annotations_field_headers():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.BatchImportEvaluatedAnnotationsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_evaluated_annotations), "__call__"
+    ) as call:
+        call.return_value = model_service.BatchImportEvaluatedAnnotationsResponse()
+        client.batch_import_evaluated_annotations(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_batch_import_evaluated_annotations_field_headers_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.BatchImportEvaluatedAnnotationsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_evaluated_annotations), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.BatchImportEvaluatedAnnotationsResponse()
+        )
+        await client.batch_import_evaluated_annotations(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_batch_import_evaluated_annotations_flattened():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_evaluated_annotations), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_service.BatchImportEvaluatedAnnotationsResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.batch_import_evaluated_annotations(
+            parent="parent_value",
+            evaluated_annotations=[
+                evaluated_annotation.EvaluatedAnnotation(
+                    type_=evaluated_annotation.EvaluatedAnnotation.EvaluatedAnnotationType.TRUE_POSITIVE
+                )
+            ],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].evaluated_annotations
+        mock_val = [
+            evaluated_annotation.EvaluatedAnnotation(
+                type_=evaluated_annotation.EvaluatedAnnotation.EvaluatedAnnotationType.TRUE_POSITIVE
+            )
+        ]
+        assert arg == mock_val
+
+
+def test_batch_import_evaluated_annotations_flattened_error():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.batch_import_evaluated_annotations(
+            model_service.BatchImportEvaluatedAnnotationsRequest(),
+            parent="parent_value",
+            evaluated_annotations=[
+                evaluated_annotation.EvaluatedAnnotation(
+                    type_=evaluated_annotation.EvaluatedAnnotation.EvaluatedAnnotationType.TRUE_POSITIVE
+                )
+            ],
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_import_evaluated_annotations_flattened_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_import_evaluated_annotations), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_service.BatchImportEvaluatedAnnotationsResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.BatchImportEvaluatedAnnotationsResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.batch_import_evaluated_annotations(
+            parent="parent_value",
+            evaluated_annotations=[
+                evaluated_annotation.EvaluatedAnnotation(
+                    type_=evaluated_annotation.EvaluatedAnnotation.EvaluatedAnnotationType.TRUE_POSITIVE
+                )
+            ],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].evaluated_annotations
+        mock_val = [
+            evaluated_annotation.EvaluatedAnnotation(
+                type_=evaluated_annotation.EvaluatedAnnotation.EvaluatedAnnotationType.TRUE_POSITIVE
+            )
+        ]
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_batch_import_evaluated_annotations_flattened_error_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.batch_import_evaluated_annotations(
+            model_service.BatchImportEvaluatedAnnotationsRequest(),
+            parent="parent_value",
+            evaluated_annotations=[
+                evaluated_annotation.EvaluatedAnnotation(
+                    type_=evaluated_annotation.EvaluatedAnnotation.EvaluatedAnnotationType.TRUE_POSITIVE
+                )
+            ],
         )
 
 
@@ -4377,9 +5466,11 @@ async def test_list_model_evaluations_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_model_evaluations(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -5076,9 +6167,11 @@ async def test_list_model_evaluation_slices_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_model_evaluation_slices(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -5226,11 +6319,15 @@ def test_model_service_base_transport():
         "list_models",
         "list_model_versions",
         "update_model",
+        "update_explanation_dataset",
         "delete_model",
         "delete_model_version",
         "merge_version_aliases",
         "export_model",
+        "copy_model",
         "import_model_evaluation",
+        "batch_import_model_evaluation_slices",
+        "batch_import_evaluated_annotations",
         "get_model_evaluation",
         "list_model_evaluations",
         "get_model_evaluation_slice",
@@ -5329,6 +6426,28 @@ def test_model_service_transport_auth_adc(transport_class):
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
+
+
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.ModelServiceGrpcTransport,
+        transports.ModelServiceGrpcAsyncIOTransport,
+    ],
+)
+def test_model_service_transport_auth_gdch_credentials(transport_class):
+    host = "https://language.com"
+    api_audience_tests = [None, "https://language2.com"]
+    api_audience_expect = [host, "https://language2.com"]
+    for t, e in zip(api_audience_tests, api_audience_expect):
+        with mock.patch.object(google.auth, "default", autospec=True) as adc:
+            gdch_mock = mock.MagicMock()
+            type(gdch_mock).with_gdch_audience = mock.PropertyMock(
+                return_value=gdch_mock
+            )
+            adc.return_value = (gdch_mock, None)
+            transport_class(host=host, api_audience=t)
+            gdch_mock.with_gdch_audience.assert_called_once_with(e)
 
 
 @pytest.mark.parametrize(
@@ -5713,10 +6832,38 @@ def test_parse_model_evaluation_slice_path():
     assert expected == actual
 
 
-def test_training_pipeline_path():
+def test_pipeline_job_path():
     project = "cuttlefish"
     location = "mussel"
-    training_pipeline = "winkle"
+    pipeline_job = "winkle"
+    expected = (
+        "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
+            project=project,
+            location=location,
+            pipeline_job=pipeline_job,
+        )
+    )
+    actual = ModelServiceClient.pipeline_job_path(project, location, pipeline_job)
+    assert expected == actual
+
+
+def test_parse_pipeline_job_path():
+    expected = {
+        "project": "nautilus",
+        "location": "scallop",
+        "pipeline_job": "abalone",
+    }
+    path = ModelServiceClient.pipeline_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ModelServiceClient.parse_pipeline_job_path(path)
+    assert expected == actual
+
+
+def test_training_pipeline_path():
+    project = "squid"
+    location = "clam"
+    training_pipeline = "whelk"
     expected = "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
         project=project,
         location=location,
@@ -5730,9 +6877,9 @@ def test_training_pipeline_path():
 
 def test_parse_training_pipeline_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "training_pipeline": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "training_pipeline": "nudibranch",
     }
     path = ModelServiceClient.training_pipeline_path(**expected)
 
@@ -5742,7 +6889,7 @@ def test_parse_training_pipeline_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "squid"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -5752,7 +6899,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+        "billing_account": "mussel",
     }
     path = ModelServiceClient.common_billing_account_path(**expected)
 
@@ -5762,7 +6909,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "whelk"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -5772,7 +6919,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+        "folder": "nautilus",
     }
     path = ModelServiceClient.common_folder_path(**expected)
 
@@ -5782,7 +6929,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "oyster"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -5792,7 +6939,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+        "organization": "abalone",
     }
     path = ModelServiceClient.common_organization_path(**expected)
 
@@ -5802,7 +6949,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "cuttlefish"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -5812,7 +6959,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+        "project": "clam",
     }
     path = ModelServiceClient.common_project_path(**expected)
 
@@ -5822,8 +6969,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "winkle"
-    location = "nautilus"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -5834,8 +6981,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = ModelServiceClient.common_location_path(**expected)
 
@@ -5906,7 +7053,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_delete_operation(transport: str = "grpc"):
+async def test_delete_operation_async(transport: str = "grpc"):
     client = ModelServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -6045,7 +7192,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_cancel_operation(transport: str = "grpc"):
+async def test_cancel_operation_async(transport: str = "grpc"):
     client = ModelServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -6329,7 +7476,7 @@ def test_get_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_get_operation(transport: str = "grpc"):
+async def test_get_operation_async(transport: str = "grpc"):
     client = ModelServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -6474,7 +7621,7 @@ def test_list_operations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_operations(transport: str = "grpc"):
+async def test_list_operations_async(transport: str = "grpc"):
     client = ModelServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -6619,7 +7766,7 @@ def test_list_locations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_locations(transport: str = "grpc"):
+async def test_list_locations_async(transport: str = "grpc"):
     client = ModelServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -7448,4 +8595,5 @@ def test_api_key_credentials(client_class, transport_class):
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )

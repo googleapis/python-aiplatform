@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,17 +59,18 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
-        scopes: Sequence[str] = None,
-        channel: grpc.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        channel: Optional[grpc.Channel] = None,
+        api_mtls_endpoint: Optional[str] = None,
+        client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
+        client_cert_source_for_mtls: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
         quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
     ) -> None:
         """Instantiate the transport.
 
@@ -166,6 +167,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
             quota_project_id=quota_project_id,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            api_audience=api_audience,
         )
 
         if not self._grpc_channel:
@@ -192,8 +194,8 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
         **kwargs,
@@ -726,12 +728,13 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         There are also scenarios where the caller can cause
         inconsistency.
          - Source data for import contains multiple distinct
-        Feature values for    the same entity ID and timestamp.
+          Feature values for    the same entity ID and
+          timestamp.
          - Source is modified during an import. This includes
-        adding, updating, or  removing source data and/or
-        metadata. Examples of updating metadata  include but are
-        not limited to changing storage location, storage class,
-        or retention policy.
+          adding, updating, or  removing source data and/or
+          metadata. Examples of updating metadata  include but
+          are not limited to changing storage location, storage
+          class,  or retention policy.
          - Online serving cluster is under-provisioned.
 
         Returns:
@@ -813,6 +816,44 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["export_feature_values"]
+
+    @property
+    def delete_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_service.DeleteFeatureValuesRequest], operations_pb2.Operation
+    ]:
+        r"""Return a callable for the delete feature values method over gRPC.
+
+        Delete Feature values from Featurestore.
+        The progress of the deletion is tracked by the returned
+        operation. The deleted feature values are guaranteed to
+        be invisible to subsequent read operations after the
+        operation is marked as successfully done.
+        If a delete feature values operation fails, the feature
+        values returned from reads and exports may be
+        inconsistent. If consistency is required, the caller
+        must retry the same delete request again and wait till
+        the new operation returned is marked as successfully
+        done.
+
+        Returns:
+            Callable[[~.DeleteFeatureValuesRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_feature_values" not in self._stubs:
+            self._stubs["delete_feature_values"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.FeaturestoreService/DeleteFeatureValues",
+                request_serializer=featurestore_service.DeleteFeatureValuesRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_feature_values"]
 
     @property
     def search_features(

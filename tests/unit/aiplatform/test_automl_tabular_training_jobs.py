@@ -40,16 +40,23 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.protobuf import json_format
 from google.protobuf import struct_pb2
+import constants as test_constants
 
-_TEST_BUCKET_NAME = "test-bucket"
-_TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
-_TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
-_TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
+_TEST_BUCKET_NAME = test_constants.TrainingJobConstants._TEST_BUCKET_NAME
+_TEST_GCS_PATH_WITHOUT_BUCKET = (
+    test_constants.TrainingJobConstants._TEST_GCS_PATH_WITHOUT_BUCKET
+)
+_TEST_GCS_PATH = test_constants.TrainingJobConstants._TEST_GCS_PATH
+_TEST_GCS_PATH_WITH_TRAILING_SLASH = (
+    test_constants.TrainingJobConstants._TEST_GCS_PATH_WITH_TRAILING_SLASH
+)
 _TEST_PROJECT = "test-project"
 
-_TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
-_TEST_DATASET_NAME = "test-dataset-name"
-_TEST_DISPLAY_NAME = "test-display-name"
+_TEST_DATASET_DISPLAY_NAME = (
+    test_constants.TrainingJobConstants._TEST_DATASET_DISPLAY_NAME
+)
+_TEST_DATASET_NAME = test_constants.TrainingJobConstants._TEST_DATASET_NAME
+_TEST_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_DISPLAY_NAME
 _TEST_METADATA_SCHEMA_URI_TABULAR = schema.dataset.metadata.tabular
 _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
 
@@ -150,12 +157,12 @@ _TEST_TRAINING_TASK_INPUTS_WITH_EXPORT_EVAL_DATA_ITEMS = json_format.ParseDict(
     struct_pb2.Value(),
 )
 
-_TEST_DATASET_NAME = "test-dataset-name"
+_TEST_DATASET_NAME = test_constants.TrainingJobConstants._TEST_DATASET_NAME
 
-_TEST_MODEL_DISPLAY_NAME = "model-display-name"
+_TEST_MODEL_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_MODEL_DISPLAY_NAME
 
-_TEST_LABELS = {"key": "value"}
-_TEST_MODEL_LABELS = {"model_key": "model_value"}
+_TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
+_TEST_MODEL_LABELS = test_constants.TrainingJobConstants._TEST_MODEL_LABELS
 
 _TEST_FRACTION_SPLIT_TRAINING = 0.6
 _TEST_FRACTION_SPLIT_VALIDATION = 0.2
@@ -169,11 +176,13 @@ _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
 _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    "projects/my-project/locations/us-central1/trainingPipelines/12345"
+    test_constants.TrainingJobConstants._TEST_PIPELINE_RESOURCE_NAME
 )
 
 # CMEK encryption
-_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = (
+    test_constants.TrainingJobConstants._TEST_DEFAULT_ENCRYPTION_KEY_NAME
+)
 _TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
 )
@@ -258,7 +267,7 @@ def mock_model_service_get():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
-        mock_get_model.return_value = gca_model.Model()
+        mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
         yield mock_get_model
 
 
@@ -374,6 +383,7 @@ class TestAutoMLTabularTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             labels=_TEST_MODEL_LABELS,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -459,6 +469,7 @@ class TestAutoMLTabularTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             labels=_TEST_MODEL_LABELS,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -531,6 +542,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -612,6 +624,7 @@ class TestAutoMLTabularTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -682,6 +695,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -753,6 +767,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -817,7 +832,10 @@ class TestAutoMLTabularTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            version_aliases=["default"],
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             dataset_id=mock_dataset_tabular_alternative.name,
@@ -927,7 +945,10 @@ class TestAutoMLTabularTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            version_aliases=["default"],
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             dataset_id=mock_dataset_tabular_alternative.name,
@@ -1254,6 +1275,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1333,6 +1355,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1406,6 +1429,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1474,6 +1498,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(

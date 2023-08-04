@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -70,23 +74,23 @@ class VideoClassificationPredictionParams(proto.Message):
             describe that quality. Default value is false
     """
 
-    confidence_threshold = proto.Field(
+    confidence_threshold: float = proto.Field(
         proto.FLOAT,
         number=1,
     )
-    max_predictions = proto.Field(
+    max_predictions: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    segment_classification = proto.Field(
+    segment_classification: bool = proto.Field(
         proto.BOOL,
         number=3,
     )
-    shot_classification = proto.Field(
+    shot_classification: bool = proto.Field(
         proto.BOOL,
         number=4,
     )
-    one_sec_interval_classification = proto.Field(
+    one_sec_interval_classification: bool = proto.Field(
         proto.BOOL,
         number=5,
     )

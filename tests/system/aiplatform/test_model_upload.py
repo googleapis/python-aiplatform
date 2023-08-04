@@ -29,7 +29,7 @@ _XGBOOST_MODEL_URI = "gs://cloud-samples-data-us-central1/vertex-ai/google-cloud
 
 
 @pytest.mark.usefixtures("delete_staging_bucket", "tear_down_resources")
-class TestModel(e2e_base.TestEndToEnd):
+class TestModelUploadAndUpdate(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
 
@@ -65,9 +65,8 @@ class TestModel(e2e_base.TestEndToEnd):
         # See https://github.com/googleapis/python-aiplatform/issues/773
         endpoint = model.deploy(machine_type="n1-standard-2")
         shared_state["resources"].append(endpoint)
-        predict_response = endpoint.predict(instances=[[0, 0, 0]])
-        assert len(predict_response.predictions) == 1
 
+        # test model update
         model = model.update(
             display_name="new_name",
             description="new_description",

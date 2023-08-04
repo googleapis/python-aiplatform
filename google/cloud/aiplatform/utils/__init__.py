@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import pathlib
 import logging
 import re
 from typing import Any, Callable, Dict, Optional, Type, TypeVar, Tuple
+import uuid
 
 from google.protobuf import timestamp_pb2
 
@@ -36,17 +37,22 @@ from google.cloud.aiplatform import initializer
 
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
+    deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
     index_service_client_v1beta1,
     index_endpoint_service_client_v1beta1,
     job_service_client_v1beta1,
+    match_service_client_v1beta1,
     metadata_service_client_v1beta1,
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
+    schedule_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
+    vizier_service_client_v1beta1,
+    model_garden_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -57,10 +63,12 @@ from google.cloud.aiplatform.compat.services import (
     index_endpoint_service_client_v1,
     job_service_client_v1,
     metadata_service_client_v1,
+    model_garden_service_client_v1,
     model_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
     tensorboard_service_client_v1,
+    vizier_service_client_v1,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -71,6 +79,7 @@ VertexAiServiceClient = TypeVar(
     "VertexAiServiceClient",
     # v1beta1
     dataset_service_client_v1beta1.DatasetServiceClient,
+    deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
     endpoint_service_client_v1beta1.EndpointServiceClient,
     featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1beta1.FeaturestoreServiceClient,
@@ -80,8 +89,11 @@ VertexAiServiceClient = TypeVar(
     prediction_service_client_v1beta1.PredictionServiceClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
     job_service_client_v1beta1.JobServiceClient,
+    match_service_client_v1beta1.MatchServiceClient,
     metadata_service_client_v1beta1.MetadataServiceClient,
+    schedule_service_client_v1beta1.ScheduleServiceClient,
     tensorboard_service_client_v1beta1.TensorboardServiceClient,
+    vizier_service_client_v1beta1.VizierServiceClient,
     # v1
     dataset_service_client_v1.DatasetServiceClient,
     endpoint_service_client_v1.EndpointServiceClient,
@@ -93,6 +105,7 @@ VertexAiServiceClient = TypeVar(
     pipeline_service_client_v1.PipelineServiceClient,
     job_service_client_v1.JobServiceClient,
     tensorboard_service_client_v1.TensorboardServiceClient,
+    vizier_service_client_v1.VizierServiceClient,
 )
 
 
@@ -321,6 +334,34 @@ def extract_bucket_and_prefix_from_gcs_path(gcs_path: str) -> Tuple[str, Optiona
     return (gcs_bucket, gcs_blob_prefix)
 
 
+def extract_project_and_location_from_parent(
+    parent: str,
+) -> Dict[str, str]:
+    """Given a complete parent resource name, return the project and location as a dict.
+
+    Example Usage:
+
+        parent_resources = extract_project_and_location_from_parent(
+            "projects/123/locations/us-central1/datasets/456"
+        )
+
+        parent_resources["project"] = "123"
+        parent_resources["location"] = "us-central1"
+
+    Args:
+        parent (str):
+            Required. A complete parent resource name.
+
+    Returns:
+        Dict[str, str]
+            A project, location dict from provided parent resource name.
+    """
+    parent_resources = re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)(/|$)", parent
+    )
+    return parent_resources.groupdict() if parent_resources else {}
+
+
 class ClientWithOverride:
     class WrappedClient:
         """Wrapper class for client that creates client at API invocation
@@ -453,6 +494,17 @@ class DatasetClientWithOverride(ClientWithOverride):
     )
 
 
+class DeploymentResourcePoolClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
+        ),
+    )
+
+
 class EndpointClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION
@@ -543,6 +595,14 @@ class PipelineJobClientWithOverride(ClientWithOverride):
     )
 
 
+class ScheduleClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (compat.V1BETA1, schedule_service_client_v1beta1.ScheduleServiceClient),
+    )
+
+
 class PredictionClientWithOverride(ClientWithOverride):
     _is_temporary = False
     _default_version = compat.DEFAULT_VERSION
@@ -550,6 +610,12 @@ class PredictionClientWithOverride(ClientWithOverride):
         (compat.V1, prediction_service_client_v1.PredictionServiceClient),
         (compat.V1BETA1, prediction_service_client_v1beta1.PredictionServiceClient),
     )
+
+
+class MatchClientWithOverride(ClientWithOverride):
+    _is_temporary = False
+    _default_version = compat.V1BETA1
+    _version_map = ((compat.V1BETA1, match_service_client_v1beta1.MatchServiceClient),)
 
 
 class MetadataClientWithOverride(ClientWithOverride):
@@ -570,6 +636,24 @@ class TensorboardClientWithOverride(ClientWithOverride):
     )
 
 
+class VizierClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, vizier_service_client_v1.VizierServiceClient),
+        (compat.V1BETA1, vizier_service_client_v1beta1.VizierServiceClient),
+    )
+
+
+class ModelGardenClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, model_garden_service_client_v1.ModelGardenServiceClient),
+        (compat.V1BETA1, model_garden_service_client_v1beta1.ModelGardenServiceClient),
+    )
+
+
 VertexAiServiceClientWithOverride = TypeVar(
     "VertexAiServiceClientWithOverride",
     DatasetClientWithOverride,
@@ -577,11 +661,15 @@ VertexAiServiceClientWithOverride = TypeVar(
     FeaturestoreClientWithOverride,
     JobClientWithOverride,
     ModelClientWithOverride,
+    MatchClientWithOverride,
     PipelineClientWithOverride,
     PipelineJobClientWithOverride,
     PredictionClientWithOverride,
     MetadataClientWithOverride,
+    ScheduleClientWithOverride,
     TensorboardClientWithOverride,
+    VizierClientWithOverride,
+    ModelGardenClientWithOverride,
 )
 
 
@@ -676,3 +764,14 @@ def get_timestamp_proto(
     timestamp_proto.FromDatetime(time)
 
     return timestamp_proto
+
+
+def timestamped_unique_name() -> str:
+    """Composes a timestamped unique name.
+
+    Returns:
+        A string representing a unique name.
+    """
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    unique_id = uuid.uuid4().hex[0:5]
+    return f"{timestamp}-{unique_id}"

@@ -48,3 +48,30 @@ def get_project_id(
     project = projects_client.get_project(name=f"projects/{project_number}")
 
     return project.project_id
+
+
+def get_project_number(
+    project_id: str,
+    credentials: Optional[auth_credentials.Credentials] = None,
+) -> str:
+    """Gets project ID given the project number
+
+    Args:
+        project_id (str):
+            Required. Google Cloud project unique ID.
+        credentials: The custom credentials to use when making API calls.
+            Optional. If not provided, default credentials will be used.
+
+    Returns:
+        str - The automatically generated unique numerical identifier for your GCP project.
+
+    """
+
+    credentials = credentials or initializer.global_config.credentials
+
+    projects_client = resourcemanager.ProjectsClient(credentials=credentials)
+
+    project = projects_client.get_project(name=f"projects/{project_id}")
+    project_number = project.name.split("/", 1)[1]
+
+    return project_number

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import duration_pb2  # type: ignore
@@ -56,36 +60,49 @@ class Study(proto.Message):
     """
 
     class State(proto.Enum):
-        r"""Describes the Study state."""
+        r"""Describes the Study state.
+
+        Values:
+            STATE_UNSPECIFIED (0):
+                The study state is unspecified.
+            ACTIVE (1):
+                The study is active.
+            INACTIVE (2):
+                The study is stopped due to an internal
+                error.
+            COMPLETED (3):
+                The study is done when the service exhausts the parameter
+                search space or max_trial_count is reached.
+        """
         STATE_UNSPECIFIED = 0
         ACTIVE = 1
         INACTIVE = 2
         COMPLETED = 3
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    study_spec = proto.Field(
+    study_spec: "StudySpec" = proto.Field(
         proto.MESSAGE,
         number=3,
         message="StudySpec",
     )
-    state = proto.Field(
+    state: State = proto.Field(
         proto.ENUM,
         number=4,
         enum=State,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=5,
         message=timestamp_pb2.Timestamp,
     )
-    inactive_reason = proto.Field(
+    inactive_reason: str = proto.Field(
         proto.STRING,
         number=6,
     )
@@ -105,12 +122,12 @@ class Trial(proto.Message):
             assigned by the service.
         state (google.cloud.aiplatform_v1beta1.types.Trial.State):
             Output only. The detailed state of the Trial.
-        parameters (Sequence[google.cloud.aiplatform_v1beta1.types.Trial.Parameter]):
+        parameters (MutableSequence[google.cloud.aiplatform_v1beta1.types.Trial.Parameter]):
             Output only. The parameters of the Trial.
         final_measurement (google.cloud.aiplatform_v1beta1.types.Measurement):
             Output only. The final measurement containing
             the objective value.
-        measurements (Sequence[google.cloud.aiplatform_v1beta1.types.Measurement]):
+        measurements (MutableSequence[google.cloud.aiplatform_v1beta1.types.Measurement]):
             Output only. A list of measurements that are strictly
             lexicographically ordered by their induced tuples (steps,
             elapsed_duration). These are used for early stopping
@@ -139,7 +156,7 @@ class Trial(proto.Message):
             Output only. The CustomJob name linked to the
             Trial. It's set for a HyperparameterTuningJob's
             Trial.
-        web_access_uris (Mapping[str, str]):
+        web_access_uris (MutableMapping[str, str]):
             Output only. URIs for accessing `interactive
             shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
             (one URI for each training node). Only available if this
@@ -159,7 +176,28 @@ class Trial(proto.Message):
     """
 
     class State(proto.Enum):
-        r"""Describes a Trial state."""
+        r"""Describes a Trial state.
+
+        Values:
+            STATE_UNSPECIFIED (0):
+                The Trial state is unspecified.
+            REQUESTED (1):
+                Indicates that a specific Trial has been
+                requested, but it has not yet been suggested by
+                the service.
+            ACTIVE (2):
+                Indicates that the Trial has been suggested.
+            STOPPING (3):
+                Indicates that the Trial should stop
+                according to the service.
+            SUCCEEDED (4):
+                Indicates that the Trial is completed
+                successfully.
+            INFEASIBLE (5):
+                Indicates that the Trial should not be attempted again. The
+                service will set a Trial to INFEASIBLE when it's done but
+                missing the final_measurement.
+        """
         STATE_UNSPECIFIED = 0
         REQUESTED = 1
         ACTIVE = 2
@@ -183,67 +221,67 @@ class Trial(proto.Message):
                 'CATEGORICAL'.
         """
 
-        parameter_id = proto.Field(
+        parameter_id: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        value = proto.Field(
+        value: struct_pb2.Value = proto.Field(
             proto.MESSAGE,
             number=2,
             message=struct_pb2.Value,
         )
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    id = proto.Field(
+    id: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    state = proto.Field(
+    state: State = proto.Field(
         proto.ENUM,
         number=3,
         enum=State,
     )
-    parameters = proto.RepeatedField(
+    parameters: MutableSequence[Parameter] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
         message=Parameter,
     )
-    final_measurement = proto.Field(
+    final_measurement: "Measurement" = proto.Field(
         proto.MESSAGE,
         number=5,
         message="Measurement",
     )
-    measurements = proto.RepeatedField(
+    measurements: MutableSequence["Measurement"] = proto.RepeatedField(
         proto.MESSAGE,
         number=6,
         message="Measurement",
     )
-    start_time = proto.Field(
+    start_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=7,
         message=timestamp_pb2.Timestamp,
     )
-    end_time = proto.Field(
+    end_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=8,
         message=timestamp_pb2.Timestamp,
     )
-    client_id = proto.Field(
+    client_id: str = proto.Field(
         proto.STRING,
         number=9,
     )
-    infeasible_reason = proto.Field(
+    infeasible_reason: str = proto.Field(
         proto.STRING,
         number=10,
     )
-    custom_job = proto.Field(
+    custom_job: str = proto.Field(
         proto.STRING,
         number=11,
     )
-    web_access_uris = proto.MapField(
+    web_access_uris: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=12,
@@ -282,24 +320,43 @@ class StudySpec(proto.Message):
             convex stopping rule.
 
             This field is a member of `oneof`_ ``automated_stopping_spec``.
-        metrics (Sequence[google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec]):
+        metrics (MutableSequence[google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec]):
             Required. Metric specs for the Study.
-        parameters (Sequence[google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec]):
+        parameters (MutableSequence[google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec]):
             Required. The set of parameters to tune.
         algorithm (google.cloud.aiplatform_v1beta1.types.StudySpec.Algorithm):
             The search algorithm specified for the Study.
         observation_noise (google.cloud.aiplatform_v1beta1.types.StudySpec.ObservationNoise):
             The observation noise level of the study.
             Currently only supported by the Vertex AI Vizier
-            service. Not supported by HyperparamterTuningJob
-            or TrainingPipeline.
+            service. Not supported by
+            HyperparameterTuningJob or TrainingPipeline.
         measurement_selection_type (google.cloud.aiplatform_v1beta1.types.StudySpec.MeasurementSelectionType):
             Describe which measurement selection type
             will be used
+        transfer_learning_config (google.cloud.aiplatform_v1beta1.types.StudySpec.TransferLearningConfig):
+            The configuration info/options for transfer
+            learning. Currently supported for Vertex AI
+            Vizier service, not HyperParameterTuningJob
     """
 
     class Algorithm(proto.Enum):
-        r"""The available search algorithms for the Study."""
+        r"""The available search algorithms for the Study.
+
+        Values:
+            ALGORITHM_UNSPECIFIED (0):
+                The default algorithm used by Vertex AI for `hyperparameter
+                tuning <https://cloud.google.com/vertex-ai/docs/training/hyperparameter-tuning-overview>`__
+                and `Vertex AI
+                Vizier <https://cloud.google.com/vertex-ai/docs/vizier>`__.
+            GRID_SEARCH (2):
+                Simple grid search within the feasible space. To use grid
+                search, all parameters must be ``INTEGER``, ``CATEGORICAL``,
+                or ``DISCRETE``.
+            RANDOM_SEARCH (3):
+                Simple random search within the feasible
+                space.
+        """
         ALGORITHM_UNSPECIFIED = 0
         GRID_SEARCH = 2
         RANDOM_SEARCH = 3
@@ -308,6 +365,18 @@ class StudySpec(proto.Message):
         r"""Describes the noise level of the repeated observations.
         "Noisy" means that the repeated observations with the same Trial
         parameters may lead to different metric evaluations.
+
+        Values:
+            OBSERVATION_NOISE_UNSPECIFIED (0):
+                The default noise level chosen by Vertex AI.
+            LOW (1):
+                Vertex AI assumes that the objective function
+                is (nearly) perfectly reproducible, and will
+                never repeat the same Trial parameters.
+            HIGH (2):
+                Vertex AI will estimate the amount of noise
+                in metric evaluations, it may repeat the same
+                Trial parameters more than once.
         """
         OBSERVATION_NOISE_UNSPECIFIED = 0
         LOW = 1
@@ -326,6 +395,14 @@ class StudySpec(proto.Message):
         over-optimistic, and it may be better to choose LAST_MEASUREMENT. If
         both or neither of (A) and (B) apply, it doesn't matter which
         selection type is chosen.
+
+        Values:
+            MEASUREMENT_SELECTION_TYPE_UNSPECIFIED (0):
+                Will be treated as LAST_MEASUREMENT.
+            LAST_MEASUREMENT (1):
+                Use the last measurement reported.
+            BEST_MEASUREMENT (2):
+                Use the best measurement reported.
         """
         MEASUREMENT_SELECTION_TYPE_UNSPECIFIED = 0
         LAST_MEASUREMENT = 1
@@ -333,6 +410,8 @@ class StudySpec(proto.Message):
 
     class MetricSpec(proto.Message):
         r"""Represents a metric to optimize.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
             metric_id (str):
@@ -342,22 +421,80 @@ class StudySpec(proto.Message):
             goal (google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec.GoalType):
                 Required. The optimization goal of the
                 metric.
+            safety_config (google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec.SafetyMetricConfig):
+                Used for safe search. In the case, the metric
+                will be a safety metric. You must provide a
+                separate metric for objective metric.
+
+                This field is a member of `oneof`_ ``_safety_config``.
         """
 
         class GoalType(proto.Enum):
-            r"""The available types of optimization goals."""
+            r"""The available types of optimization goals.
+
+            Values:
+                GOAL_TYPE_UNSPECIFIED (0):
+                    Goal Type will default to maximize.
+                MAXIMIZE (1):
+                    Maximize the goal metric.
+                MINIMIZE (2):
+                    Minimize the goal metric.
+            """
             GOAL_TYPE_UNSPECIFIED = 0
             MAXIMIZE = 1
             MINIMIZE = 2
 
-        metric_id = proto.Field(
+        class SafetyMetricConfig(proto.Message):
+            r"""Used in safe optimization to specify threshold levels and
+            risk tolerance.
+
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                safety_threshold (float):
+                    Safety threshold (boundary value between safe
+                    and unsafe). NOTE that if you leave
+                    SafetyMetricConfig unset, a default value of 0
+                    will be used.
+                desired_min_safe_trials_fraction (float):
+                    Desired minimum fraction of safe trials (over
+                    total number of trials) that should be targeted
+                    by the algorithm at any time during the study
+                    (best effort). This should be between 0.0 and
+                    1.0 and a value of 0.0 means that there is no
+                    minimum and an algorithm proceeds without
+                    targeting any specific fraction. A value of 1.0
+                    means that the algorithm attempts to only
+                    Suggest safe Trials.
+
+                    This field is a member of `oneof`_ ``_desired_min_safe_trials_fraction``.
+            """
+
+            safety_threshold: float = proto.Field(
+                proto.DOUBLE,
+                number=1,
+            )
+            desired_min_safe_trials_fraction: float = proto.Field(
+                proto.DOUBLE,
+                number=2,
+                optional=True,
+            )
+
+        metric_id: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        goal = proto.Field(
+        goal: "StudySpec.MetricSpec.GoalType" = proto.Field(
             proto.ENUM,
             number=2,
             enum="StudySpec.MetricSpec.GoalType",
+        )
+        safety_config: "StudySpec.MetricSpec.SafetyMetricConfig" = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            optional=True,
+            message="StudySpec.MetricSpec.SafetyMetricConfig",
         )
 
     class ParameterSpec(proto.Message):
@@ -394,7 +531,7 @@ class StudySpec(proto.Message):
             scale_type (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.ScaleType):
                 How the parameter should be scaled. Leave unset for
                 ``CATEGORICAL`` parameters.
-            conditional_parameter_specs (Sequence[google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.ConditionalParameterSpec]):
+            conditional_parameter_specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.ConditionalParameterSpec]):
                 A conditional parameter node is active if the parameter's
                 value matches the conditional node's parent_value_condition.
 
@@ -403,7 +540,25 @@ class StudySpec(proto.Message):
         """
 
         class ScaleType(proto.Enum):
-            r"""The type of scaling that should be applied to this parameter."""
+            r"""The type of scaling that should be applied to this parameter.
+
+            Values:
+                SCALE_TYPE_UNSPECIFIED (0):
+                    By default, no scaling is applied.
+                UNIT_LINEAR_SCALE (1):
+                    Scales the feasible space to (0, 1) linearly.
+                UNIT_LOG_SCALE (2):
+                    Scales the feasible space logarithmically to
+                    (0, 1). The entire feasible space must be
+                    strictly positive.
+                UNIT_REVERSE_LOG_SCALE (3):
+                    Scales the feasible space "reverse"
+                    logarithmically to (0, 1). The result is that
+                    values close to the top of the feasible space
+                    are spread out more than points near the bottom.
+                    The entire feasible space must be strictly
+                    positive.
+            """
             SCALE_TYPE_UNSPECIFIED = 0
             UNIT_LINEAR_SCALE = 1
             UNIT_LOG_SCALE = 2
@@ -411,6 +566,8 @@ class StudySpec(proto.Message):
 
         class DoubleValueSpec(proto.Message):
             r"""Value specification for a parameter in ``DOUBLE`` type.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
             Attributes:
                 min_value (float):
@@ -425,20 +582,21 @@ class StudySpec(proto.Message):
                     that there is no offered starting point.
 
                     Currently only supported by the Vertex AI Vizier service.
-                    Not supported by HyperparamterTuningJob or TrainingPipeline.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
-            min_value = proto.Field(
+            min_value: float = proto.Field(
                 proto.DOUBLE,
                 number=1,
             )
-            max_value = proto.Field(
+            max_value: float = proto.Field(
                 proto.DOUBLE,
                 number=2,
             )
-            default_value = proto.Field(
+            default_value: float = proto.Field(
                 proto.DOUBLE,
                 number=4,
                 optional=True,
@@ -446,6 +604,8 @@ class StudySpec(proto.Message):
 
         class IntegerValueSpec(proto.Message):
             r"""Value specification for a parameter in ``INTEGER`` type.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
             Attributes:
                 min_value (int):
@@ -460,20 +620,21 @@ class StudySpec(proto.Message):
                     that there is no offered starting point.
 
                     Currently only supported by the Vertex AI Vizier service.
-                    Not supported by HyperparamterTuningJob or TrainingPipeline.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
-            min_value = proto.Field(
+            min_value: int = proto.Field(
                 proto.INT64,
                 number=1,
             )
-            max_value = proto.Field(
+            max_value: int = proto.Field(
                 proto.INT64,
                 number=2,
             )
-            default_value = proto.Field(
+            default_value: int = proto.Field(
                 proto.INT64,
                 number=4,
                 optional=True,
@@ -482,25 +643,28 @@ class StudySpec(proto.Message):
         class CategoricalValueSpec(proto.Message):
             r"""Value specification for a parameter in ``CATEGORICAL`` type.
 
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
             Attributes:
-                values (Sequence[str]):
+                values (MutableSequence[str]):
                     Required. The list of possible categories.
                 default_value (str):
                     A default value for a ``CATEGORICAL`` parameter that is
                     assumed to be a relatively good starting point. Unset value
                     signals that there is no offered starting point.
 
-                    Currently only supported by the Vizier service. Not
-                    supported by HyperparamterTuningJob or TrainingPipeline.
+                    Currently only supported by the Vertex AI Vizier service.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
-            values = proto.RepeatedField(
+            values: MutableSequence[str] = proto.RepeatedField(
                 proto.STRING,
                 number=1,
             )
-            default_value = proto.Field(
+            default_value: str = proto.Field(
                 proto.STRING,
                 number=3,
                 optional=True,
@@ -509,8 +673,10 @@ class StudySpec(proto.Message):
         class DiscreteValueSpec(proto.Message):
             r"""Value specification for a parameter in ``DISCRETE`` type.
 
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
             Attributes:
-                values (Sequence[float]):
+                values (MutableSequence[float]):
                     Required. A list of possible values.
                     The list should be in increasing order and at
                     least 1e-10 apart. For instance, this parameter
@@ -523,17 +689,18 @@ class StudySpec(proto.Message):
                     that there is no offered starting point. It automatically
                     rounds to the nearest feasible discrete point.
 
-                    Currently only supported by the Vizier service. Not
-                    supported by HyperparamterTuningJob or TrainingPipeline.
+                    Currently only supported by the Vertex AI Vizier service.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
-            values = proto.RepeatedField(
+            values: MutableSequence[float] = proto.RepeatedField(
                 proto.DOUBLE,
                 number=1,
             )
-            default_value = proto.Field(
+            default_value: float = proto.Field(
                 proto.DOUBLE,
                 number=3,
                 optional=True,
@@ -576,7 +743,7 @@ class StudySpec(proto.Message):
                 parameter.
 
                 Attributes:
-                    values (Sequence[float]):
+                    values (MutableSequence[float]):
                         Required. Matches values of the parent parameter of
                         'DISCRETE' type. All values must exist in
                         ``discrete_value_spec`` of parent parameter.
@@ -584,7 +751,7 @@ class StudySpec(proto.Message):
                         The Epsilon of the value matching is 1e-10.
                 """
 
-                values = proto.RepeatedField(
+                values: MutableSequence[float] = proto.RepeatedField(
                     proto.DOUBLE,
                     number=1,
                 )
@@ -594,13 +761,13 @@ class StudySpec(proto.Message):
                 parameter.
 
                 Attributes:
-                    values (Sequence[int]):
+                    values (MutableSequence[int]):
                         Required. Matches values of the parent parameter of
                         'INTEGER' type. All values must lie in
                         ``integer_value_spec`` of parent parameter.
                 """
 
-                values = proto.RepeatedField(
+                values: MutableSequence[int] = proto.RepeatedField(
                     proto.INT64,
                     number=1,
                 )
@@ -610,75 +777,79 @@ class StudySpec(proto.Message):
                 parameter.
 
                 Attributes:
-                    values (Sequence[str]):
+                    values (MutableSequence[str]):
                         Required. Matches values of the parent parameter of
                         'CATEGORICAL' type. All values must exist in
                         ``categorical_value_spec`` of parent parameter.
                 """
 
-                values = proto.RepeatedField(
+                values: MutableSequence[str] = proto.RepeatedField(
                     proto.STRING,
                     number=1,
                 )
 
-            parent_discrete_values = proto.Field(
+            parent_discrete_values: "StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition" = proto.Field(
                 proto.MESSAGE,
                 number=2,
                 oneof="parent_value_condition",
                 message="StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition",
             )
-            parent_int_values = proto.Field(
+            parent_int_values: "StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition" = proto.Field(
                 proto.MESSAGE,
                 number=3,
                 oneof="parent_value_condition",
                 message="StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition",
             )
-            parent_categorical_values = proto.Field(
+            parent_categorical_values: "StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition" = proto.Field(
                 proto.MESSAGE,
                 number=4,
                 oneof="parent_value_condition",
                 message="StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition",
             )
-            parameter_spec = proto.Field(
+            parameter_spec: "StudySpec.ParameterSpec" = proto.Field(
                 proto.MESSAGE,
                 number=1,
                 message="StudySpec.ParameterSpec",
             )
 
-        double_value_spec = proto.Field(
+        double_value_spec: "StudySpec.ParameterSpec.DoubleValueSpec" = proto.Field(
             proto.MESSAGE,
             number=2,
             oneof="parameter_value_spec",
             message="StudySpec.ParameterSpec.DoubleValueSpec",
         )
-        integer_value_spec = proto.Field(
+        integer_value_spec: "StudySpec.ParameterSpec.IntegerValueSpec" = proto.Field(
             proto.MESSAGE,
             number=3,
             oneof="parameter_value_spec",
             message="StudySpec.ParameterSpec.IntegerValueSpec",
         )
-        categorical_value_spec = proto.Field(
-            proto.MESSAGE,
-            number=4,
-            oneof="parameter_value_spec",
-            message="StudySpec.ParameterSpec.CategoricalValueSpec",
+        categorical_value_spec: "StudySpec.ParameterSpec.CategoricalValueSpec" = (
+            proto.Field(
+                proto.MESSAGE,
+                number=4,
+                oneof="parameter_value_spec",
+                message="StudySpec.ParameterSpec.CategoricalValueSpec",
+            )
         )
-        discrete_value_spec = proto.Field(
+        discrete_value_spec: "StudySpec.ParameterSpec.DiscreteValueSpec" = proto.Field(
             proto.MESSAGE,
             number=5,
             oneof="parameter_value_spec",
             message="StudySpec.ParameterSpec.DiscreteValueSpec",
         )
-        parameter_id = proto.Field(
+        parameter_id: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        scale_type = proto.Field(
+        scale_type: "StudySpec.ParameterSpec.ScaleType" = proto.Field(
             proto.ENUM,
             number=6,
             enum="StudySpec.ParameterSpec.ScaleType",
         )
-        conditional_parameter_specs = proto.RepeatedField(
+        conditional_parameter_specs: MutableSequence[
+            "StudySpec.ParameterSpec.ConditionalParameterSpec"
+        ] = proto.RepeatedField(
             proto.MESSAGE,
             number=10,
             message="StudySpec.ParameterSpec.ConditionalParameterSpec",
@@ -701,7 +872,7 @@ class StudySpec(proto.Message):
                 will be used as the x-axis.
         """
 
-        use_elapsed_duration = proto.Field(
+        use_elapsed_duration: bool = proto.Field(
             proto.BOOL,
             number=1,
         )
@@ -723,7 +894,7 @@ class StudySpec(proto.Message):
                 for each completed Trials.
         """
 
-        use_elapsed_duration = proto.Field(
+        use_elapsed_duration: bool = proto.Field(
             proto.BOOL,
             number=1,
         )
@@ -739,6 +910,9 @@ class StudySpec(proto.Message):
         pending trial will be early-stopped, but a last measurement will be
         added to the pending trial with max_num_steps and predicted
         objective value from the autoregression model.
+
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
             max_step_count (int):
@@ -776,27 +950,43 @@ class StudySpec(proto.Message):
                 the parameters max_num_steps and min_num_steps are
                 overloaded to contain max_elapsed_seconds and
                 min_elapsed_seconds.
+            update_all_stopped_trials (bool):
+                ConvexAutomatedStoppingSpec by default only updates the
+                trials that needs to be early stopped using a newly trained
+                auto-regressive model. When this flag is set to True, all
+                stopped trials from the beginning are potentially updated in
+                terms of their ``final_measurement``. Also, note that the
+                training logic of autoregressive models is different in this
+                case. Enabling this option has shown better results and this
+                may be the default option in the future.
+
+                This field is a member of `oneof`_ ``_update_all_stopped_trials``.
         """
 
-        max_step_count = proto.Field(
+        max_step_count: int = proto.Field(
             proto.INT64,
             number=1,
         )
-        min_step_count = proto.Field(
+        min_step_count: int = proto.Field(
             proto.INT64,
             number=2,
         )
-        min_measurement_count = proto.Field(
+        min_measurement_count: int = proto.Field(
             proto.INT64,
             number=3,
         )
-        learning_rate_parameter_name = proto.Field(
+        learning_rate_parameter_name: str = proto.Field(
             proto.STRING,
             number=4,
         )
-        use_elapsed_duration = proto.Field(
+        use_elapsed_duration: bool = proto.Field(
             proto.BOOL,
             number=5,
+        )
+        update_all_stopped_trials: bool = proto.Field(
+            proto.BOOL,
+            number=6,
+            optional=True,
         )
 
     class ConvexStopConfig(proto.Message):
@@ -837,75 +1027,105 @@ class StudySpec(proto.Message):
                 and min_elapsed_seconds.
         """
 
-        max_num_steps = proto.Field(
+        max_num_steps: int = proto.Field(
             proto.INT64,
             number=1,
         )
-        min_num_steps = proto.Field(
+        min_num_steps: int = proto.Field(
             proto.INT64,
             number=2,
         )
-        autoregressive_order = proto.Field(
+        autoregressive_order: int = proto.Field(
             proto.INT64,
             number=3,
         )
-        learning_rate_parameter_name = proto.Field(
+        learning_rate_parameter_name: str = proto.Field(
             proto.STRING,
             number=4,
         )
-        use_seconds = proto.Field(
+        use_seconds: bool = proto.Field(
             proto.BOOL,
             number=5,
         )
 
-    decay_curve_stopping_spec = proto.Field(
+    class TransferLearningConfig(proto.Message):
+        r"""This contains flag for manually disabling transfer learning
+        for a study. The names of prior studies being used for transfer
+        learning (if any) are also listed here.
+
+        Attributes:
+            disable_transfer_learning (bool):
+                Flag to to manually prevent vizier from using
+                transfer learning on a new study. Otherwise,
+                vizier will automatically determine whether or
+                not to use transfer learning.
+            prior_study_names (MutableSequence[str]):
+                Output only. Names of previously completed
+                studies
+        """
+
+        disable_transfer_learning: bool = proto.Field(
+            proto.BOOL,
+            number=1,
+        )
+        prior_study_names: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=2,
+        )
+
+    decay_curve_stopping_spec: DecayCurveAutomatedStoppingSpec = proto.Field(
         proto.MESSAGE,
         number=4,
         oneof="automated_stopping_spec",
         message=DecayCurveAutomatedStoppingSpec,
     )
-    median_automated_stopping_spec = proto.Field(
+    median_automated_stopping_spec: MedianAutomatedStoppingSpec = proto.Field(
         proto.MESSAGE,
         number=5,
         oneof="automated_stopping_spec",
         message=MedianAutomatedStoppingSpec,
     )
-    convex_stop_config = proto.Field(
+    convex_stop_config: ConvexStopConfig = proto.Field(
         proto.MESSAGE,
         number=8,
         oneof="automated_stopping_spec",
         message=ConvexStopConfig,
     )
-    convex_automated_stopping_spec = proto.Field(
+    convex_automated_stopping_spec: ConvexAutomatedStoppingSpec = proto.Field(
         proto.MESSAGE,
         number=9,
         oneof="automated_stopping_spec",
         message=ConvexAutomatedStoppingSpec,
     )
-    metrics = proto.RepeatedField(
+    metrics: MutableSequence[MetricSpec] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=MetricSpec,
     )
-    parameters = proto.RepeatedField(
+    parameters: MutableSequence[ParameterSpec] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message=ParameterSpec,
     )
-    algorithm = proto.Field(
+    algorithm: Algorithm = proto.Field(
         proto.ENUM,
         number=3,
         enum=Algorithm,
     )
-    observation_noise = proto.Field(
+    observation_noise: ObservationNoise = proto.Field(
         proto.ENUM,
         number=6,
         enum=ObservationNoise,
     )
-    measurement_selection_type = proto.Field(
+    measurement_selection_type: MeasurementSelectionType = proto.Field(
         proto.ENUM,
         number=7,
         enum=MeasurementSelectionType,
+    )
+    transfer_learning_config: TransferLearningConfig = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=TransferLearningConfig,
     )
 
 
@@ -922,7 +1142,7 @@ class Measurement(proto.Message):
             Output only. The number of steps the machine
             learning model has been trained for. Must be
             non-negative.
-        metrics (Sequence[google.cloud.aiplatform_v1beta1.types.Measurement.Metric]):
+        metrics (MutableSequence[google.cloud.aiplatform_v1beta1.types.Measurement.Metric]):
             Output only. A list of metrics got by
             evaluating the objective functions using
             suggested Parameter values.
@@ -940,25 +1160,25 @@ class Measurement(proto.Message):
                 Output only. The value for this metric.
         """
 
-        metric_id = proto.Field(
+        metric_id: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        value = proto.Field(
+        value: float = proto.Field(
             proto.DOUBLE,
             number=2,
         )
 
-    elapsed_duration = proto.Field(
+    elapsed_duration: duration_pb2.Duration = proto.Field(
         proto.MESSAGE,
         number=1,
         message=duration_pb2.Duration,
     )
-    step_count = proto.Field(
+    step_count: int = proto.Field(
         proto.INT64,
         number=2,
     )
-    metrics = proto.RepeatedField(
+    metrics: MutableSequence[Metric] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
         message=Metric,

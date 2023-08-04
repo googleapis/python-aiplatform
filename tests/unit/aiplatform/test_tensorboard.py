@@ -535,6 +535,52 @@ class TestTensorboard:
         )
 
     @pytest.mark.usefixtures("get_tensorboard_mock")
+    def test_create_tensorboard_is_default_true(self, create_tensorboard_mock):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
+
+        tensorboard.Tensorboard.create(
+            display_name=_TEST_DISPLAY_NAME,
+            is_default=True,
+        )
+
+        expected_tensorboard = gca_tensorboard.Tensorboard(
+            display_name=_TEST_DISPLAY_NAME, is_default=True
+        )
+
+        create_tensorboard_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            tensorboard=expected_tensorboard,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_tensorboard_mock")
+    def test_create_tensorboard_is_default_false(self, create_tensorboard_mock):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+        )
+
+        tensorboard.Tensorboard.create(
+            display_name=_TEST_DISPLAY_NAME,
+            is_default=False,
+        )
+
+        expected_tensorboard = gca_tensorboard.Tensorboard(
+            display_name=_TEST_DISPLAY_NAME, is_default=False
+        )
+
+        create_tensorboard_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            tensorboard=expected_tensorboard,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_tensorboard_mock")
     def test_delete_tensorboard(self, delete_tensorboard_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -576,6 +622,40 @@ class TestTensorboard:
         )
         update_tensorboard_mock.assert_called_once_with(
             update_mask=field_mask_pb2.FieldMask(paths=["encryption_spec"]),
+            tensorboard=expected_tensorboard,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_tensorboard_mock")
+    def test_update_tensorboard_is_default_true(self, update_tensorboard_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_tensorboard = tensorboard.Tensorboard(tensorboard_name=_TEST_NAME)
+        my_tensorboard.update(is_default=True)
+
+        expected_tensorboard = gca_tensorboard.Tensorboard(
+            name=_TEST_NAME,
+            is_default=True,
+        )
+        update_tensorboard_mock.assert_called_once_with(
+            update_mask=field_mask_pb2.FieldMask(paths=["is_default"]),
+            tensorboard=expected_tensorboard,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_tensorboard_mock")
+    def test_update_tensorboard_is_default_false(self, update_tensorboard_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_tensorboard = tensorboard.Tensorboard(tensorboard_name=_TEST_NAME)
+        my_tensorboard.update(is_default=False)
+
+        expected_tensorboard = gca_tensorboard.Tensorboard(
+            name=_TEST_NAME,
+            is_default=False,
+        )
+        update_tensorboard_mock.assert_called_once_with(
+            update_mask=field_mask_pb2.FieldMask(paths=["is_default"]),
             tensorboard=expected_tensorboard,
             metadata=_TEST_REQUEST_METADATA,
         )
@@ -735,7 +815,7 @@ class TestTensorboardExperiment:
         tensorboard.TensorboardExperiment.list(tensorboard_name=_TEST_NAME)
 
         list_tensorboard_experiment_mock.assert_called_once_with(
-            request={"parent": _TEST_NAME, "filter": None}
+            request={"parent": _TEST_NAME}
         )
 
 
@@ -785,7 +865,7 @@ class TestTensorboardRun:
             name=_TEST_TENSORBOARD_RUN_NAME, retry=base._DEFAULT_RETRY
         )
         list_tensorboard_time_series_mock.assert_called_once_with(
-            request={"parent": _TEST_TENSORBOARD_RUN_NAME, "filter": None}
+            request={"parent": _TEST_TENSORBOARD_RUN_NAME}
         )
 
     @pytest.mark.usefixtures("list_tensorboard_time_series_mock")
@@ -900,11 +980,11 @@ class TestTensorboardRun:
         )
 
         list_tensorboard_run_mock.assert_called_once_with(
-            request={"parent": _TEST_TENSORBOARD_EXPERIMENT_NAME, "filter": None}
+            request={"parent": _TEST_TENSORBOARD_EXPERIMENT_NAME}
         )
 
         list_tensorboard_time_series_mock.assert_called_once_with(
-            request={"parent": _TEST_TENSORBOARD_RUN_NAME, "filter": None}
+            request={"parent": _TEST_TENSORBOARD_RUN_NAME}
         )
 
     @pytest.mark.usefixtures(
@@ -1064,5 +1144,5 @@ class TestTensorboardTimeSeries:
         )
 
         list_tensorboard_time_series_mock.assert_called_once_with(
-            request={"parent": _TEST_TENSORBOARD_RUN_NAME, "filter": None}
+            request={"parent": _TEST_TENSORBOARD_RUN_NAME}
         )

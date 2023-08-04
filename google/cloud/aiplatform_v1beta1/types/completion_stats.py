@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -51,19 +55,19 @@ class CompletionStats(proto.Message):
             forecasting batch prediction.
     """
 
-    successful_count = proto.Field(
+    successful_count: int = proto.Field(
         proto.INT64,
         number=1,
     )
-    failed_count = proto.Field(
+    failed_count: int = proto.Field(
         proto.INT64,
         number=2,
     )
-    incomplete_count = proto.Field(
+    incomplete_count: int = proto.Field(
         proto.INT64,
         number=3,
     )
-    successful_forecast_point_count = proto.Field(
+    successful_forecast_point_count: int = proto.Field(
         proto.INT64,
         number=5,
     )

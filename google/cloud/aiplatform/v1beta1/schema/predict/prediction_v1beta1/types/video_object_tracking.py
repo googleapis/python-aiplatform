@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import duration_pb2  # type: ignore
@@ -55,7 +59,7 @@ class VideoObjectTrackingPredictionResult(proto.Message):
             The Model's confidence in correction of this
             prediction, higher value means higher
             confidence.
-        frames (Sequence[google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.VideoObjectTrackingPredictionResult.Frame]):
+        frames (MutableSequence[google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.VideoObjectTrackingPredictionResult.Frame]):
             All of the frames of the video in which a
             single object instance has been detected. The
             bounding boxes in the frames identify the same
@@ -86,56 +90,56 @@ class VideoObjectTrackingPredictionResult(proto.Message):
                 box.
         """
 
-        time_offset = proto.Field(
+        time_offset: duration_pb2.Duration = proto.Field(
             proto.MESSAGE,
             number=1,
             message=duration_pb2.Duration,
         )
-        x_min = proto.Field(
+        x_min: wrappers_pb2.FloatValue = proto.Field(
             proto.MESSAGE,
             number=2,
             message=wrappers_pb2.FloatValue,
         )
-        x_max = proto.Field(
+        x_max: wrappers_pb2.FloatValue = proto.Field(
             proto.MESSAGE,
             number=3,
             message=wrappers_pb2.FloatValue,
         )
-        y_min = proto.Field(
+        y_min: wrappers_pb2.FloatValue = proto.Field(
             proto.MESSAGE,
             number=4,
             message=wrappers_pb2.FloatValue,
         )
-        y_max = proto.Field(
+        y_max: wrappers_pb2.FloatValue = proto.Field(
             proto.MESSAGE,
             number=5,
             message=wrappers_pb2.FloatValue,
         )
 
-    id = proto.Field(
+    id: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    time_segment_start = proto.Field(
+    time_segment_start: duration_pb2.Duration = proto.Field(
         proto.MESSAGE,
         number=3,
         message=duration_pb2.Duration,
     )
-    time_segment_end = proto.Field(
+    time_segment_end: duration_pb2.Duration = proto.Field(
         proto.MESSAGE,
         number=4,
         message=duration_pb2.Duration,
     )
-    confidence = proto.Field(
+    confidence: wrappers_pb2.FloatValue = proto.Field(
         proto.MESSAGE,
         number=5,
         message=wrappers_pb2.FloatValue,
     )
-    frames = proto.RepeatedField(
+    frames: MutableSequence[Frame] = proto.RepeatedField(
         proto.MESSAGE,
         number=6,
         message=Frame,

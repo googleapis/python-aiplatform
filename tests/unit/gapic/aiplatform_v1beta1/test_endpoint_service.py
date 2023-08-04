@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ import os
 # try/except added for compatibility with python < 3.8
 try:
     from unittest import mock
-    from unittest.mock import AsyncMock
-except ImportError:
+    from unittest.mock import AsyncMock  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
     import mock
 
 import grpc
@@ -27,7 +27,7 @@ from grpc.experimental import aio
 import math
 import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
-
+from proto.marshal.rules import wrappers
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -65,6 +65,7 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
+from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -253,6 +254,7 @@ def test_endpoint_service_client_client_options(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -270,6 +272,7 @@ def test_endpoint_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -287,6 +290,7 @@ def test_endpoint_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
@@ -316,6 +320,25 @@ def test_endpoint_service_client_client_options(
             quota_project_id="octopus",
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
+        )
+    # Check the case api_endpoint is provided
+    options = client_options.ClientOptions(
+        api_audience="https://language.googleapis.com"
+    )
+    with mock.patch.object(transport_class, "__init__") as patched:
+        patched.return_value = None
+        client = client_class(client_options=options, transport=transport_name)
+        patched.assert_called_once_with(
+            credentials=None,
+            credentials_file=None,
+            host=client.DEFAULT_ENDPOINT,
+            scopes=None,
+            client_cert_source_for_mtls=None,
+            quota_project_id=None,
+            client_info=transports.base.DEFAULT_CLIENT_INFO,
+            always_use_jwt_access=True,
+            api_audience="https://language.googleapis.com",
         )
 
 
@@ -393,6 +416,7 @@ def test_endpoint_service_client_mtls_env_auto(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case ADC client cert is provided. Whether client cert is used depends on
@@ -427,6 +451,7 @@ def test_endpoint_service_client_mtls_env_auto(
                         quota_project_id=None,
                         client_info=transports.base.DEFAULT_CLIENT_INFO,
                         always_use_jwt_access=True,
+                        api_audience=None,
                     )
 
     # Check the case client_cert_source and ADC client cert are not provided.
@@ -449,6 +474,7 @@ def test_endpoint_service_client_mtls_env_auto(
                     quota_project_id=None,
                     client_info=transports.base.DEFAULT_CLIENT_INFO,
                     always_use_jwt_access=True,
+                    api_audience=None,
                 )
 
 
@@ -563,6 +589,7 @@ def test_endpoint_service_client_client_options_scopes(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -601,6 +628,7 @@ def test_endpoint_service_client_client_options_credentials_file(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -621,6 +649,7 @@ def test_endpoint_service_client_client_options_from_dict():
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -659,6 +688,7 @@ def test_endpoint_service_client_create_channel_credentials_file(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
     # test that the credentials from file are saved and used as the credentials.
@@ -1606,9 +1636,11 @@ async def test_list_endpoints_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_endpoints(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -2640,6 +2672,303 @@ async def test_undeploy_model_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        endpoint_service.MutateDeployedModelRequest,
+        dict,
+    ],
+)
+def test_mutate_deployed_model(request_type, transport: str = "grpc"):
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.mutate_deployed_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == endpoint_service.MutateDeployedModelRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_mutate_deployed_model_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        client.mutate_deployed_model()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == endpoint_service.MutateDeployedModelRequest()
+
+
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_async(
+    transport: str = "grpc_asyncio",
+    request_type=endpoint_service.MutateDeployedModelRequest,
+):
+    client = EndpointServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.mutate_deployed_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == endpoint_service.MutateDeployedModelRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_async_from_dict():
+    await test_mutate_deployed_model_async(request_type=dict)
+
+
+def test_mutate_deployed_model_field_headers():
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = endpoint_service.MutateDeployedModelRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.mutate_deployed_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_field_headers_async():
+    client = EndpointServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = endpoint_service.MutateDeployedModelRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.mutate_deployed_model(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+def test_mutate_deployed_model_flattened():
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.mutate_deployed_model(
+            endpoint="endpoint_value",
+            deployed_model=gca_endpoint.DeployedModel(
+                dedicated_resources=machine_resources.DedicatedResources(
+                    machine_spec=machine_resources.MachineSpec(
+                        machine_type="machine_type_value"
+                    )
+                )
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model
+        mock_val = gca_endpoint.DeployedModel(
+            dedicated_resources=machine_resources.DedicatedResources(
+                machine_spec=machine_resources.MachineSpec(
+                    machine_type="machine_type_value"
+                )
+            )
+        )
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
+
+
+def test_mutate_deployed_model_flattened_error():
+    client = EndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.mutate_deployed_model(
+            endpoint_service.MutateDeployedModelRequest(),
+            endpoint="endpoint_value",
+            deployed_model=gca_endpoint.DeployedModel(
+                dedicated_resources=machine_resources.DedicatedResources(
+                    machine_spec=machine_resources.MachineSpec(
+                        machine_type="machine_type_value"
+                    )
+                )
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+
+
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_flattened_async():
+    client = EndpointServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.mutate_deployed_model(
+            endpoint="endpoint_value",
+            deployed_model=gca_endpoint.DeployedModel(
+                dedicated_resources=machine_resources.DedicatedResources(
+                    machine_spec=machine_resources.MachineSpec(
+                        machine_type="machine_type_value"
+                    )
+                )
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].deployed_model
+        mock_val = gca_endpoint.DeployedModel(
+            dedicated_resources=machine_resources.DedicatedResources(
+                machine_spec=machine_resources.MachineSpec(
+                    machine_type="machine_type_value"
+                )
+            )
+        )
+        assert arg == mock_val
+        arg = args[0].update_mask
+        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_flattened_error_async():
+    client = EndpointServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.mutate_deployed_model(
+            endpoint_service.MutateDeployedModelRequest(),
+            endpoint="endpoint_value",
+            deployed_model=gca_endpoint.DeployedModel(
+                dedicated_resources=machine_resources.DedicatedResources(
+                    machine_spec=machine_resources.MachineSpec(
+                        machine_type="machine_type_value"
+                    )
+                )
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.EndpointServiceGrpcTransport(
@@ -2784,6 +3113,7 @@ def test_endpoint_service_base_transport():
         "delete_endpoint",
         "deploy_model",
         "undeploy_model",
+        "mutate_deployed_model",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -2878,6 +3208,28 @@ def test_endpoint_service_transport_auth_adc(transport_class):
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
+
+
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.EndpointServiceGrpcTransport,
+        transports.EndpointServiceGrpcAsyncIOTransport,
+    ],
+)
+def test_endpoint_service_transport_auth_gdch_credentials(transport_class):
+    host = "https://language.com"
+    api_audience_tests = [None, "https://language2.com"]
+    api_audience_expect = [host, "https://language2.com"]
+    for t, e in zip(api_audience_tests, api_audience_expect):
+        with mock.patch.object(google.auth, "default", autospec=True) as adc:
+            gdch_mock = mock.MagicMock()
+            type(gdch_mock).with_gdch_audience = mock.PropertyMock(
+                return_value=gdch_mock
+            )
+            adc.return_value = (gdch_mock, None)
+            transport_class(host=host, api_audience=t)
+            gdch_mock.with_gdch_audience.assert_called_once_with(e)
 
 
 @pytest.mark.parametrize(
@@ -3156,10 +3508,38 @@ def test_endpoint_service_grpc_lro_async_client():
     assert transport.operations_client is transport.operations_client
 
 
-def test_endpoint_path():
+def test_deployment_resource_pool_path():
     project = "squid"
     location = "clam"
-    endpoint = "whelk"
+    deployment_resource_pool = "whelk"
+    expected = "projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}".format(
+        project=project,
+        location=location,
+        deployment_resource_pool=deployment_resource_pool,
+    )
+    actual = EndpointServiceClient.deployment_resource_pool_path(
+        project, location, deployment_resource_pool
+    )
+    assert expected == actual
+
+
+def test_parse_deployment_resource_pool_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "deployment_resource_pool": "nudibranch",
+    }
+    path = EndpointServiceClient.deployment_resource_pool_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = EndpointServiceClient.parse_deployment_resource_pool_path(path)
+    assert expected == actual
+
+
+def test_endpoint_path():
+    project = "cuttlefish"
+    location = "mussel"
+    endpoint = "winkle"
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
         project=project,
         location=location,
@@ -3171,9 +3551,9 @@ def test_endpoint_path():
 
 def test_parse_endpoint_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "endpoint": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "endpoint": "abalone",
     }
     path = EndpointServiceClient.endpoint_path(**expected)
 
@@ -3183,9 +3563,9 @@ def test_parse_endpoint_path():
 
 
 def test_model_path():
-    project = "cuttlefish"
-    location = "mussel"
-    model = "winkle"
+    project = "squid"
+    location = "clam"
+    model = "whelk"
     expected = "projects/{project}/locations/{location}/models/{model}".format(
         project=project,
         location=location,
@@ -3197,9 +3577,9 @@ def test_model_path():
 
 def test_parse_model_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "model": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "model": "nudibranch",
     }
     path = EndpointServiceClient.model_path(**expected)
 
@@ -3209,9 +3589,9 @@ def test_parse_model_path():
 
 
 def test_model_deployment_monitoring_job_path():
-    project = "squid"
-    location = "clam"
-    model_deployment_monitoring_job = "whelk"
+    project = "cuttlefish"
+    location = "mussel"
+    model_deployment_monitoring_job = "winkle"
     expected = "projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}".format(
         project=project,
         location=location,
@@ -3225,9 +3605,9 @@ def test_model_deployment_monitoring_job_path():
 
 def test_parse_model_deployment_monitoring_job_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "model_deployment_monitoring_job": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "model_deployment_monitoring_job": "abalone",
     }
     path = EndpointServiceClient.model_deployment_monitoring_job_path(**expected)
 
@@ -3237,8 +3617,8 @@ def test_parse_model_deployment_monitoring_job_path():
 
 
 def test_network_path():
-    project = "cuttlefish"
-    network = "mussel"
+    project = "squid"
+    network = "clam"
     expected = "projects/{project}/global/networks/{network}".format(
         project=project,
         network=network,
@@ -3249,8 +3629,8 @@ def test_network_path():
 
 def test_parse_network_path():
     expected = {
-        "project": "winkle",
-        "network": "nautilus",
+        "project": "whelk",
+        "network": "octopus",
     }
     path = EndpointServiceClient.network_path(**expected)
 
@@ -3260,7 +3640,7 @@ def test_parse_network_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "scallop"
+    billing_account = "oyster"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -3270,7 +3650,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "abalone",
+        "billing_account": "nudibranch",
     }
     path = EndpointServiceClient.common_billing_account_path(**expected)
 
@@ -3280,7 +3660,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "squid"
+    folder = "cuttlefish"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -3290,7 +3670,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "clam",
+        "folder": "mussel",
     }
     path = EndpointServiceClient.common_folder_path(**expected)
 
@@ -3300,7 +3680,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "whelk"
+    organization = "winkle"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -3310,7 +3690,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "octopus",
+        "organization": "nautilus",
     }
     path = EndpointServiceClient.common_organization_path(**expected)
 
@@ -3320,7 +3700,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "oyster"
+    project = "scallop"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -3330,7 +3710,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nudibranch",
+        "project": "abalone",
     }
     path = EndpointServiceClient.common_project_path(**expected)
 
@@ -3340,8 +3720,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "cuttlefish"
-    location = "mussel"
+    project = "squid"
+    location = "clam"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -3352,8 +3732,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
+        "project": "whelk",
+        "location": "octopus",
     }
     path = EndpointServiceClient.common_location_path(**expected)
 
@@ -3424,7 +3804,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_delete_operation(transport: str = "grpc"):
+async def test_delete_operation_async(transport: str = "grpc"):
     client = EndpointServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3563,7 +3943,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_cancel_operation(transport: str = "grpc"):
+async def test_cancel_operation_async(transport: str = "grpc"):
     client = EndpointServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3847,7 +4227,7 @@ def test_get_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_get_operation(transport: str = "grpc"):
+async def test_get_operation_async(transport: str = "grpc"):
     client = EndpointServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3992,7 +4372,7 @@ def test_list_operations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_operations(transport: str = "grpc"):
+async def test_list_operations_async(transport: str = "grpc"):
     client = EndpointServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4137,7 +4517,7 @@ def test_list_locations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_locations(transport: str = "grpc"):
+async def test_list_locations_async(transport: str = "grpc"):
     client = EndpointServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4968,4 +5348,5 @@ def test_api_key_credentials(client_class, transport_class):
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )

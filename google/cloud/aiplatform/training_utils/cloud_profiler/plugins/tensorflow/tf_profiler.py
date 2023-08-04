@@ -17,11 +17,15 @@
 
 """A plugin to handle remote tensoflow profiler sessions for Vertex AI."""
 
-from google.cloud.aiplatform.training_utils.cloud_profiler import cloud_profiler_utils
+from google.cloud.aiplatform.training_utils.cloud_profiler import (
+    cloud_profiler_utils,
+)
 
 try:
     import tensorflow as tf
-    from tensorboard_plugin_profile.profile_plugin import ProfilePlugin
+    from tensorboard_plugin_profile.profile_plugin import (
+        ProfilePlugin,
+    )
 except ImportError as err:
     raise ImportError(cloud_profiler_utils.import_error_msg) from err
 
@@ -36,10 +40,14 @@ from urllib import parse
 import tensorboard.plugins.base_plugin as tensorboard_base_plugin
 from werkzeug import Response
 
-from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
+    profile_uploader,
+)
 from google.cloud.aiplatform.training_utils import environment_variables
 from google.cloud.aiplatform.training_utils.cloud_profiler import wsgi_types
-from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import (
+    base_plugin,
+)
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
     tensorboard_api,
 )
@@ -68,8 +76,7 @@ def _get_tf_versioning() -> Optional[Version]:
     versioning = version.split(".")
     if len(versioning) != 3:
         return
-
-    return Version(int(versioning[0]), int(versioning[1]), int(versioning[2]))
+    return Version(int(versioning[0]), int(versioning[1]), versioning[2])
 
 
 def _is_compatible_version(version: Version) -> bool:
@@ -228,7 +235,7 @@ def warn_tensorboard_env_var(var_name: str):
             Required. The name of the missing environment variable.
     """
     logging.warning(
-        f"Environment variable `{var_name}` must be set. " + _BASE_TB_ENV_WARNING
+        "Environment variable `%s` must be set. %s", var_name, _BASE_TB_ENV_WARNING
     )
 
 

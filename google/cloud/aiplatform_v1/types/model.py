@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import deployed_model_ref
@@ -27,9 +31,11 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
         "Model",
+        "LargeModelReference",
         "PredictSchemata",
         "ModelContainerSpec",
         "Port",
+        "ModelSourceInfo",
     },
 )
 
@@ -46,12 +52,12 @@ class Model(proto.Message):
             model version is uploaded or trained under an
             existing model id. It is an auto-incrementing
             decimal number in string representation.
-        version_aliases (Sequence[str]):
+        version_aliases (MutableSequence[str]):
             User provided version aliases so that a model version can be
             referenced via alias (i.e.
-            projects/{project}/locations/{location}/models/{model_id}@{version_alias}
+            ``projects/{project}/locations/{location}/models/{model_id}@{version_alias}``
             instead of auto-generated version id (i.e.
-            projects/{project}/locations/{location}/models/{model_id}@{version_id}).
+            ``projects/{project}/locations/{location}/models/{model_id}@{version_id})``.
             The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9] to
             distinguish from version_id. A default version alias will be
             created for the first version of the model, and there must
@@ -65,7 +71,7 @@ class Model(proto.Message):
         display_name (str):
             Required. The display name of the Model.
             The name can be up to 128 characters long and
-            can be consist of any UTF-8 characters.
+            can consist of any UTF-8 characters.
         description (str):
             The description of the Model.
         version_description (str):
@@ -94,7 +100,7 @@ class Model(proto.Message):
             schema of the metadata can be found in
             [metadata_schema][google.cloud.aiplatform.v1.Model.metadata_schema_uri].
             Unset if the Model does not have any additional information.
-        supported_export_formats (Sequence[google.cloud.aiplatform_v1.types.Model.ExportFormat]):
+        supported_export_formats (MutableSequence[google.cloud.aiplatform_v1.types.Model.ExportFormat]):
             Output only. The formats in which this Model
             may be exported. If empty, this Model is not
             available for export.
@@ -102,18 +108,23 @@ class Model(proto.Message):
             Output only. The resource name of the
             TrainingPipeline that uploaded this Model, if
             any.
+        pipeline_job (str):
+            Optional. This field is populated if the
+            model is produced by a pipeline job.
         container_spec (google.cloud.aiplatform_v1.types.ModelContainerSpec):
             Input only. The specification of the container that is to be
             used when deploying this Model. The specification is
             ingested upon
             [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel],
             and all binaries it contains are copied and stored
-            internally by Vertex AI. Not present for AutoML Models.
+            internally by Vertex AI. Not present for AutoML Models or
+            Large Models.
         artifact_uri (str):
             Immutable. The path to the directory
             containing the Model artifact and any of its
-            supporting files. Not present for AutoML Models.
-        supported_deployment_resources_types (Sequence[google.cloud.aiplatform_v1.types.Model.DeploymentResourcesType]):
+            supporting files. Not present for AutoML Models
+            or Large Models.
+        supported_deployment_resources_types (MutableSequence[google.cloud.aiplatform_v1.types.Model.DeploymentResourcesType]):
             Output only. When this Model is deployed, its prediction
             resources are described by the ``prediction_resources``
             field of the
@@ -133,7 +144,7 @@ class Model(proto.Message):
             [supported_input_storage_formats][google.cloud.aiplatform.v1.Model.supported_input_storage_formats]
             and
             [supported_output_storage_formats][google.cloud.aiplatform.v1.Model.supported_output_storage_formats].
-        supported_input_storage_formats (Sequence[str]):
+        supported_input_storage_formats (MutableSequence[str]):
             Output only. The formats this Model supports in
             [BatchPredictionJob.input_config][google.cloud.aiplatform.v1.BatchPredictionJob.input_config].
             If
@@ -177,7 +188,7 @@ class Model(proto.Message):
             [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict]
             or
             [PredictionService.Explain][google.cloud.aiplatform.v1.PredictionService.Explain].
-        supported_output_storage_formats (Sequence[str]):
+        supported_output_storage_formats (MutableSequence[str]):
             Output only. The formats this Model supports in
             [BatchPredictionJob.output_config][google.cloud.aiplatform.v1.BatchPredictionJob.output_config].
             If both
@@ -220,7 +231,7 @@ class Model(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Model was
             most recently updated.
-        deployed_models (Sequence[google.cloud.aiplatform_v1.types.DeployedModelRef]):
+        deployed_models (MutableSequence[google.cloud.aiplatform_v1.types.DeployedModelRef]):
             Output only. The pointers to DeployedModels
             created from this Model. Note that Model could
             have been deployed to Endpoints in different
@@ -229,11 +240,12 @@ class Model(proto.Message):
             The default explanation specification for this Model.
 
             The Model can be used for [requesting
-            explanation][PredictionService.Explain] after being
+            explanation][google.cloud.aiplatform.v1.PredictionService.Explain]
+            after being
             [deployed][google.cloud.aiplatform.v1.EndpointService.DeployModel]
             if it is populated. The Model can be used for [batch
-            explanation][BatchPredictionJob.generate_explanation] if it
-            is populated.
+            explanation][google.cloud.aiplatform.v1.BatchPredictionJob.generate_explanation]
+            if it is populated.
 
             All fields of the explanation_spec can be overridden by
             [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
@@ -246,13 +258,14 @@ class Model(proto.Message):
 
             If the default explanation specification is not set for this
             Model, this Model can still be used for [requesting
-            explanation][PredictionService.Explain] by setting
+            explanation][google.cloud.aiplatform.v1.PredictionService.Explain]
+            by setting
             [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
             of
             [DeployModelRequest.deployed_model][google.cloud.aiplatform.v1.DeployModelRequest.deployed_model]
             and for [batch
-            explanation][BatchPredictionJob.generate_explanation] by
-            setting
+            explanation][google.cloud.aiplatform.v1.BatchPredictionJob.generate_explanation]
+            by setting
             [explanation_spec][google.cloud.aiplatform.v1.BatchPredictionJob.explanation_spec]
             of
             [BatchPredictionJob][google.cloud.aiplatform.v1.BatchPredictionJob].
@@ -260,7 +273,7 @@ class Model(proto.Message):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             organize your Models.
             Label keys and values can be no longer than 64
@@ -274,13 +287,45 @@ class Model(proto.Message):
             Customer-managed encryption key spec for a
             Model. If set, this Model and all sub-resources
             of this Model will be secured by this key.
+        model_source_info (google.cloud.aiplatform_v1.types.ModelSourceInfo):
+            Output only. Source of a model. It can either
+            be automl training pipeline, custom training
+            pipeline, BigQuery ML, or existing Vertex AI
+            Model.
+        original_model_info (google.cloud.aiplatform_v1.types.Model.OriginalModelInfo):
+            Output only. If this Model is a copy of
+            another Model, this contains info about the
+            original.
+        metadata_artifact (str):
+            Output only. The resource name of the Artifact that was
+            created in MetadataStore when creating the Model. The
+            Artifact resource name pattern is
+            ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
     """
 
     class DeploymentResourcesType(proto.Enum):
-        r"""Identifies a type of Model's prediction resources."""
+        r"""Identifies a type of Model's prediction resources.
+
+        Values:
+            DEPLOYMENT_RESOURCES_TYPE_UNSPECIFIED (0):
+                Should not be used.
+            DEDICATED_RESOURCES (1):
+                Resources that are dedicated to the
+                [DeployedModel][google.cloud.aiplatform.v1.DeployedModel],
+                and that need a higher degree of manual configuration.
+            AUTOMATIC_RESOURCES (2):
+                Resources that to large degree are decided by
+                Vertex AI, and require only a modest additional
+                configuration.
+            SHARED_RESOURCES (3):
+                Resources that can be shared by multiple
+                [DeployedModels][google.cloud.aiplatform.v1.DeployedModel].
+                A pre-configured [DeploymentResourcePool][] is required.
+        """
         DEPLOYMENT_RESOURCES_TYPE_UNSPECIFIED = 0
         DEDICATED_RESOURCES = 1
         AUTOMATIC_RESOURCES = 2
+        SHARED_RESOURCES = 3
 
     class ExportFormat(proto.Message):
         r"""Represents export format supported by the Model.
@@ -308,139 +353,214 @@ class Model(proto.Message):
 
                 -  ``custom-trained`` A Model that was uploaded or trained
                    by custom code.
-            exportable_contents (Sequence[google.cloud.aiplatform_v1.types.Model.ExportFormat.ExportableContent]):
+            exportable_contents (MutableSequence[google.cloud.aiplatform_v1.types.Model.ExportFormat.ExportableContent]):
                 Output only. The content of this Model that
                 may be exported.
         """
 
         class ExportableContent(proto.Enum):
-            r"""The Model content that can be exported."""
+            r"""The Model content that can be exported.
+
+            Values:
+                EXPORTABLE_CONTENT_UNSPECIFIED (0):
+                    Should not be used.
+                ARTIFACT (1):
+                    Model artifact and any of its supported files. Will be
+                    exported to the location specified by the
+                    ``artifactDestination`` field of the
+                    [ExportModelRequest.output_config][google.cloud.aiplatform.v1.ExportModelRequest.output_config]
+                    object.
+                IMAGE (2):
+                    The container image that is to be used when deploying this
+                    Model. Will be exported to the location specified by the
+                    ``imageDestination`` field of the
+                    [ExportModelRequest.output_config][google.cloud.aiplatform.v1.ExportModelRequest.output_config]
+                    object.
+            """
             EXPORTABLE_CONTENT_UNSPECIFIED = 0
             ARTIFACT = 1
             IMAGE = 2
 
-        id = proto.Field(
+        id: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        exportable_contents = proto.RepeatedField(
+        exportable_contents: MutableSequence[
+            "Model.ExportFormat.ExportableContent"
+        ] = proto.RepeatedField(
             proto.ENUM,
             number=2,
             enum="Model.ExportFormat.ExportableContent",
         )
 
-    name = proto.Field(
+    class OriginalModelInfo(proto.Message):
+        r"""Contains information about the original Model if this Model
+        is a copy.
+
+        Attributes:
+            model (str):
+                Output only. The resource name of the Model this Model is a
+                copy of, including the revision. Format:
+                ``projects/{project}/locations/{location}/models/{model_id}@{version_id}``
+        """
+
+        model: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    version_id = proto.Field(
+    version_id: str = proto.Field(
         proto.STRING,
         number=28,
     )
-    version_aliases = proto.RepeatedField(
+    version_aliases: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=29,
     )
-    version_create_time = proto.Field(
+    version_create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=31,
         message=timestamp_pb2.Timestamp,
     )
-    version_update_time = proto.Field(
+    version_update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=32,
         message=timestamp_pb2.Timestamp,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    version_description = proto.Field(
+    version_description: str = proto.Field(
         proto.STRING,
         number=30,
     )
-    predict_schemata = proto.Field(
+    predict_schemata: "PredictSchemata" = proto.Field(
         proto.MESSAGE,
         number=4,
         message="PredictSchemata",
     )
-    metadata_schema_uri = proto.Field(
+    metadata_schema_uri: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    metadata = proto.Field(
+    metadata: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=6,
         message=struct_pb2.Value,
     )
-    supported_export_formats = proto.RepeatedField(
+    supported_export_formats: MutableSequence[ExportFormat] = proto.RepeatedField(
         proto.MESSAGE,
         number=20,
         message=ExportFormat,
     )
-    training_pipeline = proto.Field(
+    training_pipeline: str = proto.Field(
         proto.STRING,
         number=7,
     )
-    container_spec = proto.Field(
+    pipeline_job: str = proto.Field(
+        proto.STRING,
+        number=47,
+    )
+    container_spec: "ModelContainerSpec" = proto.Field(
         proto.MESSAGE,
         number=9,
         message="ModelContainerSpec",
     )
-    artifact_uri = proto.Field(
+    artifact_uri: str = proto.Field(
         proto.STRING,
         number=26,
     )
-    supported_deployment_resources_types = proto.RepeatedField(
+    supported_deployment_resources_types: MutableSequence[
+        DeploymentResourcesType
+    ] = proto.RepeatedField(
         proto.ENUM,
         number=10,
         enum=DeploymentResourcesType,
     )
-    supported_input_storage_formats = proto.RepeatedField(
+    supported_input_storage_formats: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=11,
     )
-    supported_output_storage_formats = proto.RepeatedField(
+    supported_output_storage_formats: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=12,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=13,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=14,
         message=timestamp_pb2.Timestamp,
     )
-    deployed_models = proto.RepeatedField(
+    deployed_models: MutableSequence[
+        deployed_model_ref.DeployedModelRef
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=15,
         message=deployed_model_ref.DeployedModelRef,
     )
-    explanation_spec = proto.Field(
+    explanation_spec: explanation.ExplanationSpec = proto.Field(
         proto.MESSAGE,
         number=23,
         message=explanation.ExplanationSpec,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=16,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=17,
     )
-    encryption_spec = proto.Field(
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
         number=24,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    model_source_info: "ModelSourceInfo" = proto.Field(
+        proto.MESSAGE,
+        number=38,
+        message="ModelSourceInfo",
+    )
+    original_model_info: OriginalModelInfo = proto.Field(
+        proto.MESSAGE,
+        number=34,
+        message=OriginalModelInfo,
+    )
+    metadata_artifact: str = proto.Field(
+        proto.STRING,
+        number=44,
+    )
+
+
+class LargeModelReference(proto.Message):
+    r"""Contains information about the Large Model.
+
+    Attributes:
+        name (str):
+            Required. The unique name of the large
+            Foundation or pre-built model. Like
+            "chat-bison", "text-bison". Or model name with
+            version ID, like "chat-bison@001",
+            "text-bison@005", etc.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
     )
 
 
@@ -501,15 +621,15 @@ class PredictSchemata(proto.Message):
             user only has a read access.
     """
 
-    instance_schema_uri = proto.Field(
+    instance_schema_uri: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    parameters_schema_uri = proto.Field(
+    parameters_schema_uri: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    prediction_schema_uri = proto.Field(
+    prediction_schema_uri: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -544,7 +664,7 @@ class ModelContainerSpec(proto.Message):
             container images for
             prediction <https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers>`__
             in this field.
-        command (Sequence[str]):
+        command (MutableSequence[str]):
             Immutable. Specifies the command that runs when the
             container starts. This overrides the container's
             `ENTRYPOINT <https://docs.docker.com/engine/reference/builder/#entrypoint>`__.
@@ -586,7 +706,7 @@ class ModelContainerSpec(proto.Message):
             field corresponds to the ``command`` field of the Kubernetes
             Containers `v1 core
             API <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
-        args (Sequence[str]):
+        args (MutableSequence[str]):
             Immutable. Specifies arguments for the command that runs
             when the container starts. This overrides the container's
             ```CMD`` <https://docs.docker.com/engine/reference/builder/#cmd>`__.
@@ -625,7 +745,7 @@ class ModelContainerSpec(proto.Message):
             field corresponds to the ``args`` field of the Kubernetes
             Containers `v1 core
             API <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
-        env (Sequence[google.cloud.aiplatform_v1.types.EnvVar]):
+        env (MutableSequence[google.cloud.aiplatform_v1.types.EnvVar]):
             Immutable. List of environment variables to set in the
             container. After the container starts running, code running
             in the container can read these environment variables.
@@ -658,7 +778,7 @@ class ModelContainerSpec(proto.Message):
             This field corresponds to the ``env`` field of the
             Kubernetes Containers `v1 core
             API <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
-        ports (Sequence[google.cloud.aiplatform_v1.types.Port]):
+        ports (MutableSequence[google.cloud.aiplatform_v1.types.Port]):
             Immutable. List of ports to expose from the container.
             Vertex AI sends any prediction requests that it receives to
             the first port on this list. Vertex AI also sends `liveness
@@ -751,33 +871,33 @@ class ModelContainerSpec(proto.Message):
                variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
     """
 
-    image_uri = proto.Field(
+    image_uri: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    command = proto.RepeatedField(
+    command: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
-    args = proto.RepeatedField(
+    args: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=3,
     )
-    env = proto.RepeatedField(
+    env: MutableSequence[env_var.EnvVar] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
         message=env_var.EnvVar,
     )
-    ports = proto.RepeatedField(
+    ports: MutableSequence["Port"] = proto.RepeatedField(
         proto.MESSAGE,
         number=5,
         message="Port",
     )
-    predict_route = proto.Field(
+    predict_route: str = proto.Field(
         proto.STRING,
         number=6,
     )
-    health_route = proto.Field(
+    health_route: str = proto.Field(
         proto.STRING,
         number=7,
     )
@@ -793,9 +913,60 @@ class Port(proto.Message):
             1 and 65535 inclusive.
     """
 
-    container_port = proto.Field(
+    container_port: int = proto.Field(
         proto.INT32,
         number=3,
+    )
+
+
+class ModelSourceInfo(proto.Message):
+    r"""Detail description of the source information of the model.
+
+    Attributes:
+        source_type (google.cloud.aiplatform_v1.types.ModelSourceInfo.ModelSourceType):
+            Type of the model source.
+        copy (bool):
+            If this Model is copy of another Model. If true then
+            [source_type][google.cloud.aiplatform.v1.ModelSourceInfo.source_type]
+            pertains to the original.
+    """
+
+    class ModelSourceType(proto.Enum):
+        r"""Source of the model.
+
+        Values:
+            MODEL_SOURCE_TYPE_UNSPECIFIED (0):
+                Should not be used.
+            AUTOML (1):
+                The Model is uploaded by automl training
+                pipeline.
+            CUSTOM (2):
+                The Model is uploaded by user or custom
+                training pipeline.
+            BQML (3):
+                The Model is registered and sync'ed from
+                BigQuery ML.
+            MODEL_GARDEN (4):
+                The Model is saved or tuned from Model
+                Garden.
+            GENIE (5):
+                The Model is saved or tuned from Genie.
+        """
+        MODEL_SOURCE_TYPE_UNSPECIFIED = 0
+        AUTOML = 1
+        CUSTOM = 2
+        BQML = 3
+        MODEL_GARDEN = 4
+        GENIE = 5
+
+    source_type: ModelSourceType = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum=ModelSourceType,
+    )
+    copy: bool = proto.Field(
+        proto.BOOL,
+        number=2,
     )
 
 

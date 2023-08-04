@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -28,27 +32,27 @@ class ClassificationPredictionResult(proto.Message):
     r"""Prediction output format for Image and Text Classification.
 
     Attributes:
-        ids (Sequence[int]):
+        ids (MutableSequence[int]):
             The resource IDs of the AnnotationSpecs that
             had been identified.
-        display_names (Sequence[str]):
+        display_names (MutableSequence[str]):
             The display names of the AnnotationSpecs that
             had been identified, order matches the IDs.
-        confidences (Sequence[float]):
+        confidences (MutableSequence[float]):
             The Model's confidences in correctness of the
             predicted IDs, higher value means higher
             confidence. Order matches the Ids.
     """
 
-    ids = proto.RepeatedField(
+    ids: MutableSequence[int] = proto.RepeatedField(
         proto.INT64,
         number=1,
     )
-    display_names = proto.RepeatedField(
+    display_names: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
-    confidences = proto.RepeatedField(
+    confidences: MutableSequence[float] = proto.RepeatedField(
         proto.FLOAT,
         number=3,
     )
