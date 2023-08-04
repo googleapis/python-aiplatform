@@ -241,10 +241,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     @staticmethod
     def parse_dataset_path(path: str) -> Dict[str, str]:
         """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
+        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
@@ -263,7 +260,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     @staticmethod
     def parse_dataset_path(path: str) -> Dict[str, str]:
         """Parses a dataset path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$", path)
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
+            path,
+        )
         return m.groupdict() if m else {}
 
     @staticmethod
