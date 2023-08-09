@@ -31,7 +31,7 @@ def create_training_pipeline_image_object_detection_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
     training_task_inputs = trainingjob.definition.AutoMlImageObjectDetectionInputs(
-        model_type="CLOUD_HIGH_ACCURACY_1",
+        model_type="CLOUD_1",
         budget_milli_node_hours=20000,
         disable_early_stopping=False,
     ).to_value()
