@@ -19,9 +19,9 @@
 from concurrent import futures
 import inspect
 import logging
-import pkg_resources  # noqa: F401 # Note this is used after copybara replacement
 import os
 import types
+import sys
 from typing import Iterator, List, Optional, Type, TypeVar, Union
 
 from google.api_core import client_options
@@ -42,6 +42,11 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec_v1 as gca_encryption_spec_v1,
     encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
 )
+
+if sys.version_info >= (3, 8):
+    from importlib import metadata as importlib_metadata
+else:
+    import importlib_metadata
 
 _TVertexAiServiceClientWithOverride = TypeVar(
     "_TVertexAiServiceClientWithOverride",
@@ -447,9 +452,7 @@ class _Config:
         Returns:
             client: Instantiated Vertex AI Service client with optional overrides
         """
-        gapic_version = pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version
+        gapic_version = importlib_metadata.version("google-cloud-aiplatform")
 
         if appended_gapic_version:
             gapic_version = f"{gapic_version}+{appended_gapic_version}"
