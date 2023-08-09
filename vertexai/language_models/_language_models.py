@@ -237,28 +237,25 @@ class _TextGenerationModel(_LanguageModel):
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
 
-    _DEFAULT_TEMPERATURE = 0.0
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
-    _DEFAULT_TOP_P = 0.95
-    _DEFAULT_TOP_K = 40
 
     def predict(
         self,
         prompt: str,
         *,
-        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _DEFAULT_TEMPERATURE,
-        top_k: int = _DEFAULT_TOP_K,
-        top_p: float = _DEFAULT_TOP_P,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
     ) -> "TextGenerationResponse":
         """Gets model response for a single prompt.
 
         Args:
             prompt: Question to ask the model.
-            max_output_tokens: Max length of the output text in tokens.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
@@ -275,19 +272,19 @@ class _TextGenerationModel(_LanguageModel):
     def _batch_predict(
         self,
         prompts: List[str],
-        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _DEFAULT_TEMPERATURE,
-        top_k: int = _DEFAULT_TOP_K,
-        top_p: float = _DEFAULT_TOP_P,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
     ) -> List["TextGenerationResponse"]:
         """Gets model response for a single prompt.
 
         Args:
             prompts: Questions to ask the model.
-            max_output_tokens: Max length of the output text in tokens.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
 
         Returns:
             A list of `TextGenerationResponse` objects that contain the texts produced by the model.
@@ -458,17 +455,17 @@ class _ChatModel(_TextGenerationModel):
     def start_chat(
         self,
         max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
     ) -> "_ChatSession":
         """Starts a chat session with the model.
 
         Args:
-            max_output_tokens: Max length of the output text in tokens.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
 
         Returns:
             A `ChatSession` object.
@@ -492,9 +489,9 @@ class _ChatSession:
         self,
         model: _ChatModel,
         max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
     ):
         self._model = model
         self._history = []
@@ -517,13 +514,13 @@ class _ChatSession:
 
         Args:
             message: Message to send to the model
-            max_output_tokens: Max length of the output text in tokens.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
 
         Returns:
@@ -633,10 +630,10 @@ class _ChatModelBase(_LanguageModel):
         *,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: Optional[int] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ) -> "ChatSession":
         """Starts a chat session with the model.
@@ -646,10 +643,10 @@ class _ChatModelBase(_LanguageModel):
                 For example, you can use context to specify words the model can or cannot use, topics to focus on or avoid, or the response format or style
             examples: List of structured messages to the model to learn how to respond to the conversation.
                 A list of `InputOutputTextPair` objects.
-            max_output_tokens: Max length of the output text in tokens.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             message_history: A list of previously sent and received messages.
 
         Returns:
@@ -717,19 +714,18 @@ class CodeChatModel(_ChatModelBase):
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
-    _DEFAULT_TEMPERATURE = 0.5
 
     def start_chat(
         self,
         *,
-        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _DEFAULT_TEMPERATURE,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ) -> "CodeChatSession":
         """Starts a chat session with the code chat model.
 
         Args:
-            max_output_tokens: Max length of the output text in tokens.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
 
         Returns:
@@ -754,11 +750,10 @@ class _ChatSessionBase:
         model: _ChatModelBase,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
-        is_code_chat_session: bool = False,
+        max_output_tokens: Optional[int] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ):
         self._model = model
@@ -768,7 +763,6 @@ class _ChatSessionBase:
         self._temperature = temperature
         self._top_k = top_k
         self._top_p = top_p
-        self._is_code_chat_session = is_code_chat_session
         self._message_history: List[ChatMessage] = message_history or []
 
     @property
@@ -789,30 +783,36 @@ class _ChatSessionBase:
 
         Args:
             message: Message to send to the model
-            max_output_tokens: Max length of the output text in tokens.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
         """
-        prediction_parameters = {
-            "temperature": temperature
-            if temperature is not None
-            else self._temperature,
-            "maxDecodeSteps": max_output_tokens
-            if max_output_tokens is not None
-            else self._max_output_tokens,
-        }
+        prediction_parameters = {}
 
-        if not self._is_code_chat_session:
-            prediction_parameters["topP"] = top_p if top_p is not None else self._top_p
-            prediction_parameters["topK"] = top_k if top_k is not None else self._top_k
+        max_output_tokens = max_output_tokens or self._max_output_tokens
+        if max_output_tokens:
+            prediction_parameters["maxDecodeSteps"] = max_output_tokens
+
+        if temperature is None:
+            temperature = self._temperature
+        if temperature is not None:
+            prediction_parameters["temperature"] = temperature
+
+        top_p = top_p or self._top_p
+        if top_p:
+            prediction_parameters["topP"] = top_p
+
+        top_k = top_k or self._top_k
+        if top_k:
+            prediction_parameters["topK"] = top_k
 
         message_structs = []
         for past_message in self._message_history:
@@ -830,9 +830,9 @@ class _ChatSessionBase:
         )
 
         prediction_instance = {"messages": message_structs}
-        if not self._is_code_chat_session and self._context:
+        if self._context:
             prediction_instance["context"] = self._context
-        if not self._is_code_chat_session and self._examples:
+        if self._examples:
             prediction_instance["examples"] = [
                 {
                     "input": {"content": example.input_text},
@@ -885,10 +885,10 @@ class ChatSession(_ChatSessionBase):
         model: ChatModel,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = _TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = _TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: Optional[int] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ):
         super().__init__(
@@ -913,14 +913,13 @@ class CodeChatSession(_ChatSessionBase):
         self,
         model: CodeChatModel,
         max_output_tokens: int = CodeChatModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = CodeChatModel._DEFAULT_TEMPERATURE,
+        temperature: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ):
         super().__init__(
             model=model,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
-            is_code_chat_session=True,
             message_history=message_history,
         )
 
@@ -935,7 +934,7 @@ class CodeChatSession(_ChatSessionBase):
 
         Args:
             message: Message to send to the model
-            max_output_tokens: Max length of the output text in tokens.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
                 Uses the value specified when calling `CodeChatModel.start_chat` by default.
             temperature: Controls the randomness of predictions. Range: [0, 1].
                  Uses the value specified when calling `CodeChatModel.start_chat` by default.
@@ -970,33 +969,38 @@ class CodeGenerationModel(_LanguageModel):
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
-    _DEFAULT_TEMPERATURE = 0.0
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
 
     def predict(
         self,
         prefix: str,
-        suffix: Optional[str] = "",
+        suffix: Optional[str] = None,
         *,
-        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _DEFAULT_TEMPERATURE,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
     ) -> "TextGenerationResponse":
         """Gets model response for a single prompt.
 
         Args:
             prefix: Code before the current point.
             suffix: Code after the current point.
-            max_output_tokens: Max length of the output text in tokens.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
         """
-        instance = {"prefix": prefix, "suffix": suffix}
-        prediction_parameters = {
-            "temperature": temperature,
-            "maxOutputTokens": max_output_tokens,
-        }
+        instance = {"prefix": prefix}
+        if suffix:
+            instance["suffix"] = suffix
+
+        prediction_parameters = {}
+
+        if temperature is not None:
+            prediction_parameters["temperature"] = temperature
+
+        if max_output_tokens:
+            prediction_parameters["maxOutputTokens"] = max_output_tokens
 
         prediction_response = self._endpoint.predict(
             instances=[instance],
