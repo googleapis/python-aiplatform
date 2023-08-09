@@ -1126,7 +1126,6 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
         default_max_output_tokens = (
             language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
         )
@@ -1149,7 +1148,7 @@ class TestLanguageModels:
                 prefix="Write a function that checks if a year is a leap year.",
             )
             prediction_parameters = mock_predict.call_args[1]["parameters"]
-            assert prediction_parameters["temperature"] == default_temperature
+            assert "temperature" not in prediction_parameters
             assert prediction_parameters["maxOutputTokens"] == default_max_output_tokens
 
     def test_code_completion(self):
@@ -1192,7 +1191,6 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
         default_max_output_tokens = (
             language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
         )
@@ -1215,7 +1213,7 @@ class TestLanguageModels:
                 prefix="def reverse_string(s):",
             )
             prediction_parameters = mock_predict.call_args[1]["parameters"]
-            assert prediction_parameters["temperature"] == default_temperature
+            assert "temperature" not in prediction_parameters
             assert prediction_parameters["maxOutputTokens"] == default_max_output_tokens
 
     def test_text_embedding(self):
