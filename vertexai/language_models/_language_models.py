@@ -1083,7 +1083,7 @@ def _get_tuned_models_dir_uri(model_id: str) -> str:
 
 def _list_tuned_model_names(model_id: str) -> List[str]:
     tuned_models = aiplatform.Model.list(
-        filter=f'labels.{_TUNING_BASE_MODEL_ID_LABEL_KEY}="{model_id}"',
+        filter=f'labels.{_TUNING_BASE_MODEL_ID_LABEL_KEY}="{model_id.replace("@", "-")}"',
         # TODO(b/275444096): Remove the explicit location once models are deployed to the user's selected location
         location=_TUNED_MODEL_LOCATION,
     )
