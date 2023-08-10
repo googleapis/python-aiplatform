@@ -16,7 +16,6 @@
 from collections import OrderedDict
 import functools
 import re
-import pkg_resources
 from typing import (
     Dict,
     Mapping,

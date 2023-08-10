@@ -16,7 +16,6 @@
 from collections import OrderedDict
 import os
 import re
-import pkg_resources
 from typing import (
     Dict,
     Mapping,
