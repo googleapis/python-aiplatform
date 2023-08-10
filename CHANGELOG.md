@@ -1,6 +1,19 @@
 # Changelog
 
 
+## [1.30.0](https://github.com/googleapis/python-aiplatform/compare/v1.29.0...v1.30.0) (2023-08-10)
+
+
+### Features
+
+* Add model.evaluate() method to Model class ([51df86e](https://github.com/googleapis/python-aiplatform/commit/51df86ee1390a51b82ffc015514ad1e145821a34))
+* Add support for providing only text to MultiModalEmbeddingModel.get_embeddings() ([38ec40a](https://github.com/googleapis/python-aiplatform/commit/38ec40a12cf863c9da3de8336dceba10d92f6f56))
+
+
+### Bug Fixes
+
+* LLM - Fixed filter in `list_tuned_model_names` ([57806fb](https://github.com/googleapis/python-aiplatform/commit/57806fb947e5b692cd8d4701e572eaf54585d383))
+
 ## [1.29.0](https://github.com/googleapis/python-aiplatform/compare/v1.28.1...v1.29.0) (2023-08-02)
 
 
