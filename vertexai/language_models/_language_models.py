@@ -692,7 +692,7 @@ class ChatModel(_ChatModelBase):
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
 
 
-class _PreviewChatModel(ChatModel):
+class _PreviewChatModel(ChatModel, _TunableModelMixin):
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
