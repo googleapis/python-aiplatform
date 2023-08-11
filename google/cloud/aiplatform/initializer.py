@@ -98,6 +98,7 @@ class _Config:
         self._credentials = None
         self._encryption_spec_key_name = None
         self._network = None
+        self._api_base_path = None
 
     def init(
         self,
@@ -113,6 +114,7 @@ class _Config:
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         network: Optional[str] = None,
+        _api_base_path_override: Optional[str] = None,
     ):
         """Updates common initialization parameters with provided options.
 
@@ -155,6 +157,7 @@ class _Config:
                 Private services access must already be configured for the network.
                 If specified, all eligible jobs and resources created will be peered
                 with this VPC.
+            _api_base_path_override (str): Optional. Override default api base path.
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
@@ -194,6 +197,8 @@ class _Config:
             self._encryption_spec_key_name = encryption_spec_key_name
         if network is not None:
             self._network = network
+        if _api_base_path_override:
+            self._api_base_path = _api_base_path_override
 
         if experiment:
             metadata._experiment_tracker.set_experiment(
@@ -411,6 +416,9 @@ class _Config:
             gapic_version=gapic_version,
             user_agent=user_agent,
         )
+
+        if self._api_base_path:
+            api_base_path_override = self._api_base_path
 
         kwargs = {
             "credentials": credentials or self.credentials,

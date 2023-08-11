@@ -300,6 +300,23 @@ class TestInit:
 
         assert client_options.api_endpoint == "asia-east1-override.googleapis.com"
 
+    def test_init_with_api_path_override(self):
+        api_base_path = "override.googleapis.com"
+        initializer.global_config.init(
+            location=_TEST_LOCATION_2,
+            _api_base_path_override=api_base_path,
+        )
+
+        creds = credentials.AnonymousCredentials()
+        client = initializer.global_config.create_client(
+            client_class=utils.PersistentResourceClientWithOverride,
+            credentials=creds,
+        )
+
+        assert isinstance(client, utils.PersistentResourceClientWithOverride)
+        assert client._transport._host == f"{_TEST_LOCATION_2}-{api_base_path}:443"
+        assert client._transport._credentials == creds
+
     def test_init_with_only_creds_does_not_override_set_project(self):
         assert initializer.global_config.project is not _TEST_PROJECT_2
         initializer.global_config.init(project=_TEST_PROJECT_2)
