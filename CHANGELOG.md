@@ -1,6 +1,24 @@
 # Changelog
 
 
+## [1.30.1](https://github.com/googleapis/python-aiplatform/compare/v1.30.0...v1.30.1) (2023-08-11)
+
+
+### Features
+
+* LLM - Added tuning support for `chat-bison` models ([3a97c52](https://github.com/googleapis/python-aiplatform/commit/3a97c523c8223f7f007008769ecb2efd0d44d182))
+* LLM - Added tuning support for `codechat-bison` models ([af6e455](https://github.com/googleapis/python-aiplatform/commit/af6e45556d6b093189f363a95f2be45e0008aebd))
+
+
+### Bug Fixes
+
+* LLM - Fixed the `TextGenerationModel.predict` parameters ([f3b25ab](https://github.com/googleapis/python-aiplatform/commit/f3b25ab694eaee18f5cc34f800f1b6021d291bca))
+
+
+### Miscellaneous Chores
+
+* Release 1.30.1 ([d1c79c4](https://github.com/googleapis/python-aiplatform/commit/d1c79c4ef87a8d4601ab04de050af2be4c6d6ecf))
+
 ## [1.30.0](https://github.com/googleapis/python-aiplatform/compare/v1.29.0...v1.30.0) (2023-08-10)
 
 
