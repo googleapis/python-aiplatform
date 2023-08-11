@@ -739,6 +739,10 @@ class CodeChatModel(_ChatModelBase):
         )
 
 
+class _PreviewCodeChatModel(CodeChatModel, _TunableModelMixin):
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+
+
 class _ChatSessionBase:
     """_ChatSessionBase is a base class for all chat sessions."""
 
