@@ -247,6 +247,7 @@ class _TextGenerationModel(_LanguageModel):
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> "TextGenerationResponse":
         """Gets model response for a single prompt.
 
@@ -256,6 +257,7 @@ class _TextGenerationModel(_LanguageModel):
             temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+            parameters: Additional parameters to send to the model.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
@@ -267,6 +269,7 @@ class _TextGenerationModel(_LanguageModel):
             temperature=temperature,
             top_k=top_k,
             top_p=top_p,
+            parameters=parameters,
         )[0]
 
     def _batch_predict(
@@ -276,6 +279,7 @@ class _TextGenerationModel(_LanguageModel):
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> List["TextGenerationResponse"]:
         """Gets model response for a single prompt.
 
@@ -285,12 +289,13 @@ class _TextGenerationModel(_LanguageModel):
             temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+            parameters: Additional parameters to send to the model.
 
         Returns:
             A list of `TextGenerationResponse` objects that contain the texts produced by the model.
         """
         instances = [{"content": str(prompt)} for prompt in prompts]
-        prediction_parameters = {}
+        prediction_parameters = parameters or {}
 
         if max_output_tokens:
             prediction_parameters["maxDecodeSteps"] = max_output_tokens
@@ -516,6 +521,7 @@ class _ChatSession:
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> "TextGenerationResponse":
         """Sends message to the language model and gets a response.
 
@@ -529,6 +535,7 @@ class _ChatSession:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
+            parameters: Additional parameters to send to the model.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
@@ -546,6 +553,7 @@ class _ChatSession:
             temperature=temperature if temperature is not None else self._temperature,
             top_k=top_k if top_k is not None else self._top_k,
             top_p=top_p if top_p is not None else self._top_p,
+            parameters=parameters,
         )
         response_text = response_obj.text
 
@@ -574,11 +582,25 @@ class TextEmbeddingModel(_LanguageModel):
         "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
     )
 
-    def get_embeddings(self, texts: List[str]) -> List["TextEmbedding"]:
+    def get_embeddings(
+        self,
+        texts: List[str],
+        parameters: Optional[Dict[str, Any]] = None,
+    ) -> List["TextEmbedding"]:
+        """Gets an embedding vector for each of the given texts.
+
+        Args:
+            texts: Texts to get enbeddings for.
+            parameters: Additional parameters to send to the model.
+
+        Returns:
+            A list of `TextEmbedding` objects that contain the embeddings.
+        """
         instances = [{"content": str(text)} for text in texts]
 
         prediction_response = self._endpoint.predict(
             instances=instances,
+            parameters=parameters,
         )
 
         return [
@@ -789,6 +811,7 @@ class _ChatSessionBase:
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> "TextGenerationResponse":
         """Sends message to the language model and gets a response.
 
@@ -802,11 +825,12 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
+            parameters: Additional parameters to send to the model.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
         """
-        prediction_parameters = {}
+        prediction_parameters = parameters or {}
 
         max_output_tokens = max_output_tokens or self._max_output_tokens
         if max_output_tokens:
@@ -940,6 +964,7 @@ class CodeChatSession(_ChatSessionBase):
         *,
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> "TextGenerationResponse":
         """Sends message to the code chat model and gets a response.
 
@@ -949,6 +974,7 @@ class CodeChatSession(_ChatSessionBase):
                 Uses the value specified when calling `CodeChatModel.start_chat` by default.
             temperature: Controls the randomness of predictions. Range: [0, 1].
                  Uses the value specified when calling `CodeChatModel.start_chat` by default.
+            parameters: Additional parameters to send to the model.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
@@ -957,6 +983,7 @@ class CodeChatSession(_ChatSessionBase):
             message=message,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
+            parameters=parameters,
         )
 
 
@@ -989,6 +1016,7 @@ class CodeGenerationModel(_LanguageModel):
         *,
         max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: Optional[float] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> "TextGenerationResponse":
         """Gets model response for a single prompt.
 
@@ -997,6 +1025,7 @@ class CodeGenerationModel(_LanguageModel):
             suffix: Code after the current point.
             max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
+            parameters: Additional parameters to send to the model.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
@@ -1005,7 +1034,7 @@ class CodeGenerationModel(_LanguageModel):
         if suffix:
             instance["suffix"] = suffix
 
-        prediction_parameters = {}
+        prediction_parameters = parameters or {}
 
         if temperature is not None:
             prediction_parameters["temperature"] = temperature
