@@ -290,12 +290,19 @@ class _TextGenerationModel(_LanguageModel):
             A list of `TextGenerationResponse` objects that contain the texts produced by the model.
         """
         instances = [{"content": str(prompt)} for prompt in prompts]
-        prediction_parameters = {
-            "temperature": temperature,
-            "maxDecodeSteps": max_output_tokens,
-            "topP": top_p,
-            "topK": top_k,
-        }
+        prediction_parameters = {}
+
+        if max_output_tokens:
+            prediction_parameters["maxDecodeSteps"] = max_output_tokens
+
+        if temperature is not None:
+            prediction_parameters["temperature"] = temperature
+
+        if top_p:
+            prediction_parameters["topP"] = top_p
+
+        if top_k:
+            prediction_parameters["topK"] = top_k
 
         prediction_response = self._endpoint.predict(
             instances=instances,

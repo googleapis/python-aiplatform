@@ -615,7 +615,7 @@ class TestLanguageModels:
             target=prediction_service_client.PredictionServiceClient,
             attribute="predict",
             return_value=gca_predict_response,
-        ):
+        ) as mock_predict:
             response = model.predict(
                 "What is the best recipe for banana bread? Recipe:",
                 max_output_tokens=128,
@@ -624,7 +624,32 @@ class TestLanguageModels:
                 top_k=5,
             )
 
+        prediction_parameters = mock_predict.call_args[1]["parameters"]
+        assert prediction_parameters["maxDecodeSteps"] == 128
+        assert prediction_parameters["temperature"] == 0
+        assert prediction_parameters["topP"] == 1
+        assert prediction_parameters["topK"] == 5
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+
+        # Validating that unspecified parameters are not passed to the model
+        # (except `max_output_tokens`).
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            model.predict(
+                "What is the best recipe for banana bread? Recipe:",
+            )
+
+        prediction_parameters = mock_predict.call_args[1]["parameters"]
+        assert (
+            prediction_parameters["maxDecodeSteps"]
+            == language_models.TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
+        )
+        assert "temperature" not in prediction_parameters
+        assert "topP" not in prediction_parameters
+        assert "topK" not in prediction_parameters
 
     @pytest.mark.parametrize(
         "job_spec",
