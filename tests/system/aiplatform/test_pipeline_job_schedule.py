@@ -24,7 +24,7 @@ from google.cloud.aiplatform.preview.pipelinejobschedule import (
 )
 from tests.system.aiplatform import e2e_base
 
-from kfp import components
+from kfp import dsl
 from kfp.v2 import compiler
 
 import pytest
@@ -46,7 +46,7 @@ class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
             print(f"number_of_epochs={number_of_epochs}")
             print(f"learning_rate={learning_rate}")
 
-        train_op = components.create_component_from_func(train)
+        train_op = dsl.component(train)
 
         # Pipeline:
         def training_pipeline(number_of_epochs: int = 2):
