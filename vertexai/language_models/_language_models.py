@@ -703,7 +703,7 @@ class _PreviewChatModel(ChatModel, _TunableModelMixin):
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
-class CodeChatModel(_ChatModelBase):
+class _CodeChatModel(_ChatModelBase):
     """CodeChatModel represents a model that is capable of completing code.
 
     Examples:
@@ -746,7 +746,11 @@ class CodeChatModel(_ChatModelBase):
         )
 
 
-class _PreviewCodeChatModel(CodeChatModel, _TunableModelMixin):
+class CodeChatModel(_CodeChatModel, _TunableModelMixin):
+    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
+
+
+class _PreviewCodeChatModel(CodeChatModel):
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
