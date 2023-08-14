@@ -104,7 +104,7 @@ class PipelineJobSchedule(
             "parent": self._parent,
             "pipeline_job": {
                 "runtime_config": runtime_config,
-                "pipeline_spec": pipeline_job.pipeline_spec,
+                # "pipeline_spec": pipeline_job.pipeline_spec,
             },
         }
         if "template_uri" in pipeline_job._gca_resource:
