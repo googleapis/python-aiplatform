@@ -83,6 +83,7 @@ class TestModelEvaluationJob(e2e_base.TestEndToEnd):
         yield bucket
 
     def test_model_evaluate_custom_tabular_model(self, staging_bucket, shared_state):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         custom_model = aiplatform.Model(
             model_name=_TEST_PERMANENT_CUSTOM_MODEL_CLASSIFICATION_RESOURCE_NAME
