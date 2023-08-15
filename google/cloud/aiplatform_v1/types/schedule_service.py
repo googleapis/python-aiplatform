@@ -274,6 +274,7 @@ class UpdateScheduleRequest(proto.Message):
             server. The following restrictions will be applied:
 
             -  The scheduled request type cannot be changed.
+            -  The non-empty fields cannot be unset.
             -  The output_only fields will be ignored if specified.
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the resource. See

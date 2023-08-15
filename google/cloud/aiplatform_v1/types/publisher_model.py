@@ -206,6 +206,9 @@ class PublisherModel(proto.Message):
                 Optional. Open in Generation AI Studio.
             request_access (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Request for access.
+            open_evaluation_pipeline (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+                Optional. Open evaluation pipeline of the
+                PublisherModel.
         """
 
         class RegionalResourceReferences(proto.Message):
@@ -395,6 +398,11 @@ class PublisherModel(proto.Message):
                 number=9,
                 message="PublisherModel.CallToAction.RegionalResourceReferences",
             )
+        )
+        open_evaluation_pipeline: "PublisherModel.CallToAction.RegionalResourceReferences" = proto.Field(
+            proto.MESSAGE,
+            number=11,
+            message="PublisherModel.CallToAction.RegionalResourceReferences",
         )
 
     name: str = proto.Field(
