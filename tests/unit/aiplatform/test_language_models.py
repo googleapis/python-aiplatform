@@ -279,28 +279,73 @@ _TEST_PIPELINE_SPEC = {
                     "isOptional": True,
                     "parameterType": "STRING",
                 },
+                "default_context": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "enable_early_stopping": {
+                    "defaultValue": True,
+                    "isOptional": True,
+                    "parameterType": "BOOLEAN",
+                },
                 "encryption_spec_key_name": {
                     "defaultValue": "",
                     "isOptional": True,
                     "parameterType": "STRING",
                 },
+                "evaluation_data_uri": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "evaluation_interval": {
+                    "defaultValue": 20,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "evaluation_output_root_dir": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
                 "large_model_reference": {
-                    "defaultValue": "text-bison-001",
+                    "defaultValue": "text-bison@001",
                     "isOptional": True,
                     "parameterType": "STRING",
                 },
                 "learning_rate": {
-                    "defaultValue": 3,
+                    "defaultValue": -1,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_DOUBLE",
+                },
+                "learning_rate_multiplier": {
+                    "defaultValue": 1,
                     "isOptional": True,
                     "parameterType": "NUMBER_DOUBLE",
                 },
                 "location": {"parameterType": "STRING"},
                 "model_display_name": {"parameterType": "STRING"},
                 "project": {"parameterType": "STRING"},
+                "tensorboard_resource_id": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "tpu_training_skip_cmek": {
+                    "defaultValue": False,
+                    "isOptional": True,
+                    "parameterType": "BOOLEAN",
+                },
                 "train_steps": {
-                    "defaultValue": 1000,
+                    "defaultValue": 300,
                     "isOptional": True,
                     "parameterType": "NUMBER_INTEGER",
+                },
+                "tuning_method": {
+                    "defaultValue": "tune_v2",
+                    "isOptional": True,
+                    "parameterType": "STRING",
                 },
             }
         },
@@ -689,11 +734,15 @@ class TestLanguageModels:
                 "text-bison@001"
             )
 
+            evaluation_data_uri = "gs://.../data.jsonl"
             model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
                 learning_rate=0.1,
+                tuning_parameters={
+                    "evaluation_data_uri": evaluation_data_uri,
+                },
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
@@ -701,6 +750,7 @@ class TestLanguageModels:
             ].runtime_config.parameter_values
             assert pipeline_arguments["learning_rate"] == 0.1
             assert pipeline_arguments["large_model_reference"] == "text-bison@001"
+            assert pipeline_arguments["evaluation_data_uri"] == evaluation_data_uri
             assert (
                 call_kwargs["pipeline_job"].encryption_spec.kms_key_name
                 == _TEST_ENCRYPTION_KEY_NAME

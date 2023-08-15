@@ -142,6 +142,7 @@ class _TunableModelMixin(_LanguageModel):
         tuning_job_location: Optional[str] = None,
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
+        tuning_parameters: Optional[Dict[str, Any]] = None,
     ):
         """Tunes a model based on training data.
 
@@ -157,6 +158,7 @@ class _TunableModelMixin(_LanguageModel):
                 Only "europe-west4" and "us-central1" locations are supported for now.
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
+            tuning_parameters: Extra parameters to use for tuning.
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -190,6 +192,7 @@ class _TunableModelMixin(_LanguageModel):
             model_display_name=model_display_name,
             learning_rate=learning_rate,
             tuning_job_location=tuning_job_location,
+            tuning_parameters=tuning_parameters,
         )
 
         job = _LanguageModelTuningJob(
@@ -1117,6 +1120,7 @@ def _launch_tuning_job(
     model_display_name: Optional[str] = None,
     learning_rate: Optional[float] = None,
     tuning_job_location: str = _TUNING_LOCATIONS[0],
+    tuning_parameters: Optional[Dict[str, Any]] = None,
 ) -> aiplatform.PipelineJob:
     output_dir_uri = _generate_tuned_model_dir_uri(model_id=model_id)
     if isinstance(training_data, str):
@@ -1139,6 +1143,7 @@ def _launch_tuning_job(
         model_display_name=model_display_name,
         learning_rate=learning_rate,
         tuning_job_location=tuning_job_location,
+        tuning_parameters=tuning_parameters,
     )
     return job
 
@@ -1151,6 +1156,7 @@ def _launch_tuning_job_on_jsonl_data(
     learning_rate: Optional[float] = None,
     model_display_name: Optional[str] = None,
     tuning_job_location: str = _TUNING_LOCATIONS[0],
+    tuning_parameters: Optional[Dict[str, Any]] = None,
 ) -> aiplatform.PipelineJob:
     if not model_display_name:
         # Creating a human-readable model display name
@@ -1188,6 +1194,7 @@ def _launch_tuning_job_on_jsonl_data(
         pipeline_arguments[
             "encryption_spec_key_name"
         ] = aiplatform_initializer.global_config.encryption_spec_key_name
+    pipeline_arguments.update(tuning_parameters or {})
     job = aiplatform.PipelineJob(
         template_path=tuning_pipeline_uri,
         display_name=None,
