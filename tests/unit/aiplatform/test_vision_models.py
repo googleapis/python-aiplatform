@@ -35,6 +35,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.compat.types import (
     publisher_model as gca_publisher_model,
 )
+from vertexai import vision_models as ga_vision_models
 from vertexai.preview import vision_models
 
 from PIL import Image as PIL_Image
@@ -102,7 +103,9 @@ class ImageCaptioningModelTests:
             attribute="get_publisher_model",
             return_value=gca_publisher_model(_IMAGE_TEXT_PUBLISHER_MODEL_DICT),
         ):
-            model = vision_models.ImageCaptioningModel.from_pretrained("imagetext@001")
+            model = ga_vision_models.ImageCaptioningModel.from_pretrained(
+                "imagetext@001"
+            )
 
         image_captions = [
             "Caption 1",
