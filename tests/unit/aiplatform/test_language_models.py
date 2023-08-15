@@ -622,6 +622,7 @@ class TestLanguageModels:
                 temperature=0,
                 top_p=1,
                 top_k=5,
+                parameters={"stopSequences": ["\n"]},
             )
 
         prediction_parameters = mock_predict.call_args[1]["parameters"]
@@ -629,6 +630,7 @@ class TestLanguageModels:
         assert prediction_parameters["temperature"] == 0
         assert prediction_parameters["topP"] == 1
         assert prediction_parameters["topK"] == 5
+        assert prediction_parameters["stopSequences"] == ["\n"]
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
 
         # Validating that unspecified parameters are not passed to the model
@@ -1099,12 +1101,14 @@ class TestLanguageModels:
                 max_output_tokens=message_max_output_tokens,
                 top_k=message_top_k,
                 top_p=message_top_p,
+                parameters={"stopSequences": ["\n"]},
             )
             prediction_parameters = mock_predict3.call_args[1]["parameters"]
             assert prediction_parameters["temperature"] == message_temperature
             assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
             assert prediction_parameters["topK"] == message_top_k
             assert prediction_parameters["topP"] == message_top_p
+            assert prediction_parameters["stopSequences"] == ["\n"]
 
     def test_code_chat(self):
         """Tests the code chat model."""
@@ -1197,10 +1201,12 @@ class TestLanguageModels:
                 "Please help write a function to calculate the min of two numbers",
                 temperature=message_temperature,
                 max_output_tokens=message_max_output_tokens,
+                parameters={"stopSequences": ["\n"]},
             )
             prediction_parameters = mock_predict.call_args[1]["parameters"]
             assert prediction_parameters["temperature"] == message_temperature
             assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
+            assert prediction_parameters["stopSequences"] == ["\n"]
 
     def test_code_generation(self):
         """Tests code generation with the code generation model."""
@@ -1255,10 +1261,12 @@ class TestLanguageModels:
                 prefix="Write a function that checks if a year is a leap year.",
                 max_output_tokens=predict_max_output_tokens,
                 temperature=predict_temperature,
+                parameters={"stopSequences": ["\n"]},
             )
             prediction_parameters = mock_predict.call_args[1]["parameters"]
             assert prediction_parameters["temperature"] == predict_temperature
             assert prediction_parameters["maxOutputTokens"] == predict_max_output_tokens
+            assert prediction_parameters["stopSequences"] == ["\n"]
 
             model.predict(
                 prefix="Write a function that checks if a year is a leap year.",
@@ -1320,10 +1328,12 @@ class TestLanguageModels:
                 prefix="def reverse_string(s):",
                 max_output_tokens=predict_max_output_tokens,
                 temperature=predict_temperature,
+                parameters={"stopSequences": ["\n"]},
             )
             prediction_parameters = mock_predict.call_args[1]["parameters"]
             assert prediction_parameters["temperature"] == predict_temperature
             assert prediction_parameters["maxOutputTokens"] == predict_max_output_tokens
+            assert prediction_parameters["stopSequences"] == ["\n"]
 
             model.predict(
                 prefix="def reverse_string(s):",
@@ -1361,8 +1371,13 @@ class TestLanguageModels:
             target=prediction_service_client.PredictionServiceClient,
             attribute="predict",
             return_value=gca_predict_response,
-        ):
-            embeddings = model.get_embeddings(["What is life?"])
+        ) as mock_predict:
+            embeddings = model.get_embeddings(
+                ["What is life?"],
+                parameters={"autoTruncate": False},
+            )
+            prediction_parameters = mock_predict.call_args[1]["parameters"]
+            assert prediction_parameters["autoTruncate"] is False
             assert embeddings
             for embedding in embeddings:
                 vector = embedding.values
