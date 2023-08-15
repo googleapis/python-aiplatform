@@ -83,6 +83,7 @@ from google.cloud.aiplatform_v1beta1.types.dataset import ExportFractionSplit
 from google.cloud.aiplatform_v1beta1.types.dataset import ImportDataConfig
 from google.cloud.aiplatform_v1beta1.types.dataset_service import CreateDatasetOperationMetadata
 from google.cloud.aiplatform_v1beta1.types.dataset_service import CreateDatasetRequest
+from google.cloud.aiplatform_v1beta1.types.dataset_service import CreateDatasetVersionOperationMetadata
 from google.cloud.aiplatform_v1beta1.types.dataset_service import DataItemView
 from google.cloud.aiplatform_v1beta1.types.dataset_service import DeleteDatasetRequest
 from google.cloud.aiplatform_v1beta1.types.dataset_service import DeleteSavedQueryRequest
@@ -102,6 +103,7 @@ from google.cloud.aiplatform_v1beta1.types.dataset_service import ListDatasetsRe
 from google.cloud.aiplatform_v1beta1.types.dataset_service import ListDatasetsResponse
 from google.cloud.aiplatform_v1beta1.types.dataset_service import ListSavedQueriesRequest
 from google.cloud.aiplatform_v1beta1.types.dataset_service import ListSavedQueriesResponse
+from google.cloud.aiplatform_v1beta1.types.dataset_service import RestoreDatasetVersionOperationMetadata
 from google.cloud.aiplatform_v1beta1.types.dataset_service import SearchDataItemsRequest
 from google.cloud.aiplatform_v1beta1.types.dataset_service import SearchDataItemsResponse
 from google.cloud.aiplatform_v1beta1.types.dataset_service import UpdateDatasetRequest
@@ -319,6 +321,7 @@ from google.cloud.aiplatform_v1beta1.types.machine_resources import DedicatedRes
 from google.cloud.aiplatform_v1beta1.types.machine_resources import DiskSpec
 from google.cloud.aiplatform_v1beta1.types.machine_resources import MachineSpec
 from google.cloud.aiplatform_v1beta1.types.machine_resources import NfsMount
+from google.cloud.aiplatform_v1beta1.types.machine_resources import PersistentDiskSpec
 from google.cloud.aiplatform_v1beta1.types.machine_resources import ResourcesConsumed
 from google.cloud.aiplatform_v1beta1.types.manual_batch_tuning_parameters import ManualBatchTuningParameters
 from google.cloud.aiplatform_v1beta1.types.match_service import FindNeighborsRequest
@@ -475,6 +478,8 @@ from google.cloud.aiplatform_v1beta1.types.pipeline_service import ListPipelineJ
 from google.cloud.aiplatform_v1beta1.types.pipeline_service import ListTrainingPipelinesRequest
 from google.cloud.aiplatform_v1beta1.types.pipeline_service import ListTrainingPipelinesResponse
 from google.cloud.aiplatform_v1beta1.types.pipeline_state import PipelineState
+from google.cloud.aiplatform_v1beta1.types.prediction_service import CountTokensRequest
+from google.cloud.aiplatform_v1beta1.types.prediction_service import CountTokensResponse
 from google.cloud.aiplatform_v1beta1.types.prediction_service import ExplainRequest
 from google.cloud.aiplatform_v1beta1.types.prediction_service import ExplainResponse
 from google.cloud.aiplatform_v1beta1.types.prediction_service import PredictRequest
@@ -665,6 +670,7 @@ __all__ = ('DatasetServiceClient',
     'ImportDataConfig',
     'CreateDatasetOperationMetadata',
     'CreateDatasetRequest',
+    'CreateDatasetVersionOperationMetadata',
     'DataItemView',
     'DeleteDatasetRequest',
     'DeleteSavedQueryRequest',
@@ -684,6 +690,7 @@ __all__ = ('DatasetServiceClient',
     'ListDatasetsResponse',
     'ListSavedQueriesRequest',
     'ListSavedQueriesResponse',
+    'RestoreDatasetVersionOperationMetadata',
     'SearchDataItemsRequest',
     'SearchDataItemsResponse',
     'UpdateDatasetRequest',
@@ -901,6 +908,7 @@ __all__ = ('DatasetServiceClient',
     'DiskSpec',
     'MachineSpec',
     'NfsMount',
+    'PersistentDiskSpec',
     'ResourcesConsumed',
     'ManualBatchTuningParameters',
     'FindNeighborsRequest',
@@ -1057,6 +1065,8 @@ __all__ = ('DatasetServiceClient',
     'ListTrainingPipelinesRequest',
     'ListTrainingPipelinesResponse',
     'PipelineState',
+    'CountTokensRequest',
+    'CountTokensResponse',
     'ExplainRequest',
     'ExplainResponse',
     'PredictRequest',

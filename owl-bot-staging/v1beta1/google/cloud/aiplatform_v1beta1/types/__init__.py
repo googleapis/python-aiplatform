@@ -57,6 +57,7 @@ from .dataset import (
 from .dataset_service import (
     CreateDatasetOperationMetadata,
     CreateDatasetRequest,
+    CreateDatasetVersionOperationMetadata,
     DataItemView,
     DeleteDatasetRequest,
     DeleteSavedQueryRequest,
@@ -76,6 +77,7 @@ from .dataset_service import (
     ListDatasetsResponse,
     ListSavedQueriesRequest,
     ListSavedQueriesResponse,
+    RestoreDatasetVersionOperationMetadata,
     SearchDataItemsRequest,
     SearchDataItemsResponse,
     UpdateDatasetRequest,
@@ -352,6 +354,7 @@ from .machine_resources import (
     DiskSpec,
     MachineSpec,
     NfsMount,
+    PersistentDiskSpec,
     ResourcesConsumed,
 )
 from .manual_batch_tuning_parameters import (
@@ -548,6 +551,8 @@ from .pipeline_service import (
     ListTrainingPipelinesResponse,
 )
 from .prediction_service import (
+    CountTokensRequest,
+    CountTokensResponse,
     ExplainRequest,
     ExplainResponse,
     PredictRequest,
@@ -740,6 +745,7 @@ __all__ = (
     'ImportDataConfig',
     'CreateDatasetOperationMetadata',
     'CreateDatasetRequest',
+    'CreateDatasetVersionOperationMetadata',
     'DataItemView',
     'DeleteDatasetRequest',
     'DeleteSavedQueryRequest',
@@ -759,6 +765,7 @@ __all__ = (
     'ListDatasetsResponse',
     'ListSavedQueriesRequest',
     'ListSavedQueriesResponse',
+    'RestoreDatasetVersionOperationMetadata',
     'SearchDataItemsRequest',
     'SearchDataItemsResponse',
     'UpdateDatasetRequest',
@@ -976,6 +983,7 @@ __all__ = (
     'DiskSpec',
     'MachineSpec',
     'NfsMount',
+    'PersistentDiskSpec',
     'ResourcesConsumed',
     'ManualBatchTuningParameters',
     'FindNeighborsRequest',
@@ -1132,6 +1140,8 @@ __all__ = (
     'ListTrainingPipelinesRequest',
     'ListTrainingPipelinesResponse',
     'PipelineState',
+    'CountTokensRequest',
+    'CountTokensResponse',
     'ExplainRequest',
     'ExplainResponse',
     'PredictRequest',

@@ -47,6 +47,11 @@ class PublisherModel(proto.Message):
         open_source_category (google.cloud.aiplatform_v1beta1.types.PublisherModel.OpenSourceCategory):
             Required. Indicates the open source category
             of the publisher model.
+        parent (google.cloud.aiplatform_v1beta1.types.PublisherModel.Parent):
+            Optional. The parent that this model was
+            customized from. E.g., Vision API, Natural
+            Language API, LaMDA, T5, etc. Foundation models
+            don't have parents.
         supported_actions (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction):
             Optional. Supported call-to-action options.
         frameworks (MutableSequence[str]):
@@ -156,6 +161,29 @@ class PublisherModel(proto.Message):
             oneof='reference',
         )
 
+    class Parent(proto.Message):
+        r"""The information about the parent of a model.
+
+        Attributes:
+            display_name (str):
+                Required. The display name of the parent.
+                E.g., LaMDA, T5, Vision API, Natural Language
+                API.
+            reference (google.cloud.aiplatform_v1beta1.types.PublisherModel.ResourceReference):
+                Optional. The Google Cloud resource name or
+                the URI reference.
+        """
+
+        display_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        reference: 'PublisherModel.ResourceReference' = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message='PublisherModel.ResourceReference',
+        )
+
     class Documentation(proto.Message):
         r"""A named piece of documentation.
 
@@ -205,6 +233,9 @@ class PublisherModel(proto.Message):
                 Optional. Open in Generation AI Studio.
             request_access (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Request for access.
+            open_evaluation_pipeline (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+                Optional. Open evaluation pipeline of the
+                PublisherModel.
         """
 
         class RegionalResourceReferences(proto.Message):
@@ -383,6 +414,11 @@ class PublisherModel(proto.Message):
             number=9,
             message='PublisherModel.CallToAction.RegionalResourceReferences',
         )
+        open_evaluation_pipeline: 'PublisherModel.CallToAction.RegionalResourceReferences' = proto.Field(
+            proto.MESSAGE,
+            number=11,
+            message='PublisherModel.CallToAction.RegionalResourceReferences',
+        )
 
     name: str = proto.Field(
         proto.STRING,
@@ -396,6 +432,11 @@ class PublisherModel(proto.Message):
         proto.ENUM,
         number=7,
         enum=OpenSourceCategory,
+    )
+    parent: Parent = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        message=Parent,
     )
     supported_actions: CallToAction = proto.Field(
         proto.MESSAGE,

@@ -83,6 +83,7 @@ from .types.dataset import ExportFractionSplit
 from .types.dataset import ImportDataConfig
 from .types.dataset_service import CreateDatasetOperationMetadata
 from .types.dataset_service import CreateDatasetRequest
+from .types.dataset_service import CreateDatasetVersionOperationMetadata
 from .types.dataset_service import DataItemView
 from .types.dataset_service import DeleteDatasetRequest
 from .types.dataset_service import DeleteSavedQueryRequest
@@ -102,6 +103,7 @@ from .types.dataset_service import ListDatasetsRequest
 from .types.dataset_service import ListDatasetsResponse
 from .types.dataset_service import ListSavedQueriesRequest
 from .types.dataset_service import ListSavedQueriesResponse
+from .types.dataset_service import RestoreDatasetVersionOperationMetadata
 from .types.dataset_service import SearchDataItemsRequest
 from .types.dataset_service import SearchDataItemsResponse
 from .types.dataset_service import UpdateDatasetRequest
@@ -319,6 +321,7 @@ from .types.machine_resources import DedicatedResources
 from .types.machine_resources import DiskSpec
 from .types.machine_resources import MachineSpec
 from .types.machine_resources import NfsMount
+from .types.machine_resources import PersistentDiskSpec
 from .types.machine_resources import ResourcesConsumed
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
 from .types.match_service import FindNeighborsRequest
@@ -475,6 +478,8 @@ from .types.pipeline_service import ListPipelineJobsResponse
 from .types.pipeline_service import ListTrainingPipelinesRequest
 from .types.pipeline_service import ListTrainingPipelinesResponse
 from .types.pipeline_state import PipelineState
+from .types.prediction_service import CountTokensRequest
+from .types.prediction_service import CountTokensResponse
 from .types.prediction_service import ExplainRequest
 from .types.prediction_service import ExplainResponse
 from .types.prediction_service import PredictRequest
@@ -681,6 +686,8 @@ __all__ = (
 'CopyModelOperationMetadata',
 'CopyModelRequest',
 'CopyModelResponse',
+'CountTokensRequest',
+'CountTokensResponse',
 'CreateArtifactRequest',
 'CreateBatchPredictionJobRequest',
 'CreateContextRequest',
@@ -688,6 +695,7 @@ __all__ = (
 'CreateDataLabelingJobRequest',
 'CreateDatasetOperationMetadata',
 'CreateDatasetRequest',
+'CreateDatasetVersionOperationMetadata',
 'CreateDeploymentResourcePoolOperationMetadata',
 'CreateDeploymentResourcePoolRequest',
 'CreateEndpointOperationMetadata',
@@ -1023,6 +1031,7 @@ __all__ = (
 'NfsMount',
 'PauseModelDeploymentMonitoringJobRequest',
 'PauseScheduleRequest',
+'PersistentDiskSpec',
 'PersistentResource',
 'PersistentResourceServiceClient',
 'PipelineFailurePolicy',
@@ -1082,6 +1091,7 @@ __all__ = (
 'ResourceRuntime',
 'ResourceRuntimeSpec',
 'ResourcesConsumed',
+'RestoreDatasetVersionOperationMetadata',
 'ResumeModelDeploymentMonitoringJobRequest',
 'ResumeScheduleRequest',
 'SampleConfig',

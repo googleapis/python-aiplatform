@@ -507,6 +507,10 @@ class Scheduling(proto.Message):
             gets restarted. This feature can be used by
             distributed training jobs that are not resilient
             to workers leaving and joining a job.
+        disable_retries (bool):
+            Optional. Indicates if the job should retry for internal
+            errors after the job starts running. If true, overrides
+            ``Scheduling.restart_job_on_worker_restart`` to false.
     """
 
     timeout: duration_pb2.Duration = proto.Field(
@@ -517,6 +521,10 @@ class Scheduling(proto.Message):
     restart_job_on_worker_restart: bool = proto.Field(
         proto.BOOL,
         number=3,
+    )
+    disable_retries: bool = proto.Field(
+        proto.BOOL,
+        number=5,
     )
 
 

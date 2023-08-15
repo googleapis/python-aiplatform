@@ -211,7 +211,7 @@ class PersistentResourceServiceAsyncClient:
             timeout: Union[float, object] = gapic_v1.method.DEFAULT,
             metadata: Sequence[Tuple[str, str]] = (),
             ) -> operation_async.AsyncOperation:
-        r"""Uploads a Model artifact into Vertex AI.
+        r"""Creates a PersistentResource.
 
         .. code-block:: python
 

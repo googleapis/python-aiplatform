@@ -1910,6 +1910,11 @@
         "grpc": {
           "libraryClient": "PredictionServiceClient",
           "rpcs": {
+            "CountTokens": {
+              "methods": [
+                "count_tokens"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
@@ -1935,6 +1940,11 @@
         "grpc-async": {
           "libraryClient": "PredictionServiceAsyncClient",
           "rpcs": {
+            "CountTokens": {
+              "methods": [
+                "count_tokens"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"

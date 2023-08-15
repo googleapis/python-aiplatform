@@ -61,6 +61,7 @@ class aiplatformCallTransformer(cst.CSTTransformer):
         'check_trial_early_stopping_state': ('trial_name', ),
         'complete_trial': ('name', 'final_measurement', 'trial_infeasible', 'infeasible_reason', ),
         'copy_model': ('parent', 'source_model', 'model_id', 'parent_model', 'encryption_spec', ),
+        'count_tokens': ('endpoint', 'instances', ),
         'create_artifact': ('parent', 'artifact', 'artifact_id', ),
         'create_batch_prediction_job': ('parent', 'batch_prediction_job', ),
         'create_context': ('parent', 'context', 'context_id', ),

@@ -259,7 +259,7 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
             Awaitable[operations_pb2.Operation]]:
         r"""Return a callable for the create persistent resource method over gRPC.
 
-        Uploads a Model artifact into Vertex AI.
+        Creates a PersistentResource.
 
         Returns:
             Callable[[~.CreatePersistentResourceRequest],

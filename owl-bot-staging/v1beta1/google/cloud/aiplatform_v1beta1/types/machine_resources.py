@@ -31,6 +31,7 @@ __protobuf__ = proto.module(
         'BatchDedicatedResources',
         'ResourcesConsumed',
         'DiskSpec',
+        'PersistentDiskSpec',
         'NfsMount',
         'AutoscalingMetricSpec',
     },
@@ -284,6 +285,33 @@ class DiskSpec(proto.Message):
     )
     boot_disk_size_gb: int = proto.Field(
         proto.INT32,
+        number=2,
+    )
+
+
+class PersistentDiskSpec(proto.Message):
+    r"""Represents the spec of [persistent
+    disk][https://cloud.google.com/compute/docs/disks/persistent-disks]
+    options.
+
+    Attributes:
+        disk_type (str):
+            Type of the disk (default is "pd-standard").
+            Valid values: "pd-ssd" (Persistent Disk Solid
+            State Drive) "pd-standard" (Persistent Disk Hard
+            Disk Drive) "pd-balanced" (Balanced Persistent
+            Disk)
+            "pd-extreme" (Extreme Persistent Disk)
+        disk_size_gb (int):
+            Size in GB of the disk (default is 100GB).
+    """
+
+    disk_type: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    disk_size_gb: int = proto.Field(
+        proto.INT64,
         number=2,
     )
 

@@ -43,6 +43,8 @@ __protobuf__ = proto.module(
         'ExportDataRequest',
         'ExportDataResponse',
         'ExportDataOperationMetadata',
+        'CreateDatasetVersionOperationMetadata',
+        'RestoreDatasetVersionOperationMetadata',
         'ListDataItemsRequest',
         'ListDataItemsResponse',
         'SearchDataItemsRequest',
@@ -371,6 +373,38 @@ class ExportDataOperationMetadata(proto.Message):
     gcs_output_directory: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class CreateDatasetVersionOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [DatasetService.CreateDatasetVersion][google.cloud.aiplatform.v1beta1.DatasetService.CreateDatasetVersion].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class RestoreDatasetVersionOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [DatasetService.RestoreDatasetVersion][google.cloud.aiplatform.v1beta1.DatasetService.RestoreDatasetVersion].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
