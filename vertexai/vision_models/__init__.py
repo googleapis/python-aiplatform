@@ -17,9 +17,11 @@
 from vertexai.vision_models._vision_models import (
     Image,
     ImageCaptioningModel,
+    ImageQnAModel,
 )
 
 __all__ = [
     "Image",
     "ImageCaptioningModel",
+    "ImageQnAModel",
 ]

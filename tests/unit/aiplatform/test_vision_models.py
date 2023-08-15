@@ -153,7 +153,7 @@ class ImageQnAModelTests:
                 _IMAGE_TEXT_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = vision_models.ImageQnAModel.from_pretrained("imagetext@001")
+            model = ga_vision_models.ImageQnAModel.from_pretrained("imagetext@001")
 
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/imagetext@001",
