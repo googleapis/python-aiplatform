@@ -578,6 +578,10 @@ class TestLanguageModels:
 
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
         assert (
+            response.raw_prediction_response.predictions[0]
+            == _TEST_TEXT_GENERATION_PREDICTION
+        )
+        assert (
             response.safety_attributes["Violent"]
             == _TEST_TEXT_GENERATION_PREDICTION["safetyAttributes"]["scores"][0]
         )

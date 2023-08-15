@@ -222,6 +222,11 @@ class TextGenerationResponse:
     def __repr__(self):
         return self.text
 
+    @property
+    def raw_prediction_response(self) -> aiplatform.models.Prediction:
+        """Raw prediction response."""
+        return self._prediction_response
+
 
 class _TextGenerationModel(_LanguageModel):
     """TextGenerationModel represents a general language model.
