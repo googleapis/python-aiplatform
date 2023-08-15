@@ -280,7 +280,7 @@ class TestMultiModalEmbeddingModels:
                 _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = vision_models.MultiModalEmbeddingModel.from_pretrained(
+            model = ga_vision_models.MultiModalEmbeddingModel.from_pretrained(
                 "multimodalembedding@001"
             )
 

@@ -72,7 +72,7 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
     def test_multi_modal_embedding_model(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
-        model = vision_models.MultiModalEmbeddingModel.from_pretrained(
+        model = ga_vision_models.MultiModalEmbeddingModel.from_pretrained(
             "multimodalembedding@001"
         )
         image = _create_blank_image()
