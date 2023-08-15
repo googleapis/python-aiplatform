@@ -173,6 +173,11 @@ class TensorboardServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.read_tensorboard_size: gapic_v1.method.wrap_method(
+                self.read_tensorboard_size,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.create_tensorboard_experiment: gapic_v1.method.wrap_method(
                 self.create_tensorboard_experiment,
                 default_timeout=None,
@@ -360,6 +365,18 @@ class TensorboardServiceTransport(abc.ABC):
         Union[
             tensorboard_service.ReadTensorboardUsageResponse,
             Awaitable[tensorboard_service.ReadTensorboardUsageResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def read_tensorboard_size(
+        self,
+    ) -> Callable[
+        [tensorboard_service.ReadTensorboardSizeRequest],
+        Union[
+            tensorboard_service.ReadTensorboardSizeResponse,
+            Awaitable[tensorboard_service.ReadTensorboardSizeResponse],
         ],
     ]:
         raise NotImplementedError()

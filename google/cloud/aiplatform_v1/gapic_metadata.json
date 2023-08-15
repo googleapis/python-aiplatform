@@ -2099,6 +2099,11 @@
                 "read_tensorboard_blob_data"
               ]
             },
+            "ReadTensorboardSize": {
+              "methods": [
+                "read_tensorboard_size"
+              ]
+            },
             "ReadTensorboardTimeSeriesData": {
               "methods": [
                 "read_tensorboard_time_series_data"
@@ -2247,6 +2252,11 @@
             "ReadTensorboardBlobData": {
               "methods": [
                 "read_tensorboard_blob_data"
+              ]
+            },
+            "ReadTensorboardSize": {
+              "methods": [
+                "read_tensorboard_size"
               ]
             },
             "ReadTensorboardTimeSeriesData": {
