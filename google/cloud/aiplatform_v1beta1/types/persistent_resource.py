@@ -31,6 +31,8 @@ __protobuf__ = proto.module(
         "PersistentResource",
         "ResourcePool",
         "ResourceRuntimeSpec",
+        "RaySpec",
+        "ResourceRuntime",
         "ServiceAccountSpec",
     },
 )
@@ -44,7 +46,7 @@ class PersistentResource(proto.Message):
 
     Attributes:
         name (str):
-            Output only. Resource name of a
+            Immutable. Resource name of a
             PersistentResource.
         display_name (str):
             Optional. The display name of the
@@ -104,6 +106,9 @@ class PersistentResource(proto.Message):
         resource_runtime_spec (google.cloud.aiplatform_v1beta1.types.ResourceRuntimeSpec):
             Optional. Persistent Resource runtime spec.
             Used for e.g. Ray cluster configuration.
+        resource_runtime (google.cloud.aiplatform_v1beta1.types.ResourceRuntime):
+            Output only. Runtime information of the
+            Persistent Resource.
         reserved_ip_ranges (MutableSequence[str]):
             Optional. A list of names for the reserved ip ranges under
             the VPC network that can be used for this persistent
@@ -197,6 +202,11 @@ class PersistentResource(proto.Message):
         proto.MESSAGE,
         number=13,
         message="ResourceRuntimeSpec",
+    )
+    resource_runtime: "ResourceRuntime" = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        message="ResourceRuntime",
     )
     reserved_ip_ranges: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
@@ -317,12 +327,62 @@ class ResourceRuntimeSpec(proto.Message):
         service_account_spec (google.cloud.aiplatform_v1beta1.types.ServiceAccountSpec):
             Optional. Configure the use of workload
             identity on the PersistentResource
+        ray_spec (google.cloud.aiplatform_v1beta1.types.RaySpec):
+            Ray cluster configuration.
+            Required when creating a dedicated RayCluster on
+            the PersistentResource.
     """
 
     service_account_spec: "ServiceAccountSpec" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="ServiceAccountSpec",
+    )
+    ray_spec: "RaySpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="RaySpec",
+    )
+
+
+class RaySpec(proto.Message):
+    r"""Configuration information for the Ray cluster.
+    For experimental launch, Ray cluster creation and Persistent
+    cluster creation are 1:1 mapping: We will provision all the
+    nodes within the Persistent cluster as Ray nodes.
+
+    Attributes:
+        image_uri (str):
+            Optional. Default image for user to choose a preferred ML
+            framework(e.g. tensorflow or Pytorch) by choosing from
+            Vertex prebuild
+            images(https://cloud.google.com/vertex-ai/docs/training/pre-built-containers).
+            Either this or the resource_pool_images is required. Use
+            this field if you need all the resource pools to have the
+            same Ray image, Otherwise, use the {@code
+            resource_pool_images} field.
+    """
+
+    image_uri: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ResourceRuntime(proto.Message):
+    r"""Persistent Cluster runtime information as output
+
+    Attributes:
+        access_uris (MutableMapping[str, str]):
+            Output only. URIs for user to connect to the Cluster.
+            Example: { "RAY_HEAD_NODE_INTERNAL_IP": "head-node-IP:10001"
+            "RAY_DASHBOARD_URI": "ray-dashboard-address:8888" }
+    """
+
+    access_uris: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=1,
     )
 
 

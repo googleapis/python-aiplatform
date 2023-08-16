@@ -22,6 +22,7 @@ import tempfile
 
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
+from vertexai import vision_models as ga_vision_models
 from vertexai.preview import vision_models
 from PIL import Image as PIL_Image
 
@@ -45,7 +46,7 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
     def test_image_captioning_model_get_captions(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
-        model = vision_models.ImageCaptioningModel.from_pretrained("imagetext")
+        model = ga_vision_models.ImageCaptioningModel.from_pretrained("imagetext")
         image = _create_blank_image()
         captions = model.get_captions(
             image=image,
@@ -58,7 +59,7 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
     def test_image_q_and_a_model_ask_question(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
-        model = vision_models.ImageQnAModel.from_pretrained("imagetext")
+        model = ga_vision_models.ImageQnAModel.from_pretrained("imagetext")
         image = _create_blank_image()
         answers = model.ask_question(
             image=image,
@@ -71,7 +72,7 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
     def test_multi_modal_embedding_model(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
-        model = vision_models.MultiModalEmbeddingModel.from_pretrained(
+        model = ga_vision_models.MultiModalEmbeddingModel.from_pretrained(
             "multimodalembedding@001"
         )
         image = _create_blank_image()

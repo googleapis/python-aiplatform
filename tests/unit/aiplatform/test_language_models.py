@@ -57,6 +57,7 @@ from vertexai.preview import (
     language_models as preview_language_models,
 )
 from vertexai import language_models
+from vertexai.language_models import _language_models
 from google.cloud.aiplatform_v1 import Execution as GapicExecution
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
@@ -360,12 +361,14 @@ def make_pipeline_job(state):
             task_details=[
                 gca_pipeline_job.PipelineTaskDetail(
                     task_id=456,
-                    task_name="upload-llm-model",
+                    task_name="tune-large-model-20230724214903",
                     execution=GapicExecution(
-                        name="test-execution-name",
-                        display_name="evaluation_metrics",
+                        name="projects/123/locations/europe-west4/metadataStores/default/executions/...",
+                        display_name="tune-large-model-20230724214903",
+                        schema_title="system.Run",
                         metadata={
-                            "output:model_resource_name": "projects/123/locations/us-central1/models/456"
+                            "output:model_resource_name": "projects/123/locations/us-central1/models/456",
+                            "output:endpoint_resource_name": "projects/123/locations/us-central1/endpoints/456",
                         },
                     ),
                 ),
@@ -469,7 +472,7 @@ def get_endpoint_mock():
 @pytest.fixture
 def mock_get_tuned_model(get_endpoint_mock):
     with mock.patch.object(
-        preview_language_models.TextGenerationModel, "get_tuned_model"
+        _language_models._TunableModelMixin, "get_tuned_model"
     ) as mock_text_generation_model:
         mock_text_generation_model._model_id = (
             test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
@@ -575,6 +578,10 @@ class TestLanguageModels:
 
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
         assert (
+            response.raw_prediction_response.predictions[0]
+            == _TEST_TEXT_GENERATION_PREDICTION
+        )
+        assert (
             response.safety_attributes["Violent"]
             == _TEST_TEXT_GENERATION_PREDICTION["safetyAttributes"]["scores"][0]
         )
@@ -612,7 +619,7 @@ class TestLanguageModels:
             target=prediction_service_client.PredictionServiceClient,
             attribute="predict",
             return_value=gca_predict_response,
-        ):
+        ) as mock_predict:
             response = model.predict(
                 "What is the best recipe for banana bread? Recipe:",
                 max_output_tokens=128,
@@ -621,7 +628,32 @@ class TestLanguageModels:
                 top_k=5,
             )
 
+        prediction_parameters = mock_predict.call_args[1]["parameters"]
+        assert prediction_parameters["maxDecodeSteps"] == 128
+        assert prediction_parameters["temperature"] == 0
+        assert prediction_parameters["topP"] == 1
+        assert prediction_parameters["topK"] == 5
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+
+        # Validating that unspecified parameters are not passed to the model
+        # (except `max_output_tokens`).
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            model.predict(
+                "What is the best recipe for banana bread? Recipe:",
+            )
+
+        prediction_parameters = mock_predict.call_args[1]["parameters"]
+        assert (
+            prediction_parameters["maxDecodeSteps"]
+            == language_models.TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
+        )
+        assert "temperature" not in prediction_parameters
+        assert "topP" not in prediction_parameters
+        assert "topK" not in prediction_parameters
 
     @pytest.mark.parametrize(
         "job_spec",
@@ -632,7 +664,7 @@ class TestLanguageModels:
         ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
         indirect=True,
     )
-    def test_tune_model(
+    def test_tune_text_generation_model(
         self,
         mock_pipeline_service_create,
         mock_pipeline_job_get,
@@ -677,6 +709,96 @@ class TestLanguageModels:
                 call_kwargs["pipeline_job"].encryption_spec.kms_key_name
                 == _TEST_ENCRYPTION_KEY_NAME
             )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_tune_chat_model(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_job_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_gcs_from_string,
+        mock_gcs_upload,
+        mock_request_urlopen,
+        mock_get_tuned_model,
+    ):
+        """Tests tuning a chat model."""
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
+
+            model.tune_model(
+                training_data=_TEST_TEXT_BISON_TRAINING_DF,
+                tuning_job_location="europe-west4",
+                tuned_model_location="us-central1",
+            )
+            call_kwargs = mock_pipeline_service_create.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["large_model_reference"] == "chat-bison@001"
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_tune_code_chat_model(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_job_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_gcs_from_string,
+        mock_gcs_upload,
+        mock_request_urlopen,
+        mock_get_tuned_model,
+    ):
+        """Tests tuning a code chat model."""
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODECHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.CodeChatModel.from_pretrained(
+                "codechat-bison@001"
+            )
+
+            # The tune_model call needs to be inside the PublisherModel mock
+            # since it gets a new PublisherModel when tuning completes.
+            model.tune_model(
+                training_data=_TEST_TEXT_BISON_TRAINING_DF,
+                tuning_job_location="europe-west4",
+                tuned_model_location="us-central1",
+            )
+            call_kwargs = mock_pipeline_service_create.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["large_model_reference"] == "codechat-bison@001"
 
     @pytest.mark.usefixtures(
         "get_model_with_tuned_version_label_mock",
@@ -1124,7 +1246,6 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
         default_max_output_tokens = (
             language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
         )
@@ -1147,7 +1268,7 @@ class TestLanguageModels:
                 prefix="Write a function that checks if a year is a leap year.",
             )
             prediction_parameters = mock_predict.call_args[1]["parameters"]
-            assert prediction_parameters["temperature"] == default_temperature
+            assert "temperature" not in prediction_parameters
             assert prediction_parameters["maxOutputTokens"] == default_max_output_tokens
 
     def test_code_completion(self):
@@ -1190,7 +1311,6 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_temperature = language_models.CodeGenerationModel._DEFAULT_TEMPERATURE
         default_max_output_tokens = (
             language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
         )
@@ -1213,7 +1333,7 @@ class TestLanguageModels:
                 prefix="def reverse_string(s):",
             )
             prediction_parameters = mock_predict.call_args[1]["parameters"]
-            assert prediction_parameters["temperature"] == default_temperature
+            assert "temperature" not in prediction_parameters
             assert prediction_parameters["maxOutputTokens"] == default_max_output_tokens
 
     def test_text_embedding(self):

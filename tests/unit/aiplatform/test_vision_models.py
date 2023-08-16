@@ -35,6 +35,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.compat.types import (
     publisher_model as gca_publisher_model,
 )
+from vertexai import vision_models as ga_vision_models
 from vertexai.preview import vision_models
 
 from PIL import Image as PIL_Image
@@ -102,7 +103,9 @@ class ImageCaptioningModelTests:
             attribute="get_publisher_model",
             return_value=gca_publisher_model(_IMAGE_TEXT_PUBLISHER_MODEL_DICT),
         ):
-            model = vision_models.ImageCaptioningModel.from_pretrained("imagetext@001")
+            model = ga_vision_models.ImageCaptioningModel.from_pretrained(
+                "imagetext@001"
+            )
 
         image_captions = [
             "Caption 1",
@@ -150,7 +153,7 @@ class ImageQnAModelTests:
                 _IMAGE_TEXT_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = vision_models.ImageQnAModel.from_pretrained("imagetext@001")
+            model = ga_vision_models.ImageQnAModel.from_pretrained("imagetext@001")
 
         mock_get_publisher_model.assert_called_once_with(
             name="publishers/google/models/imagetext@001",
@@ -263,4 +266,34 @@ class TestMultiModalEmbeddingModels:
             )
 
         assert embedding_response.image_embedding == test_embeddings
+        assert embedding_response.text_embedding == test_embeddings
+
+    def test_image_embedding_model_with_only_text(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = ga_vision_models.MultiModalEmbeddingModel.from_pretrained(
+                "multimodalembedding@001"
+            )
+
+        test_embeddings = [0, 0]
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append({"textEmbedding": test_embeddings})
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            embedding_response = model.get_embeddings(contextual_text="hello world")
+
+        assert not embedding_response.image_embedding
         assert embedding_response.text_embedding == test_embeddings

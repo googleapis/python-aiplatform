@@ -110,6 +110,7 @@ class AutoMlTablesInputs(proto.Message):
             the prediction type. If the field is not set, a
             default objective function is used.
             classification (binary):
+
               "maximize-au-roc" (default) - Maximize the
             area under the receiver
             operating characteristic (ROC) curve.
@@ -122,9 +123,11 @@ class AutoMlTablesInputs(proto.Message):
             Maximize recall for a specified
             precision value.
             classification (multi-class):
+
               "minimize-log-loss" (default) - Minimize log
             loss.
             regression:
+
               "minimize-rmse" (default) - Minimize
             root-mean-squared error (RMSE).   "minimize-mae"
             - Minimize mean-absolute error (MAE).
