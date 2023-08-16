@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import os
 from google.cloud.aiplatform import version as aiplatform_version
 
 
@@ -56,8 +56,8 @@ SUPPORTED_REGIONS = frozenset(
         "us-west4",
     }
 )
-
-API_BASE_PATH = "aiplatform.googleapis.com"
+# This env variable injection is for testing, but not considered to be a public API.
+API_BASE_PATH = os.environ.get("_VERTEX_API_BASE_PATH") or "aiplatform.googleapis.com"
 PREDICTION_API_BASE_PATH = API_BASE_PATH
 
 # Batch Prediction
