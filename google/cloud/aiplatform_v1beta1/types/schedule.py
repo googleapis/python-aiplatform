@@ -58,8 +58,7 @@ class Schedule(proto.Message):
 
             This field is a member of `oneof`_ ``request``.
         name (str):
-            Output only. The resource name of the
-            Schedule.
+            Immutable. The resource name of the Schedule.
         display_name (str):
             Required. User provided name of the Schedule.
             The name can be up to 128 characters long and
