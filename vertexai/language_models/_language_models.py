@@ -219,7 +219,7 @@ class TextGenerationResponse:
     is_blocked: bool = False
     safety_attributes: Dict[str, float] = dataclasses.field(default_factory=dict)
 
-    def __repr__(self):
+    def __str__(self):
         return self.text
 
     @property
