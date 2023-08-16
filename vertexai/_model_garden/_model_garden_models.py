@@ -31,7 +31,10 @@ from google.cloud.aiplatform.compat.types import (
 _SUPPORTED_PUBLISHERS = ["google"]
 
 _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP = {
-    "text-bison": "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v2.0.0"
+    "text-bison": "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v2.0.0",
+    "code-bison": "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v3.0.0",
+    "chat-bison": "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0",
+    "codechat-bison": "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0",
 }
 
 _SDK_PRIVATE_PREVIEW_LAUNCH_STAGE = frozenset(
@@ -117,7 +120,7 @@ def _get_model_info(
 
     if short_model_id in _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP:
         tuning_pipeline_uri = _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP[short_model_id]
-        tuning_model_id = short_model_id + "-" + publisher_model_res.version_id
+        tuning_model_id = publisher_model_template.rsplit("/", 1)[-1]
     else:
         tuning_pipeline_uri = None
         tuning_model_id = None

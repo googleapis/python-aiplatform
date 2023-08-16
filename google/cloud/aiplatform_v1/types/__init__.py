@@ -522,6 +522,30 @@ from .prediction_service import (
     PredictRequest,
     PredictResponse,
     RawPredictRequest,
+    StreamingPredictRequest,
+    StreamingPredictResponse,
+)
+from .publisher_model import (
+    PublisherModel,
+)
+from .saved_query import (
+    SavedQuery,
+)
+from .schedule import (
+    Schedule,
+)
+from .schedule_service import (
+    CreateScheduleRequest,
+    DeleteScheduleRequest,
+    GetScheduleRequest,
+    ListSchedulesRequest,
+    ListSchedulesResponse,
+    PauseScheduleRequest,
+    ResumeScheduleRequest,
+    UpdateScheduleRequest,
+)
+from .service_networking import (
+    PrivateServiceConnectConfig,
 )
 from .publisher_model import (
     PublisherModel,
@@ -644,6 +668,7 @@ from .types import (
     DoubleArray,
     Int64Array,
     StringArray,
+    Tensor,
 )
 from .unmanaged_container_model import (
     UnmanagedContainerModel,
@@ -1078,6 +1103,8 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
+    "StreamingPredictRequest",
+    "StreamingPredictResponse",
     "PublisherModel",
     "SavedQuery",
     "Schedule",
@@ -1168,6 +1195,7 @@ __all__ = (
     "DoubleArray",
     "Int64Array",
     "StringArray",
+    "Tensor",
     "UnmanagedContainerModel",
     "UserActionReference",
     "Value",

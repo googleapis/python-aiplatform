@@ -69,15 +69,6 @@ class Logger:
         self._logger = logging.getLogger(name)
         self._logger.setLevel(logging.INFO)
 
-        if self._logger.handlers:
-            # Avoid writing duplicate logs if the logger is created twice.
-            return
-
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.INFO)
-
-        self._logger.addHandler(handler)
-
     def log_create_with_lro(
         self,
         cls: Type["VertexAiResourceNoun"],
@@ -200,6 +191,10 @@ class Logger:
 
 
 _LOGGER = Logger(__name__)
+if not _LOGGER._logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.INFO)
+    _LOGGER._logger.addHandler(handler)
 
 
 class FutureManager(metaclass=abc.ABCMeta):
@@ -1143,6 +1138,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        parent: Optional[str] = None,
     ) -> List[VertexAiResourceNoun]:
         """Private method to list all instances of this Vertex AI Resource,
         takes a `cls_filter` arg to filter to a particular SDK resource
@@ -1179,6 +1175,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
+            parent (str):
+                Optional. The parent resource name if any to retrieve resource list from.
 
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
@@ -1192,6 +1190,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             project=project,
             location=location,
             credentials=credentials,
+            parent=parent,
         )
 
         if order_by:

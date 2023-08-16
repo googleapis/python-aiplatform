@@ -59,7 +59,7 @@ featurestore_extra_require = [
     "pyarrow >= 6.0.1",
 ]
 pipelines_extra_require = [
-    "pyyaml>=5.3,<6",
+    "pyyaml>=5.3,<7",
 ]
 datasets_extra_require = [
     "pyarrow >= 3.0.0, < 8.0dev",

@@ -19,7 +19,7 @@
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.compat.types import (
-    job_state_v1beta1 as gca_job_state_v1beta1,
+    job_state as gca_job_state,
 )
 from tests.system.aiplatform import e2e_base
 from vertexai.preview.language_models import (
@@ -160,7 +160,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         )
         assert tuned_model_response.text
 
-    def test_batch_prediction(self):
+    def test_batch_prediction_for_text_generation(self):
         source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/batch_prediction_prompts1.jsonl"
         destination_uri_prefix = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/predictions/text-bison@001_"
 
@@ -168,7 +168,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         model = TextGenerationModel.from_pretrained("text-bison@001")
         job = model.batch_predict(
-            source_uri=source_uri,
+            dataset=source_uri,
             destination_uri_prefix=destination_uri_prefix,
             model_parameters={"temperature": 0, "top_p": 1, "top_k": 5},
         )
@@ -178,4 +178,24 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         gapic_job = job._gca_resource
         job.delete()
 
-        assert gapic_job.state == gca_job_state_v1beta1.JobState.JOB_STATE_SUCCEEDED
+        assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
+
+    def test_batch_prediction_for_textembedding(self):
+        source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/batch_prediction_prompts1.jsonl"
+        destination_uri_prefix = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/predictions/textembedding-gecko@001_"
+
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = TextEmbeddingModel.from_pretrained("textembedding-gecko")
+        job = model.batch_predict(
+            dataset=source_uri,
+            destination_uri_prefix=destination_uri_prefix,
+            model_parameters={},
+        )
+
+        job.wait_for_resource_creation()
+        job.wait()
+        gapic_job = job._gca_resource
+        job.delete()
+
+        assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED

@@ -1,6 +1,83 @@
 # Changelog
 
 
+## [1.30.1](https://github.com/googleapis/python-aiplatform/compare/v1.30.0...v1.30.1) (2023-08-11)
+
+
+### Features
+
+* LLM - Added tuning support for `chat-bison` models ([3a97c52](https://github.com/googleapis/python-aiplatform/commit/3a97c523c8223f7f007008769ecb2efd0d44d182))
+* LLM - Added tuning support for `codechat-bison` models ([af6e455](https://github.com/googleapis/python-aiplatform/commit/af6e45556d6b093189f363a95f2be45e0008aebd))
+
+
+### Bug Fixes
+
+* LLM - Fixed the `TextGenerationModel.predict` parameters ([f3b25ab](https://github.com/googleapis/python-aiplatform/commit/f3b25ab694eaee18f5cc34f800f1b6021d291bca))
+
+
+### Miscellaneous Chores
+
+* Release 1.30.1 ([d1c79c4](https://github.com/googleapis/python-aiplatform/commit/d1c79c4ef87a8d4601ab04de050af2be4c6d6ecf))
+
+## [1.30.0](https://github.com/googleapis/python-aiplatform/compare/v1.29.0...v1.30.0) (2023-08-10)
+
+
+### Features
+
+* Add model.evaluate() method to Model class ([51df86e](https://github.com/googleapis/python-aiplatform/commit/51df86ee1390a51b82ffc015514ad1e145821a34))
+* Add support for providing only text to MultiModalEmbeddingModel.get_embeddings() ([38ec40a](https://github.com/googleapis/python-aiplatform/commit/38ec40a12cf863c9da3de8336dceba10d92f6f56))
+
+
+### Bug Fixes
+
+* LLM - Fixed filter in `list_tuned_model_names` ([57806fb](https://github.com/googleapis/python-aiplatform/commit/57806fb947e5b692cd8d4701e572eaf54585d383))
+
+## [1.29.0](https://github.com/googleapis/python-aiplatform/compare/v1.28.1...v1.29.0) (2023-08-02)
+
+
+### Features
+
+* Add preview CustomJob which can be run on persistent resource ([56906b0](https://github.com/googleapis/python-aiplatform/commit/56906b08d80bee64334f6ba0c713e30dae39cef4))
+* LLM - Support for Batch Prediction for the `textembedding` models (preview) ([a368538](https://github.com/googleapis/python-aiplatform/commit/a36853869e627aabf3dc563400d184f44c8ae876))
+* LLM - Support tuning for the code-bison model (preview) ([e4b23a2](https://github.com/googleapis/python-aiplatform/commit/e4b23a254aadfae821e326b238555cee2ecb463a))
+* LVM - Large Vision Models SDK (preview release). Support for image captioning and image QnA (`imagetext` model) and multi modal embedding (`multimodelembedding` model) (preview) ([9bbf1ea](https://github.com/googleapis/python-aiplatform/commit/9bbf1eaa02dda0723303cd39e9f6bdffab32ec21))
+
+
+### Bug Fixes
+
+* LLM - Fixed `get_tuned_model` for the future models that are not `text-bison` ([1adf72b](https://github.com/googleapis/python-aiplatform/commit/1adf72b866021b9e857166778dbddf83fd808fb7))
+
+
+### Documentation
+
+* Fix auto-generated pydoc for language_models ([7d72bd1](https://github.com/googleapis/python-aiplatform/commit/7d72bd1c3740039d7c63d1042aa6bcadbd3e4946))
+* LLM - Made it possible to provide message history to `CodeChatModel` when starting chat. ([cf46145](https://github.com/googleapis/python-aiplatform/commit/cf46145b3de8de794d4295f59d8af3ea9dd57826))
+
+## [1.28.1](https://github.com/googleapis/python-aiplatform/compare/v1.28.0...v1.28.1) (2023-07-18)
+
+
+### Features
+
+* LLM - Released the BatchPrediction to GA for TextGenerationModel ([701c3a2](https://github.com/googleapis/python-aiplatform/commit/701c3a29bb09b45b513bcf1bf332388a9b60ae2d))
+* LLM - Support tuning in the "us-central1" location ([4aa7745](https://github.com/googleapis/python-aiplatform/commit/4aa77451f5de33b90d82dba69b4c55cea5640b87))
+
+
+### Bug Fixes
+
+* Fix artifact registry link not showing in ui when creating schedules with SDK. ([203cb47](https://github.com/googleapis/python-aiplatform/commit/203cb477b6ef09a2f6d5f166b5b66a8c626848ef))
+* Fixed the installation error caused by a PyYAML issue ([4b86ce1](https://github.com/googleapis/python-aiplatform/commit/4b86ce1afacc6937fda81f6e664e22155e968c7d))
+* Require model name in ModelEvaluation.list() ([aed8c76](https://github.com/googleapis/python-aiplatform/commit/aed8c7604f5d89f52c53a599330fd502d02f7877))
+
+
+### Documentation
+
+* Fixed a docstring for train_steps ([1f55b05](https://github.com/googleapis/python-aiplatform/commit/1f55b05d4631f2b63ede8a3d5ec604d4550e22dd))
+
+
+### Miscellaneous Chores
+
+* Release 1.28.1 ([8ebf22e](https://github.com/googleapis/python-aiplatform/commit/8ebf22e3efbf47484117cbdf057cd286c8672b81))
+
 ## [1.28.0](https://github.com/googleapis/python-aiplatform/compare/v1.27.1...v1.28.0) (2023-07-08)
 
 

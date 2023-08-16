@@ -16,6 +16,7 @@
 
 import dataclasses
 from typing import Any, Dict, List, Optional, Sequence, Union
+import warnings
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -41,7 +42,7 @@ def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
     """Gets the base model ID for the model ID labels used the tuned models.
 
     Args:
-        tuning_model_id: The model ID used in tuning
+        tuning_model_id: The model ID used in tuning. E.g. `text-bison-001`
 
     Returns:
         The publisher model ID
@@ -49,11 +50,9 @@ def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
     Raises:
         ValueError: If tuning model ID is unsupported
     """
-    if tuning_model_id.startswith("text-bison-"):
-        return tuning_model_id.replace(
-            "text-bison-", "publishers/google/models/text-bison@"
-        )
-    raise ValueError(f"Unsupported tuning model ID {tuning_model_id}")
+    model_name, _, version = tuning_model_id.rpartition("-")
+    # "publishers/google/models/text-bison@001"
+    return f"publishers/google/models/{model_name}@{version}"
 
 
 class _LanguageModel(_model_garden_models._ModelGardenModel):
@@ -150,10 +149,12 @@ class _TunableModelMixin(_LanguageModel):
 
         Args:
             training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
-                The dataset must have the "input_text" and "output_text" columns.
+                The dataset schema is model-specific.
+                See https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models#dataset_format
             train_steps: Number of training batches to tune on (batch size is 8 samples).
             learning_rate: Learning rate for the tuning
-            tuning_job_location: GCP location where the tuning job should be run. Only "europe-west4" is supported for now.
+            tuning_job_location: GCP location where the tuning job should be run.
+                Only "europe-west4" and "us-central1" locations are supported for now.
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
 
@@ -166,9 +167,10 @@ class _TunableModelMixin(_LanguageModel):
             ValueError: If the "tuned_model_location" value is not supported
             RuntimeError: If the model does not support tuning
         """
-        if tuning_job_location != _TUNING_LOCATION:
+        if tuning_job_location not in _TUNING_LOCATIONS:
             raise ValueError(
-                f'Tuning is only supported in the following locations: tuning_job_location="{_TUNING_LOCATION}"'
+                "Please specify the tuning job location (`tuning_job_location`)."
+                f"Tuning is supported in the following locations: {_TUNING_LOCATIONS}"
             )
         if tuned_model_location != _TUNED_MODEL_LOCATION:
             raise ValueError(
@@ -187,6 +189,7 @@ class _TunableModelMixin(_LanguageModel):
             tuning_pipeline_uri=model_info.tuning_pipeline_uri,
             model_display_name=model_display_name,
             learning_rate=learning_rate,
+            tuning_job_location=tuning_job_location,
         )
 
         job = _LanguageModelTuningJob(
@@ -197,6 +200,7 @@ class _TunableModelMixin(_LanguageModel):
         tuned_model = job.result()
         # The UXR study attendees preferred to tune model in place
         self._endpoint = tuned_model._endpoint
+        self._endpoint_name = tuned_model._endpoint_name
 
 
 @dataclasses.dataclass
@@ -218,8 +222,13 @@ class TextGenerationResponse:
     def __repr__(self):
         return self.text
 
+    @property
+    def raw_prediction_response(self) -> aiplatform.models.Prediction:
+        """Raw prediction response."""
+        return self._prediction_response
 
-class TextGenerationModel(_LanguageModel):
+
+class _TextGenerationModel(_LanguageModel):
     """TextGenerationModel represents a general language model.
 
     Examples::
@@ -233,28 +242,25 @@ class TextGenerationModel(_LanguageModel):
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
 
-    _DEFAULT_TEMPERATURE = 0.0
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
-    _DEFAULT_TOP_P = 0.95
-    _DEFAULT_TOP_K = 40
 
     def predict(
         self,
         prompt: str,
         *,
-        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _DEFAULT_TEMPERATURE,
-        top_k: int = _DEFAULT_TOP_K,
-        top_p: float = _DEFAULT_TOP_P,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
     ) -> "TextGenerationResponse":
         """Gets model response for a single prompt.
 
         Args:
             prompt: Question to ask the model.
-            max_output_tokens: Max length of the output text in tokens.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
@@ -271,30 +277,37 @@ class TextGenerationModel(_LanguageModel):
     def _batch_predict(
         self,
         prompts: List[str],
-        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _DEFAULT_TEMPERATURE,
-        top_k: int = _DEFAULT_TOP_K,
-        top_p: float = _DEFAULT_TOP_P,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
     ) -> List["TextGenerationResponse"]:
         """Gets model response for a single prompt.
 
         Args:
             prompts: Questions to ask the model.
-            max_output_tokens: Max length of the output text in tokens.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
 
         Returns:
             A list of `TextGenerationResponse` objects that contain the texts produced by the model.
         """
         instances = [{"content": str(prompt)} for prompt in prompts]
-        prediction_parameters = {
-            "temperature": temperature,
-            "maxDecodeSteps": max_output_tokens,
-            "topP": top_p,
-            "topK": top_k,
-        }
+        prediction_parameters = {}
+
+        if max_output_tokens:
+            prediction_parameters["maxDecodeSteps"] = max_output_tokens
+
+        if temperature is not None:
+            prediction_parameters["temperature"] = temperature
+
+        if top_p:
+            prediction_parameters["topP"] = top_p
+
+        if top_k:
+            prediction_parameters["topK"] = top_k
 
         prediction_response = self._endpoint.predict(
             instances=instances,
@@ -320,23 +333,20 @@ class TextGenerationModel(_LanguageModel):
         return results
 
 
-_TextGenerationModel = TextGenerationModel
-
-
 class _ModelWithBatchPredict(_LanguageModel):
     """Model that supports batch prediction."""
 
     def batch_predict(
         self,
         *,
-        source_uri: Union[str, List[str]],
+        dataset: Union[str, List[str]],
         destination_uri_prefix: str,
         model_parameters: Optional[Dict] = None,
     ) -> aiplatform.BatchPredictionJob:
         """Starts a batch prediction job with the model.
 
         Args:
-            source_uri: The location of the dataset.
+            dataset: The location of the dataset.
                 `gs://` and `bq://` URIs are supported.
             destination_uri_prefix: The URI prefix for the prediction.
                 `gs://` and `bq://` URIs are supported.
@@ -348,22 +358,22 @@ class _ModelWithBatchPredict(_LanguageModel):
             ValueError: When source or destination URI is not supported.
         """
         arguments = {}
-        first_source_uri = source_uri if isinstance(source_uri, str) else source_uri[0]
+        first_source_uri = dataset if isinstance(dataset, str) else dataset[0]
         if first_source_uri.startswith("gs://"):
-            if not isinstance(source_uri, str):
-                if not all(uri.startswith("gs://") for uri in source_uri):
+            if not isinstance(dataset, str):
+                if not all(uri.startswith("gs://") for uri in dataset):
                     raise ValueError(
-                        f"All URIs in the list must start with 'gs://': {source_uri}"
+                        f"All URIs in the list must start with 'gs://': {dataset}"
                     )
-            arguments["gcs_source"] = source_uri
+            arguments["gcs_source"] = dataset
         elif first_source_uri.startswith("bq://"):
-            if not isinstance(source_uri, str):
+            if not isinstance(dataset, str):
                 raise ValueError(
-                    f"Only single BigQuery source can be specified: {source_uri}"
+                    f"Only single BigQuery source can be specified: {dataset}"
                 )
-            arguments["bigquery_source"] = source_uri
+            arguments["bigquery_source"] = dataset
         else:
-            raise ValueError(f"Unsupported source_uri: {source_uri}")
+            raise ValueError(f"Unsupported source_uri: {dataset}")
 
         if destination_uri_prefix.startswith("gs://"):
             arguments["gcs_destination_prefix"] = destination_uri_prefix
@@ -388,15 +398,58 @@ class _ModelWithBatchPredict(_LanguageModel):
         return job
 
 
-class _PreviewTextGenerationModel(
-    TextGenerationModel, _TunableModelMixin, _ModelWithBatchPredict
-):
-    """Preview text generation model."""
+class _PreviewModelWithBatchPredict(_ModelWithBatchPredict):
+    """Model that supports batch prediction."""
 
+    def batch_predict(
+        self,
+        *,
+        destination_uri_prefix: str,
+        dataset: Optional[Union[str, List[str]]] = None,
+        model_parameters: Optional[Dict] = None,
+        **_kwargs: Optional[Dict[str, Any]],
+    ) -> aiplatform.BatchPredictionJob:
+        """Starts a batch prediction job with the model.
+
+        Args:
+            dataset: Required. The location of the dataset.
+                `gs://` and `bq://` URIs are supported.
+            destination_uri_prefix: The URI prefix for the prediction.
+                `gs://` and `bq://` URIs are supported.
+            model_parameters: Model-specific parameters to send to the model.
+            **_kwargs: Deprecated.
+
+        Returns:
+            A `BatchPredictionJob` object
+        Raises:
+            ValueError: When source or destination URI is not supported.
+        """
+        if "source_uri" in _kwargs:
+            warnings.warn("source_uri is deprecated, use dataset instead.")
+            if dataset:
+                raise ValueError("source_uri is deprecated, use dataset instead.")
+            dataset = _kwargs["source_uri"]
+        if not dataset:
+            raise ValueError("dataset must be specified")
+        return super().batch_predict(
+            dataset=dataset,
+            destination_uri_prefix=destination_uri_prefix,
+            model_parameters=model_parameters,
+        )
+
+
+class TextGenerationModel(_TextGenerationModel, _ModelWithBatchPredict):
+    pass
+
+
+class _PreviewTextGenerationModel(
+    _TextGenerationModel, _TunableModelMixin, _PreviewModelWithBatchPredict
+):
+    # Do not add docstring so that it's inherited from the base class.
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
-class _ChatModel(TextGenerationModel):
+class _ChatModel(_TextGenerationModel):
     """ChatModel represents a language model that is capable of chat.
 
     Examples::
@@ -413,18 +466,18 @@ class _ChatModel(TextGenerationModel):
 
     def start_chat(
         self,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
     ) -> "_ChatSession":
         """Starts a chat session with the model.
 
         Args:
-            max_output_tokens: Max length of the output text in tokens.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
 
         Returns:
             A `ChatSession` object.
@@ -447,10 +500,10 @@ class _ChatSession:
     def __init__(
         self,
         model: _ChatModel,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
     ):
         self._model = model
         self._history = []
@@ -473,13 +526,13 @@ class _ChatSession:
 
         Args:
             message: Message to send to the model
-            max_output_tokens: Max length of the output text in tokens.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
 
         Returns:
@@ -542,9 +595,7 @@ class TextEmbeddingModel(_LanguageModel):
         ]
 
 
-class _PreviewTextEmbeddingModel(TextEmbeddingModel):
-    """Preview text embedding model."""
-
+class _PreviewTextEmbeddingModel(TextEmbeddingModel, _ModelWithBatchPredict):
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
@@ -591,10 +642,10 @@ class _ChatModelBase(_LanguageModel):
         *,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: Optional[int] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ) -> "ChatSession":
         """Starts a chat session with the model.
@@ -604,10 +655,10 @@ class _ChatModelBase(_LanguageModel):
                 For example, you can use context to specify words the model can or cannot use, topics to focus on or avoid, or the response format or style
             examples: List of structured messages to the model to learn how to respond to the conversation.
                 A list of `InputOutputTextPair` objects.
-            max_output_tokens: Max length of the output text in tokens.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             message_history: A list of previously sent and received messages.
 
         Returns:
@@ -653,7 +704,7 @@ class ChatModel(_ChatModelBase):
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
 
 
-class _PreviewChatModel(ChatModel):
+class _PreviewChatModel(ChatModel, _TunableModelMixin):
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
@@ -675,18 +726,18 @@ class CodeChatModel(_ChatModelBase):
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
-    _DEFAULT_TEMPERATURE = 0.5
 
     def start_chat(
         self,
         *,
-        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _DEFAULT_TEMPERATURE,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        message_history: Optional[List[ChatMessage]] = None,
     ) -> "CodeChatSession":
         """Starts a chat session with the code chat model.
 
         Args:
-            max_output_tokens: Max length of the output text in tokens.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
 
         Returns:
@@ -696,7 +747,12 @@ class CodeChatModel(_ChatModelBase):
             model=self,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
+            message_history=message_history
         )
+
+
+class _PreviewCodeChatModel(CodeChatModel, _TunableModelMixin):
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
 class _ChatSessionBase:
@@ -710,11 +766,10 @@ class _ChatSessionBase:
         model: _ChatModelBase,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
-        is_code_chat_session: bool = False,
+        max_output_tokens: Optional[int] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ):
         self._model = model
@@ -724,7 +779,6 @@ class _ChatSessionBase:
         self._temperature = temperature
         self._top_k = top_k
         self._top_p = top_p
-        self._is_code_chat_session = is_code_chat_session
         self._message_history: List[ChatMessage] = message_history or []
 
     @property
@@ -745,30 +799,36 @@ class _ChatSessionBase:
 
         Args:
             message: Message to send to the model
-            max_output_tokens: Max length of the output text in tokens.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            temperature: Controls the randomness of predictions. Range: [0, 1].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1].
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
         """
-        prediction_parameters = {
-            "temperature": temperature
-            if temperature is not None
-            else self._temperature,
-            "maxDecodeSteps": max_output_tokens
-            if max_output_tokens is not None
-            else self._max_output_tokens,
-        }
+        prediction_parameters = {}
 
-        if not self._is_code_chat_session:
-            prediction_parameters["topP"] = top_p if top_p is not None else self._top_p
-            prediction_parameters["topK"] = top_k if top_k is not None else self._top_k
+        max_output_tokens = max_output_tokens or self._max_output_tokens
+        if max_output_tokens:
+            prediction_parameters["maxDecodeSteps"] = max_output_tokens
+
+        if temperature is None:
+            temperature = self._temperature
+        if temperature is not None:
+            prediction_parameters["temperature"] = temperature
+
+        top_p = top_p or self._top_p
+        if top_p:
+            prediction_parameters["topP"] = top_p
+
+        top_k = top_k or self._top_k
+        if top_k:
+            prediction_parameters["topK"] = top_k
 
         message_structs = []
         for past_message in self._message_history:
@@ -786,9 +846,9 @@ class _ChatSessionBase:
         )
 
         prediction_instance = {"messages": message_structs}
-        if not self._is_code_chat_session and self._context:
+        if self._context:
             prediction_instance["context"] = self._context
-        if not self._is_code_chat_session and self._examples:
+        if self._examples:
             prediction_instance["examples"] = [
                 {
                     "input": {"content": example.input_text},
@@ -841,10 +901,10 @@ class ChatSession(_ChatSessionBase):
         model: ChatModel,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: int = TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = TextGenerationModel._DEFAULT_TEMPERATURE,
-        top_k: int = TextGenerationModel._DEFAULT_TOP_K,
-        top_p: float = TextGenerationModel._DEFAULT_TOP_P,
+        max_output_tokens: Optional[int] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ):
         super().__init__(
@@ -869,13 +929,14 @@ class CodeChatSession(_ChatSessionBase):
         self,
         model: CodeChatModel,
         max_output_tokens: int = CodeChatModel._DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = CodeChatModel._DEFAULT_TEMPERATURE,
+        temperature: Optional[float] = None,
+        message_history: Optional[List[ChatMessage]] = None,
     ):
         super().__init__(
             model=model,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
-            is_code_chat_session=True,
+            message_history=message_history,
         )
 
     def send_message(
@@ -889,7 +950,7 @@ class CodeChatSession(_ChatSessionBase):
 
         Args:
             message: Message to send to the model
-            max_output_tokens: Max length of the output text in tokens.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
                 Uses the value specified when calling `CodeChatModel.start_chat` by default.
             temperature: Controls the randomness of predictions. Range: [0, 1].
                  Uses the value specified when calling `CodeChatModel.start_chat` by default.
@@ -924,33 +985,38 @@ class CodeGenerationModel(_LanguageModel):
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
-    _DEFAULT_TEMPERATURE = 0.0
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
 
     def predict(
         self,
         prefix: str,
-        suffix: Optional[str] = "",
+        suffix: Optional[str] = None,
         *,
-        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: float = _DEFAULT_TEMPERATURE,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
     ) -> "TextGenerationResponse":
         """Gets model response for a single prompt.
 
         Args:
             prefix: Code before the current point.
             suffix: Code after the current point.
-            max_output_tokens: Max length of the output text in tokens.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
         """
-        instance = {"prefix": prefix, "suffix": suffix}
-        prediction_parameters = {
-            "temperature": temperature,
-            "maxOutputTokens": max_output_tokens,
-        }
+        instance = {"prefix": prefix}
+        if suffix:
+            instance["suffix"] = suffix
+
+        prediction_parameters = {}
+
+        if temperature is not None:
+            prediction_parameters["temperature"] = temperature
+
+        if max_output_tokens:
+            prediction_parameters["maxOutputTokens"] = max_output_tokens
 
         prediction_response = self._endpoint.predict(
             instances=[instance],
@@ -963,9 +1029,13 @@ class CodeGenerationModel(_LanguageModel):
         )
 
 
+class _PreviewCodeGenerationModel(CodeGenerationModel, _TunableModelMixin):
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+
+
 ###### Model tuning
 # Currently, tuning can only work in this location
-_TUNING_LOCATION = "europe-west4"
+_TUNING_LOCATIONS = ("europe-west4", "us-central1")
 # Currently, deployment can only work in this location
 _TUNED_MODEL_LOCATION = "us-central1"
 
@@ -987,19 +1057,19 @@ class _LanguageModelTuningJob:
         if self._model:
             return self._model
         self._job.wait()
-        upload_model_tasks = [
-            task_info
-            for task_info in self._job.gca_resource.job_detail.task_details
-            if task_info.task_name == "upload-llm-model"
+        root_pipeline_tasks = [
+            task_detail
+            for task_detail in self._job.gca_resource.job_detail.task_details
+            if task_detail.execution.schema_title == "system.Run"
         ]
-        if len(upload_model_tasks) != 1:
+        if len(root_pipeline_tasks) != 1:
             raise RuntimeError(
                 f"Failed to get the model name from the tuning pipeline: {self._job.name}"
             )
-        upload_model_task = upload_model_tasks[0]
+        root_pipeline_task = root_pipeline_tasks[0]
 
         # Trying to get model name from output parameter
-        vertex_model_name = upload_model_task.execution.metadata[
+        vertex_model_name = root_pipeline_task.execution.metadata[
             "output:model_resource_name"
         ].strip()
         _LOGGER.info(f"Tuning has completed. Created Vertex Model: {vertex_model_name}")
@@ -1029,7 +1099,7 @@ def _get_tuned_models_dir_uri(model_id: str) -> str:
 
 def _list_tuned_model_names(model_id: str) -> List[str]:
     tuned_models = aiplatform.Model.list(
-        filter=f'labels.{_TUNING_BASE_MODEL_ID_LABEL_KEY}="{model_id}"',
+        filter=f'labels.{_TUNING_BASE_MODEL_ID_LABEL_KEY}="{model_id.replace("@", "-")}"',
         # TODO(b/275444096): Remove the explicit location once models are deployed to the user's selected location
         location=_TUNED_MODEL_LOCATION,
     )
@@ -1051,13 +1121,13 @@ def _launch_tuning_job(
     train_steps: Optional[int] = None,
     model_display_name: Optional[str] = None,
     learning_rate: Optional[float] = None,
+    tuning_job_location: str = _TUNING_LOCATIONS[0],
 ) -> aiplatform.PipelineJob:
     output_dir_uri = _generate_tuned_model_dir_uri(model_id=model_id)
     if isinstance(training_data, str):
         dataset_uri = training_data
     elif pandas and isinstance(training_data, pandas.DataFrame):
         dataset_uri = _uri_join(output_dir_uri, "training_data.jsonl")
-        training_data = training_data[["input_text", "output_text"]]
 
         gcs_utils._upload_pandas_df_to_gcs(
             df=training_data, upload_gcs_path=dataset_uri
@@ -1073,6 +1143,7 @@ def _launch_tuning_job(
         tuning_pipeline_uri=tuning_pipeline_uri,
         model_display_name=model_display_name,
         learning_rate=learning_rate,
+        tuning_job_location=tuning_job_location,
     )
     return job
 
@@ -1084,6 +1155,7 @@ def _launch_tuning_job_on_jsonl_data(
     train_steps: Optional[int] = None,
     learning_rate: Optional[float] = None,
     model_display_name: Optional[str] = None,
+    tuning_job_location: str = _TUNING_LOCATIONS[0],
 ) -> aiplatform.PipelineJob:
     if not model_display_name:
         # Creating a human-readable model display name
@@ -1126,7 +1198,7 @@ def _launch_tuning_job_on_jsonl_data(
         display_name=None,
         parameter_values=pipeline_arguments,
         # TODO(b/275444101): Remove the explicit location once model can be deployed in all regions
-        location=_TUNING_LOCATION,
+        location=tuning_job_location,
     )
     job.submit()
     return job

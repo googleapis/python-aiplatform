@@ -1999,7 +1999,7 @@ class TestEndpoint:
         assert len(ep_list) == len(_TEST_ENDPOINT_LIST)
 
         for ep in ep_list:
-            assert type(ep) == aiplatform.Endpoint
+            assert isinstance(ep, aiplatform.Endpoint)
 
         assert ep_list[0].create_time > ep_list[1].create_time > ep_list[2].create_time
 
@@ -2018,7 +2018,7 @@ class TestEndpoint:
         assert len(ep_list) == len(_TEST_ENDPOINT_LIST)
 
         for ep in ep_list:
-            assert type(ep) == aiplatform.Endpoint
+            assert isinstance(ep, aiplatform.Endpoint)
 
         assert (
             ep_list[0].display_name < ep_list[1].display_name < ep_list[2].display_name

@@ -1444,7 +1444,7 @@ class TestTabularDataset:
         assert len(ds_list) < len(_TEST_DATASET_LIST)
 
         for ds in ds_list:
-            assert type(ds) == aiplatform.TabularDataset
+            assert isinstance(ds, aiplatform.TabularDataset)
 
     def test_list_dataset_no_order_or_filter(self, list_datasets_mock):
 
@@ -1456,7 +1456,7 @@ class TestTabularDataset:
         assert len(ds_list) < len(_TEST_DATASET_LIST)
 
         for ds in ds_list:
-            assert type(ds) == aiplatform.TabularDataset
+            assert isinstance(ds, aiplatform.TabularDataset)
 
     @pytest.mark.usefixtures("get_dataset_tabular_missing_metadata_mock")
     def test_tabular_dataset_column_name_missing_metadata(self):

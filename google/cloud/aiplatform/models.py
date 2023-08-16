@@ -93,6 +93,11 @@ _SUPPORTED_MODEL_FILE_NAMES = [
     "saved_model.pbtxt",
 ]
 
+_SUPPORTED_EVAL_PREDICTION_TYPES = [
+    "classification",
+    "regression",
+]
+
 
 class VersionInfo(NamedTuple):
     """VersionInfo class envelopes returned Model version information.
@@ -4894,6 +4899,232 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 evaluation_name=evaluation_resource_name,
                 credentials=self.credentials,
             )
+
+    def evaluate(
+        self,
+        prediction_type: str,
+        target_field_name: str,
+        gcs_source_uris: Optional[List[str]] = None,
+        bigquery_source_uri: Optional[str] = None,
+        bigquery_destination_output_uri: Optional[str] = None,
+        class_labels: Optional[List[str]] = None,
+        prediction_label_column: Optional[str] = None,
+        prediction_score_column: Optional[str] = None,
+        staging_bucket: Optional[str] = None,
+        service_account: Optional[str] = None,
+        generate_feature_attributions: bool = False,
+        evaluation_pipeline_display_name: Optional[str] = None,
+        evaluation_metrics_display_name: Optional[str] = None,
+        network: Optional[str] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        experiment: Optional[Union[str, "aiplatform.Experiment"]] = None,
+    ) -> "model_evaluation._ModelEvaluationJob":
+        """Creates a model evaluation job running on Vertex Pipelines and returns the resulting
+        ModelEvaluationJob resource.
+
+        Example usage:
+
+            ```
+            my_model = Model(
+                model_name="projects/123/locations/us-central1/models/456"
+            )
+            my_evaluation_job = my_model.evaluate(
+                prediction_type="classification",
+                target_field_name="type",
+                data_source_uris=["gs://sdk-model-eval/my-prediction-data.csv"],
+                staging_bucket="gs://my-staging-bucket/eval_pipeline_root",
+            )
+            my_evaluation_job.wait()
+            my_evaluation = my_evaluation_job.get_model_evaluation()
+            my_evaluation.metrics
+            ```
+
+        Args:
+            prediction_type (str):
+                Required. The problem type being addressed by this evaluation run. 'classification' and 'regression'
+                are the currently supported problem types.
+            target_field_name (str):
+                Required. The column name of the field containing the label for this prediction task.
+            gcs_source_uris (List[str]):
+                Optional. A list of Cloud Storage data files containing the ground truth data to use for this
+                evaluation job. These files should contain your model's prediction column. Currently only Google Cloud Storage
+                urls are supported, for example: "gs://path/to/your/data.csv". The provided data files must be
+                either CSV or JSONL. One of `gcs_source_uris` or `bigquery_source_uri` is required.
+            bigquery_source_uri (str):
+                Optional. A bigquery table URI containing the ground truth data to use for this evaluation job. This uri should
+                be in the format 'bq://my-project-id.dataset.table'. One of `gcs_source_uris` or `bigquery_source_uri` is
+                required.
+            bigquery_destination_output_uri (str):
+                Optional. A bigquery table URI where the Batch Prediction job associated with your Model Evaluation will write
+                prediction output. This can be a BigQuery URI to a project ('bq://my-project'), a dataset
+                ('bq://my-project.my-dataset'), or a table ('bq://my-project.my-dataset.my-table'). Required if `bigquery_source_uri`
+                is provided.
+            class_labels (List[str]):
+                Optional. For custom (non-AutoML) classification models, a list of possible class names, in the
+                same order that predictions are generated. This argument is required when prediction_type is 'classification'.
+                For example, in a classification model with 3 possible classes that are outputted in the format: [0.97, 0.02, 0.01]
+                with the class names "cat", "dog", and "fish", the value of `class_labels` should be `["cat", "dog", "fish"]` where
+                the class "cat" corresponds with 0.97 in the example above.
+            prediction_label_column (str):
+                Optional. The column name of the field containing classes the model is scoring. Formatted to be able to find nested
+                columns, delimeted by `.`. If not set, defaulted to `prediction.classes` for classification.
+            prediction_score_column (str):
+                Optional. The column name of the field containing batch prediction scores. Formatted to be able to find nested columns,
+                delimeted by `.`. If not set, defaulted to `prediction.scores` for a `classification` problem_type, `prediction.value`
+                for a `regression` problem_type.
+            staging_bucket (str):
+                Optional. The GCS directory to use for staging files from this evaluation job. Defaults to the value set in
+                aiplatform.init(staging_bucket=...) if not provided. Required if staging_bucket is not set in aiplatform.init().
+            service_account (str):
+                Specifies the service account for workload run-as account for this Model Evaluation PipelineJob.
+                Users submitting jobs must have act-as permission on this run-as account. The service account running
+                this Model Evaluation job needs the following permissions: Dataflow Worker, Storage Admin,
+                Vertex AI Administrator, and Vertex AI Service Agent.
+            generate_feature_attributions (boolean):
+                Optional. Whether the model evaluation job should generate feature attributions. Defaults to False if not specified.
+            evaluation_pipeline_display_name (str):
+                Optional. The display name of your model evaluation job. This is the display name that will be applied to the
+                Vertex Pipeline run for your evaluation job. If not set, a display name will be generated automatically.
+            evaluation_metrics_display_name (str):
+                Optional. The display name of the model evaluation resource uploaded to Vertex from your Model Evaluation pipeline.
+            network (str):
+                The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer managed encryption key used to protect the job. Has the
+                form: ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``. The key needs to be in the same
+                region as where the compute resource is created. If this is set, then all
+                resources created by the PipelineJob for this Model Evaluation will be encrypted with the provided encryption key.
+                If not specified, encryption_spec of original PipelineJob will be used.
+            experiment (Union[str, experiments_resource.Experiment]):
+                Optional. The Vertex AI experiment name or instance to associate to the PipelineJob executing
+                this model evaluation job. Metrics produced by the PipelineJob as system.Metric Artifacts
+                will be associated as metrics to the provided experiment, and parameters from this PipelineJob
+                will be associated as parameters to the provided experiment.
+        Returns:
+            model_evaluation.ModelEvaluationJob: Instantiated representation of the
+            _ModelEvaluationJob.
+        Raises:
+            ValueError:
+                If staging_bucket was not set in aiplatform.init() and staging_bucket was not provided.
+                If the provided `prediction_type` is not valid.
+                If the provided `data_source_uris` don't start with 'gs://'.
+        """
+
+        if (gcs_source_uris is None) == (bigquery_source_uri is None):
+            raise ValueError(
+                "Exactly one of `gcs_source_uris` or `bigquery_source_uri` must be provided."
+            )
+
+        if isinstance(gcs_source_uris, str):
+            gcs_source_uris = [gcs_source_uris]
+
+        if bigquery_source_uri and not isinstance(bigquery_source_uri, str):
+            raise ValueError("The provided `bigquery_source_uri` must be a string.")
+
+        if bigquery_source_uri and not bigquery_destination_output_uri:
+            raise ValueError(
+                "`bigquery_destination_output_uri` must be provided if `bigquery_source_uri` is used as the data source."
+            )
+
+        if gcs_source_uris is not None and not all(
+            uri.startswith("gs://") for uri in gcs_source_uris
+        ):
+            raise ValueError("`gcs_source_uris` must start with 'gs://'.")
+
+        if bigquery_source_uri is not None and not bigquery_source_uri.startswith(
+            "bq://"
+        ):
+            raise ValueError(
+                "`bigquery_source_uri` and `bigquery_destination_output_uri` must start with 'bq://'"
+            )
+
+        if (
+            bigquery_destination_output_uri is not None
+            and not bigquery_destination_output_uri.startswith("bq://")
+        ):
+            raise ValueError(
+                "`bigquery_source_uri` and `bigquery_destination_output_uri` must start with 'bq://'"
+            )
+
+        SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS = [".jsonl", ".csv"]
+
+        if not staging_bucket and initializer.global_config.staging_bucket:
+            staging_bucket = initializer.global_config.staging_bucket
+        elif not staging_bucket and not initializer.global_config.staging_bucket:
+            raise ValueError(
+                "Please provide `evaluation_staging_bucket` when calling evaluate or set one using aiplatform.init(staging_bucket=...)"
+            )
+
+        if prediction_type not in _SUPPORTED_EVAL_PREDICTION_TYPES:
+            raise ValueError(
+                f"Please provide a supported model prediction type, one of: {_SUPPORTED_EVAL_PREDICTION_TYPES}."
+            )
+
+        if generate_feature_attributions:
+            if not self._gca_resource.explanation_spec:
+                raise ValueError(
+                    "To generate feature attributions with your evaluation, call evaluate on a model with an explanation spec. To run evaluation on the current model, call evaluate with `generate_feature_attributions=False`."
+                )
+
+        instances_format = None
+
+        if gcs_source_uris:
+
+            data_file_path_obj = pathlib.Path(gcs_source_uris[0])
+
+            data_file_extension = data_file_path_obj.suffix
+            if data_file_extension not in SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS:
+                _LOGGER.warning(
+                    f"Only the following data file extensions are currently supported: '{SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS}'"
+                )
+            else:
+                instances_format = data_file_extension[1:]
+
+        elif bigquery_source_uri:
+            instances_format = "bigquery"
+
+        if (
+            self._gca_resource.metadata_schema_uri
+            == "https://storage.googleapis.com/google-cloud-aiplatform/schema/model/metadata/automl_tabular_1.0.0.yaml"
+        ):
+            model_type = "automl_tabular"
+        else:
+            model_type = "other"
+
+        if (
+            model_type == "other"
+            and prediction_type == "classification"
+            and not class_labels
+        ):
+            raise ValueError(
+                "Please provide `class_labels` when running evaluation on a custom classification model."
+            )
+
+        return model_evaluation._ModelEvaluationJob.submit(
+            model_name=self.versioned_resource_name,
+            prediction_type=prediction_type,
+            target_field_name=target_field_name,
+            gcs_source_uris=gcs_source_uris,
+            bigquery_source_uri=bigquery_source_uri,
+            batch_predict_bigquery_destination_output_uri=bigquery_destination_output_uri,
+            class_labels=class_labels,
+            prediction_label_column=prediction_label_column,
+            prediction_score_column=prediction_score_column,
+            service_account=service_account,
+            pipeline_root=staging_bucket,
+            instances_format=instances_format,
+            model_type=model_type,
+            generate_feature_attributions=generate_feature_attributions,
+            evaluation_pipeline_display_name=evaluation_pipeline_display_name,
+            evaluation_metrics_display_name=evaluation_metrics_display_name,
+            network=network,
+            encryption_spec_key_name=encryption_spec_key_name,
+            credentials=self.credentials,
+            experiment=experiment,
+        )
 
 
 # TODO (b/232546878): Async support
