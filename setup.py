@@ -62,11 +62,13 @@ pipelines_extra_require = [
     "pyyaml>=5.3,<7",
 ]
 datasets_extra_require = [
-    "pyarrow >= 3.0.0, < 8.0dev",
+    "pyarrow >= 3.0.0, < 8.0dev; python_version<'3.11'",
+    "pyarrow >= 10.0.1; python_version>='3.11'",
 ]
 
 vizier_extra_require = [
-    "google-vizier==0.0.4",
+    "google-vizier==0.0.4; python_version<'3.11'",
+    "google-vizier>=0.1.6; python_version>='3.11'",
 ]
 
 prediction_extra_require = [
