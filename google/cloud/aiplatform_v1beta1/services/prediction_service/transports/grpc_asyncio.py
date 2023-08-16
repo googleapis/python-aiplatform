@@ -373,6 +373,35 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
             )
         return self._stubs["explain"]
 
+    @property
+    def count_tokens(
+        self,
+    ) -> Callable[
+        [prediction_service.CountTokensRequest],
+        Awaitable[prediction_service.CountTokensResponse],
+    ]:
+        r"""Return a callable for the count tokens method over gRPC.
+
+        Perform a token counting.
+
+        Returns:
+            Callable[[~.CountTokensRequest],
+                    Awaitable[~.CountTokensResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "count_tokens" not in self._stubs:
+            self._stubs["count_tokens"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/CountTokens",
+                request_serializer=prediction_service.CountTokensRequest.serialize,
+                response_deserializer=prediction_service.CountTokensResponse.deserialize,
+            )
+        return self._stubs["count_tokens"]
+
     def close(self):
         return self.grpc_channel.close()
 
