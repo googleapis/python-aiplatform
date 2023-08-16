@@ -20,3 +20,13 @@ Vertex AI SDK
     :members:
     :show-inheritance:
     :inherited-members:
+
+.. automodule:: vertexai.vision_models
+    :members:
+    :show-inheritance:
+    :inherited-members:
+
+.. automodule:: vertexai.preview.vision_models
+    :members:
+    :show-inheritance:
+    :inherited-members:
