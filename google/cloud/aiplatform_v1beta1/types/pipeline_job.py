@@ -140,6 +140,10 @@ class PipelineJob(proto.Message):
             if
             [PipelineJob.template_uri][google.cloud.aiplatform.v1beta1.PipelineJob.template_uri]
             is from supported template registry.
+        schedule_name (str):
+            Output only. The schedule resource name.
+            Only returned if the Pipeline is created by
+            Schedule API.
     """
 
     class RuntimeConfig(proto.Message):
@@ -324,6 +328,10 @@ class PipelineJob(proto.Message):
         proto.MESSAGE,
         number=20,
         message="PipelineTemplateMetadata",
+    )
+    schedule_name: str = proto.Field(
+        proto.STRING,
+        number=22,
     )
 
 

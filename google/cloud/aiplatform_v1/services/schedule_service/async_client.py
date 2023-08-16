@@ -975,6 +975,7 @@ class ScheduleServiceAsyncClient:
                 the server. The following restrictions will be applied:
 
                 -  The scheduled request type cannot be changed.
+                -  The non-empty fields cannot be unset.
                 -  The output_only fields will be ignored if specified.
 
                 This corresponds to the ``schedule`` field

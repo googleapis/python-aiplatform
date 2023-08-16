@@ -2224,6 +2224,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
             network="network_value",
             reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
+            schedule_name="schedule_name_value",
         )
         response = client.create_pipeline_job(request)
 
@@ -2241,6 +2242,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
     assert response.network == "network_value"
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
+    assert response.schedule_name == "schedule_name_value"
 
 
 def test_create_pipeline_job_empty_call():
@@ -2289,6 +2291,7 @@ async def test_create_pipeline_job_async(
                 network="network_value",
                 reserved_ip_ranges=["reserved_ip_ranges_value"],
                 template_uri="template_uri_value",
+                schedule_name="schedule_name_value",
             )
         )
         response = await client.create_pipeline_job(request)
@@ -2307,6 +2310,7 @@ async def test_create_pipeline_job_async(
     assert response.network == "network_value"
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
+    assert response.schedule_name == "schedule_name_value"
 
 
 @pytest.mark.asyncio
@@ -2513,6 +2517,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
             network="network_value",
             reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
+            schedule_name="schedule_name_value",
         )
         response = client.get_pipeline_job(request)
 
@@ -2530,6 +2535,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
     assert response.network == "network_value"
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
+    assert response.schedule_name == "schedule_name_value"
 
 
 def test_get_pipeline_job_empty_call():
@@ -2573,6 +2579,7 @@ async def test_get_pipeline_job_async(
                 network="network_value",
                 reserved_ip_ranges=["reserved_ip_ranges_value"],
                 template_uri="template_uri_value",
+                schedule_name="schedule_name_value",
             )
         )
         response = await client.get_pipeline_job(request)
@@ -2591,6 +2598,7 @@ async def test_get_pipeline_job_async(
     assert response.network == "network_value"
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
+    assert response.schedule_name == "schedule_name_value"
 
 
 @pytest.mark.asyncio
