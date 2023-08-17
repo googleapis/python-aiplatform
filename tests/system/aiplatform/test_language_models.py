@@ -124,7 +124,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             train_steps=1,
             tuning_job_location="europe-west4",
             tuned_model_location="us-central1",
-            learning_rate=2.0,
+            learning_rate_multiplier=2.0,
         )
         # According to the Pipelines design, external resources created by a pipeline
         # must not be modified or deleted. Otherwise caching will break next pipeline runs.
