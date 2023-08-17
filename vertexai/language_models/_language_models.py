@@ -139,6 +139,7 @@ class _TunableModelMixin(_LanguageModel):
         *,
         train_steps: int = 1000,
         learning_rate: Optional[float] = None,
+        learning_rate_multiplier: Optional[float] = None,
         tuning_job_location: Optional[str] = None,
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
@@ -152,7 +153,9 @@ class _TunableModelMixin(_LanguageModel):
                 The dataset schema is model-specific.
                 See https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models#dataset_format
             train_steps: Number of training batches to tune on (batch size is 8 samples).
-            learning_rate: Learning rate for the tuning
+            learning_rate: Deprecated. Use learning_rate_multiplier instead.
+                Learning rate to use in tuning.
+            learning_rate_multiplier: Learning rate multiplier to use in tuning.
             tuning_job_location: GCP location where the tuning job should be run.
                 Only "europe-west4" and "us-central1" locations are supported for now.
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
@@ -171,7 +174,13 @@ class _TunableModelMixin(_LanguageModel):
         if train_steps is not None:
             tuning_parameters["train_steps"] = train_steps
         if learning_rate is not None:
+            _LOGGER.warning(
+                "The learning_rate parameter is deprecated."
+                "Use the learning_rate_multiplier parameter instead."
+            )
             tuning_parameters["learning_rate"] = learning_rate
+        if learning_rate_multiplier is not None:
+            tuning_parameters["learning_rate_multiplier"] = learning_rate_multiplier
 
         return self._tune_model(
             training_data=training_data,
@@ -1191,6 +1200,10 @@ def _launch_tuning_job(
         learning_rate = tuning_parameters.get("learning_rate")
         if learning_rate:
             name += f" with learning rate {learning_rate}"
+
+        learning_rate_multiplier = tuning_parameters.get("learning_rate_multiplier")
+        if learning_rate_multiplier:
+            name += f" with learning_rate_multiplier={learning_rate_multiplier}"
 
         name += " on "
         # Truncating the start of the dataset URI to keep total length <= 128.
