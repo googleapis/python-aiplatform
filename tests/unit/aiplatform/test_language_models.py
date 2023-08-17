@@ -762,6 +762,52 @@ class TestLanguageModels:
         ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
         indirect=True,
     )
+    def test_tune_code_generation_model(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_job_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_gcs_from_string,
+        mock_gcs_upload,
+        mock_request_urlopen,
+        mock_get_tuned_model,
+    ):
+        """Tests tuning a code generation model."""
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.CodeGenerationModel.from_pretrained(
+                "code-bison@001"
+            )
+            # The tune_model call needs to be inside the PublisherModel mock
+            # since it gets a new PublisherModel when tuning completes.
+            model.tune_model(
+                training_data=_TEST_TEXT_BISON_TRAINING_DF,
+                tuning_job_location="europe-west4",
+                tuned_model_location="us-central1",
+            )
+            call_kwargs = mock_pipeline_service_create.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["large_model_reference"] == "code-bison@001"
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
     def test_tune_code_chat_model(
         self,
         mock_pipeline_service_create,
