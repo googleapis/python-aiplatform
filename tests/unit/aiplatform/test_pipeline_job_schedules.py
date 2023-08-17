@@ -29,21 +29,25 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform.constants import pipeline as pipeline_constants
 from google.cloud.aiplatform.compat.services import (
     pipeline_service_client,
-    schedule_service_client_v1beta1 as schedule_service_client,
+    schedule_service_client,
 )
 from google.cloud.aiplatform.compat.types import (
-    context_v1beta1 as gca_context,
-    pipeline_job_v1beta1 as gca_pipeline_job,
-    pipeline_state_v1beta1 as gca_pipeline_state,
-    schedule_v1beta1 as gca_schedule,
+    context as gca_context,
+    pipeline_job as gca_pipeline_job,
+    pipeline_state as gca_pipeline_state,
+    schedule as gca_schedule,
+)
+from google.cloud.aiplatform import (
+    pipeline_job_schedules,
 )
 from google.cloud.aiplatform.preview.pipelinejob import (
     pipeline_jobs as preview_pipeline_jobs,
 )
 from google.cloud.aiplatform.preview.pipelinejobschedule import (
-    pipeline_job_schedules,
+    pipeline_job_schedules as preview_pipeline_job_schedules,
 )
 from google.cloud.aiplatform.utils import gcs_utils
 import pytest
@@ -51,6 +55,7 @@ import yaml
 
 from google.protobuf import struct_pb2
 from google.protobuf import json_format
+from google.protobuf import field_mask_pb2 as field_mask
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -63,11 +68,11 @@ _TEST_SERVICE_ACCOUNT = "abcde@my-project.iam.gserviceaccount.com"
 _TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME = "sample-pipeline-job-schedule-display-name"
 _TEST_PIPELINE_JOB_SCHEDULE_ID = "sample-test-schedule-20230417"
 _TEST_PIPELINE_JOB_SCHEDULE_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/schedules/{_TEST_PIPELINE_JOB_SCHEDULE_ID}"
-_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION = "* * * * *"
+_TEST_PIPELINE_JOB_SCHEDULE_CRON = "* * * * *"
 _TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT = 1
 _TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT = 2
 
-_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION = "1 1 1 1 1"
+_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_CRON = "1 1 1 1 1"
 _TEST_UPDATED_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT = 5
 
 _TEST_TEMPLATE_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}/job_spec.json"
@@ -78,6 +83,9 @@ _TEST_NETWORK = (
     f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_SCHEDULE_ID}"
 )
 
+_TEST_PIPELINE_JOB_LIST_READ_MASK = field_mask.FieldMask(
+    paths=pipeline_constants._READ_MASK_FIELDS
+)
 _TEST_PIPELINE_PARAMETER_VALUES_LEGACY = {"string_param": "hello"}
 _TEST_PIPELINE_PARAMETER_VALUES = {
     "string_param": "hello world",
@@ -229,7 +237,7 @@ def mock_schedule_service_create():
             name=_TEST_PIPELINE_JOB_SCHEDULE_NAME,
             state=gca_schedule.Schedule.State.COMPLETED,
             create_time=_TEST_PIPELINE_CREATE_TIME,
-            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             create_pipeline_job_request=_TEST_CREATE_PIPELINE_JOB_REQUEST,
@@ -267,7 +275,7 @@ def make_schedule(state):
         name=_TEST_PIPELINE_JOB_SCHEDULE_NAME,
         state=state,
         create_time=_TEST_PIPELINE_CREATE_TIME,
-        cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+        cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
         max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
         max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
         create_pipeline_job_request=_TEST_CREATE_PIPELINE_JOB_REQUEST,
@@ -381,7 +389,7 @@ def mock_schedule_service_update():
             name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
             state=gca_schedule.Schedule.State.COMPLETED,
             create_time=_TEST_PIPELINE_CREATE_TIME,
-            cron=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             create_pipeline_job_request=_TEST_CREATE_PIPELINE_JOB_REQUEST,
@@ -427,6 +435,89 @@ class TestPipelineJobSchedule:
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
+    def test_call_preview_schedule_service_create(
+        self,
+        mock_schedule_service_create,
+        mock_schedule_service_get,
+        mock_schedule_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        """Creates a PipelineJobSchedule.
+
+        Creates PipelineJob with template stored in GCS bucket.
+        """
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = preview_pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+        )
+
+        pipeline_job_schedule.create(
+            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+            "inputArtifacts": {"vertex_model": {"artifactId": "456"}},
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            create_pipeline_job_request={
+                "parent": _TEST_PARENT,
+                "pipeline_job": {
+                    "runtime_config": runtime_config,
+                    "pipeline_spec": dict_to_struct(pipeline_spec),
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
+                },
+            },
+        )
+
+        mock_schedule_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            schedule=expected_gapic_pipeline_job_schedule,
+            timeout=None,
+        )
+
+        assert pipeline_job_schedule._gca_resource == make_schedule(
+            gca_schedule.Schedule.State.COMPLETED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
     def test_call_schedule_service_create(
         self,
         mock_schedule_service_create,
@@ -460,7 +551,7 @@ class TestPipelineJobSchedule:
         )
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -482,7 +573,7 @@ class TestPipelineJobSchedule:
         # Construct expected request
         expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
             display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
-            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             create_pipeline_job_request={
@@ -544,7 +635,7 @@ class TestPipelineJobSchedule:
 
         test_pipeline_job_schedule_cron_tz_expression = "TZ=America/New_York * * * * *"
         pipeline_job_schedule.create(
-            cron_expression=test_pipeline_job_schedule_cron_tz_expression,
+            cron=test_pipeline_job_schedule_cron_tz_expression,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -627,7 +718,7 @@ class TestPipelineJobSchedule:
         )
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -648,7 +739,7 @@ class TestPipelineJobSchedule:
         # Construct expected request
         expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
             display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
-            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             create_pipeline_job_request={
@@ -710,7 +801,7 @@ class TestPipelineJobSchedule:
         )
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -731,7 +822,7 @@ class TestPipelineJobSchedule:
         # Construct expected request
         expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
             display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
-            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             create_pipeline_job_request={
@@ -792,7 +883,7 @@ class TestPipelineJobSchedule:
         )
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -813,7 +904,7 @@ class TestPipelineJobSchedule:
         # Construct expected request
         expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
             display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
-            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             create_pipeline_job_request={
@@ -873,7 +964,7 @@ class TestPipelineJobSchedule:
         )
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -893,7 +984,7 @@ class TestPipelineJobSchedule:
         # Construct expected request
         expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
             display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
-            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             create_pipeline_job_request={
@@ -917,7 +1008,7 @@ class TestPipelineJobSchedule:
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
-    def test_call_pipeline_job_create_schedule(
+    def test_call_preview_pipeline_job_create_schedule(
         self,
         mock_schedule_service_create,
         mock_schedule_service_get,
@@ -942,7 +1033,7 @@ class TestPipelineJobSchedule:
 
         pipeline_job_schedule = job.create_schedule(
             display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -961,7 +1052,79 @@ class TestPipelineJobSchedule:
         pipeline_spec = job_spec.get("pipelineSpec") or job_spec
         expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
             display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
-            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            create_pipeline_job_request={
+                "parent": _TEST_PARENT,
+                "pipeline_job": {
+                    "runtime_config": runtime_config,
+                    "pipeline_spec": dict_to_struct(pipeline_spec),
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
+                },
+            },
+        )
+
+        mock_schedule_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            schedule=expected_gapic_pipeline_job_schedule,
+            timeout=None,
+        )
+
+        assert pipeline_job_schedule._gca_resource == make_schedule(
+            gca_schedule.Schedule.State.COMPLETED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_call_pipeline_job_create_schedule(
+        self,
+        mock_schedule_service_create,
+        mock_schedule_service_get,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        """Creates a PipelineJobSchedule via PipelineJob.create_schedule()."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = job.create_schedule(
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+            "inputArtifacts": {"vertex_model": {"artifactId": "456"}},
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+        expected_gapic_pipeline_job_schedule = gca_schedule.Schedule(
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             create_pipeline_job_request={
@@ -1029,7 +1192,7 @@ class TestPipelineJobSchedule:
         )
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
         )
@@ -1079,7 +1242,7 @@ class TestPipelineJobSchedule:
         )
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
         )
@@ -1127,7 +1290,7 @@ class TestPipelineJobSchedule:
         )
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -1139,6 +1302,111 @@ class TestPipelineJobSchedule:
 
         mock_schedule_service_list.assert_called_once_with(
             request={"parent": _TEST_PARENT}
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_schedule_service_create",
+        "mock_schedule_service_get",
+        "mock_schedule_bucket_exists",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_preview_list_schedule_jobs(
+        self,
+        mock_pipeline_service_list,
+        mock_load_yaml_and_json,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = preview_pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+        )
+
+        pipeline_job_schedule.create(
+            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        pipeline_job_schedule.list_jobs()
+
+        mock_pipeline_service_list.assert_called_once_with(
+            request={
+                "parent": _TEST_PARENT,
+                "filter": f"schedule_name={_TEST_PIPELINE_JOB_SCHEDULE_NAME}",
+            },
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_schedule_service_create",
+        "mock_schedule_service_get",
+        "mock_schedule_bucket_exists",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_preview_list_schedule_jobs_with_read_mask(
+        self,
+        mock_pipeline_service_list,
+        mock_load_yaml_and_json,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = preview_pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+        )
+
+        pipeline_job_schedule.create(
+            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        pipeline_job_schedule.list_jobs(enable_simple_view=True)
+
+        mock_pipeline_service_list.assert_called_once_with(
+            request={
+                "parent": _TEST_PARENT,
+                "read_mask": _TEST_PIPELINE_JOB_LIST_READ_MASK,
+                "filter": f"schedule_name={_TEST_PIPELINE_JOB_SCHEDULE_NAME}",
+            },
         )
 
     @pytest.mark.usefixtures(
@@ -1176,7 +1444,59 @@ class TestPipelineJobSchedule:
         )
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        pipeline_job_schedule.list_jobs(enable_simple_view=False)
+
+        mock_pipeline_service_list.assert_called_once_with(
+            request={
+                "parent": _TEST_PARENT,
+                "filter": f"schedule_name={_TEST_PIPELINE_JOB_SCHEDULE_NAME}",
+            },
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_schedule_service_create",
+        "mock_schedule_service_get",
+        "mock_schedule_bucket_exists",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_list_schedule_jobs_with_read_mask(
+        self,
+        mock_pipeline_service_list,
+        mock_load_yaml_and_json,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+        )
+
+        pipeline_job_schedule.create(
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -1189,6 +1509,7 @@ class TestPipelineJobSchedule:
         mock_pipeline_service_list.assert_called_once_with(
             request={
                 "parent": _TEST_PARENT,
+                "read_mask": _TEST_PIPELINE_JOB_LIST_READ_MASK,
                 "filter": f"schedule_name={_TEST_PIPELINE_JOB_SCHEDULE_NAME}",
             },
         )
@@ -1292,7 +1613,7 @@ class TestPipelineJobSchedule:
     ):
         """Updates a PipelineJobSchedule.
 
-        Updates cron_expression and max_run_count.
+        Updates cron and max_run_count.
         """
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1315,7 +1636,7 @@ class TestPipelineJobSchedule:
         )
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -1324,7 +1645,7 @@ class TestPipelineJobSchedule:
         )
 
         pipeline_job_schedule.update(
-            cron_expression=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_CRON,
             max_run_count=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
         )
 
@@ -1332,7 +1653,7 @@ class TestPipelineJobSchedule:
             name=_TEST_PIPELINE_JOB_SCHEDULE_NAME,
             state=gca_schedule.Schedule.State.COMPLETED,
             create_time=_TEST_PIPELINE_CREATE_TIME,
-            cron=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             create_pipeline_job_request=_TEST_CREATE_PIPELINE_JOB_REQUEST,
@@ -1380,7 +1701,7 @@ class TestPipelineJobSchedule:
 
         with pytest.raises(RuntimeError) as e:
             pipeline_job_schedule.update(
-                cron_expression=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+                cron=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_CRON,
                 max_run_count=_TEST_UPDATED_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             )
 
@@ -1430,7 +1751,7 @@ class TestPipelineJobSchedule:
         assert e.match(regexp=r"PipelineJobSchedule resource has not been created.")
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -1444,7 +1765,7 @@ class TestPipelineJobSchedule:
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
-    def test_get_cron_expression_before_create(
+    def test_get_cron_before_create(
         self,
         mock_schedule_service_create,
         mock_schedule_service_get,
@@ -1477,12 +1798,64 @@ class TestPipelineJobSchedule:
         )
 
         with pytest.raises(RuntimeError) as e:
+            pipeline_job_schedule.cron
+
+        assert e.match(regexp=r"PipelineJobSchedule resource has not been created.")
+
+        pipeline_job_schedule.create(
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        pipeline_job_schedule.cron
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_get_cron_expression_before_create(
+        self,
+        mock_schedule_service_create,
+        mock_schedule_service_get,
+        mock_schedule_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        """Gets the PipelineJobSchedule cron expression before creating.
+
+        Raises error because PipelineJobSchedule should be created first.
+        """
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = preview_pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+        )
+
+        with pytest.raises(RuntimeError) as e:
             pipeline_job_schedule.cron_expression
 
         assert e.match(regexp=r"PipelineJobSchedule resource has not been created.")
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -1534,7 +1907,7 @@ class TestPipelineJobSchedule:
         assert e.match(regexp=r"PipelineJobSchedule resource has not been created.")
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -1586,7 +1959,7 @@ class TestPipelineJobSchedule:
         assert e.match(regexp=r"PipelineJobSchedule resource has not been created.")
 
         pipeline_job_schedule.create(
-            cron_expression=_TEST_PIPELINE_JOB_SCHEDULE_CRON_EXPRESSION,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
             max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
             max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,

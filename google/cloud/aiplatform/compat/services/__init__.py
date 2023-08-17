@@ -109,6 +109,9 @@ from google.cloud.aiplatform_v1.services.pipeline_service import (
 from google.cloud.aiplatform_v1.services.prediction_service import (
     client as prediction_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.schedule_service import (
+    client as schedule_service_client_v1,
+)
 from google.cloud.aiplatform_v1.services.specialist_pool_service import (
     client as specialist_pool_service_client_v1,
 )
@@ -133,6 +136,7 @@ __all__ = (
     model_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
+    schedule_service_client_v1,
     specialist_pool_service_client_v1,
     tensorboard_service_client_v1,
     vizier_service_client_v1,
