@@ -1488,6 +1488,7 @@ class _CustomTrainingJob(_TrainingJob):
         enable_web_access: bool = False,
         enable_dashboard_access: bool = False,
         tensorboard: Optional[str] = None,
+        disable_retries: bool = False,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
 
@@ -1534,6 +1535,10 @@ class _CustomTrainingJob(_TrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
         Returns:
             Training task inputs and Output directory for custom job.
         """
@@ -1561,11 +1566,12 @@ class _CustomTrainingJob(_TrainingJob):
         if enable_dashboard_access:
             training_task_inputs["enable_dashboard_access"] = enable_dashboard_access
 
-        if timeout or restart_job_on_worker_restart:
+        if timeout or restart_job_on_worker_restart or disable_retries:
             timeout = f"{timeout}s" if timeout else None
             scheduling = {
                 "timeout": timeout,
                 "restart_job_on_worker_restart": restart_job_on_worker_restart,
+                "disable_retries": disable_retries,
             }
             training_task_inputs["scheduling"] = scheduling
 
@@ -2923,6 +2929,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -3206,6 +3213,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3266,6 +3277,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             else None,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
         )
 
     def submit(
@@ -3316,6 +3328,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -3599,6 +3612,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3660,6 +3677,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             sync=sync,
             create_request_timeout=create_request_timeout,
             block=False,
+            disable_retries=disable_retries,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -3705,6 +3723,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         sync=True,
         create_request_timeout: Optional[float] = None,
         block: Optional[bool] = True,
+        disable_retries: bool = False,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -3890,6 +3909,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Optional. The timeout for the create request in seconds
             block (bool):
                 Optional. If True, block until complete.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3942,6 +3965,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             enable_web_access=enable_web_access,
             enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
+            disable_retries=disable_retries,
         )
 
         model = self._run_job(
@@ -4263,6 +4287,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -4539,6 +4564,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -4598,6 +4627,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             else None,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
         )
 
     def submit(
@@ -4648,6 +4678,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -4924,6 +4955,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -4984,6 +5019,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             sync=sync,
             create_request_timeout=create_request_timeout,
             block=False,
+            disable_retries=disable_retries,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -5028,6 +5064,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         sync=True,
         create_request_timeout: Optional[float] = None,
         block: Optional[bool] = True,
+        disable_retries: bool = False,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
@@ -5209,6 +5246,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Optional. The timeout for the create request in seconds.
             block (bool):
                 Optional. If True, block until complete.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5255,6 +5296,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             enable_web_access=enable_web_access,
             enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
+            disable_retries=disable_retries,
         )
 
         model = self._run_job(
@@ -7172,6 +7214,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -7448,6 +7491,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -7502,6 +7549,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             else None,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -7545,6 +7593,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -7711,6 +7760,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -7757,6 +7810,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             enable_web_access=enable_web_access,
             enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
+            disable_retries=disable_retries,
         )
 
         model = self._run_job(

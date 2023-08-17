@@ -1629,6 +1629,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         tensorboard: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> None:
         """Run this configured CustomJob.
 
@@ -1686,6 +1687,10 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
         """
         network = network or initializer.global_config.network
 
@@ -1700,6 +1705,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             tensorboard=tensorboard,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
         )
 
     @base.optional_sync()
@@ -1715,6 +1721,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         tensorboard: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> None:
         """Helper method to ensure network synchronization and to run the configured CustomJob.
 
@@ -1770,6 +1777,10 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
         """
         self.submit(
             service_account=service_account,
@@ -1781,6 +1792,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             experiment_run=experiment_run,
             tensorboard=tensorboard,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
         )
 
         self._block_until_complete()
@@ -1797,6 +1809,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         experiment_run: Optional[Union["aiplatform.ExperimentRun", str]] = None,
         tensorboard: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> None:
         """Submit the configured CustomJob.
 
@@ -1849,6 +1862,10 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
 
         Raises:
             ValueError:
@@ -1869,11 +1886,12 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         if network:
             self._gca_resource.job_spec.network = network
 
-        if timeout or restart_job_on_worker_restart:
+        if timeout or restart_job_on_worker_restart or disable_retries:
             timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
             self._gca_resource.job_spec.scheduling = gca_custom_job_compat.Scheduling(
                 timeout=timeout,
                 restart_job_on_worker_restart=restart_job_on_worker_restart,
+                disable_retries=disable_retries,
             )
 
         if enable_web_access:
@@ -2287,6 +2305,7 @@ class HyperparameterTuningJob(_RunnableJob):
         tensorboard: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> None:
         """Run this configured CustomJob.
 
@@ -2331,6 +2350,10 @@ class HyperparameterTuningJob(_RunnableJob):
                 will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
         """
         network = network or initializer.global_config.network
 
@@ -2343,6 +2366,7 @@ class HyperparameterTuningJob(_RunnableJob):
             tensorboard=tensorboard,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            disable_retries=disable_retries,
         )
 
     @base.optional_sync()
@@ -2356,6 +2380,7 @@ class HyperparameterTuningJob(_RunnableJob):
         tensorboard: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> None:
         """Helper method to ensure network synchronization and to run the configured CustomJob.
 
@@ -2398,6 +2423,10 @@ class HyperparameterTuningJob(_RunnableJob):
                 will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
         """
         if service_account:
             self._gca_resource.trial_job_spec.service_account = service_account
@@ -2405,12 +2434,13 @@ class HyperparameterTuningJob(_RunnableJob):
         if network:
             self._gca_resource.trial_job_spec.network = network
 
-        if timeout or restart_job_on_worker_restart:
+        if timeout or restart_job_on_worker_restart or disable_retries:
             duration = duration_pb2.Duration(seconds=timeout) if timeout else None
             self._gca_resource.trial_job_spec.scheduling = (
                 gca_custom_job_compat.Scheduling(
                     timeout=duration,
                     restart_job_on_worker_restart=restart_job_on_worker_restart,
+                    disable_retries=disable_retries,
                 )
             )
 

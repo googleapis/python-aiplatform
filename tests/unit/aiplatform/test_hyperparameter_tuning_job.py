@@ -66,6 +66,7 @@ _TEST_TIMEOUT = test_constants.TrainingJobConstants._TEST_TIMEOUT
 _TEST_RESTART_JOB_ON_WORKER_RESTART = (
     test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
 )
+_TEST_DISABLE_RETRIES = test_constants.TrainingJobConstants._TEST_DISABLE_RETRIES
 
 _TEST_METRIC_SPEC_KEY = "test-metric"
 _TEST_METRIC_SPEC_VALUE = "maximize"
@@ -448,6 +449,7 @@ class TestHyperparameterTuningJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait()
@@ -519,6 +521,7 @@ class TestHyperparameterTuningJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=180.0,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait()
@@ -586,6 +589,7 @@ class TestHyperparameterTuningJob:
                 restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
                 sync=sync,
                 create_request_timeout=None,
+                disable_retries=_TEST_DISABLE_RETRIES,
             )
 
             job.wait()
@@ -647,6 +651,7 @@ class TestHyperparameterTuningJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=False,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         with pytest.raises(RuntimeError) as e:
@@ -783,6 +788,7 @@ class TestHyperparameterTuningJob:
             tensorboard=test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait()
@@ -860,6 +866,7 @@ class TestHyperparameterTuningJob:
             enable_web_access=test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait()
