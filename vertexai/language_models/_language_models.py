@@ -24,6 +24,9 @@ from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform.utils import gcs_utils
 from vertexai._model_garden import _model_garden_models
+from vertexai.language_models import (
+    _evaluatable_language_models,
+)
 
 try:
     import pandas
@@ -497,7 +500,10 @@ class TextGenerationModel(_TextGenerationModel, _ModelWithBatchPredict):
 
 
 class _PreviewTextGenerationModel(
-    _TextGenerationModel, _TunableModelMixin, _PreviewModelWithBatchPredict
+    _TextGenerationModel,
+    _TunableModelMixin,
+    _PreviewModelWithBatchPredict,
+    _evaluatable_language_models._EvaluatableLanguageModel,
 ):
     # Do not add docstring so that it's inherited from the base class.
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
@@ -696,7 +702,9 @@ class _ChatModelBase(_LanguageModel):
         *,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: Optional[int] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[
+            int
+        ] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -801,7 +809,7 @@ class CodeChatModel(_ChatModelBase):
             model=self,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
-            message_history=message_history
+            message_history=message_history,
         )
 
 
@@ -820,7 +828,9 @@ class _ChatSessionBase:
         model: _ChatModelBase,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: Optional[int] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[
+            int
+        ] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -955,7 +965,9 @@ class ChatSession(_ChatSessionBase):
         model: ChatModel,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: Optional[int] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[
+            int
+        ] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,

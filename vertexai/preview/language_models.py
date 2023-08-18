@@ -29,6 +29,16 @@ from vertexai.language_models._language_models import (
     TextGenerationResponse,
 )
 
+from vertexai.language_models._evaluatable_language_models import (
+    EvaluationTextGenerationSpec,
+    EvaluationTextSummarizationSpec,
+    EvaluationQuestionAnsweringSpec,
+    EvaluationTextClassificationSpec,
+    EvaluationClassificationMetric,
+    EvaluationMetric,
+)
+
+
 ChatModel = _PreviewChatModel
 CodeChatModel = _PreviewCodeChatModel
 CodeGenerationModel = _PreviewCodeGenerationModel
@@ -42,6 +52,12 @@ __all__ = [
     "CodeChatModel",
     "CodeChatSession",
     "CodeGenerationModel",
+    "EvaluationClassificationMetric",
+    "EvaluationMetric",
+    "EvaluationTextGenerationSpec",
+    "EvaluationTextSummarizationSpec",
+    "EvaluationQuestionAnsweringSpec",
+    "EvaluationTextClassificationSpec",
     "InputOutputTextPair",
     "TextEmbedding",
     "TextEmbeddingModel",

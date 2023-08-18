@@ -41,6 +41,7 @@ from google.cloud.aiplatform.compat.services import (
 )
 from google.cloud.aiplatform.compat.services import prediction_service_client
 from google.cloud.aiplatform.compat.types import (
+    artifact as gca_artifact,
     prediction_service as gca_prediction_service,
     context as gca_context,
     endpoint as gca_endpoint,
@@ -58,6 +59,9 @@ from vertexai.preview import (
 )
 from vertexai import language_models
 from vertexai.language_models import _language_models
+from vertexai.language_models import (
+    _evaluatable_language_models,
+)
 from google.cloud.aiplatform_v1 import Execution as GapicExecution
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
@@ -326,6 +330,251 @@ _TEST_PIPELINE_JOB = json.dumps(
     }
 )
 
+_TEST_TEXT_GENERATION_METRICS = {
+    "bleu": 3.9311041439597427,
+    "rougeLSum": 19.014677479620463,
+}
+
+
+_TEST_TEXT_CLASSIFICATION_METRICS = {"auPrc": 0.9, "auRoc": 0.8, "logLoss": 0.5}
+
+_TEST_EVAL_DATA = [
+    {
+        "prompt": "Basketball teams in the Midwest.",
+        "ground_truth": "There are several basketball teams located in the Midwest region of the United States. Here are some of them:",
+    },
+    {
+        "prompt": "How to bake gluten-free bread?",
+        "ground_truth": "Baking gluten-free bread can be a bit challenging because gluten is the protein that gives bread its structure and elasticity.",
+    },
+]
+
+_TEST_EVAL_DATA_DF = pd.DataFrame(_TEST_EVAL_DATA)
+
+_TEST_ARTIFACT_ID = "123456"
+_TEST_ARTIFACT_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default/artifacts/{_TEST_ARTIFACT_ID}"
+
+_TEST_EVAL_PIPELINE_SPEC = {
+    "components": {},
+    "pipelineInfo": {"name": "evaluation-llm-text-generation-pipeline"},
+    "root": {
+        "dag": {"tasks": {}},
+        "inputDefinitions": {
+            "parameters": {
+                "batch_predict_accelerator_count": {
+                    "defaultValue": 0.0,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "batch_predict_accelerator_type": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "batch_predict_gcs_source_uris": {
+                    "defaultValue": [],
+                    "isOptional": True,
+                    "parameterType": "LIST",
+                },
+                "batch_predict_gcs_destination_output_uri": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "batch_predict_predictions_format": {
+                    "defaultValue": "jsonl",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "enable_web_access": {
+                    "defaultValue": True,
+                    "isOptional": True,
+                    "parameterType": "BOOLEAN",
+                },
+                "encryption_spec_key_name": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "evaluation_display_name": {
+                    "defaultValue": "evaluation-text-generation",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "location": {
+                    "defaultValue": "us-central1",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "machine_type": {
+                    "defaultValue": "e2-highmem-16",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "model_name": {"parameterType": "STRING"},
+                "evaluation_task": {"parameterType": "STRING"},
+                "network": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "nlp_task": {
+                    "defaultValue": "text-generation",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "predictions_format": {
+                    "defaultValue": "jsonl",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "predictions_gcs_source": {
+                    "defaultValue": [],
+                    "isOptional": True,
+                    "parameterType": "LIST",
+                },
+                "project": {"parameterType": "STRING"},
+                "root_dir": {"parameterType": "STRING"},
+                "service_account": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+            }
+        },
+    },
+    "schemaVersion": "2.1.0",
+    "sdkVersion": "kfp-2.0.0-beta.14",
+}
+
+
+_TEST_EVAL_PIPELINE_SPEC_JSON = json.dumps(
+    _TEST_EVAL_PIPELINE_SPEC,
+)
+
+_TEST_EVAL_PIPELINE_JOB = json.dumps(
+    {
+        "runtimeConfig": {"parameterValues": {}},
+        "pipelineSpec": json.loads(_TEST_EVAL_PIPELINE_SPEC_JSON),
+    }
+)
+
+# Eval classification spec
+
+_TEST_EVAL_CLASSIFICATION_PIPELINE_SPEC = {
+    "components": {},
+    "pipelineInfo": {"name": "evaluation-llm-text-generation-pipeline"},
+    "root": {
+        "dag": {"tasks": {}},
+        "inputDefinitions": {
+            "parameters": {
+                "batch_predict_accelerator_count": {
+                    "defaultValue": 0.0,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "batch_predict_accelerator_type": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "batch_predict_gcs_source_uris": {
+                    "defaultValue": [],
+                    "isOptional": True,
+                    "parameterType": "LIST",
+                },
+                "batch_predict_gcs_destination_output_uri": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "batch_predict_predictions_format": {
+                    "defaultValue": "jsonl",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "enable_web_access": {
+                    "defaultValue": True,
+                    "isOptional": True,
+                    "parameterType": "BOOLEAN",
+                },
+                "encryption_spec_key_name": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "evaluation_display_name": {
+                    "defaultValue": "evaluation-text-generation",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "location": {
+                    "defaultValue": "us-central1",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "machine_type": {
+                    "defaultValue": "e2-highmem-16",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "model_name": {"parameterType": "STRING"},
+                "evaluation_task": {"parameterType": "STRING"},
+                "network": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "nlp_task": {
+                    "defaultValue": "text-generation",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "predictions_format": {
+                    "defaultValue": "jsonl",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "predictions_gcs_source": {
+                    "defaultValue": [],
+                    "isOptional": True,
+                    "parameterType": "LIST",
+                },
+                "evaluation_class_labels": {
+                    "defaultValue": [],
+                    "isOptional": True,
+                    "parameterType": "LIST",
+                },
+                "target_field_name": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "project": {"parameterType": "STRING"},
+                "root_dir": {"parameterType": "STRING"},
+                "service_account": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+            }
+        },
+    },
+    "schemaVersion": "2.1.0",
+    "sdkVersion": "kfp-2.0.0-beta.14",
+}
+
+_TEST_EVAL_CLASSIFICATION_PIPELINE_SPEC_JSON = json.dumps(
+    _TEST_EVAL_CLASSIFICATION_PIPELINE_SPEC,
+)
+
+_TEST_EVAL_CLASSIFICATION_PIPELINE_JOB = json.dumps(
+    {
+        "runtimeConfig": {"parameterValues": {}},
+        "pipelineSpec": json.loads(_TEST_EVAL_PIPELINE_SPEC_JSON),
+    }
+)
+
 
 @pytest.fixture
 def mock_pipeline_bucket_exists():
@@ -382,12 +631,124 @@ def make_pipeline_job(state):
     )
 
 
+def make_eval_pipeline_job(state):
+    return gca_pipeline_job.PipelineJob(
+        name=test_constants.PipelineJobConstants._TEST_PIPELINE_JOB_NAME,
+        state=state,
+        create_time=test_constants.PipelineJobConstants._TEST_PIPELINE_CREATE_TIME,
+        service_account=test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT,
+        network=test_constants.TrainingJobConstants._TEST_NETWORK,
+        job_detail=gca_pipeline_job.PipelineJobDetail(
+            pipeline_run_context=gca_context.Context(
+                name=test_constants.PipelineJobConstants._TEST_PIPELINE_JOB_NAME,
+            ),
+            task_details=[
+                gca_pipeline_job.PipelineTaskDetail(
+                    task_id=456,
+                    task_name=test_constants.PipelineJobConstants._TEST_PIPELINE_JOB_ID,
+                    outputs={
+                        "evaluation_metrics": gca_pipeline_job.PipelineTaskDetail.ArtifactList(
+                            artifacts=[
+                                gca_artifact.Artifact(
+                                    name="test-metric-artifact",
+                                    metadata=_TEST_TEXT_GENERATION_METRICS,
+                                ),
+                            ],
+                        )
+                    },
+                ),
+                gca_pipeline_job.PipelineTaskDetail(
+                    task_id=789,
+                    task_name=test_constants.PipelineJobConstants._TEST_PIPELINE_JOB_ID,
+                    outputs={
+                        "evaluation_metrics": gca_pipeline_job.PipelineTaskDetail.ArtifactList(
+                            artifacts=[
+                                gca_artifact.Artifact(
+                                    display_name="evaluation_metrics",
+                                    uri="gs://test-bucket/evaluation_metrics",
+                                ),
+                            ]
+                        )
+                    },
+                ),
+            ],
+        ),
+    )
+
+
+def make_eval_classification_pipeline_job(state):
+    return gca_pipeline_job.PipelineJob(
+        name=test_constants.PipelineJobConstants._TEST_PIPELINE_JOB_NAME,
+        state=state,
+        create_time=test_constants.PipelineJobConstants._TEST_PIPELINE_CREATE_TIME,
+        service_account=test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT,
+        network=test_constants.TrainingJobConstants._TEST_NETWORK,
+        job_detail=gca_pipeline_job.PipelineJobDetail(
+            pipeline_run_context=gca_context.Context(
+                name=test_constants.PipelineJobConstants._TEST_PIPELINE_JOB_NAME,
+            ),
+            task_details=[
+                gca_pipeline_job.PipelineTaskDetail(
+                    task_id=456,
+                    task_name=test_constants.PipelineJobConstants._TEST_PIPELINE_JOB_ID,
+                    outputs={
+                        "evaluation_metrics": gca_pipeline_job.PipelineTaskDetail.ArtifactList(
+                            artifacts=[
+                                gca_artifact.Artifact(
+                                    name="test-metric-artifact",
+                                    metadata=_TEST_TEXT_CLASSIFICATION_METRICS,
+                                ),
+                            ],
+                        )
+                    },
+                ),
+                gca_pipeline_job.PipelineTaskDetail(
+                    task_id=789,
+                    task_name=test_constants.PipelineJobConstants._TEST_PIPELINE_JOB_ID,
+                    outputs={
+                        "evaluation_metrics": gca_pipeline_job.PipelineTaskDetail.ArtifactList(
+                            artifacts=[
+                                gca_artifact.Artifact(
+                                    display_name="evaluation_metrics",
+                                    uri="gs://test-bucket/evaluation_metrics",
+                                ),
+                            ]
+                        )
+                    },
+                ),
+            ],
+        ),
+    )
+
+
 @pytest.fixture
 def mock_pipeline_service_create():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_pipeline_job"
     ) as mock_create_pipeline_job:
         mock_create_pipeline_job.return_value = make_pipeline_job(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+        yield mock_create_pipeline_job
+
+
+@pytest.fixture
+def mock_pipeline_service_create_eval():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_pipeline_job"
+    ) as mock_create_pipeline_job:
+        mock_create_pipeline_job.return_value = make_eval_pipeline_job(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+        yield mock_create_pipeline_job
+
+
+@pytest.fixture
+def mock_pipeline_service_create_eval_classification():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_pipeline_job"
+    ) as mock_create_pipeline_job:
+        mock_create_pipeline_job.return_value = make_eval_classification_pipeline_job(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
         yield mock_create_pipeline_job
@@ -430,6 +791,82 @@ def mock_pipeline_job_get():
 
 
 @pytest.fixture
+def mock_pipeline_job_get_eval():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_pipeline_job"
+    ) as mock_get_pipeline_job:
+        mock_get_pipeline_job.side_effect = [
+            make_eval_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING
+            ),
+            make_eval_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+        ]
+
+        yield mock_get_pipeline_job
+
+
+@pytest.fixture
+def mock_pipeline_job_get_eval_classification():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_pipeline_job"
+    ) as mock_get_pipeline_job:
+        mock_get_pipeline_job.side_effect = [
+            make_eval_classification_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING
+            ),
+            make_eval_classification_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_classification_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_classification_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_classification_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_classification_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_classification_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_classification_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_eval_classification_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+        ]
+
+        yield mock_get_pipeline_job
+
+
+@pytest.fixture
 def mock_load_yaml_and_json(job_spec):
     with mock.patch.object(
         storage.Blob, "download_as_bytes"
@@ -453,6 +890,32 @@ def mock_gcs_upload():
 @pytest.fixture
 def mock_request_urlopen(request: str) -> Tuple[str, mock.MagicMock]:
     data = _TEST_PIPELINE_SPEC
+    with mock.patch.object(urllib_request, "urlopen") as mock_urlopen:
+        mock_read_response = mock.MagicMock()
+        mock_decode_response = mock.MagicMock()
+        mock_decode_response.return_value = json.dumps(data)
+        mock_read_response.return_value.decode = mock_decode_response
+        mock_urlopen.return_value.read = mock_read_response
+        yield request.param, mock_urlopen
+
+
+@pytest.fixture
+def mock_request_urlopen_eval(request: str) -> Tuple[str, mock.MagicMock]:
+    data = _TEST_EVAL_PIPELINE_SPEC
+    with mock.patch.object(urllib_request, "urlopen") as mock_urlopen:
+        mock_read_response = mock.MagicMock()
+        mock_decode_response = mock.MagicMock()
+        mock_decode_response.return_value = json.dumps(data)
+        mock_read_response.return_value.decode = mock_decode_response
+        mock_urlopen.return_value.read = mock_read_response
+        yield request.param, mock_urlopen
+
+
+@pytest.fixture
+def mock_request_urlopen_eval_classification(
+    request: str,
+) -> Tuple[str, mock.MagicMock]:
+    data = _TEST_EVAL_CLASSIFICATION_PIPELINE_SPEC
     with mock.patch.object(urllib_request, "urlopen") as mock_urlopen:
         mock_read_response = mock.MagicMock()
         mock_decode_response = mock.MagicMock()
@@ -526,6 +989,48 @@ def get_endpoint_with_models_mock():
             traffic_split=test_constants.EndpointConstants._TEST_TRAFFIC_SPLIT,
         )
         yield get_endpoint_models_mock
+
+
+# Model Evaluation fixtures
+@pytest.fixture
+def mock_model_evaluate():
+    with mock.patch.object(
+        _evaluatable_language_models._EvaluatableLanguageModel, "evaluate"
+    ) as mock_model_evaluate:
+        mock_model_evaluate.return_value = _TEST_TEXT_GENERATION_METRICS
+        yield mock_model_evaluate
+
+
+@pytest.fixture
+def mock_successfully_completed_eval_job():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_pipeline_job"
+    ) as mock_get_model_eval_job:
+        mock_get_model_eval_job.return_value = make_eval_pipeline_job(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+        yield mock_get_model_eval_job
+
+
+@pytest.fixture
+def mock_successfully_completed_eval_classification_job():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_pipeline_job"
+    ) as mock_get_model_eval_job:
+        mock_get_model_eval_job.return_value = make_eval_classification_pipeline_job(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+        yield mock_get_model_eval_job
+
+
+@pytest.fixture
+def mock_storage_blob_upload_from_filename():
+    with mock.patch(
+        "google.cloud.storage.Blob.upload_from_filename"
+    ) as mock_blob_upload_from_filename, mock.patch(
+        "google.cloud.storage.Bucket.exists", return_value=True
+    ):
+        yield mock_blob_upload_from_filename
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -1530,3 +2035,330 @@ class TestLanguageModels:
                 gcs_destination_prefix="gs://test-bucket/results/",
                 model_parameters={},
             )
+
+
+# TODO (b/285946649): add more test coverage before public preview release
+@pytest.mark.usefixtures("google_auth_mock")
+class TestLanguageModelEvaluation:
+    @pytest.mark.usefixtures(
+        "get_model_with_tuned_version_label_mock",
+        "get_endpoint_with_models_mock",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_EVAL_PIPELINE_SPEC_JSON, _TEST_EVAL_PIPELINE_JOB],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen_eval",
+        ["https://us-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_model_evaluation_text_generation_task_with_gcs_input(
+        self,
+        job_spec,
+        mock_pipeline_service_create_eval,
+        mock_pipeline_job_get_eval,
+        mock_successfully_completed_eval_job,
+        mock_pipeline_bucket_exists,
+        mock_load_yaml_and_json,
+        mock_request_urlopen_eval,
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+
+            my_model = preview_language_models.TextGenerationModel.get_tuned_model(
+                test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
+            )
+
+            eval_metrics = my_model.evaluate(
+                task_spec=preview_language_models.EvaluationTextGenerationSpec(
+                    ground_truth_data="gs://my-bucket/ground-truth.jsonl",
+                ),
+            )
+
+            assert isinstance(eval_metrics, preview_language_models.EvaluationMetric)
+            assert eval_metrics.bleu == _TEST_TEXT_GENERATION_METRICS["bleu"]
+
+    @pytest.mark.usefixtures(
+        "get_model_with_tuned_version_label_mock",
+        "get_endpoint_with_models_mock",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_EVAL_PIPELINE_SPEC_JSON, _TEST_EVAL_PIPELINE_JOB],
+    )
+    def test_populate_eval_template_params(
+        self,
+        job_spec,
+        mock_pipeline_service_create,
+        mock_model_evaluate,
+        mock_pipeline_job_get,
+        mock_successfully_completed_eval_job,
+        mock_pipeline_bucket_exists,
+        mock_load_yaml_and_json,
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+
+            my_model = preview_language_models.TextGenerationModel.get_tuned_model(
+                test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
+            )
+
+            task_spec = preview_language_models.EvaluationTextGenerationSpec(
+                ground_truth_data="gs://my-bucket/ground-truth.jsonl",
+            )
+
+            formatted_template_params = (
+                _evaluatable_language_models._populate_eval_template_params(
+                    task_spec=task_spec, model_name=my_model._model_resource_name
+                )
+            )
+
+            assert (
+                "batch_predict_gcs_destination_output_uri" in formatted_template_params
+            )
+            assert "model_name" in formatted_template_params
+            assert "evaluation_task" in formatted_template_params
+
+            # This should only be in the classification task pipeline template
+            assert "evaluation_class_labels" not in formatted_template_params
+            assert "target_column_name" not in formatted_template_params
+
+    @pytest.mark.usefixtures(
+        "get_model_with_tuned_version_label_mock",
+        "get_endpoint_with_models_mock",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_EVAL_PIPELINE_SPEC_JSON, _TEST_EVAL_PIPELINE_JOB],
+    )
+    def test_populate_template_params_for_classification_task(
+        self,
+        job_spec,
+        mock_pipeline_service_create,
+        mock_model_evaluate,
+        mock_pipeline_job_get,
+        mock_successfully_completed_eval_job,
+        mock_pipeline_bucket_exists,
+        mock_load_yaml_and_json,
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+
+            my_model = preview_language_models.TextGenerationModel.get_tuned_model(
+                test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
+            )
+
+            task_spec = preview_language_models.EvaluationTextClassificationSpec(
+                ground_truth_data="gs://my-bucket/ground-truth.jsonl",
+                target_column_name="test_targ_name",
+                class_names=["test_class_name_1", "test_class_name_2"],
+            )
+
+            formatted_template_params = (
+                _evaluatable_language_models._populate_eval_template_params(
+                    task_spec=task_spec, model_name=my_model._model_resource_name
+                )
+            )
+
+            assert "evaluation_class_labels" in formatted_template_params
+            assert "target_field_name" in formatted_template_params
+
+    @pytest.mark.usefixtures(
+        "get_model_with_tuned_version_label_mock",
+        "get_endpoint_with_models_mock",
+        "mock_storage_blob_upload_from_filename",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_EVAL_PIPELINE_SPEC_JSON, _TEST_EVAL_PIPELINE_JOB],
+    )
+    def test_populate_template_params_with_dataframe_input(
+        self,
+        job_spec,
+        mock_pipeline_service_create,
+        mock_pipeline_job_get,
+        mock_successfully_completed_eval_job,
+        mock_pipeline_bucket_exists,
+        mock_load_yaml_and_json,
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+
+            my_model = preview_language_models.TextGenerationModel.get_tuned_model(
+                test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
+            )
+
+            task_spec = preview_language_models.EvaluationTextGenerationSpec(
+                ground_truth_data=_TEST_EVAL_DATA_DF,
+            )
+
+            formatted_template_params = (
+                _evaluatable_language_models._populate_eval_template_params(
+                    task_spec=task_spec, model_name=my_model._model_resource_name
+                )
+            )
+
+            # The utility method should not modify task_spec
+            assert isinstance(task_spec.ground_truth_data, pd.DataFrame)
+
+            assert (
+                "batch_predict_gcs_destination_output_uri" in formatted_template_params
+            )
+            assert "model_name" in formatted_template_params
+            assert "evaluation_task" in formatted_template_params
+
+            # This should only be in the classification task pipeline template
+            assert "evaluation_class_labels" not in formatted_template_params
+            assert "target_column_name" not in formatted_template_params
+
+    def test_evaluate_raises_on_ga_language_model(
+        self,
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+            with pytest.raises(AttributeError):
+                model.evaluate()
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_with_models_mock",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_EVAL_PIPELINE_SPEC_JSON, _TEST_EVAL_PIPELINE_JOB],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen_eval",
+        ["https://us-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_model_evaluation_text_generation_task_on_base_model(
+        self,
+        job_spec,
+        mock_pipeline_service_create_eval,
+        mock_pipeline_job_get_eval,
+        mock_successfully_completed_eval_job,
+        mock_pipeline_bucket_exists,
+        mock_load_yaml_and_json,
+        mock_request_urlopen_eval,
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+
+            my_model = preview_language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+            eval_metrics = my_model.evaluate(
+                task_spec=preview_language_models.EvaluationTextGenerationSpec(
+                    ground_truth_data="gs://my-bucket/ground-truth.jsonl",
+                ),
+            )
+
+            assert isinstance(eval_metrics, preview_language_models.EvaluationMetric)
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_with_models_mock",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [
+            _TEST_EVAL_CLASSIFICATION_PIPELINE_SPEC_JSON,
+            _TEST_EVAL_CLASSIFICATION_PIPELINE_JOB,
+        ],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen_eval_classification",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_model_evaluation_text_classification_base_model_only_summary_metrics(
+        self,
+        job_spec,
+        mock_pipeline_service_create_eval_classification,
+        mock_pipeline_job_get_eval_classification,
+        mock_successfully_completed_eval_classification_job,
+        mock_pipeline_bucket_exists,
+        mock_load_yaml_and_json,
+        mock_request_urlopen_eval_classification,
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            my_model = preview_language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+            eval_metrics = my_model.evaluate(
+                task_spec=preview_language_models.EvaluationTextClassificationSpec(
+                    ground_truth_data="gs://my-bucket/ground-truth.jsonl",
+                    target_column_name="test_targ_name",
+                    class_names=["test_class_name_1", "test_class_name_2"],
+                )
+            )
+
+            assert isinstance(
+                eval_metrics,
+                preview_language_models.EvaluationClassificationMetric,
+            )
+            assert eval_metrics.confidenceMetrics is None
+            assert eval_metrics.auPrc == _TEST_TEXT_CLASSIFICATION_METRICS["auPrc"]
