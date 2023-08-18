@@ -91,8 +91,9 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             "imagegeneration@001"
         )
 
-        width = 1024
-        height = 768
+        # TODO(b/295946075): The service stopped supporting image sizes.
+        # width = 1024
+        # height = 768
         number_of_images = 4
         seed = 1
         guidance_scale = 15
@@ -104,20 +105,23 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             # Optional:
             negative_prompt=negative_prompt1,
             number_of_images=number_of_images,
-            width=width,
-            height=height,
+            # TODO(b/295946075): The service stopped supporting image sizes.
+            # width=width,
+            # height=height,
             seed=seed,
             guidance_scale=guidance_scale,
         )
 
         assert len(image_response.images) == number_of_images
         for idx, image in enumerate(image_response):
-            assert image._pil_image.size == (width, height)
+            # TODO(b/295946075): The service stopped supporting image sizes.
+            # assert image._pil_image.size == (width, height)
             assert image.generation_parameters
             assert image.generation_parameters["prompt"] == prompt1
             assert image.generation_parameters["negative_prompt"] == negative_prompt1
-            assert image.generation_parameters["width"] == width
-            assert image.generation_parameters["height"] == height
+            # TODO(b/295946075): The service stopped supporting image sizes.
+            # assert image.generation_parameters["width"] == width
+            # assert image.generation_parameters["height"] == height
             assert image.generation_parameters["seed"] == seed
             assert image.generation_parameters["guidance_scale"] == guidance_scale
             assert image.generation_parameters["index_of_image_in_batch"] == idx
@@ -127,13 +131,13 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             image_path = os.path.join(temp_dir, "image.png")
             image_response[0].save(location=image_path)
             image1 = vision_models.GeneratedImage.load_from_file(image_path)
-            assert image1._pil_image.size == (width, height)
+            # assert image1._pil_image.size == (width, height)
             assert image1.generation_parameters
             assert image1.generation_parameters["prompt"] == prompt1
 
             # Preparing mask
             mask_path = os.path.join(temp_dir, "mask.png")
-            mask_pil_image = PIL_Image.new(mode="RGB", size=(width, height))
+            mask_pil_image = PIL_Image.new(mode="RGB", size=image1._pil_image.size)
             mask_pil_image.save(mask_path, format="PNG")
             mask_image = vision_models.Image.load_from_file(mask_path)
 
@@ -150,7 +154,8 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
         )
         assert len(image_response2.images) == number_of_images
         for idx, image in enumerate(image_response2):
-            assert image._pil_image.size == (width, height)
+            # TODO(b/295946075): The service stopped supporting image sizes.
+            # assert image._pil_image.size == (width, height)
             assert image.generation_parameters
             assert image.generation_parameters["prompt"] == prompt2
             assert image.generation_parameters["seed"] == seed

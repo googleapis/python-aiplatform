@@ -166,8 +166,9 @@ class ImageGenerationModel(
         instance = {"prompt": prompt}
         shared_generation_parameters = {
             "prompt": prompt,
-            "width": width,
-            "height": height,
+            # b/295946075 The service stopped supporting image sizes.
+            # "width": width,
+            # "height": height,
             "number_of_images_in_batch": number_of_images,
         }
 
@@ -238,8 +239,6 @@ class ImageGenerationModel(
         *,
         negative_prompt: Optional[str] = None,
         number_of_images: int = 1,
-        width: Optional[int] = None,
-        height: Optional[int] = None,
         guidance_scale: Optional[float] = None,
         seed: Optional[int] = None,
     ) -> "ImageGenerationResponse":
@@ -250,8 +249,6 @@ class ImageGenerationModel(
             negative_prompt: A description of what you want to omit in
                 the generated images.
             number_of_images: Number of images to generate. Range: 1..8.
-            width: Width of the image. One of the sizes must be 256 or 1024.
-            height: Height of the image. One of the sizes must be 256 or 1024.
             guidance_scale: Controls the strength of the prompt.
                 Suggested values are:
                 * 0-9 (low strength)
@@ -266,8 +263,9 @@ class ImageGenerationModel(
             prompt=prompt,
             negative_prompt=negative_prompt,
             number_of_images=number_of_images,
-            width=width,
-            height=height,
+            # b/295946075 The service stopped supporting image sizes.
+            width=None,
+            height=None,
             guidance_scale=guidance_scale,
             seed=seed,
         )

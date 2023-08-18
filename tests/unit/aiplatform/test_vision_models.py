@@ -23,6 +23,7 @@ import io
 import os
 import tempfile
 from typing import Any, Dict
+import unittest
 from unittest import mock
 
 from google.cloud import aiplatform
@@ -175,7 +176,9 @@ class TestImageGenerationModels:
         model = self._get_image_generation_model()
 
         width = 1024
-        height = 768
+        # TODO(b/295946075) The service stopped supporting image sizes.
+        # height = 768
+        height = 1024
         number_of_images = 4
         seed = 1
         guidance_scale = 15
@@ -200,8 +203,9 @@ class TestImageGenerationModels:
                 # Optional:
                 negative_prompt=negative_prompt1,
                 number_of_images=number_of_images,
-                width=width,
-                height=height,
+                # TODO(b/295946075) The service stopped supporting image sizes.
+                # width=width,
+                # height=height,
                 seed=seed,
                 guidance_scale=guidance_scale,
             )
@@ -210,8 +214,9 @@ class TestImageGenerationModels:
             actual_instance = predict_kwargs["instances"][0]
             assert actual_instance["prompt"] == prompt1
             assert actual_instance["negativePrompt"] == negative_prompt1
-            assert actual_parameters["sampleImageSize"] == str(max(width, height))
-            assert actual_parameters["aspectRatio"] == f"{width}:{height}"
+            # TODO(b/295946075) The service stopped supporting image sizes.
+            # assert actual_parameters["sampleImageSize"] == str(max(width, height))
+            # assert actual_parameters["aspectRatio"] == f"{width}:{height}"
             assert actual_parameters["seed"] == seed
             assert actual_parameters["guidanceScale"] == guidance_scale
 
@@ -221,8 +226,9 @@ class TestImageGenerationModels:
             assert image.generation_parameters
             assert image.generation_parameters["prompt"] == prompt1
             assert image.generation_parameters["negative_prompt"] == negative_prompt1
-            assert image.generation_parameters["width"] == width
-            assert image.generation_parameters["height"] == height
+            # TODO(b/295946075) The service stopped supporting image sizes.
+            # assert image.generation_parameters["width"] == width
+            # assert image.generation_parameters["height"] == height
             assert image.generation_parameters["seed"] == seed
             assert image.generation_parameters["guidance_scale"] == guidance_scale
             assert image.generation_parameters["index_of_image_in_batch"] == idx
@@ -233,13 +239,13 @@ class TestImageGenerationModels:
             image_path = os.path.join(temp_dir, "image.png")
             image_response[0].save(location=image_path)
             image1 = vision_models.GeneratedImage.load_from_file(image_path)
-            assert image1._pil_image.size == (width, height)
+            # assert image1._pil_image.size == (width, height)
             assert image1.generation_parameters
             assert image1.generation_parameters["prompt"] == prompt1
 
             # Preparing mask
             mask_path = os.path.join(temp_dir, "mask.png")
-            mask_pil_image = PIL_Image.new(mode="RGB", size=(width, height))
+            mask_pil_image = PIL_Image.new(mode="RGB", size=image1._pil_image.size)
             mask_pil_image.save(mask_path, format="PNG")
             mask_image = vision_models.Image.load_from_file(mask_path)
 
@@ -273,6 +279,7 @@ class TestImageGenerationModels:
             assert image.generation_parameters["base_image_hash"]
             assert image.generation_parameters["mask_hash"]
 
+    @unittest.skip(reason="b/295946075 The service stopped supporting image sizes.")
     def test_generate_images_requests_square_images_by_default(self):
         """Tests that the model class generates square image by default."""
         model = self._get_image_generation_model()
