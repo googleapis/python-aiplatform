@@ -228,6 +228,33 @@ _TEST_CHAT_GENERATION_PREDICTION2 = {
     ],
 }
 
+_TEST_CHAT_PREDICTION_STREAMING = [
+    {
+        "candidates": [
+            {
+                "author": "1",
+                "content": "1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15.",
+            }
+        ],
+        "safetyAttributes": [{"blocked": False, "categories": None, "scores": None}],
+    },
+    {
+        "candidates": [
+            {
+                "author": "1",
+                "content": " 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27.",
+            }
+        ],
+        "safetyAttributes": [
+            {
+                "blocked": True,
+                "categories": ["Finance"],
+                "scores": [0.1],
+            }
+        ],
+    },
+]
+
 _TEST_CODE_GENERATION_PREDICTION = {
     "safetyAttributes": {
         "categories": [],
@@ -1734,6 +1761,86 @@ class TestLanguageModels:
             assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
             assert prediction_parameters["topK"] == message_top_k
             assert prediction_parameters["topP"] == message_top_p
+
+    def test_chat_model_send_message_streaming(self):
+        """Tests the chat generation model."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.ChatModel.from_pretrained("chat-bison@001")
+
+        chat = model.start_chat(
+            context="""
+            My name is Ned.
+            You are my personal assistant.
+            My favorite movies are Lord of the Rings and Hobbit.
+            """,
+            examples=[
+                language_models.InputOutputTextPair(
+                    input_text="Who do you work for?",
+                    output_text="I work for Ned.",
+                ),
+                language_models.InputOutputTextPair(
+                    input_text="What do I like?",
+                    output_text="Ned likes watching movies.",
+                ),
+            ],
+            message_history=[
+                language_models.ChatMessage(
+                    author=preview_language_models.ChatSession.USER_AUTHOR,
+                    content="Question 1?",
+                ),
+                language_models.ChatMessage(
+                    author=preview_language_models.ChatSession.MODEL_AUTHOR,
+                    content="Answer 1.",
+                ),
+            ],
+            temperature=0.0,
+        )
+
+        # Using list instead of a generator so that it can be reused.
+        response_generator = [
+            gca_prediction_service.StreamingPredictResponse(
+                outputs=[_streaming_prediction.value_to_tensor(response_dict)]
+            )
+            for response_dict in _TEST_CHAT_PREDICTION_STREAMING
+        ]
+
+        message_temperature = 0.2
+        message_max_output_tokens = 200
+        message_top_k = 2
+        message_top_p = 0.2
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="server_streaming_predict",
+            return_value=response_generator,
+        ):
+            message_text1 = "Are my favorite movies based on a book series?"
+
+            for idx, response in enumerate(
+                chat.send_message_streaming(
+                    message=message_text1,
+                    max_output_tokens=message_max_output_tokens,
+                    temperature=message_temperature,
+                    top_k=message_top_k,
+                    top_p=message_top_p,
+                )
+            ):
+                assert len(response.text) > 10
+                # New messages are not added until the response is fully read
+                if idx + 1 < len(response_generator):
+                    assert len(chat.message_history) == 2
+
+        # New messages are only added after the response is fully read
+        assert len(chat.message_history) == 4
+        assert chat.message_history[2].author == chat.USER_AUTHOR
+        assert chat.message_history[2].content == message_text1
+        assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
     def test_code_chat(self):
         """Tests the code chat model."""

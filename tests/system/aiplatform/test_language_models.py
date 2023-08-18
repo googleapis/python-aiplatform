@@ -100,6 +100,44 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert chat.message_history[2].content == message2
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
+    def test_chat_model_send_message_streaming(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        chat_model = ChatModel.from_pretrained("google/chat-bison@001")
+        chat = chat_model.start_chat(
+            context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
+            examples=[
+                InputOutputTextPair(
+                    input_text="Who do you work for?",
+                    output_text="I work for Ned.",
+                ),
+                InputOutputTextPair(
+                    input_text="What do I like?",
+                    output_text="Ned likes watching movies.",
+                ),
+            ],
+            temperature=0.0,
+        )
+
+        message1 = "Are my favorite movies based on a book series?"
+        for response in chat.send_message_streaming(message1):
+            assert response.text
+        assert len(chat.message_history) == 2
+        assert chat.message_history[0].author == chat.USER_AUTHOR
+        assert chat.message_history[0].content == message1
+        assert chat.message_history[1].author == chat.MODEL_AUTHOR
+
+        message2 = "When were these books published?"
+        for response2 in chat.send_message_streaming(
+            message2,
+            temperature=0.1,
+        ):
+            assert response2.text
+        assert len(chat.message_history) == 4
+        assert chat.message_history[2].author == chat.USER_AUTHOR
+        assert chat.message_history[2].content == message2
+        assert chat.message_history[3].author == chat.MODEL_AUTHOR
+
     def test_text_embedding(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 

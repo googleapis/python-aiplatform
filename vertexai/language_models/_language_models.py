@@ -88,6 +88,13 @@ class _LanguageModel(_model_garden_models._ModelGardenModel):
             return self._endpoint.list_models()[0].model
 
 
+@dataclasses.dataclass
+class _PredictionRequest:
+    """A single-instance prediction request."""
+    instance: Dict[str, Any]
+    parameters: Optional[Dict[str, Any]] = None
+
+
 class _TunableModelMixin(_LanguageModel):
     """Model that can be tuned."""
 
@@ -915,7 +922,7 @@ class _ChatSessionBase:
         """List of previous messages."""
         return self._message_history
 
-    def send_message(
+    def _prepare_request(
         self,
         message: str,
         *,
@@ -923,8 +930,8 @@ class _ChatSessionBase:
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
-    ) -> "TextGenerationResponse":
-        """Sends message to the language model and gets a response.
+    ) -> _PredictionRequest:
+        """Prepares a request for the language model.
 
         Args:
             message: Message to send to the model
@@ -938,7 +945,7 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `_PredictionRequest` object.
         """
         prediction_parameters = {}
 
@@ -986,26 +993,86 @@ class _ChatSessionBase:
                 for example in self._examples
             ]
 
-        prediction_response = self._model._endpoint.predict(
-            instances=[prediction_instance],
+        return _PredictionRequest(
+            instance=prediction_instance,
             parameters=prediction_parameters,
         )
 
-        prediction = prediction_response.predictions[0]
+    @classmethod
+    def _parse_chat_prediction_response(
+        cls,
+        prediction_response: aiplatform.models.Prediction,
+        prediction_idx: int = 0,
+        candidate_idx: int = 0,
+    ) -> TextGenerationResponse:
+        """Parses prediction response for chat models.
+
+        Args:
+            prediction_response: Prediction response received from the model
+            prediction_idx: Index of the prediction to parse.
+            candidate_idx: Index of the candidate to parse.
+
+        Returns:
+            A `TextGenerationResponse` object.
+        """
+        prediction = prediction_response.predictions[prediction_idx]
         # ! Note: For chat models, the safetyAttributes is a list.
-        safety_attributes = prediction["safetyAttributes"][0]
-        response_obj = TextGenerationResponse(
-            text=prediction["candidates"][0]["content"]
+        safety_attributes = prediction["safetyAttributes"][candidate_idx]
+        return TextGenerationResponse(
+            text=prediction["candidates"][candidate_idx]["content"]
             if prediction.get("candidates")
             else None,
             _prediction_response=prediction_response,
             is_blocked=safety_attributes.get("blocked", False),
             safety_attributes=dict(
                 zip(
-                    safety_attributes.get("categories", []),
-                    safety_attributes.get("scores", []),
+                    # Unlike with normal prediction, in streaming prediction
+                    # categories and scores can be None
+                    safety_attributes.get("categories") or [],
+                    safety_attributes.get("scores") or [],
                 )
             ),
+        )
+
+    def send_message(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+    ) -> "TextGenerationResponse":
+        """Sends message to the language model and gets a response.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+
+        Returns:
+            A `TextGenerationResponse` object that contains the text produced by the model.
+        """
+        prediction_request = self._prepare_request(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+        )
+
+        prediction_response = self._model._endpoint.predict(
+            instances=[prediction_request.instance],
+            parameters=prediction_request.parameters,
+        )
+        response_obj = self._parse_chat_prediction_response(
+            prediction_response=prediction_response
         )
         response_text = response_obj.text
 
@@ -1017,6 +1084,71 @@ class _ChatSessionBase:
         )
 
         return response_obj
+
+    def send_message_streaming(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+    ) -> Iterator[TextGenerationResponse]:
+        """Sends message to the language model and gets a streamed response.
+
+        The response is only added to the history once it's fully read.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+
+        Yields:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        prediction_request = self._prepare_request(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+        )
+
+        prediction_service_client = self._model._endpoint._prediction_client
+
+        full_response_text = ""
+
+        for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
+            prediction_service_client=prediction_service_client,
+            endpoint_name=self._model._endpoint_name,
+            instance=prediction_request.instance,
+            parameters=prediction_request.parameters,
+        ):
+            prediction_response = aiplatform.models.Prediction(
+                predictions=[prediction_dict],
+                deployed_model_id="",
+            )
+            text_generation_response = self._parse_chat_prediction_response(
+                prediction_response=prediction_response
+            )
+            full_response_text += text_generation_response.text
+            yield text_generation_response
+
+        # We only add the question and answer to the history if/when the answer
+        # was read fully. Otherwise, the answer would have been truncated.
+        self._message_history.append(
+            ChatMessage(content=message, author=self.USER_AUTHOR)
+        )
+        self._message_history.append(
+            ChatMessage(content=full_response_text, author=self.MODEL_AUTHOR)
+        )
 
 
 class ChatSession(_ChatSessionBase):
