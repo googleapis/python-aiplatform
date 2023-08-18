@@ -48,6 +48,20 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             top_k=5,
         ).text
 
+    def test_text_generation_streaming(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = TextGenerationModel.from_pretrained("google/text-bison@001")
+
+        for response in model.predict_streaming(
+            "What is the best recipe for banana bread? Recipe:",
+            max_output_tokens=128,
+            temperature=0,
+            top_p=1,
+            top_k=5,
+        ):
+            assert response.text
+
     def test_chat_on_chat_model(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 

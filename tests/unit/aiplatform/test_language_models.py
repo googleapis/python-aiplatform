@@ -28,6 +28,7 @@ import pandas as pd
 from google.cloud import storage
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import _streaming_prediction
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import gcs_utils
@@ -167,6 +168,34 @@ Ingredients:
 Instructions:
 1. Preheat oven to 350 degrees F (175 degrees C).""",
 }
+
+_TEST_TEXT_GENERATION_PREDICTION_STREAMING = [
+    {
+        "content": "1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17.",
+    },
+    {
+        "content": " 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31.",
+        "safetyAttributes": {"blocked": False, "categories": None, "scores": None},
+    },
+    {
+        "content": " 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45.",
+        "citationMetadata": {
+            "citations": [
+                {
+                    "title": "THEATRUM ARITHMETICO-GEOMETRICUM",
+                    "publicationDate": "1727",
+                    "endIndex": 181,
+                    "startIndex": 12,
+                }
+            ]
+        },
+        "safetyAttributes": {
+            "blocked": True,
+            "categories": ["Finance"],
+            "scores": [0.1],
+        },
+    },
+]
 
 _TEST_CHAT_GENERATION_PREDICTION1 = {
     "safetyAttributes": [
@@ -1040,6 +1069,10 @@ class TestLanguageModels:
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
@@ -1164,6 +1197,40 @@ class TestLanguageModels:
         assert "temperature" not in prediction_parameters
         assert "topP" not in prediction_parameters
         assert "topK" not in prediction_parameters
+
+    def test_text_generation_model_predict_streaming(self):
+        """Tests the TextGenerationModel.predict_streaming method."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        response_generator = (
+            gca_prediction_service.StreamingPredictResponse(
+                outputs=[_streaming_prediction.value_to_tensor(response_dict)]
+            )
+            for response_dict in _TEST_TEXT_GENERATION_PREDICTION_STREAMING
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="server_streaming_predict",
+            return_value=response_generator,
+        ):
+            for response in model.predict_streaming(
+                "Count to 50",
+                max_output_tokens=1000,
+                temperature=0,
+                top_p=1,
+                top_k=5,
+            ):
+                assert len(response.text) > 10
 
     @pytest.mark.parametrize(
         "job_spec",

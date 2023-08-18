@@ -15,10 +15,11 @@
 """Classes for working with language models."""
 
 import dataclasses
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, Iterator, List, Optional, Sequence, Union
 import warnings
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import _streaming_prediction
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import utils as aiplatform_utils
@@ -388,6 +389,70 @@ class _TextGenerationModel(_LanguageModel):
                 )
             )
         return results
+
+    def predict_streaming(
+        self,
+        prompt: str,
+        *,
+        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+    ) -> Iterator[TextGenerationResponse]:
+        """Gets a streaming model response for a single prompt.
+
+        The result is a stream (generator) of partial responses.
+
+        Args:
+            prompt: Question to ask the model.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+
+        Yields:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        prediction_service_client = self._endpoint._prediction_client
+        # Note: "prompt", not "content" like in the non-streaming case. b/294462691
+        instance = {"prompt": prompt}
+        prediction_parameters = {}
+
+        if max_output_tokens:
+            prediction_parameters["maxDecodeSteps"] = max_output_tokens
+
+        if temperature is not None:
+            prediction_parameters["temperature"] = temperature
+
+        if top_p:
+            prediction_parameters["topP"] = top_p
+
+        if top_k:
+            prediction_parameters["topK"] = top_k
+
+        for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
+            prediction_service_client=prediction_service_client,
+            endpoint_name=self._endpoint_name,
+            instance=instance,
+            parameters=prediction_parameters,
+        ):
+            safety_attributes_dict = prediction_dict.get("safetyAttributes", {})
+            prediction_obj = aiplatform.models.Prediction(
+                predictions=[prediction_dict],
+                deployed_model_id="",
+            )
+            yield TextGenerationResponse(
+                text=prediction_dict["content"],
+                _prediction_response=prediction_obj,
+                is_blocked=safety_attributes_dict.get("blocked", False),
+                safety_attributes=dict(
+                    zip(
+                        safety_attributes_dict.get("categories") or [],
+                        safety_attributes_dict.get("scores") or [],
+                    )
+                ),
+            )
 
 
 class _ModelWithBatchPredict(_LanguageModel):
