@@ -2068,6 +2068,39 @@ class TestLanguageModels:
             assert "temperature" not in prediction_parameters
             assert prediction_parameters["maxOutputTokens"] == default_max_output_tokens
 
+    def test_code_generation_model_predict_streaming(self):
+        """Tests the TextGenerationModel.predict_streaming method."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.CodeGenerationModel.from_pretrained(
+                "code-bison@001"
+            )
+
+        response_generator = (
+            gca_prediction_service.StreamingPredictResponse(
+                outputs=[_streaming_prediction.value_to_tensor(response_dict)]
+            )
+            for response_dict in _TEST_TEXT_GENERATION_PREDICTION_STREAMING
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="server_streaming_predict",
+            return_value=response_generator,
+        ):
+            for response in model.predict_streaming(
+                prefix="def reverse_string(s):",
+                suffix="    return s",
+                max_output_tokens=1000,
+                temperature=0,
+            ):
+                assert len(response.text) > 10
+
     def test_text_embedding(self):
         """Tests the text embedding model."""
         aiplatform.init(

@@ -59,6 +59,13 @@ def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
     return f"publishers/google/models/{model_name}@{version}"
 
 
+@dataclasses.dataclass
+class _PredictionRequest:
+    """A single-instance prediction request."""
+    instance: Dict[str, Any]
+    parameters: Optional[Dict[str, Any]] = None
+
+
 class _LanguageModel(_model_garden_models._ModelGardenModel):
     """_LanguageModel is a base class for all language models."""
 
@@ -1250,15 +1257,15 @@ class CodeGenerationModel(_LanguageModel):
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
 
-    def predict(
+    def _create_prediction_request(
         self,
         prefix: str,
         suffix: Optional[str] = None,
         *,
         max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
         temperature: Optional[float] = None,
-    ) -> "TextGenerationResponse":
-        """Gets model response for a single prompt.
+    ) -> _PredictionRequest:
+        """Creates a code generation prediction request.
 
         Args:
             prefix: Code before the current point.
@@ -1281,15 +1288,88 @@ class CodeGenerationModel(_LanguageModel):
         if max_output_tokens:
             prediction_parameters["maxOutputTokens"] = max_output_tokens
 
+        return _PredictionRequest(instance=instance, parameters=prediction_parameters)
+
+    def predict(
+        self,
+        prefix: str,
+        suffix: Optional[str] = None,
+        *,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+    ) -> "TextGenerationResponse":
+        """Gets model response for a single prompt.
+
+        Args:
+            prefix: Code before the current point.
+            suffix: Code after the current point.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+
+        Returns:
+            A `TextGenerationResponse` object that contains the text produced by the model.
+        """
+        prediction_request = self._create_prediction_request(
+            prefix=prefix,
+            suffix=suffix,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+        )
+
         prediction_response = self._endpoint.predict(
-            instances=[instance],
-            parameters=prediction_parameters,
+            instances=[prediction_request.instance],
+            parameters=prediction_request.parameters,
         )
 
         return TextGenerationResponse(
             text=prediction_response.predictions[0]["content"],
             _prediction_response=prediction_response,
         )
+
+    def predict_streaming(
+        self,
+        prefix: str,
+        suffix: Optional[str] = None,
+        *,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+    ) -> Iterator[TextGenerationResponse]:
+        """Predicts the code based on previous code.
+
+        The result is a stream (generator) of partial responses.
+
+        Args:
+            prefix: Code before the current point.
+            suffix: Code after the current point.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+
+        Yields:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        prediction_request = self._create_prediction_request(
+            prefix=prefix,
+            suffix=suffix,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+        )
+
+        prediction_service_client = self._endpoint._prediction_client
+        for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
+            prediction_service_client=prediction_service_client,
+            endpoint_name=self._endpoint_name,
+            instance=prediction_request.instance,
+            parameters=prediction_request.parameters,
+        ):
+            prediction_obj = aiplatform.models.Prediction(
+                predictions=[prediction_dict],
+                deployed_model_id="",
+            )
+            yield TextGenerationResponse(
+                text=prediction_dict["content"],
+                _prediction_response=prediction_obj,
+            )
 
 
 class _PreviewCodeGenerationModel(CodeGenerationModel, _TunableModelMixin):

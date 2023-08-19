@@ -22,6 +22,7 @@ from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state,
 )
 from tests.system.aiplatform import e2e_base
+from vertexai import language_models
 from vertexai.preview.language_models import (
     ChatModel,
     InputOutputTextPair,
@@ -251,3 +252,16 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         job.delete()
 
         assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
+
+    def test_code_generation_streaming(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = language_models.CodeGenerationModel.from_pretrained("code-bison@001")
+
+        for response in model.predict_streaming(
+            prefix="def reverse_string(s):",
+            suffix="    return s",
+            max_output_tokens=128,
+            temperature=0,
+        ):
+            assert response.text
