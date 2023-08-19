@@ -260,8 +260,19 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         for response in model.predict_streaming(
             prefix="def reverse_string(s):",
-            suffix="    return s",
+            # code-bison does not support suffix
+            # suffix="    return s",
             max_output_tokens=128,
             temperature=0,
         ):
+            assert response.text
+
+    def test_code_chat_model_send_message_streaming(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        chat_model = language_models.ChatModel.from_pretrained("codeodechat-bison@001")
+        chat = chat_model.start_chat()
+
+        message1 = "Please help write a function to calculate the max of two numbers"
+        for response in chat.send_message_streaming(message1):
             assert response.text

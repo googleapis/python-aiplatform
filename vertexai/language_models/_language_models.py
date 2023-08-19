@@ -59,13 +59,6 @@ def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
     return f"publishers/google/models/{model_name}@{version}"
 
 
-@dataclasses.dataclass
-class _PredictionRequest:
-    """A single-instance prediction request."""
-    instance: Dict[str, Any]
-    parameters: Optional[Dict[str, Any]] = None
-
-
 class _LanguageModel(_model_garden_models._ModelGardenModel):
     """_LanguageModel is a base class for all language models."""
 
@@ -1229,6 +1222,34 @@ class CodeChatSession(_ChatSessionBase):
             A `TextGenerationResponse` object that contains the text produced by the model.
         """
         return super().send_message(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+        )
+
+    def send_message_streaming(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+    ) -> Iterator[TextGenerationResponse]:
+        """Sends message to the language model and gets a streamed response.
+
+        The response is only added to the history once it's fully read.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+
+        Returns:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        return super().send_message_streaming(
             message=message,
             max_output_tokens=max_output_tokens,
             temperature=temperature,

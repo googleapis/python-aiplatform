@@ -1938,6 +1938,51 @@ class TestLanguageModels:
             assert prediction_parameters["temperature"] == message_temperature
             assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
 
+    def test_code_chat_model_send_message_streaming(self):
+        """Tests the chat generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODECHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.CodeChatModel.from_pretrained("codechat-bison@001")
+
+        chat = model.start_chat(temperature=0.0)
+
+        # Using list instead of a generator so that it can be reused.
+        response_generator = [
+            gca_prediction_service.StreamingPredictResponse(
+                outputs=[_streaming_prediction.value_to_tensor(response_dict)]
+            )
+            for response_dict in _TEST_CHAT_PREDICTION_STREAMING
+        ]
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="server_streaming_predict",
+            return_value=response_generator,
+        ):
+            message_text1 = (
+                "Please help write a function to calculate the max of two numbers"
+            )
+            # New messages are not added until the response is fully read
+            assert not chat.message_history
+            for response in chat.send_message_streaming(message_text1):
+                assert len(response.text) > 10
+            # New messages are only added after the response is fully read
+            assert chat.message_history
+
+        assert len(chat.message_history) == 2
+        assert chat.message_history[0].author == chat.USER_AUTHOR
+        assert chat.message_history[0].content == message_text1
+        assert chat.message_history[1].author == chat.MODEL_AUTHOR
+
     def test_code_generation(self):
         """Tests code generation with the code generation model."""
         aiplatform.init(
