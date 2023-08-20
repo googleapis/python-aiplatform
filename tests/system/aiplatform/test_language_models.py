@@ -143,11 +143,17 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         model = TextEmbeddingModel.from_pretrained("google/textembedding-gecko@001")
-        embeddings = model.get_embeddings(["What is life?"])
-        assert embeddings
-        for embedding in embeddings:
-            vector = embedding.values
-            assert len(vector) == 768
+        # One short text, one llong text (to check truncation)
+        texts = ["What is life?", "What is life?" * 1000]
+        embeddings = model.get_embeddings(texts)
+        assert len(embeddings) == 2
+        assert len(embeddings[0].values) == 768
+        assert embeddings[0].statistics.token_count > 0
+        assert not embeddings[0].statistics.truncated
+
+        assert len(embeddings[1].values) == 768
+        assert embeddings[1].statistics.token_count > 1000
+        assert embeddings[1].statistics.truncated
 
     def test_tuning(self, shared_state):
         """Test tuning, listing and loading models."""

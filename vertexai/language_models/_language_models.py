@@ -692,8 +692,33 @@ class _ChatSession:
         return response_obj
 
 
+@dataclasses.dataclass
+class TextEmbeddingInput:
+    """Structural text embedding input.
+
+    Attributes:
+        text: The main text content to embed.
+        task_type: The name of the downstream task the embeddings will be used for.
+            Valid values:
+            RETRIEVAL_QUERY
+                Specifies the given text is a query in a search/retrieval setting.
+            RETRIEVAL_DOCUMENT
+                Specifies the given text is a document from the corpus being searched.
+            SEMANTIC_SIMILARITY
+                Specifies the given text will be used for STS.
+            CLASSIFICATION
+                Specifies that the given text will be classified.
+            CLUSTERING
+                Specifies that the embeddings will be used for clustering.
+        title: Optional identifier of the text content.
+    """
+    text: str
+    task_type: Optional[str] = None
+    title: Optional[str] = None
+
+
 class TextEmbeddingModel(_LanguageModel):
-    """TextEmbeddingModel converts text into a vector of floating-point numbers.
+    """TextEmbeddingModel class calculates embeddings for the given texts.
 
     Examples::
 
@@ -711,36 +736,76 @@ class TextEmbeddingModel(_LanguageModel):
         "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
     )
 
-    def get_embeddings(self, texts: List[str]) -> List["TextEmbedding"]:
-        instances = [{"content": str(text)} for text in texts]
+    def get_embeddings(self,
+        texts: List[Union[str, TextEmbeddingInput]],
+        *,
+        auto_truncate: bool = True,
+    ) -> List["TextEmbedding"]:
+        """Calculates embeddings for the given texts.
+
+        Args:
+            texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
+            auto_truncate(bool): Whether to automatically truncate long texts. Default: True.
+
+        Returns:
+            A list of `TextEmbedding` objects.
+        """
+        instances = []
+        for text in texts:
+            if isinstance(text, TextEmbeddingInput):
+                instance = {"content": text.text}
+                if text.task_type:
+                    instance["taskType"] = text.task_type
+                if text.title:
+                    instance["title"] = text.title
+            elif isinstance(text, str):
+                instance = {"content": text}
+            else:
+                raise TypeError(f"Unsupported text embedding input type: {text}.")
+            instances.append(instance)
+        parameters = {"autoTruncate": auto_truncate}
 
         prediction_response = self._endpoint.predict(
             instances=instances,
+            parameters=parameters,
         )
 
-        return [
-            TextEmbedding(
-                values=prediction["embeddings"]["values"],
+        results = []
+        for prediction in prediction_response.predictions:
+            embeddings = prediction["embeddings"]
+            statistics = embeddings["statistics"]
+            result = TextEmbedding(
+                values=embeddings["values"],
+                statistics=TextEmbeddingStatistics(
+                    token_count=statistics["token_count"],
+                    truncated=statistics["truncated"],
+                ),
                 _prediction_response=prediction_response,
             )
-            for prediction in prediction_response.predictions
-        ]
+            results.append(result)
+
+        return results
 
 
 class _PreviewTextEmbeddingModel(TextEmbeddingModel, _ModelWithBatchPredict):
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
-class TextEmbedding:
-    """Contains text embedding vector."""
+@dataclasses.dataclass
+class TextEmbeddingStatistics:
+    """Text embedding statistics."""
 
-    def __init__(
-        self,
-        values: List[float],
-        _prediction_response: Any = None,
-    ):
-        self.values = values
-        self._prediction_response = _prediction_response
+    token_count: int
+    truncated: bool
+
+
+@dataclasses.dataclass
+class TextEmbedding:
+    """Text embedding vector and statistics."""
+
+    values: List[float]
+    statistics: TextEmbeddingStatistics
+    _prediction_response: aiplatform.models.Prediction = None
 
 
 @dataclasses.dataclass

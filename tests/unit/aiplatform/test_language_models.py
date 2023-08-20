@@ -298,6 +298,7 @@ _TEXT_EMBEDDING_VECTOR_LENGTH = 768
 _TEST_TEXT_EMBEDDING_PREDICTION = {
     "embeddings": {
         "values": list([1.0] * _TEXT_EMBEDDING_VECTOR_LENGTH),
+        "statistics": {"truncated": False, "token_count": 4.0},
     }
 }
 
@@ -2170,18 +2171,57 @@ class TestLanguageModels:
 
         gca_predict_response = gca_prediction_service.PredictResponse()
         gca_predict_response.predictions.append(_TEST_TEXT_EMBEDDING_PREDICTION)
+        gca_predict_response.predictions.append(_TEST_TEXT_EMBEDDING_PREDICTION)
 
+        expected_embedding = _TEST_TEXT_EMBEDDING_PREDICTION["embeddings"]
         with mock.patch.object(
             target=prediction_service_client.PredictionServiceClient,
             attribute="predict",
             return_value=gca_predict_response,
-        ):
-            embeddings = model.get_embeddings(["What is life?"])
+        ) as mock_predict:
+            embeddings = model.get_embeddings(
+                [
+                    "What is life?",
+                    language_models.TextEmbeddingInput(
+                        text="Foo",
+                        task_type="RETRIEVAL_DOCUMENT",
+                        title="Bar",
+                    ),
+                    language_models.TextEmbeddingInput(
+                        text="Baz",
+                        task_type="CLASSIFICATION",
+                    ),
+                ],
+                auto_truncate=False,
+            )
+            prediction_instances = mock_predict.call_args[1]["instances"]
+            assert prediction_instances == [
+                {"content": "What is life?"},
+                {
+                    "content": "Foo",
+                    "taskType": "RETRIEVAL_DOCUMENT",
+                    "title": "Bar",
+                },
+                {
+                    "content": "Baz",
+                    "taskType": "CLASSIFICATION",
+                },
+            ]
+            prediction_parameters = mock_predict.call_args[1]["parameters"]
+            assert not prediction_parameters["autoTruncate"]
             assert embeddings
             for embedding in embeddings:
                 vector = embedding.values
                 assert len(vector) == _TEXT_EMBEDDING_VECTOR_LENGTH
-                assert vector == _TEST_TEXT_EMBEDDING_PREDICTION["embeddings"]["values"]
+                assert vector == expected_embedding["values"]
+                assert (
+                    embedding.statistics.token_count
+                    == expected_embedding["statistics"]["token_count"]
+                )
+                assert (
+                    embedding.statistics.truncated
+                    == expected_embedding["statistics"]["truncated"]
+                )
 
     def test_text_embedding_ga(self):
         """Tests the text embedding model."""

@@ -26,6 +26,7 @@ from vertexai.language_models._language_models import (
     CodeChatSession,
     InputOutputTextPair,
     TextEmbedding,
+    TextEmbeddingInput,
     TextGenerationResponse,
 )
 
@@ -60,6 +61,7 @@ __all__ = [
     "EvaluationTextClassificationSpec",
     "InputOutputTextPair",
     "TextEmbedding",
+    "TextEmbeddingInput",
     "TextEmbeddingModel",
     "TextGenerationModel",
     "TextGenerationResponse",
