@@ -1237,6 +1237,7 @@ class TestLanguageModels:
                 temperature=0,
                 top_p=1,
                 top_k=5,
+                stop_sequences=["\n"],
             )
 
         prediction_parameters = mock_predict.call_args[1]["parameters"]
@@ -1244,6 +1245,7 @@ class TestLanguageModels:
         assert prediction_parameters["temperature"] == 0
         assert prediction_parameters["topP"] == 1
         assert prediction_parameters["topK"] == 5
+        assert prediction_parameters["stopSequences"] == ["\n"]
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
 
         # Validating that unspecified parameters are not passed to the model
@@ -1798,16 +1800,19 @@ class TestLanguageModels:
         chat_max_output_tokens = 100
         chat_top_k = 1
         chat_top_p = 0.1
+        stop_sequences = ["\n"]
         message_temperature = 0.2
         message_max_output_tokens = 200
         message_top_k = 2
         message_top_p = 0.2
+        message_stop_sequences = ["# %%"]
 
         chat2 = model.start_chat(
             temperature=chat_temperature,
             max_output_tokens=chat_max_output_tokens,
             top_k=chat_top_k,
             top_p=chat_top_p,
+            stop_sequences=stop_sequences,
         )
 
         gca_predict_response3 = gca_prediction_service.PredictResponse()
@@ -1824,6 +1829,7 @@ class TestLanguageModels:
             assert prediction_parameters["maxDecodeSteps"] == chat_max_output_tokens
             assert prediction_parameters["topK"] == chat_top_k
             assert prediction_parameters["topP"] == chat_top_p
+            assert prediction_parameters["stopSequences"] == stop_sequences
 
             chat2.send_message(
                 "Are my favorite movies based on a book series?",
@@ -1831,12 +1837,14 @@ class TestLanguageModels:
                 max_output_tokens=message_max_output_tokens,
                 top_k=message_top_k,
                 top_p=message_top_p,
+                stop_sequences=message_stop_sequences,
             )
             prediction_parameters = mock_predict3.call_args[1]["parameters"]
             assert prediction_parameters["temperature"] == message_temperature
             assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
             assert prediction_parameters["topK"] == message_top_k
             assert prediction_parameters["topP"] == message_top_p
+            assert prediction_parameters["stopSequences"] == message_stop_sequences
 
     def test_chat_model_send_message_streaming(self):
         """Tests the chat generation model."""
@@ -2102,6 +2110,7 @@ class TestLanguageModels:
         default_max_output_tokens = (
             language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
         )
+        stop_sequences = ["\n"]
 
         with mock.patch.object(
             target=prediction_service_client.PredictionServiceClient,
@@ -2112,10 +2121,12 @@ class TestLanguageModels:
                 prefix="Write a function that checks if a year is a leap year.",
                 max_output_tokens=predict_max_output_tokens,
                 temperature=predict_temperature,
+                stop_sequences=stop_sequences,
             )
             prediction_parameters = mock_predict.call_args[1]["parameters"]
             assert prediction_parameters["temperature"] == predict_temperature
             assert prediction_parameters["maxOutputTokens"] == predict_max_output_tokens
+            assert prediction_parameters["stopSequences"] == stop_sequences
 
             model.predict(
                 prefix="Write a function that checks if a year is a leap year.",

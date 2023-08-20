@@ -51,6 +51,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             temperature=0,
             top_p=1,
             top_k=5,
+            stop_sequences=["# %%"],
         ).text
 
     def test_text_generation_streaming(self):
@@ -84,6 +85,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
                 ),
             ],
             temperature=0.0,
+            stop_sequences=["# %%"],
         )
 
         message1 = "Are my favorite movies based on a book series?"
