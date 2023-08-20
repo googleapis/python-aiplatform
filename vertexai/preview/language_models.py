@@ -28,6 +28,7 @@ from vertexai.language_models._language_models import (
     TextEmbedding,
     TextEmbeddingInput,
     TextGenerationResponse,
+    TuningEvaluationSpec,
 )
 
 from vertexai.language_models._evaluatable_language_models import (
@@ -65,4 +66,5 @@ __all__ = [
     "TextEmbeddingModel",
     "TextGenerationModel",
     "TextGenerationResponse",
+    "TuningEvaluationSpec",
 ]

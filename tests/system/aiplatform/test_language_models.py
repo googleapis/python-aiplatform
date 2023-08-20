@@ -22,13 +22,17 @@ from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state,
 )
 from tests.system.aiplatform import e2e_base
+from google.cloud.aiplatform.utils import gcs_utils
 from vertexai import language_models
+from vertexai.preview import language_models as preview_language_models
 from vertexai.preview.language_models import (
     ChatModel,
     InputOutputTextPair,
     TextGenerationModel,
     TextEmbeddingModel,
 )
+
+STAGING_DIR_URI = "gs://ucaip-samples-us-central1/tmp/staging"
 
 
 class TestLanguageModels(e2e_base.TestEndToEnd):
@@ -178,12 +182,24 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             ]
         )
 
+        dataset_uri = (
+            STAGING_DIR_URI + "/veretx_llm_tuning_training_data.text-bison.dummy.jsonl"
+        )
+        gcs_utils._upload_pandas_df_to_gcs(
+            df=training_data, upload_gcs_path=dataset_uri
+        )
+
         model.tune_model(
             training_data=training_data,
             train_steps=1,
             tuning_job_location="europe-west4",
             tuned_model_location="us-central1",
             learning_rate_multiplier=2.0,
+            tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                evaluation_data=dataset_uri,
+                evaluation_interval=37,
+                enable_early_stopping=True,
+            ),
         )
         # According to the Pipelines design, external resources created by a pipeline
         # must not be modified or deleted. Otherwise caching will break next pipeline runs.

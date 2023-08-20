@@ -340,13 +340,38 @@ _TEST_PIPELINE_SPEC = {
                     "isOptional": True,
                     "parameterType": "STRING",
                 },
+                "default_context": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "enable_early_stopping": {
+                    "defaultValue": True,
+                    "isOptional": True,
+                    "parameterType": "BOOLEAN",
+                },
                 "encryption_spec_key_name": {
                     "defaultValue": "",
                     "isOptional": True,
                     "parameterType": "STRING",
                 },
+                "evaluation_data_uri": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "evaluation_interval": {
+                    "defaultValue": 20,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "evaluation_output_root_dir": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
                 "large_model_reference": {
-                    "defaultValue": "text-bison-001",
+                    "defaultValue": "text-bison@001",
                     "isOptional": True,
                     "parameterType": "STRING",
                 },
@@ -363,10 +388,25 @@ _TEST_PIPELINE_SPEC = {
                 "location": {"parameterType": "STRING"},
                 "model_display_name": {"parameterType": "STRING"},
                 "project": {"parameterType": "STRING"},
+                "tensorboard_resource_id": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "tpu_training_skip_cmek": {
+                    "defaultValue": False,
+                    "isOptional": True,
+                    "parameterType": "BOOLEAN",
+                },
                 "train_steps": {
-                    "defaultValue": 1000,
+                    "defaultValue": 300,
                     "isOptional": True,
                     "parameterType": "NUMBER_INTEGER",
+                },
+                "tuning_method": {
+                    "defaultValue": "tune_v2",
+                    "isOptional": True,
+                    "parameterType": "STRING",
                 },
             }
         },
@@ -1298,12 +1338,25 @@ class TestLanguageModels:
                 "text-bison@001"
             )
 
+            tuning_job_location = "europe-west4"
+            evaluation_data_uri = "gs://bucket/eval.jsonl"
+            evaluation_interval = 37
+            enable_early_stopping = True
+            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+
             model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
-                tuning_job_location="europe-west4",
+                tuning_job_location=tuning_job_location,
                 tuned_model_location="us-central1",
                 learning_rate=0.1,
                 learning_rate_multiplier=2.0,
+                train_steps=10,
+                tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                    evaluation_data=evaluation_data_uri,
+                    evaluation_interval=evaluation_interval,
+                    enable_early_stopping=enable_early_stopping,
+                    tensorboard=tensorboard_name,
+                ),
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
@@ -1311,6 +1364,11 @@ class TestLanguageModels:
             ].runtime_config.parameter_values
             assert pipeline_arguments["learning_rate"] == 0.1
             assert pipeline_arguments["learning_rate_multiplier"] == 2.0
+            assert pipeline_arguments["train_steps"] == 10
+            assert pipeline_arguments["evaluation_data_uri"] == evaluation_data_uri
+            assert pipeline_arguments["evaluation_interval"] == evaluation_interval
+            assert pipeline_arguments["enable_early_stopping"] == enable_early_stopping
+            assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
             assert pipeline_arguments["large_model_reference"] == "text-bison@001"
             assert (
                 call_kwargs["pipeline_job"].encryption_spec.kms_key_name
@@ -1349,16 +1407,19 @@ class TestLanguageModels:
         ):
             model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
 
+            default_context = "Default context"
             model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
+                default_context=default_context,
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
                 "pipeline_job"
             ].runtime_config.parameter_values
             assert pipeline_arguments["large_model_reference"] == "chat-bison@001"
+            assert pipeline_arguments["default_context"] == default_context
 
     @pytest.mark.parametrize(
         "job_spec",
