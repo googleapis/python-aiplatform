@@ -23,6 +23,7 @@ from google.cloud.aiplatform import _streaming_prediction
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import utils as aiplatform_utils
+from google.cloud.aiplatform.compat import types as aiplatform_types
 from google.cloud.aiplatform.utils import gcs_utils
 from vertexai._model_garden import _model_garden_models
 from vertexai.language_models import (
@@ -148,7 +149,7 @@ class _TunableModelMixin(_LanguageModel):
         self,
         training_data: Union[str, "pandas.core.frame.DataFrame"],
         *,
-        train_steps: int = 1000,
+        train_steps: Optional[int] = None,
         learning_rate: Optional[float] = None,
         learning_rate_multiplier: Optional[float] = None,
         tuning_job_location: Optional[str] = None,
@@ -156,10 +157,16 @@ class _TunableModelMixin(_LanguageModel):
         model_display_name: Optional[str] = None,
         tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
         default_context: Optional[str] = None,
-    ):
+    ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
-        This method launches a model tuning job that can take some time.
+        This method launches and returns an asynchronous model tuning job.
+        Usage:
+        ```
+        tuning_job = model.tune_model(...)
+        ... do some other work
+        tuned_model = tuning_job.get_tuned_model()  # Blocks until tuning is complete
+        ```
 
         Args:
             training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
@@ -303,14 +310,66 @@ class _TunableModelMixin(_LanguageModel):
             base_model=self,
             job=pipeline_job,
         )
-        self._job = job
-        tuned_model = job.result()
-        # The UXR study attendees preferred to tune model in place
-        self._endpoint = tuned_model._endpoint
-        self._endpoint_name = tuned_model._endpoint_name
+        return job
 
 
 class _TunableTextModelMixin(_TunableModelMixin):
+    """Text model that can be tuned."""
+
+    def tune_model(
+        self,
+        training_data: Union[str, "pandas.core.frame.DataFrame"],
+        *,
+        train_steps: Optional[int] = None,
+        learning_rate_multiplier: Optional[float] = None,
+        tuning_job_location: Optional[str] = None,
+        tuned_model_location: Optional[str] = None,
+        model_display_name: Optional[str] = None,
+        tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
+    ) -> "_LanguageModelTuningJob":
+        """Tunes a model based on training data.
+
+        This method launches and returns an asynchronous model tuning job.
+        Usage:
+        ```
+        tuning_job = model.tune_model(...)
+        ... do some other work
+        tuned_model = tuning_job.get_tuned_model()  # Blocks until tuning is complete
+
+        Args:
+            training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
+                The dataset schema is model-specific.
+                See https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models#dataset_format
+            train_steps: Number of training batches to tune on (batch size is 8 samples).
+            learning_rate_multiplier: Learning rate multiplier to use in tuning.
+            tuning_job_location: GCP location where the tuning job should be run.
+                Only "europe-west4" and "us-central1" locations are supported for now.
+            tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
+            model_display_name: Custom display name for the tuned model.
+            tuning_evaluation_spec: Specification for the model evaluation during tuning.
+
+        Returns:
+            A `LanguageModelTuningJob` object that represents the tuning job.
+            Calling `job.result()` blocks until the tuning is complete and returns a `LanguageModel` object.
+
+        Raises:
+            ValueError: If the "tuning_job_location" value is not supported
+            ValueError: If the "tuned_model_location" value is not supported
+            RuntimeError: If the model does not support tuning
+        """
+        # Note: Chat models do not support default_context
+        return super().tune_model(
+            training_data=training_data,
+            train_steps=train_steps,
+            learning_rate_multiplier=learning_rate_multiplier,
+            tuning_job_location=tuning_job_location,
+            tuned_model_location=tuned_model_location,
+            model_display_name=model_display_name,
+            tuning_evaluation_spec=tuning_evaluation_spec,
+        )
+
+
+class _PreviewTunableTextModelMixin(_TunableModelMixin):
     """Text model that can be tuned."""
 
     def tune_model(
@@ -324,10 +383,20 @@ class _TunableTextModelMixin(_TunableModelMixin):
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
         tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
-    ):
+    ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
-        This method launches a model tuning job that can take some time.
+        This method launches a model tuning job, waits for completion,
+        updates the model in-place. This method returns job object for forward
+        compatibility.
+        In the future (GA), this method will become asynchronous and will stop
+        updating the model in-place.
+
+        Usage:
+        ```
+        tuning_job = model.tune_model(...)  # Blocks until tuning is complete
+        tuned_model = tuning_job.get_tuned_model()  # Blocks until tuning is complete
+        ```
 
         Args:
             training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
@@ -353,7 +422,7 @@ class _TunableTextModelMixin(_TunableModelMixin):
             RuntimeError: If the model does not support tuning
         """
         # Note: Chat models do not support default_context
-        return super().tune_model(
+        job = super().tune_model(
             training_data=training_data,
             train_steps=train_steps,
             learning_rate=learning_rate,
@@ -363,6 +432,10 @@ class _TunableTextModelMixin(_TunableModelMixin):
             model_display_name=model_display_name,
             tuning_evaluation_spec=tuning_evaluation_spec,
         )
+        tuned_model = job.get_tuned_model()
+        self._endpoint = tuned_model._endpoint
+        self._endpoint_name = tuned_model._endpoint_name
+        return job
 
 
 class _TunableChatModelMixin(_TunableModelMixin):
@@ -372,17 +445,22 @@ class _TunableChatModelMixin(_TunableModelMixin):
         self,
         training_data: Union[str, "pandas.core.frame.DataFrame"],
         *,
-        train_steps: int = 1000,
-        learning_rate: Optional[float] = None,
+        train_steps: Optional[int] = None,
         learning_rate_multiplier: Optional[float] = None,
         tuning_job_location: Optional[str] = None,
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
         default_context: Optional[str] = None,
-    ):
+    ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
-        This method launches a model tuning job that can take some time.
+        This method launches and returns an asynchronous model tuning job.
+        Usage:
+        ```
+        tuning_job = model.tune_model(...)
+        ... do some other work
+        tuned_model = tuning_job.get_tuned_model()  # Blocks until tuning is complete
+        ```
 
         Args:
             training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
@@ -411,6 +489,70 @@ class _TunableChatModelMixin(_TunableModelMixin):
         return super().tune_model(
             training_data=training_data,
             train_steps=train_steps,
+            learning_rate_multiplier=learning_rate_multiplier,
+            tuning_job_location=tuning_job_location,
+            tuned_model_location=tuned_model_location,
+            model_display_name=model_display_name,
+            default_context=default_context,
+        )
+
+
+class _PreviewTunableChatModelMixin(_TunableModelMixin):
+    """Chat model that can be tuned."""
+
+    def tune_model(
+        self,
+        training_data: Union[str, "pandas.core.frame.DataFrame"],
+        *,
+        train_steps: int = 1000,
+        learning_rate: Optional[float] = None,
+        learning_rate_multiplier: Optional[float] = None,
+        tuning_job_location: Optional[str] = None,
+        tuned_model_location: Optional[str] = None,
+        model_display_name: Optional[str] = None,
+        default_context: Optional[str] = None,
+    ) -> "_LanguageModelTuningJob":
+        """Tunes a model based on training data.
+
+        This method launches a model tuning job, waits for completion,
+        updates the model in-place. This method returns job object for forward
+        compatibility.
+        In the future (GA), this method will become asynchronous and will stop
+        updating the model in-place.
+
+        Usage:
+        ```
+        tuning_job = model.tune_model(...)  # Blocks until tuning is complete
+        tuned_model = tuning_job.get_tuned_model()  # Blocks until tuning is complete
+        ```
+
+        Args:
+            training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
+                The dataset schema is model-specific.
+                See https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models#dataset_format
+            train_steps: Number of training batches to tune on (batch size is 8 samples).
+            learning_rate: Deprecated. Use learning_rate_multiplier instead.
+                Learning rate to use in tuning.
+            learning_rate_multiplier: Learning rate multiplier to use in tuning.
+            tuning_job_location: GCP location where the tuning job should be run.
+                Only "europe-west4" and "us-central1" locations are supported for now.
+            tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
+            model_display_name: Custom display name for the tuned model.
+            default_context: The context to use for all training samples by default.
+
+        Returns:
+            A `LanguageModelTuningJob` object that represents the tuning job.
+            Calling `job.result()` blocks until the tuning is complete and returns a `LanguageModel` object.
+
+        Raises:
+            ValueError: If the "tuning_job_location" value is not supported
+            ValueError: If the "tuned_model_location" value is not supported
+            RuntimeError: If the model does not support tuning
+        """
+        # Note: Chat models do not support tuning_evaluation_spec
+        job = super().tune_model(
+            training_data=training_data,
+            train_steps=train_steps,
             learning_rate=learning_rate,
             learning_rate_multiplier=learning_rate_multiplier,
             tuning_job_location=tuning_job_location,
@@ -418,6 +560,10 @@ class _TunableChatModelMixin(_TunableModelMixin):
             model_display_name=model_display_name,
             default_context=default_context,
         )
+        tuned_model = job.get_tuned_model()
+        self._endpoint = tuned_model._endpoint
+        self._endpoint_name = tuned_model._endpoint_name
+        return job
 
 
 @dataclasses.dataclass
@@ -746,7 +892,7 @@ class TextGenerationModel(_TextGenerationModel, _ModelWithBatchPredict):
 
 class _PreviewTextGenerationModel(
     _TextGenerationModel,
-    _TunableTextModelMixin,
+    _PreviewTunableTextModelMixin,
     _PreviewModelWithBatchPredict,
     _evaluatable_language_models._EvaluatableLanguageModel,
 ):
@@ -1076,7 +1222,7 @@ class ChatModel(_ChatModelBase):
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
 
 
-class _PreviewChatModel(ChatModel, _TunableChatModelMixin):
+class _PreviewChatModel(ChatModel, _PreviewTunableChatModelMixin):
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
@@ -1650,11 +1796,12 @@ class _LanguageModelTuningJob:
         base_model: _LanguageModel,
         job: aiplatform.PipelineJob,
     ):
+        """Internal constructor. Do not call directly."""
         self._base_model = base_model
         self._job = job
         self._model: Optional[_LanguageModel] = None
 
-    def result(self) -> "_LanguageModel":
+    def get_tuned_model(self) -> "_LanguageModel":
         """Blocks until the tuning is complete and returns a `LanguageModel` object."""
         if self._model:
             return self._model
@@ -1681,11 +1828,12 @@ class _LanguageModelTuningJob:
         return self._model
 
     @property
-    def status(self):
-        """Job status"""
+    def _status(self) -> Optional[aiplatform_types.pipeline_state.PipelineState]:
+        """Job status."""
         return self._job.state
 
-    def cancel(self):
+    def _cancel(self):
+        """Cancels the job."""
         self._job.cancel()
 
 

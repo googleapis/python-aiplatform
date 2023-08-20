@@ -189,7 +189,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             df=training_data, upload_gcs_path=dataset_uri
         )
 
-        model.tune_model(
+        tuning_job = model.tune_model(
             training_data=training_data,
             train_steps=1,
             tuning_job_location="europe-west4",
@@ -211,6 +211,18 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         )
         # Deleting the Endpoint is a little less bad since the LLM SDK will recreate it, but it's not advised for the same reason.
 
+        # Testing the new model returned by the `tuning_job.get_tuned_model` method
+        tuned_model1 = tuning_job.get_tuned_model()
+        response1 = tuned_model1.predict(
+            "What is the best recipe for banana bread? Recipe:",
+            max_output_tokens=128,
+            temperature=0,
+            top_p=1,
+            top_k=5,
+        )
+        assert response1.text
+
+        # Testing the model updated in-place (Deprecated. Preview only)
         response = model.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,

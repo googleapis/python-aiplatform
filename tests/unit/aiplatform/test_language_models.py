@@ -1039,13 +1039,13 @@ def mock_get_tuned_model(get_endpoint_mock):
     with mock.patch.object(
         _language_models._TunableModelMixin, "get_tuned_model"
     ) as mock_text_generation_model:
-        mock_text_generation_model._model_id = (
+        mock_text_generation_model.return_value._model_id = (
             test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
         )
-        mock_text_generation_model._endpoint_name = (
+        mock_text_generation_model.return_value._endpoint_name = (
             test_constants.EndpointConstants._TEST_ENDPOINT_NAME
         )
-        mock_text_generation_model._endpoint = get_endpoint_mock
+        mock_text_generation_model.return_value._endpoint = get_endpoint_mock
         yield mock_text_generation_model
 
 
@@ -1344,7 +1344,7 @@ class TestLanguageModels:
             enable_early_stopping = True
             tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
 
-            model.tune_model(
+            tuning_job = model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location=tuning_job_location,
                 tuned_model_location="us-central1",
@@ -1373,6 +1373,13 @@ class TestLanguageModels:
             assert (
                 call_kwargs["pipeline_job"].encryption_spec.kms_key_name
                 == _TEST_ENCRYPTION_KEY_NAME
+            )
+
+            # Testing the tuned model
+            tuned_model = tuning_job.get_tuned_model()
+            assert (
+                tuned_model._endpoint_name
+                == test_constants.EndpointConstants._TEST_ENDPOINT_NAME
             )
 
     @pytest.mark.parametrize(
@@ -1408,7 +1415,7 @@ class TestLanguageModels:
             model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
 
             default_context = "Default context"
-            model.tune_model(
+            tuning_job = model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
@@ -1420,6 +1427,13 @@ class TestLanguageModels:
             ].runtime_config.parameter_values
             assert pipeline_arguments["large_model_reference"] == "chat-bison@001"
             assert pipeline_arguments["default_context"] == default_context
+
+            # Testing the tuned model
+            tuned_model = tuning_job.get_tuned_model()
+            assert (
+                tuned_model._endpoint_name
+                == test_constants.EndpointConstants._TEST_ENDPOINT_NAME
+            )
 
     @pytest.mark.parametrize(
         "job_spec",
