@@ -1133,8 +1133,8 @@ class TextEmbedding:
     """Text embedding vector and statistics."""
 
     values: List[float]
-    statistics: TextEmbeddingStatistics
-    _prediction_response: aiplatform.models.Prediction = None
+    statistics: Optional[TextEmbeddingStatistics] = None
+    _prediction_response: Optional[aiplatform.models.Prediction] = None
 
 
 @dataclasses.dataclass
