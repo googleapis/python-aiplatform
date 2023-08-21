@@ -128,7 +128,58 @@ from google.cloud.aiplatform_v1.services.vizier_service import (
     client as vizier_service_client_v1,
 )
 
-__all__ = (
+from google.cloud.aiplatform.compat import versions
+
+
+if versions.DEFAULT_VERSION == versions.V1BETA1:
+    dataset_service_client = dataset_service_client_v1beta1
+    deployment_resource_pool_service_client = (
+        deployment_resource_pool_service_client_v1beta1
+    )
+    endpoint_service_client = endpoint_service_client_v1beta1
+    featurestore_online_serving_service_client = (
+        featurestore_online_serving_service_client_v1beta1
+    )
+    featurestore_service_client = featurestore_service_client_v1beta1
+    job_service_client = job_service_client_v1beta1
+    model_service_client = model_service_client_v1beta1
+    model_garden_service_client = model_garden_service_client_v1beta1
+    pipeline_service_client = pipeline_service_client_v1beta1
+    prediction_service_client = prediction_service_client_v1beta1
+    prediction_service_async_client = prediction_service_async_client_v1beta1
+    schedule_service_client = schedule_service_client_v1beta1
+    specialist_pool_service_client = specialist_pool_service_client_v1beta1
+    match_service_client = match_service_client_v1beta1
+    metadata_service_client = metadata_service_client_v1beta1
+    tensorboard_service_client = tensorboard_service_client_v1beta1
+    index_service_client = index_service_client_v1beta1
+    index_endpoint_service_client = index_endpoint_service_client_v1beta1
+    vizier_service_client = vizier_service_client_v1beta1
+
+
+# if versions.DEFAULT_VERSION == versions.V1:
+else:
+    dataset_service_client = dataset_service_client_v1
+    endpoint_service_client = endpoint_service_client_v1
+    featurestore_online_serving_service_client = (
+        featurestore_online_serving_service_client_v1
+    )
+    featurestore_service_client = featurestore_service_client_v1
+    job_service_client = job_service_client_v1
+    model_garden_service_client = model_garden_service_client_v1
+    model_service_client = model_service_client_v1
+    pipeline_service_client = pipeline_service_client_v1
+    prediction_service_client = prediction_service_client_v1
+    prediction_service_async_client = prediction_service_async_client_v1
+    schedule_service_client = schedule_service_client_v1
+    specialist_pool_service_client = specialist_pool_service_client_v1
+    tensorboard_service_client = tensorboard_service_client_v1
+    index_service_client = index_service_client_v1
+    index_endpoint_service_client = index_endpoint_service_client_v1
+    vizier_service_client = vizier_service_client_v1
+
+
+__all__ = [
     # v1
     dataset_service_client_v1,
     endpoint_service_client_v1,
@@ -168,4 +219,31 @@ __all__ = (
     metadata_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
     vizier_service_client_v1beta1,
-)
+    # default
+    "dataset_service_client",
+    "endpoint_service_client",
+    "featurestore_online_serving_service_client",
+    "featurestore_service_client",
+    "index_service_client",
+    "index_endpoint_service_client",
+    "job_service_client",
+    "model_garden_service_client",
+    "model_service_client",
+    "pipeline_service_client",
+    "prediction_service_client",
+    "prediction_service_async_client",
+    "schedule_service_client",
+    "specialist_pool_service_client",
+    "tensorboard_service_client",
+    "vizier_service_client",
+]
+
+if versions.DEFAULT_VERSION == versions.V1BETA1:
+    __all__.extend(
+        [
+            "deployment_resource_pool_service_client",
+            "match_service_client",
+            "persistent_resource_service_client",
+            "metadata_service_client",
+        ]
+    )
