@@ -894,7 +894,9 @@ class _PreviewModelWithBatchPredict(_ModelWithBatchPredict):
         )
 
 
-class TextGenerationModel(_TextGenerationModel, _ModelWithBatchPredict):
+class TextGenerationModel(
+    _TextGenerationModel, _TunableTextModelMixin, _ModelWithBatchPredict
+):
     pass
 
 

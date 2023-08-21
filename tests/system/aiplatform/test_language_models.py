@@ -165,7 +165,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         """Test tuning, listing and loading models."""
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
-        model = TextGenerationModel.from_pretrained("google/text-bison@001")
+        model = language_models.TextGenerationModel.from_pretrained("text-bison@001")
 
         import pandas
 
