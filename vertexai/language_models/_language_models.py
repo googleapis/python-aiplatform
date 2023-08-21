@@ -41,6 +41,7 @@ _LOGGER = base.Logger(__name__)
 
 # Endpoint label/metadata key to preserve the base model ID information
 _TUNING_BASE_MODEL_ID_LABEL_KEY = "google-vertex-llm-tuning-base-model-id"
+_CODE_GENERATION_MAX_OUTPUT_TOKENS = 1024
 
 
 def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
@@ -1686,7 +1687,27 @@ class CodeGenerationModel(_LanguageModel):
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
-    _DEFAULT_MAX_OUTPUT_TOKENS = 128
+
+    _DEFAULT_MAX_OUTPUT_TOKENS = 64
+
+    def __init__(self, model_id: str, endpoint_name: Optional[str] = None):
+        """Creates a CodeGenerationModel.
+
+        This constructor should not be called directly.
+        Use `CodeGenerationModel.from_pretrained(model_name=...)` instead.
+
+        Args:
+            model_id: Vertex Codey LLM id. Example: "code-bison@001"
+            endpoint_name: Vertex Endpoint resource name for the model
+        """
+
+        super().__init__(
+            model_id=model_id,
+            endpoint_name=endpoint_name,
+        )
+
+        if "code-bison" in model_id:
+            self._DEFAULT_MAX_OUTPUT_TOKENS = _CODE_GENERATION_MAX_OUTPUT_TOKENS
 
     def _create_prediction_request(
         self,
