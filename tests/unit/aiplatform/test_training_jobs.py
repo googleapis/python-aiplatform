@@ -7227,6 +7227,8 @@ class TestVersionedTrainingJobs:
             training_jobs.CustomPythonPackageTrainingJob,
         ],
     )
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     def test_run_pipeline_for_versioned_model(
         self,
         mock_pipeline_service_create_with_version,
