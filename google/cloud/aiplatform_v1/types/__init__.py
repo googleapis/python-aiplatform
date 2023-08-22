@@ -549,28 +549,6 @@ from .schedule_service import (
 from .service_networking import (
     PrivateServiceConnectConfig,
 )
-from .publisher_model import (
-    PublisherModel,
-)
-from .saved_query import (
-    SavedQuery,
-)
-from .schedule import (
-    Schedule,
-)
-from .schedule_service import (
-    CreateScheduleRequest,
-    DeleteScheduleRequest,
-    GetScheduleRequest,
-    ListSchedulesRequest,
-    ListSchedulesResponse,
-    PauseScheduleRequest,
-    ResumeScheduleRequest,
-    UpdateScheduleRequest,
-)
-from .service_networking import (
-    PrivateServiceConnectConfig,
-)
 from .specialist_pool import (
     SpecialistPool,
 )
