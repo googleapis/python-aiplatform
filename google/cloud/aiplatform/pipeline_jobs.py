@@ -431,6 +431,92 @@ class PipelineJob(
         if experiment:
             self._associate_to_experiment(experiment)
 
+    def create_schedule(
+        self,
+        cron: str,
+        display_name: str,
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None,
+        allow_queueing: bool = False,
+        max_run_count: Optional[int] = None,
+        max_concurrent_run_count: int = 1,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
+    ) -> "aiplatform.PipelineJobSchedule":
+        """Creates a PipelineJobSchedule directly from a PipelineJob.
+
+        Example Usage:
+
+        pipeline_job = aiplatform.PipelineJob(
+            display_name='job_display_name',
+            template_path='your_pipeline.yaml',
+        )
+        pipeline_job.run()
+        pipeline_job_schedule = pipeline_job.create_schedule(
+            cron='* * * * *',
+            display_name='schedule_display_name',
+        )
+
+        Args:
+            cron (str):
+                Required. Time specification (cron schedule expression) to launch scheduled runs.
+                To explicitly set a timezone to the cron tab, apply a prefix: "CRON_TZ=${IANA_TIME_ZONE}" or "TZ=${IANA_TIME_ZONE}".
+                The ${IANA_TIME_ZONE} may only be a valid string from IANA time zone database.
+                For example, "CRON_TZ=America/New_York 1 * * * *", or "TZ=America/New_York 1 * * * *".
+            display_name (str):
+                Required. The user-defined name of this PipelineJobSchedule.
+            start_time (str):
+                Optional. Timestamp after which the first run can be scheduled.
+                If unspecified, it defaults to the schedule creation timestamp.
+            end_time (str):
+                Optional. Timestamp after which no more runs will be scheduled.
+                If unspecified, then runs will be scheduled indefinitely.
+            allow_queueing (bool):
+                Optional. Whether new scheduled runs can be queued when max_concurrent_runs limit is reached.
+            max_run_count (int):
+                Optional. Maximum run count of the schedule.
+                If specified, The schedule will be completed when either started_run_count >= max_run_count or when end_time is reached.
+                Must be positive and <= 2^63-1.
+            max_concurrent_run_count (int):
+                Optional. Maximum number of runs that can be started concurrently for this PipelineJobSchedule.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the job is not peered with any network.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+
+        Returns:
+            A Vertex AI PipelineJobSchedule.
+        """
+        if not display_name:
+            display_name = self._generate_display_name(prefix="PipelineJobSchedule")
+        utils.validate_display_name(display_name)
+
+        pipeline_job_schedule = aiplatform.PipelineJobSchedule(
+            pipeline_job=self,
+            display_name=display_name,
+        )
+
+        pipeline_job_schedule.create(
+            cron=cron,
+            start_time=start_time,
+            end_time=end_time,
+            allow_queueing=allow_queueing,
+            max_run_count=max_run_count,
+            max_concurrent_run_count=max_concurrent_run_count,
+            service_account=service_account,
+            network=network,
+            create_request_timeout=create_request_timeout,
+        )
+        return pipeline_job_schedule
+
     def wait(self):
         """Wait for this PipelineJob to complete."""
         if self._latest_future is None:

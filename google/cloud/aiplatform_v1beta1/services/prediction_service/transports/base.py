@@ -148,6 +148,11 @@ class PredictionServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.count_tokens: gapic_v1.method.wrap_method(
+                self.count_tokens,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -200,6 +205,18 @@ class PredictionServiceTransport(abc.ABC):
         Union[
             prediction_service.ExplainResponse,
             Awaitable[prediction_service.ExplainResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def count_tokens(
+        self,
+    ) -> Callable[
+        [prediction_service.CountTokensRequest],
+        Union[
+            prediction_service.CountTokensResponse,
+            Awaitable[prediction_service.CountTokensResponse],
         ],
     ]:
         raise NotImplementedError()

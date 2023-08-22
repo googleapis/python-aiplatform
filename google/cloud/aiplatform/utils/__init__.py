@@ -53,6 +53,7 @@ from google.cloud.aiplatform.compat.services import (
     tensorboard_service_client_v1beta1,
     vizier_service_client_v1beta1,
     model_garden_service_client_v1beta1,
+    persistent_resource_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -67,6 +68,7 @@ from google.cloud.aiplatform.compat.services import (
     model_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
+    schedule_service_client_v1,
     tensorboard_service_client_v1,
     vizier_service_client_v1,
 )
@@ -104,6 +106,7 @@ VertexAiServiceClient = TypeVar(
     prediction_service_client_v1.PredictionServiceClient,
     pipeline_service_client_v1.PipelineServiceClient,
     job_service_client_v1.JobServiceClient,
+    schedule_service_client_v1.ScheduleServiceClient,
     tensorboard_service_client_v1.TensorboardServiceClient,
     vizier_service_client_v1.VizierServiceClient,
 )
@@ -597,8 +600,9 @@ class PipelineJobClientWithOverride(ClientWithOverride):
 
 class ScheduleClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (compat.V1, schedule_service_client_v1.ScheduleServiceClient),
         (compat.V1BETA1, schedule_service_client_v1beta1.ScheduleServiceClient),
     )
 
@@ -654,6 +658,17 @@ class ModelGardenClientWithOverride(ClientWithOverride):
     )
 
 
+class PersistentResourceClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            persistent_resource_service_client_v1beta1.PersistentResourceServiceClient,
+        ),
+    )
+
+
 VertexAiServiceClientWithOverride = TypeVar(
     "VertexAiServiceClientWithOverride",
     DatasetClientWithOverride,
@@ -670,6 +685,7 @@ VertexAiServiceClientWithOverride = TypeVar(
     TensorboardClientWithOverride,
     VizierClientWithOverride,
     ModelGardenClientWithOverride,
+    PersistentResourceClientWithOverride,
 )
 
 

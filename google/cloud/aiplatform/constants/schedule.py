@@ -16,7 +16,7 @@
 #
 
 from google.cloud.aiplatform.compat.types import (
-    schedule_v1beta1 as gca_schedule,
+    schedule as gca_schedule,
 )
 from google.cloud.aiplatform.constants import pipeline as pipeline_constants
 

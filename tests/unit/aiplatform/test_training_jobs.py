@@ -233,6 +233,7 @@ _TEST_RESTART_JOB_ON_WORKER_RESTART = (
     test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
 )
 
+_TEST_DISABLE_RETRIES = test_constants.TrainingJobConstants._TEST_DISABLE_RETRIES
 _TEST_ENABLE_WEB_ACCESS = test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS
 _TEST_ENABLE_DASHBOARD_ACCESS = True
 _TEST_WEB_ACCESS_URIS = test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS
@@ -278,6 +279,7 @@ def _get_custom_job_proto_with_scheduling(state=None, name=None, version="v1"):
     custom_job_proto.job_spec.scheduling.restart_job_on_worker_restart = (
         _TEST_RESTART_JOB_ON_WORKER_RESTART
     )
+    custom_job_proto.job_spec.scheduling.disable_retries = _TEST_DISABLE_RETRIES
 
     return custom_job_proto
 
@@ -730,6 +732,7 @@ def make_training_pipeline_with_scheduling(state):
         training_task_inputs={
             "timeout": f"{_TEST_TIMEOUT}s",
             "restart_job_on_worker_restart": _TEST_RESTART_JOB_ON_WORKER_RESTART,
+            "disable_retries": _TEST_DISABLE_RETRIES,
         },
     )
     if state == gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING:
@@ -2251,6 +2254,7 @@ class TestCustomTrainingJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         if not sync:
@@ -2268,6 +2272,10 @@ class TestCustomTrainingJob:
         assert (
             job._gca_resource.training_task_inputs["restart_job_on_worker_restart"]
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
+        )
+        assert (
+            job._gca_resource.training_task_inputs["disable_retries"]
+            == _TEST_DISABLE_RETRIES
         )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
@@ -4250,6 +4258,7 @@ class TestCustomContainerTrainingJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         if not sync:
@@ -4267,6 +4276,10 @@ class TestCustomContainerTrainingJob:
         assert (
             job._gca_resource.training_task_inputs["restart_job_on_worker_restart"]
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
+        )
+        assert (
+            job._gca_resource.training_task_inputs["disable_retries"]
+            == _TEST_DISABLE_RETRIES
         )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
@@ -6525,6 +6538,7 @@ class TestCustomPythonPackageTrainingJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         if not sync:
@@ -6542,6 +6556,10 @@ class TestCustomPythonPackageTrainingJob:
         assert (
             job._gca_resource.training_task_inputs["restart_job_on_worker_restart"]
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
+        )
+        assert (
+            job._gca_resource.training_task_inputs["disable_retries"]
+            == _TEST_DISABLE_RETRIES
         )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)

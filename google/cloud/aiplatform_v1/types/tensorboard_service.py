@@ -43,6 +43,8 @@ __protobuf__ = proto.module(
         "DeleteTensorboardRequest",
         "ReadTensorboardUsageRequest",
         "ReadTensorboardUsageResponse",
+        "ReadTensorboardSizeRequest",
+        "ReadTensorboardSizeResponse",
         "CreateTensorboardExperimentRequest",
         "GetTensorboardExperimentRequest",
         "ListTensorboardExperimentsRequest",
@@ -324,6 +326,37 @@ class ReadTensorboardUsageResponse(proto.Message):
         proto.MESSAGE,
         number=1,
         message=PerMonthUsageData,
+    )
+
+
+class ReadTensorboardSizeRequest(proto.Message):
+    r"""Request message for
+    [TensorboardService.ReadTensorboardSize][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardSize].
+
+    Attributes:
+        tensorboard (str):
+            Required. The name of the Tensorboard resource. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+    """
+
+    tensorboard: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ReadTensorboardSizeResponse(proto.Message):
+    r"""Response message for
+    [TensorboardService.ReadTensorboardSize][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardSize].
+
+    Attributes:
+        storage_size_byte (int):
+            Payload storage size for the TensorBoard
+    """
+
+    storage_size_byte: int = proto.Field(
+        proto.INT64,
+        number=1,
     )
 
 

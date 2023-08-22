@@ -56,6 +56,9 @@ from google.cloud.aiplatform.jobs import (
     ModelDeploymentMonitoringJob,
 )
 from google.cloud.aiplatform.pipeline_jobs import PipelineJob
+from google.cloud.aiplatform.pipeline_job_schedules import (
+    PipelineJobSchedule,
+)
 from google.cloud.aiplatform.tensorboard import (
     Tensorboard,
     TensorboardExperiment,
@@ -167,6 +170,7 @@ __all__ = (
     "ModelEvaluation",
     "ModelDeploymentMonitoringJob",
     "PipelineJob",
+    "PipelineJobSchedule",
     "PrivateEndpoint",
     "RandomSampleConfig",
     "SequenceToSequencePlusForecastingTrainingJob",

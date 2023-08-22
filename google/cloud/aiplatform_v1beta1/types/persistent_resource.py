@@ -223,7 +223,7 @@ class ResourcePool(proto.Message):
 
     Attributes:
         id (str):
-            Optional. The unique ID in a
+            Immutable. The unique ID in a
             PersistentResource to refer the this resource
             pool. User can specify it if need to use it,
             otherwise we will generate it automatically.
@@ -238,10 +238,6 @@ class ResourcePool(proto.Message):
         disk_spec (google.cloud.aiplatform_v1beta1.types.DiskSpec):
             Optional. Disk spec for the machine in this
             node pool.
-        idle_replica_count (int):
-            Output only. The number of machines currently not in use by
-            training jobs for this resource pool. Deprecated. Use
-            ``used_replica_count`` instead.
         used_replica_count (int):
             Output only. The number of machines currently in use by
             training jobs for this resource pool. Will replace
@@ -301,10 +297,6 @@ class ResourcePool(proto.Message):
         number=4,
         message=machine_resources.DiskSpec,
     )
-    idle_replica_count: int = proto.Field(
-        proto.INT64,
-        number=5,
-    )
     used_replica_count: int = proto.Field(
         proto.INT64,
         number=6,
@@ -328,7 +320,7 @@ class ResourceRuntimeSpec(proto.Message):
             Optional. Configure the use of workload
             identity on the PersistentResource
         ray_spec (google.cloud.aiplatform_v1beta1.types.RaySpec):
-            Ray cluster configuration.
+            Optional. Ray cluster configuration.
             Required when creating a dedicated RayCluster on
             the PersistentResource.
     """
