@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""The vertexai module."""
 
-from google.cloud.aiplatform import init
-from vertexai import preview
+"""Constants used by vertexai."""
 
-__all__ = [
-    "init",
-    "preview",
-]
+PICKLE_PROTOCOL = 4
+
+_START_EXECUTION_MSG = "Start remote execution on Vertex..."
+_END_EXECUTION_MSG = "Remote execution is completed."

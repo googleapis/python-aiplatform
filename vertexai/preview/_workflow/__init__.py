@@ -12,12 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""The vertexai module."""
-
-from google.cloud.aiplatform import init
-from vertexai import preview
-
-__all__ = [
-    "init",
-    "preview",
-]
+"""The vertexai _workflow module."""
