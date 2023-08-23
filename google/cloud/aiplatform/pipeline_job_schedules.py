@@ -226,6 +226,7 @@ class PipelineJobSchedule(
         if max_concurrent_run_count:
             self._gca_resource.max_concurrent_run_count = max_concurrent_run_count
 
+        service_account = service_account or initializer.global_config.service_account
         network = network or initializer.global_config.network
 
         if service_account:

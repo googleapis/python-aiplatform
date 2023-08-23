@@ -217,6 +217,7 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
     """
     project = project or initializer.global_config.project
     location = location or initializer.global_config.location
+    service_account = service_account or initializer.global_config.service_account
     credentials = credentials or initializer.global_config.credentials
 
     output_artifacts_gcs_dir = (

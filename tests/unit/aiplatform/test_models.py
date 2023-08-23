@@ -2217,6 +2217,61 @@ class TestModel:
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
+    def test_init_aiplatform_with_service_account_and_batch_predict_gcs_source_and_dest(
+        self, create_batch_prediction_job_mock, sync
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            service_account=_TEST_SERVICE_ACCOUNT,
+        )
+        test_model = models.Model(_TEST_ID)
+
+        # Make SDK batch_predict method call
+        batch_prediction_job = test_model.batch_predict(
+            job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            batch_prediction_job.wait()
+
+        # Construct expected request
+        expected_gapic_batch_prediction_job = (
+            gca_batch_prediction_job.BatchPredictionJob(
+                display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+                model=model_service_client.ModelServiceClient.model_path(
+                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+                ),
+                input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+                    instances_format="jsonl",
+                    gcs_source=gca_io.GcsSource(
+                        uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                    ),
+                ),
+                output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+                    gcs_destination=gca_io.GcsDestination(
+                        output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+                    ),
+                    predictions_format="jsonl",
+                ),
+                encryption_spec=_TEST_ENCRYPTION_SPEC,
+                service_account=_TEST_SERVICE_ACCOUNT,
+            )
+        )
+
+        create_batch_prediction_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest(
         self, create_batch_prediction_job_mock, sync
     ):

@@ -1056,6 +1056,7 @@ class TestCustomTrainingJob:
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
             credentials=_TEST_CREDENTIALS,
+            service_account=_TEST_SERVICE_ACCOUNT,
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
@@ -1082,7 +1083,6 @@ class TestCustomTrainingJob:
         model_from_job = job.run(
             dataset=mock_tabular_dataset,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
-            service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
             args=_TEST_RUN_ARGS,
             environment_variables=_TEST_ENVIRONMENT_VARIABLES,
@@ -3181,6 +3181,7 @@ class TestCustomContainerTrainingJob:
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
+            service_account=_TEST_SERVICE_ACCOUNT,
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
@@ -3215,7 +3216,6 @@ class TestCustomContainerTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             model_labels=_TEST_MODEL_LABELS,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
-            service_account=_TEST_SERVICE_ACCOUNT,
             tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
             sync=sync,
             create_request_timeout=None,
@@ -5242,6 +5242,7 @@ class TestCustomPythonPackageTrainingJob:
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
+            service_account=_TEST_SERVICE_ACCOUNT,
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
@@ -5271,7 +5272,6 @@ class TestCustomPythonPackageTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             model_labels=_TEST_MODEL_LABELS,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
-            service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
             args=_TEST_RUN_ARGS,
             environment_variables=_TEST_ENVIRONMENT_VARIABLES,

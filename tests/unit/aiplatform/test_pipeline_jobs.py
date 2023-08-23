@@ -485,6 +485,8 @@ class TestPipelineJob:
             staging_bucket=_TEST_GCS_BUCKET_NAME,
             location=_TEST_LOCATION,
             credentials=_TEST_CREDENTIALS,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
         )
 
         job = pipeline_jobs.PipelineJob(
@@ -497,8 +499,6 @@ class TestPipelineJob:
         )
 
         job.run(
-            service_account=_TEST_SERVICE_ACCOUNT,
-            network=_TEST_NETWORK,
             sync=sync,
             create_request_timeout=None,
         )

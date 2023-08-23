@@ -382,6 +382,7 @@ class PipelineJob(
                 current Experiment Run.
         """
         network = network or initializer.global_config.network
+        service_account = service_account or initializer.global_config.service_account
 
         if service_account:
             self._gca_resource.service_account = service_account

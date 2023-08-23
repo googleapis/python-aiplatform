@@ -406,6 +406,8 @@ class TestCustomJob:
             location=_TEST_LOCATION,
             staging_bucket=_TEST_STAGING_BUCKET,
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+            network=_TEST_NETWORK,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         job = aiplatform.CustomJob(
@@ -416,8 +418,6 @@ class TestCustomJob:
         )
 
         job.run(
-            service_account=_TEST_SERVICE_ACCOUNT,
-            network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,

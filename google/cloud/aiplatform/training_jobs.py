@@ -3223,6 +3223,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 produce a Vertex AI Model.
         """
         network = network or initializer.global_config.network
+        service_account = service_account or initializer.global_config.service_account
 
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -4579,6 +4580,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 were not provided in constructor.
         """
         network = network or initializer.global_config.network
+        service_account = service_account or initializer.global_config.service_account
 
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -7348,6 +7350,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
+                If not specified, uses the service account set in aiplatform.init.
             network (str):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
@@ -7501,6 +7504,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 produce a Vertex AI Model.
         """
         network = network or initializer.global_config.network
+        service_account = service_account or initializer.global_config.service_account
 
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
