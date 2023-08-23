@@ -2187,9 +2187,6 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_max_output_tokens = (
-            language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
-        )
         stop_sequences = ["\n"]
 
         with mock.patch.object(
@@ -2213,7 +2210,7 @@ class TestLanguageModels:
             )
             prediction_parameters = mock_predict.call_args[1]["parameters"]
             assert "temperature" not in prediction_parameters
-            assert prediction_parameters["maxOutputTokens"] == default_max_output_tokens
+            assert "maxOutputTokens" not in prediction_parameters
 
     def test_code_completion(self):
         """Tests code completion with the code generation model."""
@@ -2255,9 +2252,6 @@ class TestLanguageModels:
         # Validating the parameters
         predict_temperature = 0.1
         predict_max_output_tokens = 100
-        default_max_output_tokens = (
-            language_models.CodeGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS
-        )
 
         with mock.patch.object(
             target=prediction_service_client.PredictionServiceClient,
@@ -2278,7 +2272,7 @@ class TestLanguageModels:
             )
             prediction_parameters = mock_predict.call_args[1]["parameters"]
             assert "temperature" not in prediction_parameters
-            assert prediction_parameters["maxOutputTokens"] == default_max_output_tokens
+            assert "maxOutputTokens" not in prediction_parameters
 
     def test_code_generation_model_predict_streaming(self):
         """Tests the TextGenerationModel.predict_streaming method."""

@@ -1686,14 +1686,13 @@ class CodeGenerationModel(_LanguageModel):
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
-    _DEFAULT_MAX_OUTPUT_TOKENS = 128
 
     def _create_prediction_request(
         self,
         prefix: str,
         suffix: Optional[str] = None,
         *,
-        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
     ) -> _PredictionRequest:
@@ -1732,7 +1731,7 @@ class CodeGenerationModel(_LanguageModel):
         prefix: str,
         suffix: Optional[str] = None,
         *,
-        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
     ) -> "TextGenerationResponse":
@@ -1771,7 +1770,7 @@ class CodeGenerationModel(_LanguageModel):
         prefix: str,
         suffix: Optional[str] = None,
         *,
-        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
     ) -> Iterator[TextGenerationResponse]:
         """Predicts the code based on previous code.
