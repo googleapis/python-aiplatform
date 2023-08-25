@@ -27,6 +27,7 @@ from google.rpc import status_pb2
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import hyperparameter_tuning as hpt
+from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
@@ -395,6 +396,8 @@ class TestHyperparameterTuningJob:
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     def test_create_hyperparameter_tuning_job(
         self,
         create_hyperparameter_tuning_job_mock,
@@ -809,6 +812,8 @@ class TestHyperparameterTuningJob:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     def test_create_hyperparameter_tuning_job_with_enable_web_access(
         self,
         create_hyperparameter_tuning_job_mock_with_enable_web_access,
@@ -889,6 +894,8 @@ class TestHyperparameterTuningJob:
 
         caplog.clear()
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     def test_log_enable_web_access_after_get_hyperparameter_tuning_job(
         self,
         get_hyperparameter_tuning_job_mock_with_enable_web_access,
