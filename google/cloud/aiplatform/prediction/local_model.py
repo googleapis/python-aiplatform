@@ -154,6 +154,7 @@ class LocalModel:
         requirements_path: Optional[str] = None,
         extra_packages: Optional[List[str]] = None,
         no_cache: bool = False,
+        environment_variables: Optional[Dict[str, str]] = None,
     ) -> "LocalModel":
         """Builds a local model from a custom predictor.
 
@@ -248,6 +249,8 @@ class LocalModel:
                 reduces the image building time. See
                 https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#leverage-build-cache
                 for more details.
+            environment_variables (Dict[str, str]):
+                Optional. The environment variables that are to be present in the container.
 
         Returns:
             local model: Instantiated representation of the local model.
@@ -268,10 +271,10 @@ class LocalModel:
             handler_module, handler_class = prediction_utils.inspect_source_from_class(
                 handler, src_dir
             )
-        environment_variables = {
-            "HANDLER_MODULE": handler_module,
-            "HANDLER_CLASS": handler_class,
-        }
+        if environment_variables is None:
+            environment_variables = {}
+        environment_variables["HANDLER_MODULE"] = handler_module
+        environment_variables["HANDLER_CLASS"] = handler_class
 
         predictor_module = None
         predictor_class = None

@@ -20,6 +20,8 @@ import importlib
 import json
 import multiprocessing
 import os
+import uuid
+
 import pytest
 import requests
 import textwrap
@@ -82,7 +84,6 @@ from google.cloud.aiplatform.utils import prediction_utils
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
-
 
 _TEST_INPUT = b'{"instances": [[1, 2, 3, 4]]}'
 _TEST_DESERIALIZED_INPUT = {"instances": [[1, 2, 3, 4]]}
@@ -1551,6 +1552,64 @@ class TestLocalModel:
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
             environment_variables={
+                "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+                "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
+            pip_command="pip",
+            python_command="python",
+            no_cache=False,
+        )
+
+    def test_build_cpr_model_creates_and_get_localmodel_with_environment_variables(
+        self,
+        tmp_path,
+        inspect_source_from_class_mock_predictor_only,
+        is_prebuilt_prediction_container_uri_is_false_mock,
+        build_image_mock,
+    ):
+        src_dir = tmp_path / _TEST_SRC_DIR
+        src_dir.mkdir()
+        predictor = src_dir / _TEST_PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class {predictor_class}:
+                pass
+            """
+            ).format(predictor_class=_TEST_PREDICTOR_CLASS)
+        )
+        my_predictor = self._load_module(_TEST_PREDICTOR_CLASS, str(predictor))
+        _test_env_name = f"random_env_name_{uuid.uuid4().hex}"
+        _test_env_value = f"random_env_value_{uuid.uuid4().hex}"
+        local_model = LocalModel.build_cpr_model(
+            str(src_dir),
+            _TEST_OUTPUT_IMAGE,
+            predictor=my_predictor,
+            environment_variables={_test_env_name: _test_env_value},
+        )
+
+        assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
+        assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
+        assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
+        inspect_source_from_class_mock_predictor_only.assert_called_once_with(
+            my_predictor, str(src_dir)
+        )
+        is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE
+        )
+        build_image_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE,
+            str(src_dir),
+            _TEST_OUTPUT_IMAGE,
+            python_module=_DEFAULT_PYTHON_MODULE,
+            requirements_path=None,
+            extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
+            extra_packages=None,
+            exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                _test_env_name: _test_env_value,
                 "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
                 "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
                 "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
