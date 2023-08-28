@@ -212,8 +212,7 @@ def _unwrapper(instance: Any) -> Callable[..., Any]:
                 remote_executor,
                 remote_executor_kwargs,
             )
-            if wrapped_in_place:
-                setattr(instance, attr_name, attr_value._method)
+            setattr(instance, attr_name, attr_value._method)
 
     if not wrapped_in_place:
         instance.__class__ = super_class
