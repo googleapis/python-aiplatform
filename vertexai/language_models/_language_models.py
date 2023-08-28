@@ -1084,7 +1084,7 @@ class TextEmbeddingModel(_LanguageModel):
             if isinstance(text, TextEmbeddingInput):
                 instance = {"content": text.text}
                 if text.task_type:
-                    instance["taskType"] = text.task_type
+                    instance["task_type"] = text.task_type
                 if text.title:
                     instance["title"] = text.title
             elif isinstance(text, str):

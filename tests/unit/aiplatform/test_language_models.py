@@ -2359,12 +2359,12 @@ class TestLanguageModels:
                 {"content": "What is life?"},
                 {
                     "content": "Foo",
-                    "taskType": "RETRIEVAL_DOCUMENT",
+                    "task_type": "RETRIEVAL_DOCUMENT",
                     "title": "Bar",
                 },
                 {
                     "content": "Baz",
-                    "taskType": "CLASSIFICATION",
+                    "task_type": "CLASSIFICATION",
                 },
             ]
             prediction_parameters = mock_predict.call_args[1]["parameters"]
