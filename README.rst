@@ -170,8 +170,8 @@ You can also create and import a dataset in separate steps:
     my_dataset = aiplatform.TextDataset.create(
         display_name="my-dataset")
 
-    my_dataset.import(
-        gcs_source=['gs://path/to/my/dataset.csv']
+    my_dataset.import_data(
+        gcs_source=['gs://path/to/my/dataset.csv'],
         import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
     )
 
