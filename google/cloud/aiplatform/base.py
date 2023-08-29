@@ -69,6 +69,15 @@ class Logger:
         self._logger = logging.getLogger(name)
         self._logger.setLevel(logging.INFO)
 
+        if self._logger.handlers:
+            # Avoid writing duplicate logs if the logger is created twice.
+            return
+
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.INFO)
+
+        self._logger.addHandler(handler)
+
     def log_create_with_lro(
         self,
         cls: Type["VertexAiResourceNoun"],
@@ -191,10 +200,6 @@ class Logger:
 
 
 _LOGGER = Logger(__name__)
-if not _LOGGER._logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.INFO)
-    _LOGGER._logger.addHandler(handler)
 
 
 class FutureManager(metaclass=abc.ABCMeta):
