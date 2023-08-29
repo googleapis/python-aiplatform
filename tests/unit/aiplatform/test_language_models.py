@@ -257,9 +257,9 @@ _TEST_CHAT_PREDICTION_STREAMING = [
 
 _TEST_CODE_GENERATION_PREDICTION = {
     "safetyAttributes": {
-        "categories": [],
-        "blocked": False,
-        "scores": [],
+        "blocked": True,
+        "categories": ["Finance"],
+        "scores": [0.1],
     },
     "content": """
 ```python
@@ -2188,6 +2188,17 @@ class TestLanguageModels:
                 temperature=0.2,
             )
             assert response.text == _TEST_CODE_GENERATION_PREDICTION["content"]
+            expected_safety_attributes_raw = _TEST_CODE_GENERATION_PREDICTION[
+                "safetyAttributes"
+            ]
+            expected_safety_attributes = dict(
+                zip(
+                    expected_safety_attributes_raw["categories"],
+                    expected_safety_attributes_raw["scores"],
+                )
+            )
+            assert response.safety_attributes == expected_safety_attributes
+            assert response.is_blocked == expected_safety_attributes_raw["blocked"]
 
         # Validating the parameters
         predict_temperature = 0.1

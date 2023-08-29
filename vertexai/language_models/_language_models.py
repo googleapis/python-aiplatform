@@ -789,6 +789,26 @@ class _TextGenerationModel(_LanguageModel):
             )
 
 
+def _parse_text_generation_model_response(
+    prediction_response: aiplatform.models.Prediction,
+    prediction_idx: int = 0,
+) -> TextGenerationResponse:
+    """Converts the raw text_generation model response to `TextGenerationResponse`."""
+    prediction = prediction_response.predictions[prediction_idx]
+    safety_attributes_dict = prediction.get("safetyAttributes", {})
+    return TextGenerationResponse(
+        text=prediction["content"],
+        _prediction_response=prediction_response,
+        is_blocked=safety_attributes_dict.get("blocked", False),
+        safety_attributes=dict(
+            zip(
+                safety_attributes_dict.get("categories") or [],
+                safety_attributes_dict.get("scores") or [],
+            )
+        ),
+    )
+
+
 class _ModelWithBatchPredict(_LanguageModel):
     """Model that supports batch prediction."""
 
@@ -1754,11 +1774,7 @@ class CodeGenerationModel(_LanguageModel):
             instances=[prediction_request.instance],
             parameters=prediction_request.parameters,
         )
-
-        return TextGenerationResponse(
-            text=prediction_response.predictions[0]["content"],
-            _prediction_response=prediction_response,
-        )
+        return _parse_text_generation_model_response(prediction_response)
 
     def predict_streaming(
         self,
@@ -1800,10 +1816,7 @@ class CodeGenerationModel(_LanguageModel):
                 predictions=[prediction_dict],
                 deployed_model_id="",
             )
-            yield TextGenerationResponse(
-                text=prediction_dict["content"],
-                _prediction_response=prediction_obj,
-            )
+            yield _parse_text_generation_model_response(prediction_obj)
 
 
 class _PreviewCodeGenerationModel(CodeGenerationModel, _TunableModelMixin):
