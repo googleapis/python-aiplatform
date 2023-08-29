@@ -839,11 +839,6 @@ class _ModelWithBatchPredict(_LanguageModel):
             raise ValueError(f"Unsupported destination_uri: {destination_uri_prefix}")
 
         model_name = self._model_resource_name
-        # TODO(b/284512065): Batch prediction service does not support
-        # fully qualified publisher model names yet
-        publishers_index = model_name.index("/publishers/")
-        if publishers_index > 0:
-            model_name = model_name[publishers_index + 1 :]
 
         job = aiplatform.BatchPredictionJob.create(
             model_name=model_name,
