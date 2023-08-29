@@ -942,7 +942,7 @@ class _ChatModel(_TextGenerationModel):
 
     def start_chat(
         self,
-        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -976,7 +976,7 @@ class _ChatSession:
     def __init__(
         self,
         model: _ChatModel,
-        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -1183,9 +1183,7 @@ class _ChatModelBase(_LanguageModel):
         *,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: Optional[
-            int
-        ] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -1271,12 +1269,10 @@ class CodeChatModel(_ChatModelBase):
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
-    _DEFAULT_MAX_OUTPUT_TOKENS = 128
-
     def start_chat(
         self,
         *,
-        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ) -> "CodeChatSession":
@@ -1312,9 +1308,7 @@ class _ChatSessionBase:
         model: _ChatModelBase,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: Optional[
-            int
-        ] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -1585,9 +1579,7 @@ class ChatSession(_ChatSessionBase):
         model: ChatModel,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: Optional[
-            int
-        ] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -1616,7 +1608,7 @@ class CodeChatSession(_ChatSessionBase):
     def __init__(
         self,
         model: CodeChatModel,
-        max_output_tokens: int = CodeChatModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ):
