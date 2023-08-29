@@ -528,6 +528,8 @@ from .persistent_resource_service import (
     GetPersistentResourceRequest,
     ListPersistentResourcesRequest,
     ListPersistentResourcesResponse,
+    UpdatePersistentResourceOperationMetadata,
+    UpdatePersistentResourceRequest,
 )
 from .pipeline_job import (
     PipelineJob,
@@ -1121,6 +1123,8 @@ __all__ = (
     "GetPersistentResourceRequest",
     "ListPersistentResourcesRequest",
     "ListPersistentResourcesResponse",
+    "UpdatePersistentResourceOperationMetadata",
+    "UpdatePersistentResourceRequest",
     "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
