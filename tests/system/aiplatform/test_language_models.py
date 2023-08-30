@@ -270,7 +270,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
     def test_batch_prediction_for_textembedding(self):
-        source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/batch_prediction_prompts1.jsonl"
+        source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/batch_prediction_prompts_textembedding_dummy1.jsonl"
         destination_uri_prefix = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/predictions/textembedding-gecko@001_"
 
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
