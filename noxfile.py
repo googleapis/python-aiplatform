@@ -90,6 +90,7 @@ def lint(session):
     session.run(
         "black",
         "--check",
+        "--diff",
         *LINT_PATHS,
     )
     session.run("flake8", "google", "tests")
