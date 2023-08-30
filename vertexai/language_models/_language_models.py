@@ -580,6 +580,7 @@ class TuningEvaluationSpec:
         tensorboard: Vertex Tensorboard where to write the evaluation metrics.
             The Tensorboard must be in the same location as the tuning job.
     """
+    __module__ = "vertexai.language_models"
 
     evaluation_data: str
     evaluation_interval: Optional[int] = None
@@ -597,6 +598,7 @@ class TextGenerationResponse:
             Learn more about the safety attributes here:
             https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
     """
+    __module__ = "vertexai.language_models"
 
     text: str
     _prediction_response: Any
@@ -912,7 +914,7 @@ class _PreviewModelWithBatchPredict(_ModelWithBatchPredict):
 class TextGenerationModel(
     _TextGenerationModel, _TunableTextModelMixin, _ModelWithBatchPredict
 ):
-    pass
+    __module__ = "vertexai.language_models"
 
 
 class _PreviewTextGenerationModel(
@@ -922,6 +924,9 @@ class _PreviewTextGenerationModel(
     _evaluatable_language_models._EvaluatableLanguageModel,
 ):
     # Do not add docstring so that it's inherited from the base class.
+    __name__ = "TextGenerationModel"
+    __module__ = "vertexai.preview.language_models"
+
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
@@ -1056,6 +1061,8 @@ class TextEmbeddingInput:
                 Specifies that the embeddings will be used for clustering.
         title: Optional identifier of the text content.
     """
+    __module__ = "vertexai.language_models"
+
     text: str
     task_type: Optional[str] = None
     title: Optional[str] = None
@@ -1073,6 +1080,7 @@ class TextEmbeddingModel(_LanguageModel):
             vector = embedding.values
             print(len(vector))
     """
+    __module__ = "vertexai.language_models"
 
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
@@ -1132,12 +1140,16 @@ class TextEmbeddingModel(_LanguageModel):
 
 
 class _PreviewTextEmbeddingModel(TextEmbeddingModel, _ModelWithBatchPredict):
+    __name__ = "TextEmbeddingModel"
+    __module__ = "vertexai.preview.language_models"
+
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
 @dataclasses.dataclass
 class TextEmbeddingStatistics:
     """Text embedding statistics."""
+    __module__ = "vertexai.language_models"
 
     token_count: int
     truncated: bool
@@ -1146,6 +1158,7 @@ class TextEmbeddingStatistics:
 @dataclasses.dataclass
 class TextEmbedding:
     """Text embedding vector and statistics."""
+    __module__ = "vertexai.language_models"
 
     values: List[float]
     statistics: Optional[TextEmbeddingStatistics] = None
@@ -1155,6 +1168,7 @@ class TextEmbedding:
 @dataclasses.dataclass
 class InputOutputTextPair:
     """InputOutputTextPair represents a pair of input and output texts."""
+    __module__ = "vertexai.language_models"
 
     input_text: str
     output_text: str
@@ -1168,6 +1182,7 @@ class ChatMessage:
         content: Content of the message.
         author: Author of the message.
     """
+    __module__ = "vertexai.language_models"
 
     content: str
     author: str
@@ -1244,11 +1259,15 @@ class ChatModel(_ChatModelBase):
 
         chat.send_message("Do you know any cool events this weekend?")
     """
+    __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
 
 
 class _PreviewChatModel(ChatModel, _PreviewTunableChatModelMixin):
+    __name__ = "ChatModel"
+    __module__ = "vertexai.preview.language_models"
+
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
@@ -1265,6 +1284,7 @@ class CodeChatModel(_ChatModelBase):
 
         code_chat.send_message("Please help write a function to calculate the min of two numbers")
     """
+    __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
@@ -1294,6 +1314,9 @@ class CodeChatModel(_ChatModelBase):
 
 
 class _PreviewCodeChatModel(CodeChatModel, _TunableChatModelMixin):
+    __name__ = "CodeChatModel"
+    __module__ = "vertexai.preview.language_models"
+
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
@@ -1573,6 +1596,7 @@ class ChatSession(_ChatSessionBase):
 
     Within a chat session, the model keeps context and remembers the previous conversation.
     """
+    __module__ = "vertexai.language_models"
 
     def __init__(
         self,
@@ -1604,6 +1628,7 @@ class CodeChatSession(_ChatSessionBase):
 
     Within a code chat session, the model keeps context and remembers the previous converstion.
     """
+    __module__ = "vertexai.language_models"
 
     def __init__(
         self,
@@ -1689,6 +1714,7 @@ class CodeGenerationModel(_LanguageModel):
             prefix="def reverse_string(s):",
         ))
     """
+    __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
@@ -1812,6 +1838,9 @@ class CodeGenerationModel(_LanguageModel):
 
 
 class _PreviewCodeGenerationModel(CodeGenerationModel, _TunableModelMixin):
+    __name__ = "CodeGenerationModel"
+    __module__ = "vertexai.preview.language_models"
+
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
