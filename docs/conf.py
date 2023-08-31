@@ -386,7 +386,7 @@ napoleon_use_rtype = True
 
 def adopt_members_reexported_from_private_modules(public_module: str):
     """Remaps the module items that come from internal modules.
-    
+
     A public module might be exporting items that are imported from private modules.
     This function changes the `__module__` of such items to the public module.
 
