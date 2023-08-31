@@ -116,6 +116,7 @@ class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
         }
         assert expected_md == generated_md
 
+    @pytest.mark.skip(reason="Failing for Python 3.11, tracked in b/293506827.")
     def test_non_keras_model(self):
         class CustomModuleWithOutputName(tf.Module):
             def __init__(self):

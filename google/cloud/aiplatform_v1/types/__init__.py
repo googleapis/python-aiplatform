@@ -57,6 +57,7 @@ from .dataset import (
 from .dataset_service import (
     CreateDatasetOperationMetadata,
     CreateDatasetRequest,
+    CreateDatasetVersionOperationMetadata,
     DataItemView,
     DeleteDatasetRequest,
     DeleteSavedQueryRequest,
@@ -76,6 +77,7 @@ from .dataset_service import (
     ListDatasetsResponse,
     ListSavedQueriesRequest,
     ListSavedQueriesResponse,
+    RestoreDatasetVersionOperationMetadata,
     SearchDataItemsRequest,
     SearchDataItemsResponse,
     UpdateDatasetRequest,
@@ -553,6 +555,19 @@ from .publisher_model import (
 from .saved_query import (
     SavedQuery,
 )
+from .schedule import (
+    Schedule,
+)
+from .schedule_service import (
+    CreateScheduleRequest,
+    DeleteScheduleRequest,
+    GetScheduleRequest,
+    ListSchedulesRequest,
+    ListSchedulesResponse,
+    PauseScheduleRequest,
+    ResumeScheduleRequest,
+    UpdateScheduleRequest,
+)
 from .service_networking import (
     PrivateServiceConnectConfig,
 )
@@ -624,6 +639,8 @@ from .tensorboard_service import (
     ListTensorboardTimeSeriesResponse,
     ReadTensorboardBlobDataRequest,
     ReadTensorboardBlobDataResponse,
+    ReadTensorboardSizeRequest,
+    ReadTensorboardSizeResponse,
     ReadTensorboardTimeSeriesDataRequest,
     ReadTensorboardTimeSeriesDataResponse,
     ReadTensorboardUsageRequest,
@@ -716,6 +733,7 @@ __all__ = (
     "ImportDataConfig",
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
+    "CreateDatasetVersionOperationMetadata",
     "DataItemView",
     "DeleteDatasetRequest",
     "DeleteSavedQueryRequest",
@@ -735,6 +753,7 @@ __all__ = (
     "ListDatasetsResponse",
     "ListSavedQueriesRequest",
     "ListSavedQueriesResponse",
+    "RestoreDatasetVersionOperationMetadata",
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
     "UpdateDatasetRequest",
@@ -1157,6 +1176,8 @@ __all__ = (
     "ListTensorboardTimeSeriesResponse",
     "ReadTensorboardBlobDataRequest",
     "ReadTensorboardBlobDataResponse",
+    "ReadTensorboardSizeRequest",
+    "ReadTensorboardSizeResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
     "ReadTensorboardUsageRequest",

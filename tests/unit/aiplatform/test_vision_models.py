@@ -17,9 +17,13 @@
 
 # pylint: disable=protected-access,bad-continuation
 
+import base64
 import importlib
+import io
 import os
 import tempfile
+from typing import Any, Dict
+import unittest
 from unittest import mock
 
 from google.cloud import aiplatform
@@ -71,6 +75,50 @@ _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT = {
 }
 
 
+_IMAGE_GENERATION_PUBLISHER_MODEL_DICT = {
+    "name": "publishers/google/models/imagegeneration",
+    "version_id": "002",
+    "open_source_category": "PROPRIETARY",
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
+    "publisher_model_template": "projects/{project}/locations/{location}/publishers/google/models/imagegeneration@002",
+    "predict_schemata": {
+        "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/vision_generative_model_1.0.0.yaml",
+        "parameters_schema_uri": "gs://google-cloud-aiplatfrom/schema/predict/params/vision_generative_model_1.0.0.yaml",
+        "prediction_schema_uri": "gs://google-cloud-aiplatform/schema/predict/prediction/vision_generative_model_1.0.0.yaml",
+    },
+}
+
+
+def make_image_base64(width: int, height: int) -> str:
+    image: PIL_Image.Image = PIL_Image.new(mode="RGB", size=(width, height))
+    image_bytes = io.BytesIO()
+    image.save(image_bytes, format="PNG")
+    image_b64 = base64.b64encode(image_bytes.getvalue()).decode("utf-8")
+    return image_b64
+
+
+def make_image_generation_response(
+    width: int, height: int, count: int = 1
+) -> Dict[str, Any]:
+    predictions = []
+    for _ in range(count):
+        predictions.append(
+            {
+                "bytesBase64Encoded": make_image_base64(width, height),
+                "mimeType": "image/png",
+            }
+        )
+    return {"predictions": predictions}
+
+
+def make_image_upscale_response(upscale_size: int) -> Dict[str, Any]:
+    predictions = {
+        "bytesBase64Encoded": make_image_base64(upscale_size, upscale_size),
+        "mimeType": "image/png",
+    }
+    return {"predictions": [predictions]}
+
+
 def generate_image_from_file(
     width: int = 100, height: int = 100
 ) -> vision_models.Image:
@@ -79,6 +127,297 @@ def generate_image_from_file(
         pil_image = PIL_Image.new(mode="RGB", size=(width, height))
         pil_image.save(image_path, format="PNG")
         return vision_models.Image.load_from_file(image_path)
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestImageGenerationModels:
+    """Unit tests for the image generation models."""
+
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def _get_image_generation_model(self) -> vision_models.ImageGenerationModel:
+        """Gets the image generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_GENERATION_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = vision_models.ImageGenerationModel.from_pretrained(
+                "imagegeneration@002"
+            )
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/imagegeneration@002",
+            retry=base._DEFAULT_RETRY,
+        )
+
+        return model
+
+    def test_from_pretrained(self):
+        model = self._get_image_generation_model()
+        assert (
+            model._endpoint_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/imagegeneration@002"
+        )
+
+    def test_generate_images(self):
+        """Tests the image generation model."""
+        model = self._get_image_generation_model()
+
+        width = 1024
+        # TODO(b/295946075) The service stopped supporting image sizes.
+        # height = 768
+        height = 1024
+        number_of_images = 4
+        seed = 1
+        guidance_scale = 15
+
+        image_generation_response = make_image_generation_response(
+            width=width, height=height, count=number_of_images
+        )
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.extend(
+            image_generation_response["predictions"]
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            prompt1 = "Astronaut riding a horse"
+            negative_prompt1 = "bad quality"
+            image_response = model.generate_images(
+                prompt=prompt1,
+                # Optional:
+                negative_prompt=negative_prompt1,
+                number_of_images=number_of_images,
+                # TODO(b/295946075) The service stopped supporting image sizes.
+                # width=width,
+                # height=height,
+                seed=seed,
+                guidance_scale=guidance_scale,
+            )
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            actual_instance = predict_kwargs["instances"][0]
+            assert actual_instance["prompt"] == prompt1
+            assert actual_instance["negativePrompt"] == negative_prompt1
+            # TODO(b/295946075) The service stopped supporting image sizes.
+            # assert actual_parameters["sampleImageSize"] == str(max(width, height))
+            # assert actual_parameters["aspectRatio"] == f"{width}:{height}"
+            assert actual_parameters["seed"] == seed
+            assert actual_parameters["guidanceScale"] == guidance_scale
+
+        assert len(image_response.images) == number_of_images
+        for idx, image in enumerate(image_response):
+            assert image._pil_image.size == (width, height)
+            assert image.generation_parameters
+            assert image.generation_parameters["prompt"] == prompt1
+            assert image.generation_parameters["negative_prompt"] == negative_prompt1
+            # TODO(b/295946075) The service stopped supporting image sizes.
+            # assert image.generation_parameters["width"] == width
+            # assert image.generation_parameters["height"] == height
+            assert image.generation_parameters["seed"] == seed
+            assert image.generation_parameters["guidance_scale"] == guidance_scale
+            assert image.generation_parameters["index_of_image_in_batch"] == idx
+            image.show()
+
+        # Test saving and loading images
+        with tempfile.TemporaryDirectory() as temp_dir:
+            image_path = os.path.join(temp_dir, "image.png")
+            image_response[0].save(location=image_path)
+            image1 = vision_models.GeneratedImage.load_from_file(image_path)
+            # assert image1._pil_image.size == (width, height)
+            assert image1.generation_parameters
+            assert image1.generation_parameters["prompt"] == prompt1
+
+            # Preparing mask
+            mask_path = os.path.join(temp_dir, "mask.png")
+            mask_pil_image = PIL_Image.new(mode="RGB", size=image1._pil_image.size)
+            mask_pil_image.save(mask_path, format="PNG")
+            mask_image = vision_models.Image.load_from_file(mask_path)
+
+        # Test generating image from base image
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            prompt2 = "Ancient book style"
+            image_response2 = model.edit_image(
+                prompt=prompt2,
+                # Optional:
+                number_of_images=number_of_images,
+                seed=seed,
+                guidance_scale=guidance_scale,
+                base_image=image1,
+                mask=mask_image,
+            )
+            predict_kwargs = mock_predict.call_args[1]
+            actual_instance = predict_kwargs["instances"][0]
+            assert actual_instance["prompt"] == prompt2
+            assert actual_instance["image"]["bytesBase64Encoded"]
+            assert actual_instance["mask"]["image"]["bytesBase64Encoded"]
+
+        assert len(image_response2.images) == number_of_images
+        for image in image_response2:
+            assert image._pil_image.size == (width, height)
+            assert image.generation_parameters
+            assert image.generation_parameters["prompt"] == prompt2
+            assert image.generation_parameters["base_image_hash"]
+            assert image.generation_parameters["mask_hash"]
+
+    @unittest.skip(reason="b/295946075 The service stopped supporting image sizes.")
+    def test_generate_images_requests_square_images_by_default(self):
+        """Tests that the model class generates square image by default."""
+        model = self._get_image_generation_model()
+
+        image_size = 1024
+
+        # No height specified
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+        ) as mock_predict:
+            model.generate_images(
+                prompt="test",
+                width=image_size,
+            )
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            assert actual_parameters["sampleImageSize"] == str(image_size)
+            assert "aspectRatio" not in actual_parameters
+
+        # No width specified
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+        ) as mock_predict:
+            model.generate_images(
+                prompt="test",
+                height=image_size,
+            )
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            assert actual_parameters["sampleImageSize"] == str(image_size)
+            assert "aspectRatio" not in actual_parameters
+
+        # No width or height specified
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+        ) as mock_predict:
+            model.generate_images(prompt="test")
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            assert "sampleImageSize" not in actual_parameters
+
+    def test_upscale_image_on_generated_image(self):
+        """Tests image upscaling on generated images."""
+        model = self._get_image_generation_model()
+
+        image_generation_response = make_image_generation_response(
+            count=1, height=1024, width=1024
+        )
+        gca_generation_response = gca_prediction_service.PredictResponse()
+        gca_generation_response.predictions.extend(
+            image_generation_response["predictions"]
+        )
+
+        image_upscale_response = make_image_upscale_response(upscale_size=2048)
+        gca_upscale_response = gca_prediction_service.PredictResponse()
+        gca_upscale_response.predictions.extend(image_upscale_response["predictions"])
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_generation_response,
+        ):
+            prompt = "Ancient book style"
+            image_generation_response = model.generate_images(
+                prompt=prompt,
+            )
+
+            with mock.patch.object(
+                target=prediction_service_client.PredictionServiceClient,
+                attribute="predict",
+                return_value=gca_upscale_response,
+            ) as mock_upscale:
+                upscaled_image = model.upscale_image(image=image_generation_response[0])
+
+                predict_kwargs = mock_upscale.call_args[1]
+                actual_instance = predict_kwargs["instances"][0]
+                assert actual_instance["image"]["bytesBase64Encoded"]
+
+                image_upscale_parameters = predict_kwargs["parameters"]
+                assert image_upscale_parameters["sampleImageSize"] == str(
+                    upscaled_image._size[0]
+                )
+                assert image_upscale_parameters["mode"] == "upscale"
+
+                assert upscaled_image._image_bytes
+                assert upscaled_image.generation_parameters["prompt"] == prompt
+
+    def test_upscale_image_on_provided_image(self):
+        """Tests image upscaling on generated images."""
+        model = self._get_image_generation_model()
+
+        image_generation_response = make_image_generation_response(
+            count=1, height=1024, width=1024
+        )
+        gca_generation_response = gca_prediction_service.PredictResponse()
+        gca_generation_response.predictions.extend(
+            image_generation_response["predictions"]
+        )
+
+        image_upscale_response = make_image_upscale_response(upscale_size=4096)
+        gca_upscale_response = gca_prediction_service.PredictResponse()
+        gca_upscale_response.predictions.extend(image_upscale_response["predictions"])
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_upscale_response,
+        ) as mock_upscale:
+            test_image = generate_image_from_file(height=1024, width=1024)
+
+            upscaled_image = model.upscale_image(image=test_image, new_size=4096)
+
+            predict_kwargs = mock_upscale.call_args[1]
+            actual_instance = predict_kwargs["instances"][0]
+            assert actual_instance["image"]["bytesBase64Encoded"]
+
+            image_upscale_parameters = predict_kwargs["parameters"]
+            assert (
+                image_upscale_parameters["sampleImageSize"]
+                == str(upscaled_image._size[0])
+                == str(upscaled_image.generation_parameters["upscaled_image_size"])
+            )
+            assert image_upscale_parameters["mode"] == "upscale"
+
+            assert upscaled_image._image_bytes
+            assert isinstance(upscaled_image, vision_models.GeneratedImage)
+
+    def test_upscale_image_raises_if_not_1024x1024(self):
+        """Tests image upscaling on generated images."""
+        model = self._get_image_generation_model()
+
+        test_image = generate_image_from_file(height=100, width=100)
+
+        with pytest.raises(ValueError):
+            model.upscale_image(image=test_image)
 
 
 @pytest.mark.usefixtures("google_auth_mock")

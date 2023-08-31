@@ -59,14 +59,16 @@ featurestore_extra_require = [
     "pyarrow >= 6.0.1",
 ]
 pipelines_extra_require = [
-    "pyyaml>=5.3,<7",
+    "pyyaml==5.3.1",
 ]
 datasets_extra_require = [
-    "pyarrow >= 3.0.0, < 8.0dev",
+    "pyarrow >= 3.0.0, < 8.0dev; python_version<'3.11'",
+    "pyarrow >= 10.0.1; python_version>='3.11'",
 ]
 
 vizier_extra_require = [
-    "google-vizier==0.0.4",
+    "google-vizier==0.0.4; python_version<'3.11'",
+    "google-vizier>=0.1.6; python_version>='3.11'",
 ]
 
 prediction_extra_require = [
@@ -84,6 +86,12 @@ private_endpoints_extra_require = ["urllib3 >=1.21.1, <1.27", "requests >= 2.28.
 
 autologging_extra_require = ["mlflow>=1.27.0,<=2.1.1"]
 
+preview_extra_require = [
+    "cloudpickle < 3.0",
+    "google-cloud-logging < 4.0",
+    "importlib-metadata < 7.0; python_version<'3.8'",
+]
+
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -98,6 +106,7 @@ full_extra_require = list(
         + prediction_extra_require
         + private_endpoints_extra_require
         + autologging_extra_require
+        + preview_extra_require
     )
 )
 testing_extra_require = (
@@ -105,12 +114,16 @@ testing_extra_require = (
     + profiler_extra_require
     + [
         "grpcio-testing",
-        "pytest-asyncio",
-        "pytest-xdist",
         "ipython",
         "kfp",
-        "xgboost",
+        "pyfakefs",
+        "pytest-asyncio",
+        "pytest-xdist",
         "scikit-learn",
+        "tensorflow >=2.3.0, < 2.13.0",
+        "torch >= 2.0.0; python_version>='3.8'",
+        "torch; python_version<'3.8'",
+        "xgboost",
     ]
 )
 
@@ -158,6 +171,7 @@ setuptools.setup(
         "datasets": datasets_extra_require,
         "private_endpoints": private_endpoints_extra_require,
         "autologging": autologging_extra_require,
+        "preview": preview_extra_require,
     },
     python_requires=">=3.7",
     classifiers=[
@@ -170,6 +184,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],

@@ -26,6 +26,7 @@ from typing import Any, Dict, Generator
 
 from google.api_core import exceptions
 from google.cloud import aiplatform
+import vertexai
 from google.cloud import bigquery
 from google.cloud import resourcemanager
 from google.cloud import storage
@@ -62,6 +63,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
+        importlib.reload(vertexai)
 
     @pytest.fixture(scope="class")
     def shared_state(self) -> Generator[Dict[str, Any], None, None]:

@@ -83,6 +83,7 @@ from .types.dataset import ExportFractionSplit
 from .types.dataset import ImportDataConfig
 from .types.dataset_service import CreateDatasetOperationMetadata
 from .types.dataset_service import CreateDatasetRequest
+from .types.dataset_service import CreateDatasetVersionOperationMetadata
 from .types.dataset_service import DataItemView
 from .types.dataset_service import DeleteDatasetRequest
 from .types.dataset_service import DeleteSavedQueryRequest
@@ -102,6 +103,7 @@ from .types.dataset_service import ListDatasetsRequest
 from .types.dataset_service import ListDatasetsResponse
 from .types.dataset_service import ListSavedQueriesRequest
 from .types.dataset_service import ListSavedQueriesResponse
+from .types.dataset_service import RestoreDatasetVersionOperationMetadata
 from .types.dataset_service import SearchDataItemsRequest
 from .types.dataset_service import SearchDataItemsResponse
 from .types.dataset_service import UpdateDatasetRequest
@@ -532,6 +534,8 @@ from .types.tensorboard_service import ListTensorboardTimeSeriesRequest
 from .types.tensorboard_service import ListTensorboardTimeSeriesResponse
 from .types.tensorboard_service import ReadTensorboardBlobDataRequest
 from .types.tensorboard_service import ReadTensorboardBlobDataResponse
+from .types.tensorboard_service import ReadTensorboardSizeRequest
+from .types.tensorboard_service import ReadTensorboardSizeResponse
 from .types.tensorboard_service import ReadTensorboardTimeSeriesDataRequest
 from .types.tensorboard_service import ReadTensorboardTimeSeriesDataResponse
 from .types.tensorboard_service import ReadTensorboardUsageRequest
@@ -669,6 +673,7 @@ __all__ = (
     "CreateDataLabelingJobRequest",
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
+    "CreateDatasetVersionOperationMetadata",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
     "CreateEntityTypeOperationMetadata",
@@ -1029,6 +1034,8 @@ __all__ = (
     "ReadIndexDatapointsResponse",
     "ReadTensorboardBlobDataRequest",
     "ReadTensorboardBlobDataResponse",
+    "ReadTensorboardSizeRequest",
+    "ReadTensorboardSizeResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
     "ReadTensorboardUsageRequest",
@@ -1038,6 +1045,7 @@ __all__ = (
     "RemoveDatapointsRequest",
     "RemoveDatapointsResponse",
     "ResourcesConsumed",
+    "RestoreDatasetVersionOperationMetadata",
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "SampleConfig",

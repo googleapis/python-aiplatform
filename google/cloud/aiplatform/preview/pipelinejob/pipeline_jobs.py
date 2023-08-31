@@ -17,33 +17,17 @@
 
 from typing import Optional
 
-from google.cloud.aiplatform import base
-from google.cloud.aiplatform import pipeline_jobs
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.constants import pipeline as pipeline_constants
+from google.cloud.aiplatform.pipeline_jobs import (
+    PipelineJob as PipelineJobGa,
+)
+from google.cloud.aiplatform import pipeline_job_schedules
+
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.metadata import experiment_resources
 
-_LOGGER = base.Logger(__name__)
-
-_PIPELINE_COMPLETE_STATES = pipeline_constants._PIPELINE_COMPLETE_STATES
-
-_PIPELINE_ERROR_STATES = pipeline_constants._PIPELINE_ERROR_STATES
-
-# Pattern for valid names used as a Vertex resource name.
-_VALID_NAME_PATTERN = pipeline_constants._VALID_NAME_PATTERN
-
-# Pattern for an Artifact Registry URL.
-_VALID_AR_URL = pipeline_constants._VALID_AR_URL
-
-# Pattern for any JSON or YAML file over HTTPS.
-_VALID_HTTPS_URL = pipeline_constants._VALID_HTTPS_URL
-
-_READ_MASK_FIELDS = pipeline_constants._READ_MASK_FIELDS
-
 
 class _PipelineJob(
-    pipeline_jobs.PipelineJob,
+    PipelineJobGa,
     experiment_loggable_schemas=(
         experiment_resources._ExperimentLoggableSchema(
             title=metadata_constants.SYSTEM_PIPELINE_RUN
@@ -116,21 +100,9 @@ class _PipelineJob(
         Returns:
             A Vertex AI PipelineJobSchedule.
         """
-        from google.cloud.aiplatform.preview.pipelinejobschedule import (
-            pipeline_job_schedules,
-        )
-
-        if not display_name:
-            display_name = self._generate_display_name(prefix="PipelineJobSchedule")
-        utils.validate_display_name(display_name)
-
-        pipeline_job_schedule = pipeline_job_schedules.PipelineJobSchedule(
-            pipeline_job=self,
+        return super().create_schedule(
+            cron=cron_expression,
             display_name=display_name,
-        )
-
-        pipeline_job_schedule.create(
-            cron_expression=cron_expression,
             start_time=start_time,
             end_time=end_time,
             allow_queueing=allow_queueing,
@@ -140,4 +112,3 @@ class _PipelineJob(
             network=network,
             create_request_timeout=create_request_timeout,
         )
-        return pipeline_job_schedule

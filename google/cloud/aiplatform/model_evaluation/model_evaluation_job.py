@@ -278,6 +278,7 @@ class _ModelEvaluationJob(pipeline_based_service._VertexAiPipelineBasedService):
         Returns:
             (ModelEvaluationJob): Instantiated represnetation of the model evaluation job.
         """
+        service_account = service_account or initializer.global_config.service_account
 
         if isinstance(model_name, aiplatform.Model):
             model_resource_name = model_name.versioned_resource_name

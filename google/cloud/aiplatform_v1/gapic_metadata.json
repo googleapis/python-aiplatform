@@ -1925,6 +1925,90 @@
         }
       }
     },
+    "ScheduleService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ScheduleServiceClient",
+          "rpcs": {
+            "CreateSchedule": {
+              "methods": [
+                "create_schedule"
+              ]
+            },
+            "DeleteSchedule": {
+              "methods": [
+                "delete_schedule"
+              ]
+            },
+            "GetSchedule": {
+              "methods": [
+                "get_schedule"
+              ]
+            },
+            "ListSchedules": {
+              "methods": [
+                "list_schedules"
+              ]
+            },
+            "PauseSchedule": {
+              "methods": [
+                "pause_schedule"
+              ]
+            },
+            "ResumeSchedule": {
+              "methods": [
+                "resume_schedule"
+              ]
+            },
+            "UpdateSchedule": {
+              "methods": [
+                "update_schedule"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ScheduleServiceAsyncClient",
+          "rpcs": {
+            "CreateSchedule": {
+              "methods": [
+                "create_schedule"
+              ]
+            },
+            "DeleteSchedule": {
+              "methods": [
+                "delete_schedule"
+              ]
+            },
+            "GetSchedule": {
+              "methods": [
+                "get_schedule"
+              ]
+            },
+            "ListSchedules": {
+              "methods": [
+                "list_schedules"
+              ]
+            },
+            "PauseSchedule": {
+              "methods": [
+                "pause_schedule"
+              ]
+            },
+            "ResumeSchedule": {
+              "methods": [
+                "resume_schedule"
+              ]
+            },
+            "UpdateSchedule": {
+              "methods": [
+                "update_schedule"
+              ]
+            }
+          }
+        }
+      }
+    },
     "SpecialistPoolService": {
       "clients": {
         "grpc": {
@@ -2099,6 +2183,11 @@
                 "read_tensorboard_blob_data"
               ]
             },
+            "ReadTensorboardSize": {
+              "methods": [
+                "read_tensorboard_size"
+              ]
+            },
             "ReadTensorboardTimeSeriesData": {
               "methods": [
                 "read_tensorboard_time_series_data"
@@ -2247,6 +2336,11 @@
             "ReadTensorboardBlobData": {
               "methods": [
                 "read_tensorboard_blob_data"
+              ]
+            },
+            "ReadTensorboardSize": {
+              "methods": [
+                "read_tensorboard_size"
               ]
             },
             "ReadTensorboardTimeSeriesData": {

@@ -16,9 +16,12 @@
 
 import base64
 import dataclasses
+import hashlib
 import io
+import json
 import pathlib
-from typing import Any, List, Optional
+import typing
+from typing import Any, Dict, List, Optional, Union
 
 from vertexai._model_garden import _model_garden_models
 
@@ -34,8 +37,13 @@ except ImportError:
     PIL_Image = None
 
 
+_SUPPORTED_UPSCALING_SIZES = [2048, 4096]
+
+
 class Image:
     """Image."""
+
+    __module__ = "vertexai.vision_models"
 
     _image_bytes: bytes
     _loaded_image: Optional["PIL_Image.Image"] = None
@@ -100,6 +108,384 @@ class Image:
         return base64.b64encode(self._image_bytes).decode("ascii")
 
 
+class ImageGenerationModel(
+    _model_garden_models._ModelGardenModel  # pylint: disable=protected-access
+):
+    """Generates images from text prompt.
+
+    Examples::
+
+        model = ImageGenerationModel.from_pretrained("imagegeneration@002")
+        response = model.generate_images(
+            prompt="Astronaut riding a horse",
+            # Optional:
+            number_of_images=1,
+            width=1024,
+            width=768,
+            seed=0,
+        )
+        response[0].show()
+        response[0].save("image1.png")
+    """
+
+    __module__ = "vertexai.preview.vision_models"
+
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_generative_model_1.0.0.yaml"
+
+    def _generate_images(
+        self,
+        prompt: str,
+        *,
+        negative_prompt: Optional[str] = None,
+        number_of_images: int = 1,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        guidance_scale: Optional[float] = None,
+        seed: Optional[int] = None,
+        base_image: Optional["Image"] = None,
+        mask: Optional["Image"] = None,
+    ) -> "ImageGenerationResponse":
+        """Generates images from text prompt.
+
+        Args:
+            prompt: Text prompt for the image.
+            negative_prompt: A description of what you want to omit in
+                the generated images.
+            number_of_images: Number of images to generate. Range: 1..8.
+            width: Width of the image. One of the sizes must be 256 or 1024.
+            height: Height of the image. One of the sizes must be 256 or 1024.
+            guidance_scale: Controls the strength of the prompt.
+                Suggested values are:
+                * 0-9 (low strength)
+                * 10-20 (medium strength)
+                * 21+ (high strength)
+            seed: Image generation random seed.
+            base_image: Base image to use for the image generation.
+            mask: Mask for the base image.
+
+        Returns:
+            An `ImageGenerationResponse` object.
+        """
+        # Note: Only a single prompt is supported by the service.
+        instance = {"prompt": prompt}
+        shared_generation_parameters = {
+            "prompt": prompt,
+            # b/295946075 The service stopped supporting image sizes.
+            # "width": width,
+            # "height": height,
+            "number_of_images_in_batch": number_of_images,
+        }
+
+        if negative_prompt:
+            instance["negativePrompt"] = negative_prompt
+            shared_generation_parameters["negative_prompt"] = negative_prompt
+
+        if base_image:
+            base_image_base64 = (
+                base_image._as_base64_string()
+            )  # pylint: disable=protected-access
+            instance["image"] = {"bytesBase64Encoded": base_image_base64}
+            base_image_hash_hex = hashlib.sha1(
+                base_image._image_bytes  # pylint: disable=protected-access
+            ).hexdigest()
+            shared_generation_parameters["base_image_hash"] = base_image_hash_hex
+
+        if mask:
+            mask_image_base64 = (
+                mask._as_base64_string()
+            )  # pylint: disable=protected-access
+            instance["mask"] = {"image": {"bytesBase64Encoded": mask_image_base64}}
+            mask_image_hash_hex = hashlib.sha1(
+                mask._image_bytes  # pylint: disable=protected-access
+            ).hexdigest()
+            shared_generation_parameters["mask_hash"] = mask_image_hash_hex
+
+        parameters = {}
+        max_size = max(width or 0, height or 0) or None
+        if max_size:
+            # Note: The size needs to be a string
+            parameters["sampleImageSize"] = str(max_size)
+            if height is not None and width is not None and height != width:
+                parameters["aspectRatio"] = f"{width}:{height}"
+
+        parameters["sampleCount"] = number_of_images
+
+        if seed is not None:
+            # Note: String seed and numerical seed give different results
+            parameters["seed"] = seed
+            shared_generation_parameters["seed"] = seed
+
+        if guidance_scale is not None:
+            parameters["guidanceScale"] = guidance_scale
+            shared_generation_parameters["guidance_scale"] = guidance_scale
+
+        response = self._endpoint.predict(
+            instances=[instance],
+            parameters=parameters,
+        )
+
+        generated_images: List["GeneratedImage"] = []
+        for idx, prediction in enumerate(response.predictions):
+            image_bytes = base64.b64decode(prediction["bytesBase64Encoded"])
+            generation_parameters = dict(shared_generation_parameters)
+            generation_parameters["index_of_image_in_batch"] = idx
+            generated_image = GeneratedImage(
+                image_bytes=image_bytes,
+                generation_parameters=generation_parameters,
+            )
+            generated_images.append(generated_image)
+
+        return ImageGenerationResponse(images=generated_images)
+
+    def generate_images(
+        self,
+        prompt: str,
+        *,
+        negative_prompt: Optional[str] = None,
+        number_of_images: int = 1,
+        guidance_scale: Optional[float] = None,
+        seed: Optional[int] = None,
+    ) -> "ImageGenerationResponse":
+        """Generates images from text prompt.
+
+        Args:
+            prompt: Text prompt for the image.
+            negative_prompt: A description of what you want to omit in
+                the generated images.
+            number_of_images: Number of images to generate. Range: 1..8.
+            guidance_scale: Controls the strength of the prompt.
+                Suggested values are:
+                * 0-9 (low strength)
+                * 10-20 (medium strength)
+                * 21+ (high strength)
+            seed: Image generation random seed.
+
+        Returns:
+            An `ImageGenerationResponse` object.
+        """
+        return self._generate_images(
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            number_of_images=number_of_images,
+            # b/295946075 The service stopped supporting image sizes.
+            width=None,
+            height=None,
+            guidance_scale=guidance_scale,
+            seed=seed,
+        )
+
+    def edit_image(
+        self,
+        *,
+        prompt: str,
+        base_image: "Image",
+        mask: Optional["Image"] = None,
+        negative_prompt: Optional[str] = None,
+        number_of_images: int = 1,
+        guidance_scale: Optional[float] = None,
+        seed: Optional[int] = None,
+    ) -> "ImageGenerationResponse":
+        """Edits an existing image based on text prompt.
+
+        Args:
+            prompt: Text prompt for the image.
+            base_image: Base image from which to generate the new image.
+            mask: Mask for the base image.
+            negative_prompt: A description of what you want to omit in
+                the generated images.
+            number_of_images: Number of images to generate. Range: 1..8.
+            guidance_scale: Controls the strength of the prompt.
+                Suggested values are:
+                * 0-9 (low strength)
+                * 10-20 (medium strength)
+                * 21+ (high strength)
+            seed: Image generation random seed.
+
+        Returns:
+            An `ImageGenerationResponse` object.
+        """
+        return self._generate_images(
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            number_of_images=number_of_images,
+            guidance_scale=guidance_scale,
+            seed=seed,
+            base_image=base_image,
+            mask=mask,
+        )
+
+    def upscale_image(
+        self,
+        image: Union["Image", "GeneratedImage"],
+        new_size: Optional[int] = 2048,
+    ) -> "Image":
+        """Upscales an image.
+
+        This supports upscaling images generated through the `generate_images()` method,
+        or upscaling a new image that is 1024x1024.
+
+        Examples::
+
+            # Upscale a generated image
+            model = ImageGenerationModel.from_pretrained("imagegeneration@002")
+            response = model.generate_images(
+                prompt="Astronaut riding a horse",
+            )
+            model.upscale_image(image=response[0])
+
+            # Upscale a new 1024x1024 image
+            my_image = Image.load_from_file("my-image.png")
+            model.upscale_image(image=my_image)
+
+        Args:
+            image (Union[GeneratedImage, Image]):
+                Required. The generated image to upscale.
+            new_size (int):
+                The size of the biggest dimension of the upscaled image. Only 2048 and 4096 are currently
+                supported. Results in a 2048x2048 or 4096x4096 image. Defaults to 2048 if not provided.
+
+        Returns:
+            An `Image` object.
+        """
+
+        # Currently this method only supports 1024x1024 images
+        if image._size[0] != 1024 and image._size[1] != 1024:
+            raise ValueError(
+                "Upscaling is currently only supported on images that are 1024x1024."
+            )
+
+        if new_size not in _SUPPORTED_UPSCALING_SIZES:
+            raise ValueError(
+                f"Only the folowing square upscaling sizes are currently supported: {_SUPPORTED_UPSCALING_SIZES}."
+            )
+
+        instance = {
+            "prompt": "",
+            "image": {"bytesBase64Encoded": image._as_base64_string()},
+        }
+
+        parameters = {
+            "sampleImageSize": str(new_size),
+            "sampleCount": 1,
+            "mode": "upscale",
+        }
+
+        response = self._endpoint.predict(
+            instances=[instance],
+            parameters=parameters,
+        )
+
+        upscaled_image = response.predictions[0]
+
+        if isinstance(image, GeneratedImage):
+            generation_parameters = image.generation_parameters
+
+        else:
+            generation_parameters = {}
+
+        generation_parameters["upscaled_image_size"] = new_size
+
+        return GeneratedImage(
+            image_bytes=base64.b64decode(upscaled_image["bytesBase64Encoded"]),
+            generation_parameters=generation_parameters,
+        )
+
+
+@dataclasses.dataclass
+class ImageGenerationResponse:
+    """Image generation response.
+
+    Attributes:
+        images: The list of generated images.
+    """
+
+    __module__ = "vertexai.preview.vision_models"
+
+    images: List["GeneratedImage"]
+
+    def __iter__(self) -> typing.Iterator["GeneratedImage"]:
+        """Iterates through the generated images."""
+        yield from self.images
+
+    def __getitem__(self, idx: int) -> "GeneratedImage":
+        """Gets the generated image by index."""
+        return self.images[idx]
+
+
+_EXIF_USER_COMMENT_TAG_IDX = 0x9286
+_IMAGE_GENERATION_PARAMETERS_EXIF_KEY = (
+    "google.cloud.vertexai.image_generation.image_generation_parameters"
+)
+
+
+class GeneratedImage(Image):
+    """Generated image."""
+
+    __module__ = "vertexai.preview.vision_models"
+
+    def __init__(
+        self,
+        image_bytes: bytes,
+        generation_parameters: Dict[str, Any],
+    ):
+        """Creates a `GeneratedImage` object.
+
+        Args:
+            image_bytes: Image file bytes. Image can be in PNG or JPEG format.
+            generation_parameters: Image generation parameter values.
+        """
+        super().__init__(image_bytes=image_bytes)
+        self._generation_parameters = generation_parameters
+
+    @property
+    def generation_parameters(self):
+        """Image generation parameters as a dictionary."""
+        return self._generation_parameters
+
+    @staticmethod
+    def load_from_file(location: str) -> "GeneratedImage":
+        """Loads image from file.
+
+        Args:
+            location: Local path from where to load the image.
+
+        Returns:
+            Loaded image as a `GeneratedImage` object.
+        """
+        base_image = Image.load_from_file(location=location)
+        exif = base_image._pil_image.getexif()  # pylint: disable=protected-access
+        exif_comment_dict = json.loads(exif[_EXIF_USER_COMMENT_TAG_IDX])
+        generation_parameters = exif_comment_dict[_IMAGE_GENERATION_PARAMETERS_EXIF_KEY]
+        return GeneratedImage(
+            image_bytes=base_image._image_bytes,  # pylint: disable=protected-access
+            generation_parameters=generation_parameters,
+        )
+
+    def save(self, location: str, include_generation_parameters: bool = True):
+        """Saves image to a file.
+
+        Args:
+            location: Local path where to save the image.
+            include_generation_parameters: Whether to include the image
+                generation parameters in the image's EXIF metadata.
+        """
+        if include_generation_parameters:
+            if not self._generation_parameters:
+                raise ValueError("Image does not have generation parameters.")
+            if not PIL_Image:
+                raise ValueError(
+                    "The PIL module is required for saving generation parameters."
+                )
+
+            exif = self._pil_image.getexif()
+            exif[_EXIF_USER_COMMENT_TAG_IDX] = json.dumps(
+                {_IMAGE_GENERATION_PARAMETERS_EXIF_KEY: self._generation_parameters}
+            )
+            self._pil_image.save(location, exif=exif)
+        else:
+            super().save(location=location)
+
+
 class ImageCaptioningModel(
     _model_garden_models._ModelGardenModel  # pylint: disable=protected-access
 ):
@@ -116,6 +502,8 @@ class ImageCaptioningModel(
             language="en",
         )
     """
+
+    __module__ = "vertexai.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
     _LAUNCH_STAGE = (
@@ -173,6 +561,8 @@ class ImageQnAModel(
         )
     """
 
+    __module__ = "vertexai.vision_models"
+
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
     _LAUNCH_STAGE = (
         _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
@@ -226,6 +616,8 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
         image_embedding = embeddings.image_embedding
         text_embedding = embeddings.text_embedding
     """
+
+    __module__ = "vertexai.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_embedding_model_1.0.0.yaml"
 
@@ -288,6 +680,8 @@ class MultiModalEmbeddingResponse:
         text_embedding (List[float]):
             Optional. The embedding vector generated from the contextual text provided for your image.
     """
+
+    __module__ = "vertexai.vision_models"
 
     _prediction_response: Any
     image_embedding: Optional[List[float]] = None

@@ -44,6 +44,7 @@ _TEST_EXPERIMENT = "test-experiment"
 _TEST_DESCRIPTION = "test-description"
 _TEST_STAGING_BUCKET = "test-bucket"
 _TEST_NETWORK = "projects/12345/global/networks/myVPC"
+_TEST_SERVICE_ACCOUNT = "test-service-account@test-project.iam.gserviceaccount.com"
 
 # tensorboard
 _TEST_TENSORBOARD_ID = "1028944691210842416"
@@ -104,6 +105,10 @@ class TestInit:
     def test_init_network_sets_network(self):
         initializer.global_config.init(network=_TEST_NETWORK)
         assert initializer.global_config.network == _TEST_NETWORK
+
+    def test_init_service_account_sets_service_account(self):
+        initializer.global_config.init(service_account=_TEST_SERVICE_ACCOUNT)
+        assert initializer.global_config.service_account == _TEST_SERVICE_ACCOUNT
 
     @patch.object(_experiment_tracker, "set_experiment")
     def test_init_experiment_sets_experiment(self, set_experiment_mock):
