@@ -1187,8 +1187,8 @@ class TestLanguageModels:
             response = model.predict(
                 "What is the best recipe for banana bread? Recipe:",
                 max_output_tokens=128,
-                temperature=0,
-                top_p=1,
+                temperature=0.0,
+                top_p=1.0,
                 top_k=5,
             )
 
@@ -1239,16 +1239,16 @@ class TestLanguageModels:
             response = model.predict(
                 "What is the best recipe for banana bread? Recipe:",
                 max_output_tokens=128,
-                temperature=0,
-                top_p=1,
+                temperature=0.0,
+                top_p=1.0,
                 top_k=5,
                 stop_sequences=["\n"],
             )
 
         prediction_parameters = mock_predict.call_args[1]["parameters"]
         assert prediction_parameters["maxDecodeSteps"] == 128
-        assert prediction_parameters["temperature"] == 0
-        assert prediction_parameters["topP"] == 1
+        assert prediction_parameters["temperature"] == 0.0
+        assert prediction_parameters["topP"] == 1.0
         assert prediction_parameters["topK"] == 5
         assert prediction_parameters["stopSequences"] == ["\n"]
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
@@ -1301,8 +1301,8 @@ class TestLanguageModels:
             for response in model.predict_streaming(
                 "Count to 50",
                 max_output_tokens=1000,
-                temperature=0,
-                top_p=1,
+                temperature=0.0,
+                top_p=1.0,
                 top_k=5,
             ):
                 assert len(response.text) > 10
@@ -2319,7 +2319,7 @@ class TestLanguageModels:
                 prefix="def reverse_string(s):",
                 suffix="    return s",
                 max_output_tokens=1000,
-                temperature=0,
+                temperature=0.0,
             ):
                 assert len(response.text) > 10
 

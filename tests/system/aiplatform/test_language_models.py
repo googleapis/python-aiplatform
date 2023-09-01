@@ -48,8 +48,8 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert model.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
-            temperature=0,
-            top_p=1,
+            temperature=0.0,
+            top_p=1.0,
             top_k=5,
             stop_sequences=["# %%"],
         ).text
@@ -62,8 +62,8 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         for response in model.predict_streaming(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
-            temperature=0,
-            top_p=1,
+            temperature=0.0,
+            top_p=1.0,
             top_k=5,
         ):
             assert response.text
@@ -218,8 +218,8 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         response1 = tuned_model1.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
-            temperature=0,
-            top_p=1,
+            temperature=0.0,
+            top_p=1.0,
             top_k=5,
         )
         assert response1.text
@@ -228,8 +228,8 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         response = model.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
-            temperature=0,
-            top_p=1,
+            temperature=0.0,
+            top_p=1.0,
             top_k=5,
         )
         assert response.text
@@ -243,8 +243,8 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         tuned_model_response = tuned_model.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
-            temperature=0,
-            top_p=1,
+            temperature=0.0,
+            top_p=1.0,
             top_k=5,
         )
         assert tuned_model_response.text
@@ -299,7 +299,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             # code-bison does not support suffix
             # suffix="    return s",
             max_output_tokens=128,
-            temperature=0,
+            temperature=0.0,
         ):
             assert response.text
 
