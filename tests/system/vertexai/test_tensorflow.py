@@ -21,6 +21,12 @@ from unittest import mock
 import vertexai
 from tests.system.aiplatform import e2e_base
 from vertexai.preview._workflow.executor import training
+from vertexai.preview._workflow.serialization_engine import (
+    any_serializer,
+)
+from vertexai.preview._workflow.serialization_engine import (
+    serializers,
+)
 import pytest
 from sklearn.datasets import load_iris
 import tensorflow as tf
@@ -39,7 +45,7 @@ keras.Sequential = vertexai.preview.remote(keras.Sequential)
     "google-cloud-aiplatform[preview] @ git+https://github.com/googleapis/"
     f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}"
     if os.environ.get("KOKORO_GIT_COMMIT")
-    else "google-cloud-aiplatform[preview] @ git+https://github.com/googleapis/python-aiplatform.git@copybara_557913723",
+    else "google-cloud-aiplatform[preview] @ git+https://github.com/googleapis/python-aiplatform.git@main",
 )
 @mock.patch.object(
     training,
@@ -47,7 +53,7 @@ keras.Sequential = vertexai.preview.remote(keras.Sequential)
     "google-cloud-aiplatform[preview,autologging] @ git+https://github.com/googleapis/"
     f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}"
     if os.environ.get("KOKORO_GIT_COMMIT")
-    else "google-cloud-aiplatform[preview,autologging] @ git+https://github.com/googleapis/python-aiplatform.git@copybara_557913723",
+    else "google-cloud-aiplatform[preview,autologging] @ git+https://github.com/googleapis/python-aiplatform.git@main",
 )
 @pytest.mark.usefixtures(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
@@ -101,6 +107,17 @@ class TestRemoteExecutionTensorflow(e2e_base.TestEndToEnd):
         )
         model.fit(tf_train_dataset, epochs=10)
 
+        # Assert the right serializer is being used
+        serializer = any_serializer.AnySerializer()
+        assert (
+            serializer._get_predefined_serializer(model.__class__.__mro__[3])
+            is serializers.KerasModelSerializer
+        )
+        assert (
+            serializer._get_predefined_serializer(tf_train_dataset.__class__.__mro__[2])
+            is serializers.TFDatasetSerializer
+        )
+
         # Remote prediction on keras
         model.predict.vertex.remote_config.display_name = self._make_display_name(
             "keras-prediction"
@@ -122,3 +139,16 @@ class TestRemoteExecutionTensorflow(e2e_base.TestEndToEnd):
             "keras-cpu-uptraining"
         )
         pulled_model.fit(tf_retrain_dataset, epochs=10)
+
+        # Assert the right serializer is being used
+        serializer = any_serializer.AnySerializer()
+        assert (
+            serializer._get_predefined_serializer(pulled_model.__class__.__mro__[3])
+            is serializers.KerasModelSerializer
+        )
+        assert (
+            serializer._get_predefined_serializer(
+                tf_retrain_dataset.__class__.__mro__[2]
+            )
+            is serializers.TFDatasetSerializer
+        )

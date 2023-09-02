@@ -21,6 +21,12 @@ from unittest import mock
 import vertexai
 from tests.system.aiplatform import e2e_base
 from vertexai.preview._workflow.executor import training
+from vertexai.preview._workflow.serialization_engine import (
+    any_serializer,
+)
+from vertexai.preview._workflow.serialization_engine import (
+    serializers,
+)
 import pandas as pd
 import pytest
 from sklearn.datasets import load_iris
@@ -40,7 +46,7 @@ LogisticRegression = vertexai.preview.remote(LogisticRegression)
     "google-cloud-aiplatform[preview] @ git+https://github.com/googleapis/"
     f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}"
     if os.environ.get("KOKORO_GIT_COMMIT")
-    else "google-cloud-aiplatform[preview] @ git+https://github.com/googleapis/python-aiplatform.git@copybara_557913723",
+    else "google-cloud-aiplatform[preview] @ git+https://github.com/googleapis/python-aiplatform.git@main",
 )
 @mock.patch.object(
     training,
@@ -48,7 +54,7 @@ LogisticRegression = vertexai.preview.remote(LogisticRegression)
     "google-cloud-aiplatform[preview,autologging] @ git+https://github.com/googleapis/"
     f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}"
     if os.environ.get("KOKORO_GIT_COMMIT")
-    else "google-cloud-aiplatform[preview,autologging] @ git+https://github.com/googleapis/python-aiplatform.git@copybara_557913723",
+    else "google-cloud-aiplatform[preview,autologging] @ git+https://github.com/googleapis/python-aiplatform.git@main",
 )
 @pytest.mark.usefixtures(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
@@ -83,11 +89,25 @@ class TestRemoteExecutionSklearn(e2e_base.TestEndToEnd):
         )
         X_train = transformer.fit_transform(X_train)
 
+        # Assert the right serializer is being used
+        serializer = any_serializer.AnySerializer()
+        assert (
+            serializer._get_predefined_serializer(transformer.__class__.__mro__[-2])
+            is serializers.SklearnEstimatorSerializer
+        )
+
         # Remote transform on test dataset
         transformer.transform.vertex.set_config(
             display_name=self._make_display_name("transform"),
         )
         X_test = transformer.transform(X_test)
+
+        # Assert the right serializer is being used
+        serializer = any_serializer.AnySerializer()
+        assert (
+            serializer._get_predefined_serializer(transformer.__class__.__mro__[-2])
+            is serializers.SklearnEstimatorSerializer
+        )
 
         # Local transform on retrain data
         vertexai.preview.init(remote=False)
@@ -104,6 +124,13 @@ class TestRemoteExecutionSklearn(e2e_base.TestEndToEnd):
             "sklearn-training"
         )
         model.fit(X_train, y_train)
+
+        # Assert the right serializer is being used
+        serializer = any_serializer.AnySerializer()
+        assert (
+            serializer._get_predefined_serializer(model.__class__.__mro__[-2])
+            is serializers.SklearnEstimatorSerializer
+        )
 
         # Remote prediction on sklearn
         model.predict.vertex.remote_config.display_name = self._make_display_name(
@@ -122,3 +149,10 @@ class TestRemoteExecutionSklearn(e2e_base.TestEndToEnd):
 
         # Retrain model with pandas df on Vertex
         pulled_model.fit(X_retrain_df, y_retrain_df)
+
+        # Assert the right serializer is being used
+        serializer = any_serializer.AnySerializer()
+        assert (
+            serializer._get_predefined_serializer(pulled_model.__class__.__mro__[-2])
+            is serializers.SklearnEstimatorSerializer
+        )
