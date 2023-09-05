@@ -31,7 +31,7 @@ LINT_PATHS = ["docs", "google", "tests", "noxfile.py", "setup.py"]
 
 DEFAULT_PYTHON_VERSION = "3.8"
 
-UNIT_TEST_PYTHON_VERSIONS = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+UNIT_TEST_PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11"]
 UNIT_TEST_STANDARD_DEPENDENCIES = [
     "mock",
     "asyncmock",
@@ -47,7 +47,7 @@ UNIT_TEST_EXTRAS = [
 ]
 UNIT_TEST_EXTRAS_BY_PYTHON = {}
 
-SYSTEM_TEST_PYTHON_VERSIONS = ["3.8"]
+SYSTEM_TEST_PYTHON_VERSIONS = ["3.11"]
 SYSTEM_TEST_STANDARD_DEPENDENCIES = [
     "mock",
     "pytest",
@@ -89,6 +89,7 @@ def lint(session):
     session.run(
         "black",
         "--check",
+        "--diff",
         *LINT_PATHS,
     )
     session.run("flake8", "google", "tests")

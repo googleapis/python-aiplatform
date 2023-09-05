@@ -43,6 +43,8 @@ _SUPPORTED_UPSCALING_SIZES = [2048, 4096]
 class Image:
     """Image."""
 
+    __module__ = "vertexai.vision_models"
+
     _image_bytes: bytes
     _loaded_image: Optional["PIL_Image.Image"] = None
 
@@ -125,6 +127,8 @@ class ImageGenerationModel(
         response[0].show()
         response[0].save("image1.png")
     """
+
+    __module__ = "vertexai.preview.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_generative_model_1.0.0.yaml"
 
@@ -395,6 +399,8 @@ class ImageGenerationResponse:
         images: The list of generated images.
     """
 
+    __module__ = "vertexai.preview.vision_models"
+
     images: List["GeneratedImage"]
 
     def __iter__(self) -> typing.Iterator["GeneratedImage"]:
@@ -414,6 +420,8 @@ _IMAGE_GENERATION_PARAMETERS_EXIF_KEY = (
 
 class GeneratedImage(Image):
     """Generated image."""
+
+    __module__ = "vertexai.preview.vision_models"
 
     def __init__(
         self,
@@ -495,6 +503,8 @@ class ImageCaptioningModel(
         )
     """
 
+    __module__ = "vertexai.vision_models"
+
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
     _LAUNCH_STAGE = (
         _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
@@ -551,6 +561,8 @@ class ImageQnAModel(
         )
     """
 
+    __module__ = "vertexai.vision_models"
+
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
     _LAUNCH_STAGE = (
         _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
@@ -604,6 +616,8 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
         image_embedding = embeddings.image_embedding
         text_embedding = embeddings.text_embedding
     """
+
+    __module__ = "vertexai.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_embedding_model_1.0.0.yaml"
 
@@ -666,6 +680,8 @@ class MultiModalEmbeddingResponse:
         text_embedding (List[float]):
             Optional. The embedding vector generated from the contextual text provided for your image.
     """
+
+    __module__ = "vertexai.vision_models"
 
     _prediction_response: Any
     image_embedding: Optional[List[float]] = None

@@ -69,6 +69,20 @@ class Logger:
         self._logger = logging.getLogger(name)
         self._logger.setLevel(logging.INFO)
 
+        # To avoid writing duplicate logs, skip adding the new handler if
+        # StreamHandler already exists in logger hierarchy.
+        logger = self._logger
+        while logger:
+            for handler in logger.handlers:
+                if isinstance(handler, logging.StreamHandler):
+                    return
+            logger = logger.parent
+
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.INFO)
+
+        self._logger.addHandler(handler)
+
     def log_create_with_lro(
         self,
         cls: Type["VertexAiResourceNoun"],
@@ -191,10 +205,6 @@ class Logger:
 
 
 _LOGGER = Logger(__name__)
-if not _LOGGER._logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.INFO)
-    _LOGGER._logger.addHandler(handler)
 
 
 class FutureManager(metaclass=abc.ABCMeta):

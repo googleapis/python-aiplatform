@@ -1096,6 +1096,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
+                If not specified, uses the service account set in aiplatform.init.
             explanation_spec (aiplatform.explain.ExplanationSpec):
                 Optional. Specification of Model explanation.
             metadata (Sequence[Tuple[str, str]]):
@@ -1119,6 +1120,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             ValueError: If there is not current traffic split and traffic percentage
                 is not 0 or 100.
         """
+
+        service_account = service_account or initializer.global_config.service_account
 
         max_replica_count = max(min_replica_count, max_replica_count)
 
