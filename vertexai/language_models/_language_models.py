@@ -759,9 +759,13 @@ class _TextGenerationModel(_LanguageModel):
             prediction_parameters["maxDecodeSteps"] = max_output_tokens
 
         if temperature is not None:
+            if isinstance(temperature, int):
+                temperature = float(temperature)
             prediction_parameters["temperature"] = temperature
 
         if top_p:
+            if isinstance(top_p, int):
+                top_p = float(top_p)
             prediction_parameters["topP"] = top_p
 
         if top_k:
@@ -1389,10 +1393,14 @@ class _ChatSessionBase:
         if temperature is None:
             temperature = self._temperature
         if temperature is not None:
+            if isinstance(temperature, int):
+                temperature = float(temperature)
             prediction_parameters["temperature"] = temperature
 
         top_p = top_p or self._top_p
         if top_p:
+            if isinstance(top_p, int):
+                top_p = float(top_p)
             prediction_parameters["topP"] = top_p
 
         top_k = top_k or self._top_k
@@ -1749,6 +1757,8 @@ class CodeGenerationModel(_LanguageModel):
         prediction_parameters = {}
 
         if temperature is not None:
+            if isinstance(temperature, int):
+                temperature = float(temperature)
             prediction_parameters["temperature"] = temperature
 
         if max_output_tokens:
