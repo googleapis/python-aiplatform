@@ -580,6 +580,7 @@ class TuningEvaluationSpec:
         tensorboard: Vertex Tensorboard where to write the evaluation metrics.
             The Tensorboard must be in the same location as the tuning job.
     """
+    __module__ = "vertexai.language_models"
 
     evaluation_data: str
     evaluation_interval: Optional[int] = None
@@ -597,6 +598,7 @@ class TextGenerationResponse:
             Learn more about the safety attributes here:
             https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
     """
+    __module__ = "vertexai.language_models"
 
     text: str
     _prediction_response: Any
@@ -757,9 +759,13 @@ class _TextGenerationModel(_LanguageModel):
             prediction_parameters["maxDecodeSteps"] = max_output_tokens
 
         if temperature is not None:
+            if isinstance(temperature, int):
+                temperature = float(temperature)
             prediction_parameters["temperature"] = temperature
 
         if top_p:
+            if isinstance(top_p, int):
+                top_p = float(top_p)
             prediction_parameters["topP"] = top_p
 
         if top_k:
@@ -787,6 +793,26 @@ class _TextGenerationModel(_LanguageModel):
                     )
                 ),
             )
+
+
+def _parse_text_generation_model_response(
+    prediction_response: aiplatform.models.Prediction,
+    prediction_idx: int = 0,
+) -> TextGenerationResponse:
+    """Converts the raw text_generation model response to `TextGenerationResponse`."""
+    prediction = prediction_response.predictions[prediction_idx]
+    safety_attributes_dict = prediction.get("safetyAttributes", {})
+    return TextGenerationResponse(
+        text=prediction["content"],
+        _prediction_response=prediction_response,
+        is_blocked=safety_attributes_dict.get("blocked", False),
+        safety_attributes=dict(
+            zip(
+                safety_attributes_dict.get("categories") or [],
+                safety_attributes_dict.get("scores") or [],
+            )
+        ),
+    )
 
 
 class _ModelWithBatchPredict(_LanguageModel):
@@ -839,11 +865,6 @@ class _ModelWithBatchPredict(_LanguageModel):
             raise ValueError(f"Unsupported destination_uri: {destination_uri_prefix}")
 
         model_name = self._model_resource_name
-        # TODO(b/284512065): Batch prediction service does not support
-        # fully qualified publisher model names yet
-        publishers_index = model_name.index("/publishers/")
-        if publishers_index > 0:
-            model_name = model_name[publishers_index + 1 :]
 
         job = aiplatform.BatchPredictionJob.create(
             model_name=model_name,
@@ -897,7 +918,7 @@ class _PreviewModelWithBatchPredict(_ModelWithBatchPredict):
 class TextGenerationModel(
     _TextGenerationModel, _TunableTextModelMixin, _ModelWithBatchPredict
 ):
-    pass
+    __module__ = "vertexai.language_models"
 
 
 class _PreviewTextGenerationModel(
@@ -907,6 +928,9 @@ class _PreviewTextGenerationModel(
     _evaluatable_language_models._EvaluatableLanguageModel,
 ):
     # Do not add docstring so that it's inherited from the base class.
+    __name__ = "TextGenerationModel"
+    __module__ = "vertexai.preview.language_models"
+
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
@@ -927,7 +951,7 @@ class _ChatModel(_TextGenerationModel):
 
     def start_chat(
         self,
-        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -961,7 +985,7 @@ class _ChatSession:
     def __init__(
         self,
         model: _ChatModel,
-        max_output_tokens: int = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -1041,6 +1065,8 @@ class TextEmbeddingInput:
                 Specifies that the embeddings will be used for clustering.
         title: Optional identifier of the text content.
     """
+    __module__ = "vertexai.language_models"
+
     text: str
     task_type: Optional[str] = None
     title: Optional[str] = None
@@ -1058,6 +1084,7 @@ class TextEmbeddingModel(_LanguageModel):
             vector = embedding.values
             print(len(vector))
     """
+    __module__ = "vertexai.language_models"
 
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
@@ -1084,7 +1111,7 @@ class TextEmbeddingModel(_LanguageModel):
             if isinstance(text, TextEmbeddingInput):
                 instance = {"content": text.text}
                 if text.task_type:
-                    instance["taskType"] = text.task_type
+                    instance["task_type"] = text.task_type
                 if text.title:
                     instance["title"] = text.title
             elif isinstance(text, str):
@@ -1117,12 +1144,16 @@ class TextEmbeddingModel(_LanguageModel):
 
 
 class _PreviewTextEmbeddingModel(TextEmbeddingModel, _ModelWithBatchPredict):
+    __name__ = "TextEmbeddingModel"
+    __module__ = "vertexai.preview.language_models"
+
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
 @dataclasses.dataclass
 class TextEmbeddingStatistics:
     """Text embedding statistics."""
+    __module__ = "vertexai.language_models"
 
     token_count: int
     truncated: bool
@@ -1131,6 +1162,7 @@ class TextEmbeddingStatistics:
 @dataclasses.dataclass
 class TextEmbedding:
     """Text embedding vector and statistics."""
+    __module__ = "vertexai.language_models"
 
     values: List[float]
     statistics: Optional[TextEmbeddingStatistics] = None
@@ -1140,6 +1172,7 @@ class TextEmbedding:
 @dataclasses.dataclass
 class InputOutputTextPair:
     """InputOutputTextPair represents a pair of input and output texts."""
+    __module__ = "vertexai.language_models"
 
     input_text: str
     output_text: str
@@ -1153,6 +1186,7 @@ class ChatMessage:
         content: Content of the message.
         author: Author of the message.
     """
+    __module__ = "vertexai.language_models"
 
     content: str
     author: str
@@ -1168,9 +1202,7 @@ class _ChatModelBase(_LanguageModel):
         *,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: Optional[
-            int
-        ] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -1231,11 +1263,15 @@ class ChatModel(_ChatModelBase):
 
         chat.send_message("Do you know any cool events this weekend?")
     """
+    __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
 
 
 class _PreviewChatModel(ChatModel, _PreviewTunableChatModelMixin):
+    __name__ = "ChatModel"
+    __module__ = "vertexai.preview.language_models"
+
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
@@ -1252,16 +1288,15 @@ class CodeChatModel(_ChatModelBase):
 
         code_chat.send_message("Please help write a function to calculate the min of two numbers")
     """
+    __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
-    _DEFAULT_MAX_OUTPUT_TOKENS = 128
-
     def start_chat(
         self,
         *,
-        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ) -> "CodeChatSession":
@@ -1283,6 +1318,9 @@ class CodeChatModel(_ChatModelBase):
 
 
 class _PreviewCodeChatModel(CodeChatModel, _TunableChatModelMixin):
+    __name__ = "CodeChatModel"
+    __module__ = "vertexai.preview.language_models"
+
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
@@ -1297,9 +1335,7 @@ class _ChatSessionBase:
         model: _ChatModelBase,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: Optional[
-            int
-        ] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -1357,10 +1393,14 @@ class _ChatSessionBase:
         if temperature is None:
             temperature = self._temperature
         if temperature is not None:
+            if isinstance(temperature, int):
+                temperature = float(temperature)
             prediction_parameters["temperature"] = temperature
 
         top_p = top_p or self._top_p
         if top_p:
+            if isinstance(top_p, int):
+                top_p = float(top_p)
             prediction_parameters["topP"] = top_p
 
         top_k = top_k or self._top_k
@@ -1564,15 +1604,14 @@ class ChatSession(_ChatSessionBase):
 
     Within a chat session, the model keeps context and remembers the previous conversation.
     """
+    __module__ = "vertexai.language_models"
 
     def __init__(
         self,
         model: ChatModel,
         context: Optional[str] = None,
         examples: Optional[List[InputOutputTextPair]] = None,
-        max_output_tokens: Optional[
-            int
-        ] = _TextGenerationModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -1597,11 +1636,12 @@ class CodeChatSession(_ChatSessionBase):
 
     Within a code chat session, the model keeps context and remembers the previous converstion.
     """
+    __module__ = "vertexai.language_models"
 
     def __init__(
         self,
         model: CodeChatModel,
-        max_output_tokens: int = CodeChatModel._DEFAULT_MAX_OUTPUT_TOKENS,
+        max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
     ):
@@ -1682,6 +1722,7 @@ class CodeGenerationModel(_LanguageModel):
             prefix="def reverse_string(s):",
         ))
     """
+    __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
@@ -1716,6 +1757,8 @@ class CodeGenerationModel(_LanguageModel):
         prediction_parameters = {}
 
         if temperature is not None:
+            if isinstance(temperature, int):
+                temperature = float(temperature)
             prediction_parameters["temperature"] = temperature
 
         if max_output_tokens:
@@ -1759,11 +1802,7 @@ class CodeGenerationModel(_LanguageModel):
             instances=[prediction_request.instance],
             parameters=prediction_request.parameters,
         )
-
-        return TextGenerationResponse(
-            text=prediction_response.predictions[0]["content"],
-            _prediction_response=prediction_response,
-        )
+        return _parse_text_generation_model_response(prediction_response)
 
     def predict_streaming(
         self,
@@ -1805,13 +1844,13 @@ class CodeGenerationModel(_LanguageModel):
                 predictions=[prediction_dict],
                 deployed_model_id="",
             )
-            yield TextGenerationResponse(
-                text=prediction_dict["content"],
-                _prediction_response=prediction_obj,
-            )
+            yield _parse_text_generation_model_response(prediction_obj)
 
 
 class _PreviewCodeGenerationModel(CodeGenerationModel, _TunableModelMixin):
+    __name__ = "CodeGenerationModel"
+    __module__ = "vertexai.preview.language_models"
+
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 

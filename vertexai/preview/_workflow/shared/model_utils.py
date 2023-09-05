@@ -180,22 +180,30 @@ def register(
     rewrapper = driver._unwrapper(model)
 
     serializer = any_serializer.AnySerializer()
-    # TODO(b/279812300)
-    if model.__module__.startswith("sklearn"):
-        return _register_sklearn_model(model, serializer, staging_bucket, rewrapper)
+    try:
+        if model.__module__.startswith("sklearn"):
+            return _register_sklearn_model(model, serializer, staging_bucket, rewrapper)
 
-    elif model.__module__.startswith("keras") or (
-        hasattr(model, "_tracking_metadata")
-    ):  # pylint: disable=protected-access
-        return _register_tf_model(model, serializer, staging_bucket, rewrapper, use_gpu)
+        elif model.__module__.startswith("keras") or (
+            hasattr(model, "_tracking_metadata")
+        ):  # pylint: disable=protected-access
+            return _register_tf_model(
+                model, serializer, staging_bucket, rewrapper, use_gpu
+            )
 
-    elif "torch" in model.__module__ or (hasattr(model, "state_dict")):
-        return _register_pytorch_model(
-            model, serializer, staging_bucket, rewrapper, use_gpu
-        )
+        elif "torch" in model.__module__ or (hasattr(model, "state_dict")):
+            return _register_pytorch_model(
+                model, serializer, staging_bucket, rewrapper, use_gpu
+            )
 
-    else:
-        raise ValueError("Support uploading PyTorch, scikit-learn and TensorFlow only.")
+        else:
+            raise ValueError(
+                "Support uploading PyTorch, scikit-learn and TensorFlow only."
+            )
+    except Exception as e:
+        raise e
+    finally:
+        rewrapper(model)
 
 
 def from_pretrained(

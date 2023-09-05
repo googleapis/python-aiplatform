@@ -267,7 +267,7 @@ def mock_keras_save_model():
 
 @pytest.fixture
 def mock_keras_load_model():
-    with mock.patch.object(keras.models, "load_model") as keras_load_model:
+    with mock.patch("tensorflow.keras.models.load_model") as keras_load_model:
         yield keras_load_model
 
 
@@ -467,7 +467,6 @@ class TestKerasModelSerializer:
         with pytest.raises(ValueError, match=f"Invalid gcs path: {fake_gcs_uri}"):
             keras_model_serializer.serialize(keras_model, fake_gcs_uri)
 
-    @pytest.mark.usefixtures("google_auth_mock")
     def test_deserialize_gcs_path(self, keras_model_serializer, mock_keras_load_model):
         # Arrange
         fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"

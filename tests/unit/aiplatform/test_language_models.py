@@ -45,7 +45,7 @@ from google.cloud.aiplatform.compat.types import (
     artifact as gca_artifact,
     prediction_service as gca_prediction_service,
     context as gca_context,
-    endpoint as gca_endpoint,
+    endpoint_v1 as gca_endpoint,
     pipeline_job as gca_pipeline_job,
     pipeline_state as gca_pipeline_state,
     deployed_model_ref_v1,
@@ -257,9 +257,9 @@ _TEST_CHAT_PREDICTION_STREAMING = [
 
 _TEST_CODE_GENERATION_PREDICTION = {
     "safetyAttributes": {
-        "categories": [],
-        "blocked": False,
-        "scores": [],
+        "blocked": True,
+        "categories": ["Finance"],
+        "scores": [0.1],
     },
     "content": """
 ```python
@@ -1030,6 +1030,11 @@ def get_endpoint_mock():
         get_endpoint_mock.return_value = gca_endpoint.Endpoint(
             display_name="test-display-name",
             name=test_constants.EndpointConstants._TEST_ENDPOINT_NAME,
+            deployed_models=[
+                gca_endpoint.DeployedModel(
+                    model=test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
+                ),
+            ],
         )
         yield get_endpoint_mock
 
@@ -1182,8 +1187,8 @@ class TestLanguageModels:
             response = model.predict(
                 "What is the best recipe for banana bread? Recipe:",
                 max_output_tokens=128,
-                temperature=0,
-                top_p=1,
+                temperature=0.0,
+                top_p=1.0,
                 top_k=5,
             )
 
@@ -1234,16 +1239,16 @@ class TestLanguageModels:
             response = model.predict(
                 "What is the best recipe for banana bread? Recipe:",
                 max_output_tokens=128,
-                temperature=0,
-                top_p=1,
+                temperature=0.0,
+                top_p=1.0,
                 top_k=5,
                 stop_sequences=["\n"],
             )
 
         prediction_parameters = mock_predict.call_args[1]["parameters"]
         assert prediction_parameters["maxDecodeSteps"] == 128
-        assert prediction_parameters["temperature"] == 0
-        assert prediction_parameters["topP"] == 1
+        assert prediction_parameters["temperature"] == 0.0
+        assert prediction_parameters["topP"] == 1.0
         assert prediction_parameters["topK"] == 5
         assert prediction_parameters["stopSequences"] == ["\n"]
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
@@ -1296,8 +1301,8 @@ class TestLanguageModels:
             for response in model.predict_streaming(
                 "Count to 50",
                 max_output_tokens=1000,
-                temperature=0,
-                top_p=1,
+                temperature=0.0,
+                top_p=1.0,
                 top_k=5,
             ):
                 assert len(response.text) > 10
@@ -2183,6 +2188,17 @@ class TestLanguageModels:
                 temperature=0.2,
             )
             assert response.text == _TEST_CODE_GENERATION_PREDICTION["content"]
+            expected_safety_attributes_raw = _TEST_CODE_GENERATION_PREDICTION[
+                "safetyAttributes"
+            ]
+            expected_safety_attributes = dict(
+                zip(
+                    expected_safety_attributes_raw["categories"],
+                    expected_safety_attributes_raw["scores"],
+                )
+            )
+            assert response.safety_attributes == expected_safety_attributes
+            assert response.is_blocked == expected_safety_attributes_raw["blocked"]
 
         # Validating the parameters
         predict_temperature = 0.1
@@ -2303,7 +2319,7 @@ class TestLanguageModels:
                 prefix="def reverse_string(s):",
                 suffix="    return s",
                 max_output_tokens=1000,
-                temperature=0,
+                temperature=0.0,
             ):
                 assert len(response.text) > 10
 
@@ -2359,12 +2375,12 @@ class TestLanguageModels:
                 {"content": "What is life?"},
                 {
                     "content": "Foo",
-                    "taskType": "RETRIEVAL_DOCUMENT",
+                    "task_type": "RETRIEVAL_DOCUMENT",
                     "title": "Bar",
                 },
                 {
                     "content": "Baz",
-                    "taskType": "CLASSIFICATION",
+                    "task_type": "CLASSIFICATION",
                 },
             ]
             prediction_parameters = mock_predict.call_args[1]["parameters"]
@@ -2420,7 +2436,10 @@ class TestLanguageModels:
                 assert len(vector) == _TEXT_EMBEDDING_VECTOR_LENGTH
                 assert vector == _TEST_TEXT_EMBEDDING_PREDICTION["embeddings"]["values"]
 
-    def test_batch_prediction(self):
+    def test_batch_prediction(
+        self,
+        get_endpoint_mock,
+    ):
         """Tests batch prediction."""
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -2447,7 +2466,29 @@ class TestLanguageModels:
                 model_parameters={"temperature": 0.1},
             )
             mock_create.assert_called_once_with(
-                model_name="publishers/google/models/text-bison@001",
+                model_name=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/text-bison@001",
+                job_display_name=None,
+                gcs_source="gs://test-bucket/test_table.jsonl",
+                gcs_destination_prefix="gs://test-bucket/results/",
+                model_parameters={"temperature": 0.1},
+            )
+
+        # Testing tuned model batch prediction
+        tuned_model = language_models.TextGenerationModel(
+            model_id=model._model_id,
+            endpoint_name=test_constants.EndpointConstants._TEST_ENDPOINT_NAME,
+        )
+        with mock.patch.object(
+            target=aiplatform.BatchPredictionJob,
+            attribute="create",
+        ) as mock_create:
+            tuned_model.batch_predict(
+                dataset="gs://test-bucket/test_table.jsonl",
+                destination_uri_prefix="gs://test-bucket/results/",
+                model_parameters={"temperature": 0.1},
+            )
+            mock_create.assert_called_once_with(
+                model_name=test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME,
                 job_display_name=None,
                 gcs_source="gs://test-bucket/test_table.jsonl",
                 gcs_destination_prefix="gs://test-bucket/results/",
@@ -2481,7 +2522,7 @@ class TestLanguageModels:
                 model_parameters={},
             )
             mock_create.assert_called_once_with(
-                model_name="publishers/google/models/textembedding-gecko@001",
+                model_name=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/textembedding-gecko@001",
                 job_display_name=None,
                 gcs_source="gs://test-bucket/test_table.jsonl",
                 gcs_destination_prefix="gs://test-bucket/results/",

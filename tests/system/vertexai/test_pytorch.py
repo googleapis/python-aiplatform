@@ -21,6 +21,12 @@ from unittest import mock
 import vertexai
 from tests.system.aiplatform import e2e_base
 from vertexai.preview._workflow.executor import training
+from vertexai.preview._workflow.serialization_engine import (
+    any_serializer,
+)
+from vertexai.preview._workflow.serialization_engine import (
+    serializers,
+)
 import pytest
 from sklearn.datasets import load_iris
 import torch
@@ -34,7 +40,7 @@ from sklearn.preprocessing import StandardScaler
     "google-cloud-aiplatform[preview] @ git+https://github.com/googleapis/"
     f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}"
     if os.environ.get("KOKORO_GIT_COMMIT")
-    else "google-cloud-aiplatform[preview] @ git+https://github.com/googleapis/python-aiplatform.git@copybara_557913723",
+    else "google-cloud-aiplatform[preview] @ git+https://github.com/googleapis/python-aiplatform.git@main",
 )
 @mock.patch.object(
     training,
@@ -42,7 +48,7 @@ from sklearn.preprocessing import StandardScaler
     "google-cloud-aiplatform[preview,autologging] @ git+https://github.com/googleapis/"
     f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}"
     if os.environ.get("KOKORO_GIT_COMMIT")
-    else "google-cloud-aiplatform[preview,autologging] @ git+https://github.com/googleapis/python-aiplatform.git@copybara_557913723",
+    else "google-cloud-aiplatform[preview,autologging] @ git+https://github.com/googleapis/python-aiplatform.git@main",
 )
 @pytest.mark.usefixtures(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
@@ -136,6 +142,17 @@ class TestRemoteExecutionPytorch(e2e_base.TestEndToEnd):
         )
         model.train(train_loader, num_epochs=100, lr=0.05)
 
+        # Assert the right serializer is being used
+        serializer = any_serializer.AnySerializer()
+        assert (
+            serializer._get_predefined_serializer(model.__class__.__mro__[2])
+            is serializers.TorchModelSerializer
+        )
+        assert (
+            serializer._get_predefined_serializer(train_loader.__class__)
+            is serializers.TorchDataLoaderSerializer
+        )
+
         # Remote prediction on Torch custom model
         model.predict.vertex.remote_config.display_name = self._make_display_name(
             "pytorch-prediction"
@@ -156,3 +173,14 @@ class TestRemoteExecutionPytorch(e2e_base.TestEndToEnd):
             "pytorch-cpu-uptraining"
         )
         pulled_model.train(retrain_loader, num_epochs=100, lr=0.05)
+
+        # Assert the right serializer is being used
+        serializer = any_serializer.AnySerializer()
+        assert (
+            serializer._get_predefined_serializer(pulled_model.__class__.__mro__[2])
+            is serializers.TorchModelSerializer
+        )
+        assert (
+            serializer._get_predefined_serializer(retrain_loader.__class__)
+            is serializers.TorchDataLoaderSerializer
+        )

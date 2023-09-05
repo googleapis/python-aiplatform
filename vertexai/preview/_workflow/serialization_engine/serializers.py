@@ -1047,6 +1047,8 @@ class BigframeSerializer(serializers_base.Serializer):
         By default, sklearn returns a numpy array which uses CloudPickleSerializer.
         If a bigframes.dataframe.DataFrame is desired for the return type,
         b/291147206 (cl/548228568) is required
+
+        serialized_gcs_path is a folder containing one or more parquet files.
         """
         # Deserialization at remote environment
         try:
@@ -1069,7 +1071,7 @@ class BigframeSerializer(serializers_base.Serializer):
     def _deserialize_torch(self, serialized_gcs_path: str) -> TorchTensor:
         """Torch deserializes parquet (GCS) --> torch.tensor
 
-        Assumes one parquet file is created.
+        serialized_gcs_path is a folder containing one or more parquet files.
         """
         # Deserialization at remote environment
         try:
@@ -1107,7 +1109,7 @@ class BigframeSerializer(serializers_base.Serializer):
     def _deserialize_tensorflow(self, serialized_gcs_path: str) -> TFDataset:
         """Tensorflow deserializes parquet (GCS) --> tf.data.Dataset
 
-        Assumes one parquet file is created.
+        serialized_gcs_path is a folder containing one or more parquet files.
         """
         # Deserialization at remote environment
         try:
@@ -1118,14 +1120,15 @@ class BigframeSerializer(serializers_base.Serializer):
             ) from e
 
         # Deserialization always happens at remote, so gcs filesystem is mounted to /gcs/
-        # TODO(b/296475384): Handle multiple parquet shards
-        if len(os.listdir(serialized_gcs_path + "/")) > 1:
-            raise RuntimeError(
-                "Large datasets which are serialized into sharded parquet are not yet supported (b/296475384)"
-            )
+        files = os.listdir(serialized_gcs_path + "/")
+        files = list(
+            map(lambda file_name: serialized_gcs_path + "/" + file_name, files)
+        )
+        ds = tfio.IODataset.from_parquet(files[0])
 
-        single_parquet_gcs_path = serialized_gcs_path + "/" + "000000000000"
-        ds = tfio.IODataset.from_parquet(single_parquet_gcs_path)
+        for file_name in files[1:]:
+            ds_shard = tfio.IODataset.from_parquet(file_name)
+            ds = ds.concatenate(ds_shard)
 
         # TODO(b/296474656) Parquet must have "target" column for y
         def map_fn(row):

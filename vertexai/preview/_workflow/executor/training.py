@@ -68,6 +68,7 @@ except ImportError:
 
 _LOGGER = base.Logger("vertexai.remote_execution")
 _LOG_POLL_INTERVAL = 5
+_LOG_WAIT_INTERVAL = 30
 
 
 # TODO(b/271855597) Serialize all input args
@@ -367,25 +368,35 @@ def _get_remote_logs(
         entries = logger.list_entries(
             filter_=filter_msg, order_by=cloud_logging.ASCENDING
         )
+        for entry in entries:
+            log_time = entry.timestamp
+            message = entry.payload["message"]
+            if constants._START_EXECUTION_MSG in message:
+                is_training_log = True
+            if is_training_log:
+                _LOGGER.log(getattr(logging, entry.severity), message)
+            if constants._END_EXECUTION_MSG in message:
+                is_training_log = False
+
+        return log_time, is_training_log
+
+    except api_exceptions.ResourceExhausted:
+        _LOGGER.warning(
+            "Reach the limit for reading cloud logs per minute. "
+            f"Will try again in {_LOG_WAIT_INTERVAL} seconds."
+        )
+        time.sleep(_LOG_WAIT_INTERVAL - _LOG_POLL_INTERVAL)
+
+        return log_time, is_training_log
+
     except api_exceptions.PermissionDenied as e:
         _LOGGER.warning(
             f"Failed to get logs due to: {e}. "
             "Remote execution logging is disabled. "
             "Please add 'Logging Admin' role to your principal."
         )
+
         return None, None
-
-    for entry in entries:
-        log_time = entry.timestamp
-        message = entry.payload["message"]
-        if constants._START_EXECUTION_MSG in message:
-            is_training_log = True
-        if is_training_log:
-            _LOGGER.log(getattr(logging, entry.severity), message)
-        if constants._END_EXECUTION_MSG in message:
-            is_training_log = False
-
-    return log_time, is_training_log
 
 
 def _get_remote_logs_until_complete(
