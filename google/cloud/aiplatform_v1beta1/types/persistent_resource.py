@@ -353,11 +353,34 @@ class RaySpec(proto.Message):
             this field if you need all the resource pools to have the
             same Ray image, Otherwise, use the {@code
             resource_pool_images} field.
+        resource_pool_images (MutableMapping[str, str]):
+            Optional. Required if image_uri is not set. A map of
+            resource_pool_id to prebuild Ray image if user need to use
+            different images for different head/worker pools. This map
+            needs to cover all the resource pool ids. Example: {
+            "ray_head_node_pool": "head image" "ray_worker_node_pool1":
+            "worker image" "ray_worker_node_pool2": "another worker
+            image" }
+        head_node_resource_pool_id (str):
+            Optional. This will be used to indicate which
+            resource pool will serve as the Ray head
+            node(the first node within that pool). Will use
+            the machine from the first workerpool as the
+            head node by default if this field is not set.
     """
 
     image_uri: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    resource_pool_images: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6,
+    )
+    head_node_resource_pool_id: str = proto.Field(
+        proto.STRING,
+        number=7,
     )
 
 

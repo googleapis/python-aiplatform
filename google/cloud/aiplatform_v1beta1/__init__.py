@@ -479,6 +479,8 @@ from .types.persistent_resource_service import DeletePersistentResourceRequest
 from .types.persistent_resource_service import GetPersistentResourceRequest
 from .types.persistent_resource_service import ListPersistentResourcesRequest
 from .types.persistent_resource_service import ListPersistentResourcesResponse
+from .types.persistent_resource_service import UpdatePersistentResourceOperationMetadata
+from .types.persistent_resource_service import UpdatePersistentResourceRequest
 from .types.pipeline_failure_policy import PipelineFailurePolicy
 from .types.pipeline_job import PipelineJob
 from .types.pipeline_job import PipelineJobDetail
@@ -1188,6 +1190,8 @@ __all__ = (
     "UpdateModelDeploymentMonitoringJobOperationMetadata",
     "UpdateModelDeploymentMonitoringJobRequest",
     "UpdateModelRequest",
+    "UpdatePersistentResourceOperationMetadata",
+    "UpdatePersistentResourceRequest",
     "UpdateScheduleRequest",
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",

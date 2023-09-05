@@ -1761,6 +1761,11 @@
               "methods": [
                 "list_persistent_resources"
               ]
+            },
+            "UpdatePersistentResource": {
+              "methods": [
+                "update_persistent_resource"
+              ]
             }
           }
         },
@@ -1785,6 +1790,11 @@
             "ListPersistentResources": {
               "methods": [
                 "list_persistent_resources"
+              ]
+            },
+            "UpdatePersistentResource": {
+              "methods": [
+                "update_persistent_resource"
               ]
             }
           }
