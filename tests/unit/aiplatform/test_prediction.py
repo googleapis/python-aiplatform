@@ -140,7 +140,7 @@ _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
 
 _TEST_IMAGE_URI = "test_image:latest"
 
-_DEFAULT_BASE_IMAGE = "python:3.7"
+_DEFAULT_BASE_IMAGE = "python:3.10"
 _MODEL_SERVER_FILE = "cpr_model_server.py"
 _TEST_SRC_DIR = "user_code"
 _TEST_PREDICTOR_FILE = "predictor.py"
