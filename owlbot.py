@@ -82,7 +82,6 @@ for library in s.get_staging_dirs(default_version):
             ".kokoro/samples",
             "noxfile.py",
             "testing",
-            ".pre-commit-config.yaml",
             "docs/conf.py",
         ],
     )
@@ -123,6 +122,10 @@ if has_generator_updates:
             ".github/workflows",  # exclude gh actions as credentials are needed for tests
             "README.rst",
             ".github/release-please.yml", # use release please manifest
+            ".kokoro/samples",
+            "noxfile.py",
+            "testing",
+            "docs/conf.py",
         ],
     )  # the microgenerator has a good coveragerc file
 
