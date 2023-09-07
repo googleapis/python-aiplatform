@@ -82,6 +82,8 @@ for library in s.get_staging_dirs(default_version):
             ".kokoro/samples",
             "noxfile.py",
             "testing",
+            ".pre-commit-config.yaml",
+            "docs/conf.py",
         ],
     )
     has_generator_updates = True
