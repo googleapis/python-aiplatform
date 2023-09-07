@@ -81,6 +81,7 @@ for library in s.get_staging_dirs(default_version):
             "**/gapic_version.py", # exclude gapic_version.py to avoid reverting the version to 0.1.0
             ".kokoro/samples",
             "noxfile.py",
+            "testing",
         ],
     )
     has_generator_updates = True
