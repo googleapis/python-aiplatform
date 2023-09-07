@@ -48,6 +48,7 @@ class ModelMonitoringConfig(proto.Message):
             describing the format of a single instance that
             you want Tensorflow Data Validation (TFDV) to
             analyze.
+
             If there are any data type differences between
             predict instance and TFDV instance, this field
             can be used to override the schema. For models
@@ -448,10 +449,11 @@ class ThresholdConfig(proto.Message):
             feature distribution distance:
 
               1. For categorical feature, the distribution
-            distance is calculated by      L-inifinity norm.
+                distance is calculated by      L-inifinity
+                norm.
               2. For numerical feature, the distribution
-            distance is calculated by      Jensen–Shannon
-            divergence.
+                distance is calculated by
+                Jensen–Shannon divergence.
             Each feature must have a non-zero threshold if
             they need to be monitored. Otherwise no alert
             will be triggered for that feature.

@@ -59,6 +59,7 @@ class Featurestore(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             on and examples of labels. No more than 64 user
             labels can be associated with one

@@ -58,6 +58,7 @@ class ExplanationMetadata(proto.Message):
             For Vertex AI-provided Tensorflow images, keys
             can be any user defined string that consists of
             any UTF-8 characters.
+
             For custom images, keys are the name of the
             output field in the prediction to be explained.
 
@@ -117,8 +118,7 @@ class ExplanationMetadata(proto.Message):
                 input tensor. Defaults to IDENTITY.
             modality (str):
                 Modality of the feature. Valid values are:
-                numeric, image. Defaults to
-                numeric.
+                numeric, image. Defaults to numeric.
             feature_value_domain (google.cloud.aiplatform_v1.types.ExplanationMetadata.InputMetadata.FeatureValueDomain):
                 The domain details of the input feature
                 value. Like min/max, original mean or standard
@@ -150,6 +150,7 @@ class ExplanationMetadata(proto.Message):
                 encoded by a lookup table.
             encoded_baselines (MutableSequence[google.protobuf.struct_pb2.Value]):
                 A list of baselines for the encoded tensor.
+
                 The shape of each baseline should match the
                 shape of the encoded tensor. If a scalar is
                 provided, Vertex AI broadcasts to the same shape
@@ -382,10 +383,10 @@ class ExplanationMetadata(proto.Message):
                         Positive: green. Negative: pink.
                     VIRIDIS (2):
                         Viridis color map: A perceptually uniform
-                        color mapping which is
-                        easier to see by those with colorblindness and
-                        progresses from yellow to green to blue.
-                        Positive: yellow. Negative: blue.
+                        color mapping which is easier to see by those
+                        with colorblindness and progresses from yellow
+                        to green to blue. Positive: yellow. Negative:
+                        blue.
                     RED (3):
                         Positive: red. Negative: red.
                     GREEN (4):

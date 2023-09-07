@@ -66,6 +66,7 @@ class IndexEndpoint(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -274,6 +275,7 @@ class DeployedIndex(proto.Message):
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each MatchRequest.
+
             Note that logs may incur a cost, especially if
             the deployed index receives a high queries per
             second rate (QPS). Estimate your costs before
@@ -285,6 +287,7 @@ class DeployedIndex(proto.Message):
             Optional. A list of reserved ip ranges under
             the VPC network that can be used for this
             DeployedIndex.
+
             If set, we will deploy the index within the
             provided ip ranges. Otherwise, the index might
             be deployed to any ip ranges under the provided
