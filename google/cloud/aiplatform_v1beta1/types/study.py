@@ -396,6 +396,7 @@ class StudySpec(proto.Message):
 
     class ObservationNoise(proto.Enum):
         r"""Describes the noise level of the repeated observations.
+
         "Noisy" means that the repeated observations with the same Trial
         parameters may lead to different metric evaluations.
 

@@ -62,6 +62,7 @@ class Endpoint(proto.Message):
             A map from a DeployedModel's ID to the
             percentage of this Endpoint's traffic that
             should be forwarded to that DeployedModel.
+
             If a DeployedModel's ID is not listed in this
             map, then it receives no traffic.
 
@@ -80,6 +81,7 @@ class Endpoint(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -292,6 +294,7 @@ class DeployedModel(proto.Message):
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each prediction request.
+
             Note that logs may incur a cost, especially if
             your project receives prediction requests at a
             high queries per second rate (QPS). Estimate

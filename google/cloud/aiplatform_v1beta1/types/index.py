@@ -81,6 +81,7 @@ class Index(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -117,12 +118,11 @@ class Index(proto.Message):
                 Should not be used.
             BATCH_UPDATE (1):
                 BatchUpdate: user can call UpdateIndex with
-                files on Cloud Storage of
-                datapoints to update.
+                files on Cloud Storage of datapoints to update.
             STREAM_UPDATE (2):
                 StreamUpdate: user can call
-                UpsertDatapoints/DeleteDatapoints to update
-                the Index and the updates will be applied in
+                UpsertDatapoints/DeleteDatapoints to update the
+                Index and the updates will be applied in
                 corresponding DeployedIndexes in nearly
                 real-time.
         """

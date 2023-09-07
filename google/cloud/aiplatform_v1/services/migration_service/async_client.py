@@ -50,7 +50,7 @@ from google.cloud.aiplatform_v1.types import migration_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
 from .client import MigrationServiceClient
