@@ -90,7 +90,11 @@ def _register_tf_model(
     serializer.serialize(rewrapper, file_path)
     # serialize model
     file_path = os.path.join(gcs_dir, _TF_DIR_NAME)
-    serializer.serialize(model, file_path)
+    # The default serialization format for keras models is "keras", but this
+    # format is not yet supported by the model upload (eventually prediction
+    # services). See the code here:
+    # https://source.corp.google.com/piper///depot/google3/third_party/py/google/cloud/aiplatform/aiplatform/models.py;rcl=561677645;l=3141
+    serializer.serialize(model, file_path, save_format="tf")
 
     container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
         framework="tensorflow",

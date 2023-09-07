@@ -185,7 +185,7 @@ def mock_torch_dataloader_deserialize():
 
 
 @pytest.fixture
-def mock_download_from_gcs(tmp_path, torch_dataloader_serializer):
+def mock_download_from_gcs_for_torch_dataloader(tmp_path, torch_dataloader_serializer):
     def fake_download_from_gcs(serialized_gcs_path, temp_dir):
         dataloader = torch.utils.data.DataLoader(
             torch.utils.data.TensorDataset(
@@ -198,6 +198,20 @@ def mock_download_from_gcs(tmp_path, torch_dataloader_serializer):
         torch_dataloader_serializer._serialize_to_local(
             dataloader, os.fspath(tmp_path / temp_dir)
         )
+
+    with mock.patch.object(
+        gcs_utils, "download_from_gcs", new=fake_download_from_gcs
+    ) as download_from_gcs:
+        yield download_from_gcs
+
+
+@pytest.fixture
+def mock_download_from_gcs_for_keras_model(tmp_path):
+    def fake_download_from_gcs(serialized_gcs_path, temp_dir):
+        keras_model = keras.models.Sequential(
+            [keras.layers.Dense(8, input_shape=(2,)), keras.layers.Dense(4)]
+        )
+        keras_model.save(tmp_path / temp_dir, save_format="tf")
 
     with mock.patch.object(
         gcs_utils, "download_from_gcs", new=fake_download_from_gcs
@@ -441,7 +455,10 @@ class TestSklearnEstimatorSerializer:
 
 
 class TestKerasModelSerializer:
-    def test_serialize_gcs_path(self, keras_model_serializer, mock_keras_save_model):
+    @pytest.mark.usefixtures("mock_storage_blob_tmp_dir")
+    def test_serialize_gcs_path_default_save_format(
+        self, keras_model_serializer, tmp_path
+    ):
         # Arrange
         fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"
 
@@ -453,7 +470,55 @@ class TestKerasModelSerializer:
         keras_model_serializer.serialize(keras_model, fake_gcs_uri)
 
         # Assert
-        mock_keras_save_model.assert_called_once_with(fake_gcs_uri)
+        # We mocked the storage blob, which writes the content to a temp path
+        # instead of fake_gcs_uri. The same filename will be used, though.
+        saved_keras_model_path = tmp_path / "fake_gcs_uri.keras"
+        assert os.path.exists(saved_keras_model_path)
+        saved_keras_model = keras.models.load_model(saved_keras_model_path)
+        assert isinstance(saved_keras_model, keras.models.Sequential)
+
+    @pytest.mark.parametrize("save_format", ["keras", "h5"], ids=["keras", "h5"])
+    @pytest.mark.usefixtures("mock_storage_blob_tmp_dir")
+    def test_serialize_gcs_path(self, keras_model_serializer, tmp_path, save_format):
+        # Arrange
+        fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"
+
+        keras_model = keras.Sequential(
+            [keras.layers.Dense(8, input_shape=(2,)), keras.layers.Dense(4)]
+        )
+
+        # Act
+        keras_model_serializer.serialize(
+            keras_model, fake_gcs_uri, save_format=save_format
+        )
+
+        # Assert
+        # We mocked the storage blob, which writes the content to a temp path
+        # instead of fake_gcs_uri. The same filename will be used, though.
+        saved_keras_model_path = tmp_path / ("fake_gcs_uri." + save_format)
+        assert os.path.exists(saved_keras_model_path)
+        saved_keras_model = keras.models.load_model(saved_keras_model_path)
+        assert isinstance(saved_keras_model, keras.models.Sequential)
+
+    @pytest.mark.usefixtures("mock_gcs_upload", "mock_isvalid_gcs_path")
+    def test_serialize_gcs_path_tf_format(self, keras_model_serializer, tmp_path):
+        # Arrange
+        fake_gcs_uri = str(tmp_path / "fake_gcs_uri")
+
+        keras_model = keras.Sequential(
+            [keras.layers.Dense(8, input_shape=(2,)), keras.layers.Dense(4)]
+        )
+
+        # Act
+        keras_model_serializer.serialize(keras_model, fake_gcs_uri, save_format="tf")
+
+        # Assert
+        # We mocked the storage blob, which writes the content to a temp path
+        # instead of fake_gcs_uri. The same filename will be used, though.
+        saved_keras_model_path = tmp_path / ("fake_gcs_uri")
+        assert os.path.exists(saved_keras_model_path)
+        saved_keras_model = keras.models.load_model(saved_keras_model_path)
+        assert isinstance(saved_keras_model, keras.models.Sequential)
 
     def test_serialize_invalid_gcs_path(self, keras_model_serializer):
         # Arrange
@@ -467,15 +532,57 @@ class TestKerasModelSerializer:
         with pytest.raises(ValueError, match=f"Invalid gcs path: {fake_gcs_uri}"):
             keras_model_serializer.serialize(keras_model, fake_gcs_uri)
 
-    def test_deserialize_gcs_path(self, keras_model_serializer, mock_keras_load_model):
+    @pytest.mark.parametrize("save_format", ["keras", "h5"], ids=["keras", "h5"])
+    def test_deserialize_gcs_path(
+        self,
+        keras_model_serializer,
+        mock_storage_blob_tmp_dir,
+        mock_keras_load_model,
+        save_format,
+    ):
         # Arrange
         fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"
+
+        # This only mocks the metadata loading.
+        def fake_download_file_from_gcs(self, filename):
+            with open(filename, "w") as f:
+                json.dump({"save_format": save_format}, f)
+
+        mock_storage_blob_tmp_dir.download_to_filename = types.MethodType(
+            fake_download_file_from_gcs, mock_storage_blob_tmp_dir
+        )
 
         # Act
         _ = keras_model_serializer.deserialize(fake_gcs_uri)
 
         # Assert
-        mock_keras_load_model.assert_called_once_with(fake_gcs_uri)
+        # We didn't mock the loading process with concrete data, so we simply
+        # test that it's called.
+        mock_keras_load_model.assert_called_once()
+
+    @pytest.mark.usefixtures("mock_download_from_gcs_for_keras_model")
+    def test_deserialize_tf_format(
+        self,
+        keras_model_serializer,
+        mock_storage_blob_tmp_dir,
+    ):
+        # Arrange
+        fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"
+
+        # This only mocks the metadata loading.
+        def fake_download_file_from_gcs(self, filename):
+            with open(filename, "w") as f:
+                json.dump({"save_format": "tf"}, f)
+
+        mock_storage_blob_tmp_dir.download_to_filename = types.MethodType(
+            fake_download_file_from_gcs, mock_storage_blob_tmp_dir
+        )
+
+        # Act
+        loaded_keras_model = keras_model_serializer.deserialize(fake_gcs_uri)
+
+        # Assert
+        assert isinstance(loaded_keras_model, keras.models.Sequential)
 
     def test_deserialize_invalid_gcs_path(self, keras_model_serializer):
         # Arrange
@@ -781,7 +888,9 @@ class TestTorchDataLoaderSerializer:
 
     @pytest.mark.usefixtures("google_auth_mock")
     def test_deserialize_dataloader(
-        self, torch_dataloader_serializer, mock_download_from_gcs
+        self,
+        torch_dataloader_serializer,
+        mock_download_from_gcs_for_torch_dataloader,
     ):
         # Arrange
         fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"
