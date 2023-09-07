@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -119,6 +120,11 @@ class IndexEndpoint(proto.Message):
             [public_endpoint_enabled][google.cloud.aiplatform.v1.IndexEndpoint.public_endpoint_enabled]
             is true, this field will be populated with the domain name
             to use for this index endpoint.
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Immutable. Customer-managed encryption key
+            spec for an IndexEndpoint. If set, this
+            IndexEndpoint and all sub-resources of this
+            IndexEndpoint will be secured by this key.
     """
 
     name: str = proto.Field(
@@ -179,6 +185,11 @@ class IndexEndpoint(proto.Message):
     public_endpoint_domain_name: str = proto.Field(
         proto.STRING,
         number=14,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

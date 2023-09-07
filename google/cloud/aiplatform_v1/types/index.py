@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import deployed_index_ref
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -101,6 +102,11 @@ class Index(proto.Message):
         index_update_method (google.cloud.aiplatform_v1.types.Index.IndexUpdateMethod):
             Immutable. The update method to use with this Index. If not
             set, BATCH_UPDATE will be used by default.
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Immutable. Customer-managed encryption key
+            spec for an Index. If set, this Index and all
+            sub-resources of this Index will be secured by
+            this key.
     """
 
     class IndexUpdateMethod(proto.Enum):
@@ -180,6 +186,11 @@ class Index(proto.Message):
         proto.ENUM,
         number=16,
         enum=IndexUpdateMethod,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=17,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
