@@ -367,6 +367,4 @@ def register_serializer(
 try:
     _any_serializer = AnySerializer()
 except ImportError:
-    _LOGGER.warning(
-        "cloudpickle is not installed. Please call `pip install google-cloud-aiplatform[preview]`."
-    )
+    pass
