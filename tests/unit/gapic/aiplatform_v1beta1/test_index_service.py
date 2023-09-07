@@ -48,6 +48,7 @@ from google.cloud.aiplatform_v1beta1.services.index_service import IndexServiceC
 from google.cloud.aiplatform_v1beta1.services.index_service import pagers
 from google.cloud.aiplatform_v1beta1.services.index_service import transports
 from google.cloud.aiplatform_v1beta1.types import deployed_index_ref
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import index
 from google.cloud.aiplatform_v1beta1.types import index as gca_index
 from google.cloud.aiplatform_v1beta1.types import index_service
