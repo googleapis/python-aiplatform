@@ -21,6 +21,7 @@ import dataclasses
 import functools
 import json
 import os
+import pathlib
 import pickle
 import shutil
 import tempfile
@@ -122,6 +123,39 @@ Types = Union[
 ]
 
 _LIGHTNING_ROOT_DIR = "/vertex_lightning_root_dir/"
+SERIALIZATION_METADATA_FILENAME = "serialization_metadata"
+
+
+def get_uri_prefix(gcs_uri: str) -> str:
+    """Gets the directory of the gcs_uri.
+
+    Example:
+      1) file uri:
+        _get_uri_prefix("gs://<bucket>/directory/file.extension") == "gs://
+        <bucket>/directory/"
+      2) folder uri:
+        _get_uri_prefix("gs://<bucket>/parent_dir/dir") == "gs://<bucket>/
+        parent_dir/"
+    Args:
+        gcs_uri: A string starting with "gs://" that represent a gcs uri.
+    Returns:
+        The parent gcs directory in string format.
+    """
+    # For tensorflow, the uri may be "gs://my-bucket/saved_model/"
+    if gcs_uri.endswith("/"):
+        gcs_uri = gcs_uri[:-1]
+    gcs_pathlibpath = pathlib.Path(gcs_uri)
+    file_name = gcs_pathlibpath.name
+    return gcs_uri[: -len(file_name)]
+
+
+def get_metadata_path_from_file_gcs_uri(gcs_uri: str) -> str:
+    gcs_pathlibpath = pathlib.Path(gcs_uri)
+    prefix = get_uri_prefix(gcs_uri=gcs_uri)
+    return os.path.join(
+        prefix,
+        f"{SERIALIZATION_METADATA_FILENAME}_{gcs_pathlibpath.stem}.json",
+    )
 
 
 def _is_valid_gcs_path(path: str) -> bool:
@@ -144,11 +178,28 @@ def _load_torch_model(path: str, map_location: "torch.device") -> TorchModel:
         return torch.load(path, map_location=torch.device("cpu"))
 
 
+class KerasModelSerializationMetadata(serializers_base.SerializationMetadata):
+    save_format: str = "keras"
+
+    def to_dict(self):
+        dct = super().to_dict()
+        dct.update({"save_format": self.save_format})
+        return dct
+
+
+def _get_temp_file_or_dir(is_file: bool = True, file_suffix: Optional[str] = None):
+    return (
+        tempfile.NamedTemporaryFile(suffix=file_suffix)
+        if is_file
+        else tempfile.TemporaryDirectory()
+    )
+
+
 class KerasModelSerializer(serializers_base.Serializer):
     """A serializer for tensorflow.keras.models.Model objects."""
 
-    _metadata: serializers_base.SerializationMetadata = (
-        serializers_base.SerializationMetadata(serializer="KerasModelSerializer")
+    _metadata: KerasModelSerializationMetadata = KerasModelSerializationMetadata(
+        serializer="KerasModelSerializer"
     )
 
     def serialize(
@@ -168,20 +219,40 @@ class KerasModelSerializer(serializers_base.Serializer):
         Raises:
             ValueError: if `gcs_path` is not a valid GCS uri.
         """
-        del kwargs
+        save_format = kwargs.get("save_format", "keras")
         if not _is_valid_gcs_path(gcs_path):
             raise ValueError(f"Invalid gcs path: {gcs_path}")
 
         KerasModelSerializer._metadata.dependencies = (
             supported_frameworks._get_deps_if_tensorflow_model(to_serialize)
         )
-        to_serialize.save(gcs_path)
+        KerasModelSerializer._metadata.save_format = save_format
 
+        if not gcs_path.endswith(".keras") and save_format == "keras":
+            gcs_path = gcs_path + ".keras"
+        if not gcs_path.endswith(".h5") and save_format == "h5":
+            gcs_path = gcs_path + ".h5"
+
+        is_file = save_format != "tf"
+        if gcs_path.startswith("gs://"):
+            # For tf (saved_model) format, the serialized data is a directory,
+            # while for keras and h5 formats, the serialized data is a file.
+            with _get_temp_file_or_dir(
+                is_file=is_file, file_suffix=f".{save_format}"
+            ) as temp_file_or_dir:
+                to_serialize.save(
+                    temp_file_or_dir.name if is_file else temp_file_or_dir,
+                    save_format=save_format,
+                )
+                gcs_utils.upload_to_gcs(
+                    temp_file_or_dir.name if is_file else temp_file_or_dir,
+                    gcs_path
+                )
+        else:
+            to_serialize.save(gcs_path, save_format=save_format)
         return gcs_path
 
-    def deserialize(
-        self, serialized_gcs_path: str, **kwargs
-    ) -> KerasModel:  # pytype: disable=invalid-annotation
+    def deserialize(self, serialized_gcs_path: str, **kwargs) -> KerasModel:
         """Deserialize a tensorflow.keras.models.Model given the gcs file name.
 
         Args:
@@ -198,11 +269,44 @@ class KerasModelSerializer(serializers_base.Serializer):
         del kwargs
         if not _is_valid_gcs_path(serialized_gcs_path):
             raise ValueError(f"Invalid gcs path: {serialized_gcs_path}")
+        metadata_file = get_metadata_path_from_file_gcs_uri(serialized_gcs_path)
+        if metadata_file.startswith("gs://"):
+            with tempfile.NamedTemporaryFile(suffix=".json") as temp_file:
+                gcs_utils.download_file_from_gcs(metadata_file, temp_file.name)
+                metadata = json.load(temp_file)
+        else:
+            with open(metadata_file, "r") as f:
+                metadata = json.load(f)
+        # For backward compatibility, if the metadata doesn't contain
+        # save_format, we assume the model was saved as saved_model format.
+        save_format = metadata.get("save_format", "tf")
 
         try:
             from tensorflow import keras
 
-            return keras.models.load_model(serialized_gcs_path)
+            if save_format == "keras" and not serialized_gcs_path.endswith(".keras"):
+                serialized_gcs_path = serialized_gcs_path + ".keras"
+            if save_format == "h5" and not serialized_gcs_path.endswith(".h5"):
+                serialized_gcs_path = serialized_gcs_path + ".h5"
+            # For tf (saved_model) format, the serialized data is a directory,
+            # while for keras and h5 formats, the serialized data is a file.
+            is_file = save_format != "tf"
+            if serialized_gcs_path.startswith("gs://"):
+                with _get_temp_file_or_dir(
+                    is_file=is_file, file_suffix=f".{save_format}"
+                ) as temp_file_or_dir:
+                    if is_file:
+                        gcs_utils.download_file_from_gcs(
+                            serialized_gcs_path, temp_file_or_dir.name
+                        )
+                        return keras.models.load_model(temp_file_or_dir.name)
+                    else:
+                        gcs_utils.download_from_gcs(
+                            serialized_gcs_path, temp_file_or_dir
+                        )
+                        return keras.models.load_model(temp_file_or_dir)
+            else:
+                return keras.models.load_model(serialized_gcs_path)
         except ImportError as e:
             raise ImportError("tensorflow is not installed.") from e
 
