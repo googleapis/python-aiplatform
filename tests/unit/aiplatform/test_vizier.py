@@ -987,11 +987,15 @@ class TestTrialConverterToProto:
 class TestParameterConfigConverterToProto:
     def test_discrete_config_to_proto(self):
         feasible_values = (-1, 3, 2)
+        child_parameter_config = pyvizier.ParameterConfig.factory(
+            "child", bounds=(-1.0, 1.0)
+        )
         parameter_config = pyvizier.ParameterConfig.factory(
             "name",
             feasible_values=feasible_values,
             scale_type=pyvizier.ScaleType.LOG,
             default_value=2,
+            children=[([-1], child_parameter_config)],
         )
 
         proto = proto_converters.ParameterConfigConverter.to_proto(parameter_config)
@@ -1002,6 +1006,43 @@ class TestParameterConfigConverterToProto:
             proto.scale_type
             == study_pb2.StudySpec.ParameterSpec.ScaleType.UNIT_LOG_SCALE
         )
+        assert len(proto.conditional_parameter_specs) == 1
+
+        spec = proto.conditional_parameter_specs[0]
+        assert spec.parameter_spec.parameter_id == "child"
+        assert spec.parameter_spec.double_value_spec.min_value == -1.0
+        assert spec.parameter_spec.double_value_spec.max_value == 1.0
+        assert len(spec.parent_discrete_values.values) == 1
+        assert spec.parent_discrete_values.values[0] == -1
+
+    def test_categorical_config_to_proto_with_children(self):
+        feasible_values = ("option_a", "option_b")
+        child_parameter_config = pyvizier.ParameterConfig.factory(
+            "child", bounds=(-1.0, 1.0)
+        )
+        parameter_config = pyvizier.ParameterConfig.factory(
+            "name",
+            feasible_values=feasible_values,
+            children=[(["option_a"], child_parameter_config)],
+        )
+        proto = proto_converters.ParameterConfigConverter.to_proto(parameter_config)
+        assert len(proto.conditional_parameter_specs) == 1
+        spec = proto.conditional_parameter_specs[0]
+        assert len(spec.parent_categorical_values.values) == 1
+        assert spec.parent_categorical_values.values[0] == "option_a"
+
+    def test_integer_config_to_proto_with_children(self):
+        child_parameter_config = pyvizier.ParameterConfig.factory(
+            "child", bounds=(-1.0, 1.0)
+        )
+        parameter_config = pyvizier.ParameterConfig.factory(
+            "name", bounds=(1, 10), children=[([6], child_parameter_config)]
+        )
+        proto = proto_converters.ParameterConfigConverter.to_proto(parameter_config)
+        assert len(proto.conditional_parameter_specs) == 1
+        spec = proto.conditional_parameter_specs[0]
+        assert len(spec.parent_int_values.values) == 1
+        assert spec.parent_int_values.values[0] == 6
 
 
 class TestParameterConfigConverterFromProto:

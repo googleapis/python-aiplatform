@@ -222,15 +222,15 @@ class ParameterConfigConverter:
                 )
             )
 
-            if parent_proto.HasField("discrete_value_spec"):
+            if "discrete_value_spec" in parent_proto:
                 conditional_parameter_spec.parent_discrete_values.values[
                     :
                 ] = parent_values
-            elif parent_proto.HasField("categorical_value_spec"):
+            elif "categorical_value_spec" in parent_proto:
                 conditional_parameter_spec.parent_categorical_values.values[
                     :
                 ] = parent_values
-            elif parent_proto.HasField("integer_value_spec"):
+            elif "integer_value_spec" in parent_proto:
                 conditional_parameter_spec.parent_int_values.values[:] = parent_values
             else:
                 raise ValueError("DOUBLE type cannot have child parameters")
