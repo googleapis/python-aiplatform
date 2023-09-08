@@ -73,9 +73,8 @@ vizier_extra_require = [
 
 prediction_extra_require = [
     "docker >= 5.0.3",
-    # TODO: remove the upper bound after a new version is released.
-    #   See https://github.com/tiangolo/fastapi/pull/4488.
-    "fastapi >= 0.71.0, <0.76.0",
+    "fastapi >= 0.71.0, <0.103.1",
+    "httpx >=0.23.0, <0.25.0",  # Optional dependency of fastapi
     "starlette >= 0.17.1",
     "uvicorn[standard] >= 0.16.0",
 ]
