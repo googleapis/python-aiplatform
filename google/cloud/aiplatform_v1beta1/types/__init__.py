@@ -603,6 +603,7 @@ from .study import (
     Study,
     StudySpec,
     Trial,
+    TrialContext,
 )
 from .tensorboard import (
     Tensorboard,
@@ -1178,6 +1179,7 @@ __all__ = (
     "Study",
     "StudySpec",
     "Trial",
+    "TrialContext",
     "Tensorboard",
     "Scalar",
     "TensorboardBlob",

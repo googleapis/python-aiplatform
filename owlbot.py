@@ -79,6 +79,10 @@ for library in s.get_staging_dirs(default_version):
             f"google/cloud/aiplatform/{library.name}/schema/**/services/",
             "testing/constraints-3.7.txt",
             "**/gapic_version.py", # exclude gapic_version.py to avoid reverting the version to 0.1.0
+            ".kokoro/samples",
+            "noxfile.py",
+            "testing",
+            "docs/conf.py",
         ],
     )
     has_generator_updates = True
@@ -118,6 +122,10 @@ if has_generator_updates:
             ".github/workflows",  # exclude gh actions as credentials are needed for tests
             "README.rst",
             ".github/release-please.yml", # use release please manifest
+            ".kokoro/samples",
+            "noxfile.py",
+            "testing",
+            "docs/conf.py",
         ],
     )  # the microgenerator has a good coveragerc file
 

@@ -534,6 +534,7 @@ from .types.study import Measurement
 from .types.study import Study
 from .types.study import StudySpec
 from .types.study import Trial
+from .types.study import TrialContext
 from .types.tensorboard import Tensorboard
 from .types.tensorboard_data import Scalar
 from .types.tensorboard_data import TensorboardBlob
@@ -1164,6 +1165,7 @@ __all__ = (
     "TrainingConfig",
     "TrainingPipeline",
     "Trial",
+    "TrialContext",
     "UndeployIndexOperationMetadata",
     "UndeployIndexRequest",
     "UndeployIndexResponse",

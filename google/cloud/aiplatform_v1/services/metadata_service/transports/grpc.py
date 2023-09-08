@@ -39,7 +39,6 @@ from google.cloud.aiplatform_v1.types import metadata_store
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 from .base import MetadataServiceTransport, DEFAULT_CLIENT_INFO
 

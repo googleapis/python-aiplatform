@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -65,6 +66,7 @@ class IndexEndpoint(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -119,6 +121,11 @@ class IndexEndpoint(proto.Message):
             [public_endpoint_enabled][google.cloud.aiplatform.v1.IndexEndpoint.public_endpoint_enabled]
             is true, this field will be populated with the domain name
             to use for this index endpoint.
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Immutable. Customer-managed encryption key
+            spec for an IndexEndpoint. If set, this
+            IndexEndpoint and all sub-resources of this
+            IndexEndpoint will be secured by this key.
     """
 
     name: str = proto.Field(
@@ -179,6 +186,11 @@ class IndexEndpoint(proto.Message):
     public_endpoint_domain_name: str = proto.Field(
         proto.STRING,
         number=14,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -263,6 +275,7 @@ class DeployedIndex(proto.Message):
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each MatchRequest.
+
             Note that logs may incur a cost, especially if
             the deployed index receives a high queries per
             second rate (QPS). Estimate your costs before
@@ -274,6 +287,7 @@ class DeployedIndex(proto.Message):
             Optional. A list of reserved ip ranges under
             the VPC network that can be used for this
             DeployedIndex.
+
             If set, we will deploy the index within the
             provided ip ranges. Otherwise, the index might
             be deployed to any ip ranges under the provided

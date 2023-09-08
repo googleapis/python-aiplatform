@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import deployed_index_ref
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -80,6 +81,7 @@ class Index(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -101,6 +103,11 @@ class Index(proto.Message):
         index_update_method (google.cloud.aiplatform_v1beta1.types.Index.IndexUpdateMethod):
             Immutable. The update method to use with this Index. If not
             set, BATCH_UPDATE will be used by default.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Immutable. Customer-managed encryption key
+            spec for an Index. If set, this Index and all
+            sub-resources of this Index will be secured by
+            this key.
     """
 
     class IndexUpdateMethod(proto.Enum):
@@ -111,12 +118,11 @@ class Index(proto.Message):
                 Should not be used.
             BATCH_UPDATE (1):
                 BatchUpdate: user can call UpdateIndex with
-                files on Cloud Storage of
-                datapoints to update.
+                files on Cloud Storage of datapoints to update.
             STREAM_UPDATE (2):
                 StreamUpdate: user can call
-                UpsertDatapoints/DeleteDatapoints to update
-                the Index and the updates will be applied in
+                UpsertDatapoints/DeleteDatapoints to update the
+                Index and the updates will be applied in
                 corresponding DeployedIndexes in nearly
                 real-time.
         """
@@ -180,6 +186,11 @@ class Index(proto.Message):
         proto.ENUM,
         number=16,
         enum=IndexUpdateMethod,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=17,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

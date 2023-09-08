@@ -29,6 +29,7 @@ __protobuf__ = proto.module(
     manifest={
         "Study",
         "Trial",
+        "TrialContext",
         "StudySpec",
         "Measurement",
     },
@@ -288,6 +289,38 @@ class Trial(proto.Message):
     )
 
 
+class TrialContext(proto.Message):
+    r"""Next ID: 3
+
+    Attributes:
+        description (str):
+            A human-readable field which can store a
+            description of this context. This will become
+            part of the resulting Trial's description field.
+        parameters (MutableSequence[google.cloud.aiplatform_v1.types.Trial.Parameter]):
+            If/when a Trial is generated or selected from this Context,
+            its Parameters will match any parameters specified here.
+            (I.e. if this context specifies parameter name:'a'
+            int_value:3, then a resulting Trial will have int_value:3
+            for its parameter named 'a'.) Note that we first attempt to
+            match existing REQUESTED Trials with contexts, and if there
+            are no matches, we generate suggestions in the subspace
+            defined by the parameters specified here. NOTE: a Context
+            without any Parameters matches the entire feasible search
+            space.
+    """
+
+    description: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    parameters: MutableSequence["Trial.Parameter"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="Trial.Parameter",
+    )
+
+
 class StudySpec(proto.Message):
     r"""Represents specification of a Study.
 
@@ -353,6 +386,7 @@ class StudySpec(proto.Message):
 
     class ObservationNoise(proto.Enum):
         r"""Describes the noise level of the repeated observations.
+
         "Noisy" means that the repeated observations with the same Trial
         parameters may lead to different metric evaluations.
 
