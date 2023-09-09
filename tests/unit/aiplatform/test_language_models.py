@@ -2038,6 +2038,7 @@ class TestLanguageModels:
         )
 
         code_chat = model.start_chat(
+            context="We're working on large-scale production system.",
             max_output_tokens=128,
             temperature=0.2,
             stop_sequences=["\n"],
