@@ -18,6 +18,7 @@ import copy
 from importlib import reload
 import os
 import re
+import sys
 from unittest import mock
 from unittest.mock import patch
 
@@ -1517,6 +1518,10 @@ class TestRemoteTraining:
             ]
         )
 
+    # TODO(b/300116902) Remove this once we find better solution.
+    @pytest.mark.xfail(
+        sys.version_info.minor == 11, raises=ValueError, reason="Flaky in python 3.11"
+    )
     @pytest.mark.usefixtures(
         "list_default_tensorboard_mock",
         "mock_timestamped_unique_name",
@@ -1595,6 +1600,10 @@ class TestRemoteTraining:
         # `model.score` raises NotFittedError if the model is not updated
         model.score(_X_TEST, _Y_TEST)
 
+    # TODO(b/300116902) Remove this once we find better solution
+    @pytest.mark.xfail(
+        sys.version_info.minor == 11, raises=ValueError, reason="Flaky in python 3.11"
+    )
     @pytest.mark.usefixtures(
         "list_default_tensorboard_mock",
         "mock_timestamped_unique_name",
