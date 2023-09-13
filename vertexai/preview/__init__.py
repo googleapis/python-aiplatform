@@ -15,7 +15,8 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform import metadata
+from google.cloud.aiplatform.metadata import metadata
+
 from vertexai.preview import developer
 from vertexai.preview import hyperparameter_tuning
 from vertexai.preview import initializer
@@ -38,17 +39,15 @@ from_pretrained = model_utils.from_pretrained
 # For Vertex AI Experiment.
 
 # ExperimentRun manipulation.
-start_run = metadata.metadata._experiment_tracker.start_run
-end_run = metadata.metadata._experiment_tracker.end_run
-get_experiment_df = metadata.metadata._experiment_tracker.get_experiment_df
+start_run = metadata._experiment_tracker.start_run
+end_run = metadata._experiment_tracker.end_run
+get_experiment_df = metadata._experiment_tracker.get_experiment_df
 
 # Experiment logging.
-log_params = metadata.metadata._experiment_tracker.log_params
-log_metrics = metadata.metadata._experiment_tracker.log_metrics
-log_time_series_metrics = metadata.metadata._experiment_tracker.log_time_series_metrics
-log_classification_metrics = (
-    metadata.metadata._experiment_tracker.log_classification_metrics
-)
+log_params = metadata._experiment_tracker.log_params
+log_metrics = metadata._experiment_tracker.log_metrics
+log_time_series_metrics = metadata._experiment_tracker.log_time_series_metrics
+log_classification_metrics = metadata._experiment_tracker.log_classification_metrics
 
 
 __all__ = (

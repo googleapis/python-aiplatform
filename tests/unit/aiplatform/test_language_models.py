@@ -1304,6 +1304,7 @@ class TestLanguageModels:
                 temperature=0.0,
                 top_p=1.0,
                 top_k=5,
+                stop_sequences=["# %%"],
             ):
                 assert len(response.text) > 10
 
@@ -1969,6 +1970,7 @@ class TestLanguageModels:
                 ),
             ],
             temperature=0.0,
+            stop_sequences=["\n"],
         )
 
         # Using list instead of a generator so that it can be reused.
@@ -1983,6 +1985,7 @@ class TestLanguageModels:
         message_max_output_tokens = 200
         message_top_k = 2
         message_top_p = 0.2
+        message_stop_sequences = ["# %%"]
 
         with mock.patch.object(
             target=prediction_service_client.PredictionServiceClient,
@@ -1998,6 +2001,7 @@ class TestLanguageModels:
                     temperature=message_temperature,
                     top_k=message_top_k,
                     top_p=message_top_p,
+                    stop_sequences=message_stop_sequences,
                 )
             ):
                 assert len(response.text) > 10
@@ -2034,8 +2038,10 @@ class TestLanguageModels:
         )
 
         code_chat = model.start_chat(
+            context="We're working on large-scale production system.",
             max_output_tokens=128,
             temperature=0.2,
+            stop_sequences=["\n"],
         )
 
         gca_predict_response1 = gca_prediction_service.PredictResponse()
@@ -2075,12 +2081,15 @@ class TestLanguageModels:
         # Validating the parameters
         chat_temperature = 0.1
         chat_max_output_tokens = 100
+        chat_stop_sequences = ["\n"]
         message_temperature = 0.2
         message_max_output_tokens = 200
+        message_stop_sequences = ["# %%"]
 
         code_chat2 = model.start_chat(
             temperature=chat_temperature,
             max_output_tokens=chat_max_output_tokens,
+            stop_sequences=chat_stop_sequences,
         )
 
         gca_predict_response3 = gca_prediction_service.PredictResponse()
@@ -2097,15 +2106,18 @@ class TestLanguageModels:
             prediction_parameters = mock_predict.call_args[1]["parameters"]
             assert prediction_parameters["temperature"] == chat_temperature
             assert prediction_parameters["maxDecodeSteps"] == chat_max_output_tokens
+            assert prediction_parameters["stopSequences"] == chat_stop_sequences
 
             code_chat2.send_message(
                 "Please help write a function to calculate the min of two numbers",
                 temperature=message_temperature,
                 max_output_tokens=message_max_output_tokens,
+                stop_sequences=message_stop_sequences,
             )
             prediction_parameters = mock_predict.call_args[1]["parameters"]
             assert prediction_parameters["temperature"] == message_temperature
             assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
+            assert prediction_parameters["stopSequences"] == message_stop_sequences
 
     def test_code_chat_model_send_message_streaming(self):
         """Tests the chat generation model."""
@@ -2122,7 +2134,7 @@ class TestLanguageModels:
         ):
             model = language_models.CodeChatModel.from_pretrained("codechat-bison@001")
 
-        chat = model.start_chat(temperature=0.0)
+        chat = model.start_chat(temperature=0.0, stop_sequences=["\n"])
 
         # Using list instead of a generator so that it can be reused.
         response_generator = [

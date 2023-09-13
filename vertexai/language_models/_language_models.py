@@ -653,78 +653,21 @@ class _TextGenerationModel(_LanguageModel):
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
         """
-
-        return self._batch_predict(
-            prompts=[prompt],
+        prediction_request = _create_text_generation_prediction_request(
+            prompt=prompt,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             top_k=top_k,
             top_p=top_p,
             stop_sequences=stop_sequences,
-        )[0]
-
-    def _batch_predict(
-        self,
-        prompts: List[str],
-        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
-        temperature: Optional[float] = None,
-        top_k: Optional[int] = None,
-        top_p: Optional[float] = None,
-        stop_sequences: Optional[List[str]] = None,
-    ) -> List["TextGenerationResponse"]:
-        """Gets model response for a single prompt.
-
-        Args:
-            prompts: Questions to ask the model.
-            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
-            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
-            stop_sequences: Customized stop sequences to stop the decoding process.
-
-        Returns:
-            A list of `TextGenerationResponse` objects that contain the texts produced by the model.
-        """
-        instances = [{"content": str(prompt)} for prompt in prompts]
-        prediction_parameters = {}
-
-        if max_output_tokens:
-            prediction_parameters["maxDecodeSteps"] = max_output_tokens
-
-        if temperature is not None:
-            prediction_parameters["temperature"] = temperature
-
-        if top_p:
-            prediction_parameters["topP"] = top_p
-
-        if top_k:
-            prediction_parameters["topK"] = top_k
-
-        if stop_sequences:
-            prediction_parameters["stopSequences"] = stop_sequences
-
-        prediction_response = self._endpoint.predict(
-            instances=instances,
-            parameters=prediction_parameters,
         )
 
-        results = []
-        for prediction in prediction_response.predictions:
-            safety_attributes_dict = prediction.get("safetyAttributes", {})
-            results.append(
-                TextGenerationResponse(
-                    text=prediction["content"],
-                    _prediction_response=prediction_response,
-                    is_blocked=safety_attributes_dict.get("blocked", False),
-                    safety_attributes=dict(
-                        zip(
-                            safety_attributes_dict.get("categories", []),
-                            safety_attributes_dict.get("scores", []),
-                        )
-                    ),
-                )
-            )
-        return results
+        prediction_response = self._endpoint.predict(
+            instances=[prediction_request.instance],
+            parameters=prediction_request.parameters,
+        )
+
+        return _parse_text_generation_model_response(prediction_response)
 
     def predict_streaming(
         self,
@@ -734,6 +677,7 @@ class _TextGenerationModel(_LanguageModel):
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
     ) -> Iterator[TextGenerationResponse]:
         """Gets a streaming model response for a single prompt.
 
@@ -745,54 +689,83 @@ class _TextGenerationModel(_LanguageModel):
             temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+            stop_sequences: Customized stop sequences to stop the decoding process.
 
         Yields:
             A stream of `TextGenerationResponse` objects that contain partial
             responses produced by the model.
         """
+        prediction_request = _create_text_generation_prediction_request(
+            prompt=prompt,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            stop_sequences=stop_sequences,
+        )
+
         prediction_service_client = self._endpoint._prediction_client
-        # Note: "prompt", not "content" like in the non-streaming case. b/294462691
-        instance = {"prompt": prompt}
-        prediction_parameters = {}
-
-        if max_output_tokens:
-            prediction_parameters["maxDecodeSteps"] = max_output_tokens
-
-        if temperature is not None:
-            if isinstance(temperature, int):
-                temperature = float(temperature)
-            prediction_parameters["temperature"] = temperature
-
-        if top_p:
-            if isinstance(top_p, int):
-                top_p = float(top_p)
-            prediction_parameters["topP"] = top_p
-
-        if top_k:
-            prediction_parameters["topK"] = top_k
-
         for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
             prediction_service_client=prediction_service_client,
             endpoint_name=self._endpoint_name,
-            instance=instance,
-            parameters=prediction_parameters,
+            instance=prediction_request.instance,
+            parameters=prediction_request.parameters,
         ):
-            safety_attributes_dict = prediction_dict.get("safetyAttributes", {})
             prediction_obj = aiplatform.models.Prediction(
                 predictions=[prediction_dict],
                 deployed_model_id="",
             )
-            yield TextGenerationResponse(
-                text=prediction_dict["content"],
-                _prediction_response=prediction_obj,
-                is_blocked=safety_attributes_dict.get("blocked", False),
-                safety_attributes=dict(
-                    zip(
-                        safety_attributes_dict.get("categories") or [],
-                        safety_attributes_dict.get("scores") or [],
-                    )
-                ),
-            )
+            yield _parse_text_generation_model_response(prediction_obj)
+
+
+def _create_text_generation_prediction_request(
+    prompt: str,
+    *,
+    max_output_tokens: Optional[int] = None,
+    temperature: Optional[float] = None,
+    top_k: Optional[int] = None,
+    top_p: Optional[float] = None,
+    stop_sequences: Optional[List[str]] = None,
+) -> "_PredictionRequest":
+    """Prepares the text generation request for a single prompt.
+
+    Args:
+        prompt: Question to ask the model.
+        max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+        temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+        top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+        top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+        stop_sequences: Customized stop sequences to stop the decoding process.
+
+    Returns:
+        A `_PredictionRequest` object that contains prediction instance and parameters.
+    """
+    instance = {"content": prompt}
+    prediction_parameters = {}
+
+    if max_output_tokens:
+        prediction_parameters["maxDecodeSteps"] = max_output_tokens
+
+    if temperature is not None:
+        if isinstance(temperature, int):
+            temperature = float(temperature)
+        prediction_parameters["temperature"] = temperature
+
+    if top_p:
+        if isinstance(top_p, int):
+            top_p = float(top_p)
+        prediction_parameters["topP"] = top_p
+
+    if top_k:
+        prediction_parameters["topK"] = top_k
+
+    if stop_sequences:
+        prediction_parameters["stopSequences"] = stop_sequences
+
+    return _PredictionRequest(
+        instance=instance,
+        parameters=prediction_parameters,
+    )
 
 
 def _parse_text_generation_model_response(
@@ -1282,6 +1255,7 @@ class CodeChatModel(_ChatModelBase):
         code_chat_model = CodeChatModel.from_pretrained("codechat-bison@001")
 
         code_chat = code_chat_model.start_chat(
+            context="I'm writing a large-scale enterprise application.",
             max_output_tokens=128,
             temperature=0.2,
         )
@@ -1296,24 +1270,32 @@ class CodeChatModel(_ChatModelBase):
     def start_chat(
         self,
         *,
+        context: Optional[str] = None,
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
+        stop_sequences: Optional[List[str]] = None,
     ) -> "CodeChatSession":
         """Starts a chat session with the code chat model.
 
         Args:
+            context: Context shapes how the model responds throughout the conversation.
+                For example, you can use context to specify words the model can or
+                cannot use, topics to focus on or avoid, or the response format or style.
             max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
+            stop_sequences: Customized stop sequences to stop the decoding process.
 
         Returns:
             A `ChatSession` object.
         """
         return CodeChatSession(
             model=self,
+            context=context,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             message_history=message_history,
+            stop_sequences=stop_sequences,
         )
 
 
@@ -1541,6 +1523,7 @@ class _ChatSessionBase:
         temperature: Optional[float] = None,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
     ) -> Iterator[TextGenerationResponse]:
         """Sends message to the language model and gets a streamed response.
 
@@ -1556,6 +1539,8 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
 
         Yields:
             A stream of `TextGenerationResponse` objects that contain partial
@@ -1567,6 +1552,7 @@ class _ChatSessionBase:
             temperature=temperature,
             top_k=top_k,
             top_p=top_p,
+            stop_sequences=stop_sequences,
         )
 
         prediction_service_client = self._model._endpoint._prediction_client
@@ -1641,15 +1627,19 @@ class CodeChatSession(_ChatSessionBase):
     def __init__(
         self,
         model: CodeChatModel,
+        context: Optional[str] = None,
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
+        stop_sequences: Optional[List[str]] = None,
     ):
         super().__init__(
             model=model,
+            context=context,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             message_history=message_history,
+            stop_sequences=stop_sequences,
         )
 
     def send_message(
@@ -1658,6 +1648,7 @@ class CodeChatSession(_ChatSessionBase):
         *,
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
     ) -> "TextGenerationResponse":
         """Sends message to the code chat model and gets a response.
 
@@ -1667,6 +1658,7 @@ class CodeChatSession(_ChatSessionBase):
                 Uses the value specified when calling `CodeChatModel.start_chat` by default.
             temperature: Controls the randomness of predictions. Range: [0, 1].
                  Uses the value specified when calling `CodeChatModel.start_chat` by default.
+            stop_sequences: Customized stop sequences to stop the decoding process.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
@@ -1675,6 +1667,7 @@ class CodeChatSession(_ChatSessionBase):
             message=message,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
+            stop_sequences=stop_sequences,
         )
 
     def send_message_streaming(
@@ -1683,6 +1676,7 @@ class CodeChatSession(_ChatSessionBase):
         *,
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
     ) -> Iterator[TextGenerationResponse]:
         """Sends message to the language model and gets a streamed response.
 
@@ -1694,6 +1688,8 @@ class CodeChatSession(_ChatSessionBase):
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
 
         Returns:
             A stream of `TextGenerationResponse` objects that contain partial
@@ -1703,6 +1699,7 @@ class CodeChatSession(_ChatSessionBase):
             message=message,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
+            stop_sequences=stop_sequences,
         )
 
 
@@ -1811,6 +1808,7 @@ class CodeGenerationModel(_LanguageModel):
         *,
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
     ) -> Iterator[TextGenerationResponse]:
         """Predicts the code based on previous code.
 
@@ -1821,6 +1819,7 @@ class CodeGenerationModel(_LanguageModel):
             suffix: Code after the current point.
             max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
+            stop_sequences: Customized stop sequences to stop the decoding process.
 
         Yields:
             A stream of `TextGenerationResponse` objects that contain partial
@@ -1831,6 +1830,7 @@ class CodeGenerationModel(_LanguageModel):
             suffix=suffix,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
+            stop_sequences=stop_sequences,
         )
 
         prediction_service_client = self._endpoint._prediction_client

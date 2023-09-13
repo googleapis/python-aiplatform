@@ -18,7 +18,6 @@
 """Defines the Serializer classes."""
 import json
 import os
-import pathlib
 import tempfile
 from typing import Any, Dict, Union, List, TypeVar, Type
 
@@ -117,38 +116,6 @@ SERIALIZATION_METADATA_FRAMEWORK_KEY = "framework"
 _LIGHTNING_ROOT_DIR = "/vertex_lightning_root_dir/"
 
 
-def _get_metadata_path_from_file_gcs_uri(gcs_uri: str) -> str:
-    gcs_pathlibpath = pathlib.Path(gcs_uri)
-    prefix = _get_uri_prefix(gcs_uri=gcs_uri)
-    return os.path.join(
-        prefix,
-        f"{SERIALIZATION_METADATA_FILENAME}_{gcs_pathlibpath.stem}.json",
-    )
-
-
-def _get_uri_prefix(gcs_uri: str) -> str:
-    """Gets the directory of the gcs_uri.
-
-    Example:
-      1) file uri:
-        _get_uri_prefix("gs://<bucket>/directory/file.extension") == "gs://
-        <bucket>/directory/"
-      2) folder uri:
-        _get_uri_prefix("gs://<bucket>/parent_dir/dir") == "gs://<bucket>/
-        parent_dir/"
-    Args:
-        gcs_uri: A string starting with "gs://" that represent a gcs uri.
-    Returns:
-        The parent gcs directory in string format.
-    """
-    # For tensorflow, the uri may be "gs://my-bucket/saved_model/"
-    if gcs_uri.endswith("/"):
-        gcs_uri = gcs_uri[:-1]
-    gcs_pathlibpath = pathlib.Path(gcs_uri)
-    file_name = gcs_pathlibpath.name
-    return gcs_uri[: -len(file_name)]
-
-
 def _check_dependency_versions(required_packages: List[str]):
     for package in required_packages:
         requirement = requirements.Requirement(package)
@@ -166,7 +133,7 @@ def _check_dependency_versions(required_packages: List[str]):
 def _get_custom_serializer_path_from_file_gcs_uri(
     gcs_uri: str, serializer_name: str
 ) -> str:
-    prefix = _get_uri_prefix(gcs_uri=gcs_uri)
+    prefix = serializers.get_uri_prefix(gcs_uri=gcs_uri)
     return os.path.join(prefix, f"{serializer_name}")
 
 
@@ -218,7 +185,7 @@ class AnySerializer(serializers_base.Serializer):
 
     def serialize(self, to_serialize: T, gcs_path: str, **kwargs) -> Dict[str, Any]:
         """Simplified version of serialize()."""
-        metadata_path = _get_metadata_path_from_file_gcs_uri(gcs_path)
+        metadata_path = serializers.get_metadata_path_from_file_gcs_uri(gcs_path)
         # TODO(b/277906396): consider implementing object-level serialization.
 
         for i, step_type in enumerate(
@@ -276,7 +243,9 @@ class AnySerializer(serializers_base.Serializer):
 
     def deserialize(self, serialized_gcs_path: str, **kwargs) -> T:
         """Routes the corresponding Serializer based on the metadata."""
-        metadata_path = _get_metadata_path_from_file_gcs_uri(serialized_gcs_path)
+        metadata_path = serializers.get_metadata_path_from_file_gcs_uri(
+            serialized_gcs_path
+        )
 
         if metadata_path.startswith("gs://"):
             with tempfile.NamedTemporaryFile() as temp_file:
@@ -310,14 +279,8 @@ class AnySerializer(serializers_base.Serializer):
             serializer = serializer_class.get_instance()
 
         # TODO(b/277906396): implement object-level serialization.
-        if SERIALIZATION_METADATA_FRAMEWORK_KEY in metadata:
-            serializer.__class__._metadata = serializers.BigframeSerializationMetadata(
-                **metadata
-            )
-        else:
-            serializer.__class__._metadata = serializers_base.SerializationMetadata(
-                **metadata
-            )
+        for key, value in metadata.items():
+            setattr(serializer.__class__._metadata, key, value)
 
         obj = serializer.deserialize(serialized_gcs_path=serialized_gcs_path, **kwargs)
         if not serializer_class:
@@ -367,6 +330,4 @@ def register_serializer(
 try:
     _any_serializer = AnySerializer()
 except ImportError:
-    _LOGGER.warning(
-        "cloudpickle is not installed. Please call `pip install google-cloud-aiplatform[preview]`."
-    )
+    pass

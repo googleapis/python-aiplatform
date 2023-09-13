@@ -23,6 +23,7 @@ from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import (
     persistent_resource as gca_persistent_resource,
 )
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -30,10 +31,12 @@ __protobuf__ = proto.module(
     manifest={
         "CreatePersistentResourceRequest",
         "CreatePersistentResourceOperationMetadata",
+        "UpdatePersistentResourceOperationMetadata",
         "GetPersistentResourceRequest",
         "ListPersistentResourcesRequest",
         "ListPersistentResourcesResponse",
         "DeletePersistentResourceRequest",
+        "UpdatePersistentResourceRequest",
     },
 )
 
@@ -75,6 +78,21 @@ class CreatePersistentResourceRequest(proto.Message):
 
 class CreatePersistentResourceOperationMetadata(proto.Message):
     r"""Details of operations that perform create PersistentResource.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            Operation metadata for PersistentResource.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class UpdatePersistentResourceOperationMetadata(proto.Message):
+    r"""Details of operations that perform update PersistentResource.
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -181,6 +199,34 @@ class DeletePersistentResourceRequest(proto.Message):
     name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class UpdatePersistentResourceRequest(proto.Message):
+    r"""Request message for UpdatePersistentResource method.
+
+    Attributes:
+        persistent_resource (google.cloud.aiplatform_v1beta1.types.PersistentResource):
+            Required. The PersistentResource to update.
+
+            The PersistentResource's ``name`` field is used to identify
+            the PersistentResource to update. Format:
+            ``projects/{project}/locations/{location}/persistentResources/{persistent_resource}``
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Required. Specify the fields to be
+            overwritten in the PersistentResource by the
+            update method.
+    """
+
+    persistent_resource: gca_persistent_resource.PersistentResource = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=gca_persistent_resource.PersistentResource,
+    )
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
     )
 
 

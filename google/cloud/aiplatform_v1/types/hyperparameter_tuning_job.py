@@ -60,6 +60,7 @@ class HyperparameterTuningJob(proto.Message):
         max_failed_trial_count (int):
             The number of failed Trials that need to be
             seen before failing the HyperparameterTuningJob.
+
             If set to 0, Vertex AI decides how many Trials
             must fail before the whole job fails.
         trial_job_spec (google.cloud.aiplatform_v1.types.CustomJobSpec):
@@ -96,6 +97,7 @@ class HyperparameterTuningJob(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):

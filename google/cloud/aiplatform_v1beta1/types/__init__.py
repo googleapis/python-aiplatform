@@ -528,6 +528,8 @@ from .persistent_resource_service import (
     GetPersistentResourceRequest,
     ListPersistentResourcesRequest,
     ListPersistentResourcesResponse,
+    UpdatePersistentResourceOperationMetadata,
+    UpdatePersistentResourceRequest,
 )
 from .pipeline_job import (
     PipelineJob,
@@ -601,6 +603,7 @@ from .study import (
     Study,
     StudySpec,
     Trial,
+    TrialContext,
 )
 from .tensorboard import (
     Tensorboard,
@@ -1121,6 +1124,8 @@ __all__ = (
     "GetPersistentResourceRequest",
     "ListPersistentResourcesRequest",
     "ListPersistentResourcesResponse",
+    "UpdatePersistentResourceOperationMetadata",
+    "UpdatePersistentResourceRequest",
     "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
@@ -1174,6 +1179,7 @@ __all__ = (
     "Study",
     "StudySpec",
     "Trial",
+    "TrialContext",
     "Tensorboard",
     "Scalar",
     "TensorboardBlob",

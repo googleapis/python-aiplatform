@@ -32,7 +32,6 @@ from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
@@ -150,6 +149,11 @@ class PersistentResourceServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_persistent_resource: gapic_v1.method.wrap_method(
+                self.update_persistent_resource,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -204,6 +208,15 @@ class PersistentResourceServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [persistent_resource_service.DeletePersistentResourceRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_persistent_resource(
+        self,
+    ) -> Callable[
+        [persistent_resource_service.UpdatePersistentResourceRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

@@ -207,6 +207,7 @@ class TestModelUtils:
                 mock.call(
                     _TF_MODEL,
                     f"{expected_uri}",
+                    save_format="tf",
                 ),
             ],
             any_order=True,
