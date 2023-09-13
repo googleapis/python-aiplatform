@@ -87,6 +87,19 @@ _JOB_ERROR_STATES = (
     gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLED,
 )
 
+_JOB_PENDING_STATES = (
+    gca_job_state.JobState.JOB_STATE_QUEUED,
+    gca_job_state.JobState.JOB_STATE_PENDING,
+    gca_job_state.JobState.JOB_STATE_RUNNING,
+    gca_job_state.JobState.JOB_STATE_CANCELLING,
+    gca_job_state.JobState.JOB_STATE_UPDATING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_QUEUED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_PENDING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_RUNNING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_UPDATING,
+)
+
 # _block_until_complete wait times
 _JOB_WAIT_TIME = 5  # start at five seconds
 _LOG_WAIT_TIME = 5

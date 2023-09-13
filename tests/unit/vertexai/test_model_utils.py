@@ -22,9 +22,19 @@ from google.cloud.aiplatform import utils
 import vertexai
 from vertexai.preview._workflow.serialization_engine import (
     any_serializer,
+    serializers_base,
+)
+from google.cloud.aiplatform.compat.services import job_service_client
+from google.cloud.aiplatform.compat.types import (
+    job_state as gca_job_state,
+    custom_job as gca_custom_job,
+    io as gca_io,
 )
 import pytest
 
+import cloudpickle
+import numpy as np
+import sklearn
 from sklearn.linear_model import _logistic
 import tensorflow
 import torch
@@ -44,6 +54,9 @@ _PYTORCH_MODEL = torch.nn.Module()
 _TEST_MODEL_GCS_URI = "gs://test_model_dir"
 _MODEL_RESOURCE_NAME = "projects/123/locations/us-central1/models/456"
 _REWRAPPER = "rewrapper"
+
+# customJob constants
+_TEST_CUSTOM_JOB_RESOURCE_NAME = "projects/123/locations/us-central1/customJobs/456"
 
 
 @pytest.fixture
@@ -121,6 +134,126 @@ def mock_deserialize_model_exception():
     ) as mock_deserialize_model_exception:
         mock_deserialize_model_exception.side_effect = Exception
         yield mock_deserialize_model_exception
+
+
+@pytest.fixture
+def mock_any_serializer_serialize_sklearn():
+    with mock.patch.object(
+        any_serializer.AnySerializer,
+        "serialize",
+        side_effect=[
+            {
+                serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
+                    f"scikit-learn=={sklearn.__version__}"
+                ]
+            },
+            {
+                serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
+                    f"numpy=={np.__version__}",
+                    f"cloudpickle=={cloudpickle.__version__}",
+                ]
+            },
+            {
+                serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
+                    f"numpy=={np.__version__}",
+                    f"cloudpickle=={cloudpickle.__version__}",
+                ]
+            },
+            {
+                serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
+                    f"numpy=={np.__version__}",
+                    f"cloudpickle=={cloudpickle.__version__}",
+                ]
+            },
+        ],
+    ) as mock_any_serializer_serialize:
+        yield mock_any_serializer_serialize
+
+
+_TEST_PROJECT = "test-project"
+_TEST_LOCATION = "us-central1"
+_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_DISPLAY_NAME = f"{_TEST_PARENT}/customJobs/12345"
+_TEST_BUCKET_NAME = "gs://test_bucket"
+_TEST_BASE_OUTPUT_DIR = f"{_TEST_BUCKET_NAME}/test_base_output_dir"
+
+_TEST_INPUTS = [
+    "--arg_0=string_val_0",
+    "--arg_1=string_val_1",
+    "--arg_2=int_val_0",
+    "--arg_3=int_val_1",
+]
+_TEST_IMAGE_URI = "test_image_uri"
+_TEST_MACHINE_TYPE = "test_machine_type"
+_TEST_WORKER_POOL_SPEC = [
+    {
+        "machine_spec": {
+            "machine_type": _TEST_MACHINE_TYPE,
+        },
+        "replica_count": 1,
+        "container_spec": {
+            "image_uri": _TEST_IMAGE_URI,
+            "args": _TEST_INPUTS,
+        },
+    }
+]
+_TEST_CUSTOM_JOB_PROTO = gca_custom_job.CustomJob(
+    display_name=_TEST_DISPLAY_NAME,
+    job_spec={
+        "worker_pool_specs": _TEST_WORKER_POOL_SPEC,
+        "base_output_directory": gca_io.GcsDestination(
+            output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+        ),
+    },
+    labels={"trained_by_vertex_ai": "true"},
+)
+
+
+@pytest.fixture
+def mock_get_custom_job_pending():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as mock_get_custom_job:
+
+        mock_get_custom_job.side_effect = [
+            gca_custom_job.CustomJob(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_RUNNING,
+                display_name=_TEST_DISPLAY_NAME,
+                job_spec={
+                    "worker_pool_specs": _TEST_WORKER_POOL_SPEC,
+                    "base_output_directory": gca_io.GcsDestination(
+                        output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+                    ),
+                },
+                labels={"trained_by_vertex_ai": "true"},
+            ),
+            gca_custom_job.CustomJob(
+                name=_TEST_CUSTOM_JOB_RESOURCE_NAME,
+                state=gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+                display_name=_TEST_DISPLAY_NAME,
+                job_spec={
+                    "worker_pool_specs": _TEST_WORKER_POOL_SPEC,
+                    "base_output_directory": gca_io.GcsDestination(
+                        output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+                    ),
+                },
+                labels={"trained_by_vertex_ai": "true"},
+            ),
+        ]
+        yield mock_get_custom_job
+
+
+@pytest.fixture
+def mock_get_custom_job_failed():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as mock_get_custom_job:
+        custom_job_proto = _TEST_CUSTOM_JOB_PROTO
+        custom_job_proto.name = _TEST_CUSTOM_JOB_RESOURCE_NAME
+        custom_job_proto.state = gca_job_state.JobState.JOB_STATE_FAILED
+        mock_get_custom_job.return_value = custom_job_proto
+        yield mock_get_custom_job
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -289,3 +422,72 @@ class TestModelUtils:
 
         with pytest.raises(ValueError):
             vertexai.preview.from_pretrained(model_name=_MODEL_RESOURCE_NAME)
+
+    @pytest.mark.usefixtures(
+        "mock_get_vertex_model",
+        "mock_get_custom_job_succeeded",
+    )
+    def test_custom_job_from_pretrained_succeed(self, mock_deserialize_model):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET,
+        )
+
+        local_model = vertexai.preview.from_pretrained(
+            custom_job_name=_TEST_CUSTOM_JOB_RESOURCE_NAME
+        )
+        assert local_model == _SKLEARN_MODEL
+        assert 2 == mock_deserialize_model.call_count
+
+        mock_deserialize_model.assert_has_calls(
+            calls=[
+                mock.call(
+                    f"{_TEST_BASE_OUTPUT_DIR}/output/output_estimator",
+                ),
+            ],
+            any_order=True,
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_get_vertex_model",
+        "mock_get_custom_job_pending",
+        "mock_cloud_logging_list_entries",
+    )
+    def test_custom_job_from_pretrained_logs_and_blocks_until_complete_on_pending_job(
+        self, mock_deserialize_model
+    ):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET,
+        )
+
+        local_model = vertexai.preview.from_pretrained(
+            custom_job_name=_TEST_CUSTOM_JOB_RESOURCE_NAME
+        )
+        assert local_model == _SKLEARN_MODEL
+        assert 2 == mock_deserialize_model.call_count
+
+        mock_deserialize_model.assert_has_calls(
+            calls=[
+                mock.call(
+                    f"{_TEST_BASE_OUTPUT_DIR}/output/output_estimator",
+                ),
+            ],
+            any_order=True,
+        )
+
+    @pytest.mark.usefixtures("mock_get_vertex_model", "mock_get_custom_job_failed")
+    def test_custom_job_from_pretrained_fails_on_errored_job(self):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET,
+        )
+
+        with pytest.raises(ValueError) as err_msg:
+            vertexai.preview.from_pretrained(
+                custom_job_name=_TEST_CUSTOM_JOB_RESOURCE_NAME
+            )
+            assert "did not complete" in err_msg

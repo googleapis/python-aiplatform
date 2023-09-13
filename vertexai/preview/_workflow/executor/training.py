@@ -42,6 +42,7 @@ from vertexai.preview._workflow.shared import constants
 from vertexai.preview._workflow.shared import (
     supported_frameworks,
 )
+from vertexai.preview._workflow.shared import model_utils
 from vertexai.preview.developer import remote_specs
 from packaging import version
 
@@ -460,7 +461,31 @@ def _get_remote_logs_until_complete(
         )
 
 
-def remote_training(invokable: shared._Invokable):
+def _set_job_labels(method_name: str) -> Dict[str, str]:
+    """Helper method to set the label for the CustomJob.
+
+    Remote training, feature transform, and prediction jobs should each have
+    different labels.
+
+    Args:
+        method_Name (str):
+            Required. The method name used to invoke the remote job.
+
+    Returns:
+        A dictionary of the label key/value to use for the CustomJob.
+    """
+
+    if method_name in supported_frameworks.REMOTE_TRAINING_STATEFUL_OVERRIDE_LIST:
+        return {"trained_by_vertex_ai": "true"}
+
+    if method_name in supported_frameworks.REMOTE_TRAINING_FUNCTIONAL_OVERRIDE_LIST:
+        return {"feature_transformed_by_vertex_ai": "true"}
+
+    if method_name in supported_frameworks.REMOTE_PREDICTION_OVERRIDE_LIST:
+        return {"predicted_by_vertex_ai": "true"}
+
+
+def remote_training(invokable: shared._Invokable, rewrapper: Any):
     """Wrapper function that makes a method executable by Vertex CustomJob."""
 
     self = invokable.instance
@@ -521,7 +546,9 @@ def remote_training(invokable: shared._Invokable):
     remote_job = f"remote-job-{utils.timestamped_unique_name()}"
     remote_job_base_path = os.path.join(staging_bucket, remote_job)
     remote_job_input_path = os.path.join(remote_job_base_path, "input")
-    remote_job_output_path = os.path.join(remote_job_base_path, "output")
+    remote_job_output_path = model_utils._generate_remote_job_output_path(
+        remote_job_base_path
+    )
 
     detected_framework = None
     if supported_frameworks._is_sklearn(self):
@@ -655,6 +682,15 @@ def remote_training(invokable: shared._Invokable):
 
     command = ["sh", "-c", " ".join(command)]
 
+    labels = _set_job_labels(method_name)
+
+    # serialize rewrapper, this is needed to load a model from a CustomJob
+    filepath = os.path.join(
+        remote_job_output_path,
+        model_utils._REWRAPPER_NAME,
+    )
+    serializer.serialize(rewrapper, filepath)
+
     # create & run the CustomJob
 
     # disable CustomJob logs
@@ -667,6 +703,7 @@ def remote_training(invokable: shared._Invokable):
             worker_pool_specs=_get_worker_pool_specs(config, container_uri, command),
             base_output_dir=remote_job_base_path,
             staging_bucket=remote_job_base_path,
+            labels=labels,
         )
 
         job.submit(
@@ -698,7 +735,7 @@ def remote_training(invokable: shared._Invokable):
     # retrieve the result from gcs to local
     if method_name in supported_frameworks.REMOTE_TRAINING_STATEFUL_OVERRIDE_LIST:
         estimator = serializer.deserialize(
-            os.path.join(remote_job_output_path, "output_estimator"),
+            os.path.join(remote_job_output_path, model_utils._OUTPUT_ESTIMATOR_DIR),
         )
 
         if supported_frameworks._is_sklearn(self):
@@ -715,7 +752,9 @@ def remote_training(invokable: shared._Invokable):
             _update_lightning_trainer_inplace(self, estimator)
             # deserialize and update the trained model as well
             trained_model = serializer.deserialize(
-                os.path.join(remote_job_output_path, "output_estimator", "model")
+                os.path.join(
+                    remote_job_output_path, model_utils._OUTPUT_ESTIMATOR_DIR, "model"
+                )
             )
             _update_torch_model_inplace(serialized_args["model"], trained_model)
         else:
@@ -727,7 +766,7 @@ def remote_training(invokable: shared._Invokable):
 
     if method_name in supported_frameworks.REMOTE_PREDICTION_OVERRIDE_LIST:
         predictions = serializer.deserialize(
-            os.path.join(remote_job_output_path, "output_predictions")
+            os.path.join(remote_job_output_path, model_utils._OUTPUT_PREDICTIONS_DIR)
         )
         return predictions
 

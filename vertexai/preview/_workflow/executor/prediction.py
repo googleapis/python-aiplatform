@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import Any
+
 from vertexai.preview._workflow import (
     shared,
 )
@@ -20,9 +22,9 @@ from vertexai.preview._workflow.executor import (
 )
 
 
-def remote_prediction(invokable: shared._Invokable):
+def remote_prediction(invokable: shared._Invokable, rewrapper: Any):
     """Wrapper function that makes a method executable by Vertex CustomJob."""
-    predictions = training.remote_training(invokable=invokable)
+    predictions = training.remote_training(invokable=invokable, rewrapper=rewrapper)
     return predictions
 
 

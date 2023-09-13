@@ -22,11 +22,7 @@ from google.cloud.aiplatform.utils import worker_spec_utils
 import vertexai
 from vertexai.preview._workflow import shared
 from vertexai.preview.developer import remote_specs
-
-
-_CUSTOM_JOB_DIR = "custom_job"
-_INPUT_DIR = "input"
-_OUTPUT_DIR = "output"
+from vertexai.preview._workflow.shared import model_utils
 
 # job_dir container argument name
 _JOB_DIR = "job_dir"
@@ -141,8 +137,8 @@ def train(invokable: shared._Invokable):
             "No default staging bucket set. "
             "Please call `vertexai.init(staging_bucket='gs://my-bucket')."
         )
-    input_dir = remote_specs._gen_gcs_path(staging_bucket, _INPUT_DIR)
-    output_dir = remote_specs._gen_gcs_path(staging_bucket, _OUTPUT_DIR)
+    input_dir = remote_specs._gen_gcs_path(staging_bucket, model_utils._INPUT_DIR)
+    output_dir = remote_specs._gen_gcs_path(staging_bucket, model_utils._OUTPUT_DIR)
 
     # Creates a complete set of binding.
     instance_binding = invokable.instance._binding
@@ -153,7 +149,9 @@ def train(invokable: shared._Invokable):
     # If a container accepts a job_dir argument and the user does not specify
     # it, set job_dir based on the staging bucket.
     if _JOB_DIR in binding and not binding[_JOB_DIR]:
-        binding[_JOB_DIR] = remote_specs._gen_gcs_path(staging_bucket, _CUSTOM_JOB_DIR)
+        binding[_JOB_DIR] = remote_specs._gen_gcs_path(
+            staging_bucket, model_utils._CUSTOM_JOB_DIR
+        )
 
     # Formats arguments.
     formatted_args = {}
@@ -200,8 +198,12 @@ def train(invokable: shared._Invokable):
         display_name=f"{invokable.instance.__class__.__name__}-{display_name}"
         f"-{uuid.uuid4()}",
         worker_pool_specs=worker_pool_specs,
-        base_output_dir=remote_specs._gen_gcs_path(staging_bucket, _CUSTOM_JOB_DIR),
-        staging_bucket=remote_specs._gen_gcs_path(staging_bucket, _CUSTOM_JOB_DIR),
+        base_output_dir=remote_specs._gen_gcs_path(
+            staging_bucket, model_utils._CUSTOM_JOB_DIR
+        ),
+        staging_bucket=remote_specs._gen_gcs_path(
+            staging_bucket, model_utils._CUSTOM_JOB_DIR
+        ),
     )
     job.run()
 

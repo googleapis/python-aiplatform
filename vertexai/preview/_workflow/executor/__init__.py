@@ -37,7 +37,7 @@ class _WorkflowExecutor:
             *invokable.bound_arguments.args, **invokable.bound_arguments.kwargs
         )
 
-    def remote_execute(self, invokable: shared._Invokable) -> Any:
+    def remote_execute(self, invokable: shared._Invokable, rewrapper: Any) -> Any:
         if invokable.remote_executor not in (
             remote_container_training.train,
             training.remote_training,
@@ -45,7 +45,10 @@ class _WorkflowExecutor:
         ):
             raise ValueError(f"{invokable.remote_executor} is not supported.")
 
-        return invokable.remote_executor(invokable)
+        if invokable.remote_executor == remote_container_training.train:
+            invokable.remote_executor(invokable)
+        else:
+            return invokable.remote_executor(invokable, rewrapper=rewrapper)
 
 
 _workflow_executor = _WorkflowExecutor()

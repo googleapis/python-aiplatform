@@ -388,6 +388,7 @@ def _get_custom_job_proto(
         env.append(
             {"name": metadata_constants.ENV_EXPERIMENT_RUN_KEY, "value": experiment_run}
         )
+    job.labels = ({"trained_by_vertex_ai": "true"},)
     return job
 
 
@@ -480,6 +481,12 @@ def mock_any_serializer_serialize_sklearn():
                     f"cloudpickle=={cloudpickle.__version__}",
                 ]
             },
+            {
+                serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
+                    f"numpy=={np.__version__}",
+                    f"cloudpickle=={cloudpickle.__version__}",
+                ]
+            },
         ],
     ) as mock_any_serializer_serialize:
         yield mock_any_serializer_serialize
@@ -543,6 +550,12 @@ def mock_any_serializer_serialize_keras():
             {
                 serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
                     f"tensorflow=={tf.__version__}"
+                ]
+            },
+            {
+                serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
+                    f"numpy=={np.__version__}",
+                    f"cloudpickle=={cloudpickle.__version__}",
                 ]
             },
             {

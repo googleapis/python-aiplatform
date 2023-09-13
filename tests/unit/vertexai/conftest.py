@@ -80,6 +80,7 @@ _TEST_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
             output_uri_prefix=_TEST_BASE_OUTPUT_DIR
         ),
     },
+    labels={"trained_by_vertex_ai": "true"},
 )
 
 

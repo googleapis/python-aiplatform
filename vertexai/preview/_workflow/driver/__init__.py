@@ -241,7 +241,7 @@ class _WorkFlowDriver:
         ):
             rewrapper = _unwrapper(invokable.instance)
 
-        result = self._launch(invokable)
+        result = self._launch(invokable, rewrapper)
 
         # rewrap the original instance
         if rewrapper and invokable.instance is not None:
@@ -255,12 +255,14 @@ class _WorkFlowDriver:
 
         return result
 
-    def _launch(self, invokable: shared._Invokable) -> Any:
+    def _launch(self, invokable: shared._Invokable, rewrapper: Any) -> Any:
         """
         Launches an invokable.
         """
         return self._launcher.launch(
-            invokable=invokable, global_remote=vertexai.preview.global_config.remote
+            invokable=invokable,
+            global_remote=vertexai.preview.global_config.remote,
+            rewrapper=rewrapper,
         )
 
 
