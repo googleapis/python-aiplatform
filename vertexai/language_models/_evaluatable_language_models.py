@@ -230,7 +230,7 @@ class EvaluationTextSummarizationSpec(_EvaluationTaskSpec):
 
 @dataclasses.dataclass
 class _EvaluationMetricBase:
-    """Base class for returned evaulation metrics"""
+    """Base class for returned evaulation metrics."""
 
     @property
     def input_dataset_paths(self) -> str:
