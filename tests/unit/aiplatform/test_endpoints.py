@@ -43,6 +43,7 @@ from google.cloud.aiplatform.compat.services import (
     endpoint_service_client,
     endpoint_service_client_v1beta1,
     prediction_service_client,
+    prediction_service_async_client,
     deployment_resource_pool_service_client_v1beta1,
 )
 
@@ -465,6 +466,22 @@ def predict_client_predict_mock():
 
 
 @pytest.fixture
+def predict_async_client_predict_mock():
+    response = gca_prediction_service.PredictResponse(
+        deployed_model_id=_TEST_MODEL_ID,
+        model_version_id=_TEST_VERSION_ID,
+        model=_TEST_MODEL_NAME,
+    )
+    response.predictions.extend(_TEST_PREDICTION)
+    with mock.patch.object(
+        target=prediction_service_async_client.PredictionServiceAsyncClient,
+        attribute="predict",
+        return_value=response,
+    ) as predict_mock:
+        yield predict_mock
+
+
+@pytest.fixture
 def predict_client_explain_mock():
     with mock.patch.object(
         prediction_service_client.PredictionServiceClient, "explain"
@@ -478,6 +495,23 @@ def predict_client_explain_mock():
             _TEST_ATTRIBUTIONS
         )
         yield predict_mock
+
+
+@pytest.fixture
+def predict_async_client_explain_mock():
+    response = gca_prediction_service.ExplainResponse(
+        deployed_model_id=_TEST_MODEL_ID,
+    )
+    response.predictions.extend(_TEST_PREDICTION)
+    response.explanations.extend(_TEST_EXPLANATIONS)
+    response.explanations[0].attributions.extend(_TEST_ATTRIBUTIONS)
+
+    with mock.patch.object(
+        target=prediction_service_async_client.PredictionServiceAsyncClient,
+        attribute="explain",
+        return_value=response,
+    ) as explain_mock:
+        yield explain_mock
 
 
 @pytest.fixture
@@ -625,6 +659,12 @@ class TestEndpoint:
                     appended_user_agent=None,
                 ),
                 mock.call(
+                    client_class=utils.PredictionAsyncClientWithOverride,
+                    credentials=None,
+                    location_override=_TEST_LOCATION,
+                    prediction_client=True,
+                ),
+                mock.call(
                     client_class=utils.PredictionClientWithOverride,
                     credentials=None,
                     location_override=_TEST_LOCATION,
@@ -713,6 +753,12 @@ class TestEndpoint:
                     credentials=creds,
                     location_override=_TEST_LOCATION,
                     appended_user_agent=None,
+                ),
+                mock.call(
+                    client_class=utils.PredictionAsyncClientWithOverride,
+                    credentials=creds,
+                    location_override=_TEST_LOCATION,
+                    prediction_client=True,
                 ),
                 mock.call(
                     client_class=utils.PredictionClientWithOverride,
@@ -1841,6 +1887,30 @@ class TestEndpoint:
             timeout=None,
         )
 
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    async def test_predict_async(self, predict_async_client_predict_mock):
+        """Tests the Endpoint.predict_async method."""
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = await test_endpoint.predict_async(
+            instances=_TEST_INSTANCES, parameters={"param": 3.0}
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_PREDICTION,
+            deployed_model_id=_TEST_ID,
+            model_version_id=_TEST_VERSION_ID,
+            model_resource_name=_TEST_MODEL_NAME,
+        )
+
+        assert true_prediction == test_prediction
+        predict_async_client_predict_mock.assert_called_once_with(
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures("get_endpoint_mock")
     def test_explain(self, predict_client_explain_mock):
 
@@ -1861,6 +1931,34 @@ class TestEndpoint:
 
         assert expected_prediction == test_prediction
         predict_client_explain_mock.assert_called_once_with(
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            deployed_model_id=_TEST_MODEL_ID,
+            timeout=None,
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    async def test_explain_async(self, predict_async_client_explain_mock):
+        """Tests the Endpoint.explain_async method."""
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = await test_endpoint.explain_async(
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            deployed_model_id=_TEST_MODEL_ID,
+        )
+        expected_explanations = _TEST_EXPLANATIONS
+        expected_explanations[0].attributions.extend(_TEST_ATTRIBUTIONS)
+
+        expected_prediction = models.Prediction(
+            predictions=_TEST_PREDICTION,
+            deployed_model_id=_TEST_ID,
+            explanations=expected_explanations,
+        )
+
+        assert expected_prediction == test_prediction
+        predict_async_client_explain_mock.assert_called_once_with(
             endpoint=_TEST_ENDPOINT_NAME,
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
