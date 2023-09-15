@@ -2157,7 +2157,15 @@ class TestEndpoint:
         delete_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
 
 
-class TestPrivateEndpoint(TestEndpoint):
+class TestPrivateEndpoint:
+    def setup_method(self):
+        reload(initializer)
+        reload(aiplatform)
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_create(self, create_private_endpoint_mock, sync):
         test_endpoint = models.PrivateEndpoint.create(
