@@ -120,8 +120,6 @@ class ImageGenerationModel(
             prompt="Astronaut riding a horse",
             # Optional:
             number_of_images=1,
-            width=1024,
-            width=768,
             seed=0,
         )
         response[0].show()
