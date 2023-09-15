@@ -306,7 +306,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
     def test_code_chat_model_send_message_streaming(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
-        chat_model = language_models.ChatModel.from_pretrained("codechat-bison@001")
+        chat_model = language_models.CodeChatModel.from_pretrained("codechat-bison@001")
         chat = chat_model.start_chat()
 
         message1 = "Please help write a function to calculate the max of two numbers"
