@@ -76,7 +76,10 @@ def bq_client_full_mock(monkeypatch):
             "us-central1",
         )
         fake_query_job = job.QueryJob(fake_job_ref, query, None)
-        fake_query_job.configuration.destination = _TEST_BQ_TEMP_DESTINATION
+        try:
+            fake_query_job.configuration.destination = _TEST_BQ_TEMP_DESTINATION
+        except AttributeError:
+            fake_query_job._configuration.destination = _TEST_BQ_TEMP_DESTINATION
         return fake_query_job
 
     client_mock.get_dataset = bq_get_dataset_mock
