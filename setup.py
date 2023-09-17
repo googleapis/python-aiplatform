@@ -39,6 +39,13 @@ packages = [
     if package.startswith("google") or package.startswith("vertexai")
 ]
 
+# Add vertex_ray relative packages
+packages += [
+    package.replace("google.cloud.aiplatform.preview.vertex_ray", "vertex_ray")
+    for package in setuptools.PEP420PackageFinder.find()
+    if package.startswith("google.cloud.aiplatform.preview.vertex_ray")
+]
+
 tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
@@ -91,6 +98,20 @@ preview_extra_require = [
     "importlib-metadata < 7.0; python_version<'3.8'",
 ]
 
+ray_extra_require = [
+    # Ray's dependency version must be kept in sync with what Cluster supports.
+    "ray[default] >= 2.4, < 2.5; python_version<'3.11'",
+    # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
+    "ray[default] >= 2.5, < 2.5.1; python_version>='3.11'",
+    "google-cloud-bigquery-storage",
+    "google-cloud-bigquery",
+    "pandas >= 1.0.0",
+    "pyarrow >= 6.0.1",
+    # Workaround for https://github.com/ray-project/ray/issues/36990.
+    # TODO(b/295406381): Remove this pin when we drop support of ray<=2.5.
+    "pydantic < 2",
+]
+
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -106,6 +127,7 @@ full_extra_require = list(
         + private_endpoints_extra_require
         + autologging_extra_require
         + preview_extra_require
+        + ray_extra_require
     )
 )
 testing_extra_require = (
@@ -123,6 +145,7 @@ testing_extra_require = (
         "torch >= 2.0.0; python_version>='3.8'",
         "torch; python_version<'3.8'",
         "xgboost",
+        "xgboost_ray",
     ]
 )
 
@@ -133,6 +156,8 @@ setuptools.setup(
     description=description,
     long_description=readme,
     packages=packages,
+    package_dir={"vertex_ray": "google/cloud/aiplatform/preview/vertex_ray"},
+    package_data={"": ["*.html.j2"]},
     entry_points={
         "console_scripts": [
             "tb-gcp-uploader=google.cloud.aiplatform.tensorboard.uploader_main:run_main"
@@ -171,6 +196,7 @@ setuptools.setup(
         "private_endpoints": private_endpoints_extra_require,
         "autologging": autologging_extra_require,
         "preview": preview_extra_require,
+        "ray": ray_extra_require,
     },
     python_requires=">=3.7",
     classifiers=[

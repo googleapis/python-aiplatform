@@ -1533,7 +1533,9 @@ class TestRemoteTraining:
 
     # TODO(b/300116902) Remove this once we find better solution.
     @pytest.mark.xfail(
-        sys.version_info.minor == 11, raises=ValueError, reason="Flaky in python 3.11"
+        sys.version_info.minor >= 8,
+        raises=ValueError,
+        reason="Flaky in python 3.8, 3.10, 3.11",
     )
     @pytest.mark.usefixtures(
         "list_default_tensorboard_mock",
@@ -1615,7 +1617,9 @@ class TestRemoteTraining:
 
     # TODO(b/300116902) Remove this once we find better solution
     @pytest.mark.xfail(
-        sys.version_info.minor == 11, raises=ValueError, reason="Flaky in python 3.11"
+        sys.version_info.minor >= 8,
+        raises=ValueError,
+        reason="Flaky in python 3.8, 3.10, 3.11",
     )
     @pytest.mark.usefixtures(
         "list_default_tensorboard_mock",

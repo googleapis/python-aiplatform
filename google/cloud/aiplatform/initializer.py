@@ -18,7 +18,7 @@
 
 from concurrent import futures
 import logging
-import pkg_resources  # Note this is used after copybara replacement
+import pkg_resources  # noqa: F401 # Note this is used after copybara replacement
 import os
 from typing import List, Optional, Type, TypeVar, Union
 
@@ -395,6 +395,7 @@ class _Config:
         api_base_path_override: Optional[str] = None,
         api_path_override: Optional[str] = None,
         appended_user_agent: Optional[List[str]] = None,
+        appended_gapic_version: Optional[str] = None,
     ) -> _TVertexAiServiceClientWithOverride:
         """Instantiates a given VertexAiServiceClient with optional
         overrides.
@@ -411,6 +412,8 @@ class _Config:
             appended_user_agent (List[str]):
                 Optional. User agent appended in the client info. If more than one, it will be
                 separated by spaces.
+            appended_gapic_version (str):
+                Optional. GAPIC version suffix appended in the client info.
         Returns:
             client: Instantiated Vertex AI Service client with optional overrides
         """
@@ -421,6 +424,9 @@ class _Config:
         user_agent = f"{constants.USER_AGENT_PRODUCT}/{gapic_version}"
         if appended_user_agent:
             user_agent = f"{user_agent} {' '.join(appended_user_agent)}"
+
+        if appended_gapic_version:
+            gapic_version = f"{gapic_version}+{appended_gapic_version}"
 
         client_info = gapic_v1.client_info.ClientInfo(
             gapic_version=gapic_version,
