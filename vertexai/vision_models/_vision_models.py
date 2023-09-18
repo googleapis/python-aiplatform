@@ -684,3 +684,35 @@ class MultiModalEmbeddingResponse:
     _prediction_response: Any
     image_embedding: Optional[List[float]] = None
     text_embedding: Optional[List[float]] = None
+
+
+class ImageTextModel(ImageCaptioningModel, ImageQnAModel):
+    """Generates text from images.
+
+    Examples::
+
+        model = ImageTextModel.from_pretrained("imagetext@001")
+        image = Image.load_from_file("image.png")
+
+        captions = model.get_captions(
+            image=image,
+            # Optional:
+            number_of_results=1,
+            language="en",
+        )
+
+        answers = model.ask_question(
+            image=image,
+            question="What color is the car in this image?",
+            # Optional:
+            number_of_results=1,
+        )
+    """
+
+    # NOTE: Using this ImageTextModel class is recommended over using ImageQnAModel or ImageCaptioningModel,
+    # since SDK Model Garden classes should follow the design pattern of exactly 1 SDK class to 1 Model Garden schema URI
+
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
+    _LAUNCH_STAGE = (
+        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
+    )

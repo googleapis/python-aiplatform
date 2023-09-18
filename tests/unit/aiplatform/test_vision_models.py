@@ -479,8 +479,8 @@ class ImageQnAModelTests:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_get_captions(self):
-        """Tests the image captioning model."""
+    def test_ask_question(self):
+        """Tests the image Q&A model."""
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -636,3 +636,91 @@ class TestMultiModalEmbeddingModels:
 
         assert not embedding_response.image_embedding
         assert embedding_response.text_embedding == test_embeddings
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class ImageTextModelTests:
+    """Unit tests for the image to text models."""
+
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_ask_question(self):
+        """Tests question answering with ImageTextModel."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_TEXT_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = ga_vision_models.ImageTextModel.from_pretrained("imagetext@001")
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/imagetext@001",
+            retry=base._DEFAULT_RETRY,
+        )
+
+        image_answers = [
+            "Black square",
+            "Black Square by Malevich",
+        ]
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.extend(image_answers)
+
+        image = generate_image_from_file()
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            actual_answers = model.ask_question(
+                image=image,
+                question="What is this painting?",
+                number_of_results=2,
+            )
+            assert actual_answers == image_answers
+
+    def test_get_captions(self):
+        """Tests image captioning with ImageTextModel."""
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model(_IMAGE_TEXT_PUBLISHER_MODEL_DICT),
+        ):
+            model = ga_vision_models.ImageTextModel.from_pretrained("imagetext@001")
+
+        image_captions = [
+            "Caption 1",
+            "Caption 2",
+        ]
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.extend(image_captions)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            image_path = os.path.join(temp_dir, "image.png")
+            pil_image = PIL_Image.new(mode="RGB", size=(100, 100))
+            pil_image.save(image_path, format="PNG")
+            image = vision_models.Image.load_from_file(image_path)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            actual_captions = model.get_captions(image=image, number_of_results=2)
+            assert actual_captions == image_captions

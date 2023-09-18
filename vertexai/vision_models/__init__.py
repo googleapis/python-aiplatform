@@ -18,6 +18,7 @@ from vertexai.vision_models._vision_models import (
     Image,
     ImageCaptioningModel,
     ImageQnAModel,
+    ImageTextModel,
     MultiModalEmbeddingModel,
     MultiModalEmbeddingResponse,
 )
@@ -26,6 +27,7 @@ __all__ = [
     "Image",
     "ImageCaptioningModel",
     "ImageQnAModel",
+    "ImageTextModel",
     "MultiModalEmbeddingModel",
     "MultiModalEmbeddingResponse",
 ]
