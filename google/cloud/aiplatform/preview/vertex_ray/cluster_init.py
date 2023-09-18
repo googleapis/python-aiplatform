@@ -249,7 +249,9 @@ def get_ray_cluster(cluster_resource_name: str) -> resources.Cluster:
     cluster = _gapic_utils.persistent_resource_to_cluster(persistent_resource=response)
     if cluster:
         return cluster
-    raise ValueError("[Ray on Vertex AI]: The cluster is not a Ray cluster.")
+    raise ValueError(
+        "[Ray on Vertex AI]: Please delete and recreate the cluster (The cluster is not a Ray cluster or the cluster image is outdated)."
+    )
 
 
 def list_ray_clusters() -> List[resources.Cluster]:

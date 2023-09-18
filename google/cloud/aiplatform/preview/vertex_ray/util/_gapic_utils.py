@@ -154,11 +154,18 @@ def persistent_resource_to_cluster(
     image_uri = persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
         "head-node"
     ]
-    if image_uri is None:
+    if not image_uri:
         image_uri = persistent_resource.resource_runtime_spec.ray_spec.image_uri
-    python_version, ray_version = _validation_utils.get_versions_from_image_uri(
-        image_uri
-    )
+    try:
+        python_version, ray_version = _validation_utils.get_versions_from_image_uri(
+            image_uri
+        )
+    except IndexError:
+        logging.info(
+            "[Ray on Vertex AI]: The image of cluster %s is outdated. It is recommended to delete and recreate the cluster to obtain the latest image.",
+            persistent_resource.name,
+        )
+        return
     cluster.python_version = python_version
     cluster.ray_version = ray_version
 
