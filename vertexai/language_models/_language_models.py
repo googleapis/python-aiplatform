@@ -96,6 +96,13 @@ class _PredictionRequest:
     parameters: Optional[Dict[str, Any]] = None
 
 
+@dataclasses.dataclass
+class _MultiInstancePredictionRequest:
+    """A multi-instance prediction request."""
+    instances: List[Dict[str, Any]]
+    parameters: Optional[Dict[str, Any]] = None
+
+
 class _TunableModelMixin(_LanguageModel):
     """Model that can be tuned."""
 
@@ -669,6 +676,45 @@ class _TextGenerationModel(_LanguageModel):
 
         return _parse_text_generation_model_response(prediction_response)
 
+    async def predict_async(
+        self,
+        prompt: str,
+        *,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> "TextGenerationResponse":
+        """Asynchronously gets model response for a single prompt.
+
+        Args:
+            prompt: Question to ask the model.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+
+        Returns:
+            A `TextGenerationResponse` object that contains the text produced by the model.
+        """
+        prediction_request = _create_text_generation_prediction_request(
+            prompt=prompt,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            stop_sequences=stop_sequences,
+        )
+
+        prediction_response = await self._endpoint.predict_async(
+            instances=[prediction_request.instance],
+            parameters=prediction_request.parameters,
+        )
+
+        return _parse_text_generation_model_response(prediction_response)
+
     def predict_streaming(
         self,
         prompt: str,
@@ -1065,19 +1111,20 @@ class TextEmbeddingModel(_LanguageModel):
         "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
     )
 
-    def get_embeddings(self,
+    def _prepare_text_embedding_request(
+        self,
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
-    ) -> List["TextEmbedding"]:
-        """Calculates embeddings for the given texts.
+    ) -> _MultiInstancePredictionRequest:
+        """Asynchronously calculates embeddings for the given texts.
 
         Args:
             texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
             auto_truncate(bool): Whether to automatically truncate long texts. Default: True.
 
         Returns:
-            A list of `TextEmbedding` objects.
+            A `_MultiInstancePredictionRequest` object.
         """
         instances = []
         for text in texts:
@@ -1093,23 +1140,92 @@ class TextEmbeddingModel(_LanguageModel):
                 raise TypeError(f"Unsupported text embedding input type: {text}.")
             instances.append(instance)
         parameters = {"autoTruncate": auto_truncate}
-
-        prediction_response = self._endpoint.predict(
+        return _MultiInstancePredictionRequest(
             instances=instances,
             parameters=parameters,
         )
 
+    def _parse_text_embedding_response(
+        self,
+        prediction_response: aiplatform.models.Prediction,
+        prediction_idx: int = 0,
+    ) -> "TextEmbedding":
+        """Parses the text embedding model response."""
+        prediction = prediction_response.predictions[prediction_idx]
+        embeddings = prediction["embeddings"]
+        statistics = embeddings["statistics"]
+        return TextEmbedding(
+            values=embeddings["values"],
+            statistics=TextEmbeddingStatistics(
+                token_count=statistics["token_count"],
+                truncated=statistics["truncated"],
+            ),
+            _prediction_response=prediction_response,
+        )
+
+    def get_embeddings(self,
+        texts: List[Union[str, TextEmbeddingInput]],
+        *,
+        auto_truncate: bool = True,
+    ) -> List["TextEmbedding"]:
+        """Calculates embeddings for the given texts.
+
+        Args:
+            texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
+            auto_truncate(bool): Whether to automatically truncate long texts. Default: True.
+
+        Returns:
+            A list of `TextEmbedding` objects.
+        """
+        prediction_request = self._prepare_text_embedding_request(
+            texts=texts,
+            auto_truncate=auto_truncate,
+        )
+
+        prediction_response = self._endpoint.predict(
+            instances=prediction_request.instances,
+            parameters=prediction_request.parameters,
+        )
+
         results = []
-        for prediction in prediction_response.predictions:
-            embeddings = prediction["embeddings"]
-            statistics = embeddings["statistics"]
-            result = TextEmbedding(
-                values=embeddings["values"],
-                statistics=TextEmbeddingStatistics(
-                    token_count=statistics["token_count"],
-                    truncated=statistics["truncated"],
-                ),
-                _prediction_response=prediction_response,
+        for prediction_idx in range(len(prediction_response.predictions)):
+            result = self._parse_text_embedding_response(
+                prediction_response=prediction_response,
+                prediction_idx=prediction_idx,
+            )
+            results.append(result)
+
+        return results
+
+    async def get_embeddings_async(self,
+        texts: List[Union[str, TextEmbeddingInput]],
+        *,
+        auto_truncate: bool = True,
+    ) -> List["TextEmbedding"]:
+        """Asynchronously calculates embeddings for the given texts.
+
+        Args:
+            texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
+            auto_truncate(bool): Whether to automatically truncate long texts. Default: True.
+
+        Returns:
+            A list of `TextEmbedding` objects.
+        """
+        prediction_request = self._prepare_text_embedding_request(
+            texts=texts,
+            auto_truncate=auto_truncate,
+        )
+
+        prediction_response = await self._endpoint.predict_async(
+            instances=prediction_request.instances,
+            parameters=prediction_request.parameters,
+        )
+
+        results = []
+        for prediction_idx in range(len(prediction_response.predictions)):
+            result = self._parse_text_embedding_response(
+                prediction_response=prediction_response,
+                prediction_idx=prediction_idx,
             )
             results.append(result)
 
@@ -1515,6 +1631,60 @@ class _ChatSessionBase:
 
         return response_obj
 
+    async def send_message_async(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> "TextGenerationResponse":
+        """Asynchronously sends message to the language model and gets a response.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+
+        Returns:
+            A `TextGenerationResponse` object that contains the text produced by the model.
+        """
+        prediction_request = self._prepare_request(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            stop_sequences=stop_sequences,
+        )
+
+        prediction_response = await self._model._endpoint.predict_async(
+            instances=[prediction_request.instance],
+            parameters=prediction_request.parameters,
+        )
+        response_obj = self._parse_chat_prediction_response(
+            prediction_response=prediction_response
+        )
+        response_text = response_obj.text
+
+        self._message_history.append(
+            ChatMessage(content=message, author=self.USER_AUTHOR)
+        )
+        self._message_history.append(
+            ChatMessage(content=response_text, author=self.MODEL_AUTHOR)
+        )
+
+        return response_obj
+
     def send_message_streaming(
         self,
         message: str,
@@ -1670,6 +1840,31 @@ class CodeChatSession(_ChatSessionBase):
             stop_sequences=stop_sequences,
         )
 
+    async def send_message_async(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+    ) -> "TextGenerationResponse":
+        """Asynchronously sends message to the code chat model and gets a response.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
+                Uses the value specified when calling `CodeChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+                 Uses the value specified when calling `CodeChatModel.start_chat` by default.
+
+        Returns:
+            A `TextGenerationResponse` object that contains the text produced by the model.
+        """
+        return super().send_message_async(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+        )
+
     def send_message_streaming(
         self,
         message: str,
@@ -1796,6 +1991,41 @@ class CodeGenerationModel(_LanguageModel):
         )
 
         prediction_response = self._endpoint.predict(
+            instances=[prediction_request.instance],
+            parameters=prediction_request.parameters,
+        )
+        return _parse_text_generation_model_response(prediction_response)
+
+    async def predict_async(
+        self,
+        prefix: str,
+        suffix: Optional[str] = None,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> "TextGenerationResponse":
+        """Asynchronously gets model response for a single prompt.
+
+        Args:
+            prefix: Code before the current point.
+            suffix: Code after the current point.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+            stop_sequences: Customized stop sequences to stop the decoding process.
+
+        Returns:
+            A `TextGenerationResponse` object that contains the text produced by the model.
+        """
+        prediction_request = self._create_prediction_request(
+            prefix=prefix,
+            suffix=suffix,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            stop_sequences=stop_sequences,
+        )
+
+        prediction_response = await self._endpoint.predict_async(
             instances=[prediction_request.instance],
             parameters=prediction_request.parameters,
         )

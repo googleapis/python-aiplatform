@@ -17,6 +17,9 @@
 
 # pylint: disable=protected-access, g-multiple-import
 
+import pytest
+
+
 from google.cloud import aiplatform
 from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state,
@@ -53,6 +56,22 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             top_k=5,
             stop_sequences=["# %%"],
         ).text
+
+    @pytest.mark.asyncio
+    async def test_text_generation_model_predict_async(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = TextGenerationModel.from_pretrained("google/text-bison@001")
+
+        response = await model.predict_async(
+            "What is the best recipe for banana bread? Recipe:",
+            max_output_tokens=128,
+            temperature=0.0,
+            top_p=1.0,
+            top_k=5,
+            stop_sequences=["# %%"],
+        )
+        assert response.text
 
     def test_text_generation_streaming(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
@@ -107,6 +126,46 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert chat.message_history[2].content == message2
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
+    @pytest.mark.asyncio
+    async def test_chat_model_async(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        chat_model = ChatModel.from_pretrained("google/chat-bison@001")
+        chat = chat_model.start_chat(
+            context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
+            examples=[
+                InputOutputTextPair(
+                    input_text="Who do you work for?",
+                    output_text="I work for Ned.",
+                ),
+                InputOutputTextPair(
+                    input_text="What do I like?",
+                    output_text="Ned likes watching movies.",
+                ),
+            ],
+            temperature=0.0,
+            stop_sequences=["# %%"],
+        )
+
+        message1 = "Are my favorite movies based on a book series?"
+        response1 = await chat.send_message_async(message1)
+        assert response1.text
+        assert len(chat.message_history) == 2
+        assert chat.message_history[0].author == chat.USER_AUTHOR
+        assert chat.message_history[0].content == message1
+        assert chat.message_history[1].author == chat.MODEL_AUTHOR
+
+        message2 = "When were these books published?"
+        response2 = await chat.send_message_async(
+            message2,
+            temperature=0.1,
+        )
+        assert response2.text
+        assert len(chat.message_history) == 4
+        assert chat.message_history[2].author == chat.USER_AUTHOR
+        assert chat.message_history[2].content == message2
+        assert chat.message_history[3].author == chat.MODEL_AUTHOR
+
     def test_chat_model_send_message_streaming(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
@@ -152,6 +211,23 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         # One short text, one llong text (to check truncation)
         texts = ["What is life?", "What is life?" * 1000]
         embeddings = model.get_embeddings(texts)
+        assert len(embeddings) == 2
+        assert len(embeddings[0].values) == 768
+        assert embeddings[0].statistics.token_count > 0
+        assert not embeddings[0].statistics.truncated
+
+        assert len(embeddings[1].values) == 768
+        assert embeddings[1].statistics.token_count > 1000
+        assert embeddings[1].statistics.truncated
+
+    @pytest.mark.asyncio
+    async def test_text_embedding_async(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = TextEmbeddingModel.from_pretrained("google/textembedding-gecko@001")
+        # One short text, one llong text (to check truncation)
+        texts = ["What is life?", "What is life?" * 1000]
+        embeddings = await model.get_embeddings_async(texts)
         assert len(embeddings) == 2
         assert len(embeddings[0].values) == 768
         assert embeddings[0].statistics.token_count > 0

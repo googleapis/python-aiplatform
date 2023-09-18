@@ -40,7 +40,10 @@ from google.cloud.aiplatform.compat.services import (
     model_service_client,
     pipeline_service_client,
 )
-from google.cloud.aiplatform.compat.services import prediction_service_client
+from google.cloud.aiplatform.compat.services import (
+    prediction_service_client,
+    prediction_service_async_client,
+)
 from google.cloud.aiplatform.compat.types import (
     artifact as gca_artifact,
     prediction_service as gca_prediction_service,
@@ -1272,6 +1275,49 @@ class TestLanguageModels:
         assert "temperature" not in prediction_parameters
         assert "topP" not in prediction_parameters
         assert "topK" not in prediction_parameters
+
+    @pytest.mark.asyncio
+    async def test_text_generation_async(self):
+        """Tests the text generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(_TEST_TEXT_GENERATION_PREDICTION)
+
+        with mock.patch.object(
+            target=prediction_service_async_client.PredictionServiceAsyncClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            response = await model.predict_async(
+                "What is the best recipe for banana bread? Recipe:",
+                max_output_tokens=128,
+                temperature=0.0,
+                top_p=1.0,
+                top_k=5,
+                stop_sequences=["\n"],
+            )
+
+        prediction_parameters = mock_predict.call_args[1]["parameters"]
+        assert prediction_parameters["maxDecodeSteps"] == 128
+        assert prediction_parameters["temperature"] == 0.0
+        assert prediction_parameters["topP"] == 1.0
+        assert prediction_parameters["topK"] == 5
+        assert prediction_parameters["stopSequences"] == ["\n"]
+        assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
 
     def test_text_generation_model_predict_streaming(self):
         """Tests the TextGenerationModel.predict_streaming method."""
