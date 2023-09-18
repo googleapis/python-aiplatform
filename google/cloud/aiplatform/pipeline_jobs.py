@@ -409,7 +409,7 @@ class PipelineJob(
                 credentials=self.credentials,
             )
         except:  # noqa: E722
-            _LOGGER._logger.exception(
+            _LOGGER.exception(
                 "Error when trying to get or create a GCS bucket for the pipeline output artifacts"
             )
 
