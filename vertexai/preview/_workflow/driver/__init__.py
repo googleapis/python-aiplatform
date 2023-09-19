@@ -197,17 +197,32 @@ def _unwrapper(instance: Any) -> Callable[..., Any]:
 
     config_map = dict()
 
-    for attr_name, attr_value in inspect.getmembers(instance):
-        if isinstance(attr_value, VertexRemoteFunctor):
-            config_map[attr_name] = (
-                attr_value.vertex,
-                attr_value._remote_executor,
-                attr_value._remote_executor_kwargs,
-            )
-            setattr(instance, attr_name, attr_value._method)
-
     if not wrapped_in_place:
+        for (
+            attr_name,
+            attr_value,
+            remote_executor,
+            remote_executor_kwargs,
+        ) in _supported_member_iter(instance):
+            if isinstance(attr_value, VertexRemoteFunctor):
+                config_map[attr_name] = (
+                    attr_value.vertex,
+                    remote_executor,
+                    remote_executor_kwargs,
+                )
+                setattr(instance, attr_name, attr_value._method)
+
         instance.__class__ = super_class
+
+    else:
+        for attr_name, attr_value in inspect.getmembers(instance):
+            if isinstance(attr_value, VertexRemoteFunctor):
+                config_map[attr_name] = (
+                    attr_value.vertex,
+                    attr_value._remote_executor,
+                    attr_value._remote_executor_kwargs,
+                )
+                setattr(instance, attr_name, attr_value._method)
 
     return functools.partial(
         _rewrapper, wrapped_class=current_class, config_map=config_map
