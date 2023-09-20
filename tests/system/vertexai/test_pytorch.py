@@ -18,12 +18,10 @@
 import os
 from unittest import mock
 
+from google.cloud import aiplatform
 import vertexai
 from tests.system.aiplatform import e2e_base
 from vertexai.preview._workflow.executor import training
-from vertexai.preview._workflow.serialization_engine import (
-    any_serializer,
-)
 from vertexai.preview._workflow.serialization_engine import (
     serializers,
 )
@@ -143,15 +141,27 @@ class TestRemoteExecutionPytorch(e2e_base.TestEndToEnd):
         model.train(train_loader, num_epochs=100, lr=0.05)
 
         # Assert the right serializer is being used
-        serializer = any_serializer.AnySerializer()
-        assert (
-            serializer._get_predefined_serializer(model.__class__.__mro__[2])
-            is serializers.TorchModelSerializer
+        remote_job = aiplatform.CustomJob.list(
+            filter=f'display_name="{model.train.vertex.remote_config.display_name}"'
+        )[0]
+        base_path = remote_job.job_spec.base_output_directory.output_uri_prefix
+
+        input_estimator_metadata = serializers._get_metadata(
+            os.path.join(base_path, "input/input_estimator")
         )
-        assert (
-            serializer._get_predefined_serializer(train_loader.__class__)
-            is serializers.TorchDataLoaderSerializer
+        assert input_estimator_metadata["serializer"] == "TorchModelSerializer"
+
+        output_estimator_metadata = serializers._get_metadata(
+            os.path.join(base_path, "output/output_estimator")
         )
+        assert output_estimator_metadata["serializer"] == "TorchModelSerializer"
+
+        train_loader_metadata = serializers._get_metadata(
+            os.path.join(base_path, "input/dataloader")
+        )
+        assert train_loader_metadata["serializer"] == "TorchDataLoaderSerializer"
+
+        shared_state["resources"] = [remote_job]
 
         # Remote prediction on Torch custom model
         model.predict.vertex.remote_config.display_name = self._make_display_name(
@@ -161,7 +171,7 @@ class TestRemoteExecutionPytorch(e2e_base.TestEndToEnd):
 
         # Register trained model
         registered_model = vertexai.preview.register(model)
-        shared_state["resources"] = [registered_model]
+        shared_state["resources"].append(registered_model)
 
         # Load the registered model
         pulled_model = vertexai.preview.from_pretrained(
@@ -175,12 +185,24 @@ class TestRemoteExecutionPytorch(e2e_base.TestEndToEnd):
         pulled_model.train(retrain_loader, num_epochs=100, lr=0.05)
 
         # Assert the right serializer is being used
-        serializer = any_serializer.AnySerializer()
-        assert (
-            serializer._get_predefined_serializer(pulled_model.__class__.__mro__[2])
-            is serializers.TorchModelSerializer
+        remote_job = aiplatform.CustomJob.list(
+            filter=f'display_name="{pulled_model.train.vertex.remote_config.display_name}"'
+        )[0]
+        base_path = remote_job.job_spec.base_output_directory.output_uri_prefix
+
+        input_estimator_metadata = serializers._get_metadata(
+            os.path.join(base_path, "input/input_estimator")
         )
-        assert (
-            serializer._get_predefined_serializer(retrain_loader.__class__)
-            is serializers.TorchDataLoaderSerializer
+        assert input_estimator_metadata["serializer"] == "TorchModelSerializer"
+
+        output_estimator_metadata = serializers._get_metadata(
+            os.path.join(base_path, "output/output_estimator")
         )
+        assert output_estimator_metadata["serializer"] == "TorchModelSerializer"
+
+        train_loader_metadata = serializers._get_metadata(
+            os.path.join(base_path, "input/dataloader")
+        )
+        assert train_loader_metadata["serializer"] == "TorchDataLoaderSerializer"
+
+        shared_state["resources"].append(remote_job)
