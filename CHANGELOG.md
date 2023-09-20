@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.33.1](https://github.com/googleapis/python-aiplatform/compare/v1.33.0...v1.33.1) (2023-09-20)
+
+
+### Bug Fixes
+
+* Lightning trainer fails to be unwrapped in remote training ([8271301](https://github.com/googleapis/python-aiplatform/commit/8271301454814b233a630d1c18ebe5e4833fcec2))
+
 ## [1.33.0](https://github.com/googleapis/python-aiplatform/compare/v1.32.0...v1.33.0) (2023-09-18)
 
 
