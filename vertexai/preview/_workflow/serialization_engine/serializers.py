@@ -25,7 +25,7 @@ import pathlib
 import pickle
 import shutil
 import tempfile
-from typing import Any, Optional, Union
+from typing import Any, Dict, Optional, Union
 import uuid
 
 from google.cloud.aiplatform.utils import gcs_utils
@@ -158,6 +158,20 @@ def get_metadata_path_from_file_gcs_uri(gcs_uri: str) -> str:
     )
 
 
+def _get_metadata(gcs_uri: str) -> Dict[str, Any]:
+    metadata_file = get_metadata_path_from_file_gcs_uri(gcs_uri)
+    if metadata_file.startswith("gs://"):
+        with tempfile.NamedTemporaryFile() as temp_file:
+            gcs_utils.download_file_from_gcs(metadata_file, temp_file.name)
+            with open(temp_file.name, mode="rb") as f:
+                metadata = json.load(f)
+    else:
+        with open(metadata_file, "rb") as f:
+            metadata = json.load(f)
+
+    return metadata
+
+
 def _is_valid_gcs_path(path: str) -> bool:
     """checks if a path is a valid gcs path.
 
@@ -245,8 +259,7 @@ class KerasModelSerializer(serializers_base.Serializer):
                     save_format=save_format,
                 )
                 gcs_utils.upload_to_gcs(
-                    temp_file_or_dir.name if is_file else temp_file_or_dir,
-                    gcs_path
+                    temp_file_or_dir.name if is_file else temp_file_or_dir, gcs_path
                 )
         else:
             to_serialize.save(gcs_path, save_format=save_format)
@@ -269,14 +282,8 @@ class KerasModelSerializer(serializers_base.Serializer):
         del kwargs
         if not _is_valid_gcs_path(serialized_gcs_path):
             raise ValueError(f"Invalid gcs path: {serialized_gcs_path}")
-        metadata_file = get_metadata_path_from_file_gcs_uri(serialized_gcs_path)
-        if metadata_file.startswith("gs://"):
-            with tempfile.NamedTemporaryFile(suffix=".json") as temp_file:
-                gcs_utils.download_file_from_gcs(metadata_file, temp_file.name)
-                metadata = json.load(temp_file)
-        else:
-            with open(metadata_file, "r") as f:
-                metadata = json.load(f)
+
+        metadata = _get_metadata(serialized_gcs_path)
         # For backward compatibility, if the metadata doesn't contain
         # save_format, we assume the model was saved as saved_model format.
         save_format = metadata.get("save_format", "tf")

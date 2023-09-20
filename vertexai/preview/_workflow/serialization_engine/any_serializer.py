@@ -18,11 +18,9 @@
 """Defines the Serializer classes."""
 import json
 import os
-import tempfile
 from typing import Any, Dict, Union, List, TypeVar, Type
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.utils import gcs_utils
 from vertexai.preview._workflow.serialization_engine import (
     serializers,
     serializers_base,
@@ -243,19 +241,7 @@ class AnySerializer(serializers_base.Serializer):
 
     def deserialize(self, serialized_gcs_path: str, **kwargs) -> T:
         """Routes the corresponding Serializer based on the metadata."""
-        metadata_path = serializers.get_metadata_path_from_file_gcs_uri(
-            serialized_gcs_path
-        )
-
-        if metadata_path.startswith("gs://"):
-            with tempfile.NamedTemporaryFile() as temp_file:
-                gcs_utils.download_file_from_gcs(metadata_path, temp_file.name)
-                with open(temp_file.name, mode="rb") as f:
-                    metadata = json.load(f)
-        else:
-            with open(metadata_path, mode="rb") as f:
-                metadata = json.load(f)
-
+        metadata = serializers._get_metadata(serialized_gcs_path)
         _LOGGER.debug(
             "deserializing from %s, metadata is %s", serialized_gcs_path, metadata
         )
