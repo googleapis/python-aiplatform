@@ -41,8 +41,8 @@ from ray.data.datasource.datasource import WriteResult
 from ray.types import ObjectRef
 
 
-_BQ_GAPIC_VERSION = bigquery.__version__ + "+vertex_ray"
-_BQS_GAPIC_VERSION = bigquery_storage.__version__ + "+vertex_ray"
+_BQ_GAPIC_VERSION = bigquery.version.__version__ + "+vertex_ray"
+_BQS_GAPIC_VERSION = bigquery_storage.gapic_version.__version__ + "+vertex_ray"
 bq_info = client_info.ClientInfo(
     gapic_version=_BQ_GAPIC_VERSION, user_agent=f"ray-on-vertex/{_BQ_GAPIC_VERSION}"
 )
