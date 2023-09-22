@@ -14,11 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import logging
 from typing import Dict
 from typing import Optional
 from google.cloud import aiplatform
-from google.cloud.aiplatform import base
 from ray import client_builder
 from .render import VertexRayTemplate
 from .util import _validation_utils
@@ -26,7 +25,6 @@ from .util import _gapic_utils
 
 
 VERTEX_SDK_VERSION = aiplatform.__version__
-_LOGGER = base.Logger(__name__)
 
 
 class _VertexRayClientContext(client_builder.ClientContext):
@@ -84,7 +82,7 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
         _validation_utils.valid_resource_name(address)
 
         self.vertex_address = address
-        _LOGGER.info(
+        logging.info(
             "[Ray on Vertex AI]: Using cluster resource name to access head address with GAPIC API"
         )
 
@@ -112,12 +110,12 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
                 address,
                 " failed to start Head node properly because custom service account isn't supported.",
             )
-        _LOGGER.debug("[Ray on Vertex AI]: Resolved head node ip: %s", address)
+        logging.debug("[Ray on Vertex AI]: Resolved head node ip: %s", address)
         super().__init__(address)
 
     def connect(self) -> _VertexRayClientContext:
         # Can send any other params to ray cluster here
-        _LOGGER.info("[Ray on Vertex AI]: Connecting...")
+        logging.info("[Ray on Vertex AI]: Connecting...")
         ray_client_context = super().connect()
         ray_head_uris = self.response.resource_runtime.access_uris
 

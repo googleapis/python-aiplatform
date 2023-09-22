@@ -74,7 +74,9 @@ datasets_extra_require = [
 ]
 
 vizier_extra_require = [
-    "google-vizier==0.0.4; python_version<'3.11'",
+    "google-vizier==0.0.4; python_version=='3.8'",
+    "google-vizier==0.0.11; python_version=='3.9'",
+    "google-vizier==0.0.11; python_version=='3.10'",
     "google-vizier>=0.1.6; python_version>='3.11'",
 ]
 

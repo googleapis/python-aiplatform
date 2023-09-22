@@ -421,12 +421,12 @@ class _Config:
             "google-cloud-aiplatform",
         ).version
 
+        if appended_gapic_version:
+            gapic_version = f"{gapic_version}+{appended_gapic_version}"
+
         user_agent = f"{constants.USER_AGENT_PRODUCT}/{gapic_version}"
         if appended_user_agent:
             user_agent = f"{user_agent} {' '.join(appended_user_agent)}"
-
-        if appended_gapic_version:
-            gapic_version = f"{gapic_version}+{appended_gapic_version}"
 
         client_info = gapic_v1.client_info.ClientInfo(
             gapic_version=gapic_version,
