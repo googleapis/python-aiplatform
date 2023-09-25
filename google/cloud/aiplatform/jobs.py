@@ -2883,6 +2883,7 @@ class ModelDeploymentMonitoringJob(_Job):
             ]
         ] = None,
         deployed_model_ids: Optional[List[str]] = None,
+        update_request_timeout: Optional[float] = None,
     ) -> "ModelDeploymentMonitoringJob":
         """Updates an existing ModelDeploymentMonitoringJob.
 
@@ -2939,6 +2940,8 @@ class ModelDeploymentMonitoringJob(_Job):
                 Optional. Use this argument to specify which deployed models to
                 apply the updated objective config to. If left unspecified, the same config
                 will be applied to all deployed models.
+            upate_request_timeout (float):
+                Optional. Timeout in seconds for the model monitoring job update request.
         """
         self._sync_gca_resource()
         current_job = copy.deepcopy(self._gca_resource)
@@ -2985,6 +2988,7 @@ class ModelDeploymentMonitoringJob(_Job):
         lro = self.api_client.update_model_deployment_monitoring_job(
             model_deployment_monitoring_job=current_job,
             update_mask=field_mask_pb2.FieldMask(paths=update_mask),
+            timeout=update_request_timeout,
         )
         self._gca_resource = lro.result()
         return self
