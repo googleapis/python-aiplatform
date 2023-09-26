@@ -16,6 +16,7 @@
 #
 
 import abc
+import asyncio
 import importlib
 import logging
 import os
@@ -204,3 +205,9 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
                     resource.delete()
             except exceptions.GoogleAPIError as e:
                 logging.error(f"Could not delete resource: {resource} due to: {e}")
+
+    @pytest.fixture(scope="session")
+    def event_loop(event_loop):
+        loop = asyncio.get_event_loop()
+        yield loop
+        loop.close()
