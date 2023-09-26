@@ -205,7 +205,7 @@ It must write the model artifact to the environment variable populated by the tr
                   accelerator_type='NVIDIA_TESLA_K80',
                   accelerator_count=1)
 
-In the code block above `my_dataset` is managed dataset created in the `Dataset` section above. The `model` variable is a managed Vertex AI model that can be deployed or exported.
+In the code block above `my_dataset` is a managed dataset created in the `Dataset` section above. The `model` variable is a managed Vertex AI model that can be deployed or exported.
 
 
 AutoMLs
