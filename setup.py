@@ -148,6 +148,7 @@ testing_extra_require = (
         "torch; python_version<'3.8'",
         "xgboost",
         "xgboost_ray",
+        "requests-toolbelt < 1.0.0",
     ]
 )
 
