@@ -506,8 +506,6 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
             VERTEX_AI_DEPENDENCY_PATH,
             "absl-py==1.4.0",
         ]
-    if bf:
-        vertex_requirements.append("bigframes==0.1.1")
 
     requirements = []
 

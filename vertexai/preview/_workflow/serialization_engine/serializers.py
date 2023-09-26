@@ -1124,7 +1124,7 @@ class BigframeSerializer(serializers_base.Serializer):
             raise ValueError(f"Invalid gcs path: {gcs_path}")
 
         BigframeSerializer._metadata.dependencies = (
-            supported_frameworks._get_deps_if_bigframe(to_serialize)
+            supported_frameworks._get_bigframe_deps()
         )
 
         # Check if index.name is default and set index.name if not
