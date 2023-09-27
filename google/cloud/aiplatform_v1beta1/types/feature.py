@@ -50,7 +50,7 @@ class Feature(proto.Message):
         description (str):
             Description of the Feature.
         value_type (google.cloud.aiplatform_v1beta1.types.Feature.ValueType):
-            Required. Immutable. Type of Feature value.
+            Immutable. Type of Feature value.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this EntityType
             was created.
