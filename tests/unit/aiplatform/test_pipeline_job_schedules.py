@@ -601,6 +601,91 @@ class TestPipelineJobSchedule:
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
+    def test_call_schedule_service_create_uses_pipeline_job_project_location(
+        self,
+        mock_schedule_service_create,
+        mock_schedule_service_get,
+        mock_schedule_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        """Creates a PipelineJobSchedule.
+
+        Tests that the PipelineJobSchedule is created in the same project and location as the PipelineJob.
+        """
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+            project="managed-pipeline-test",
+            location="europe-west4",
+        )
+
+        pipeline_job_schedule = pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+        )
+
+        assert pipeline_job_schedule.project == "managed-pipeline-test"
+        assert pipeline_job_schedule.location == "europe-west4"
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_call_schedule_service_create_uses_specified_project_location(
+        self,
+        mock_schedule_service_create,
+        mock_schedule_service_get,
+        mock_schedule_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        """Creates a PipelineJobSchedule.
+
+        Tests that PipelineJobSchedule is created in the specified project and location over the PipelineJob's.
+        """
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+        )
+
+        pipeline_job_schedule = pipeline_job_schedules.PipelineJobSchedule(
+            pipeline_job=job,
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+            project="managed-pipeline-test",
+            location="europe-west4",
+        )
+
+        assert job.project == _TEST_PROJECT
+        assert job.location == _TEST_LOCATION
+
+        assert pipeline_job_schedule.project == "managed-pipeline-test"
+        assert pipeline_job_schedule.location == "europe-west4"
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
     def test_call_schedule_service_create_with_different_timezone(
         self,
         mock_schedule_service_create,
@@ -1147,6 +1232,50 @@ class TestPipelineJobSchedule:
         assert pipeline_job_schedule._gca_resource == make_schedule(
             gca_schedule.Schedule.State.COMPLETED
         )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_call_pipeline_job_create_schedule_uses_pipeline_job_project_location(
+        self,
+        mock_schedule_service_create,
+        mock_schedule_service_get,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        """Creates a PipelineJobSchedule via PipelineJob.create_schedule().
+
+        Tests that the PipelineJobSchedule is created in the same project and location as the PipelineJob.
+        """
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+            project="managed-pipeline-test",
+            location="europe-west4",
+        )
+
+        pipeline_job_schedule = job.create_schedule(
+            display_name=_TEST_PIPELINE_JOB_SCHEDULE_DISPLAY_NAME,
+            cron=_TEST_PIPELINE_JOB_SCHEDULE_CRON,
+            max_concurrent_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_CONCURRENT_RUN_COUNT,
+            max_run_count=_TEST_PIPELINE_JOB_SCHEDULE_MAX_RUN_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        assert pipeline_job_schedule.project == "managed-pipeline-test"
+        assert pipeline_job_schedule.location == "europe-west4"
 
     @pytest.mark.usefixtures("mock_schedule_service_get")
     def test_get_schedule(self, mock_schedule_service_get):
