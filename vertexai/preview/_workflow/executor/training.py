@@ -19,6 +19,7 @@ import inspect
 import logging
 import os
 import re
+import sys
 import time
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import warnings
@@ -587,6 +588,12 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
     # serialize args
     for arg_name, arg_value in serialized_args.items():
         if supported_frameworks._is_bigframe(arg_value):
+            # Throw error for Python 3.11 + Bigframes Torch
+            if detected_framework == "torch" and sys.version_info[1] == 11:
+                raise ValueError(
+                    "Currently Bigframes Torch serializer does not support"
+                    "Python 3.11 since torcharrow is not supported on Python 3.11."
+                )
             serialization_metadata = serializer.serialize(
                 to_serialize=arg_value,
                 gcs_path=os.path.join(remote_job_input_path, f"{arg_name}"),
