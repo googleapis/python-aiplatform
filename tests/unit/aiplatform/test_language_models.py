@@ -1557,7 +1557,7 @@ class TestLanguageModels:
                 _CHAT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
+            model = language_models.ChatModel.from_pretrained("chat-bison@001")
 
             default_context = "Default context"
             tuning_job = model.tune_model(

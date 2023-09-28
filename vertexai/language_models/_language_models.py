@@ -1338,7 +1338,7 @@ class _ChatModelBase(_LanguageModel):
         )
 
 
-class ChatModel(_ChatModelBase):
+class ChatModel(_ChatModelBase, _TunableChatModelMixin):
     """ChatModel represents a language model that is capable of chat.
 
     Examples::
