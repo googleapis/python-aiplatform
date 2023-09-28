@@ -1354,6 +1354,17 @@ class TestLanguageModels:
             ):
                 assert len(response.text) > 10
 
+    def test_text_generation_response_repr(self):
+        response = language_models.TextGenerationResponse(
+            text="",
+            is_blocked=True,
+            safety_attributes={"Violent": 0.1},
+            _prediction_response=None,
+        )
+        response_repr = repr(response)
+        assert "blocked" in response_repr
+        assert "Violent" in response_repr
+
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_JOB],
@@ -1546,7 +1557,7 @@ class TestLanguageModels:
                 _CHAT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
+            model = language_models.ChatModel.from_pretrained("chat-bison@001")
 
             default_context = "Default context"
             tuning_job = model.tune_model(

@@ -74,15 +74,17 @@ class PipelineJobSchedule(
                 Overrides credentials set in aiplatform.init.
             project (str):
                 Optional. The project that you want to run this PipelineJobSchedule in.
-                If not set, the project set in aiplatform.init will be used.
+                If not set, the project used for the PipelineJob will be used.
             location (str):
                 Optional. Location to create PipelineJobSchedule. If not set,
-                location set in aiplatform.init will be used.
+                location used for the PipelineJob will be used.
         """
         if not display_name:
             display_name = self.__class__._generate_display_name()
         utils.validate_display_name(display_name)
 
+        project = project or pipeline_job.project
+        location = location or pipeline_job.location
         super().__init__(credentials=credentials, project=project, location=location)
 
         self._parent = initializer.global_config.common_location_path(
