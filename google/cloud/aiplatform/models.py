@@ -143,6 +143,8 @@ class Prediction(NamedTuple):
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
         deployed_model_id:
             ID of the Endpoint's DeployedModel that served this prediction.
+        metadata:
+            The metadata that are the output of the predictions call.
         model_version_id:
             ID of the DeployedModel's version that served this prediction.
         model_resource_name:
@@ -154,6 +156,7 @@ class Prediction(NamedTuple):
 
     predictions: List[Any]
     deployed_model_id: str
+    metadata: Optional[Any] = None
     model_version_id: Optional[str] = None
     model_resource_name: Optional[str] = None
     explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
@@ -1566,12 +1569,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 parameters=parameters,
                 timeout=timeout,
             )
+            metadata = json_format.MessageToDict(prediction_response._pb)["metadata"]
 
             return Prediction(
                 predictions=[
                     json_format.MessageToDict(item)
                     for item in prediction_response.predictions.pb
                 ],
+                metadata=metadata,
                 deployed_model_id=prediction_response.deployed_model_id,
                 model_version_id=prediction_response.model_version_id,
                 model_resource_name=prediction_response.model,
