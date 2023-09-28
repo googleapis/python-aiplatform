@@ -613,7 +613,17 @@ class TextGenerationResponse:
     safety_attributes: Dict[str, float] = dataclasses.field(default_factory=dict)
 
     def __repr__(self):
-        return self.text
+        if self.text:
+            return self.text
+        else:
+            # Falling back to the full representation
+            return (
+                "TextGenerationResponse("
+                f"text={self.text!r}"
+                f", is_blocked={self.is_blocked!r}"
+                f", safety_attributes={self.safety_attributes!r}"
+                ")"
+            )
 
     @property
     def raw_prediction_response(self) -> aiplatform.models.Prediction:
