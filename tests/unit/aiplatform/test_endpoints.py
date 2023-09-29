@@ -91,6 +91,7 @@ _TEST_VERSION_ID = test_constants.EndpointConstants._TEST_VERSION_ID
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
 _TEST_MODEL_ID = test_constants.EndpointConstants._TEST_MODEL_ID
+_TEST_METADATA = {"foo": "bar"}
 _TEST_PREDICTION = test_constants.EndpointConstants._TEST_PREDICTION
 _TEST_INSTANCES = [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
@@ -458,6 +459,7 @@ def predict_client_predict_mock():
     ) as predict_mock:
         predict_mock.return_value = gca_prediction_service.PredictResponse(
             deployed_model_id=_TEST_MODEL_ID,
+            metadata=_TEST_METADATA,
             model_version_id=_TEST_VERSION_ID,
             model=_TEST_MODEL_NAME,
         )
@@ -469,6 +471,7 @@ def predict_client_predict_mock():
 def predict_async_client_predict_mock():
     response = gca_prediction_service.PredictResponse(
         deployed_model_id=_TEST_MODEL_ID,
+        metadata=_TEST_METADATA,
         model_version_id=_TEST_VERSION_ID,
         model=_TEST_MODEL_NAME,
     )
@@ -1851,6 +1854,7 @@ class TestEndpoint:
         true_prediction = models.Prediction(
             predictions=_TEST_PREDICTION,
             deployed_model_id=_TEST_ID,
+            metadata=_TEST_METADATA,
             model_version_id=_TEST_VERSION_ID,
             model_resource_name=_TEST_MODEL_NAME,
         )
@@ -1875,6 +1879,7 @@ class TestEndpoint:
         true_prediction = models.Prediction(
             predictions=_TEST_PREDICTION,
             deployed_model_id=_TEST_ID,
+            metadata=_TEST_METADATA,
             model_version_id=_TEST_VERSION_ID,
             model_resource_name=_TEST_MODEL_NAME,
         )
