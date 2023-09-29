@@ -108,6 +108,7 @@ if has_generator_updates:
         templated_files,
         excludes=[
             ".coveragerc",
+            ".pre-commit-config.yaml",
             ".kokoro/continuous/common.cfg",
             ".kokoro/presubmit/presubmit.cfg",
             ".kokoro/continuous/prerelease-deps.cfg",
