@@ -1856,12 +1856,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 client = aiplatform_v1beta1.FeaturestoreServiceClient()
 
                 # Initialize request argument(s)
-                feature = aiplatform_v1beta1.Feature()
-                feature.value_type = "BYTES"
-
                 request = aiplatform_v1beta1.CreateFeatureRequest(
                     parent="parent_value",
-                    feature=feature,
                     feature_id="feature_id_value",
                 )
 
@@ -1879,10 +1875,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.CreateFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.CreateFeature].
+                Request message for
+                [FeatureRegistryService.CreateFeature][google.cloud.aiplatform.v1beta1.FeatureRegistryService.CreateFeature].
             parent (str):
-                Required. The resource name of the EntityType to create
-                a Feature. Format:
+                The resource name of the EntityType or FeatureGroup to
+                create a Feature. Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1901,7 +1900,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 characters are ``[a-z0-9_]``. The first character cannot
                 be a number.
 
-                The value must be unique within an EntityType.
+                The value must be unique within an
+                EntityType/FeatureGroup.
 
                 This corresponds to the ``feature_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2009,7 +2009,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 # Initialize request argument(s)
                 requests = aiplatform_v1beta1.CreateFeatureRequest()
                 requests.parent = "parent_value"
-                requests.feature.value_type = "BYTES"
                 requests.feature_id = "feature_id_value"
 
                 request = aiplatform_v1beta1.BatchCreateFeaturesRequest(
@@ -2157,9 +2156,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             request (Union[google.cloud.aiplatform_v1beta1.types.GetFeatureRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.GetFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.GetFeature].
+                Request message for
+                [FeatureRegistryService.GetFeature][google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeature].
             name (str):
                 Required. The name of the Feature resource. Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2263,10 +2265,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             request (Union[google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures].
+                Request message for
+                [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatures].
             parent (str):
                 Required. The resource name of the Location to list
                 Features. Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2281,6 +2286,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             google.cloud.aiplatform_v1beta1.services.featurestore_service.pagers.ListFeaturesPager:
                 Response message for
                    [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures].
+                   Response message for
+                   [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatures].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2367,11 +2374,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 client = aiplatform_v1beta1.FeaturestoreServiceClient()
 
                 # Initialize request argument(s)
-                feature = aiplatform_v1beta1.Feature()
-                feature.value_type = "BYTES"
-
                 request = aiplatform_v1beta1.UpdateFeatureRequest(
-                    feature=feature,
                 )
 
                 # Make the request
@@ -2384,10 +2387,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateFeatureRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.UpdateFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.UpdateFeature].
+                Request message for
+                [FeatureRegistryService.UpdateFeature][google.cloud.aiplatform.v1beta1.FeatureRegistryService.UpdateFeature].
             feature (google.cloud.aiplatform_v1beta1.types.Feature):
                 Required. The Feature's ``name`` field is used to
                 identify the Feature to be updated. Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}``
 
                 This corresponds to the ``feature`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2519,10 +2525,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteFeatureRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.DeleteFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeature].
+                Request message for
+                [FeatureRegistryService.DeleteFeature][google.cloud.aiplatform.v1beta1.FeatureRegistryService.DeleteFeature].
             name (str):
                 Required. The name of the Features to be deleted.
                 Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this

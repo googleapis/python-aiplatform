@@ -108,21 +108,28 @@ if has_generator_updates:
         templated_files,
         excludes=[
             ".coveragerc",
+            ".pre-commit-config.yaml",
             ".kokoro/continuous/common.cfg",
             ".kokoro/presubmit/presubmit.cfg",
             ".kokoro/continuous/prerelease-deps.cfg",
             ".kokoro/presubmit/prerelease-deps.cfg",
             # exclude sample configs so periodic samples are tested against main
             # instead of pypi
+            ".kokoro/samples/python3.7/common.cfg",
+            ".kokoro/samples/python3.8/common.cfg",
+            ".kokoro/samples/python3.9/common.cfg",
+            ".kokoro/samples/python3.10/common.cfg",
+            ".kokoro/samples/python3.11/common.cfg",
+            ".kokoro/samples/python3.7/periodic.cfg",
             ".kokoro/samples/python3.8/periodic.cfg",
             ".kokoro/samples/python3.9/periodic.cfg",
             ".kokoro/samples/python3.10/periodic.cfg",
+            ".kokoro/samples/python3.11/periodic.cfg",
             ".github/CODEOWNERS",
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/workflows",  # exclude gh actions as credentials are needed for tests
             "README.rst",
             ".github/release-please.yml", # use release please manifest
-            ".kokoro/samples",
             "noxfile.py",
             "testing",
             "docs/conf.py",

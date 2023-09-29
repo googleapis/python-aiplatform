@@ -28,6 +28,16 @@ from .services.deployment_resource_pool_service import (
 )
 from .services.endpoint_service import EndpointServiceClient
 from .services.endpoint_service import EndpointServiceAsyncClient
+from .services.feature_online_store_admin_service import (
+    FeatureOnlineStoreAdminServiceClient,
+)
+from .services.feature_online_store_admin_service import (
+    FeatureOnlineStoreAdminServiceAsyncClient,
+)
+from .services.feature_online_store_service import FeatureOnlineStoreServiceClient
+from .services.feature_online_store_service import FeatureOnlineStoreServiceAsyncClient
+from .services.feature_registry_service import FeatureRegistryServiceClient
+from .services.feature_registry_service import FeatureRegistryServiceAsyncClient
 from .services.featurestore_online_serving_service import (
     FeaturestoreOnlineServingServiceClient,
 )
@@ -179,9 +189,54 @@ from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
 from .types.explanation_metadata import ExplanationMetadata
 from .types.feature import Feature
+from .types.feature_group import FeatureGroup
 from .types.feature_monitoring_stats import FeatureStatsAnomaly
+from .types.feature_online_store import FeatureOnlineStore
+from .types.feature_online_store_admin_service import (
+    CreateFeatureOnlineStoreOperationMetadata,
+)
+from .types.feature_online_store_admin_service import CreateFeatureOnlineStoreRequest
+from .types.feature_online_store_admin_service import CreateFeatureViewOperationMetadata
+from .types.feature_online_store_admin_service import CreateFeatureViewRequest
+from .types.feature_online_store_admin_service import DeleteFeatureOnlineStoreRequest
+from .types.feature_online_store_admin_service import DeleteFeatureViewRequest
+from .types.feature_online_store_admin_service import GetFeatureOnlineStoreRequest
+from .types.feature_online_store_admin_service import GetFeatureViewRequest
+from .types.feature_online_store_admin_service import GetFeatureViewSyncRequest
+from .types.feature_online_store_admin_service import ListFeatureOnlineStoresRequest
+from .types.feature_online_store_admin_service import ListFeatureOnlineStoresResponse
+from .types.feature_online_store_admin_service import ListFeatureViewsRequest
+from .types.feature_online_store_admin_service import ListFeatureViewsResponse
+from .types.feature_online_store_admin_service import ListFeatureViewSyncsRequest
+from .types.feature_online_store_admin_service import ListFeatureViewSyncsResponse
+from .types.feature_online_store_admin_service import SyncFeatureViewRequest
+from .types.feature_online_store_admin_service import SyncFeatureViewResponse
+from .types.feature_online_store_admin_service import (
+    UpdateFeatureOnlineStoreOperationMetadata,
+)
+from .types.feature_online_store_admin_service import UpdateFeatureOnlineStoreRequest
+from .types.feature_online_store_admin_service import UpdateFeatureViewOperationMetadata
+from .types.feature_online_store_admin_service import UpdateFeatureViewRequest
+from .types.feature_online_store_service import FetchFeatureValuesRequest
+from .types.feature_online_store_service import FetchFeatureValuesResponse
+from .types.feature_online_store_service import NearestNeighborQuery
+from .types.feature_online_store_service import NearestNeighbors
+from .types.feature_online_store_service import SearchNearestEntitiesRequest
+from .types.feature_online_store_service import SearchNearestEntitiesResponse
+from .types.feature_registry_service import CreateFeatureGroupOperationMetadata
+from .types.feature_registry_service import CreateFeatureGroupRequest
+from .types.feature_registry_service import CreateRegistryFeatureOperationMetadata
+from .types.feature_registry_service import DeleteFeatureGroupRequest
+from .types.feature_registry_service import GetFeatureGroupRequest
+from .types.feature_registry_service import ListFeatureGroupsRequest
+from .types.feature_registry_service import ListFeatureGroupsResponse
+from .types.feature_registry_service import UpdateFeatureGroupOperationMetadata
+from .types.feature_registry_service import UpdateFeatureGroupRequest
+from .types.feature_registry_service import UpdateFeatureOperationMetadata
 from .types.feature_selector import FeatureSelector
 from .types.feature_selector import IdMatcher
+from .types.feature_view import FeatureView
+from .types.feature_view_sync import FeatureViewSync
 from .types.featurestore import Featurestore
 from .types.featurestore_monitoring import FeaturestoreMonitoringConfig
 from .types.featurestore_online_service import FeatureValue
@@ -633,6 +688,9 @@ __all__ = (
     "DatasetServiceAsyncClient",
     "DeploymentResourcePoolServiceAsyncClient",
     "EndpointServiceAsyncClient",
+    "FeatureOnlineStoreAdminServiceAsyncClient",
+    "FeatureOnlineStoreServiceAsyncClient",
+    "FeatureRegistryServiceAsyncClient",
     "FeaturestoreOnlineServingServiceAsyncClient",
     "FeaturestoreServiceAsyncClient",
     "IndexEndpointServiceAsyncClient",
@@ -726,8 +784,14 @@ __all__ = (
     "CreateEntityTypeOperationMetadata",
     "CreateEntityTypeRequest",
     "CreateExecutionRequest",
+    "CreateFeatureGroupOperationMetadata",
+    "CreateFeatureGroupRequest",
+    "CreateFeatureOnlineStoreOperationMetadata",
+    "CreateFeatureOnlineStoreRequest",
     "CreateFeatureOperationMetadata",
     "CreateFeatureRequest",
+    "CreateFeatureViewOperationMetadata",
+    "CreateFeatureViewRequest",
     "CreateFeaturestoreOperationMetadata",
     "CreateFeaturestoreRequest",
     "CreateHyperparameterTuningJobRequest",
@@ -743,6 +807,7 @@ __all__ = (
     "CreatePersistentResourceOperationMetadata",
     "CreatePersistentResourceRequest",
     "CreatePipelineJobRequest",
+    "CreateRegistryFeatureOperationMetadata",
     "CreateScheduleRequest",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
@@ -774,10 +839,13 @@ __all__ = (
     "DeleteEndpointRequest",
     "DeleteEntityTypeRequest",
     "DeleteExecutionRequest",
+    "DeleteFeatureGroupRequest",
+    "DeleteFeatureOnlineStoreRequest",
     "DeleteFeatureRequest",
     "DeleteFeatureValuesOperationMetadata",
     "DeleteFeatureValuesRequest",
     "DeleteFeatureValuesResponse",
+    "DeleteFeatureViewRequest",
     "DeleteFeaturestoreRequest",
     "DeleteHyperparameterTuningJobRequest",
     "DeleteIndexEndpointRequest",
@@ -853,16 +921,25 @@ __all__ = (
     "ExportTensorboardTimeSeriesDataRequest",
     "ExportTensorboardTimeSeriesDataResponse",
     "Feature",
+    "FeatureGroup",
     "FeatureNoiseSigma",
+    "FeatureOnlineStore",
+    "FeatureOnlineStoreAdminServiceClient",
+    "FeatureOnlineStoreServiceClient",
+    "FeatureRegistryServiceClient",
     "FeatureSelector",
     "FeatureStatsAnomaly",
     "FeatureValue",
     "FeatureValueDestination",
     "FeatureValueList",
+    "FeatureView",
+    "FeatureViewSync",
     "Featurestore",
     "FeaturestoreMonitoringConfig",
     "FeaturestoreOnlineServingServiceClient",
     "FeaturestoreServiceClient",
+    "FetchFeatureValuesRequest",
+    "FetchFeatureValuesResponse",
     "FilterSplit",
     "FindNeighborsRequest",
     "FindNeighborsResponse",
@@ -881,7 +958,11 @@ __all__ = (
     "GetEndpointRequest",
     "GetEntityTypeRequest",
     "GetExecutionRequest",
+    "GetFeatureGroupRequest",
+    "GetFeatureOnlineStoreRequest",
     "GetFeatureRequest",
+    "GetFeatureViewRequest",
+    "GetFeatureViewSyncRequest",
     "GetFeaturestoreRequest",
     "GetHyperparameterTuningJobRequest",
     "GetIndexEndpointRequest",
@@ -954,6 +1035,14 @@ __all__ = (
     "ListEntityTypesResponse",
     "ListExecutionsRequest",
     "ListExecutionsResponse",
+    "ListFeatureGroupsRequest",
+    "ListFeatureGroupsResponse",
+    "ListFeatureOnlineStoresRequest",
+    "ListFeatureOnlineStoresResponse",
+    "ListFeatureViewSyncsRequest",
+    "ListFeatureViewSyncsResponse",
+    "ListFeatureViewsRequest",
+    "ListFeatureViewsResponse",
     "ListFeaturesRequest",
     "ListFeaturesResponse",
     "ListFeaturestoresRequest",
@@ -1049,7 +1138,9 @@ __all__ = (
     "NasJobSpec",
     "NasTrial",
     "NasTrialDetail",
+    "NearestNeighborQuery",
     "NearestNeighborSearchOperationMetadata",
+    "NearestNeighbors",
     "Neighbor",
     "NfsMount",
     "PauseModelDeploymentMonitoringJobRequest",
@@ -1133,6 +1224,8 @@ __all__ = (
     "SearchMigratableResourcesResponse",
     "SearchModelDeploymentMonitoringStatsAnomaliesRequest",
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
+    "SearchNearestEntitiesRequest",
+    "SearchNearestEntitiesResponse",
     "ServiceAccountSpec",
     "SmoothGradConfig",
     "SpecialistPool",
@@ -1148,6 +1241,8 @@ __all__ = (
     "SuggestTrialsMetadata",
     "SuggestTrialsRequest",
     "SuggestTrialsResponse",
+    "SyncFeatureViewRequest",
+    "SyncFeatureViewResponse",
     "TFRecordDestination",
     "Tensor",
     "Tensorboard",
@@ -1183,7 +1278,14 @@ __all__ = (
     "UpdateExplanationDatasetOperationMetadata",
     "UpdateExplanationDatasetRequest",
     "UpdateExplanationDatasetResponse",
+    "UpdateFeatureGroupOperationMetadata",
+    "UpdateFeatureGroupRequest",
+    "UpdateFeatureOnlineStoreOperationMetadata",
+    "UpdateFeatureOnlineStoreRequest",
+    "UpdateFeatureOperationMetadata",
     "UpdateFeatureRequest",
+    "UpdateFeatureViewOperationMetadata",
+    "UpdateFeatureViewRequest",
     "UpdateFeaturestoreOperationMetadata",
     "UpdateFeaturestoreRequest",
     "UpdateIndexEndpointRequest",

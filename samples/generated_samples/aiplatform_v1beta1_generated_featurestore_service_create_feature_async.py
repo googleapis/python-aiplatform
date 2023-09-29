@@ -39,12 +39,8 @@ async def sample_create_feature():
     client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
     # Initialize request argument(s)
-    feature = aiplatform_v1beta1.Feature()
-    feature.value_type = "BYTES"
-
     request = aiplatform_v1beta1.CreateFeatureRequest(
         parent="parent_value",
-        feature=feature,
         feature_id="feature_id_value",
     )
 
