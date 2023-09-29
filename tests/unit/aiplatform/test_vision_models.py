@@ -39,8 +39,11 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.compat.types import (
     publisher_model as gca_publisher_model,
 )
+import vertexai
 from vertexai import vision_models as ga_vision_models
-from vertexai.preview import vision_models
+from vertexai.preview import (
+    vision_models as preview_vision_models,
+)
 
 from PIL import Image as PIL_Image
 import pytest
@@ -121,12 +124,12 @@ def make_image_upscale_response(upscale_size: int) -> Dict[str, Any]:
 
 def generate_image_from_file(
     width: int = 100, height: int = 100
-) -> vision_models.Image:
+) -> ga_vision_models.Image:
     with tempfile.TemporaryDirectory() as temp_dir:
         image_path = os.path.join(temp_dir, "image.png")
         pil_image = PIL_Image.new(mode="RGB", size=(width, height))
         pil_image.save(image_path, format="PNG")
-        return vision_models.Image.load_from_file(image_path)
+        return ga_vision_models.Image.load_from_file(image_path)
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -140,7 +143,7 @@ class TestImageGenerationModels:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def _get_image_generation_model(self) -> vision_models.ImageGenerationModel:
+    def _get_image_generation_model(self) -> preview_vision_models.ImageGenerationModel:
         """Gets the image generation model."""
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -153,7 +156,7 @@ class TestImageGenerationModels:
                 _IMAGE_GENERATION_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = vision_models.ImageGenerationModel.from_pretrained(
+            model = preview_vision_models.ImageGenerationModel.from_pretrained(
                 "imagegeneration@002"
             )
 
@@ -164,8 +167,43 @@ class TestImageGenerationModels:
 
         return model
 
+    def _get_preview_image_generation_model_top_level_from_pretrained(
+        self,
+    ) -> preview_vision_models.ImageGenerationModel:
+        """Gets the image generation model from the top-level vertexai.preview.from_pretrained method."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_GENERATION_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = vertexai.preview.from_pretrained(
+                foundation_model_name="imagegeneration@002"
+            )
+
+        mock_get_publisher_model.assert_called_with(
+            name="publishers/google/models/imagegeneration@002",
+            retry=base._DEFAULT_RETRY,
+        )
+
+        assert mock_get_publisher_model.call_count == 1
+
+        return model
+
     def test_from_pretrained(self):
         model = self._get_image_generation_model()
+        assert (
+            model._endpoint_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/imagegeneration@002"
+        )
+
+    def test_top_level_from_pretrained_preview(self):
+        model = self._get_preview_image_generation_model_top_level_from_pretrained()
         assert (
             model._endpoint_name
             == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/imagegeneration@002"
@@ -238,7 +276,7 @@ class TestImageGenerationModels:
         with tempfile.TemporaryDirectory() as temp_dir:
             image_path = os.path.join(temp_dir, "image.png")
             image_response[0].save(location=image_path)
-            image1 = vision_models.GeneratedImage.load_from_file(image_path)
+            image1 = preview_vision_models.GeneratedImage.load_from_file(image_path)
             # assert image1._pil_image.size == (width, height)
             assert image1.generation_parameters
             assert image1.generation_parameters["prompt"] == prompt1
@@ -247,7 +285,7 @@ class TestImageGenerationModels:
             mask_path = os.path.join(temp_dir, "mask.png")
             mask_pil_image = PIL_Image.new(mode="RGB", size=image1._pil_image.size)
             mask_pil_image.save(mask_path, format="PNG")
-            mask_image = vision_models.Image.load_from_file(mask_path)
+            mask_image = preview_vision_models.Image.load_from_file(mask_path)
 
         # Test generating image from base image
         with mock.patch.object(
@@ -408,7 +446,7 @@ class TestImageGenerationModels:
             assert image_upscale_parameters["mode"] == "upscale"
 
             assert upscaled_image._image_bytes
-            assert isinstance(upscaled_image, vision_models.GeneratedImage)
+            assert isinstance(upscaled_image, preview_vision_models.GeneratedImage)
 
     def test_upscale_image_raises_if_not_1024x1024(self):
         """Tests image upscaling on generated images."""
@@ -457,7 +495,7 @@ class ImageCaptioningModelTests:
             image_path = os.path.join(temp_dir, "image.png")
             pil_image = PIL_Image.new(mode="RGB", size=(100, 100))
             pil_image.save(image_path, format="PNG")
-            image = vision_models.Image.load_from_file(image_path)
+            image = preview_vision_models.Image.load_from_file(image_path)
 
         with mock.patch.object(
             target=prediction_service_client.PredictionServiceClient,
@@ -544,7 +582,7 @@ class TestMultiModalEmbeddingModels:
                 _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
             ),
         ) as mock_get_publisher_model:
-            model = vision_models.MultiModalEmbeddingModel.from_pretrained(
+            model = preview_vision_models.MultiModalEmbeddingModel.from_pretrained(
                 "multimodalembedding@001"
             )
 
@@ -583,7 +621,7 @@ class TestMultiModalEmbeddingModels:
                 _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = vision_models.MultiModalEmbeddingModel.from_pretrained(
+            model = preview_vision_models.MultiModalEmbeddingModel.from_pretrained(
                 "multimodalembedding@001"
             )
 
@@ -715,7 +753,7 @@ class ImageTextModelTests:
             image_path = os.path.join(temp_dir, "image.png")
             pil_image = PIL_Image.new(mode="RGB", size=(100, 100))
             pil_image.save(image_path, format="PNG")
-            image = vision_models.Image.load_from_file(image_path)
+            image = preview_vision_models.Image.load_from_file(image_path)
 
         with mock.patch.object(
             target=prediction_service_client.PredictionServiceClient,

@@ -22,7 +22,8 @@ to local for uptraining.
 """
 
 import os
-from typing import Any, Optional, Union
+import re
+from typing import Any, Dict, Optional, Union
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -34,6 +35,16 @@ from vertexai.preview._workflow.serialization_engine import (
     any_serializer,
     serializers_base,
 )
+
+# These need to be imported to be included in _ModelGardenModel.__init_subclass__
+from vertexai.language_models import (
+    _language_models,
+)  # pylint:disable=unused-import
+from vertexai.vision_models import (
+    _vision_models,
+)  # pylint:disable=unused-import
+from vertexai._model_garden import _model_garden_models
+from google.cloud.aiplatform import _publisher_models
 from vertexai.preview._workflow.executor import training
 from google.cloud.aiplatform.compat.types import job_state as gca_job_state
 
@@ -236,6 +247,61 @@ def _register_pytorch_model(
     return vertex_model
 
 
+def _get_publisher_model_resource(
+    short_model_name: str,
+) -> _publisher_models._PublisherModel:
+    """Gets the PublisherModel resource from the short model name.
+
+    Args:
+        short_model_name (str):
+            Required. The short name for the model, for example 'text-bison@001'
+
+    Returns:
+        A _PublisherModel instance pointing to the PublisherModel resource for
+        this model.
+
+    Raises:
+        ValueError:
+            If no PublisherModel resource was found for the given short_model_name.
+    """
+
+    if "/" not in short_model_name:
+        short_model_name = "publishers/google/models/" + short_model_name
+
+    try:
+        publisher_model_resource = _publisher_models._PublisherModel(
+            resource_name=short_model_name
+        )
+        return publisher_model_resource
+    except:  # noqa: E722
+        raise ValueError("Please provide a valid Model Garden model resource.")
+
+
+def _check_from_pretrained_passed_exactly_one_arg(fn_args: Dict[str, Any]) -> None:
+    """Checks exactly one argument was passed to from_pretrained.
+
+    This supports an expanding number of arguments added to from_pretrained.
+
+    Args:
+        fn_args (Dict[str, Any]):
+            Required. A dictionary of the arguments passed to from_pretrained.
+
+    Raises:
+        ValueError:
+            If more than one arg or no args were passed to from_pretrained.
+    """
+
+    passed_args = 0
+
+    for _, argval in fn_args.items():
+        if argval is not None:
+            passed_args += 1
+    if passed_args != 1:
+        raise ValueError(
+            f"Exactly one of {list(fn_args.keys())} must be provided to from_pretrained."
+        )
+
+
 def register(
     model: Union[
         "sklearn.base.BaseEstimator", "tf.Module", "torch.nn.Module"  # noqa: F821
@@ -299,6 +365,7 @@ def from_pretrained(
     *,
     model_name: Optional[str] = None,
     custom_job_name: Optional[str] = None,
+    foundation_model_name: Optional[str] = None,
 ) -> Union["sklearn.base.BaseEstimator", "tf.Module", "torch.nn.Module"]:  # noqa: F821
     """Pulls a model from Model Registry or from a CustomJob ID for retraining.
 
@@ -309,13 +376,16 @@ def from_pretrained(
         model_name (str):
             Optional. The resource ID or fully qualified resource name of a registered model.
             Format: "12345678910" or
-            "projects/123/locations/us-central1/models/12345678910@1". One of `model_name` or
-            `custom_job_name` is required.
+            "projects/123/locations/us-central1/models/12345678910@1". One of `model_name`,
+            `custom_job_name`, or `foundation_model_name` is required.
         custom_job_name (str):
             Optional. The resource ID or fully qualified resource name of a CustomJob created
             with Vertex SDK remote training. If the job has completed successfully, this will load
-            the trained model created in the CustomJob. One of `model_name` or
-            `custom_job_name` is required.
+            the trained model created in the CustomJob. One of `model_name`, `custom_job_name`, or
+            `foundation_model_name` is required.
+        foundation_model_name (str):
+            Optional. The name of the foundation model to load. For example: "text-bison@001". One of
+            `model_name`,`custom_job_name`, or `foundation_model_name` is required.
 
     Returns:
         model: local model for uptraining.
@@ -326,8 +396,7 @@ def from_pretrained(
             If custom job was not created with Vertex SDK remote training
             If both or neither model_name or custom_job_name are provided
     """
-    if not model_name and not custom_job_name or (model_name and custom_job_name):
-        raise ValueError("Exactly one of `model` or `custom_job` should be provided.")
+    _check_from_pretrained_passed_exactly_one_arg(locals())
 
     project = vertexai.preview.global_config.project
     location = vertexai.preview.global_config.location
@@ -338,24 +407,56 @@ def from_pretrained(
         vertex_model = aiplatform.Model(
             model_name, project=project, location=location, credentials=credentials
         )
-        if vertex_model.labels.get("registered_by_vertex_ai") != "true":
-            raise ValueError(
-                f"The model {model_name} is not registered through `vertex_ai.register`."
+        if vertex_model.labels.get("registered_by_vertex_ai") == "true":
+
+            artifact_uri = vertex_model.uri
+            model_file = _get_model_file_from_image_uri(
+                vertex_model.container_spec.image_uri
             )
 
-        artifact_uri = vertex_model.uri
-        model_file = _get_model_file_from_image_uri(
-            vertex_model.container_spec.image_uri
-        )
+            serializer = any_serializer.AnySerializer()
+            model = serializer.deserialize(os.path.join(artifact_uri, model_file))
 
-        serializer = any_serializer.AnySerializer()
-        model = serializer.deserialize(os.path.join(artifact_uri, model_file))
+            rewrapper = serializer.deserialize(
+                os.path.join(artifact_uri, _REWRAPPER_NAME)
+            )
 
-        rewrapper = serializer.deserialize(os.path.join(artifact_uri, _REWRAPPER_NAME))
+            # Rewrap model (in-place) for following remote training.
+            rewrapper(model)
+            return model
 
-        # Rewrap model (in-place) for following remote training.
-        rewrapper(model)
-        return model
+        elif not vertex_model.labels:
+            raise ValueError(
+                f"The model {model_name} was not registered through `vertexai.preview.register` or created from Model Garden."
+            )
+        else:
+            # Get the labels and check if it's a tuned model from a PublisherModel resource
+            for label_key in vertex_model.labels:
+                publisher_model_label = vertex_model.labels.get(label_key)
+                publisher_model_label_format_match = r"(^[a-z]+-[a-z]+-[0-9]{3}$)"
+
+                if re.match(publisher_model_label_format_match, publisher_model_label):
+                    # This try/except ensures this method will iterate over all models in a label even
+                    # if one fails on PublisherModel resource creation
+                    short_model_id = (
+                        _language_models._get_model_id_from_tuning_model_id(
+                            publisher_model_label
+                        )
+                    )
+
+                    try:
+                        publisher_model = _get_publisher_model_resource(short_model_id)
+                        return _model_garden_models._from_pretrained(
+                            model_name=short_model_id,
+                            publisher_model=publisher_model,
+                            tuned_vertex_model=vertex_model,
+                        )
+
+                    except ValueError:
+                        continue
+            raise ValueError(
+                f"The model {model_name} was not created from a Model Garden model."
+            )
 
     if custom_job_name:
         job = aiplatform.CustomJob.get(
@@ -380,3 +481,9 @@ def from_pretrained(
             raise ValueError(
                 "The provided job did not complete successfully. Please provide a pending or successful customJob ID."
             )
+
+    if foundation_model_name:
+        publisher_model = _get_publisher_model_resource(foundation_model_name)
+        return _model_garden_models._from_pretrained(
+            model_name=foundation_model_name, publisher_model=publisher_model
+        )

@@ -24,10 +24,13 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state,
 )
+import vertexai
 from tests.system.aiplatform import e2e_base
 from google.cloud.aiplatform.utils import gcs_utils
 from vertexai import language_models
-from vertexai.preview import language_models as preview_language_models
+from vertexai.preview import (
+    language_models as preview_language_models,
+)
 from vertexai.preview.language_models import (
     ChatModel,
     InputOutputTextPair,
@@ -86,6 +89,24 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             top_k=5,
         ):
             assert response.text
+
+    def test_preview_text_embedding_top_level_from_pretrained(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = vertexai.preview.from_pretrained(
+            foundation_model_name="google/text-bison@001"
+        )
+
+        assert model.predict(
+            "What is the best recipe for banana bread? Recipe:",
+            max_output_tokens=128,
+            temperature=0.0,
+            top_p=1.0,
+            top_k=5,
+            stop_sequences=["# %%"],
+        ).text
+
+        assert isinstance(model, preview_language_models.TextEmbeddingModel)
 
     def test_chat_on_chat_model(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)

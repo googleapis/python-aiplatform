@@ -30,6 +30,16 @@ from google.cloud.aiplatform.compat.types import (
     custom_job as gca_custom_job,
     io as gca_io,
 )
+from google.cloud.aiplatform.compat.services import (
+    model_garden_service_client,
+    model_service_client,
+)
+from google.cloud.aiplatform.compat.types import (
+    deployed_model_ref_v1,
+    model as gca_model,
+    publisher_model as gca_publisher_model,
+)
+from vertexai.preview import language_models
 import pytest
 
 import cloudpickle
@@ -58,6 +68,28 @@ _REWRAPPER = "rewrapper"
 # customJob constants
 _TEST_CUSTOM_JOB_RESOURCE_NAME = "projects/123/locations/us-central1/customJobs/456"
 
+# Tuned model constants
+_TEST_ID = "123456789"
+_TEST_TUNED_MODEL_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
+)
+_TEST_TUNED_MODEL_ENDPOINT_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
+)
+
+_TEXT_BISON_PUBLISHER_MODEL_DICT = {
+    "name": "publishers/google/models/text-bison",
+    "version_id": "001",
+    "open_source_category": "PROPRIETARY",
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
+    "publisher_model_template": "projects/{user-project}/locations/{location}/publishers/google/models/text-bison@001",
+    "predict_schemata": {
+        "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml",
+        "parameters_schema_uri": "gs://google-cloud-aiplatfrom/schema/predict/params/text_generation_1.0.0.yaml",
+        "prediction_schema_uri": "gs://google-cloud-aiplatform/schema/predict/prediction/text_generation_1.0.0.yaml",
+    },
+}
+
 
 @pytest.fixture
 def mock_serialize_model():
@@ -81,6 +113,7 @@ def mock_vertex_model_invalid():
     model = mock.MagicMock(aiplatform.Model)
     model.uri = _TEST_MODEL_GCS_URI
     model.container_spec.image_uri = "us-docker.xxx/sklearn-cpu.1-0:latest"
+    model.labels = {}
     yield model
 
 
@@ -254,6 +287,59 @@ def mock_get_custom_job_failed():
         custom_job_proto.state = gca_job_state.JobState.JOB_STATE_FAILED
         mock_get_custom_job.return_value = custom_job_proto
         yield mock_get_custom_job
+
+
+@pytest.fixture
+def get_model_with_tuned_version_label_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name="test-display-name",
+            name=_TEST_TUNED_MODEL_NAME,
+            labels={"google-vertex-llm-tuning-base-model-id": "text-bison-001"},
+            deployed_models=[
+                deployed_model_ref_v1.DeployedModelRef(
+                    endpoint=_TEST_TUNED_MODEL_ENDPOINT_NAME,
+                    deployed_model_id=_TEST_TUNED_MODEL_NAME,
+                )
+            ],
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
+def get_model_with_invalid_tuned_version_labels():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name="test-display-name",
+            name=_TEST_TUNED_MODEL_NAME,
+            labels={
+                "google-vertex-llm-tuning-base-model-id": "invalidlabel",
+                "another": "label",
+            },
+            deployed_models=[
+                deployed_model_ref_v1.DeployedModelRef(
+                    endpoint=_TEST_TUNED_MODEL_ENDPOINT_NAME,
+                    deployed_model_id=_TEST_TUNED_MODEL_NAME,
+                )
+            ],
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
+def mock_get_publisher_model():
+    with mock.patch.object(
+        model_garden_service_client.ModelGardenServiceClient,
+        "get_publisher_model",
+        return_value=gca_publisher_model.PublisherModel(
+            _TEXT_BISON_PUBLISHER_MODEL_DICT
+        ),
+    ) as mock_get_publisher_model:
+        yield mock_get_publisher_model
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -491,3 +577,72 @@ class TestModelUtils:
                 custom_job_name=_TEST_CUSTOM_JOB_RESOURCE_NAME
             )
             assert "did not complete" in err_msg
+
+    @pytest.mark.usefixtures(
+        "mock_get_publisher_model",
+    )
+    def test_from_pretrained_with_preview_foundation_model(self):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET,
+        )
+
+        foundation_model = vertexai.preview.from_pretrained(
+            foundation_model_name="text-bison@001"
+        )
+        assert isinstance(foundation_model, language_models._PreviewTextGenerationModel)
+
+    @pytest.mark.usefixtures(
+        "get_model_with_tuned_version_label_mock",
+    )
+    def test_from_pretrained_with_preview_tuned_mg_model(
+        self, mock_get_publisher_model
+    ):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET,
+        )
+
+        tuned_model = vertexai.preview.from_pretrained(model_name=_TEST_ID)
+        assert mock_get_publisher_model.call_count == 1
+        assert isinstance(tuned_model, language_models._PreviewTextGenerationModel)
+        assert tuned_model._endpoint_name == _TEST_TUNED_MODEL_ENDPOINT_NAME
+        assert tuned_model._model_id == "publishers/google/models/text-bison@001"
+
+    @pytest.mark.usefixtures(
+        "mock_get_publisher_model",
+        "get_model_with_invalid_tuned_version_labels",
+    )
+    def test_from_pretrained_raises_on_invalid_model_registry_model(self):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET,
+        )
+
+        with pytest.raises(ValueError):
+            vertexai.preview.from_pretrained(model_name=_TEST_ID)
+
+    def test_from_pretrained_raises_with_more_than_one_arg(self):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET,
+        )
+
+        with pytest.raises(ValueError):
+            vertexai.preview.from_pretrained(
+                model_name=_TEST_ID, foundation_model_name="text-bison@001"
+            )
+
+    def test_from_pretrained_raises_with_no_args_passed(self):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET,
+        )
+
+        with pytest.raises(ValueError):
+            vertexai.preview.from_pretrained()
