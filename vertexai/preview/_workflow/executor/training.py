@@ -28,7 +28,7 @@ from google.api_core import exceptions as api_exceptions
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import jobs
+from google.cloud.aiplatform.preview import jobs
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.utils import resource_manager_utils
@@ -291,6 +291,10 @@ def _get_service_account(
         config.service_account or vertexai.preview.global_config.service_account
     )
     if service_account:
+        if vertexai.preview.global_config.cluster_name:
+            raise ValueError(
+                "Persistent cluster currently does not support custom service account."
+            )
         if service_account.lower() == "gce":
             project = vertexai.preview.global_config.project
             project_number = resource_manager_utils.get_project_number(project)
@@ -701,7 +705,7 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
     # disable CustomJob logs
     logging.getLogger("google.cloud.aiplatform.jobs").disabled = True
     try:
-        job = aiplatform.CustomJob(
+        job = jobs.CustomJob(
             display_name=display_name,
             project=vertexai.preview.global_config.project,
             location=vertexai.preview.global_config.location,
@@ -709,6 +713,7 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
             base_output_dir=remote_job_base_path,
             staging_bucket=remote_job_base_path,
             labels=labels,
+            persistent_resource_id=vertexai.preview.global_config.cluster_name,
         )
 
         job.submit(

@@ -20,6 +20,7 @@ from google.cloud.aiplatform import base
 from vertexai.preview._workflow.executor import (
     persistent_resource_util,
 )
+from vertexai.preview._workflow.shared import configs
 
 
 _LOGGER = base.Logger(__name__)
@@ -37,6 +38,7 @@ class _Config:
         *,
         remote: Optional[bool] = None,
         autolog: Optional[bool] = None,
+        cluster: Optional[configs.PersistentResourceConfig] = None,
     ):
         """Updates preview global parameters for Vertex remote execution.
 
@@ -49,6 +51,24 @@ class _Config:
                 Optional. Whether or not to turn on autologging feature for remote
                 execution. To learn more about the autologging feature, see
                 https://cloud.google.com/vertex-ai/docs/experiments/autolog-data.
+            cluster (PersistentResourceConfig):
+                Optional. If passed, check if the cluster exists. If not, create
+                a default one (single node, "n1-standard-4", no GPU) with the
+                given name. Then use the cluster to run CustomJobs. Default is
+                None. Example usage:
+                from vertexai.preview.shared.configs import PersistentResourceConfig
+                cluster = PersistentResourceConfig(
+                        name="my-cluster-1",
+                        resource_pools=[
+                                ResourcePool(replica_count=1,),
+                                ResourcePool(
+                                        machine_type="n1-standard-8",
+                                        replica_count=2,
+                                        accelerator_type="NVIDIA_TESLA_P100",
+                                        accelerator_count=1,
+                                        ),
+                        ]
+                )
         """
         if remote is not None:
             self._remote = remote
@@ -58,8 +78,11 @@ class _Config:
         elif autolog is False:
             aiplatform.autolog(disable=True)
 
-        cluster = None
         if cluster is not None:
+            if aiplatform.initializer.global_config.service_account is not None:
+                raise ValueError(
+                    "Persistent cluster currently does not support custom service account"
+                )
             self._cluster_name = cluster.name
             cluster_resource_name = f"projects/{self.project}/locations/{self.location}/persistentResources/{self._cluster_name}"
             cluster_exists = persistent_resource_util.check_persistent_resource(
@@ -68,9 +91,10 @@ class _Config:
             if cluster_exists:
                 _LOGGER.info(f"Using existing cluster: {cluster_resource_name}")
                 return
-            # create a default one
+            # create a cluster
             persistent_resource_util.create_persistent_resource(
-                cluster_resource_name=cluster_resource_name
+                cluster_resource_name=cluster_resource_name,
+                resource_pools=cluster.resource_pools,
             )
 
     @property

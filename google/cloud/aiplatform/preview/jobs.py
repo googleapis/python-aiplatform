@@ -28,6 +28,8 @@ from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
     custom_job_v1beta1 as gca_custom_job_compat,
+    job_state as gca_job_state,
+    job_state_v1beta1 as gca_job_state_v1beta1,
 )
 from google.cloud.aiplatform.compat.types import (
     execution_v1beta1 as gcs_execution_compat,
@@ -42,6 +44,24 @@ from google.protobuf import duration_pb2  # type: ignore
 
 _LOGGER = base.Logger(__name__)
 _DEFAULT_RETRY = retry.Retry()
+# TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
+_JOB_COMPLETE_STATES = (
+    gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+    gca_job_state.JobState.JOB_STATE_FAILED,
+    gca_job_state.JobState.JOB_STATE_CANCELLED,
+    gca_job_state.JobState.JOB_STATE_PAUSED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_SUCCEEDED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_FAILED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_PAUSED,
+)
+
+_JOB_ERROR_STATES = (
+    gca_job_state.JobState.JOB_STATE_FAILED,
+    gca_job_state.JobState.JOB_STATE_CANCELLED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_FAILED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLED,
+)
 
 
 class CustomJob(jobs.CustomJob):

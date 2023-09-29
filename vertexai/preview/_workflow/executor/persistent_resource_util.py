@@ -15,7 +15,7 @@
 
 import datetime
 import time
-from typing import Optional
+from typing import List, Optional
 
 from google.api_core import exceptions
 from google.api_core import gapic_v1
@@ -35,6 +35,7 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
 from google.cloud.aiplatform_v1beta1.types.persistent_resource_service import (
     GetPersistentResourceRequest,
 )
+from vertexai.preview.developer import remote_specs
 
 
 GAPIC_VERSION = aiplatform.__version__
@@ -95,7 +96,6 @@ def check_persistent_resource(cluster_resource_name: str) -> bool:
 
 def _default_persistent_resource() -> PersistentResource:
     """Default persistent resource."""
-    # Currently the service accepts only one resource_pool config and image_uri.
     resource_pools = []
     resource_pool = ResourcePool()
     resource_pool.replica_count = _DEFAULT_REPLICA_COUNT
@@ -182,15 +182,32 @@ def _get_persistent_resource(cluster_resource_name: str):
         time.sleep(sleep_time.total_seconds())
 
 
-def create_persistent_resource(cluster_resource_name: str):
-    """Create a default persistent resource."""
+def create_persistent_resource(
+    cluster_resource_name: str,
+    resource_pools: Optional[List[remote_specs.ResourcePool]] = None,
+):
+    """Create a persistent resource."""
     locataion = cluster_resource_name.split("/")[3]
     parent = "/".join(cluster_resource_name.split("/")[:4])
     cluster_name = cluster_resource_name.split("/")[-1]
 
     client = _create_persistent_resource_client(locataion)
+    if resource_pools is None:
+        persistent_resource = _default_persistent_resource()
+    else:
+        # convert remote_specs.ResourcePool to GAPIC ResourcePool
+        pools = []
+        for resource_pool in resource_pools:
+            pool = ResourcePool()
+            pool.replica_count = resource_pool.replica_count
+            pool.machine_spec.machine_type = resource_pool.machine_type
+            pool.machine_spec.accelerator_type = resource_pool.accelerator_type
+            pool.machine_spec.accelerator_count = resource_pool.accelerator_count
+            pool.disk_spec.boot_disk_type = resource_pool.boot_disk_type
+            pool.disk_spec.boot_disk_size_gb = resource_pool.boot_disk_size_gb
+            pools.append(pool)
 
-    persistent_resource = _default_persistent_resource()
+        persistent_resource = PersistentResource(resource_pools=pools)
 
     request = persistent_resource_service.CreatePersistentResourceRequest(
         parent=parent,
@@ -205,4 +222,4 @@ def create_persistent_resource(cluster_resource_name: str):
 
     # Check cluster creation progress
     response = _get_persistent_resource(cluster_resource_name)
-    _LOGGER.info(response)
+    _LOGGER.info(f"Cluster {response.display_name} was created successfully.")
