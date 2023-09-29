@@ -1569,7 +1569,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 parameters=parameters,
                 timeout=timeout,
             )
-            metadata = json_format.MessageToDict(prediction_response._pb)["metadata"]
+            metadata = json_format.MessageToDict(prediction_response._pb.metadata)
 
             return Prediction(
                 predictions=[
