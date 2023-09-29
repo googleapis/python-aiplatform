@@ -296,6 +296,11 @@ class PersistentResourceConfig:
             The cluster name of the remote job. This value may be up to 63
             characters, and valid characters are `[a-z0-9_-]`. The first character
             cannot be a number or hyphen.
+        resource_pool_specs (vertexai.preview.developer.remote_specs.ResourcePoolSpecs):
+            The worker pool specs configuration for a remote job.
     """
 
     name: Optional[str] = None
+    resource_pools: Optional[
+        "vertexai.preview.developer.remote_specs.ResourcePool"  # noqa: F821
+    ] = None

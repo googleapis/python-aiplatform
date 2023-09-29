@@ -19,10 +19,15 @@ import importlib
 from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
 import vertexai
+from vertexai.preview.developer import remote_specs
 from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
     PersistentResourceServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
+from google.cloud.aiplatform_v1beta1.types.machine_resources import DiskSpec
+from google.cloud.aiplatform_v1beta1.types.machine_resources import (
+    MachineSpec,
+)
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     PersistentResource,
 )
@@ -48,55 +53,64 @@ _TEST_CLUSTER_RESOURCE_NAME = f"{_TEST_PARENT}/persistentResources/{_TEST_CLUSTE
 _TEST_PERSISTENT_RESOURCE_ERROR = PersistentResource()
 _TEST_PERSISTENT_RESOURCE_ERROR.state = "ERROR"
 
-_TEST_REQUEST_RUNNING_DEFAULT = PersistentResource()
-resource_pool = ResourcePool()
-resource_pool.machine_spec.machine_type = "n1-standard-4"
-resource_pool.replica_count = 1
-resource_pool.disk_spec.boot_disk_type = "pd-ssd"
-resource_pool.disk_spec.boot_disk_size_gb = 100
-_TEST_REQUEST_RUNNING_DEFAULT.resource_pools = [resource_pool]
-
+resource_pool_0 = ResourcePool(
+    machine_spec=MachineSpec(machine_type="n1-standard-4"),
+    disk_spec=DiskSpec(
+        boot_disk_type="pd-ssd",
+        boot_disk_size_gb=100,
+    ),
+    replica_count=1,
+)
+resource_pool_1 = ResourcePool(
+    machine_spec=MachineSpec(
+        machine_type="n1-standard-8",
+        accelerator_type="NVIDIA_TESLA_T4",
+        accelerator_count=1,
+    ),
+    disk_spec=DiskSpec(
+        boot_disk_type="pd-ssd",
+        boot_disk_size_gb=100,
+    ),
+    replica_count=2,
+)
+_TEST_REQUEST_RUNNING_DEFAULT = PersistentResource(
+    resource_pools=[resource_pool_0],
+)
+_TEST_REQUEST_RUNNING_CUSTOM = PersistentResource(
+    resource_pools=[resource_pool_0, resource_pool_1],
+)
 
 _TEST_PERSISTENT_RESOURCE_RUNNING = PersistentResource()
 _TEST_PERSISTENT_RESOURCE_RUNNING.state = "RUNNING"
 
-
-@pytest.fixture
-def persistent_resource_running_mock():
-    with mock.patch.object(
-        PersistentResourceServiceClient,
-        "get_persistent_resource",
-    ) as persistent_resource_running_mock:
-        persistent_resource_running_mock.return_value = (
-            _TEST_PERSISTENT_RESOURCE_RUNNING
-        )
-        yield persistent_resource_running_mock
-
-
-@pytest.fixture
-def persistent_resource_exception_mock():
-    with mock.patch.object(
-        PersistentResourceServiceClient,
-        "get_persistent_resource",
-    ) as persistent_resource_exception_mock:
-        persistent_resource_exception_mock.side_effect = Exception
-        yield persistent_resource_exception_mock
+# user-configured remote_specs.ResourcePool
+remote_specs_resource_pool_0 = remote_specs.ResourcePool(replica_count=1)
+remote_specs_resource_pool_1 = remote_specs.ResourcePool(
+    machine_type="n1-standard-8",
+    replica_count=2,
+    accelerator_type="NVIDIA_TESLA_T4",
+    accelerator_count=1,
+)
+_TEST_CUSTOM_RESOURCE_POOLS = [
+    remote_specs_resource_pool_0,
+    remote_specs_resource_pool_1,
+]
 
 
 @pytest.fixture
-def create_persistent_resource_default_mock():
+def create_persistent_resource_custom_mock():
     with mock.patch.object(
         PersistentResourceServiceClient,
         "create_persistent_resource",
-    ) as create_persistent_resource_default_mock:
+    ) as create_persistent_resource_custom_mock:
         create_persistent_resource_lro_mock = mock.Mock(ga_operation.Operation)
         create_persistent_resource_lro_mock.result.return_value = (
-            _TEST_REQUEST_RUNNING_DEFAULT
+            _TEST_REQUEST_RUNNING_CUSTOM
         )
-        create_persistent_resource_default_mock.return_value = (
+        create_persistent_resource_custom_mock.return_value = (
             create_persistent_resource_lro_mock
         )
-        yield create_persistent_resource_default_mock
+        yield create_persistent_resource_custom_mock
 
 
 @pytest.fixture
@@ -177,6 +191,25 @@ class TestPersistentResourceUtils:
         )
 
         create_persistent_resource_default_mock.assert_called_with(
+            request,
+        )
+
+    @pytest.mark.usefixtures("persistent_resource_running_mock")
+    def test_create_persistent_resource_custom_success(
+        self, create_persistent_resource_custom_mock
+    ):
+        persistent_resource_util.create_persistent_resource(
+            cluster_resource_name=_TEST_CLUSTER_RESOURCE_NAME,
+            resource_pools=_TEST_CUSTOM_RESOURCE_POOLS,
+        )
+
+        request = persistent_resource_service.CreatePersistentResourceRequest(
+            parent=_TEST_PARENT,
+            persistent_resource=_TEST_REQUEST_RUNNING_CUSTOM,
+            persistent_resource_id=_TEST_CLUSTER_NAME,
+        )
+
+        create_persistent_resource_custom_mock.assert_called_with(
             request,
         )
 
