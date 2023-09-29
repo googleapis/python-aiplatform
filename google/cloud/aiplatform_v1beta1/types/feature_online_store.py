@@ -77,6 +77,10 @@ class FeatureOnlineStore(proto.Message):
             "aiplatform.googleapis.com/" and are immutable.
         state (google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore.State):
             Output only. State of the featureOnlineStore.
+        dedicated_serving_endpoint (google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore.DedicatedServingEndpoint):
+            Optional. The dedicated serving endpoint for
+            this FeatureOnlineStore, which is different from
+            common Vertex service endpoint.
         embedding_management (google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore.EmbeddingManagement):
             Optional. The settings for embedding
             management in FeatureOnlineStore.
@@ -157,6 +161,21 @@ class FeatureOnlineStore(proto.Message):
             message="FeatureOnlineStore.Bigtable.AutoScaling",
         )
 
+    class DedicatedServingEndpoint(proto.Message):
+        r"""The dedicated serving endpoint for this FeatureOnlineStore.
+
+        Attributes:
+            public_endpoint_domain_name (str):
+                Output only. This field will be populated
+                with the domain name to use for this
+                FeatureOnlineStore
+        """
+
+        public_endpoint_domain_name: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
     class EmbeddingManagement(proto.Message):
         r"""Contains settings for embedding management.
 
@@ -206,6 +225,11 @@ class FeatureOnlineStore(proto.Message):
         proto.ENUM,
         number=7,
         enum=State,
+    )
+    dedicated_serving_endpoint: DedicatedServingEndpoint = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=DedicatedServingEndpoint,
     )
     embedding_management: EmbeddingManagement = proto.Field(
         proto.MESSAGE,

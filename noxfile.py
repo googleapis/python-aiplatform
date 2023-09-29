@@ -287,6 +287,7 @@ def docs(session):
         "alabaster",
         "google-cloud-aiplatform[prediction]",
         "google-cloud-aiplatform[prediction]",
+        "google-cloud-aiplatform[prediction]",
         "recommonmark",
     )
 
@@ -312,6 +313,7 @@ def docfx(session):
     session.install(
         "gcp-sphinx-docfx-yaml",
         "alabaster",
+        "google-cloud-aiplatform[prediction]",
         "google-cloud-aiplatform[prediction]",
         "google-cloud-aiplatform[prediction]",
         "recommonmark",
