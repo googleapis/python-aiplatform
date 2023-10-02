@@ -60,6 +60,18 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             stop_sequences=["# %%"],
         ).text
 
+    def test_text_generation_preview_count_tokens(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = preview_language_models.TextGenerationModel.from_pretrained(
+            "google/text-bison@001"
+        )
+
+        response = model.count_tokens(["How are you doing?"])
+
+        assert response.total_tokens
+        assert response.total_billable_characters
+
     @pytest.mark.asyncio
     async def test_text_generation_model_predict_async(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)

@@ -92,6 +92,7 @@ class _LanguageModel(_model_garden_models._ModelGardenModel):
 @dataclasses.dataclass
 class _PredictionRequest:
     """A single-instance prediction request."""
+
     instance: Dict[str, Any]
     parameters: Optional[Dict[str, Any]] = None
 
@@ -99,6 +100,7 @@ class _PredictionRequest:
 @dataclasses.dataclass
 class _MultiInstancePredictionRequest:
     """A multi-instance prediction request."""
+
     instances: List[Dict[str, Any]]
     parameters: Optional[Dict[str, Any]] = None
 
@@ -574,6 +576,62 @@ class _PreviewTunableChatModelMixin(_TunableModelMixin):
 
 
 @dataclasses.dataclass
+class CountTokensResponse:
+    """The response from a count_tokens request.
+    Attributes:
+        total_tokens (int):
+            The total number of tokens counted across all
+            instances passed to the request.
+        total_billable_characters (int):
+            The total number of billable characters
+            counted across all instances from the request.
+    """
+
+    total_tokens: int
+    total_billable_characters: int
+    _count_tokens_response: Any
+
+
+class _CountTokensMixin(_LanguageModel):
+    """Mixin for models that support the CountTokens API"""
+
+    def count_tokens(
+        self,
+        prompts: List[str],
+    ) -> CountTokensResponse:
+        """Counts the tokens and billable characters for a given prompt.
+
+        Note: this does not make a request to the model, it only counts the tokens
+        in the request.
+
+        Args:
+            prompts (List[str]):
+                Required. A list of prompts to ask the model. For example: ["What should I do today?", "How's it going?"]
+
+        Returns:
+            A `CountTokensResponse` object that contains the number of tokens
+            in the text and the number of billable characters.
+        """
+        instances = []
+
+        for prompt in prompts:
+            instances.append({"content": prompt})
+
+        count_tokens_response = self._endpoint._prediction_client.select_version(
+            "v1beta1"
+        ).count_tokens(
+            endpoint=self._endpoint_name,
+            instances=instances,
+        )
+
+        return CountTokensResponse(
+            total_tokens=count_tokens_response.total_tokens,
+            total_billable_characters=count_tokens_response.total_billable_characters,
+            _count_tokens_response=count_tokens_response,
+        )
+
+
+@dataclasses.dataclass
 class TuningEvaluationSpec:
     """Specification for model evaluation to perform during tuning.
 
@@ -587,6 +645,7 @@ class TuningEvaluationSpec:
         tensorboard: Vertex Tensorboard where to write the evaluation metrics.
             The Tensorboard must be in the same location as the tuning job.
     """
+
     __module__ = "vertexai.language_models"
 
     evaluation_data: str
@@ -605,6 +664,7 @@ class TextGenerationResponse:
             Learn more about the safety attributes here:
             https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
     """
+
     __module__ = "vertexai.language_models"
 
     text: str
@@ -761,7 +821,9 @@ class _TextGenerationModel(_LanguageModel):
         )
 
         prediction_service_client = self._endpoint._prediction_client
-        for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
+        for (
+            prediction_dict
+        ) in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
             prediction_service_client=prediction_service_client,
             endpoint_name=self._endpoint_name,
             instance=prediction_request.instance,
@@ -955,6 +1017,7 @@ class _PreviewTextGenerationModel(
     _PreviewTunableTextModelMixin,
     _PreviewModelWithBatchPredict,
     _evaluatable_language_models._EvaluatableLanguageModel,
+    _CountTokensMixin,
 ):
     # Do not add docstring so that it's inherited from the base class.
     __name__ = "TextGenerationModel"
@@ -1094,6 +1157,7 @@ class TextEmbeddingInput:
                 Specifies that the embeddings will be used for clustering.
         title: Optional identifier of the text content.
     """
+
     __module__ = "vertexai.language_models"
 
     text: str
@@ -1113,6 +1177,7 @@ class TextEmbeddingModel(_LanguageModel):
             vector = embedding.values
             print(len(vector))
     """
+
     __module__ = "vertexai.language_models"
 
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
@@ -1173,7 +1238,8 @@ class TextEmbeddingModel(_LanguageModel):
             _prediction_response=prediction_response,
         )
 
-    def get_embeddings(self,
+    def get_embeddings(
+        self,
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
@@ -1207,7 +1273,8 @@ class TextEmbeddingModel(_LanguageModel):
 
         return results
 
-    async def get_embeddings_async(self,
+    async def get_embeddings_async(
+        self,
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
@@ -1242,7 +1309,9 @@ class TextEmbeddingModel(_LanguageModel):
         return results
 
 
-class _PreviewTextEmbeddingModel(TextEmbeddingModel, _ModelWithBatchPredict):
+class _PreviewTextEmbeddingModel(
+    TextEmbeddingModel, _ModelWithBatchPredict, _CountTokensMixin
+):
     __name__ = "TextEmbeddingModel"
     __module__ = "vertexai.preview.language_models"
 
@@ -1252,6 +1321,7 @@ class _PreviewTextEmbeddingModel(TextEmbeddingModel, _ModelWithBatchPredict):
 @dataclasses.dataclass
 class TextEmbeddingStatistics:
     """Text embedding statistics."""
+
     __module__ = "vertexai.language_models"
 
     token_count: int
@@ -1261,6 +1331,7 @@ class TextEmbeddingStatistics:
 @dataclasses.dataclass
 class TextEmbedding:
     """Text embedding vector and statistics."""
+
     __module__ = "vertexai.language_models"
 
     values: List[float]
@@ -1271,6 +1342,7 @@ class TextEmbedding:
 @dataclasses.dataclass
 class InputOutputTextPair:
     """InputOutputTextPair represents a pair of input and output texts."""
+
     __module__ = "vertexai.language_models"
 
     input_text: str
@@ -1285,6 +1357,7 @@ class ChatMessage:
         content: Content of the message.
         author: Author of the message.
     """
+
     __module__ = "vertexai.language_models"
 
     content: str
@@ -1362,6 +1435,7 @@ class ChatModel(_ChatModelBase, _TunableChatModelMixin):
 
         chat.send_message("Do you know any cool events this weekend?")
     """
+
     __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
@@ -1388,6 +1462,7 @@ class CodeChatModel(_ChatModelBase):
 
         code_chat.send_message("Please help write a function to calculate the min of two numbers")
     """
+
     __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
@@ -1739,7 +1814,9 @@ class _ChatSessionBase:
 
         full_response_text = ""
 
-        for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
+        for (
+            prediction_dict
+        ) in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
             prediction_service_client=prediction_service_client,
             endpoint_name=self._model._endpoint_name,
             instance=prediction_request.instance,
@@ -1770,6 +1847,7 @@ class ChatSession(_ChatSessionBase):
 
     Within a chat session, the model keeps context and remembers the previous conversation.
     """
+
     __module__ = "vertexai.language_models"
 
     def __init__(
@@ -1802,6 +1880,7 @@ class CodeChatSession(_ChatSessionBase):
 
     Within a code chat session, the model keeps context and remembers the previous converstion.
     """
+
     __module__ = "vertexai.language_models"
 
     def __init__(
@@ -1924,6 +2003,7 @@ class CodeGenerationModel(_LanguageModel):
             prefix="def reverse_string(s):",
         ))
     """
+
     __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
@@ -2074,7 +2154,9 @@ class CodeGenerationModel(_LanguageModel):
         )
 
         prediction_service_client = self._endpoint._prediction_client
-        for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
+        for (
+            prediction_dict
+        ) in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
             prediction_service_client=prediction_service_client,
             endpoint_name=self._endpoint_name,
             instance=prediction_request.instance,
