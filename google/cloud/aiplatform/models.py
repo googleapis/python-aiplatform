@@ -1552,6 +1552,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             json_response = raw_predict_response.json()
             return Prediction(
                 predictions=json_response["predictions"],
+                metadata=json_response["metadata"],
                 deployed_model_id=raw_predict_response.headers[
                     _RAW_PREDICT_DEPLOYED_MODEL_ID_KEY
                 ],
@@ -1630,12 +1631,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             parameters=parameters,
             timeout=timeout,
         )
+        metadata = json_format.MessageToDict(prediction_response._pb.metadata)
 
         return Prediction(
             predictions=[
                 json_format.MessageToDict(item)
                 for item in prediction_response.predictions.pb
             ],
+            metadata=metadata,
             deployed_model_id=prediction_response.deployed_model_id,
             model_version_id=prediction_response.model_version_id,
             model_resource_name=prediction_response.model,
@@ -2281,6 +2284,7 @@ class PrivateEndpoint(Endpoint):
 
         return Prediction(
             predictions=prediction_response.get("predictions"),
+            metadata=prediction_response.get("metadata"),
             deployed_model_id=self._gca_resource.deployed_models[0].id,
         )
 

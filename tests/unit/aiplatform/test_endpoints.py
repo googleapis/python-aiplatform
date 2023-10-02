@@ -607,7 +607,11 @@ def get_private_endpoint_with_model_mock():
 def predict_private_endpoint_mock():
     with mock.patch.object(urllib3.PoolManager, "request") as predict_mock:
         predict_mock.return_value = urllib3.response.HTTPResponse(
-            status=200, body=json.dumps({"predictions": _TEST_PREDICTION})
+            status=200,
+            body=json.dumps({
+                "predictions": _TEST_PREDICTION,
+                "metadata": _TEST_METADATA,
+            }),
         )
         yield predict_mock
 
@@ -2180,7 +2184,9 @@ class TestPrivateEndpoint:
         )
 
         true_prediction = models.Prediction(
-            predictions=_TEST_PREDICTION, deployed_model_id=_TEST_ID
+            predictions=_TEST_PREDICTION,
+            deployed_model_id=_TEST_ID,
+            metadata=_TEST_METADATA,
         )
 
         assert true_prediction == test_prediction
