@@ -492,25 +492,29 @@ def mock_any_serializer_serialize_sklearn():
             {
                 serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
                     f"scikit-learn=={sklearn.__version__}"
-                ]
+                ],
+                serializers_base.SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY: [],
             },
             {
                 serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
                     f"numpy=={np.__version__}",
                     f"cloudpickle=={cloudpickle.__version__}",
-                ]
+                ],
+                serializers_base.SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY: [],
             },
             {
                 serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
                     f"numpy=={np.__version__}",
                     f"cloudpickle=={cloudpickle.__version__}",
-                ]
+                ],
+                serializers_base.SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY: [],
             },
             {
                 serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
                     f"numpy=={np.__version__}",
                     f"cloudpickle=={cloudpickle.__version__}",
-                ]
+                ],
+                serializers_base.SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY: [],
             },
         ],
     ) as mock_any_serializer_serialize:
@@ -575,25 +579,29 @@ def mock_any_serializer_serialize_keras():
             {
                 serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
                     f"tensorflow=={tf.__version__}"
-                ]
+                ],
+                serializers_base.SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY: [],
             },
             {
                 serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
                     f"numpy=={np.__version__}",
                     f"cloudpickle=={cloudpickle.__version__}",
-                ]
+                ],
+                serializers_base.SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY: [],
             },
             {
                 serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
                     f"numpy=={np.__version__}",
                     f"cloudpickle=={cloudpickle.__version__}",
-                ]
+                ],
+                serializers_base.SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY: [],
             },
             {
                 serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
                     f"numpy=={np.__version__}",
                     f"cloudpickle=={cloudpickle.__version__}",
-                ]
+                ],
+                serializers_base.SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY: [],
             },
         ],
     ) as mock_any_serializer_serialize:

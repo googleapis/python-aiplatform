@@ -1119,7 +1119,11 @@ class BigframeSerializer(serializers_base.Serializer):
     ) -> str:
         # All bigframe serializers will be identical (bigframes.dataframe.DataFrame --> parquet)
         # Record the framework in metadata for deserialization
-        BigframeSerializer._metadata.framework = kwargs.get("framework")
+        detected_framework = kwargs.get("framework")
+        BigframeSerializer._metadata.framework = detected_framework
+        if detected_framework == "torch":
+            self.register_custom_command("pip install torchdata")
+            self.register_custom_command("pip install torcharrow")
         if not _is_valid_gcs_path(gcs_path):
             raise ValueError(f"Invalid gcs path: {gcs_path}")
 

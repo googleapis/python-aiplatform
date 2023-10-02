@@ -513,6 +513,7 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
         ]
 
     requirements = []
+    custom_commands = []
 
     enable_cuda = config.enable_cuda
 
@@ -641,8 +642,16 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
 
     requirements = _add_indirect_dependency_versions(requirements)
     command = ["export PIP_ROOT_USER_ACTION=ignore &&"]
-    if config.custom_commands:
-        custom_commands = [f"{command} &&" for command in config.custom_commands]
+
+    # Combine user custom_commands and serializer custom_commands
+    custom_commands += serialization_metadata[
+        serializers_base.SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY
+    ]
+    custom_commands += config.custom_commands
+    custom_commands = list(dict.fromkeys(custom_commands))
+
+    if custom_commands:
+        custom_commands = [f"{command} &&" for command in custom_commands]
         command.extend(custom_commands)
     if requirements:
         command.append("pip install --upgrade pip &&")
