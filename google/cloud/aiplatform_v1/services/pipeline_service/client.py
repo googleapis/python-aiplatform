@@ -1291,7 +1291,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 provided, an ID will be automatically generated.
 
                 This value should be less than 128 characters, and valid
-                characters are /[a-z][0-9]-/.
+                characters are ``/[a-z][0-9]-/``.
 
                 This corresponds to the ``pipeline_job_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
