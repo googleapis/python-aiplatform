@@ -1051,7 +1051,7 @@ class PipelineJob(
 
         # Importing the KFP module here to prevent import errors when the kfp package is not installed.
         try:
-            from kfp.v2 import compiler as compiler_v2
+            from kfp import compiler
         except ImportError as err:
             raise RuntimeError(
                 "Cannot import the kfp.v2.compiler module. Please install or update the kfp package."
@@ -1068,7 +1068,7 @@ class PipelineJob(
             r"[^-a-z0-9]", "-", automatic_display_name.lower()
         ).strip("-")
         pipeline_file = tempfile.mktemp(suffix=".json")
-        compiler_v2.Compiler().compile(
+        compiler.Compiler().compile(
             pipeline_func=pipeline_func,
             pipeline_name=context_name,
             package_path=pipeline_file,

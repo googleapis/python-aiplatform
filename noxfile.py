@@ -228,7 +228,7 @@ def system(session):
         CURRENT_DIRECTORY / "testing" / f"constraints-{session.python}.txt"
     )
     system_test_path = os.path.join("tests", "system.py")
-    system_test_folder_path = os.path.join("tests", "system")
+    system_test_folder_path = os.path.join("tests", "system", "aiplatform/test_pipeline_job.py")
 
     # Check the value of `RUN_SYSTEM_TESTS` env var. It defaults to true.
     if os.environ.get("RUN_SYSTEM_TESTS", "true") == "false":
