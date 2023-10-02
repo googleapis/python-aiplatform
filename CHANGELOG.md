@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.34.0](https://github.com/googleapis/python-aiplatform/compare/v1.33.1...v1.34.0) (2023-10-02)
+
+
+### Features
+
+* Add Model Garden support to vertexai.preview.from_pretrained ([f978200](https://github.com/googleapis/python-aiplatform/commit/f9782007c58ee11fe276c373d8d7ac6c2b0cb249))
+* Enable vertexai preview persistent cluster executor ([0ae969d](https://github.com/googleapis/python-aiplatform/commit/0ae969d9e968c6b497d4f41e28f0ea1274d5253c))
+* LLM - Added the `count_tokens` method to the preview `TextGenerationModel` and `TextEmbeddingModel` classes ([6a2f2aa](https://github.com/googleapis/python-aiplatform/commit/6a2f2aa8e348c6fc1e24012291f538d2b86eae7b))
+* LLM - Improved representation for blocked responses ([222f222](https://github.com/googleapis/python-aiplatform/commit/222f222ed5f8e0c2266484b9992e45cf9827a119))
+* LLM - Released `ChatModel` tuning to GA ([7d667f9](https://github.com/googleapis/python-aiplatform/commit/7d667f9f8be264bb36e3d720caa0d8210aec5d6b))
+
+
+### Bug Fixes
+
+* Create PipelineJobSchedule in same project and location as associated PipelineJob by default ([c22220e](https://github.com/googleapis/python-aiplatform/commit/c22220ef5db440020331634f5e25199c575cc886))
+
+
+### Documentation
+
+* Add documentation for the preview namespace ([69a67f2](https://github.com/googleapis/python-aiplatform/commit/69a67f203627e4ee7d5980ce874d4db1e6af5dd8))
+
 ## [1.33.1](https://github.com/googleapis/python-aiplatform/compare/v1.33.0...v1.33.1) (2023-09-20)
 
 
