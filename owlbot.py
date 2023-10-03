@@ -113,6 +113,7 @@ if has_generator_updates:
             ".kokoro/presubmit/presubmit.cfg",
             ".kokoro/continuous/prerelease-deps.cfg",
             ".kokoro/presubmit/prerelease-deps.cfg",
+            ".kokoro/docs/docs-presubmit.cfg",
             # exclude sample configs so periodic samples are tested against main
             # instead of pypi
             ".kokoro/samples/python3.7/common.cfg",
