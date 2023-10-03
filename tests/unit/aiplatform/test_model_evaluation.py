@@ -105,7 +105,7 @@ _TEST_PIPELINE_ROOT = f"gs://{_TEST_GCS_BUCKET_NAME}/pipeline_root"
 _TEST_PIPELINE_CREATE_TIME = datetime.datetime.now()
 
 _TEST_KFP_TEMPLATE_URI = "https://us-kfp.pkg.dev/vertex-evaluation/pipeline-templates/evaluation-automl-tabular-classification-pipeline/1.0.0"
-
+_TEST_KFP_TEMPLATE_VERSION = "https://us-kfp.pkg.dev/vertex-evaluation/pipeline-templates/evaluation-automl-tabular-classification-pipeline/sha256:5d3a03"
 _TEST_TEMPLATE_REF = {
     "base_uri": "https://us-kfp.pkg.dev/vertex-evaluation/pipeline-templates/evaluation",
     "tag": "20230713_1737",
@@ -848,6 +848,7 @@ class TestModelEvaluation:
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_get_model_evaluation_bp_job(
         self,
         mock_pipeline_service_create,
@@ -902,6 +903,7 @@ class TestModelEvaluation:
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_get_model_evaluation_mlmd_resource(
         self,
         mock_pipeline_service_create,
@@ -1021,7 +1023,9 @@ class TestModelEvaluationJob:
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],
     )
-    @pytest.mark.usefixtures("mock_pipeline_service_create")
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create", "mock_artifact_registry_request"
+    )
     def test_model_evaluation_job_submit(
         self,
         job_spec,
@@ -1100,7 +1104,7 @@ class TestModelEvaluationJob:
             runtime_config=runtime_config,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
-            template_uri=_TEST_KFP_TEMPLATE_URI,
+            template_uri=_TEST_KFP_TEMPLATE_VERSION,
         )
 
         mock_model_eval_job_create.assert_called_with(
@@ -1120,6 +1124,7 @@ class TestModelEvaluationJob:
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_model_evaluation_job_submit_with_experiment(
         self,
         mock_pipeline_service_create,
@@ -1206,7 +1211,7 @@ class TestModelEvaluationJob:
             runtime_config=runtime_config,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
-            template_uri=_TEST_KFP_TEMPLATE_URI,
+            template_uri=_TEST_KFP_TEMPLATE_VERSION,
         )
 
         mock_model_eval_job_create.assert_called_with(
@@ -1225,6 +1230,7 @@ class TestModelEvaluationJob:
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_get_model_evaluation_with_successful_pipeline_run_returns_resource(
         self,
         mock_pipeline_service_create,
@@ -1293,6 +1299,7 @@ class TestModelEvaluationJob:
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_model_evaluation_job_get_model_evaluation_with_failed_pipeline_run_raises(
         self,
         mock_pipeline_service_create,
@@ -1342,6 +1349,7 @@ class TestModelEvaluationJob:
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_model_evaluation_job_get_model_evaluation_with_pending_pipeline_run_returns_none(
         self,
         mock_pipeline_service_create,

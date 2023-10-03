@@ -118,7 +118,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             stop_sequences=["# %%"],
         ).text
 
-        assert isinstance(model, preview_language_models.TextEmbeddingModel)
+        assert isinstance(model, preview_language_models.TextGenerationModel)
 
     def test_chat_on_chat_model(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)

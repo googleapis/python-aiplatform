@@ -36,6 +36,7 @@ from google.cloud.aiplatform_v1 import MetadataServiceClient
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.compat.types import pipeline_failure_policy
 from google.cloud.aiplatform.utils import gcs_utils
+import constants as test_constants
 from google.cloud import storage
 from google.protobuf import json_format
 from google.protobuf import field_mask_pb2 as field_mask
@@ -553,6 +554,7 @@ class TestPipelineJob:
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_run_call_pipeline_service_create_artifact_registry(
         self,
         mock_pipeline_service_create,
@@ -612,7 +614,7 @@ class TestPipelineJob:
             runtime_config=runtime_config,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
-            template_uri=_TEST_AR_TEMPLATE_PATH,
+            template_uri=test_constants.PipelineJobConstants._TEST_AR_TEMPLATE_VERSION,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
