@@ -30,7 +30,6 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.constants import pipeline as pipeline_constants
-import constants as test_constants
 from google.cloud.aiplatform.compat.services import (
     pipeline_service_client,
     schedule_service_client,
@@ -771,7 +770,6 @@ class TestPipelineJobSchedule:
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
-    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_call_schedule_service_create_artifact_registry(
         self,
         mock_schedule_service_create,
@@ -836,7 +834,7 @@ class TestPipelineJobSchedule:
                     "pipeline_spec": dict_to_struct(pipeline_spec),
                     "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
-                    "template_uri": test_constants.PipelineJobConstants._TEST_AR_TEMPLATE_VERSION,
+                    "template_uri": _TEST_AR_TEMPLATE_PATH,
                 },
             },
         )

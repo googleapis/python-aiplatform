@@ -15,9 +15,7 @@
 # limitations under the License.
 #
 
-import json
 import pytest
-import requests
 
 from google import auth
 from google.api_core import operation
@@ -515,21 +513,3 @@ def add_context_children_mock():
         metadata_service_client_v1.MetadataServiceClient, "add_context_children"
     ) as add_context_children_mock:
         yield add_context_children_mock
-
-
-@pytest.fixture
-def mock_artifact_registry_request():
-    with mock.patch.object(
-        requests,
-        "get",
-    ) as mock_artifact_registry:
-        ar_response = requests.models.Response()
-        ar_response.status_code = 200
-        ar_response._content = json.dumps(
-            {
-                "name": "projects/proj/locations/us-central1/repositories/repo/packages/pack",
-                "version": "projects/proj/locations/us-central1/repositories/repo/packages/pack/versions/sha256:5d3a03",
-            }
-        ).encode("utf-8")
-        mock_artifact_registry.return_value = ar_response
-        yield mock_artifact_registry
