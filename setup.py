@@ -136,6 +136,7 @@ testing_extra_require = (
     full_extra_require
     + profiler_extra_require
     + [
+        "bigframes; python_version>='3.11'",
         "grpcio-testing",
         "ipython",
         "kfp",
