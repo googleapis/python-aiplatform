@@ -628,20 +628,39 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
     )
 
     if not config.container_uri:
-        container_uri = (
-            supported_frameworks._get_cpu_container_uri()
-            if not enable_cuda
-            else supported_frameworks._get_gpu_container_uri(self)
-        )
+        if not enable_cuda:
+            container_uri = supported_frameworks._get_cpu_container_uri()
+            command = []
+        else:
+            container_uri = supported_frameworks._get_gpu_container_uri(self)
+            local_python_version = (
+                supported_frameworks._get_python_minor_version()
+            )
+            if local_python_version != "3.10.0":
+                command = [
+                    "apt update && "
+                    "apt install -y software-properties-common wget build-essential && "
+                    f"wget https://www.python.org/ftp/python/{local_python_version}.0"
+                    f"/Python-{local_python_version}.0.tar.xz && "
+                    f"tar -xf Python-{local_python_version}.0.tar.xz && "
+                    f"cd Python-{local_python_version}.0 && "
+                    "./configure --enable-optimizations && "
+                    "make altinstall &&"
+                    # f"export python3=usr/bin/python{local_python_version} &&"
+                ]
+            else:
+                command = []
+
         requirements = _dedupe_requirements(
             vertex_requirements + config.requirements + requirements
         )
     else:
         container_uri = config.container_uri
         requirements = _dedupe_requirements(vertex_requirements + config.requirements)
+        command = []
 
     requirements = _add_indirect_dependency_versions(requirements)
-    command = ["export PIP_ROOT_USER_ACTION=ignore &&"]
+    command.append("export PIP_ROOT_USER_ACTION=ignore &&")
 
     # Combine user custom_commands and serializer custom_commands
     custom_commands += serialization_metadata[
@@ -654,9 +673,9 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
         custom_commands = [f"{command} &&" for command in custom_commands]
         command.extend(custom_commands)
     if requirements:
-        command.append("pip install --upgrade pip &&")
+        command.append("python3.11 -m pip install --upgrade pip &&")
         requirements = [f"'{requirement}'" for requirement in requirements]
-        command.append(f"pip install {' '.join(requirements)} &&")
+        command.append(f"python3.11 -m pip install {' '.join(requirements)} &&")
 
     pass_through_bool_args_flag_value = ",".join(
         f"{key}={value}" for key, value in pass_through_bool_args.items()
@@ -674,7 +693,7 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
     autolog_command = " --enable_autolog" if autolog else ""
 
     training_command = (
-        "python3 -m "
+        "python3.11 -m "
         "vertexai.preview._workflow.executor.training_script "
         f"--pass_through_int_args={pass_through_int_args_flag_value} "
         f"--pass_through_float_args={pass_through_float_args_flag_value} "
@@ -693,10 +712,6 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
         + autolog_command
     )
     command.append(training_command)
-    # Temporary fix for git not installed in pytorch cuda image
-    # Remove it once SDK 2.0 is release and don't need to be installed from git
-    if container_uri == "pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime":
-        command = ["apt-get update && apt-get install -y git &&"] + command
 
     command = ["sh", "-c", " ".join(command)]
 
