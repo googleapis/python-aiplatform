@@ -20,6 +20,7 @@ import uuid
 
 import pytest
 
+from google import auth
 from google.cloud import storage
 
 from google.cloud import aiplatform
@@ -86,6 +87,9 @@ class TestModelEvaluationJob(e2e_base.TestEndToEnd):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
+            credentials=auth.default(
+                scopes=["https://www.googleapis.com/auth/cloud-platform"]
+            ),
         )
 
         custom_model = aiplatform.Model(

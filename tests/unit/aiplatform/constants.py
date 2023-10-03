@@ -307,9 +307,6 @@ class PipelineJobConstants:
     _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
     _TEST_PIPELINE_JOB_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
     _TEST_PIPELINE_CREATE_TIME = datetime.now()
-    _TEST_AR_TEMPLATE_VERSION = (
-        "https://us-central1-kfp.pkg.dev/proj/repo/pack/sha256:5d3a03"
-    )
 
 
 @dataclasses.dataclass(frozen=True)

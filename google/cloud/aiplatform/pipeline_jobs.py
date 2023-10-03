@@ -18,7 +18,6 @@
 import datetime
 import logging
 import re
-import requests
 import tempfile
 import time
 from typing import Any, Callable, Dict, List, Optional, Union
@@ -200,10 +199,7 @@ class PipelineJob(
                 scheduled tasks will continue to completion.
 
         Raises:
-            ValueError:
-                If job_id or labels have incorrect format.
-                If an invalid Artifact Registry URI is passed to template_path or there is a
-                credentials error retrieving the AR template path.
+            ValueError: If job_id or labels have incorrect format.
         """
         if not display_name:
             display_name = self.__class__._generate_display_name()
@@ -217,27 +213,6 @@ class PipelineJob(
         self._parent = initializer.global_config.common_location_path(
             project=project, location=location
         )
-
-        # TODO(b/293637096): remove this when AR IAM is updated
-        # If it's an Artifact Registry URI with a tag, we need to replace the tag with the version due to how the pipeline service handles auth
-        # See https://github.com/googleapis/python-aiplatform/issues/2398
-        if re.match(_VALID_AR_URL, template_path):
-            if "sha256" not in template_path.split("/")[-1]:
-                template_uri_prefix = template_path.split("kfp.pkg.dev/")[0]
-                ar_region = template_uri_prefix.split("//")[1][:-1]
-                ar_project, ar_repo, ar_package, ar_tag = template_path.split(
-                    "kfp.pkg.dev/"
-                )[1].split("/")
-                tag_name = f"projects/{ar_project}/locations/{ar_region}/repositories/{ar_repo}/packages/{ar_package}/tags/{ar_tag}"
-
-                response = requests.get(
-                    f"https://artifactregistry.googleapis.com/v1/{tag_name}",
-                    auth=self.credentials.token,
-                )
-                response.raise_for_status()
-
-                version = response.json()["version"].split("/")[-1]
-                template_path = f"{template_uri_prefix}kfp.pkg.dev/{ar_project}/{ar_repo}/{ar_package}/{version}"
 
         # this loads both .yaml and .json files because YAML is a superset of JSON
         pipeline_json = yaml_utils.load_yaml(
