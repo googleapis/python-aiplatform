@@ -159,17 +159,4 @@ if has_generator_updates:
         "python3",
     )
 
-    # Don't treat docs warnings as errors
-    s.replace("noxfile.py", """        ["']-W["'],  # warnings as errors\n""", "")
-
-    # Don't include tests in calculation of test coverage
-    s.replace("noxfile.py", """        \"--cov=tests/unit\",\n""", "")
-
-    # Include prediction to be installed for documentation.
-    s.replace(
-        "noxfile.py",
-        "\"alabaster\"",
-        "\"alabaster\",\n        \"google-cloud-aiplatform[prediction]\"",
-    )
-
     s.shell.run(["nox", "-s", "blacken"], hide_output=False)
