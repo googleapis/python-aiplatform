@@ -377,7 +377,7 @@ class CreateTensorboardExperimentRequest(proto.Message):
             experiment's resource name.
 
             This value should be 1-128 characters, and valid characters
-            are /[a-z][0-9]-/.
+            are ``/[a-z][0-9]-/``.
     """
 
     parent: str = proto.Field(
@@ -619,7 +619,7 @@ class CreateTensorboardRunRequest(proto.Message):
             resource name.
 
             This value should be 1-128 characters, and valid characters
-            are /[a-z][0-9]-/.
+            are ``/[a-z][0-9]-/``.
     """
 
     parent: str = proto.Field(

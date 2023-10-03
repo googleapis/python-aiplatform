@@ -1194,10 +1194,6 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 Request message for
                 [FeatureRegistryService.CreateFeature][google.cloud.aiplatform.v1beta1.FeatureRegistryService.CreateFeature].
             parent (str):
-                The resource name of the EntityType or FeatureGroup to
-                create a Feature. Format:
-                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
-                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this

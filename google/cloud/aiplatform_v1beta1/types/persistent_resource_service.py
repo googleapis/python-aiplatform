@@ -58,7 +58,7 @@ class CreatePersistentResourceRequest(proto.Message):
             resource name.
 
             The maximum length is 63 characters, and valid characters
-            are /^`a-z <[a-z0-9-]{0,61}[a-z0-9]>`__?$/.
+            are ``/^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/``.
     """
 
     parent: str = proto.Field(

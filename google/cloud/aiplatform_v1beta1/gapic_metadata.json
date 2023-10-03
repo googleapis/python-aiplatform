@@ -15,9 +15,19 @@
                 "create_dataset"
               ]
             },
+            "CreateDatasetVersion": {
+              "methods": [
+                "create_dataset_version"
+              ]
+            },
             "DeleteDataset": {
               "methods": [
                 "delete_dataset"
+              ]
+            },
+            "DeleteDatasetVersion": {
+              "methods": [
+                "delete_dataset_version"
               ]
             },
             "DeleteSavedQuery": {
@@ -40,6 +50,11 @@
                 "get_dataset"
               ]
             },
+            "GetDatasetVersion": {
+              "methods": [
+                "get_dataset_version"
+              ]
+            },
             "ImportData": {
               "methods": [
                 "import_data"
@@ -55,6 +70,11 @@
                 "list_data_items"
               ]
             },
+            "ListDatasetVersions": {
+              "methods": [
+                "list_dataset_versions"
+              ]
+            },
             "ListDatasets": {
               "methods": [
                 "list_datasets"
@@ -63,6 +83,11 @@
             "ListSavedQueries": {
               "methods": [
                 "list_saved_queries"
+              ]
+            },
+            "RestoreDatasetVersion": {
+              "methods": [
+                "restore_dataset_version"
               ]
             },
             "SearchDataItems": {
@@ -85,9 +110,19 @@
                 "create_dataset"
               ]
             },
+            "CreateDatasetVersion": {
+              "methods": [
+                "create_dataset_version"
+              ]
+            },
             "DeleteDataset": {
               "methods": [
                 "delete_dataset"
+              ]
+            },
+            "DeleteDatasetVersion": {
+              "methods": [
+                "delete_dataset_version"
               ]
             },
             "DeleteSavedQuery": {
@@ -110,6 +145,11 @@
                 "get_dataset"
               ]
             },
+            "GetDatasetVersion": {
+              "methods": [
+                "get_dataset_version"
+              ]
+            },
             "ImportData": {
               "methods": [
                 "import_data"
@@ -125,6 +165,11 @@
                 "list_data_items"
               ]
             },
+            "ListDatasetVersions": {
+              "methods": [
+                "list_dataset_versions"
+              ]
+            },
             "ListDatasets": {
               "methods": [
                 "list_datasets"
@@ -133,6 +178,11 @@
             "ListSavedQueries": {
               "methods": [
                 "list_saved_queries"
+              ]
+            },
+            "RestoreDatasetVersion": {
+              "methods": [
+                "restore_dataset_version"
               ]
             },
             "SearchDataItems": {
@@ -1820,6 +1870,11 @@
               "methods": [
                 "get_publisher_model"
               ]
+            },
+            "ListPublisherModels": {
+              "methods": [
+                "list_publisher_models"
+              ]
             }
           }
         },
@@ -1829,6 +1884,11 @@
             "GetPublisherModel": {
               "methods": [
                 "get_publisher_model"
+              ]
+            },
+            "ListPublisherModels": {
+              "methods": [
+                "list_publisher_models"
               ]
             }
           }

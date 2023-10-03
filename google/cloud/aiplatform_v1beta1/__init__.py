@@ -102,14 +102,17 @@ from .types.dataset import ImportDataConfig
 from .types.dataset_service import CreateDatasetOperationMetadata
 from .types.dataset_service import CreateDatasetRequest
 from .types.dataset_service import CreateDatasetVersionOperationMetadata
+from .types.dataset_service import CreateDatasetVersionRequest
 from .types.dataset_service import DataItemView
 from .types.dataset_service import DeleteDatasetRequest
+from .types.dataset_service import DeleteDatasetVersionRequest
 from .types.dataset_service import DeleteSavedQueryRequest
 from .types.dataset_service import ExportDataOperationMetadata
 from .types.dataset_service import ExportDataRequest
 from .types.dataset_service import ExportDataResponse
 from .types.dataset_service import GetAnnotationSpecRequest
 from .types.dataset_service import GetDatasetRequest
+from .types.dataset_service import GetDatasetVersionRequest
 from .types.dataset_service import ImportDataOperationMetadata
 from .types.dataset_service import ImportDataRequest
 from .types.dataset_service import ImportDataResponse
@@ -119,12 +122,16 @@ from .types.dataset_service import ListDataItemsRequest
 from .types.dataset_service import ListDataItemsResponse
 from .types.dataset_service import ListDatasetsRequest
 from .types.dataset_service import ListDatasetsResponse
+from .types.dataset_service import ListDatasetVersionsRequest
+from .types.dataset_service import ListDatasetVersionsResponse
 from .types.dataset_service import ListSavedQueriesRequest
 from .types.dataset_service import ListSavedQueriesResponse
 from .types.dataset_service import RestoreDatasetVersionOperationMetadata
+from .types.dataset_service import RestoreDatasetVersionRequest
 from .types.dataset_service import SearchDataItemsRequest
 from .types.dataset_service import SearchDataItemsResponse
 from .types.dataset_service import UpdateDatasetRequest
+from .types.dataset_version import DatasetVersion
 from .types.deployed_index_ref import DeployedIndexRef
 from .types.deployed_model_ref import DeployedModelRef
 from .types.deployment_resource_pool import DeploymentResourcePool
@@ -477,6 +484,8 @@ from .types.model_deployment_monitoring_job import (
 from .types.model_evaluation import ModelEvaluation
 from .types.model_evaluation_slice import ModelEvaluationSlice
 from .types.model_garden_service import GetPublisherModelRequest
+from .types.model_garden_service import ListPublisherModelsRequest
+from .types.model_garden_service import ListPublisherModelsResponse
 from .types.model_garden_service import PublisherModelView
 from .types.model_monitoring import ModelMonitoringAlertConfig
 from .types.model_monitoring import ModelMonitoringConfig
@@ -777,6 +786,7 @@ __all__ = (
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
     "CreateDatasetVersionOperationMetadata",
+    "CreateDatasetVersionRequest",
     "CreateDeploymentResourcePoolOperationMetadata",
     "CreateDeploymentResourcePoolRequest",
     "CreateEndpointOperationMetadata",
@@ -828,6 +838,7 @@ __all__ = (
     "DataLabelingJob",
     "Dataset",
     "DatasetServiceClient",
+    "DatasetVersion",
     "DedicatedResources",
     "DeleteArtifactRequest",
     "DeleteBatchPredictionJobRequest",
@@ -835,6 +846,7 @@ __all__ = (
     "DeleteCustomJobRequest",
     "DeleteDataLabelingJobRequest",
     "DeleteDatasetRequest",
+    "DeleteDatasetVersionRequest",
     "DeleteDeploymentResourcePoolRequest",
     "DeleteEndpointRequest",
     "DeleteEntityTypeRequest",
@@ -954,6 +966,7 @@ __all__ = (
     "GetCustomJobRequest",
     "GetDataLabelingJobRequest",
     "GetDatasetRequest",
+    "GetDatasetVersionRequest",
     "GetDeploymentResourcePoolRequest",
     "GetEndpointRequest",
     "GetEntityTypeRequest",
@@ -1025,6 +1038,8 @@ __all__ = (
     "ListDataItemsResponse",
     "ListDataLabelingJobsRequest",
     "ListDataLabelingJobsResponse",
+    "ListDatasetVersionsRequest",
+    "ListDatasetVersionsResponse",
     "ListDatasetsRequest",
     "ListDatasetsResponse",
     "ListDeploymentResourcePoolsRequest",
@@ -1077,6 +1092,8 @@ __all__ = (
     "ListPersistentResourcesResponse",
     "ListPipelineJobsRequest",
     "ListPipelineJobsResponse",
+    "ListPublisherModelsRequest",
+    "ListPublisherModelsResponse",
     "ListSavedQueriesRequest",
     "ListSavedQueriesResponse",
     "ListSchedulesRequest",
@@ -1206,6 +1223,7 @@ __all__ = (
     "ResourceRuntimeSpec",
     "ResourcesConsumed",
     "RestoreDatasetVersionOperationMetadata",
+    "RestoreDatasetVersionRequest",
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "SampleConfig",
