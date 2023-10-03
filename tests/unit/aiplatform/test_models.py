@@ -3469,6 +3469,7 @@ class TestModel:
         "job_spec_json",
         [_TEST_MODEL_EVAL_PIPELINE_JOB],
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_model_evaluate_with_gcs_input_uris(
         self,
         get_model_mock,
@@ -3515,6 +3516,7 @@ class TestModel:
         "job_spec_json",
         [_TEST_MODEL_EVAL_PIPELINE_JOB_WITH_BQ_INPUT],
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_model_evaluate_with_bigquery_input(
         self,
         get_model_mock,
@@ -3548,6 +3550,7 @@ class TestModel:
         "job_spec_json",
         [_TEST_MODEL_EVAL_PIPELINE_JOB],
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_model_evaluate_using_initialized_staging_bucket(
         self,
         get_model_mock,

@@ -1461,6 +1461,7 @@ class TestLanguageModels:
         ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
         indirect=True,
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_tune_text_generation_model(
         self,
         mock_pipeline_service_create,
@@ -1543,6 +1544,7 @@ class TestLanguageModels:
         ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
         indirect=True,
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_tune_text_generation_model_ga(
         self,
         mock_pipeline_service_create,
@@ -1623,6 +1625,7 @@ class TestLanguageModels:
         ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
         indirect=True,
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_tune_chat_model(
         self,
         mock_pipeline_service_create,
@@ -1676,6 +1679,7 @@ class TestLanguageModels:
         ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
         indirect=True,
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_tune_code_generation_model(
         self,
         mock_pipeline_service_create,
@@ -1722,6 +1726,7 @@ class TestLanguageModels:
         ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
         indirect=True,
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_tune_code_chat_model(
         self,
         mock_pipeline_service_create,
@@ -2830,6 +2835,7 @@ class TestLanguageModelEvaluation:
         ["https://us-kfp.pkg.dev/proj/repo/pack/latest"],
         indirect=True,
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_model_evaluation_text_generation_task_with_gcs_input(
         self,
         job_spec,
@@ -3053,6 +3059,7 @@ class TestLanguageModelEvaluation:
         ["https://us-kfp.pkg.dev/proj/repo/pack/latest"],
         indirect=True,
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_model_evaluation_text_generation_task_on_base_model(
         self,
         job_spec,
@@ -3101,6 +3108,7 @@ class TestLanguageModelEvaluation:
         ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
         indirect=True,
     )
+    @pytest.mark.usefixtures("mock_artifact_registry_request")
     def test_model_evaluation_text_classification_base_model_only_summary_metrics(
         self,
         job_spec,
