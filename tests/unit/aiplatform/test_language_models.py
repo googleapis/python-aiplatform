@@ -1326,6 +1326,43 @@ class TestLanguageModels:
         assert "topP" not in prediction_parameters
         assert "topK" not in prediction_parameters
 
+    def test_text_generation_multiple_candidates(self):
+        """Tests the text generation model with multiple candidates."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        # Discrepancy between the number of `instances` and the number of `predictions`
+        # is a violation of the prediction service invariant, but the service does this.
+        gca_predict_response.predictions.append(_TEST_TEXT_GENERATION_PREDICTION)
+        gca_predict_response.predictions.append(_TEST_TEXT_GENERATION_PREDICTION)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            response = model.predict(
+                "What is the best recipe for banana bread? Recipe:",
+                candidate_count=2,
+            )
+        prediction_parameters = mock_predict.call_args[1]["parameters"]
+        assert prediction_parameters["candidateCount"] == 2
+
+        assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+        assert len(response.candidates) == 2
+        assert (
+            response.candidates[0].text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+        )
+
     @pytest.mark.asyncio
     async def test_text_generation_async(self):
         """Tests the text generation model."""

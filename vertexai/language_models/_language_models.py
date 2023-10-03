@@ -691,6 +691,35 @@ class TextGenerationResponse:
         return self._prediction_response
 
 
+@dataclasses.dataclass
+class MultiCandidateTextGenerationResponse(TextGenerationResponse):
+    """Represents a multi-candidate response of a language model.
+
+    Attributes:
+        text: The generated text for the first candidate.
+        is_blocked: Whether the first candidate response was blocked.
+        safety_attributes: Scores for safety attributes for the first candidate.
+            Learn more about the safety attributes here:
+            https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
+        candidates: The candidate responses.
+            Usually contains a single candidate unless `candidate_count` is used.
+    """
+
+    __module__ = "vertexai.language_models"
+
+    candidates: List[TextGenerationResponse] = dataclasses.field(default_factory=list)
+
+    def _repr_pretty_(self, p, cycle):
+        """Pretty prints self in IPython environments."""
+        if cycle:
+            p.text(f"{self.__class__.__name__}(...)")
+        else:
+            if len(self.candidates) == 1:
+                p.text(repr(self.candidates[0]))
+            else:
+                p.text(repr(self))
+
+
 class _TextGenerationModel(_LanguageModel):
     """TextGenerationModel represents a general language model.
 
@@ -716,7 +745,8 @@ class _TextGenerationModel(_LanguageModel):
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
-    ) -> "TextGenerationResponse":
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
         """Gets model response for a single prompt.
 
         Args:
@@ -726,9 +756,10 @@ class _TextGenerationModel(_LanguageModel):
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of response candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
         """
         prediction_request = _create_text_generation_prediction_request(
             prompt=prompt,
@@ -737,6 +768,7 @@ class _TextGenerationModel(_LanguageModel):
             top_k=top_k,
             top_p=top_p,
             stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
         )
 
         prediction_response = self._endpoint.predict(
@@ -744,7 +776,7 @@ class _TextGenerationModel(_LanguageModel):
             parameters=prediction_request.parameters,
         )
 
-        return _parse_text_generation_model_response(prediction_response)
+        return _parse_text_generation_model_multi_candidate_response(prediction_response)
 
     async def predict_async(
         self,
@@ -755,7 +787,8 @@ class _TextGenerationModel(_LanguageModel):
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
-    ) -> "TextGenerationResponse":
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously gets model response for a single prompt.
 
         Args:
@@ -765,9 +798,10 @@ class _TextGenerationModel(_LanguageModel):
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of response candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
         """
         prediction_request = _create_text_generation_prediction_request(
             prompt=prompt,
@@ -776,6 +810,7 @@ class _TextGenerationModel(_LanguageModel):
             top_k=top_k,
             top_p=top_p,
             stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
         )
 
         prediction_response = await self._endpoint.predict_async(
@@ -783,7 +818,7 @@ class _TextGenerationModel(_LanguageModel):
             parameters=prediction_request.parameters,
         )
 
-        return _parse_text_generation_model_response(prediction_response)
+        return _parse_text_generation_model_multi_candidate_response(prediction_response)
 
     def predict_streaming(
         self,
@@ -844,6 +879,7 @@ def _create_text_generation_prediction_request(
     top_k: Optional[int] = None,
     top_p: Optional[float] = None,
     stop_sequences: Optional[List[str]] = None,
+    candidate_count: Optional[int] = None,
 ) -> "_PredictionRequest":
     """Prepares the text generation request for a single prompt.
 
@@ -854,6 +890,7 @@ def _create_text_generation_prediction_request(
         top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
         top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
         stop_sequences: Customized stop sequences to stop the decoding process.
+        candidate_count: Number of candidates to return.
 
     Returns:
         A `_PredictionRequest` object that contains prediction instance and parameters.
@@ -880,6 +917,9 @@ def _create_text_generation_prediction_request(
     if stop_sequences:
         prediction_parameters["stopSequences"] = stop_sequences
 
+    if candidate_count is not None:
+        prediction_parameters["candidateCount"] = candidate_count
+
     return _PredictionRequest(
         instance=instance,
         parameters=prediction_parameters,
@@ -903,6 +943,32 @@ def _parse_text_generation_model_response(
                 safety_attributes_dict.get("scores") or [],
             )
         ),
+    )
+
+
+def _parse_text_generation_model_multi_candidate_response(
+    prediction_response: aiplatform.models.Prediction,
+) -> MultiCandidateTextGenerationResponse:
+    """Converts the raw text_generation model response to `MultiCandidateTextGenerationResponse`."""
+    # The contract for the PredictionService is that there is a 1:1 mapping
+    # between request `instances` and response `predictions`.
+    # Unfortunetely, the text-bison models violate this contract.
+
+    prediction_count = len(prediction_response.predictions)
+    candidates = []
+    for prediction_idx in range(prediction_count):
+        candidate = _parse_text_generation_model_response(
+            prediction_response=prediction_response,
+            prediction_idx=prediction_idx,
+        )
+        candidates.append(candidate)
+
+    return MultiCandidateTextGenerationResponse(
+        text=candidates[0].text,
+        _prediction_response=prediction_response,
+        is_blocked=candidates[0].is_blocked,
+        safety_attributes=candidates[0].safety_attributes,
+        candidates=candidates,
     )
 
 
