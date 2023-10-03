@@ -25,12 +25,18 @@ from vertexai.preview._workflow.executor import training
 from vertexai.preview._workflow.serialization_engine import (
     serializers,
 )
-import pandas as pd
+import numpy as np
+
 import pytest
-from sklearn.datasets import load_iris
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+
+import bigframes.pandas as bf
+from bigframes.ml.model_selection import train_test_split as bf_train_test_split
+
+
+bf.options.bigquery.location = "us"  # Dataset is in 'us' not 'us-central1'
+bf.options.bigquery.project = e2e_base._PROJECT
 
 
 # Wrap classes
@@ -57,7 +63,7 @@ LogisticRegression = vertexai.preview.remote(LogisticRegression)
 @pytest.mark.usefixtures(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
 )
-class TestRemoteExecutionSklearn(e2e_base.TestEndToEnd):
+class TestRemoteExecutionBigframesSklearn(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertexai-remote-execution"
 
@@ -70,22 +76,30 @@ class TestRemoteExecutionSklearn(e2e_base.TestEndToEnd):
         )
 
         # Prepare dataset
-        dataset = load_iris()
-        X, X_retrain, y, y_retrain = train_test_split(
-            dataset.data, dataset.target, test_size=0.60, random_state=42
-        )
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.20, random_state=42
+        df = bf.read_gbq("bigquery-public-data.ml_datasets.iris")
+        species_categories = {
+            "versicolor": 0,
+            "virginica": 1,
+            "setosa": 2,
+        }
+        df["species"] = df["species"].map(species_categories)
+        index_col = "index"
+        df.index.name = index_col
+        feature_columns = df[
+            ["sepal_length", "sepal_width", "petal_length", "petal_width"]
+        ]
+        label_columns = df[["species"]]
+        train_X, test_X, train_y, _ = bf_train_test_split(
+            feature_columns, label_columns, test_size=0.2
         )
 
-        # Remote fit_transform on train dataset
+        # Remote fit_transform on bf train dataset
         vertexai.preview.init(remote=True)
-
         transformer = StandardScaler()
-        transformer.fit_transform.vertex.set_config(
-            display_name=self._make_display_name("fit-transform"),
+        transformer.fit_transform.vertex.remote_config.display_name = (
+            self._make_display_name("bigframes-fit-transform")
         )
-        X_train = transformer.fit_transform(X_train)
+        X_train = transformer.fit_transform(train_X)
 
         # Assert the right serializer is being used
         remote_job = aiplatform.CustomJob.list(
@@ -103,13 +117,20 @@ class TestRemoteExecutionSklearn(e2e_base.TestEndToEnd):
         )
         assert output_estimator_metadata["serializer"] == "SklearnEstimatorSerializer"
 
+        train_x_metadata = serializers._get_metadata(os.path.join(base_path, "input/X"))
+        assert train_x_metadata["serializer"] == "BigframeSerializer"
+        assert train_x_metadata["framework"] == "sklearn"
+
         shared_state["resources"] = [remote_job]
 
-        # Remote transform on test dataset
-        transformer.transform.vertex.set_config(
-            display_name=self._make_display_name("transform"),
+        assert type(X_train) is np.ndarray
+        assert X_train.shape == (120, 4)
+
+        # Remote transform on bf test dataset
+        transformer.transform.vertex.remote_config.display_name = (
+            self._make_display_name("bigframes-transform")
         )
-        X_test = transformer.transform(X_test)
+        X_test = transformer.transform(test_X)
 
         # Assert the right serializer is being used
         remote_job = aiplatform.CustomJob.list(
@@ -122,23 +143,23 @@ class TestRemoteExecutionSklearn(e2e_base.TestEndToEnd):
         )
         assert input_estimator_metadata["serializer"] == "SklearnEstimatorSerializer"
 
+        test_x_metadata = serializers._get_metadata(os.path.join(base_path, "input/X"))
+        assert test_x_metadata["serializer"] == "BigframeSerializer"
+        assert train_x_metadata["framework"] == "sklearn"
+
         shared_state["resources"].append(remote_job)
 
-        # Local transform on retrain data
-        vertexai.preview.init(remote=False)
-        X_retrain = transformer.transform(X_retrain)
-        # Transform retrain dataset to pandas dataframe
-        X_retrain_df = pd.DataFrame(X_retrain, columns=dataset.feature_names)
-        y_retrain_df = pd.DataFrame(y_retrain, columns=["class"])
+        assert type(X_test) is np.ndarray
+        assert X_test.shape == (30, 4)
 
         # Remote training on sklearn
         vertexai.preview.init(remote=True)
 
         model = LogisticRegression(warm_start=True)
         model.fit.vertex.remote_config.display_name = self._make_display_name(
-            "sklearn-training"
+            "bigframes-sklearn-training"
         )
-        model.fit(X_train, y_train)
+        model.fit(train_X, train_y)
 
         # Assert the right serializer is being used
         remote_job = aiplatform.CustomJob.list(
@@ -156,46 +177,12 @@ class TestRemoteExecutionSklearn(e2e_base.TestEndToEnd):
         )
         assert output_estimator_metadata["serializer"] == "SklearnEstimatorSerializer"
 
-        shared_state["resources"].append(remote_job)
+        train_x_metadata = serializers._get_metadata(os.path.join(base_path, "input/X"))
+        assert train_x_metadata["serializer"] == "BigframeSerializer"
+        assert train_x_metadata["framework"] == "sklearn"
 
-        # Remote prediction on sklearn
-        model.predict.vertex.remote_config.display_name = self._make_display_name(
-            "sklearn-prediction"
-        )
-        model.predict(X_test)
-
-        # Add prediction job to teardown resource
-        remote_job = aiplatform.CustomJob.list(
-            filter=f'display_name="{model.predict.vertex.remote_config.display_name}"'
-        )[0]
-        shared_state["resources"].append(remote_job)
-
-        # Register trained model
-        registered_model = vertexai.preview.register(model)
-        shared_state["resources"].append(registered_model)
-
-        # Load the registered model
-        pulled_model = vertexai.preview.from_pretrained(
-            model_name=registered_model.resource_name
-        )
-
-        # Retrain model with pandas df on Vertex
-        pulled_model.fit(X_retrain_df, y_retrain_df)
-
-        # Assert the right serializer is being used
-        remote_job = aiplatform.CustomJob.list(
-            filter=f'display_name="{pulled_model.fit.vertex.remote_config.display_name}"'
-        )[0]
-        base_path = remote_job.job_spec.base_output_directory.output_uri_prefix
-
-        input_estimator_metadata = serializers._get_metadata(
-            os.path.join(base_path, "input/input_estimator")
-        )
-        assert input_estimator_metadata["serializer"] == "SklearnEstimatorSerializer"
-
-        output_estimator_metadata = serializers._get_metadata(
-            os.path.join(base_path, "output/output_estimator")
-        )
-        assert output_estimator_metadata["serializer"] == "SklearnEstimatorSerializer"
+        train_y_metadata = serializers._get_metadata(os.path.join(base_path, "input/y"))
+        assert train_y_metadata["serializer"] == "BigframeSerializer"
+        assert train_y_metadata["framework"] == "sklearn"
 
         shared_state["resources"].append(remote_job)

@@ -132,6 +132,12 @@ class TestRemoteExecutionTensorflow(e2e_base.TestEndToEnd):
         )
         model.predict(tf_remote_prediction_test_data)
 
+        # Add prediction job to teardown resource
+        remote_job = aiplatform.CustomJob.list(
+            filter=f'display_name="{model.predict.vertex.remote_config.display_name}"'
+        )[0]
+        shared_state["resources"].append(remote_job)
+
         # Register trained model
         registered_model = vertexai.preview.register(model)
         shared_state["resources"].append(registered_model)
