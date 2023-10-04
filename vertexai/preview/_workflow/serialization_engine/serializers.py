@@ -488,7 +488,7 @@ class TorchModelSerializer(serializers_base.Serializer):
         TorchModelSerializer._metadata.dependencies = (
             supported_frameworks._get_deps_if_torch_model(to_serialize)
         )
-
+        # test
         if gcs_path.startswith("gs://"):
             with tempfile.NamedTemporaryFile() as temp_file:
                 torch.save(
