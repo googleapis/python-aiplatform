@@ -138,7 +138,7 @@ testing_extra_require = (
         "bigframes; python_version>='3.10'",
         "grpcio-testing",
         "ipython",
-        "kfp",
+        "kfp >= 2.0.0, < 3.0.0",
         "pyfakefs",
         "pytest-asyncio",
         "pytest-xdist",
