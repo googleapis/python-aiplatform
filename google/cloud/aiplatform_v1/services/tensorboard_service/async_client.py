@@ -1166,7 +1166,7 @@ class TensorboardServiceAsyncClient:
                 experiment's resource name.
 
                 This value should be 1-128 characters, and valid
-                characters are /[a-z][0-9]-/.
+                characters are ``/[a-z][0-9]-/``.
 
                 This corresponds to the ``tensorboard_experiment_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1782,7 +1782,7 @@ class TensorboardServiceAsyncClient:
                 resource name.
 
                 This value should be 1-128 characters, and valid
-                characters are /[a-z][0-9]-/.
+                characters are ``/[a-z][0-9]-/``.
 
                 This corresponds to the ``tensorboard_run_id`` field
                 on the ``request`` instance; if ``request`` is provided, this

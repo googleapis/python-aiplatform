@@ -1123,10 +1123,7 @@ class CreateFeatureRequest(proto.Message):
 
     Attributes:
         parent (str):
-            The resource name of the EntityType or FeatureGroup to
-            create a Feature. Format:
-            ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
-            ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
+
         feature (google.cloud.aiplatform_v1beta1.types.Feature):
             Required. The Feature to create.
         feature_id (str):

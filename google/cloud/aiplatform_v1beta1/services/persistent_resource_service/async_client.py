@@ -319,7 +319,7 @@ class PersistentResourceServiceAsyncClient:
                 PersistentResource's resource name.
 
                 The maximum length is 63 characters, and valid
-                characters are /^`a-z <[a-z0-9-]{0,61}[a-z0-9]>`__?$/.
+                characters are ``/^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/``.
 
                 This corresponds to the ``persistent_resource_id`` field
                 on the ``request`` instance; if ``request`` is provided, this

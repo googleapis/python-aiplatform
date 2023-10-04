@@ -137,6 +137,10 @@ class JobServiceAsyncClient:
     )
     network_path = staticmethod(JobServiceClient.network_path)
     parse_network_path = staticmethod(JobServiceClient.parse_network_path)
+    notification_channel_path = staticmethod(JobServiceClient.notification_channel_path)
+    parse_notification_channel_path = staticmethod(
+        JobServiceClient.parse_notification_channel_path
+    )
     tensorboard_path = staticmethod(JobServiceClient.tensorboard_path)
     parse_tensorboard_path = staticmethod(JobServiceClient.parse_tensorboard_path)
     trial_path = staticmethod(JobServiceClient.trial_path)

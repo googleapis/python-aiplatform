@@ -19,12 +19,16 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import publisher_model
+
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "PublisherModelView",
         "GetPublisherModelRequest",
+        "ListPublisherModelsRequest",
+        "ListPublisherModelsResponse",
     },
 )
 
@@ -81,6 +85,101 @@ class GetPublisherModelRequest(proto.Message):
         proto.ENUM,
         number=3,
         enum="PublisherModelView",
+    )
+
+
+class ListPublisherModelsRequest(proto.Message):
+    r"""Request message for
+    [ModelGardenService.ListPublisherModels][google.cloud.aiplatform.v1beta1.ModelGardenService.ListPublisherModels].
+
+    Attributes:
+        parent (str):
+            Required. The name of the Publisher from which to list the
+            PublisherModels. Format: ``publishers/{publisher}``
+        filter (str):
+            Optional. The standard list filter.
+        page_size (int):
+            Optional. The standard list page size.
+        page_token (str):
+            Optional. The standard list page token. Typically obtained
+            via
+            [ListPublisherModelsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListPublisherModelsResponse.next_page_token]
+            of the previous
+            [ModelGardenService.ListPublisherModels][google.cloud.aiplatform.v1beta1.ModelGardenService.ListPublisherModels]
+            call.
+        view (google.cloud.aiplatform_v1beta1.types.PublisherModelView):
+            Optional. PublisherModel view specifying
+            which fields to read.
+        order_by (str):
+            Optional. A comma-separated list of fields to
+            order by, sorted in ascending order. Use "desc"
+            after a field name for descending.
+        language_code (str):
+            Optional. The IETF BCP-47 language code
+            representing the language in which the publisher
+            models' text information should be written in
+            (see go/bcp47). If not set, by default English
+            (en).
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    view: "PublisherModelView" = proto.Field(
+        proto.ENUM,
+        number=5,
+        enum="PublisherModelView",
+    )
+    order_by: str = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    language_code: str = proto.Field(
+        proto.STRING,
+        number=7,
+    )
+
+
+class ListPublisherModelsResponse(proto.Message):
+    r"""Response message for
+    [ModelGardenService.ListPublisherModels][google.cloud.aiplatform.v1beta1.ModelGardenService.ListPublisherModels].
+
+    Attributes:
+        publisher_models (MutableSequence[google.cloud.aiplatform_v1beta1.types.PublisherModel]):
+            List of PublisherModels in the requested
+            page.
+        next_page_token (str):
+            A token to retrieve next page of results. Pass to
+            [ListPublisherModels.page_token][] to obtain that page.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    publisher_models: MutableSequence[
+        publisher_model.PublisherModel
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=publisher_model.PublisherModel,
+    )
+    next_page_token: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 

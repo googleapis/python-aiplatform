@@ -133,6 +133,11 @@ class ModelGardenServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.list_publisher_models: gapic_v1.method.wrap_method(
+                self.list_publisher_models,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -151,6 +156,18 @@ class ModelGardenServiceTransport(abc.ABC):
         [model_garden_service.GetPublisherModelRequest],
         Union[
             publisher_model.PublisherModel, Awaitable[publisher_model.PublisherModel]
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_publisher_models(
+        self,
+    ) -> Callable[
+        [model_garden_service.ListPublisherModelsRequest],
+        Union[
+            model_garden_service.ListPublisherModelsResponse,
+            Awaitable[model_garden_service.ListPublisherModelsResponse],
         ],
     ]:
         raise NotImplementedError()

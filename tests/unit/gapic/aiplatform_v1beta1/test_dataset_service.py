@@ -55,6 +55,8 @@ from google.cloud.aiplatform_v1beta1.types import data_item
 from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
+from google.cloud.aiplatform_v1beta1.types import dataset_version
+from google.cloud.aiplatform_v1beta1.types import dataset_version as gca_dataset_version
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -2615,6 +2617,1439 @@ async def test_export_data_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
+        dataset_service.CreateDatasetVersionRequest,
+        dict,
+    ],
+)
+def test_create_dataset_version(request_type, transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.create_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.CreateDatasetVersionRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_create_dataset_version_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_dataset_version), "__call__"
+    ) as call:
+        client.create_dataset_version()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.CreateDatasetVersionRequest()
+
+
+@pytest.mark.asyncio
+async def test_create_dataset_version_async(
+    transport: str = "grpc_asyncio",
+    request_type=dataset_service.CreateDatasetVersionRequest,
+):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.create_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.CreateDatasetVersionRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_create_dataset_version_async_from_dict():
+    await test_create_dataset_version_async(request_type=dict)
+
+
+def test_create_dataset_version_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.CreateDatasetVersionRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_dataset_version), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.create_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_create_dataset_version_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.CreateDatasetVersionRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_dataset_version), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.create_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_create_dataset_version_flattened():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.create_dataset_version(
+            parent="parent_value",
+            dataset_version=gca_dataset_version.DatasetVersion(name="name_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].dataset_version
+        mock_val = gca_dataset_version.DatasetVersion(name="name_value")
+        assert arg == mock_val
+
+
+def test_create_dataset_version_flattened_error():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_dataset_version(
+            dataset_service.CreateDatasetVersionRequest(),
+            parent="parent_value",
+            dataset_version=gca_dataset_version.DatasetVersion(name="name_value"),
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_dataset_version_flattened_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.create_dataset_version(
+            parent="parent_value",
+            dataset_version=gca_dataset_version.DatasetVersion(name="name_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].dataset_version
+        mock_val = gca_dataset_version.DatasetVersion(name="name_value")
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_create_dataset_version_flattened_error_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.create_dataset_version(
+            dataset_service.CreateDatasetVersionRequest(),
+            parent="parent_value",
+            dataset_version=gca_dataset_version.DatasetVersion(name="name_value"),
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.DeleteDatasetVersionRequest,
+        dict,
+    ],
+)
+def test_delete_dataset_version(request_type, transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.delete_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.DeleteDatasetVersionRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_delete_dataset_version_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_dataset_version), "__call__"
+    ) as call:
+        client.delete_dataset_version()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.DeleteDatasetVersionRequest()
+
+
+@pytest.mark.asyncio
+async def test_delete_dataset_version_async(
+    transport: str = "grpc_asyncio",
+    request_type=dataset_service.DeleteDatasetVersionRequest,
+):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.DeleteDatasetVersionRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_delete_dataset_version_async_from_dict():
+    await test_delete_dataset_version_async(request_type=dict)
+
+
+def test_delete_dataset_version_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.DeleteDatasetVersionRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_dataset_version), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_delete_dataset_version_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.DeleteDatasetVersionRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_dataset_version), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.delete_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_delete_dataset_version_flattened():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.delete_dataset_version(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_delete_dataset_version_flattened_error():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_dataset_version(
+            dataset_service.DeleteDatasetVersionRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_dataset_version_flattened_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.delete_dataset_version(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_delete_dataset_version_flattened_error_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.delete_dataset_version(
+            dataset_service.DeleteDatasetVersionRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.GetDatasetVersionRequest,
+        dict,
+    ],
+)
+def test_get_dataset_version(request_type, transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_version.DatasetVersion(
+            name="name_value",
+            etag="etag_value",
+            big_query_dataset_name="big_query_dataset_name_value",
+        )
+        response = client.get_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.GetDatasetVersionRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, dataset_version.DatasetVersion)
+    assert response.name == "name_value"
+    assert response.etag == "etag_value"
+    assert response.big_query_dataset_name == "big_query_dataset_name_value"
+
+
+def test_get_dataset_version_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_dataset_version), "__call__"
+    ) as call:
+        client.get_dataset_version()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.GetDatasetVersionRequest()
+
+
+@pytest.mark.asyncio
+async def test_get_dataset_version_async(
+    transport: str = "grpc_asyncio",
+    request_type=dataset_service.GetDatasetVersionRequest,
+):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_version.DatasetVersion(
+                name="name_value",
+                etag="etag_value",
+                big_query_dataset_name="big_query_dataset_name_value",
+            )
+        )
+        response = await client.get_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.GetDatasetVersionRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, dataset_version.DatasetVersion)
+    assert response.name == "name_value"
+    assert response.etag == "etag_value"
+    assert response.big_query_dataset_name == "big_query_dataset_name_value"
+
+
+@pytest.mark.asyncio
+async def test_get_dataset_version_async_from_dict():
+    await test_get_dataset_version_async(request_type=dict)
+
+
+def test_get_dataset_version_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.GetDatasetVersionRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_dataset_version), "__call__"
+    ) as call:
+        call.return_value = dataset_version.DatasetVersion()
+        client.get_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_dataset_version_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.GetDatasetVersionRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_dataset_version), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_version.DatasetVersion()
+        )
+        await client.get_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_get_dataset_version_flattened():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_version.DatasetVersion()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.get_dataset_version(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_get_dataset_version_flattened_error():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_dataset_version(
+            dataset_service.GetDatasetVersionRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_dataset_version_flattened_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_version.DatasetVersion()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_version.DatasetVersion()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.get_dataset_version(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_get_dataset_version_flattened_error_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.get_dataset_version(
+            dataset_service.GetDatasetVersionRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.ListDatasetVersionsRequest,
+        dict,
+    ],
+)
+def test_list_dataset_versions(request_type, transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_dataset_versions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_service.ListDatasetVersionsResponse(
+            next_page_token="next_page_token_value",
+        )
+        response = client.list_dataset_versions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.ListDatasetVersionsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListDatasetVersionsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_dataset_versions_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_dataset_versions), "__call__"
+    ) as call:
+        client.list_dataset_versions()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.ListDatasetVersionsRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_dataset_versions_async(
+    transport: str = "grpc_asyncio",
+    request_type=dataset_service.ListDatasetVersionsRequest,
+):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_dataset_versions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_service.ListDatasetVersionsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_dataset_versions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.ListDatasetVersionsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListDatasetVersionsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+async def test_list_dataset_versions_async_from_dict():
+    await test_list_dataset_versions_async(request_type=dict)
+
+
+def test_list_dataset_versions_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.ListDatasetVersionsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_dataset_versions), "__call__"
+    ) as call:
+        call.return_value = dataset_service.ListDatasetVersionsResponse()
+        client.list_dataset_versions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_dataset_versions_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.ListDatasetVersionsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_dataset_versions), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_service.ListDatasetVersionsResponse()
+        )
+        await client.list_dataset_versions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_list_dataset_versions_flattened():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_dataset_versions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_service.ListDatasetVersionsResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.list_dataset_versions(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+def test_list_dataset_versions_flattened_error():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_dataset_versions(
+            dataset_service.ListDatasetVersionsRequest(),
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_dataset_versions_flattened_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_dataset_versions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_service.ListDatasetVersionsResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_service.ListDatasetVersionsResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.list_dataset_versions(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_list_dataset_versions_flattened_error_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.list_dataset_versions(
+            dataset_service.ListDatasetVersionsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_dataset_versions_pager(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_dataset_versions), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                ],
+            ),
+            RuntimeError,
+        )
+
+        metadata = ()
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
+        )
+        pager = client.list_dataset_versions(request={})
+
+        assert pager._metadata == metadata
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, dataset_version.DatasetVersion) for i in results)
+
+
+def test_list_dataset_versions_pages(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_dataset_versions), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = list(client.list_dataset_versions(request={}).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.asyncio
+async def test_list_dataset_versions_async_pager():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_dataset_versions),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                ],
+            ),
+            RuntimeError,
+        )
+        async_pager = await client.list_dataset_versions(
+            request={},
+        )
+        assert async_pager.next_page_token == "abc"
+        responses = []
+        async for response in async_pager:  # pragma: no branch
+            responses.append(response)
+
+        assert len(responses) == 6
+        assert all(isinstance(i, dataset_version.DatasetVersion) for i in responses)
+
+
+@pytest.mark.asyncio
+async def test_list_dataset_versions_async_pages():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_dataset_versions),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListDatasetVersionsResponse(
+                dataset_versions=[
+                    dataset_version.DatasetVersion(),
+                    dataset_version.DatasetVersion(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = []
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
+            await client.list_dataset_versions(request={})
+        ).pages:
+            pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.RestoreDatasetVersionRequest,
+        dict,
+    ],
+)
+def test_restore_dataset_version(request_type, transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.restore_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.restore_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.RestoreDatasetVersionRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_restore_dataset_version_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.restore_dataset_version), "__call__"
+    ) as call:
+        client.restore_dataset_version()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.RestoreDatasetVersionRequest()
+
+
+@pytest.mark.asyncio
+async def test_restore_dataset_version_async(
+    transport: str = "grpc_asyncio",
+    request_type=dataset_service.RestoreDatasetVersionRequest,
+):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.restore_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.restore_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.RestoreDatasetVersionRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_restore_dataset_version_async_from_dict():
+    await test_restore_dataset_version_async(request_type=dict)
+
+
+def test_restore_dataset_version_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.RestoreDatasetVersionRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.restore_dataset_version), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.restore_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_restore_dataset_version_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.RestoreDatasetVersionRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.restore_dataset_version), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.restore_dataset_version(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_restore_dataset_version_flattened():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.restore_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.restore_dataset_version(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_restore_dataset_version_flattened_error():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.restore_dataset_version(
+            dataset_service.RestoreDatasetVersionRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_restore_dataset_version_flattened_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.restore_dataset_version), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.restore_dataset_version(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_restore_dataset_version_flattened_error_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.restore_dataset_version(
+            dataset_service.RestoreDatasetVersionRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         dataset_service.ListDataItemsRequest,
         dict,
     ],
@@ -4899,6 +6334,11 @@ def test_dataset_service_base_transport():
         "delete_dataset",
         "import_data",
         "export_data",
+        "create_dataset_version",
+        "delete_dataset_version",
+        "get_dataset_version",
+        "list_dataset_versions",
+        "restore_dataset_version",
         "list_data_items",
         "search_data_items",
         "list_saved_queries",
@@ -5419,11 +6859,42 @@ def test_parse_dataset_path():
     assert expected == actual
 
 
-def test_saved_query_path():
+def test_dataset_version_path():
     project = "winkle"
     location = "nautilus"
     dataset = "scallop"
-    saved_query = "abalone"
+    dataset_version = "abalone"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}".format(
+        project=project,
+        location=location,
+        dataset=dataset,
+        dataset_version=dataset_version,
+    )
+    actual = DatasetServiceClient.dataset_version_path(
+        project, location, dataset, dataset_version
+    )
+    assert expected == actual
+
+
+def test_parse_dataset_version_path():
+    expected = {
+        "project": "squid",
+        "location": "clam",
+        "dataset": "whelk",
+        "dataset_version": "octopus",
+    }
+    path = DatasetServiceClient.dataset_version_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = DatasetServiceClient.parse_dataset_version_path(path)
+    assert expected == actual
+
+
+def test_saved_query_path():
+    project = "oyster"
+    location = "nudibranch"
+    dataset = "cuttlefish"
+    saved_query = "mussel"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}/savedQueries/{saved_query}".format(
         project=project,
         location=location,
@@ -5438,10 +6909,10 @@ def test_saved_query_path():
 
 def test_parse_saved_query_path():
     expected = {
-        "project": "squid",
-        "location": "clam",
-        "dataset": "whelk",
-        "saved_query": "octopus",
+        "project": "winkle",
+        "location": "nautilus",
+        "dataset": "scallop",
+        "saved_query": "abalone",
     }
     path = DatasetServiceClient.saved_query_path(**expected)
 
@@ -5451,7 +6922,7 @@ def test_parse_saved_query_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "oyster"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -5461,7 +6932,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nudibranch",
+        "billing_account": "clam",
     }
     path = DatasetServiceClient.common_billing_account_path(**expected)
 
@@ -5471,7 +6942,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "cuttlefish"
+    folder = "whelk"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -5481,7 +6952,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "mussel",
+        "folder": "octopus",
     }
     path = DatasetServiceClient.common_folder_path(**expected)
 
@@ -5491,7 +6962,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "winkle"
+    organization = "oyster"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -5501,7 +6972,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nautilus",
+        "organization": "nudibranch",
     }
     path = DatasetServiceClient.common_organization_path(**expected)
 
@@ -5511,7 +6982,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "scallop"
+    project = "cuttlefish"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -5521,7 +6992,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "abalone",
+        "project": "mussel",
     }
     path = DatasetServiceClient.common_project_path(**expected)
 
@@ -5531,8 +7002,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "squid"
-    location = "clam"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -5543,8 +7014,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = DatasetServiceClient.common_location_path(**expected)
 
