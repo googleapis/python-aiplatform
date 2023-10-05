@@ -298,9 +298,13 @@ class PersistentResourceConfig:
             cannot be a number or hyphen.
         resource_pool_specs (vertexai.preview.developer.remote_specs.ResourcePoolSpecs):
             The worker pool specs configuration for a remote job.
+        disable (bool): By default is False, meaning the remote execution runs on
+            the persistent cluster. If users want to disable it (so the remote
+            execution runs on an ephemeral cluster), set it as True.
     """
 
     name: Optional[str] = None
     resource_pools: Optional[
         "vertexai.preview.developer.remote_specs.ResourcePool"  # noqa: F821
     ] = None
+    disable: Optional[bool] = False

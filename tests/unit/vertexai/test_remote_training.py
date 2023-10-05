@@ -268,6 +268,20 @@ _TEST_PERSISTENT_RESOURCE_CONFIG = configs.PersistentResourceConfig(
     ],
 )
 
+_TEST_PERSISTENT_RESOURCE_CONFIG_DISABLE = configs.PersistentResourceConfig(
+    name=_TEST_PERSISTENT_RESOURCE_ID,
+    resource_pools=[
+        remote_specs.ResourcePool(
+            replica_count=_TEST_REPLICA_COUNT,
+        ),
+        remote_specs.ResourcePool(
+            machine_type="n1-standard-8",
+            replica_count=2,
+        ),
+    ],
+    disable=True,
+)
+
 
 @pytest.fixture
 def list_default_tensorboard_mock():
@@ -1872,6 +1886,77 @@ class TestRemoteTraining:
         e.match(
             regexp=r"Persistent cluster currently does not support custom service account."
         )
+
+    @pytest.mark.usefixtures(
+        "mock_timestamped_unique_name",
+        "mock_get_custom_job",
+        "mock_autolog_disabled",
+        "persistent_resource_running_mock",
+    )
+    def test_remote_training_sklearn_with_persistent_cluster_disabled(
+        self,
+        mock_any_serializer_sklearn,
+        mock_create_custom_job,
+    ):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+        )
+        # Enable persistent resource executor
+        vertexai.preview.init(remote=True, cluster=_TEST_PERSISTENT_RESOURCE_CONFIG)
+        # Disable persistent resource executor
+        vertexai.preview.init(
+            remote=True, cluster=_TEST_PERSISTENT_RESOURCE_CONFIG_DISABLE
+        )
+
+        LogisticRegression = vertexai.preview.remote(_logistic.LogisticRegression)
+        model = LogisticRegression()
+
+        model.fit(_X_TRAIN, _Y_TRAIN)
+
+        # check that model is serialized correctly
+        mock_any_serializer_sklearn.return_value.serialize.assert_any_call(
+            to_serialize=model,
+            gcs_path=os.path.join(_TEST_REMOTE_JOB_BASE_PATH, "input/input_estimator"),
+        )
+
+        # check that args are serialized correctly
+        mock_any_serializer_sklearn.return_value.serialize.assert_any_call(
+            to_serialize=_X_TRAIN,
+            gcs_path=os.path.join(_TEST_REMOTE_JOB_BASE_PATH, "input/X"),
+        )
+        mock_any_serializer_sklearn.return_value.serialize.assert_any_call(
+            to_serialize=_Y_TRAIN,
+            gcs_path=os.path.join(_TEST_REMOTE_JOB_BASE_PATH, "input/y"),
+        )
+
+        # ckeck that CustomJob is created correctly without persistent_resource_id
+        expected_custom_job = _get_custom_job_proto()
+        mock_create_custom_job.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+        # check that trained model is deserialized correctly
+        mock_any_serializer_sklearn.return_value.deserialize.assert_has_calls(
+            [
+                mock.call(
+                    os.path.join(_TEST_REMOTE_JOB_BASE_PATH, "output/output_estimator")
+                ),
+                mock.call(
+                    os.path.join(_TEST_REMOTE_JOB_BASE_PATH, "output/output_data")
+                ),
+            ]
+        )
+
+        # change to `vertexai.preview.init(remote=False)` to use local prediction
+        vertexai.preview.init(remote=False)
+
+        # check that local model is updated in place
+        # `model.score` raises NotFittedError if the model is not updated
+        model.score(_X_TEST, _Y_TEST)
 
     def test_resource_pool_return_spec_dict(self):
         test_pool = resource_pool_utils._ResourcePool(

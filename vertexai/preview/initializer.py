@@ -83,19 +83,22 @@ class _Config:
                 raise ValueError(
                     "Persistent cluster currently does not support custom service account"
                 )
-            self._cluster_name = cluster.name
-            cluster_resource_name = f"projects/{self.project}/locations/{self.location}/persistentResources/{self._cluster_name}"
-            cluster_exists = persistent_resource_util.check_persistent_resource(
-                cluster_resource_name=cluster_resource_name
-            )
-            if cluster_exists:
-                _LOGGER.info(f"Using existing cluster: {cluster_resource_name}")
-                return
-            # create a cluster
-            persistent_resource_util.create_persistent_resource(
-                cluster_resource_name=cluster_resource_name,
-                resource_pools=cluster.resource_pools,
-            )
+            if cluster.disable:
+                self._cluster_name = None
+            else:
+                self._cluster_name = cluster.name
+                cluster_resource_name = f"projects/{self.project}/locations/{self.location}/persistentResources/{self._cluster_name}"
+                cluster_exists = persistent_resource_util.check_persistent_resource(
+                    cluster_resource_name=cluster_resource_name
+                )
+                if cluster_exists:
+                    _LOGGER.info(f"Using existing cluster: {cluster_resource_name}")
+                    return
+                # create a cluster
+                persistent_resource_util.create_persistent_resource(
+                    cluster_resource_name=cluster_resource_name,
+                    resource_pools=cluster.resource_pools,
+                )
 
     @property
     def remote(self):
