@@ -97,7 +97,6 @@ autologging_extra_require = ["mlflow>=1.27.0,<=2.1.1"]
 preview_extra_require = [
     "cloudpickle < 3.0",
     "google-cloud-logging < 4.0",
-    "importlib-metadata < 7.0; python_version<'3.8'",
 ]
 
 ray_extra_require = [
@@ -145,8 +144,9 @@ testing_extra_require = (
         "pytest-xdist",
         "scikit-learn",
         "tensorflow >= 2.3.0, <= 2.12.0",
-        "torch >= 2.0.0; python_version>='3.8'",
-        "torch; python_version<'3.8'",
+        # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
+        # future versions fix this issue
+        "torch >= 2.0.0, < 2.1.0",
         "xgboost",
         "xgboost_ray",
         "requests-toolbelt < 1.0.0",
@@ -202,7 +202,7 @@ setuptools.setup(
         "preview": preview_extra_require,
         "ray": ray_extra_require,
     },
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
