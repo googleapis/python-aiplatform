@@ -2990,7 +2990,7 @@ class ModelDeploymentMonitoringJob(_Job):
             update_mask=field_mask_pb2.FieldMask(paths=update_mask),
             timeout=update_request_timeout,
         )
-        self._gca_resource = lro.result()
+        self._gca_resource = lro.result(timeout=None)
         return self
 
     def pause(self) -> "ModelDeploymentMonitoringJob":
