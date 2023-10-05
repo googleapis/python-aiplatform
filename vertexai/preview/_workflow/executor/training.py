@@ -713,6 +713,7 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
 
     # disable CustomJob logs
     logging.getLogger("google.cloud.aiplatform.jobs").disabled = True
+    logging.getLogger("google.cloud.aiplatform.preview.jobs").disabled = True
     try:
         job = jobs.CustomJob(
             display_name=display_name,
@@ -746,6 +747,7 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
     finally:
         # enable CustomJob logs after remote training job is done
         logging.getLogger("google.cloud.aiplatform.jobs").disabled = False
+        logging.getLogger("google.cloud.aiplatform.preview.jobs").disabled = False
 
     if job.state in jobs._JOB_ERROR_STATES:
         return job
