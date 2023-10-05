@@ -1146,8 +1146,9 @@ class BigframeSerializer(serializers_base.Serializer):
         detected_framework = kwargs.get("framework")
         BigframeSerializer._metadata.framework = detected_framework
         if detected_framework == "torch":
-            self.register_custom_command("pip install torchdata")
-            self.register_custom_command("pip install torcharrow")
+            # Install using custom_commands to avoid numpy dependency conflict
+            BigframeSerializer._metadata.custom_commands.append("pip install torchdata")
+            BigframeSerializer._metadata.custom_commands.append("pip install torcharrow")
         elif detected_framework == "tensorflow":
             tensorflow_io_dep = "tensorflow-io==" + self._get_tfio_verison()
             BigframeSerializer._metadata.dependencies.append(tensorflow_io_dep)
