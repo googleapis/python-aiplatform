@@ -69,20 +69,6 @@ class VertexLogger(logging.getLoggerClass()):
         super().__init__(name)
         self.setLevel(logging.INFO)
 
-        # To avoid writing duplicate logs, skip adding the new handler if
-        # StreamHandler already exists in logger hierarchy.
-        logger = self
-        while logger:
-            for handler in logger.handlers:
-                if isinstance(handler, logging.StreamHandler):
-                    return
-            logger = logger.parent
-
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.INFO)
-
-        self.addHandler(handler)
-
     def log_create_with_lro(
         self,
         cls: Type["VertexAiResourceNoun"],
@@ -196,7 +182,22 @@ def Logger(name: str) -> VertexLogger:  # pylint: disable=invalid-name
     old_class = logging.getLoggerClass()
     try:
         logging.setLoggerClass(VertexLogger)
-        return logging.getLogger(name)
+        logger = logging.getLogger(name)
+
+        # To avoid writing duplicate logs, skip adding the new handler if
+        # StreamHandler already exists in logger hierarchy.
+        parent_logger = logger
+        while parent_logger:
+            for handler in parent_logger.handlers:
+                if isinstance(handler, logging.StreamHandler):
+                    return logger
+            parent_logger = parent_logger.parent
+
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.INFO)
+        logger.addHandler(handler)
+
+        return logger
     finally:
         logging.setLoggerClass(old_class)
 
