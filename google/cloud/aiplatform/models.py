@@ -2807,6 +2807,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         self._assert_gca_resource_is_available()
         return ModelRegistry._parse_versioned_name(self._gca_resource.name)[0]
 
+    def _sync_gca_resource(self) -> None:
+        """Sync GAPIC service representation of client class resource.
+        Uses versioned resource name so the non-default version is not lost.
+        """
+        self._gca_resource = self._get_gca_resource(
+            resource_name=self.versioned_resource_name
+        )
+
     @property
     def name(self) -> str:
         """Name of this resource."""
