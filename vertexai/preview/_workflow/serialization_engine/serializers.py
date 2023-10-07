@@ -1138,14 +1138,20 @@ class BigframeSerializer(serializers_base.Serializer):
         if not _is_valid_gcs_path(gcs_path):
             raise ValueError(f"Invalid gcs path: {gcs_path}")
 
-        BigframeSerializer._metadata.dependencies = (
-            supported_frameworks._get_bigframe_deps()
-        )
-
         # Record the framework in metadata for deserialization
         detected_framework = kwargs.get("framework")
         BigframeSerializer._metadata.framework = detected_framework
-        if detected_framework == "torch":
+
+        # Reset dependencies and custom_commands in case the framework is different
+        BigframeSerializer._metadata.dependencies = []
+        BigframeSerializer._metadata.custom_commands = []
+
+        # Add dependencies based on framework
+        if detected_framework == "sklearn":
+            sklearn_deps = supported_frameworks._get_pandas_deps()
+            sklearn_deps += supported_frameworks._get_pyarrow_deps()
+            BigframeSerializer._metadata.dependencies += sklearn_deps
+        elif detected_framework == "torch":
             # Install using custom_commands to avoid numpy dependency conflict
             BigframeSerializer._metadata.custom_commands.append("pip install torchdata")
             BigframeSerializer._metadata.custom_commands.append("pip install torcharrow")

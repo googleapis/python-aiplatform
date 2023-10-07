@@ -276,16 +276,6 @@ def _get_deps_if_pandas_dataframe(possible_dataframe: Any) -> List[str]:
     return deps
 
 
-def _get_bigframe_deps() -> List[str]:
-    deps = []
-    # Note: bigframe serialization can only occur locally so bigframes
-    # should not be installed remotely. Pandas and pyarrow are required
-    # to deserialize for sklearn bigframes though.
-    deps += _get_pandas_deps()
-    deps += _get_pyarrow_deps()
-    return deps
-
-
 def _get_pyarrow_deps() -> List[str]:
     deps = []
     try:
