@@ -2892,8 +2892,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         # Create ModelRegistry with the unversioned resource name
         self._registry = ModelRegistry(
             self.resource_name,
-            location=location,
-            project=project,
+            location=location or self.location,
+            project=project or self.project,
             credentials=credentials,
         )
 
