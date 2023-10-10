@@ -70,6 +70,7 @@ from sklearn.datasets import load_iris
 from sklearn.linear_model import _logistic
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
+import tensorflow.keras
 
 
 # Manually set tensorflow version for b/295580335
