@@ -1615,6 +1615,7 @@ class _ChatSessionBase:
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
+        candidate_count: Optional[int] = None,
     ) -> _PredictionRequest:
         """Prepares a request for the language model.
 
@@ -1629,6 +1630,7 @@ class _ChatSessionBase:
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of candidates to return.
 
         Returns:
             A `_PredictionRequest` object.
@@ -1659,6 +1661,9 @@ class _ChatSessionBase:
         stop_sequences = stop_sequences or self._stop_sequences
         if stop_sequences:
             prediction_parameters["stopSequences"] = stop_sequences
+
+        if candidate_count is not None:
+            prediction_parameters["candidateCount"] = candidate_count
 
         message_structs = []
         for past_message in self._message_history:
@@ -1697,8 +1702,7 @@ class _ChatSessionBase:
         cls,
         prediction_response: aiplatform.models.Prediction,
         prediction_idx: int = 0,
-        candidate_idx: int = 0,
-    ) -> TextGenerationResponse:
+    ) -> MultiCandidateTextGenerationResponse:
         """Parses prediction response for chat models.
 
         Args:
@@ -1707,25 +1711,33 @@ class _ChatSessionBase:
             candidate_idx: Index of the candidate to parse.
 
         Returns:
-            A `TextGenerationResponse` object.
+            A `MultiCandidateTextGenerationResponse` object.
         """
         prediction = prediction_response.predictions[prediction_idx]
-        # ! Note: For chat models, the safetyAttributes is a list.
-        safety_attributes = prediction["safetyAttributes"][candidate_idx]
-        return TextGenerationResponse(
-            text=prediction["candidates"][candidate_idx]["content"]
-            if prediction.get("candidates")
-            else None,
+        candidate_count = len(prediction["candidates"])
+        candidates = []
+        for candidate_idx in range(candidate_count):
+            safety_attributes = prediction["safetyAttributes"][candidate_idx]
+            candidate_response = TextGenerationResponse(
+                text=prediction["candidates"][candidate_idx]["content"],
+                _prediction_response=prediction_response,
+                is_blocked=safety_attributes.get("blocked", False),
+                safety_attributes=dict(
+                    zip(
+                        # Unlike with normal prediction, in streaming prediction
+                        # categories and scores can be None
+                        safety_attributes.get("categories") or [],
+                        safety_attributes.get("scores") or [],
+                    )
+                ),
+            )
+            candidates.append(candidate_response)
+        return MultiCandidateTextGenerationResponse(
+            text=candidates[0].text,
             _prediction_response=prediction_response,
-            is_blocked=safety_attributes.get("blocked", False),
-            safety_attributes=dict(
-                zip(
-                    # Unlike with normal prediction, in streaming prediction
-                    # categories and scores can be None
-                    safety_attributes.get("categories") or [],
-                    safety_attributes.get("scores") or [],
-                )
-            ),
+            is_blocked=candidates[0].is_blocked,
+            safety_attributes=candidates[0].safety_attributes,
+            candidates=candidates,
         )
 
     def send_message(
@@ -1737,7 +1749,8 @@ class _ChatSessionBase:
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
-    ) -> "TextGenerationResponse":
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
         """Sends message to the language model and gets a response.
 
         Args:
@@ -1751,9 +1764,11 @@ class _ChatSessionBase:
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains the
+            text produced by the model.
         """
         prediction_request = self._prepare_request(
             message=message,
@@ -1762,6 +1777,7 @@ class _ChatSessionBase:
             top_k=top_k,
             top_p=top_p,
             stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
         )
 
         prediction_response = self._model._endpoint.predict(
@@ -1791,7 +1807,8 @@ class _ChatSessionBase:
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
-    ) -> "TextGenerationResponse":
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously sends message to the language model and gets a response.
 
         Args:
@@ -1805,9 +1822,11 @@ class _ChatSessionBase:
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains
+            the text produced by the model.
         """
         prediction_request = self._prepare_request(
             message=message,
@@ -1816,6 +1835,7 @@ class _ChatSessionBase:
             top_k=top_k,
             top_p=top_p,
             stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
         )
 
         prediction_response = await self._model._endpoint.predict_async(

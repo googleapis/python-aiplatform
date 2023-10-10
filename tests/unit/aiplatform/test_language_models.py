@@ -238,6 +238,30 @@ _TEST_CHAT_GENERATION_PREDICTION2 = {
         }
     ],
 }
+_TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION = {
+    "safetyAttributes": [
+        {
+            "scores": [],
+            "categories": [],
+            "blocked": False,
+        },
+        {
+            "scores": [0.1],
+            "categories": ["Finance"],
+            "blocked": True,
+        },
+    ],
+    "candidates": [
+        {
+            "author": "1",
+            "content": "Chat response 2",
+        },
+        {
+            "author": "1",
+            "content": "",
+        },
+    ],
+}
 
 _TEST_CHAT_PREDICTION_STREAMING = [
     {
@@ -2075,6 +2099,53 @@ class TestLanguageModels:
             assert prediction_parameters["topK"] == message_top_k
             assert prediction_parameters["topP"] == message_top_p
             assert prediction_parameters["stopSequences"] == message_stop_sequences
+
+    def test_chat_model_send_message_with_multiple_candidates(self):
+        """Tests the chat generation model with multiple candidates."""
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = language_models.ChatModel.from_pretrained("chat-bison@001")
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
+        )
+
+        chat = model.start_chat()
+
+        gca_predict_response1 = gca_prediction_service.PredictResponse()
+        gca_predict_response1.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response1,
+        ):
+            message_text1 = "Are my favorite movies based on a book series?"
+            expected_response_candidates = (
+                _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION["candidates"]
+            )
+            expected_candidate_0 = expected_response_candidates[0]["content"]
+            expected_candidate_1 = expected_response_candidates[1]["content"]
+
+            response = chat.send_message(message_text1, candidate_count=2)
+            assert response.text == expected_candidate_0
+            assert len(response.candidates) == 2
+            assert response.candidates[0].text == expected_candidate_0
+            assert response.candidates[1].text == expected_candidate_1
+
+            assert len(chat.message_history) == 2
+            assert chat.message_history[0].author == chat.USER_AUTHOR
+            assert chat.message_history[0].content == message_text1
+            assert chat.message_history[1].author == chat.MODEL_AUTHOR
+            assert chat.message_history[1].content == expected_candidate_0
 
     def test_chat_model_send_message_streaming(self):
         """Tests the chat generation model."""
