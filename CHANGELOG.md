@@ -17,8 +17,6 @@
 
 * Duplicate logs in Colab ([9b75259](https://github.com/googleapis/python-aiplatform/commit/9b7525987e05f6b63300440267fcdefea4caf35c))
 * LLM - Fixed tuning and evaluation when explicit credentials are specified ([188dffe](https://github.com/googleapis/python-aiplatform/commit/188dffeb2fc83b4c7c123624eb544b403f042c87))
-* Resolve Artifact Registry tags when creating PipelineJob ([f04ca35](https://github.com/googleapis/python-aiplatform/commit/f04ca35894e09bbe75d47a65bf540e95df6fe610))
-* Resolve Artifact Registry tags when creating PipelineJob ([06bf487](https://github.com/googleapis/python-aiplatform/commit/06bf487e51e26dfa1cab3f6d87c9f3afd45e0e2c))
 
 
 ### Documentation
