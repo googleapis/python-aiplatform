@@ -48,7 +48,7 @@ UNIT_TEST_EXTRAS = [
 ]
 UNIT_TEST_EXTRAS_BY_PYTHON = {}
 
-SYSTEM_TEST_PYTHON_VERSIONS = ["3.11"]
+SYSTEM_TEST_PYTHON_VERSIONS = ["3.10"]
 SYSTEM_TEST_STANDARD_DEPENDENCIES = [
     "mock",
     "pytest",
@@ -409,7 +409,7 @@ def prerelease_deps(session):
     session.run("py.test", "tests/unit")
 
     system_test_path = os.path.join("tests", "system.py")
-    system_test_folder_path = os.path.join("tests", "system")
+    system_test_folder_path = os.path.join("tests", "system", "vertexai")
 
     # Only run system tests if found.
     if os.path.exists(system_test_path):
