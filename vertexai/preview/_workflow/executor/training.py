@@ -116,14 +116,20 @@ def _add_indirect_dependency_versions(direct_requirements: List[str]) -> List[st
         package_name = _get_package_name(direct_requirement)
         extras = _get_package_extras(direct_requirement)
         direct_deps_packages.add(package_name)
+        print("found", package_name, extras)
         try:
             versions[package_name] = importlib_metadata.version(package_name)
+            print("appending", package_name, extras)
             dependencies_and_extras.append((package_name, extras))
         except importlib_metadata.PackageNotFoundError:
+            print(direct_requirement, "Not found")
             pass
+    print("direct dependencies:")
+    print(versions)
 
     while dependencies_and_extras:
         dependency, extras = dependencies_and_extras.popleft()
+        print(dependency,extras)
         child_requirements = importlib_metadata.requires(dependency)
         if not child_requirements:
             continue
@@ -154,6 +160,9 @@ def _add_indirect_dependency_versions(direct_requirements: List[str]) -> List[st
                 except importlib_metadata.PackageNotFoundError:
                     pass
 
+    print("Requirements debug")
+    print(versions.items())
+    print(direct_requirements)
     return [
         "==".join([package_name, package_version]) if package_version else package_name
         for package_name, package_version in versions.items()
@@ -516,6 +525,8 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
     custom_commands = []
 
     enable_cuda = config.enable_cuda
+    
+    print("Remote training debug")
 
     # TODO(b/274979556): consider other approaches to pass around the primitives
     pass_through_int_args = {}
@@ -626,7 +637,7 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
         config.accelerator_type,
         config.accelerator_count,
     )
-
+    print("DEBUG", vertex_requirements, "\n\n", config.requirements, "\n\n", requirements)
     if not config.container_uri:
         container_uri = (
             supported_frameworks._get_cpu_container_uri()
