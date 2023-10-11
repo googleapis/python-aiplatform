@@ -214,13 +214,14 @@ class _TunableModelMixin(_LanguageModel):
             tuning_parameters["learning_rate_multiplier"] = learning_rate_multiplier
         eval_spec = tuning_evaluation_spec
         if eval_spec is not None:
-            if isinstance(eval_spec.evaluation_data, str):
-                if eval_spec.evaluation_data.startswith("gs://"):
-                    tuning_parameters["evaluation_data_uri"] = eval_spec.evaluation_data
+            if eval_spec.evaluation_data:
+                if isinstance(eval_spec.evaluation_data, str):
+                    if eval_spec.evaluation_data.startswith("gs://"):
+                        tuning_parameters["evaluation_data_uri"] = eval_spec.evaluation_data
+                    else:
+                        raise ValueError("evaluation_data should be a GCS URI")
                 else:
-                    raise ValueError("evaluation_data should be a GCS URI")
-            else:
-                raise TypeError("evaluation_data should be a URI string")
+                    raise TypeError("evaluation_data should be a URI string")
             if eval_spec.evaluation_interval is not None:
                 tuning_parameters["evaluation_interval"] = eval_spec.evaluation_interval
             if eval_spec.enable_early_stopping is not None:
@@ -648,7 +649,7 @@ class TuningEvaluationSpec:
 
     __module__ = "vertexai.language_models"
 
-    evaluation_data: str
+    evaluation_data: Optional[str] = None
     evaluation_interval: Optional[int] = None
     enable_early_stopping: Optional[bool] = None
     tensorboard: Optional[Union[aiplatform.Tensorboard, str]] = None

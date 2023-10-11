@@ -1647,6 +1647,56 @@ class TestLanguageModels:
         ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
         indirect=True,
     )
+    def test_tune_text_generation_model_evaluation_with_only_tensorboard(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_job_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_gcs_from_string,
+        mock_gcs_upload,
+        mock_request_urlopen,
+        mock_get_tuned_model,
+    ):
+        """Tests tuning the text generation model."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+            tuning_job_location = "europe-west4"
+            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+
+            model.tune_model(
+                training_data=_TEST_TEXT_BISON_TRAINING_DF,
+                tuning_job_location=tuning_job_location,
+                tuned_model_location="us-central1",
+                tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                    tensorboard=tensorboard_name,
+                ),
+            )
+            call_kwargs = mock_pipeline_service_create.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
     def test_tune_chat_model(
         self,
         mock_pipeline_service_create,
