@@ -95,9 +95,6 @@ class TestRemoteExecutionBigframesTensorflow(e2e_base.TestEndToEnd):
             enable_cuda=True,
             display_name=self._make_display_name("bigframes-keras-training"),
         )
-        model.fit.vertex.remote_config.custom_commands = [
-            "pip install tensorflow-io==0.32.0"
-        ]
 
         # Train model on Vertex
         model.fit(train, epochs=10)
