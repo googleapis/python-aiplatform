@@ -27,6 +27,7 @@ import test_constants as tc
 from google.cloud.bigquery import job
 from google.cloud.bigquery_storage_v1.types import stream as gcbqs_stream
 import mock
+import pyarrow as pa
 import pytest
 import ray
 
@@ -89,7 +90,6 @@ def bq_client_full_mock(monkeypatch):
     client_mock.query = bq_query_mock
 
     monkeypatch.setattr(bigquery, "Client", client_mock)
-    client_mock.reset_mock()
     return client_mock
 
 
@@ -108,7 +108,6 @@ def bqs_client_full_mock(monkeypatch):
     client_mock.create_read_session = bqs_create_read_session
 
     monkeypatch.setattr(bigquery_storage, "BigQueryReadClient", client_mock)
-    client_mock.reset_mock()
     return client_mock
 
 
@@ -259,16 +258,16 @@ class TestWriteBigQuery:
     def teardown_method(self):
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
-    def test_do_write(self, ray_remote_function_mock):
+    def test_write(self):
         bq_ds = bigquery_datasource.BigQueryDatasource()
-        write_tasks_list = bq_ds.do_write(
-            blocks=[1, 2, 3, 4],
-            metadata=[1, 2, 3, 4],
-            ray_remote_args={},
-            project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+        arr = pa.array([2, 4, 5, 100])
+        block = pa.Table.from_arrays([arr], names=["data"])
+        status = bq_ds.write(
+            blocks=[block],
+            ctx=None,
             dataset=_TEST_BQ_DATASET,
         )
-        assert len(write_tasks_list) == 4
+        assert status == "ok"
 
     def test_do_write_initialized(self, ray_remote_function_mock):
         """If initialized, do_write doesn't need to specify project_id."""
@@ -277,21 +276,22 @@ class TestWriteBigQuery:
             staging_bucket=tc.ProjectConstants._TEST_ARTIFACT_URI,
         )
         bq_ds = bigquery_datasource.BigQueryDatasource()
-        write_tasks_list = bq_ds.do_write(
-            blocks=[1, 2, 3, 4],
-            metadata=[1, 2, 3, 4],
-            ray_remote_args={},
-            dataset=_TEST_BQ_DATASET,
-        )
-        assert len(write_tasks_list) == 4
-
-    def test_do_write_dataset_exists(self, ray_remote_function_mock):
-        bq_ds = bigquery_datasource.BigQueryDatasource()
-        write_tasks_list = bq_ds.do_write(
-            blocks=[1, 2, 3, 4],
-            metadata=[1, 2, 3, 4],
-            ray_remote_args={},
-            project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+        arr = pa.array([2, 4, 5, 100])
+        block = pa.Table.from_arrays([arr], names=["data"])
+        status = bq_ds.write(
+            blocks=[block],
+            ctx=None,
             dataset="existingdataset" + "." + _TEST_BQ_TABLE_ID,
         )
-        assert len(write_tasks_list) == 4
+        assert status == "ok"
+
+    def test_write_dataset_exists(self, ray_remote_function_mock):
+        bq_ds = bigquery_datasource.BigQueryDatasource()
+        arr = pa.array([2, 4, 5, 100])
+        block = pa.Table.from_arrays([arr], names=["data"])
+        status = bq_ds.write(
+            blocks=[block],
+            ctx=None,
+            dataset="existingdataset" + "." + _TEST_BQ_TABLE_ID,
+        )
+        assert status == "ok"
