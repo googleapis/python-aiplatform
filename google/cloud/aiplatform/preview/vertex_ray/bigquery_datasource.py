@@ -21,6 +21,7 @@ import tempfile
 import time
 from typing import Any, Dict, List, Optional
 import uuid
+import pyarrow.parquet as pq
 
 from google.api_core import client_info
 from google.api_core import exceptions
@@ -28,9 +29,8 @@ from google.api_core.gapic_v1 import client_info as v1_client_info
 from google.cloud import bigquery
 from google.cloud import bigquery_storage
 from google.cloud.aiplatform import initializer
-from google.cloud.bigquery_storage import types
-import pyarrow.parquet as pq
-from ray.data._internal.remote_fn import cached_remote_fn
+
+from ray.data._internal.execution.interfaces import TaskContext
 from ray.data.block import Block
 from ray.data.block import BlockAccessor
 from ray.data.block import BlockMetadata
@@ -50,6 +50,9 @@ bqstorage_info = v1_client_info.ClientInfo(
     gapic_version=_BQS_GAPIC_VERSION, user_agent=f"ray-on-vertex/{_BQS_GAPIC_VERSION}"
 )
 
+MAX_RETRY_CNT = 10
+RATE_LIMIT_EXCEEDED_SLEEP_TIME = 11
+
 
 class _BigQueryDatasourceReader(Reader):
     def __init__(
@@ -67,12 +70,12 @@ class _BigQueryDatasourceReader(Reader):
 
         if query is not None and dataset is not None:
             raise ValueError(
-                "[Ray on Vertex AI]: Query and dataset kwargs cannot both be provided (must be mutually exclusive)."
+                "[Ray on Vertex AI]: Query and dataset kwargs cannot both "
+                + "be provided (must be mutually exclusive)."
             )
 
     def get_read_tasks(self, parallelism: int) -> List[ReadTask]:
-        # Executed by a worker node
-        def _read_single_partition(stream, kwargs) -> Block:
+        def _read_single_partition(stream) -> Block:
             client = bigquery_storage.BigQueryReadClient(client_info=bqstorage_info)
             reader = client.read_rows(stream.name)
             return reader.to_arrow()
@@ -96,9 +99,9 @@ class _BigQueryDatasourceReader(Reader):
 
         if parallelism == -1:
             parallelism = None
-        requested_session = types.ReadSession(
+        requested_session = bigquery_storage.types.ReadSession(
             table=table,
-            data_format=types.DataFormat.ARROW,
+            data_format=bigquery_storage.types.DataFormat.ARROW,
         )
         read_session = bqs_client.create_read_session(
             parent=f"projects/{self._project_id}",
@@ -107,9 +110,9 @@ class _BigQueryDatasourceReader(Reader):
         )
 
         read_tasks = []
-        print("[Ray on Vertex AI]: Created streams:", len(read_session.streams))
+        logging.info(f"Created streams: {len(read_session.streams)}")
         if len(read_session.streams) < parallelism:
-            print(
+            logging.info(
                 "[Ray on Vertex AI]: The number of streams created by the "
                 + "BigQuery Storage Read API is less than the requested "
                 + "parallelism due to the size of the dataset."
@@ -125,15 +128,11 @@ class _BigQueryDatasourceReader(Reader):
                 exec_stats=None,
             )
 
-            # Create a no-arg wrapper read function which returns a block
-            read_single_partition = (
-                lambda stream=stream, kwargs=self._kwargs: [  # noqa: F731
-                    _read_single_partition(stream, kwargs)
-                ]
+            # Create the read task and pass the no-arg wrapper and metadata in
+            read_task = ReadTask(
+                lambda stream=stream: [_read_single_partition(stream)],
+                metadata,
             )
-
-            # Create the read task and pass the wrapper and metadata in
-            read_task = ReadTask(read_single_partition, metadata)
             read_tasks.append(read_task)
 
         return read_tasks
@@ -168,18 +167,14 @@ class BigQueryDatasource(Datasource):
     def create_reader(self, **kwargs) -> Reader:
         return _BigQueryDatasourceReader(**kwargs)
 
-    def do_write(
+    def write(
         self,
         blocks: List[ObjectRef[Block]],
-        metadata: List[BlockMetadata],
-        ray_remote_args: Optional[Dict[str, Any]],
+        ctx: TaskContext,
         project_id: Optional[str] = None,
         dataset: Optional[str] = None,
-    ) -> List[ObjectRef[WriteResult]]:
-        def _write_single_block(
-            block: Block, metadata: BlockMetadata, project_id: str, dataset: str
-        ):
-            print("[Ray on Vertex AI]: Starting to write", metadata.num_rows, "rows")
+    ) -> WriteResult:
+        def _write_single_block(block: Block, project_id: str, dataset: str):
             block = BlockAccessor.for_block(block).to_arrow()
 
             client = bigquery.Client(project=project_id, client_info=bq_info)
@@ -192,7 +187,7 @@ class BigQueryDatasource(Datasource):
                 pq.write_table(block, fp, compression="SNAPPY")
 
                 retry_cnt = 0
-                while retry_cnt < 10:
+                while retry_cnt < MAX_RETRY_CNT:
                     with open(fp, "rb") as source_file:
                         job = client.load_table_from_file(
                             source_file, dataset, job_config=job_config
@@ -202,12 +197,11 @@ class BigQueryDatasource(Datasource):
                         logging.info(job.result())
                         break
                     except exceptions.Forbidden as e:
-                        print(
+                        logging.info(
                             "[Ray on Vertex AI]: Rate limit exceeded... Sleeping to try again"
                         )
                         logging.debug(e)
-                        time.sleep(11)
-            print("[Ray on Vertex AI]: Finished writing", metadata.num_rows, "rows")
+                        time.sleep(RATE_LIMIT_EXCEEDED_SLEEP_TIME)
 
         project_id = project_id or initializer.global_config.project
 
@@ -216,34 +210,21 @@ class BigQueryDatasource(Datasource):
                 "[Ray on Vertex AI]: Dataset is required when writing to BigQuery."
             )
 
-        if ray_remote_args is None:
-            ray_remote_args = {}
-
-        _write_single_block = cached_remote_fn(_write_single_block).options(
-            **ray_remote_args
-        )
-        write_tasks = []
-
         # Set up datasets to write
         client = bigquery.Client(project=project_id, client_info=bq_info)
         dataset_id = dataset.split(".", 1)[0]
         try:
             client.create_dataset(f"{project_id}.{dataset_id}", timeout=30)
-            print("[Ray on Vertex AI]: Created dataset", dataset_id)
+            logging.info(f"[Ray on Vertex AI]: Created dataset {dataset_id}.")
         except exceptions.Conflict:
-            print(
-                "[Ray on Vertex AI]: Dataset",
-                dataset_id,
-                "already exists. The table will be overwritten if it already exists.",
+            logging.info(
+                f"[Ray on Vertex AI]: Dataset {dataset_id} already exists. "
+                + "The table will be overwritten if it already exists."
             )
 
         # Delete table if it already exists
         client.delete_table(f"{project_id}.{dataset}", not_found_ok=True)
 
-        print("[Ray on Vertex AI]: Writing", len(blocks), "blocks")
-        for i in range(len(blocks)):
-            write_task = _write_single_block.remote(
-                blocks[i], metadata[i], project_id, dataset
-            )
-            write_tasks.append(write_task)
-        return write_tasks
+        for block in blocks:
+            _write_single_block(block, project_id, dataset)
+        return "ok"
