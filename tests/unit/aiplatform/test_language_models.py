@@ -1465,6 +1465,41 @@ class TestLanguageModels:
             ):
                 assert len(response.text) > 10
 
+    @pytest.mark.asyncio
+    async def test_text_generation_model_predict_streaming_async(self):
+        """Tests the TextGenerationModel.predict_streaming_async method."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        async def mock_server_streaming_predict_async(*args, **kwargs):
+            for response_dict in _TEST_TEXT_GENERATION_PREDICTION_STREAMING:
+                yield gca_prediction_service.StreamingPredictResponse(
+                    outputs=[_streaming_prediction.value_to_tensor(response_dict)]
+                )
+
+        with mock.patch.object(
+            target=prediction_service_async_client.PredictionServiceAsyncClient,
+            attribute="server_streaming_predict",
+            new=mock_server_streaming_predict_async,
+        ):
+            async for response in model.predict_streaming_async(
+                "Count to 50",
+                max_output_tokens=1000,
+                temperature=0.0,
+                top_p=1.0,
+                top_k=5,
+                stop_sequences=["# %%"],
+            ):
+                assert len(response.text) > 10
+
     def test_text_generation_response_repr(self):
         response = language_models.TextGenerationResponse(
             text="",

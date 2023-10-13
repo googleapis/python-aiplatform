@@ -15,7 +15,7 @@
 """Classes for working with language models."""
 
 import dataclasses
-from typing import Any, Dict, Iterator, List, Optional, Sequence, Union
+from typing import Any, AsyncIterator, Dict, Iterator, List, Optional, Sequence, Union
 import warnings
 
 from google.cloud import aiplatform
@@ -861,6 +861,54 @@ class _TextGenerationModel(_LanguageModel):
             prediction_dict
         ) in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
             prediction_service_client=prediction_service_client,
+            endpoint_name=self._endpoint_name,
+            instance=prediction_request.instance,
+            parameters=prediction_request.parameters,
+        ):
+            prediction_obj = aiplatform.models.Prediction(
+                predictions=[prediction_dict],
+                deployed_model_id="",
+            )
+            yield _parse_text_generation_model_response(prediction_obj)
+
+    async def predict_streaming_async(
+        self,
+        prompt: str,
+        *,
+        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> AsyncIterator[TextGenerationResponse]:
+        """Asynchronously gets a streaming model response for a single prompt.
+
+        The result is a stream (generator) of partial responses.
+
+        Args:
+            prompt: Question to ask the model.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+
+        Yields:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        prediction_request = _create_text_generation_prediction_request(
+            prompt=prompt,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            stop_sequences=stop_sequences,
+        )
+
+        prediction_service_async_client = self._endpoint._prediction_async_client
+        async for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
+            prediction_service_async_client=prediction_service_async_client,
             endpoint_name=self._endpoint_name,
             instance=prediction_request.instance,
             parameters=prediction_request.parameters,
@@ -1928,6 +1976,75 @@ class _ChatSessionBase:
             ChatMessage(content=full_response_text, author=self.MODEL_AUTHOR)
         )
 
+    async def send_message_streaming_async(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> AsyncIterator[TextGenerationResponse]:
+        """Asynchronously sends message to the language model and gets a streamed response.
+
+        The response is only added to the history once it's fully read.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+
+        Yields:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        prediction_request = self._prepare_request(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            stop_sequences=stop_sequences,
+        )
+
+        prediction_service_async_client = self._model._endpoint._prediction_async_client
+
+        full_response_text = ""
+
+        async for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
+            prediction_service_async_client=prediction_service_async_client,
+            endpoint_name=self._model._endpoint_name,
+            instance=prediction_request.instance,
+            parameters=prediction_request.parameters,
+        ):
+            prediction_response = aiplatform.models.Prediction(
+                predictions=[prediction_dict],
+                deployed_model_id="",
+            )
+            text_generation_response = self._parse_chat_prediction_response(
+                prediction_response=prediction_response
+            )
+            full_response_text += text_generation_response.text
+            yield text_generation_response
+
+        # We only add the question and answer to the history if/when the answer
+        # was read fully. Otherwise, the answer would have been truncated.
+        self._message_history.append(
+            ChatMessage(content=message, author=self.USER_AUTHOR)
+        )
+        self._message_history.append(
+            ChatMessage(content=full_response_text, author=self.MODEL_AUTHOR)
+        )
+
 
 class ChatSession(_ChatSessionBase):
     """ChatSession represents a chat session with a language model.
@@ -2067,6 +2184,38 @@ class CodeChatSession(_ChatSessionBase):
             responses produced by the model.
         """
         return super().send_message_streaming(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            stop_sequences=stop_sequences,
+        )
+
+    def send_message_streaming_async(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> AsyncIterator[TextGenerationResponse]:
+        """Asynchronously sends message to the language model and gets a streamed response.
+
+        The response is only added to the history once it's fully read.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+
+        Returns:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        return super().send_message_streaming_async(
             message=message,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
@@ -2245,6 +2394,51 @@ class CodeGenerationModel(_LanguageModel):
             prediction_dict
         ) in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
             prediction_service_client=prediction_service_client,
+            endpoint_name=self._endpoint_name,
+            instance=prediction_request.instance,
+            parameters=prediction_request.parameters,
+        ):
+            prediction_obj = aiplatform.models.Prediction(
+                predictions=[prediction_dict],
+                deployed_model_id="",
+            )
+            yield _parse_text_generation_model_response(prediction_obj)
+
+    async def predict_streaming_async(
+        self,
+        prefix: str,
+        suffix: Optional[str] = None,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> AsyncIterator[TextGenerationResponse]:
+        """Asynchronously predicts the code based on previous code.
+
+        The result is a stream (generator) of partial responses.
+
+        Args:
+            prefix: Code before the current point.
+            suffix: Code after the current point.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+            stop_sequences: Customized stop sequences to stop the decoding process.
+
+        Yields:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        prediction_request = self._create_prediction_request(
+            prefix=prefix,
+            suffix=suffix,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            stop_sequences=stop_sequences,
+        )
+
+        prediction_service_async_client = self._endpoint._prediction_async_client
+        async for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
+            prediction_service_async_client=prediction_service_async_client,
             endpoint_name=self._endpoint_name,
             instance=prediction_request.instance,
             parameters=prediction_request.parameters,
