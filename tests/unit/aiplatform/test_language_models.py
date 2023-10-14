@@ -2419,6 +2419,57 @@ class TestLanguageModels:
             assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
             assert prediction_parameters["stopSequences"] == message_stop_sequences
 
+    def test_code_chat_model_send_message_with_multiple_candidates(self):
+        """Tests the code chat model with multiple candidates."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODECHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+            autospec=True,
+        ):
+            model = language_models.CodeChatModel.from_pretrained(
+                "google/codechat-bison@001"
+            )
+
+        chat = model.start_chat()
+
+        gca_predict_response1 = gca_prediction_service.PredictResponse()
+        gca_predict_response1.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response1,
+            autospec=True,
+        ):
+            message_text1 = "Are my favorite movies based on a book series?"
+            expected_response_candidates = (
+                _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION["candidates"]
+            )
+            expected_candidate_0 = expected_response_candidates[0]["content"]
+            expected_candidate_1 = expected_response_candidates[1]["content"]
+
+            response = chat.send_message(
+                message=message_text1,
+                # candidate_count acts as a maximum number, not exact number.
+                candidate_count=7,
+            )
+            # The service can return a different number of candidates.
+            assert response.text == expected_candidate_0
+            assert len(response.candidates) == 2
+            assert response.candidates[0].text == expected_candidate_0
+            assert response.candidates[1].text == expected_candidate_1
+
+            assert len(chat.message_history) == 2
+            assert chat.message_history[0].author == chat.USER_AUTHOR
+            assert chat.message_history[0].content == message_text1
+            assert chat.message_history[1].author == chat.MODEL_AUTHOR
+            assert chat.message_history[1].content == expected_candidate_0
+
     def test_code_chat_model_send_message_streaming(self):
         """Tests the chat generation model."""
         aiplatform.init(

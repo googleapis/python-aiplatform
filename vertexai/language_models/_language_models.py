@@ -2112,7 +2112,8 @@ class CodeChatSession(_ChatSessionBase):
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
-    ) -> "TextGenerationResponse":
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
         """Sends message to the code chat model and gets a response.
 
         Args:
@@ -2122,15 +2123,18 @@ class CodeChatSession(_ChatSessionBase):
             temperature: Controls the randomness of predictions. Range: [0, 1].
                  Uses the value specified when calling `CodeChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains the
+            text produced by the model.
         """
         return super().send_message(
             message=message,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
         )
 
     async def send_message_async(
@@ -2139,7 +2143,8 @@ class CodeChatSession(_ChatSessionBase):
         *,
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
-    ) -> "TextGenerationResponse":
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously sends message to the code chat model and gets a response.
 
         Args:
@@ -2148,14 +2153,17 @@ class CodeChatSession(_ChatSessionBase):
                 Uses the value specified when calling `CodeChatModel.start_chat` by default.
             temperature: Controls the randomness of predictions. Range: [0, 1].
                  Uses the value specified when calling `CodeChatModel.start_chat` by default.
+            candidate_count: Number of candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains the
+            text produced by the model.
         """
         return super().send_message_async(
             message=message,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
+            candidate_count=candidate_count,
         )
 
     def send_message_streaming(
