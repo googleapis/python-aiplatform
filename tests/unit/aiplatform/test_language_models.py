@@ -2540,6 +2540,46 @@ class TestLanguageModels:
             assert "temperature" not in prediction_parameters
             assert "maxOutputTokens" not in prediction_parameters
 
+    def test_code_generation_multiple_candidates(self):
+        """Tests the code generation model with multiple candidates."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
+            ),
+            autospec=True,
+        ):
+            model = language_models.CodeGenerationModel.from_pretrained(
+                "code-bison@001"
+            )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        # Discrepancy between the number of `instances` and the number of `predictions`
+        # is a violation of the prediction service invariant, but the service does this.
+        gca_predict_response.predictions.append(_TEST_CODE_GENERATION_PREDICTION)
+        gca_predict_response.predictions.append(_TEST_CODE_GENERATION_PREDICTION)
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+            autospec=True,
+        ) as mock_predict:
+            response = model.predict(
+                prefix="Write a function that checks if a year is a leap year.",
+                # candidate_count acts as a maximum number, not exact number.
+                candidate_count=7,
+            )
+        prediction_parameters = mock_predict.call_args[1]["parameters"]
+        assert prediction_parameters["candidateCount"] == 7
+
+        assert response.text == _TEST_CODE_GENERATION_PREDICTION["content"]
+        # The service can return a different number of candidates.
+        assert len(response.candidates) == 2
+        assert (
+            response.candidates[0].text == _TEST_CODE_GENERATION_PREDICTION["content"]
+        )
+
     def test_code_completion(self):
         """Tests code completion with the code generation model."""
         aiplatform.init(

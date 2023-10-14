@@ -2254,6 +2254,7 @@ class CodeGenerationModel(_LanguageModel):
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
+        candidate_count: Optional[int] = None,
     ) -> _PredictionRequest:
         """Creates a code generation prediction request.
 
@@ -2263,7 +2264,7 @@ class CodeGenerationModel(_LanguageModel):
             max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
             stop_sequences: Customized stop sequences to stop the decoding process.
-
+            candidate_count: Number of response candidates to return.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
@@ -2285,6 +2286,9 @@ class CodeGenerationModel(_LanguageModel):
         if stop_sequences:
             prediction_parameters["stopSequences"] = stop_sequences
 
+        if candidate_count is not None:
+            prediction_parameters["candidateCount"] = candidate_count
+
         return _PredictionRequest(instance=instance, parameters=prediction_parameters)
 
     def predict(
@@ -2295,6 +2299,7 @@ class CodeGenerationModel(_LanguageModel):
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
+        candidate_count: Optional[int] = None,
     ) -> "TextGenerationResponse":
         """Gets model response for a single prompt.
 
@@ -2304,9 +2309,11 @@ class CodeGenerationModel(_LanguageModel):
             max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of response candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains the
+            text produced by the model.
         """
         prediction_request = self._create_prediction_request(
             prefix=prefix,
@@ -2314,13 +2321,14 @@ class CodeGenerationModel(_LanguageModel):
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
         )
 
         prediction_response = self._endpoint.predict(
             instances=[prediction_request.instance],
             parameters=prediction_request.parameters,
         )
-        return _parse_text_generation_model_response(prediction_response)
+        return _parse_text_generation_model_multi_candidate_response(prediction_response)
 
     async def predict_async(
         self,
@@ -2330,6 +2338,7 @@ class CodeGenerationModel(_LanguageModel):
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
+        candidate_count: Optional[int] = None,
     ) -> "TextGenerationResponse":
         """Asynchronously gets model response for a single prompt.
 
@@ -2339,9 +2348,11 @@ class CodeGenerationModel(_LanguageModel):
             max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of response candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains the
+            text produced by the model.
         """
         prediction_request = self._create_prediction_request(
             prefix=prefix,
@@ -2349,13 +2360,14 @@ class CodeGenerationModel(_LanguageModel):
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
         )
 
         prediction_response = await self._endpoint.predict_async(
             instances=[prediction_request.instance],
             parameters=prediction_request.parameters,
         )
-        return _parse_text_generation_model_response(prediction_response)
+        return _parse_text_generation_model_multi_candidate_response(prediction_response)
 
     def predict_streaming(
         self,
