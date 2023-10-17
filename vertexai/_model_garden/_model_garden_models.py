@@ -268,7 +268,10 @@ class _ModelGardenModel:
 
         if publisher_launch_stage not in self._LAUNCH_STAGE:
             raise ValueError(
-                f"The model you are trying to instantiate does not support the launch stage: {publisher_launch_stage.name}"
+                f"The model you are trying to instantiate has launch stage '{publisher_launch_stage.name}'"
+                f", but the '{type(self).__module__}.{type(self).__name__}' class"
+                f" only supports the following launch stages: {self._LAUNCH_STAGE}."
+                " For preview models please use the classes from the `vertexai.preview.*` namespace."
             )
 
     # Subclasses override this attribute to specify their instance schema
