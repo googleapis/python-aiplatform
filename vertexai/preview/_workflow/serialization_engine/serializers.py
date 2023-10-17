@@ -1157,7 +1157,9 @@ class BigframeSerializer(serializers_base.Serializer):
             BigframeSerializer._metadata.custom_commands.append("pip install torcharrow")
         elif detected_framework == "tensorflow":
             tensorflow_io_dep = "tensorflow-io==" + self._get_tfio_verison()
+            tensorflow_io_gcs_fs_dep = "tensorflow-io-gcs-filesystem==" + self._get_tfio_verison()
             BigframeSerializer._metadata.dependencies.append(tensorflow_io_dep)
+            BigframeSerializer._metadata.dependencies.append(tensorflow_io_gcs_fs_dep)
 
         # Check if index.name is default and set index.name if not
         if to_serialize.index.name and to_serialize.index.name != "index":
