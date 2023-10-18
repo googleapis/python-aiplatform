@@ -291,10 +291,6 @@ def _get_service_account(
         config.service_account or vertexai.preview.global_config.service_account
     )
     if service_account:
-        if vertexai.preview.global_config.cluster_name:
-            raise ValueError(
-                "Persistent cluster currently does not support custom service account."
-            )
         if service_account.lower() == "gce":
             project = vertexai.preview.global_config.project
             project_number = resource_manager_utils.get_project_number(project)
@@ -501,6 +497,14 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
 
     autolog = vertexai.preview.global_config.autolog
     service_account = _get_service_account(config, autolog=autolog)
+    if (
+        autolog
+        and vertexai.preview.global_config.cluster is not None
+        and (service_account != vertexai.preview.global_config.cluster.service_account)
+    ):
+        raise ValueError(
+            f"The service account for autologging ({service_account}) is mismatched with the cluster's service account ({vertexai.preview.global_config.service_account}). "
+        )
     if autolog:
         vertex_requirements = [
             VERTEX_AI_DEPENDENCY_PATH_AUTOLOGGING,
@@ -714,6 +718,11 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
     # disable CustomJob logs
     logging.getLogger("google.cloud.aiplatform.jobs").disabled = True
     logging.getLogger("google.cloud.aiplatform.preview.jobs").disabled = True
+    cluster_name = (
+        vertexai.preview.global_config.cluster.name
+        if vertexai.preview.global_config.cluster is not None
+        else None
+    )
     try:
         job = jobs.CustomJob(
             display_name=display_name,
@@ -723,7 +732,7 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
             base_output_dir=remote_job_base_path,
             staging_bucket=remote_job_base_path,
             labels=labels,
-            persistent_resource_id=vertexai.preview.global_config.cluster_name,
+            persistent_resource_id=cluster_name,
         )
 
         job.submit(

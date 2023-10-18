@@ -31,6 +31,8 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
 )
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourcePool,
+    ResourceRuntimeSpec,
+    ServiceAccountSpec,
 )
 from google.cloud.aiplatform_v1beta1.types.persistent_resource_service import (
     GetPersistentResourceRequest,
@@ -61,18 +63,28 @@ def _create_persistent_resource_client(location: Optional[str] = "us-central1"):
     )
 
 
-def check_persistent_resource(cluster_resource_name: str) -> bool:
+def cluster_resource_name(project: str, location: str, name: str) -> str:
+    """Helper method to get persistent resource name."""
+    client = _create_persistent_resource_client(location)
+    return client.persistent_resource_path(project, location, name)
+
+
+def check_persistent_resource(
+    cluster_resource_name: str, service_account: Optional[str] = None
+) -> bool:
     """Helper method to check if a persistent resource exists or not.
 
     Args:
         cluster_resource_name: Persistent Resource name. Has the form:
         ``projects/my-project/locations/my-region/persistentResource/cluster-name``.
+        service_account: Service account.
 
     Returns:
         True if a Persistent Resource exists.
 
     Raises:
         ValueError: if existing cluster is not RUNNING.
+        ValueError: if service account is specified but mismatch with existing cluster.
     """
     # Parse resource name to get the location.
     locataion = cluster_resource_name.split("/")[3]
@@ -90,6 +102,24 @@ def check_persistent_resource(cluster_resource_name: str) -> bool:
             "The existing cluster `",
             cluster_resource_name,
             "` isn't running, please specify a different cluster_name.",
+        )
+    # Check if service account of this existing persistent resource matches initialized one.
+    existing_cluster_service_account = (
+        response.resource_runtime_spec.service_account_spec.service_account
+        if response.resource_runtime_spec.service_account_spec
+        else None
+    )
+
+    if (
+        service_account is not None
+        and existing_cluster_service_account != service_account
+    ):
+        raise ValueError(
+            "Expect the existing cluster was created with the service account `",
+            service_account,
+            "`, but got `",
+            existing_cluster_service_account,
+            "` , please ensure service account is consistent with the initialization.",
         )
     return True
 
@@ -185,6 +215,7 @@ def _get_persistent_resource(cluster_resource_name: str):
 def create_persistent_resource(
     cluster_resource_name: str,
     resource_pools: Optional[List[remote_specs.ResourcePool]] = None,
+    service_account: Optional[str] = None,
 ):
     """Create a persistent resource."""
     locataion = cluster_resource_name.split("/")[3]
@@ -209,6 +240,15 @@ def create_persistent_resource(
 
         persistent_resource = PersistentResource(resource_pools=pools)
 
+    enable_custom_service_account = True if service_account is not None else False
+
+    resource_runtime_spec = ResourceRuntimeSpec(
+        service_account_spec=ServiceAccountSpec(
+            enable_custom_service_account=enable_custom_service_account,
+            service_account=service_account,
+        ),
+    )
+    persistent_resource.resource_runtime_spec = resource_runtime_spec
     request = persistent_resource_service.CreatePersistentResourceRequest(
         parent=parent,
         persistent_resource=persistent_resource,

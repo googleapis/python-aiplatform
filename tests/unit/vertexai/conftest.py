@@ -44,6 +44,8 @@ import tensorflow.saved_model as tf_saved_model
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     PersistentResource,
     ResourcePool,
+    ResourceRuntimeSpec,
+    ServiceAccountSpec,
 )
 
 
@@ -54,6 +56,7 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_DISPLAY_NAME = f"{_TEST_PARENT}/customJobs/12345"
 _TEST_BUCKET_NAME = "gs://test_bucket"
 _TEST_BASE_OUTPUT_DIR = f"{_TEST_BUCKET_NAME}/test_base_output_dir"
+_TEST_SERVICE_ACCOUNT = f"{_TEST_PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 
 _TEST_INPUTS = [
     "--arg_0=string_val_0",
@@ -86,7 +89,9 @@ _TEST_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
     labels={"trained_by_vertex_ai": "true"},
 )
 
-_TEST_REQUEST_RUNNING_DEFAULT = PersistentResource()
+_TEST_REQUEST_RUNNING_DEFAULT = PersistentResource(
+    resource_runtime_spec=ResourceRuntimeSpec(service_account_spec=ServiceAccountSpec())
+)
 resource_pool = ResourcePool()
 resource_pool.machine_spec.machine_type = "n1-standard-4"
 resource_pool.replica_count = 1
@@ -95,8 +100,15 @@ resource_pool.disk_spec.boot_disk_size_gb = 100
 _TEST_REQUEST_RUNNING_DEFAULT.resource_pools = [resource_pool]
 
 
-_TEST_PERSISTENT_RESOURCE_RUNNING = PersistentResource()
-_TEST_PERSISTENT_RESOURCE_RUNNING.state = "RUNNING"
+_TEST_PERSISTENT_RESOURCE_RUNNING = PersistentResource(state="RUNNING")
+_TEST_PERSISTENT_RESOURCE_SERVICE_ACCOUNT_RUNNING = PersistentResource(
+    state="RUNNING",
+    resource_runtime_spec=ResourceRuntimeSpec(
+        service_account_spec=ServiceAccountSpec(
+            enable_custom_service_account=True, service_account=_TEST_SERVICE_ACCOUNT
+        )
+    ),
+)
 
 
 @pytest.fixture(scope="module")
@@ -282,6 +294,18 @@ def persistent_resource_running_mock():
             _TEST_PERSISTENT_RESOURCE_RUNNING
         )
         yield persistent_resource_running_mock
+
+
+@pytest.fixture
+def persistent_resource_service_account_running_mock():
+    with mock.patch.object(
+        PersistentResourceServiceClient,
+        "get_persistent_resource",
+    ) as persistent_resource_service_account_running_mock:
+        persistent_resource_service_account_running_mock.return_value = (
+            _TEST_PERSISTENT_RESOURCE_SERVICE_ACCOUNT_RUNNING
+        )
+        yield persistent_resource_service_account_running_mock
 
 
 @pytest.fixture

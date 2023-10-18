@@ -79,7 +79,7 @@ tf.__version__ = "2.12.0"
 
 # vertexai constants
 _TEST_PROJECT = "test-project"
-_TEST_PROJECT_NUMBER = 123
+_TEST_PROJECT_NUMBER = 12345678
 _TEST_LOCATION = "us-central1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_BUCKET_NAME = "gs://test-bucket"
@@ -88,6 +88,7 @@ _TEST_REMOTE_JOB_NAME = f"remote-job-{_TEST_UNIQUE_NAME}"
 _TEST_REMOTE_JOB_BASE_PATH = os.path.join(_TEST_BUCKET_NAME, _TEST_REMOTE_JOB_NAME)
 _TEST_EXPERIMENT = "test-experiment"
 _TEST_EXPERIMENT_RUN = "test-experiment-run"
+_TEST_SERVICE_ACCOUNT = f"{_TEST_PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 
 # dataset constants
 dataset = load_iris()
@@ -267,6 +268,20 @@ _TEST_PERSISTENT_RESOURCE_CONFIG = configs.PersistentResourceConfig(
             replica_count=2,
         ),
     ],
+)
+
+_TEST_PERSISTENT_RESOURCE_CONFIG_SERVICE_ACCOUNT = configs.PersistentResourceConfig(
+    name=_TEST_PERSISTENT_RESOURCE_ID,
+    resource_pools=[
+        remote_specs.ResourcePool(
+            replica_count=_TEST_REPLICA_COUNT,
+        ),
+        remote_specs.ResourcePool(
+            machine_type="n1-standard-8",
+            replica_count=2,
+        ),
+    ],
+    service_account=_TEST_SERVICE_ACCOUNT,
 )
 
 _TEST_PERSISTENT_RESOURCE_CONFIG_DISABLE = configs.PersistentResourceConfig(
@@ -1583,7 +1598,7 @@ class TestRemoteTraining:
     @pytest.mark.xfail(
         sys.version_info.minor >= 8,
         raises=ValueError,
-        reason="Flaky in python 3.8, 3.10, 3.11",
+        reason="Flaky in python >=3.8",
     )
     @pytest.mark.usefixtures(
         "list_default_tensorboard_mock",
@@ -1667,7 +1682,7 @@ class TestRemoteTraining:
     @pytest.mark.xfail(
         sys.version_info.minor >= 8,
         raises=ValueError,
-        reason="Flaky in python 3.8, 3.10, 3.11",
+        reason="Flaky in python >=3.8",
     )
     @pytest.mark.usefixtures(
         "list_default_tensorboard_mock",
@@ -1856,6 +1871,27 @@ class TestRemoteTraining:
         model.score(_X_TEST, _Y_TEST)
 
     @pytest.mark.usefixtures(
+        "mock_timestamped_unique_name",
+        "mock_get_custom_job",
+        "mock_autolog_disabled",
+        "persistent_resource_running_mock",
+    )
+    def test_initialize_existing_persistent_resource_service_account_mismatch(self):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+        )
+        with pytest.raises(ValueError) as e:
+            vertexai.preview.init(
+                cluster=_TEST_PERSISTENT_RESOURCE_CONFIG_SERVICE_ACCOUNT
+            )
+        e.match(
+            regexp=r"Expect the existing cluster was created with the service account "
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_get_project_number",
         "list_default_tensorboard_mock",
         "mock_get_experiment_run",
         "mock_get_metadata_store",
@@ -1865,7 +1901,7 @@ class TestRemoteTraining:
         "mock_autolog_enabled",
         "persistent_resource_running_mock",
     )
-    def test_remote_training_sklearn_with_persistent_cluster_and_experiment_error(
+    def test_remote_training_sklearn_with_persistent_cluster_no_service_account_and_experiment_error(
         self,
     ):
         vertexai.init(
@@ -1884,9 +1920,101 @@ class TestRemoteTraining:
         with pytest.raises(ValueError) as e:
             model.fit.vertex.remote_config.service_account = "GCE"
             model.fit(_X_TRAIN, _Y_TRAIN)
-        e.match(
-            regexp=r"Persistent cluster currently does not support custom service account."
+        e.match(regexp=r"The service account for autologging")
+
+    # TODO(b/300116902) Remove this once we find better solution.
+    @pytest.mark.xfail(
+        sys.version_info.minor >= 8,
+        raises=ValueError,
+        reason="Flaky in python >=3.8",
+    )
+    @pytest.mark.usefixtures(
+        "mock_get_project_number",
+        "list_default_tensorboard_mock",
+        "mock_get_experiment_run",
+        "mock_get_metadata_store",
+        "get_artifact_not_found_mock",
+        "update_context_mock",
+        "aiplatform_autolog_mock",
+        "mock_autolog_enabled",
+        "persistent_resource_service_account_running_mock",
+        "mock_timestamped_unique_name",
+        "mock_get_custom_job",
+    )
+    def test_remote_training_sklearn_with_persistent_cluster_and_experiment_autologging(
+        self,
+        mock_any_serializer_sklearn,
+        mock_create_custom_job,
+    ):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+            experiment=_TEST_EXPERIMENT,
         )
+        vertexai.preview.init(
+            remote=True,
+            autolog=True,
+            cluster=_TEST_PERSISTENT_RESOURCE_CONFIG_SERVICE_ACCOUNT,
+        )
+
+        vertexai.preview.start_run(_TEST_EXPERIMENT_RUN, resume=True)
+
+        LogisticRegression = vertexai.preview.remote(_logistic.LogisticRegression)
+        model = LogisticRegression()
+
+        model.fit.vertex.remote_config.service_account = _TEST_SERVICE_ACCOUNT
+
+        model.fit(_X_TRAIN, _Y_TRAIN)
+
+        # check that model is serialized correctly
+        mock_any_serializer_sklearn.return_value.serialize.assert_any_call(
+            to_serialize=model,
+            gcs_path=os.path.join(_TEST_REMOTE_JOB_BASE_PATH, "input/input_estimator"),
+        )
+
+        # check that args are serialized correctly
+        mock_any_serializer_sklearn.return_value.serialize.assert_any_call(
+            to_serialize=_X_TRAIN,
+            gcs_path=os.path.join(_TEST_REMOTE_JOB_BASE_PATH, "input/X"),
+        )
+        mock_any_serializer_sklearn.return_value.serialize.assert_any_call(
+            to_serialize=_Y_TRAIN,
+            gcs_path=os.path.join(_TEST_REMOTE_JOB_BASE_PATH, "input/y"),
+        )
+
+        # ckeck that CustomJob is created correctly
+        expected_custom_job = _get_custom_job_proto(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            experiment=_TEST_EXPERIMENT,
+            experiment_run=_TEST_EXPERIMENT_RUN,
+            autolog_enabled=True,
+            persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
+        )
+        mock_create_custom_job.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+        # check that trained model is deserialized correctly
+        mock_any_serializer_sklearn.return_value.deserialize.assert_has_calls(
+            [
+                mock.call(
+                    os.path.join(_TEST_REMOTE_JOB_BASE_PATH, "output/output_estimator")
+                ),
+                mock.call(
+                    os.path.join(_TEST_REMOTE_JOB_BASE_PATH, "output/output_data")
+                ),
+            ]
+        )
+
+        # change to `vertexai.preview.init(remote=False)` to use local prediction
+        vertexai.preview.init(remote=False)
+
+        # check that local model is updated in place
+        # `model.score` raises NotFittedError if the model is not updated
+        model.score(_X_TEST, _Y_TEST)
 
     @pytest.mark.usefixtures(
         "mock_timestamped_unique_name",

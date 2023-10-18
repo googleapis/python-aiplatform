@@ -33,6 +33,8 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
 )
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourcePool,
+    ResourceRuntimeSpec,
+    ServiceAccountSpec,
 )
 from vertexai.preview._workflow.executor import (
     persistent_resource_util,
@@ -75,8 +77,14 @@ resource_pool_1 = ResourcePool(
 )
 _TEST_REQUEST_RUNNING_DEFAULT = PersistentResource(
     resource_pools=[resource_pool_0],
+    resource_runtime_spec=ResourceRuntimeSpec(
+        service_account_spec=ServiceAccountSpec(enable_custom_service_account=False),
+    ),
 )
 _TEST_REQUEST_RUNNING_CUSTOM = PersistentResource(
+    resource_runtime_spec=ResourceRuntimeSpec(
+        service_account_spec=ServiceAccountSpec(enable_custom_service_account=False),
+    ),
     resource_pools=[resource_pool_0, resource_pool_1],
 )
 

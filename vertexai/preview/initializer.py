@@ -31,7 +31,7 @@ class _Config:
 
     def __init__(self):
         self._remote = False
-        self._cluster_name = None
+        self._cluster = None
 
     def init(
         self,
@@ -79,17 +79,18 @@ class _Config:
             aiplatform.autolog(disable=True)
 
         if cluster is not None:
-            if aiplatform.initializer.global_config.service_account is not None:
-                raise ValueError(
-                    "Persistent cluster currently does not support custom service account"
-                )
             if cluster.disable:
-                self._cluster_name = None
+                self._cluster = None
             else:
-                self._cluster_name = cluster.name
-                cluster_resource_name = f"projects/{self.project}/locations/{self.location}/persistentResources/{self._cluster_name}"
+                self._cluster = cluster
+                cluster_resource_name = persistent_resource_util.cluster_resource_name(
+                    project=self.project,
+                    location=self.location,
+                    name=self._cluster.name,
+                )
                 cluster_exists = persistent_resource_util.check_persistent_resource(
-                    cluster_resource_name=cluster_resource_name
+                    cluster_resource_name=cluster_resource_name,
+                    service_account=cluster.service_account,
                 )
                 if cluster_exists:
                     _LOGGER.info(f"Using existing cluster: {cluster_resource_name}")
@@ -98,6 +99,7 @@ class _Config:
                 persistent_resource_util.create_persistent_resource(
                     cluster_resource_name=cluster_resource_name,
                     resource_pools=cluster.resource_pools,
+                    service_account=cluster.service_account,
                 )
 
     @property
@@ -109,8 +111,8 @@ class _Config:
         return aiplatform.utils.autologging_utils._is_autologging_enabled()
 
     @property
-    def cluster_name(self):
-        return self._cluster_name
+    def cluster(self):
+        return self._cluster
 
     def __getattr__(self, name):
         return getattr(aiplatform.initializer.global_config, name)

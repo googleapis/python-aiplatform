@@ -298,7 +298,12 @@ class PersistentResourceConfig:
             cannot be a number or hyphen.
         resource_pool_specs (vertexai.preview.developer.remote_specs.ResourcePoolSpecs):
             The worker pool specs configuration for a remote job.
-        disable (bool): By default is False, meaning the remote execution runs on
+        service_account (str):
+            If intended for experiment autologging, this service account should
+            be specified and consistent with per instance service account, which
+            is configured in `model.fit.vertex.remote_config.service_account`.
+        disable (bool):
+            By default is False, meaning the remote execution runs on
             the persistent cluster. If users want to disable it (so the remote
             execution runs on an ephemeral cluster), set it as True.
     """
@@ -307,4 +312,5 @@ class PersistentResourceConfig:
     resource_pools: Optional[
         "vertexai.preview.developer.remote_specs.ResourcePool"  # noqa: F821
     ] = None
+    service_account: Optional[str] = None
     disable: Optional[bool] = False
