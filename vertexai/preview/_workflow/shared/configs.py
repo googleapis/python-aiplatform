@@ -67,7 +67,11 @@ class RemoteConfig(_BaseConfig):
             `container_uri`, `accelerator_type`, `accelerator_count`.
             Supported frameworks: keras, torch.nn.Module
             Default configs:
-            container_uri="pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime" or "tensorflow/tensorflow:2.12.0-gpu"
+            container_uri=(
+                "pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime"
+                or
+                "us-docker.pkg.dev/vertex-ai/training/tf-gpu.2-11.py310:latest"
+            )
             machine_type="n1-standard-16"
             accelerator_type="NVIDIA_TESLA_P100"
             accelerator_count=1
