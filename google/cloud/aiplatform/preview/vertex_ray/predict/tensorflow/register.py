@@ -42,6 +42,7 @@ def register_tensorflow(
     checkpoint: ray_tensorflow.TensorflowCheckpoint,
     artifact_uri: Optional[str] = None,
     _model: Optional[Union["tf.keras.Model", Callable[[], "tf.keras.Model"]]] = None,
+    display_name: Optional[str] = None,
     **kwargs,
 ) -> aiplatform.Model:
     """Uploads a Ray Tensorflow Checkpoint as Tensorflow Model to Model Registry.
@@ -70,10 +71,13 @@ def register_tensorflow(
     Args:
         checkpoint: TensorflowCheckpoint instance.
         artifact_uri (str):
-            The path to the directory where Model Artifacts will be saved. If
+            Optional. The path to the directory where Model Artifacts will be saved. If
             not set, will use staging bucket set in aiplatform.init().
         _model: Tensorflow Model Definition. Refer
             https://docs.ray.io/en/latest/train/api/doc/ray.train.tensorflow.TensorflowCheckpoint.get_model.html#ray.train.tensorflow.TensorflowCheckpoint.get_model
+        display_name (str):
+            Optional. The display name of the Model. The name can be up to 128
+            characters long and can be consist of any UTF-8 characters.
         **kwargs:
             Any kwargs will be passed to aiplatform.Model registration.
 
@@ -87,7 +91,11 @@ def register_tensorflow(
     artifact_uri = artifact_uri or initializer.global_config.staging_bucket
     predict_utils.validate_artifact_uri(artifact_uri)
     prefix = "ray-on-vertex-registered-tensorflow-model"
-    display_model_name = f"{prefix}-{utils.timestamped_unique_name()}"
+    display_model_name = (
+        (f"{prefix}-{utils.timestamped_unique_name()}")
+        if display_name is None
+        else display_name
+    )
     tf_model = _get_tensorflow_model_from(checkpoint, model=_model)
     model_dir = os.path.join(artifact_uri, prefix)
     tf_model.save(model_dir)

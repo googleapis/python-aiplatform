@@ -46,6 +46,7 @@ except ModuleNotFoundError as mnfe:
 def register_sklearn(
     checkpoint: ray_sklearn.SklearnCheckpoint,
     artifact_uri: Optional[str] = None,
+    display_name: Optional[str] = None,
     **kwargs,
 ) -> aiplatform.Model:
     """Uploads a Ray Sklearn Checkpoint as Sklearn Model to Model Registry.
@@ -67,8 +68,11 @@ def register_sklearn(
     Args:
         checkpoint: SklearnCheckpoint instance.
         artifact_uri (str):
-            The path to the directory where Model Artifacts will be saved. If
+            Optional. The path to the directory where Model Artifacts will be saved. If
             not set, will use staging bucket set in aiplatform.init().
+        display_name (str):
+            Optional. The display name of the Model. The name can be up to 128
+            characters long and can be consist of any UTF-8 characters.
         **kwargs:
             Any kwargs will be passed to aiplatform.Model registration.
 
@@ -82,7 +86,9 @@ def register_sklearn(
     artifact_uri = artifact_uri or initializer.global_config.staging_bucket
     predict_utils.validate_artifact_uri(artifact_uri)
     display_model_name = (
-        f"ray-on-vertex-registered-sklearn-model-{utils.timestamped_unique_name()}"
+        (f"ray-on-vertex-registered-sklearn-model-{utils.timestamped_unique_name()}")
+        if display_name is None
+        else display_name
     )
     estimator = _get_estimator_from(checkpoint)
 
