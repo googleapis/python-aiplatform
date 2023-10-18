@@ -2534,6 +2534,12 @@ class _LanguageModelTuningJob:
 
 
 def _get_tuned_models_dir_uri(model_id: str) -> str:
+    if aiplatform_initializer.global_config.staging_bucket:
+        return (
+            aiplatform_initializer.global_config.staging_bucket
+            + "/tuned_language_models/"
+            + model_id
+        )
     staging_gcs_bucket = (
         gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist()
     )
