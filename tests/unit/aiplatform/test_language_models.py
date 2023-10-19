@@ -2377,6 +2377,44 @@ class TestLanguageModels:
         assert chat.message_history[2].content == message_text1
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
+    def test_chat_model_preview_count_tokens(self):
+        """Tests the text generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
+
+            chat = model.start_chat()
+            assert isinstance(chat, preview_language_models.ChatSession)
+
+        gca_count_tokens_response = gca_prediction_service_v1beta1.CountTokensResponse(
+            total_tokens=_TEST_COUNT_TOKENS_RESPONSE["total_tokens"],
+            total_billable_characters=_TEST_COUNT_TOKENS_RESPONSE[
+                "total_billable_characters"
+            ],
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client_v1beta1.PredictionServiceClient,
+            attribute="count_tokens",
+            return_value=gca_count_tokens_response,
+        ):
+            response = chat.count_tokens("What is the best recipe for banana bread?")
+
+            assert response.total_tokens == _TEST_COUNT_TOKENS_RESPONSE["total_tokens"]
+            assert (
+                response.total_billable_characters
+                == _TEST_COUNT_TOKENS_RESPONSE["total_billable_characters"]
+            )
+
     def test_code_chat(self):
         """Tests the code chat model."""
         aiplatform.init(
@@ -2576,6 +2614,46 @@ class TestLanguageModels:
         assert chat.message_history[0].author == chat.USER_AUTHOR
         assert chat.message_history[0].content == message_text1
         assert chat.message_history[1].author == chat.MODEL_AUTHOR
+
+    def test_code_chat_model_preview_count_tokens(self):
+        """Tests the text generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODECHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.CodeChatModel.from_pretrained(
+                "codechat-bison@001"
+            )
+
+            chat = model.start_chat()
+            assert isinstance(chat, preview_language_models.CodeChatSession)
+
+        gca_count_tokens_response = gca_prediction_service_v1beta1.CountTokensResponse(
+            total_tokens=_TEST_COUNT_TOKENS_RESPONSE["total_tokens"],
+            total_billable_characters=_TEST_COUNT_TOKENS_RESPONSE[
+                "total_billable_characters"
+            ],
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client_v1beta1.PredictionServiceClient,
+            attribute="count_tokens",
+            return_value=gca_count_tokens_response,
+        ):
+            response = chat.count_tokens("What is the best recipe for banana bread?")
+
+            assert response.total_tokens == _TEST_COUNT_TOKENS_RESPONSE["total_tokens"]
+            assert (
+                response.total_billable_characters
+                == _TEST_COUNT_TOKENS_RESPONSE["total_billable_characters"]
+            )
 
     def test_code_generation(self):
         """Tests code generation with the code generation model."""

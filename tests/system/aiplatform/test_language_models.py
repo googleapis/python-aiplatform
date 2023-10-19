@@ -159,6 +159,29 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert chat.message_history[2].content == message2
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
+    def test_chat_model_preview_count_tokens(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        chat_model = ChatModel.from_pretrained("google/chat-bison@001")
+
+        chat = chat_model.start_chat()
+
+        chat.send_message("What should I do today?")
+
+        response_with_history = chat.count_tokens("Any ideas?")
+
+        response_without_history = chat_model.start_chat().count_tokens(
+            "What should I do today?"
+        )
+
+        assert (
+            response_with_history.total_tokens > response_without_history.total_tokens
+        )
+        assert (
+            response_with_history.total_billable_characters
+            > response_without_history.total_billable_characters
+        )
+
     @pytest.mark.asyncio
     async def test_chat_model_async(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)

@@ -222,7 +222,9 @@ class _TunableModelMixin(_LanguageModel):
             if eval_spec.evaluation_data:
                 if isinstance(eval_spec.evaluation_data, str):
                     if eval_spec.evaluation_data.startswith("gs://"):
-                        tuning_parameters["evaluation_data_uri"] = eval_spec.evaluation_data
+                        tuning_parameters[
+                            "evaluation_data_uri"
+                        ] = eval_spec.evaluation_data
                     else:
                         raise ValueError("evaluation_data should be a GCS URI")
                 else:
@@ -627,7 +629,7 @@ class _CountTokensMixin(_LanguageModel):
     ) -> CountTokensResponse:
         """Counts the tokens and billable characters for a given prompt.
 
-        Note: this does not make a request to the model, it only counts the tokens
+        Note: this does not make a prediction request to the model, it only counts the tokens
         in the request.
 
         Args:
@@ -802,7 +804,9 @@ class _TextGenerationModel(_LanguageModel):
             parameters=prediction_request.parameters,
         )
 
-        return _parse_text_generation_model_multi_candidate_response(prediction_response)
+        return _parse_text_generation_model_multi_candidate_response(
+            prediction_response
+        )
 
     async def predict_async(
         self,
@@ -844,7 +848,9 @@ class _TextGenerationModel(_LanguageModel):
             parameters=prediction_request.parameters,
         )
 
-        return _parse_text_generation_model_multi_candidate_response(prediction_response)
+        return _parse_text_generation_model_multi_candidate_response(
+            prediction_response
+        )
 
     def predict_streaming(
         self,
@@ -1587,6 +1593,47 @@ class _PreviewChatModel(ChatModel, _PreviewTunableChatModelMixin):
 
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
+    def start_chat(
+        self,
+        *,
+        context: Optional[str] = None,
+        examples: Optional[List[InputOutputTextPair]] = None,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        message_history: Optional[List[ChatMessage]] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> "_PreviewChatSession":
+        """Starts a chat session with the model.
+
+        Args:
+            context: Context shapes how the model responds throughout the conversation.
+                For example, you can use context to specify words the model can or cannot use, topics to focus on or avoid, or the response format or style
+            examples: List of structured messages to the model to learn how to respond to the conversation.
+                A list of `InputOutputTextPair` objects.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+            message_history: A list of previously sent and received messages.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+
+        Returns:
+            A `ChatSession` object.
+        """
+        return _PreviewChatSession(
+            model=self,
+            context=context,
+            examples=examples,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            message_history=message_history,
+            stop_sequences=stop_sequences,
+        )
+
 
 class CodeChatModel(_ChatModelBase):
     """CodeChatModel represents a model that is capable of completing code.
@@ -1645,6 +1692,47 @@ class _PreviewCodeChatModel(CodeChatModel, _TunableChatModelMixin):
     __module__ = "vertexai.preview.language_models"
 
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+
+    def start_chat(
+        self,
+        *,
+        context: Optional[str] = None,
+        examples: Optional[List[InputOutputTextPair]] = None,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        message_history: Optional[List[ChatMessage]] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> "_PreviewCodeChatSession":
+        """Starts a chat session with the model.
+
+        Args:
+            context: Context shapes how the model responds throughout the conversation.
+                For example, you can use context to specify words the model can or cannot use, topics to focus on or avoid, or the response format or style
+            examples: List of structured messages to the model to learn how to respond to the conversation.
+                A list of `InputOutputTextPair` objects.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+            message_history: A list of previously sent and received messages.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+
+        Returns:
+            A `ChatSession` object.
+        """
+        return _PreviewCodeChatSession(
+            model=self,
+            context=context,
+            examples=examples,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            message_history=message_history,
+            stop_sequences=stop_sequences,
+        )
 
 
 class _ChatSessionBase:
@@ -2071,6 +2159,67 @@ class _ChatSessionBase:
         )
 
 
+class _ChatSessionBaseWithCountTokensMixin(_ChatSessionBase):
+    """A mixin class for adding count_tokens to ChatSession."""
+
+    def count_tokens(
+        self,
+        message: str,
+    ) -> CountTokensResponse:
+        """Counts the tokens and billable characters for the provided chat message and any message history,
+        context, or examples set on the chat session.
+
+        If you've called `send_message()` in the current chat session before calling `count_tokens()`, the
+        response will include the total tokens and characters for the previously sent message and the one in the
+        `count_tokens()` request. To count the tokens for a single message, call `count_tokens()` right after
+        calling `start_chat()` before calling `send_message()`.
+
+        Note: this does not make a prediction request to the model, it only counts the tokens
+        in the request.
+
+        Examples::
+
+        model = ChatModel.from_pretrained("chat-bison@001")
+        chat_session = model.start_chat()
+        count_tokens_response = chat_session.count_tokens("How's it going?")
+
+        count_tokens_response.total_tokens
+        count_tokens_response.total_billable_characters
+
+        Args:
+            message (str):
+                Required. A chat message to count tokens or. For example: "How's it going?"
+        Returns:
+            A `CountTokensResponse` object that contains the number of tokens
+            in the text and the number of billable characters.
+        """
+
+        count_tokens_request = self._prepare_request(message=message)
+
+        count_tokens_response = self._model._endpoint._prediction_client.select_version(
+            "v1beta1"
+        ).count_tokens(
+            endpoint=self._model._endpoint_name,
+            instances=[count_tokens_request.instance],
+        )
+
+        return CountTokensResponse(
+            total_tokens=count_tokens_response.total_tokens,
+            total_billable_characters=count_tokens_response.total_billable_characters,
+            _count_tokens_response=count_tokens_response,
+        )
+
+
+class _PreviewChatSession(_ChatSessionBaseWithCountTokensMixin):
+
+    __module__ = "vertexai.preview.language_models"
+
+
+class _PreviewCodeChatSession(_ChatSessionBaseWithCountTokensMixin):
+
+    __module__ = "vertexai.preview.language_models"
+
+
 class ChatSession(_ChatSessionBase):
     """ChatSession represents a chat session with a language model.
 
@@ -2361,7 +2510,9 @@ class CodeGenerationModel(_LanguageModel):
             instances=[prediction_request.instance],
             parameters=prediction_request.parameters,
         )
-        return _parse_text_generation_model_multi_candidate_response(prediction_response)
+        return _parse_text_generation_model_multi_candidate_response(
+            prediction_response
+        )
 
     async def predict_async(
         self,
@@ -2400,7 +2551,9 @@ class CodeGenerationModel(_LanguageModel):
             instances=[prediction_request.instance],
             parameters=prediction_request.parameters,
         )
-        return _parse_text_generation_model_multi_candidate_response(prediction_response)
+        return _parse_text_generation_model_multi_candidate_response(
+            prediction_response
+        )
 
     def predict_streaming(
         self,
