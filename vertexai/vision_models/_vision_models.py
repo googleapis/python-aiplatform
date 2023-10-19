@@ -174,10 +174,6 @@ class ImageGenerationModel(
             "number_of_images_in_batch": number_of_images,
         }
 
-        if negative_prompt:
-            instance["negativePrompt"] = negative_prompt
-            shared_generation_parameters["negative_prompt"] = negative_prompt
-
         if base_image:
             base_image_base64 = (
                 base_image._as_base64_string()
@@ -207,6 +203,9 @@ class ImageGenerationModel(
                 parameters["aspectRatio"] = f"{width}:{height}"
 
         parameters["sampleCount"] = number_of_images
+        if negative_prompt:
+            parameters["negativePrompt"] = negative_prompt
+            shared_generation_parameters["negative_prompt"] = negative_prompt
 
         if seed is not None:
             # Note: String seed and numerical seed give different results

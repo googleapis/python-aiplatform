@@ -251,7 +251,7 @@ class TestImageGenerationModels:
             actual_parameters = predict_kwargs["parameters"]
             actual_instance = predict_kwargs["instances"][0]
             assert actual_instance["prompt"] == prompt1
-            assert actual_instance["negativePrompt"] == negative_prompt1
+            assert actual_parameters["negativePrompt"] == negative_prompt1
             # TODO(b/295946075) The service stopped supporting image sizes.
             # assert actual_parameters["sampleImageSize"] == str(max(width, height))
             # assert actual_parameters["aspectRatio"] == f"{width}:{height}"
