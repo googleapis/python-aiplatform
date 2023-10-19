@@ -15,7 +15,7 @@
 """Classes for working with language models."""
 
 import dataclasses
-from typing import Any, AsyncIterator, Dict, Iterator, List, Optional, Sequence, Union
+from typing import Any, AsyncIterator, Dict, Iterator, List, Literal, Optional, Sequence, Union
 import warnings
 
 from google.cloud import aiplatform
@@ -41,6 +41,9 @@ _LOGGER = base.Logger(__name__)
 
 # Endpoint label/metadata key to preserve the base model ID information
 _TUNING_BASE_MODEL_ID_LABEL_KEY = "google-vertex-llm-tuning-base-model-id"
+
+_ACCELERATOR_TYPES = ["TPU", "GPU"]
+_ACCELERATOR_TYPE_TYPE = Literal["TPU", "GPU"]
 
 
 def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
@@ -166,6 +169,7 @@ class _TunableModelMixin(_LanguageModel):
         model_display_name: Optional[str] = None,
         tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
         default_context: Optional[str] = None,
+        accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -191,6 +195,7 @@ class _TunableModelMixin(_LanguageModel):
             model_display_name: Custom display name for the tuned model.
             tuning_evaluation_spec: Specification for the model evaluation during tuning.
             default_context: The context to use for all training samples by default.
+            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -251,6 +256,14 @@ class _TunableModelMixin(_LanguageModel):
 
         if default_context:
             tuning_parameters["default_context"] = default_context
+
+        if accelerator_type:
+            if accelerator_type not in _ACCELERATOR_TYPES:
+                raise ValueError(
+                    f"Unsupported accelerator type: {accelerator_type}."
+                    f" Supported types: {_ACCELERATOR_TYPES}"
+                )
+            tuning_parameters["accelerator_type"] = accelerator_type
 
         return self._tune_model(
             training_data=training_data,
@@ -336,6 +349,7 @@ class _TunableTextModelMixin(_TunableModelMixin):
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
         tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
+        accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -357,6 +371,7 @@ class _TunableTextModelMixin(_TunableModelMixin):
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
             tuning_evaluation_spec: Specification for the model evaluation during tuning.
+            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -376,6 +391,7 @@ class _TunableTextModelMixin(_TunableModelMixin):
             tuned_model_location=tuned_model_location,
             model_display_name=model_display_name,
             tuning_evaluation_spec=tuning_evaluation_spec,
+            accelerator_type=accelerator_type,
         )
 
 
@@ -393,6 +409,7 @@ class _PreviewTunableTextModelMixin(_TunableModelMixin):
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
         tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
+        accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -421,6 +438,7 @@ class _PreviewTunableTextModelMixin(_TunableModelMixin):
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
             tuning_evaluation_spec: Specification for the model evaluation during tuning.
+            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -441,6 +459,7 @@ class _PreviewTunableTextModelMixin(_TunableModelMixin):
             tuned_model_location=tuned_model_location,
             model_display_name=model_display_name,
             tuning_evaluation_spec=tuning_evaluation_spec,
+            accelerator_type=accelerator_type,
         )
         tuned_model = job.get_tuned_model()
         self._endpoint = tuned_model._endpoint
@@ -461,6 +480,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
         default_context: Optional[str] = None,
+        accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -485,6 +505,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
             default_context: The context to use for all training samples by default.
+            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -504,6 +525,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
             tuned_model_location=tuned_model_location,
             model_display_name=model_display_name,
             default_context=default_context,
+            accelerator_type=accelerator_type,
         )
 
 
@@ -521,6 +543,7 @@ class _PreviewTunableChatModelMixin(_TunableModelMixin):
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
         default_context: Optional[str] = None,
+        accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -549,6 +572,7 @@ class _PreviewTunableChatModelMixin(_TunableModelMixin):
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
             default_context: The context to use for all training samples by default.
+            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -569,6 +593,7 @@ class _PreviewTunableChatModelMixin(_TunableModelMixin):
             tuned_model_location=tuned_model_location,
             model_display_name=model_display_name,
             default_context=default_context,
+            accelerator_type=accelerator_type,
         )
         tuned_model = job.get_tuned_model()
         self._endpoint = tuned_model._endpoint

@@ -365,6 +365,11 @@ _TEST_PIPELINE_SPEC = {
         "dag": {"tasks": {}},
         "inputDefinitions": {
             "parameters": {
+                "accelerator_type": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
                 "api_endpoint": {
                     "defaultValue": "aiplatform.googleapis.com/ui",
                     "isOptional": True,
@@ -1568,6 +1573,7 @@ class TestLanguageModels:
                     enable_early_stopping=enable_early_stopping,
                     tensorboard=tensorboard_name,
                 ),
+                accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
@@ -1581,6 +1587,7 @@ class TestLanguageModels:
             assert pipeline_arguments["enable_early_stopping"] == enable_early_stopping
             assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
             assert pipeline_arguments["large_model_reference"] == "text-bison@001"
+            assert pipeline_arguments["accelerator_type"] == "TPU"
             assert (
                 call_kwargs["pipeline_job"].encryption_spec.kms_key_name
                 == _TEST_ENCRYPTION_KEY_NAME
@@ -1649,6 +1656,7 @@ class TestLanguageModels:
                     enable_early_stopping=enable_early_stopping,
                     tensorboard=tensorboard_name,
                 ),
+                accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
@@ -1661,6 +1669,7 @@ class TestLanguageModels:
             assert pipeline_arguments["enable_early_stopping"] == enable_early_stopping
             assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
             assert pipeline_arguments["large_model_reference"] == "text-bison@001"
+            assert pipeline_arguments["accelerator_type"] == "TPU"
             assert (
                 call_kwargs["pipeline_job"].encryption_spec.kms_key_name
                 == _TEST_ENCRYPTION_KEY_NAME
@@ -1808,6 +1817,7 @@ class TestLanguageModels:
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
                 default_context=default_context,
+                accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
@@ -1815,6 +1825,7 @@ class TestLanguageModels:
             ].runtime_config.parameter_values
             assert pipeline_arguments["large_model_reference"] == "chat-bison@001"
             assert pipeline_arguments["default_context"] == default_context
+            assert pipeline_arguments["accelerator_type"] == "TPU"
 
             # Testing the tuned model
             tuned_model = tuning_job.get_tuned_model()
@@ -1862,12 +1873,14 @@ class TestLanguageModels:
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
+                accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
                 "pipeline_job"
             ].runtime_config.parameter_values
             assert pipeline_arguments["large_model_reference"] == "code-bison@001"
+            assert pipeline_arguments["accelerator_type"] == "TPU"
 
     @pytest.mark.parametrize(
         "job_spec",
@@ -1909,12 +1922,14 @@ class TestLanguageModels:
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
+                accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
                 "pipeline_job"
             ].runtime_config.parameter_values
             assert pipeline_arguments["large_model_reference"] == "codechat-bison@001"
+            assert pipeline_arguments["accelerator_type"] == "TPU"
 
     @pytest.mark.usefixtures(
         "get_model_with_tuned_version_label_mock",
