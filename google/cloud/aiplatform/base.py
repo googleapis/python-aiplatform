@@ -986,7 +986,6 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             "credentials",
         ]
         optional_sync_attributes = [
-            "_prediction_client",
             "_authorized_session",
             "_raw_predict_request_url",
         ]

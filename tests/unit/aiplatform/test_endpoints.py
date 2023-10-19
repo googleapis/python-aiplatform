@@ -658,18 +658,6 @@ class TestEndpoint:
                     location_override=_TEST_LOCATION,
                     appended_user_agent=None,
                 ),
-                mock.call(
-                    client_class=utils.PredictionAsyncClientWithOverride,
-                    credentials=None,
-                    location_override=_TEST_LOCATION,
-                    prediction_client=True,
-                ),
-                mock.call(
-                    client_class=utils.PredictionClientWithOverride,
-                    credentials=None,
-                    location_override=_TEST_LOCATION,
-                    prediction_client=True,
-                ),
             ]
         )
 
@@ -753,18 +741,6 @@ class TestEndpoint:
                     credentials=creds,
                     location_override=_TEST_LOCATION,
                     appended_user_agent=None,
-                ),
-                mock.call(
-                    client_class=utils.PredictionAsyncClientWithOverride,
-                    credentials=creds,
-                    location_override=_TEST_LOCATION,
-                    prediction_client=True,
-                ),
-                mock.call(
-                    client_class=utils.PredictionClientWithOverride,
-                    credentials=creds,
-                    location_override=_TEST_LOCATION,
-                    prediction_client=True,
                 ),
             ]
         )

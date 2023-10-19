@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import asyncio
 import json
 import pathlib
 import re
@@ -227,15 +226,38 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         # Lazy load the Endpoint gca_resource until needed
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
 
-        (
-            self._prediction_client,
-            self._prediction_async_client,
-        ) = self._instantiate_prediction_clients(
-            location=self.location,
-            credentials=credentials,
-        )
         self.authorized_session = None
         self.raw_predict_request_url = None
+
+    @property
+    def _prediction_client(self) -> utils.PredictionClientWithOverride:
+        # The attribute might not exist due to issues in
+        # `VertexAiResourceNounWithFutureManager._sync_object_with_future_result`
+        # We should switch to @functools.cached_property once its available.
+        if not getattr(self, "_prediction_client_value", None):
+            self._prediction_client_value = initializer.global_config.create_client(
+                client_class=utils.PredictionClientWithOverride,
+                credentials=self.credentials,
+                location_override=self.location,
+                prediction_client=True,
+            )
+        return self._prediction_client_value
+
+    @property
+    def _prediction_async_client(self) -> utils.PredictionAsyncClientWithOverride:
+        # The attribute might not exist due to issues in
+        # `VertexAiResourceNounWithFutureManager._sync_object_with_future_result`
+        # We should switch to @functools.cached_property once its available.
+        if not getattr(self, "_prediction_async_client_value", None):
+            self._prediction_async_client_value = (
+                initializer.global_config.create_client(
+                    client_class=utils.PredictionAsyncClientWithOverride,
+                    credentials=self.credentials,
+                    location_override=self.location,
+                    prediction_client=True,
+                )
+            )
+        return self._prediction_async_client_value
 
     def _skipped_getter_call(self) -> bool:
         """Check if GAPIC resource was populated by call to get/list API methods
@@ -573,14 +595,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             gapic_resource=gapic_resource,
             project=project,
             location=location,
-            credentials=credentials,
-        )
-
-        (
-            endpoint._prediction_client,
-            endpoint._prediction_async_client,
-        ) = cls._instantiate_prediction_clients(
-            location=endpoint.location,
             credentials=credentials,
         )
         endpoint.authorized_session = None
@@ -1389,53 +1403,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
         # update local resource
         self._sync_gca_resource()
-
-    @staticmethod
-    def _instantiate_prediction_clients(
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> Tuple[
-        utils.PredictionClientWithOverride, utils.PredictionAsyncClientWithOverride
-    ]:
-        """Helper method to instantiates prediction client with optional
-        overrides for this endpoint.
-
-        Args:
-            location (str): The location of this endpoint.
-            credentials (google.auth.credentials.Credentials):
-                Optional custom credentials to use when accessing interacting with
-                the prediction client.
-
-        Returns:
-            prediction_client (prediction_service_client.PredictionServiceClient):
-            prediction_async_client (PredictionServiceAsyncClient):
-                Initialized prediction clients with optional overrides.
-        """
-
-        # Creating an event loop if needed.
-        # PredictionServiceAsyncClient constructor calls `asyncio.get_event_loop`,
-        # which fails when there is no event loop (which does not exist by default
-        # in non-main threads in thread pool used when `sync=False`).
-        try:
-            asyncio.get_event_loop()
-        except RuntimeError:
-            asyncio.set_event_loop(asyncio.new_event_loop())
-
-        async_client = initializer.global_config.create_client(
-            client_class=utils.PredictionAsyncClientWithOverride,
-            credentials=credentials,
-            location_override=location,
-            prediction_client=True,
-        )
-        # We could use `client = async_client._client`, but then client would be
-        # a concrete `PredictionServiceClient`, not `PredictionClientWithOverride`.
-        client = initializer.global_config.create_client(
-            client_class=utils.PredictionClientWithOverride,
-            credentials=credentials,
-            location_override=location,
-            prediction_client=True,
-        )
-        return (client, async_client)
 
     def update(
         self,
