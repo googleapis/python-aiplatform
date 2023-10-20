@@ -22,6 +22,7 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1.types import annotation
 from google.cloud.aiplatform_v1.types import data_item as gca_data_item
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
+from google.cloud.aiplatform_v1.types import dataset_version as gca_dataset_version
 from google.cloud.aiplatform_v1.types import operation
 from google.cloud.aiplatform_v1.types import saved_query as gca_saved_query
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -43,7 +44,13 @@ __protobuf__ = proto.module(
         "ExportDataRequest",
         "ExportDataResponse",
         "ExportDataOperationMetadata",
+        "CreateDatasetVersionRequest",
         "CreateDatasetVersionOperationMetadata",
+        "DeleteDatasetVersionRequest",
+        "GetDatasetVersionRequest",
+        "ListDatasetVersionsRequest",
+        "ListDatasetVersionsResponse",
+        "RestoreDatasetVersionRequest",
         "RestoreDatasetVersionOperationMetadata",
         "ListDataItemsRequest",
         "ListDataItemsResponse",
@@ -376,6 +383,32 @@ class ExportDataOperationMetadata(proto.Message):
     )
 
 
+class CreateDatasetVersionRequest(proto.Message):
+    r"""Request message for
+    [DatasetService.CreateDatasetVersion][google.cloud.aiplatform.v1.DatasetService.CreateDatasetVersion].
+
+    Attributes:
+        parent (str):
+            Required. The name of the Dataset resource. Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}``
+        dataset_version (google.cloud.aiplatform_v1.types.DatasetVersion):
+            Required. The version to be created. The same
+            CMEK policies with the original Dataset will be
+            applied the dataset version. So here we don't
+            need to specify the EncryptionSpecType here.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    dataset_version: gca_dataset_version.DatasetVersion = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_dataset_version.DatasetVersion,
+    )
+
+
 class CreateDatasetVersionOperationMetadata(proto.Message):
     r"""Runtime operation information for
     [DatasetService.CreateDatasetVersion][google.cloud.aiplatform.v1.DatasetService.CreateDatasetVersion].
@@ -389,6 +422,143 @@ class CreateDatasetVersionOperationMetadata(proto.Message):
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
+    )
+
+
+class DeleteDatasetVersionRequest(proto.Message):
+    r"""Request message for
+    [DatasetService.DeleteDatasetVersion][google.cloud.aiplatform.v1.DatasetService.DeleteDatasetVersion].
+
+    Attributes:
+        name (str):
+            Required. The resource name of the Dataset version to
+            delete. Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class GetDatasetVersionRequest(proto.Message):
+    r"""Request message for
+    [DatasetService.GetDatasetVersion][google.cloud.aiplatform.v1.DatasetService.GetDatasetVersion].
+
+    Attributes:
+        name (str):
+            Required. The resource name of the Dataset version to
+            delete. Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}``
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Mask specifying which fields to read.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
+    )
+
+
+class ListDatasetVersionsRequest(proto.Message):
+    r"""Request message for
+    [DatasetService.ListDatasetVersions][google.cloud.aiplatform.v1.DatasetService.ListDatasetVersions].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Dataset to list
+            DatasetVersions from. Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}``
+        filter (str):
+            Optional. The standard list filter.
+        page_size (int):
+            Optional. The standard list page size.
+        page_token (str):
+            Optional. The standard list page token.
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Optional. Mask specifying which fields to
+            read.
+        order_by (str):
+            Optional. A comma-separated list of fields to
+            order by, sorted in ascending order. Use "desc"
+            after a field name for descending.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=field_mask_pb2.FieldMask,
+    )
+    order_by: str = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+
+
+class ListDatasetVersionsResponse(proto.Message):
+    r"""Response message for
+    [DatasetService.ListDatasetVersions][google.cloud.aiplatform.v1.DatasetService.ListDatasetVersions].
+
+    Attributes:
+        dataset_versions (MutableSequence[google.cloud.aiplatform_v1.types.DatasetVersion]):
+            A list of DatasetVersions that matches the
+            specified filter in the request.
+        next_page_token (str):
+            The standard List next-page token.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    dataset_versions: MutableSequence[
+        gca_dataset_version.DatasetVersion
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_dataset_version.DatasetVersion,
+    )
+    next_page_token: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class RestoreDatasetVersionRequest(proto.Message):
+    r"""Request message for
+    [DatasetService.RestoreDatasetVersion][google.cloud.aiplatform.v1.DatasetService.RestoreDatasetVersion].
+
+    Attributes:
+        name (str):
+            Required. The name of the DatasetVersion resource. Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
     )
 
 

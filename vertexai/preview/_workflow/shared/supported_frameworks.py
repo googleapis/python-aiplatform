@@ -267,13 +267,7 @@ def _get_deps_if_pandas_dataframe(possible_dataframe: Any) -> List[str]:
     if _is_pandas_dataframe(possible_dataframe):
         dep_version = version.Version(pd.__version__).base_version
         deps.append(f"pandas=={dep_version}")
-        try:
-            import pyarrow as pa
-
-            pyarrow_version = version.Version(pa.__version__).base_version
-            deps.append(f"pyarrow=={pyarrow_version}")
-        except ImportError:
-            deps.append("pyarrow")
+        deps += _get_pyarrow_deps()
     # Note: it's likely that a DataFrame can be changed to other format, and
     # therefore needs to be serialized by CloudPickleSerializer. An example
     # is sklearn's Transformer.fit_transform() method, whose output is always
@@ -282,18 +276,16 @@ def _get_deps_if_pandas_dataframe(possible_dataframe: Any) -> List[str]:
     return deps
 
 
-def _get_deps_if_bigframe(possible_dataframe: Any) -> List[str]:
+def _get_pyarrow_deps() -> List[str]:
     deps = []
-    if _is_bigframe(possible_dataframe):
-        dep_version = version.Version(bf.__version__).base_version
-        deps.append(f"bigframes=={dep_version}")
+    try:
+        global pyarrow
+        import pyarrow
 
-    # Note: it's likely that a DataFrame can be changed to other format, and
-    # therefore needs to be serialized by CloudPickleSerializer. An example
-    # is sklearn's Transformer.fit_transform() method, whose output is always
-    # a ndarray.
-    deps += _get_cloudpickle_deps()
-    deps += _get_pandas_deps()
+        dep_version = version.Version(pyarrow.__version__).base_version
+        deps.append(f"pyarrow=={dep_version}")
+    except ImportError:
+        deps.append("pyarrow")
     return deps
 
 

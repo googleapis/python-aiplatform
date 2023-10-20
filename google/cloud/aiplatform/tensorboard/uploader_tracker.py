@@ -58,7 +58,6 @@ class _TensorBoardTracker:
         ```
 
         Args:
-          tensorboard_id (str): Required. TensorBoard ID.
           tensorboard_experiment_name (str): Required. Name of this tensorboard
             experiment. Unique to the given
             projects/{project}/locations/{location}/tensorboards/{tensorboard_id}

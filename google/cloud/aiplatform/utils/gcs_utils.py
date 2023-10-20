@@ -375,7 +375,8 @@ def _upload_pandas_df_to_gcs(
             raise ValueError(f"Unsupported file format: {file_format}")
 
         storage_client = storage.Client(
-            credentials=initializer.global_config.credentials
+            project=initializer.global_config.project,
+            credentials=initializer.global_config.credentials,
         )
         storage.Blob.from_string(
             uri=upload_gcs_path, client=storage_client

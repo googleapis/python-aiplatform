@@ -15,7 +15,7 @@
 """Classes for working with language models."""
 
 import dataclasses
-from typing import Any, Dict, Iterator, List, Optional, Sequence, Union
+from typing import Any, AsyncIterator, Dict, Iterator, List, Literal, Optional, Sequence, Union
 import warnings
 
 from google.cloud import aiplatform
@@ -41,6 +41,9 @@ _LOGGER = base.Logger(__name__)
 
 # Endpoint label/metadata key to preserve the base model ID information
 _TUNING_BASE_MODEL_ID_LABEL_KEY = "google-vertex-llm-tuning-base-model-id"
+
+_ACCELERATOR_TYPES = ["TPU", "GPU"]
+_ACCELERATOR_TYPE_TYPE = Literal["TPU", "GPU"]
 
 
 def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
@@ -92,7 +95,16 @@ class _LanguageModel(_model_garden_models._ModelGardenModel):
 @dataclasses.dataclass
 class _PredictionRequest:
     """A single-instance prediction request."""
+
     instance: Dict[str, Any]
+    parameters: Optional[Dict[str, Any]] = None
+
+
+@dataclasses.dataclass
+class _MultiInstancePredictionRequest:
+    """A multi-instance prediction request."""
+
+    instances: List[Dict[str, Any]]
     parameters: Optional[Dict[str, Any]] = None
 
 
@@ -157,6 +169,7 @@ class _TunableModelMixin(_LanguageModel):
         model_display_name: Optional[str] = None,
         tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
         default_context: Optional[str] = None,
+        accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -182,6 +195,7 @@ class _TunableModelMixin(_LanguageModel):
             model_display_name: Custom display name for the tuned model.
             tuning_evaluation_spec: Specification for the model evaluation during tuning.
             default_context: The context to use for all training samples by default.
+            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -205,13 +219,16 @@ class _TunableModelMixin(_LanguageModel):
             tuning_parameters["learning_rate_multiplier"] = learning_rate_multiplier
         eval_spec = tuning_evaluation_spec
         if eval_spec is not None:
-            if isinstance(eval_spec.evaluation_data, str):
-                if eval_spec.evaluation_data.startswith("gs://"):
-                    tuning_parameters["evaluation_data_uri"] = eval_spec.evaluation_data
+            if eval_spec.evaluation_data:
+                if isinstance(eval_spec.evaluation_data, str):
+                    if eval_spec.evaluation_data.startswith("gs://"):
+                        tuning_parameters[
+                            "evaluation_data_uri"
+                        ] = eval_spec.evaluation_data
+                    else:
+                        raise ValueError("evaluation_data should be a GCS URI")
                 else:
-                    raise ValueError("evaluation_data should be a GCS URI")
-            else:
-                raise TypeError("evaluation_data should be a URI string")
+                    raise TypeError("evaluation_data should be a URI string")
             if eval_spec.evaluation_interval is not None:
                 tuning_parameters["evaluation_interval"] = eval_spec.evaluation_interval
             if eval_spec.enable_early_stopping is not None:
@@ -241,6 +258,14 @@ class _TunableModelMixin(_LanguageModel):
 
         if default_context:
             tuning_parameters["default_context"] = default_context
+
+        if accelerator_type:
+            if accelerator_type not in _ACCELERATOR_TYPES:
+                raise ValueError(
+                    f"Unsupported accelerator type: {accelerator_type}."
+                    f" Supported types: {_ACCELERATOR_TYPES}"
+                )
+            tuning_parameters["accelerator_type"] = accelerator_type
 
         return self._tune_model(
             training_data=training_data,
@@ -326,6 +351,7 @@ class _TunableTextModelMixin(_TunableModelMixin):
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
         tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
+        accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -347,6 +373,7 @@ class _TunableTextModelMixin(_TunableModelMixin):
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
             tuning_evaluation_spec: Specification for the model evaluation during tuning.
+            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -366,6 +393,7 @@ class _TunableTextModelMixin(_TunableModelMixin):
             tuned_model_location=tuned_model_location,
             model_display_name=model_display_name,
             tuning_evaluation_spec=tuning_evaluation_spec,
+            accelerator_type=accelerator_type,
         )
 
 
@@ -383,6 +411,7 @@ class _PreviewTunableTextModelMixin(_TunableModelMixin):
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
         tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
+        accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -411,6 +440,7 @@ class _PreviewTunableTextModelMixin(_TunableModelMixin):
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
             tuning_evaluation_spec: Specification for the model evaluation during tuning.
+            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -431,6 +461,7 @@ class _PreviewTunableTextModelMixin(_TunableModelMixin):
             tuned_model_location=tuned_model_location,
             model_display_name=model_display_name,
             tuning_evaluation_spec=tuning_evaluation_spec,
+            accelerator_type=accelerator_type,
         )
         tuned_model = job.get_tuned_model()
         self._endpoint = tuned_model._endpoint
@@ -451,6 +482,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
         default_context: Optional[str] = None,
+        accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -475,6 +507,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
             default_context: The context to use for all training samples by default.
+            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -494,6 +527,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
             tuned_model_location=tuned_model_location,
             model_display_name=model_display_name,
             default_context=default_context,
+            accelerator_type=accelerator_type,
         )
 
 
@@ -511,6 +545,7 @@ class _PreviewTunableChatModelMixin(_TunableModelMixin):
         tuned_model_location: Optional[str] = None,
         model_display_name: Optional[str] = None,
         default_context: Optional[str] = None,
+        accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -539,6 +574,7 @@ class _PreviewTunableChatModelMixin(_TunableModelMixin):
             tuned_model_location: GCP location where the tuned model should be deployed. Only "us-central1" is supported for now.
             model_display_name: Custom display name for the tuned model.
             default_context: The context to use for all training samples by default.
+            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -559,11 +595,68 @@ class _PreviewTunableChatModelMixin(_TunableModelMixin):
             tuned_model_location=tuned_model_location,
             model_display_name=model_display_name,
             default_context=default_context,
+            accelerator_type=accelerator_type,
         )
         tuned_model = job.get_tuned_model()
         self._endpoint = tuned_model._endpoint
         self._endpoint_name = tuned_model._endpoint_name
         return job
+
+
+@dataclasses.dataclass
+class CountTokensResponse:
+    """The response from a count_tokens request.
+    Attributes:
+        total_tokens (int):
+            The total number of tokens counted across all
+            instances passed to the request.
+        total_billable_characters (int):
+            The total number of billable characters
+            counted across all instances from the request.
+    """
+
+    total_tokens: int
+    total_billable_characters: int
+    _count_tokens_response: Any
+
+
+class _CountTokensMixin(_LanguageModel):
+    """Mixin for models that support the CountTokens API"""
+
+    def count_tokens(
+        self,
+        prompts: List[str],
+    ) -> CountTokensResponse:
+        """Counts the tokens and billable characters for a given prompt.
+
+        Note: this does not make a prediction request to the model, it only counts the tokens
+        in the request.
+
+        Args:
+            prompts (List[str]):
+                Required. A list of prompts to ask the model. For example: ["What should I do today?", "How's it going?"]
+
+        Returns:
+            A `CountTokensResponse` object that contains the number of tokens
+            in the text and the number of billable characters.
+        """
+        instances = []
+
+        for prompt in prompts:
+            instances.append({"content": prompt})
+
+        count_tokens_response = self._endpoint._prediction_client.select_version(
+            "v1beta1"
+        ).count_tokens(
+            endpoint=self._endpoint_name,
+            instances=instances,
+        )
+
+        return CountTokensResponse(
+            total_tokens=count_tokens_response.total_tokens,
+            total_billable_characters=count_tokens_response.total_billable_characters,
+            _count_tokens_response=count_tokens_response,
+        )
 
 
 @dataclasses.dataclass
@@ -580,9 +673,10 @@ class TuningEvaluationSpec:
         tensorboard: Vertex Tensorboard where to write the evaluation metrics.
             The Tensorboard must be in the same location as the tuning job.
     """
+
     __module__ = "vertexai.language_models"
 
-    evaluation_data: str
+    evaluation_data: Optional[str] = None
     evaluation_interval: Optional[int] = None
     enable_early_stopping: Optional[bool] = None
     tensorboard: Optional[Union[aiplatform.Tensorboard, str]] = None
@@ -598,6 +692,7 @@ class TextGenerationResponse:
             Learn more about the safety attributes here:
             https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
     """
+
     __module__ = "vertexai.language_models"
 
     text: str
@@ -606,12 +701,51 @@ class TextGenerationResponse:
     safety_attributes: Dict[str, float] = dataclasses.field(default_factory=dict)
 
     def __repr__(self):
-        return self.text
+        if self.text:
+            return self.text
+        else:
+            # Falling back to the full representation
+            return (
+                "TextGenerationResponse("
+                f"text={self.text!r}"
+                f", is_blocked={self.is_blocked!r}"
+                f", safety_attributes={self.safety_attributes!r}"
+                ")"
+            )
 
     @property
     def raw_prediction_response(self) -> aiplatform.models.Prediction:
         """Raw prediction response."""
         return self._prediction_response
+
+
+@dataclasses.dataclass
+class MultiCandidateTextGenerationResponse(TextGenerationResponse):
+    """Represents a multi-candidate response of a language model.
+
+    Attributes:
+        text: The generated text for the first candidate.
+        is_blocked: Whether the first candidate response was blocked.
+        safety_attributes: Scores for safety attributes for the first candidate.
+            Learn more about the safety attributes here:
+            https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
+        candidates: The candidate responses.
+            Usually contains a single candidate unless `candidate_count` is used.
+    """
+
+    __module__ = "vertexai.language_models"
+
+    candidates: List[TextGenerationResponse] = dataclasses.field(default_factory=list)
+
+    def _repr_pretty_(self, p, cycle):
+        """Pretty prints self in IPython environments."""
+        if cycle:
+            p.text(f"{self.__class__.__name__}(...)")
+        else:
+            if len(self.candidates) == 1:
+                p.text(repr(self.candidates[0]))
+            else:
+                p.text(repr(self))
 
 
 class _TextGenerationModel(_LanguageModel):
@@ -639,7 +773,8 @@ class _TextGenerationModel(_LanguageModel):
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
-    ) -> "TextGenerationResponse":
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
         """Gets model response for a single prompt.
 
         Args:
@@ -649,9 +784,10 @@ class _TextGenerationModel(_LanguageModel):
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of response candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
         """
         prediction_request = _create_text_generation_prediction_request(
             prompt=prompt,
@@ -660,6 +796,7 @@ class _TextGenerationModel(_LanguageModel):
             top_k=top_k,
             top_p=top_p,
             stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
         )
 
         prediction_response = self._endpoint.predict(
@@ -667,7 +804,53 @@ class _TextGenerationModel(_LanguageModel):
             parameters=prediction_request.parameters,
         )
 
-        return _parse_text_generation_model_response(prediction_response)
+        return _parse_text_generation_model_multi_candidate_response(
+            prediction_response
+        )
+
+    async def predict_async(
+        self,
+        prompt: str,
+        *,
+        max_output_tokens: Optional[int] = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
+        """Asynchronously gets model response for a single prompt.
+
+        Args:
+            prompt: Question to ask the model.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of response candidates to return.
+
+        Returns:
+            A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
+        """
+        prediction_request = _create_text_generation_prediction_request(
+            prompt=prompt,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
+        )
+
+        prediction_response = await self._endpoint.predict_async(
+            instances=[prediction_request.instance],
+            parameters=prediction_request.parameters,
+        )
+
+        return _parse_text_generation_model_multi_candidate_response(
+            prediction_response
+        )
 
     def predict_streaming(
         self,
@@ -705,8 +888,58 @@ class _TextGenerationModel(_LanguageModel):
         )
 
         prediction_service_client = self._endpoint._prediction_client
-        for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
+        for (
+            prediction_dict
+        ) in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
             prediction_service_client=prediction_service_client,
+            endpoint_name=self._endpoint_name,
+            instance=prediction_request.instance,
+            parameters=prediction_request.parameters,
+        ):
+            prediction_obj = aiplatform.models.Prediction(
+                predictions=[prediction_dict],
+                deployed_model_id="",
+            )
+            yield _parse_text_generation_model_response(prediction_obj)
+
+    async def predict_streaming_async(
+        self,
+        prompt: str,
+        *,
+        max_output_tokens: int = _DEFAULT_MAX_OUTPUT_TOKENS,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> AsyncIterator[TextGenerationResponse]:
+        """Asynchronously gets a streaming model response for a single prompt.
+
+        The result is a stream (generator) of partial responses.
+
+        Args:
+            prompt: Question to ask the model.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+
+        Yields:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        prediction_request = _create_text_generation_prediction_request(
+            prompt=prompt,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            stop_sequences=stop_sequences,
+        )
+
+        prediction_service_async_client = self._endpoint._prediction_async_client
+        async for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
+            prediction_service_async_client=prediction_service_async_client,
             endpoint_name=self._endpoint_name,
             instance=prediction_request.instance,
             parameters=prediction_request.parameters,
@@ -726,6 +959,7 @@ def _create_text_generation_prediction_request(
     top_k: Optional[int] = None,
     top_p: Optional[float] = None,
     stop_sequences: Optional[List[str]] = None,
+    candidate_count: Optional[int] = None,
 ) -> "_PredictionRequest":
     """Prepares the text generation request for a single prompt.
 
@@ -736,6 +970,7 @@ def _create_text_generation_prediction_request(
         top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
         top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
         stop_sequences: Customized stop sequences to stop the decoding process.
+        candidate_count: Number of candidates to return.
 
     Returns:
         A `_PredictionRequest` object that contains prediction instance and parameters.
@@ -762,6 +997,9 @@ def _create_text_generation_prediction_request(
     if stop_sequences:
         prediction_parameters["stopSequences"] = stop_sequences
 
+    if candidate_count is not None:
+        prediction_parameters["candidateCount"] = candidate_count
+
     return _PredictionRequest(
         instance=instance,
         parameters=prediction_parameters,
@@ -785,6 +1023,32 @@ def _parse_text_generation_model_response(
                 safety_attributes_dict.get("scores") or [],
             )
         ),
+    )
+
+
+def _parse_text_generation_model_multi_candidate_response(
+    prediction_response: aiplatform.models.Prediction,
+) -> MultiCandidateTextGenerationResponse:
+    """Converts the raw text_generation model response to `MultiCandidateTextGenerationResponse`."""
+    # The contract for the PredictionService is that there is a 1:1 mapping
+    # between request `instances` and response `predictions`.
+    # Unfortunetely, the text-bison models violate this contract.
+
+    prediction_count = len(prediction_response.predictions)
+    candidates = []
+    for prediction_idx in range(prediction_count):
+        candidate = _parse_text_generation_model_response(
+            prediction_response=prediction_response,
+            prediction_idx=prediction_idx,
+        )
+        candidates.append(candidate)
+
+    return MultiCandidateTextGenerationResponse(
+        text=candidates[0].text,
+        _prediction_response=prediction_response,
+        is_blocked=candidates[0].is_blocked,
+        safety_attributes=candidates[0].safety_attributes,
+        candidates=candidates,
     )
 
 
@@ -899,6 +1163,7 @@ class _PreviewTextGenerationModel(
     _PreviewTunableTextModelMixin,
     _PreviewModelWithBatchPredict,
     _evaluatable_language_models._EvaluatableLanguageModel,
+    _CountTokensMixin,
 ):
     # Do not add docstring so that it's inherited from the base class.
     __name__ = "TextGenerationModel"
@@ -1038,6 +1303,7 @@ class TextEmbeddingInput:
                 Specifies that the embeddings will be used for clustering.
         title: Optional identifier of the text content.
     """
+
     __module__ = "vertexai.language_models"
 
     text: str
@@ -1057,6 +1323,7 @@ class TextEmbeddingModel(_LanguageModel):
             vector = embedding.values
             print(len(vector))
     """
+
     __module__ = "vertexai.language_models"
 
     _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
@@ -1065,19 +1332,20 @@ class TextEmbeddingModel(_LanguageModel):
         "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
     )
 
-    def get_embeddings(self,
+    def _prepare_text_embedding_request(
+        self,
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
-    ) -> List["TextEmbedding"]:
-        """Calculates embeddings for the given texts.
+    ) -> _MultiInstancePredictionRequest:
+        """Asynchronously calculates embeddings for the given texts.
 
         Args:
             texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
             auto_truncate(bool): Whether to automatically truncate long texts. Default: True.
 
         Returns:
-            A list of `TextEmbedding` objects.
+            A `_MultiInstancePredictionRequest` object.
         """
         instances = []
         for text in texts:
@@ -1093,30 +1361,103 @@ class TextEmbeddingModel(_LanguageModel):
                 raise TypeError(f"Unsupported text embedding input type: {text}.")
             instances.append(instance)
         parameters = {"autoTruncate": auto_truncate}
-
-        prediction_response = self._endpoint.predict(
+        return _MultiInstancePredictionRequest(
             instances=instances,
             parameters=parameters,
         )
 
+    def _parse_text_embedding_response(
+        self,
+        prediction_response: aiplatform.models.Prediction,
+        prediction_idx: int = 0,
+    ) -> "TextEmbedding":
+        """Parses the text embedding model response."""
+        prediction = prediction_response.predictions[prediction_idx]
+        embeddings = prediction["embeddings"]
+        statistics = embeddings["statistics"]
+        return TextEmbedding(
+            values=embeddings["values"],
+            statistics=TextEmbeddingStatistics(
+                token_count=statistics["token_count"],
+                truncated=statistics["truncated"],
+            ),
+            _prediction_response=prediction_response,
+        )
+
+    def get_embeddings(
+        self,
+        texts: List[Union[str, TextEmbeddingInput]],
+        *,
+        auto_truncate: bool = True,
+    ) -> List["TextEmbedding"]:
+        """Calculates embeddings for the given texts.
+
+        Args:
+            texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
+            auto_truncate(bool): Whether to automatically truncate long texts. Default: True.
+
+        Returns:
+            A list of `TextEmbedding` objects.
+        """
+        prediction_request = self._prepare_text_embedding_request(
+            texts=texts,
+            auto_truncate=auto_truncate,
+        )
+
+        prediction_response = self._endpoint.predict(
+            instances=prediction_request.instances,
+            parameters=prediction_request.parameters,
+        )
+
         results = []
-        for prediction in prediction_response.predictions:
-            embeddings = prediction["embeddings"]
-            statistics = embeddings["statistics"]
-            result = TextEmbedding(
-                values=embeddings["values"],
-                statistics=TextEmbeddingStatistics(
-                    token_count=statistics["token_count"],
-                    truncated=statistics["truncated"],
-                ),
-                _prediction_response=prediction_response,
+        for prediction_idx in range(len(prediction_response.predictions)):
+            result = self._parse_text_embedding_response(
+                prediction_response=prediction_response,
+                prediction_idx=prediction_idx,
+            )
+            results.append(result)
+
+        return results
+
+    async def get_embeddings_async(
+        self,
+        texts: List[Union[str, TextEmbeddingInput]],
+        *,
+        auto_truncate: bool = True,
+    ) -> List["TextEmbedding"]:
+        """Asynchronously calculates embeddings for the given texts.
+
+        Args:
+            texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
+            auto_truncate(bool): Whether to automatically truncate long texts. Default: True.
+
+        Returns:
+            A list of `TextEmbedding` objects.
+        """
+        prediction_request = self._prepare_text_embedding_request(
+            texts=texts,
+            auto_truncate=auto_truncate,
+        )
+
+        prediction_response = await self._endpoint.predict_async(
+            instances=prediction_request.instances,
+            parameters=prediction_request.parameters,
+        )
+
+        results = []
+        for prediction_idx in range(len(prediction_response.predictions)):
+            result = self._parse_text_embedding_response(
+                prediction_response=prediction_response,
+                prediction_idx=prediction_idx,
             )
             results.append(result)
 
         return results
 
 
-class _PreviewTextEmbeddingModel(TextEmbeddingModel, _ModelWithBatchPredict):
+class _PreviewTextEmbeddingModel(
+    TextEmbeddingModel, _ModelWithBatchPredict, _CountTokensMixin
+):
     __name__ = "TextEmbeddingModel"
     __module__ = "vertexai.preview.language_models"
 
@@ -1126,6 +1467,7 @@ class _PreviewTextEmbeddingModel(TextEmbeddingModel, _ModelWithBatchPredict):
 @dataclasses.dataclass
 class TextEmbeddingStatistics:
     """Text embedding statistics."""
+
     __module__ = "vertexai.language_models"
 
     token_count: int
@@ -1135,6 +1477,7 @@ class TextEmbeddingStatistics:
 @dataclasses.dataclass
 class TextEmbedding:
     """Text embedding vector and statistics."""
+
     __module__ = "vertexai.language_models"
 
     values: List[float]
@@ -1145,6 +1488,7 @@ class TextEmbedding:
 @dataclasses.dataclass
 class InputOutputTextPair:
     """InputOutputTextPair represents a pair of input and output texts."""
+
     __module__ = "vertexai.language_models"
 
     input_text: str
@@ -1159,6 +1503,7 @@ class ChatMessage:
         content: Content of the message.
         author: Author of the message.
     """
+
     __module__ = "vertexai.language_models"
 
     content: str
@@ -1212,7 +1557,7 @@ class _ChatModelBase(_LanguageModel):
         )
 
 
-class ChatModel(_ChatModelBase):
+class ChatModel(_ChatModelBase, _TunableChatModelMixin):
     """ChatModel represents a language model that is capable of chat.
 
     Examples::
@@ -1236,6 +1581,7 @@ class ChatModel(_ChatModelBase):
 
         chat.send_message("Do you know any cool events this weekend?")
     """
+
     __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/chat_generation_1.0.0.yaml"
@@ -1246,6 +1592,47 @@ class _PreviewChatModel(ChatModel, _PreviewTunableChatModelMixin):
     __module__ = "vertexai.preview.language_models"
 
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+
+    def start_chat(
+        self,
+        *,
+        context: Optional[str] = None,
+        examples: Optional[List[InputOutputTextPair]] = None,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        message_history: Optional[List[ChatMessage]] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> "_PreviewChatSession":
+        """Starts a chat session with the model.
+
+        Args:
+            context: Context shapes how the model responds throughout the conversation.
+                For example, you can use context to specify words the model can or cannot use, topics to focus on or avoid, or the response format or style
+            examples: List of structured messages to the model to learn how to respond to the conversation.
+                A list of `InputOutputTextPair` objects.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+            message_history: A list of previously sent and received messages.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+
+        Returns:
+            A `ChatSession` object.
+        """
+        return _PreviewChatSession(
+            model=self,
+            context=context,
+            examples=examples,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            message_history=message_history,
+            stop_sequences=stop_sequences,
+        )
 
 
 class CodeChatModel(_ChatModelBase):
@@ -1262,6 +1649,7 @@ class CodeChatModel(_ChatModelBase):
 
         code_chat.send_message("Please help write a function to calculate the min of two numbers")
     """
+
     __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
@@ -1304,6 +1692,47 @@ class _PreviewCodeChatModel(CodeChatModel, _TunableChatModelMixin):
     __module__ = "vertexai.preview.language_models"
 
     _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
+
+    def start_chat(
+        self,
+        *,
+        context: Optional[str] = None,
+        examples: Optional[List[InputOutputTextPair]] = None,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        message_history: Optional[List[ChatMessage]] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> "_PreviewCodeChatSession":
+        """Starts a chat session with the model.
+
+        Args:
+            context: Context shapes how the model responds throughout the conversation.
+                For example, you can use context to specify words the model can or cannot use, topics to focus on or avoid, or the response format or style
+            examples: List of structured messages to the model to learn how to respond to the conversation.
+                A list of `InputOutputTextPair` objects.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+            message_history: A list of previously sent and received messages.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+
+        Returns:
+            A `ChatSession` object.
+        """
+        return _PreviewCodeChatSession(
+            model=self,
+            context=context,
+            examples=examples,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            message_history=message_history,
+            stop_sequences=stop_sequences,
+        )
 
 
 class _ChatSessionBase:
@@ -1348,6 +1777,7 @@ class _ChatSessionBase:
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
+        candidate_count: Optional[int] = None,
     ) -> _PredictionRequest:
         """Prepares a request for the language model.
 
@@ -1362,6 +1792,7 @@ class _ChatSessionBase:
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of candidates to return.
 
         Returns:
             A `_PredictionRequest` object.
@@ -1392,6 +1823,9 @@ class _ChatSessionBase:
         stop_sequences = stop_sequences or self._stop_sequences
         if stop_sequences:
             prediction_parameters["stopSequences"] = stop_sequences
+
+        if candidate_count is not None:
+            prediction_parameters["candidateCount"] = candidate_count
 
         message_structs = []
         for past_message in self._message_history:
@@ -1430,8 +1864,7 @@ class _ChatSessionBase:
         cls,
         prediction_response: aiplatform.models.Prediction,
         prediction_idx: int = 0,
-        candidate_idx: int = 0,
-    ) -> TextGenerationResponse:
+    ) -> MultiCandidateTextGenerationResponse:
         """Parses prediction response for chat models.
 
         Args:
@@ -1440,25 +1873,33 @@ class _ChatSessionBase:
             candidate_idx: Index of the candidate to parse.
 
         Returns:
-            A `TextGenerationResponse` object.
+            A `MultiCandidateTextGenerationResponse` object.
         """
         prediction = prediction_response.predictions[prediction_idx]
-        # ! Note: For chat models, the safetyAttributes is a list.
-        safety_attributes = prediction["safetyAttributes"][candidate_idx]
-        return TextGenerationResponse(
-            text=prediction["candidates"][candidate_idx]["content"]
-            if prediction.get("candidates")
-            else None,
+        candidate_count = len(prediction["candidates"])
+        candidates = []
+        for candidate_idx in range(candidate_count):
+            safety_attributes = prediction["safetyAttributes"][candidate_idx]
+            candidate_response = TextGenerationResponse(
+                text=prediction["candidates"][candidate_idx]["content"],
+                _prediction_response=prediction_response,
+                is_blocked=safety_attributes.get("blocked", False),
+                safety_attributes=dict(
+                    zip(
+                        # Unlike with normal prediction, in streaming prediction
+                        # categories and scores can be None
+                        safety_attributes.get("categories") or [],
+                        safety_attributes.get("scores") or [],
+                    )
+                ),
+            )
+            candidates.append(candidate_response)
+        return MultiCandidateTextGenerationResponse(
+            text=candidates[0].text,
             _prediction_response=prediction_response,
-            is_blocked=safety_attributes.get("blocked", False),
-            safety_attributes=dict(
-                zip(
-                    # Unlike with normal prediction, in streaming prediction
-                    # categories and scores can be None
-                    safety_attributes.get("categories") or [],
-                    safety_attributes.get("scores") or [],
-                )
-            ),
+            is_blocked=candidates[0].is_blocked,
+            safety_attributes=candidates[0].safety_attributes,
+            candidates=candidates,
         )
 
     def send_message(
@@ -1470,7 +1911,8 @@ class _ChatSessionBase:
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
-    ) -> "TextGenerationResponse":
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
         """Sends message to the language model and gets a response.
 
         Args:
@@ -1484,9 +1926,11 @@ class _ChatSessionBase:
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains the
+            text produced by the model.
         """
         prediction_request = self._prepare_request(
             message=message,
@@ -1495,9 +1939,68 @@ class _ChatSessionBase:
             top_k=top_k,
             top_p=top_p,
             stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
         )
 
         prediction_response = self._model._endpoint.predict(
+            instances=[prediction_request.instance],
+            parameters=prediction_request.parameters,
+        )
+        response_obj = self._parse_chat_prediction_response(
+            prediction_response=prediction_response
+        )
+        response_text = response_obj.text
+
+        self._message_history.append(
+            ChatMessage(content=message, author=self.USER_AUTHOR)
+        )
+        self._message_history.append(
+            ChatMessage(content=response_text, author=self.MODEL_AUTHOR)
+        )
+
+        return response_obj
+
+    async def send_message_async(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
+        """Asynchronously sends message to the language model and gets a response.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of candidates to return.
+
+        Returns:
+            A `MultiCandidateTextGenerationResponse` object that contains
+            the text produced by the model.
+        """
+        prediction_request = self._prepare_request(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
+        )
+
+        prediction_response = await self._model._endpoint.predict_async(
             instances=[prediction_request.instance],
             parameters=prediction_request.parameters,
         )
@@ -1559,7 +2062,9 @@ class _ChatSessionBase:
 
         full_response_text = ""
 
-        for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
+        for (
+            prediction_dict
+        ) in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
             prediction_service_client=prediction_service_client,
             endpoint_name=self._model._endpoint_name,
             instance=prediction_request.instance,
@@ -1584,12 +2089,143 @@ class _ChatSessionBase:
             ChatMessage(content=full_response_text, author=self.MODEL_AUTHOR)
         )
 
+    async def send_message_streaming_async(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> AsyncIterator[TextGenerationResponse]:
+        """Asynchronously sends message to the language model and gets a streamed response.
+
+        The response is only added to the history once it's fully read.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+
+        Yields:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        prediction_request = self._prepare_request(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            stop_sequences=stop_sequences,
+        )
+
+        prediction_service_async_client = self._model._endpoint._prediction_async_client
+
+        full_response_text = ""
+
+        async for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
+            prediction_service_async_client=prediction_service_async_client,
+            endpoint_name=self._model._endpoint_name,
+            instance=prediction_request.instance,
+            parameters=prediction_request.parameters,
+        ):
+            prediction_response = aiplatform.models.Prediction(
+                predictions=[prediction_dict],
+                deployed_model_id="",
+            )
+            text_generation_response = self._parse_chat_prediction_response(
+                prediction_response=prediction_response
+            )
+            full_response_text += text_generation_response.text
+            yield text_generation_response
+
+        # We only add the question and answer to the history if/when the answer
+        # was read fully. Otherwise, the answer would have been truncated.
+        self._message_history.append(
+            ChatMessage(content=message, author=self.USER_AUTHOR)
+        )
+        self._message_history.append(
+            ChatMessage(content=full_response_text, author=self.MODEL_AUTHOR)
+        )
+
+
+class _ChatSessionBaseWithCountTokensMixin(_ChatSessionBase):
+    """A mixin class for adding count_tokens to ChatSession."""
+
+    def count_tokens(
+        self,
+        message: str,
+    ) -> CountTokensResponse:
+        """Counts the tokens and billable characters for the provided chat message and any message history,
+        context, or examples set on the chat session.
+
+        If you've called `send_message()` in the current chat session before calling `count_tokens()`, the
+        response will include the total tokens and characters for the previously sent message and the one in the
+        `count_tokens()` request. To count the tokens for a single message, call `count_tokens()` right after
+        calling `start_chat()` before calling `send_message()`.
+
+        Note: this does not make a prediction request to the model, it only counts the tokens
+        in the request.
+
+        Examples::
+
+        model = ChatModel.from_pretrained("chat-bison@001")
+        chat_session = model.start_chat()
+        count_tokens_response = chat_session.count_tokens("How's it going?")
+
+        count_tokens_response.total_tokens
+        count_tokens_response.total_billable_characters
+
+        Args:
+            message (str):
+                Required. A chat message to count tokens or. For example: "How's it going?"
+        Returns:
+            A `CountTokensResponse` object that contains the number of tokens
+            in the text and the number of billable characters.
+        """
+
+        count_tokens_request = self._prepare_request(message=message)
+
+        count_tokens_response = self._model._endpoint._prediction_client.select_version(
+            "v1beta1"
+        ).count_tokens(
+            endpoint=self._model._endpoint_name,
+            instances=[count_tokens_request.instance],
+        )
+
+        return CountTokensResponse(
+            total_tokens=count_tokens_response.total_tokens,
+            total_billable_characters=count_tokens_response.total_billable_characters,
+            _count_tokens_response=count_tokens_response,
+        )
+
+
+class _PreviewChatSession(_ChatSessionBaseWithCountTokensMixin):
+
+    __module__ = "vertexai.preview.language_models"
+
+
+class _PreviewCodeChatSession(_ChatSessionBaseWithCountTokensMixin):
+
+    __module__ = "vertexai.preview.language_models"
+
 
 class ChatSession(_ChatSessionBase):
     """ChatSession represents a chat session with a language model.
 
     Within a chat session, the model keeps context and remembers the previous conversation.
     """
+
     __module__ = "vertexai.language_models"
 
     def __init__(
@@ -1622,6 +2258,7 @@ class CodeChatSession(_ChatSessionBase):
 
     Within a code chat session, the model keeps context and remembers the previous converstion.
     """
+
     __module__ = "vertexai.language_models"
 
     def __init__(
@@ -1649,7 +2286,8 @@ class CodeChatSession(_ChatSessionBase):
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
-    ) -> "TextGenerationResponse":
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
         """Sends message to the code chat model and gets a response.
 
         Args:
@@ -1659,15 +2297,47 @@ class CodeChatSession(_ChatSessionBase):
             temperature: Controls the randomness of predictions. Range: [0, 1].
                  Uses the value specified when calling `CodeChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains the
+            text produced by the model.
         """
         return super().send_message(
             message=message,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
+        )
+
+    async def send_message_async(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        candidate_count: Optional[int] = None,
+    ) -> "MultiCandidateTextGenerationResponse":
+        """Asynchronously sends message to the code chat model and gets a response.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
+                Uses the value specified when calling `CodeChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+                 Uses the value specified when calling `CodeChatModel.start_chat` by default.
+            candidate_count: Number of candidates to return.
+
+        Returns:
+            A `MultiCandidateTextGenerationResponse` object that contains the
+            text produced by the model.
+        """
+        return super().send_message_async(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            candidate_count=candidate_count,
         )
 
     def send_message_streaming(
@@ -1702,6 +2372,38 @@ class CodeChatSession(_ChatSessionBase):
             stop_sequences=stop_sequences,
         )
 
+    def send_message_streaming_async(
+        self,
+        message: str,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> AsyncIterator[TextGenerationResponse]:
+        """Asynchronously sends message to the language model and gets a streamed response.
+
+        The response is only added to the history once it's fully read.
+
+        Args:
+            message: Message to send to the model
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+            stop_sequences: Customized stop sequences to stop the decoding process.
+                Uses the value specified when calling `ChatModel.start_chat` by default.
+
+        Returns:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        return super().send_message_streaming_async(
+            message=message,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            stop_sequences=stop_sequences,
+        )
+
 
 class CodeGenerationModel(_LanguageModel):
     """A language model that generates code.
@@ -1719,6 +2421,7 @@ class CodeGenerationModel(_LanguageModel):
             prefix="def reverse_string(s):",
         ))
     """
+
     __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
@@ -1733,6 +2436,7 @@ class CodeGenerationModel(_LanguageModel):
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
+        candidate_count: Optional[int] = None,
     ) -> _PredictionRequest:
         """Creates a code generation prediction request.
 
@@ -1742,7 +2446,7 @@ class CodeGenerationModel(_LanguageModel):
             max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
             stop_sequences: Customized stop sequences to stop the decoding process.
-
+            candidate_count: Number of response candidates to return.
 
         Returns:
             A `TextGenerationResponse` object that contains the text produced by the model.
@@ -1764,6 +2468,9 @@ class CodeGenerationModel(_LanguageModel):
         if stop_sequences:
             prediction_parameters["stopSequences"] = stop_sequences
 
+        if candidate_count is not None:
+            prediction_parameters["candidateCount"] = candidate_count
+
         return _PredictionRequest(instance=instance, parameters=prediction_parameters)
 
     def predict(
@@ -1774,6 +2481,7 @@ class CodeGenerationModel(_LanguageModel):
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
+        candidate_count: Optional[int] = None,
     ) -> "TextGenerationResponse":
         """Gets model response for a single prompt.
 
@@ -1783,9 +2491,11 @@ class CodeGenerationModel(_LanguageModel):
             max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
             temperature: Controls the randomness of predictions. Range: [0, 1].
             stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of response candidates to return.
 
         Returns:
-            A `TextGenerationResponse` object that contains the text produced by the model.
+            A `MultiCandidateTextGenerationResponse` object that contains the
+            text produced by the model.
         """
         prediction_request = self._create_prediction_request(
             prefix=prefix,
@@ -1793,13 +2503,57 @@ class CodeGenerationModel(_LanguageModel):
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
         )
 
         prediction_response = self._endpoint.predict(
             instances=[prediction_request.instance],
             parameters=prediction_request.parameters,
         )
-        return _parse_text_generation_model_response(prediction_response)
+        return _parse_text_generation_model_multi_candidate_response(
+            prediction_response
+        )
+
+    async def predict_async(
+        self,
+        prefix: str,
+        suffix: Optional[str] = None,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+        candidate_count: Optional[int] = None,
+    ) -> "TextGenerationResponse":
+        """Asynchronously gets model response for a single prompt.
+
+        Args:
+            prefix: Code before the current point.
+            suffix: Code after the current point.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+            stop_sequences: Customized stop sequences to stop the decoding process.
+            candidate_count: Number of response candidates to return.
+
+        Returns:
+            A `MultiCandidateTextGenerationResponse` object that contains the
+            text produced by the model.
+        """
+        prediction_request = self._create_prediction_request(
+            prefix=prefix,
+            suffix=suffix,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            stop_sequences=stop_sequences,
+            candidate_count=candidate_count,
+        )
+
+        prediction_response = await self._endpoint.predict_async(
+            instances=[prediction_request.instance],
+            parameters=prediction_request.parameters,
+        )
+        return _parse_text_generation_model_multi_candidate_response(
+            prediction_response
+        )
 
     def predict_streaming(
         self,
@@ -1834,8 +2588,55 @@ class CodeGenerationModel(_LanguageModel):
         )
 
         prediction_service_client = self._endpoint._prediction_client
-        for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
+        for (
+            prediction_dict
+        ) in _streaming_prediction.predict_stream_of_dicts_from_single_dict(
             prediction_service_client=prediction_service_client,
+            endpoint_name=self._endpoint_name,
+            instance=prediction_request.instance,
+            parameters=prediction_request.parameters,
+        ):
+            prediction_obj = aiplatform.models.Prediction(
+                predictions=[prediction_dict],
+                deployed_model_id="",
+            )
+            yield _parse_text_generation_model_response(prediction_obj)
+
+    async def predict_streaming_async(
+        self,
+        prefix: str,
+        suffix: Optional[str] = None,
+        *,
+        max_output_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        stop_sequences: Optional[List[str]] = None,
+    ) -> AsyncIterator[TextGenerationResponse]:
+        """Asynchronously predicts the code based on previous code.
+
+        The result is a stream (generator) of partial responses.
+
+        Args:
+            prefix: Code before the current point.
+            suffix: Code after the current point.
+            max_output_tokens: Max length of the output text in tokens. Range: [1, 1000].
+            temperature: Controls the randomness of predictions. Range: [0, 1].
+            stop_sequences: Customized stop sequences to stop the decoding process.
+
+        Yields:
+            A stream of `TextGenerationResponse` objects that contain partial
+            responses produced by the model.
+        """
+        prediction_request = self._create_prediction_request(
+            prefix=prefix,
+            suffix=suffix,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            stop_sequences=stop_sequences,
+        )
+
+        prediction_service_async_client = self._endpoint._prediction_async_client
+        async for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
+            prediction_service_async_client=prediction_service_async_client,
             endpoint_name=self._endpoint_name,
             instance=prediction_request.instance,
             parameters=prediction_request.parameters,
@@ -1911,6 +2712,12 @@ class _LanguageModelTuningJob:
 
 
 def _get_tuned_models_dir_uri(model_id: str) -> str:
+    if aiplatform_initializer.global_config.staging_bucket:
+        return (
+            aiplatform_initializer.global_config.staging_bucket
+            + "/tuned_language_models/"
+            + model_id
+        )
     staging_gcs_bucket = (
         gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist()
     )

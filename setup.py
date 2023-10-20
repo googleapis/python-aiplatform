@@ -39,6 +39,13 @@ packages = [
     if package.startswith("google") or package.startswith("vertexai")
 ]
 
+# Add vertex_ray relative packages
+packages += [
+    package.replace("google.cloud.aiplatform.preview.vertex_ray", "vertex_ray")
+    for package in setuptools.PEP420PackageFinder.find()
+    if package.startswith("google.cloud.aiplatform.preview.vertex_ray")
+]
+
 tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
@@ -67,7 +74,9 @@ datasets_extra_require = [
 ]
 
 vizier_extra_require = [
-    "google-vizier==0.0.4; python_version<'3.11'",
+    "google-vizier==0.0.4; python_version=='3.8'",
+    "google-vizier==0.0.11; python_version=='3.9'",
+    "google-vizier==0.0.11; python_version=='3.10'",
     "google-vizier>=0.1.6; python_version>='3.11'",
 ]
 
@@ -88,7 +97,20 @@ autologging_extra_require = ["mlflow>=1.27.0,<=2.1.1"]
 preview_extra_require = [
     "cloudpickle < 3.0",
     "google-cloud-logging < 4.0",
-    "importlib-metadata < 7.0; python_version<'3.8'",
+]
+
+ray_extra_require = [
+    # Ray's dependency version must be kept in sync with what Cluster supports.
+    "ray[default] >= 2.4, < 2.5; python_version<'3.11'",
+    # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
+    "ray[default] >= 2.5, < 2.5.1; python_version>='3.11'",
+    "google-cloud-bigquery-storage",
+    "google-cloud-bigquery",
+    "pandas >= 1.0.0",
+    "pyarrow >= 6.0.1",
+    # Workaround for https://github.com/ray-project/ray/issues/36990.
+    # TODO(b/295406381): Remove this pin when we drop support of ray<=2.5.
+    "pydantic < 2",
 ]
 
 full_extra_require = list(
@@ -106,12 +128,14 @@ full_extra_require = list(
         + private_endpoints_extra_require
         + autologging_extra_require
         + preview_extra_require
+        + ray_extra_require
     )
 )
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
     + [
+        "bigframes; python_version>='3.11'",
         "grpcio-testing",
         "ipython",
         "kfp",
@@ -119,10 +143,13 @@ testing_extra_require = (
         "pytest-asyncio",
         "pytest-xdist",
         "scikit-learn",
-        "tensorflow >=2.3.0, < 2.13.0",
-        "torch >= 2.0.0; python_version>='3.8'",
-        "torch; python_version<'3.8'",
+        "tensorflow >= 2.3.0, <= 2.12.0",
+        # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
+        # future versions fix this issue
+        "torch >= 2.0.0, < 2.1.0",
         "xgboost",
+        "xgboost_ray",
+        "requests-toolbelt < 1.0.0",
     ]
 )
 
@@ -133,6 +160,8 @@ setuptools.setup(
     description=description,
     long_description=readme,
     packages=packages,
+    package_dir={"vertex_ray": "google/cloud/aiplatform/preview/vertex_ray"},
+    package_data={"": ["*.html.j2"]},
     entry_points={
         "console_scripts": [
             "tb-gcp-uploader=google.cloud.aiplatform.tensorboard.uploader_main:run_main"
@@ -153,7 +182,7 @@ setuptools.setup(
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 4.0.0dev",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
-        "shapely < 2.0.0",
+        "shapely < 3.0.0dev",
     ),
     extras_require={
         "endpoint": endpoint_extra_require,
@@ -171,8 +200,9 @@ setuptools.setup(
         "private_endpoints": private_endpoints_extra_require,
         "autologging": autologging_extra_require,
         "preview": preview_extra_require,
+        "ray": ray_extra_require,
     },
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

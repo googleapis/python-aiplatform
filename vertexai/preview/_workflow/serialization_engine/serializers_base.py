@@ -105,6 +105,7 @@ T = TypeVar("T")
 SERIALIZATION_METADATA_FILENAME = "serialization_metadata"
 SERIALIZATION_METADATA_SERIALIZER_KEY = "serializer"
 SERIALIZATION_METADATA_DEPENDENCIES_KEY = "dependencies"
+SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY = "custom_commands"
 
 
 @dataclasses.dataclass
@@ -133,11 +134,13 @@ class SerializationMetadata:
 
     serializer: Optional[str] = None
     dependencies: List[str] = dataclasses.field(default_factory=list)
+    custom_commands: List[str] = dataclasses.field(default_factory=list)
 
     def to_dict(self):
         return {
             SERIALIZATION_METADATA_SERIALIZER_KEY: self.serializer,
             SERIALIZATION_METADATA_DEPENDENCIES_KEY: self.dependencies,
+            SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY: self.custom_commands,
         }
 
 
@@ -323,6 +326,12 @@ class Serializer(metaclass=abc.ABCMeta):
         cls._metadata.dependencies = list(dict.fromkeys(cls._metadata.dependencies))
 
     @classmethod
+    def _dedupe_custom_commands(cls):
+        cls._metadata.custom_commands = list(
+            dict.fromkeys(cls._metadata.custom_commands)
+        )
+
+    @classmethod
     def register_requirement(cls, required_package: str):
         # TODO(b/280648121) Consider allowing the user to register the
         # installation command so that we support installing packages not
@@ -334,3 +343,8 @@ class Serializer(metaclass=abc.ABCMeta):
     def register_requirements(cls, requirements: List[str]):
         cls._metadata.dependencies.extend(requirements)
         cls._dedupe_deps()
+
+    @classmethod
+    def register_custom_command(cls, custom_command: str):
+        cls._metadata.custom_commands.append(custom_command)
+        cls._dedupe_custom_commands()

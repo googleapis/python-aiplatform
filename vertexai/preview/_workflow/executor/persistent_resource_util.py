@@ -15,7 +15,7 @@
 
 import datetime
 import time
-from typing import Optional
+from typing import List, Optional
 
 from google.api_core import exceptions
 from google.api_core import gapic_v1
@@ -31,10 +31,13 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
 )
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourcePool,
+    ResourceRuntimeSpec,
+    ServiceAccountSpec,
 )
 from google.cloud.aiplatform_v1beta1.types.persistent_resource_service import (
     GetPersistentResourceRequest,
 )
+from vertexai.preview.developer import remote_specs
 
 
 GAPIC_VERSION = aiplatform.__version__
@@ -60,18 +63,28 @@ def _create_persistent_resource_client(location: Optional[str] = "us-central1"):
     )
 
 
-def check_persistent_resource(cluster_resource_name: str) -> bool:
+def cluster_resource_name(project: str, location: str, name: str) -> str:
+    """Helper method to get persistent resource name."""
+    client = _create_persistent_resource_client(location)
+    return client.persistent_resource_path(project, location, name)
+
+
+def check_persistent_resource(
+    cluster_resource_name: str, service_account: Optional[str] = None
+) -> bool:
     """Helper method to check if a persistent resource exists or not.
 
     Args:
         cluster_resource_name: Persistent Resource name. Has the form:
         ``projects/my-project/locations/my-region/persistentResource/cluster-name``.
+        service_account: Service account.
 
     Returns:
         True if a Persistent Resource exists.
 
     Raises:
         ValueError: if existing cluster is not RUNNING.
+        ValueError: if service account is specified but mismatch with existing cluster.
     """
     # Parse resource name to get the location.
     locataion = cluster_resource_name.split("/")[3]
@@ -90,12 +103,29 @@ def check_persistent_resource(cluster_resource_name: str) -> bool:
             cluster_resource_name,
             "` isn't running, please specify a different cluster_name.",
         )
+    # Check if service account of this existing persistent resource matches initialized one.
+    existing_cluster_service_account = (
+        response.resource_runtime_spec.service_account_spec.service_account
+        if response.resource_runtime_spec.service_account_spec
+        else None
+    )
+
+    if (
+        service_account is not None
+        and existing_cluster_service_account != service_account
+    ):
+        raise ValueError(
+            "Expect the existing cluster was created with the service account `",
+            service_account,
+            "`, but got `",
+            existing_cluster_service_account,
+            "` , please ensure service account is consistent with the initialization.",
+        )
     return True
 
 
 def _default_persistent_resource() -> PersistentResource:
     """Default persistent resource."""
-    # Currently the service accepts only one resource_pool config and image_uri.
     resource_pools = []
     resource_pool = ResourcePool()
     resource_pool.replica_count = _DEFAULT_REPLICA_COUNT
@@ -182,16 +212,43 @@ def _get_persistent_resource(cluster_resource_name: str):
         time.sleep(sleep_time.total_seconds())
 
 
-def create_persistent_resource(cluster_resource_name: str):
-    """Create a default persistent resource."""
+def create_persistent_resource(
+    cluster_resource_name: str,
+    resource_pools: Optional[List[remote_specs.ResourcePool]] = None,
+    service_account: Optional[str] = None,
+):
+    """Create a persistent resource."""
     locataion = cluster_resource_name.split("/")[3]
     parent = "/".join(cluster_resource_name.split("/")[:4])
     cluster_name = cluster_resource_name.split("/")[-1]
 
     client = _create_persistent_resource_client(locataion)
+    if resource_pools is None:
+        persistent_resource = _default_persistent_resource()
+    else:
+        # convert remote_specs.ResourcePool to GAPIC ResourcePool
+        pools = []
+        for resource_pool in resource_pools:
+            pool = ResourcePool()
+            pool.replica_count = resource_pool.replica_count
+            pool.machine_spec.machine_type = resource_pool.machine_type
+            pool.machine_spec.accelerator_type = resource_pool.accelerator_type
+            pool.machine_spec.accelerator_count = resource_pool.accelerator_count
+            pool.disk_spec.boot_disk_type = resource_pool.boot_disk_type
+            pool.disk_spec.boot_disk_size_gb = resource_pool.boot_disk_size_gb
+            pools.append(pool)
 
-    persistent_resource = _default_persistent_resource()
+        persistent_resource = PersistentResource(resource_pools=pools)
 
+    enable_custom_service_account = True if service_account is not None else False
+
+    resource_runtime_spec = ResourceRuntimeSpec(
+        service_account_spec=ServiceAccountSpec(
+            enable_custom_service_account=enable_custom_service_account,
+            service_account=service_account,
+        ),
+    )
+    persistent_resource.resource_runtime_spec = resource_runtime_spec
     request = persistent_resource_service.CreatePersistentResourceRequest(
         parent=parent,
         persistent_resource=persistent_resource,
@@ -205,4 +262,4 @@ def create_persistent_resource(cluster_resource_name: str):
 
     # Check cluster creation progress
     response = _get_persistent_resource(cluster_resource_name)
-    _LOGGER.info(response)
+    _LOGGER.info(f"Cluster {response.display_name} was created successfully.")

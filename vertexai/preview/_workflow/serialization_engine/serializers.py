@@ -25,7 +25,7 @@ import pathlib
 import pickle
 import shutil
 import tempfile
-from typing import Any, Optional, Union
+from typing import Any, Dict, Optional, Union
 import uuid
 
 from google.cloud.aiplatform.utils import gcs_utils
@@ -37,6 +37,8 @@ from vertexai.preview._workflow.shared import (
 from vertexai.preview._workflow.serialization_engine import (
     serializers_base,
 )
+
+from packaging import version
 
 try:
     import cloudpickle
@@ -125,6 +127,21 @@ Types = Union[
 _LIGHTNING_ROOT_DIR = "/vertex_lightning_root_dir/"
 SERIALIZATION_METADATA_FILENAME = "serialization_metadata"
 
+# Map tf major.minor version to tfio version from https://pypi.org/project/tensorflow-io/
+_TFIO_VERSION_DICT = {
+    "2.3": "0.16.0",  # Align with testing_extra_require: tensorflow >= 2.3.0
+    "2.4": "0.17.1",
+    "2.5": "0.19.1",
+    "2.6": "0.21.0",
+    "2.7": "0.23.1",
+    "2.8": "0.25.0",
+    "2.9": "0.26.0",
+    "2.10": "0.27.0",
+    "2.11": "0.31.0",
+    "2.12": "0.32.0",
+    "2.13": "0.34.0",  # TODO(b/295580335): Support TF 2.13
+}
+
 
 def get_uri_prefix(gcs_uri: str) -> str:
     """Gets the directory of the gcs_uri.
@@ -156,6 +173,20 @@ def get_metadata_path_from_file_gcs_uri(gcs_uri: str) -> str:
         prefix,
         f"{SERIALIZATION_METADATA_FILENAME}_{gcs_pathlibpath.stem}.json",
     )
+
+
+def _get_metadata(gcs_uri: str) -> Dict[str, Any]:
+    metadata_file = get_metadata_path_from_file_gcs_uri(gcs_uri)
+    if metadata_file.startswith("gs://"):
+        with tempfile.NamedTemporaryFile() as temp_file:
+            gcs_utils.download_file_from_gcs(metadata_file, temp_file.name)
+            with open(temp_file.name, mode="rb") as f:
+                metadata = json.load(f)
+    else:
+        with open(metadata_file, "rb") as f:
+            metadata = json.load(f)
+
+    return metadata
 
 
 def _is_valid_gcs_path(path: str) -> bool:
@@ -245,8 +276,7 @@ class KerasModelSerializer(serializers_base.Serializer):
                     save_format=save_format,
                 )
                 gcs_utils.upload_to_gcs(
-                    temp_file_or_dir.name if is_file else temp_file_or_dir,
-                    gcs_path
+                    temp_file_or_dir.name if is_file else temp_file_or_dir, gcs_path
                 )
         else:
             to_serialize.save(gcs_path, save_format=save_format)
@@ -269,14 +299,8 @@ class KerasModelSerializer(serializers_base.Serializer):
         del kwargs
         if not _is_valid_gcs_path(serialized_gcs_path):
             raise ValueError(f"Invalid gcs path: {serialized_gcs_path}")
-        metadata_file = get_metadata_path_from_file_gcs_uri(serialized_gcs_path)
-        if metadata_file.startswith("gs://"):
-            with tempfile.NamedTemporaryFile(suffix=".json") as temp_file:
-                gcs_utils.download_file_from_gcs(metadata_file, temp_file.name)
-                metadata = json.load(temp_file)
-        else:
-            with open(metadata_file, "r") as f:
-                metadata = json.load(f)
+
+        metadata = _get_metadata(serialized_gcs_path)
         # For backward compatibility, if the metadata doesn't contain
         # save_format, we assume the model was saved as saved_model format.
         save_format = metadata.get("save_format", "tf")
@@ -1110,15 +1134,32 @@ class BigframeSerializer(serializers_base.Serializer):
         gcs_path: str,
         **kwargs,
     ) -> str:
-        # All bigframe serializers will be identical (bigframes.dataframe.DataFrame --> parquet)
-        # Record the framework in metadata for deserialization
-        BigframeSerializer._metadata.framework = kwargs.get("framework")
+        # All bigframe serializers will convert bigframes.dataframe.DataFrame --> parquet
         if not _is_valid_gcs_path(gcs_path):
             raise ValueError(f"Invalid gcs path: {gcs_path}")
 
-        BigframeSerializer._metadata.dependencies = (
-            supported_frameworks._get_deps_if_bigframe(to_serialize)
-        )
+        # Record the framework in metadata for deserialization
+        detected_framework = kwargs.get("framework")
+        BigframeSerializer._metadata.framework = detected_framework
+
+        # Reset dependencies and custom_commands in case the framework is different
+        BigframeSerializer._metadata.dependencies = []
+        BigframeSerializer._metadata.custom_commands = []
+
+        # Add dependencies based on framework
+        if detected_framework == "sklearn":
+            sklearn_deps = supported_frameworks._get_pandas_deps()
+            sklearn_deps += supported_frameworks._get_pyarrow_deps()
+            BigframeSerializer._metadata.dependencies += sklearn_deps
+        elif detected_framework == "torch":
+            # Install using custom_commands to avoid numpy dependency conflict
+            BigframeSerializer._metadata.custom_commands.append("pip install torchdata")
+            BigframeSerializer._metadata.custom_commands.append("pip install torcharrow")
+        elif detected_framework == "tensorflow":
+            tensorflow_io_dep = "tensorflow-io==" + self._get_tfio_verison()
+            tensorflow_io_gcs_fs_dep = "tensorflow-io-gcs-filesystem==" + self._get_tfio_verison()
+            BigframeSerializer._metadata.dependencies.append(tensorflow_io_dep)
+            BigframeSerializer._metadata.dependencies.append(tensorflow_io_gcs_fs_dep)
 
         # Check if index.name is default and set index.name if not
         if to_serialize.index.name and to_serialize.index.name != "index":
@@ -1129,6 +1170,17 @@ class BigframeSerializer(serializers_base.Serializer):
         # Convert BigframesData to Parquet (GCS)
         parquet_gcs_path = gcs_path + "/*"  # path is required to contain '*'
         to_serialize.to_parquet(parquet_gcs_path, index=True)
+
+    def _get_tfio_verison(self):
+        major, minor, _ = version.Version(tf.__version__).release
+        tf_version = f"{major}.{minor}"
+
+        if tf_version not in _TFIO_VERSION_DICT:
+            raise ValueError(
+                f"Tensorflow version {tf_version} is not supported for Bigframes."
+                + " Supported versions: tensorflow >= 2.3.0, <= 2.12.0."
+            )
+        return _TFIO_VERSION_DICT[tf_version]
 
     def deserialize(
         self, serialized_gcs_path: str, **kwargs

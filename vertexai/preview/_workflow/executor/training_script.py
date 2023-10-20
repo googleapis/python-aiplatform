@@ -28,6 +28,7 @@ from vertexai.preview._workflow.serialization_engine import (
 from vertexai.preview._workflow.shared import (
     constants,
     supported_frameworks,
+    model_utils,
 )
 from vertexai.preview.developer import remote_specs
 
@@ -205,7 +206,7 @@ def main(argv):
         # for distributed training, chief saves output to specified output
         # directory while non-chief workers save output to temp directory.
         output_path = remote_specs._get_output_path_for_distributed_training(
-            _OUTPUT_PATH.value, "output_estimator"
+            _OUTPUT_PATH.value, model_utils._OUTPUT_ESTIMATOR_DIR
         )
         serializer.serialize(estimator, output_path)
 
@@ -216,7 +217,8 @@ def main(argv):
     # for remote prediction
     if _METHOD_NAME.value in supported_frameworks.REMOTE_PREDICTION_OVERRIDE_LIST:
         serializer.serialize(
-            output, os.path.join(_OUTPUT_PATH.value, "output_predictions")
+            output,
+            os.path.join(_OUTPUT_PATH.value, model_utils._OUTPUT_PREDICTIONS_DIR),
         )
 
     output_path = remote_specs._get_output_path_for_distributed_training(

@@ -19,6 +19,7 @@ import inspect
 import logging
 import os
 import re
+import sys
 import time
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import warnings
@@ -27,7 +28,7 @@ from google.api_core import exceptions as api_exceptions
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import jobs
+from google.cloud.aiplatform.preview import jobs
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.utils import resource_manager_utils
@@ -42,6 +43,7 @@ from vertexai.preview._workflow.shared import constants
 from vertexai.preview._workflow.shared import (
     supported_frameworks,
 )
+from vertexai.preview._workflow.shared import model_utils
 from vertexai.preview.developer import remote_specs
 from packaging import version
 
@@ -460,7 +462,31 @@ def _get_remote_logs_until_complete(
         )
 
 
-def remote_training(invokable: shared._Invokable):
+def _set_job_labels(method_name: str) -> Dict[str, str]:
+    """Helper method to set the label for the CustomJob.
+
+    Remote training, feature transform, and prediction jobs should each have
+    different labels.
+
+    Args:
+        method_Name (str):
+            Required. The method name used to invoke the remote job.
+
+    Returns:
+        A dictionary of the label key/value to use for the CustomJob.
+    """
+
+    if method_name in supported_frameworks.REMOTE_TRAINING_STATEFUL_OVERRIDE_LIST:
+        return {"trained_by_vertex_ai": "true"}
+
+    if method_name in supported_frameworks.REMOTE_TRAINING_FUNCTIONAL_OVERRIDE_LIST:
+        return {"feature_transformed_by_vertex_ai": "true"}
+
+    if method_name in supported_frameworks.REMOTE_PREDICTION_OVERRIDE_LIST:
+        return {"predicted_by_vertex_ai": "true"}
+
+
+def remote_training(invokable: shared._Invokable, rewrapper: Any):
     """Wrapper function that makes a method executable by Vertex CustomJob."""
 
     self = invokable.instance
@@ -471,6 +497,14 @@ def remote_training(invokable: shared._Invokable):
 
     autolog = vertexai.preview.global_config.autolog
     service_account = _get_service_account(config, autolog=autolog)
+    if (
+        autolog
+        and vertexai.preview.global_config.cluster is not None
+        and (service_account != vertexai.preview.global_config.cluster.service_account)
+    ):
+        raise ValueError(
+            f"The service account for autologging ({service_account}) is mismatched with the cluster's service account ({vertexai.preview.global_config.service_account}). "
+        )
     if autolog:
         vertex_requirements = [
             VERTEX_AI_DEPENDENCY_PATH_AUTOLOGGING,
@@ -481,10 +515,9 @@ def remote_training(invokable: shared._Invokable):
             VERTEX_AI_DEPENDENCY_PATH,
             "absl-py==1.4.0",
         ]
-    if bf:
-        vertex_requirements.append("bigframes==0.1.1")
 
     requirements = []
+    custom_commands = []
 
     enable_cuda = config.enable_cuda
 
@@ -521,7 +554,9 @@ def remote_training(invokable: shared._Invokable):
     remote_job = f"remote-job-{utils.timestamped_unique_name()}"
     remote_job_base_path = os.path.join(staging_bucket, remote_job)
     remote_job_input_path = os.path.join(remote_job_base_path, "input")
-    remote_job_output_path = os.path.join(remote_job_base_path, "output")
+    remote_job_output_path = model_utils._generate_remote_job_output_path(
+        remote_job_base_path
+    )
 
     detected_framework = None
     if supported_frameworks._is_sklearn(self):
@@ -562,6 +597,12 @@ def remote_training(invokable: shared._Invokable):
     # serialize args
     for arg_name, arg_value in serialized_args.items():
         if supported_frameworks._is_bigframe(arg_value):
+            # Throw error for Python 3.11 + Bigframes Torch
+            if detected_framework == "torch" and sys.version_info[1] == 11:
+                raise ValueError(
+                    "Currently Bigframes Torch serializer does not support"
+                    "Python 3.11 since torcharrow is not supported on Python 3.11."
+                )
             serialization_metadata = serializer.serialize(
                 to_serialize=arg_value,
                 gcs_path=os.path.join(remote_job_input_path, f"{arg_name}"),
@@ -605,8 +646,16 @@ def remote_training(invokable: shared._Invokable):
 
     requirements = _add_indirect_dependency_versions(requirements)
     command = ["export PIP_ROOT_USER_ACTION=ignore &&"]
-    if config.custom_commands:
-        custom_commands = [f"{command} &&" for command in config.custom_commands]
+
+    # Combine user custom_commands and serializer custom_commands
+    custom_commands += serialization_metadata[
+        serializers_base.SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY
+    ]
+    custom_commands += config.custom_commands
+    custom_commands = list(dict.fromkeys(custom_commands))
+
+    if custom_commands:
+        custom_commands = [f"{command} &&" for command in custom_commands]
         command.extend(custom_commands)
     if requirements:
         command.append("pip install --upgrade pip &&")
@@ -655,18 +704,35 @@ def remote_training(invokable: shared._Invokable):
 
     command = ["sh", "-c", " ".join(command)]
 
+    labels = _set_job_labels(method_name)
+
+    # serialize rewrapper, this is needed to load a model from a CustomJob
+    filepath = os.path.join(
+        remote_job_output_path,
+        model_utils._REWRAPPER_NAME,
+    )
+    serializer.serialize(rewrapper, filepath)
+
     # create & run the CustomJob
 
     # disable CustomJob logs
     logging.getLogger("google.cloud.aiplatform.jobs").disabled = True
+    logging.getLogger("google.cloud.aiplatform.preview.jobs").disabled = True
+    cluster_name = (
+        vertexai.preview.global_config.cluster.name
+        if vertexai.preview.global_config.cluster is not None
+        else None
+    )
     try:
-        job = aiplatform.CustomJob(
+        job = jobs.CustomJob(
             display_name=display_name,
             project=vertexai.preview.global_config.project,
             location=vertexai.preview.global_config.location,
             worker_pool_specs=_get_worker_pool_specs(config, container_uri, command),
             base_output_dir=remote_job_base_path,
             staging_bucket=remote_job_base_path,
+            labels=labels,
+            persistent_resource_id=cluster_name,
         )
 
         job.submit(
@@ -690,6 +756,7 @@ def remote_training(invokable: shared._Invokable):
     finally:
         # enable CustomJob logs after remote training job is done
         logging.getLogger("google.cloud.aiplatform.jobs").disabled = False
+        logging.getLogger("google.cloud.aiplatform.preview.jobs").disabled = False
 
     if job.state in jobs._JOB_ERROR_STATES:
         return job
@@ -698,7 +765,7 @@ def remote_training(invokable: shared._Invokable):
     # retrieve the result from gcs to local
     if method_name in supported_frameworks.REMOTE_TRAINING_STATEFUL_OVERRIDE_LIST:
         estimator = serializer.deserialize(
-            os.path.join(remote_job_output_path, "output_estimator"),
+            os.path.join(remote_job_output_path, model_utils._OUTPUT_ESTIMATOR_DIR),
         )
 
         if supported_frameworks._is_sklearn(self):
@@ -715,7 +782,9 @@ def remote_training(invokable: shared._Invokable):
             _update_lightning_trainer_inplace(self, estimator)
             # deserialize and update the trained model as well
             trained_model = serializer.deserialize(
-                os.path.join(remote_job_output_path, "output_estimator", "model")
+                os.path.join(
+                    remote_job_output_path, model_utils._OUTPUT_ESTIMATOR_DIR, "model"
+                )
             )
             _update_torch_model_inplace(serialized_args["model"], trained_model)
         else:
@@ -727,7 +796,7 @@ def remote_training(invokable: shared._Invokable):
 
     if method_name in supported_frameworks.REMOTE_PREDICTION_OVERRIDE_LIST:
         predictions = serializer.deserialize(
-            os.path.join(remote_job_output_path, "output_predictions")
+            os.path.join(remote_job_output_path, model_utils._OUTPUT_PREDICTIONS_DIR)
         )
         return predictions
 

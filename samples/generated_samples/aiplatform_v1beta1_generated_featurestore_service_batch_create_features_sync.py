@@ -41,7 +41,6 @@ def sample_batch_create_features():
     # Initialize request argument(s)
     requests = aiplatform_v1beta1.CreateFeatureRequest()
     requests.parent = "parent_value"
-    requests.feature.value_type = "BYTES"
     requests.feature_id = "feature_id_value"
 
     request = aiplatform_v1beta1.BatchCreateFeaturesRequest(

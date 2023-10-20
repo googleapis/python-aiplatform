@@ -43,6 +43,7 @@ from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
 from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
     ModelGardenServiceClient,
 )
+from google.cloud.aiplatform_v1beta1.services.model_garden_service import pagers
 from google.cloud.aiplatform_v1beta1.services.model_garden_service import transports
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import model_garden_service
@@ -982,6 +983,451 @@ async def test_get_publisher_model_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_garden_service.ListPublisherModelsRequest,
+        dict,
+    ],
+)
+def test_list_publisher_models(request_type, transport: str = "grpc"):
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_publisher_models), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_garden_service.ListPublisherModelsResponse(
+            next_page_token="next_page_token_value",
+        )
+        response = client.list_publisher_models(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_garden_service.ListPublisherModelsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListPublisherModelsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_publisher_models_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_publisher_models), "__call__"
+    ) as call:
+        client.list_publisher_models()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_garden_service.ListPublisherModelsRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_publisher_models_async(
+    transport: str = "grpc_asyncio",
+    request_type=model_garden_service.ListPublisherModelsRequest,
+):
+    client = ModelGardenServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_publisher_models), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_garden_service.ListPublisherModelsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_publisher_models(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_garden_service.ListPublisherModelsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListPublisherModelsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+async def test_list_publisher_models_async_from_dict():
+    await test_list_publisher_models_async(request_type=dict)
+
+
+def test_list_publisher_models_field_headers():
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_garden_service.ListPublisherModelsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_publisher_models), "__call__"
+    ) as call:
+        call.return_value = model_garden_service.ListPublisherModelsResponse()
+        client.list_publisher_models(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_publisher_models_field_headers_async():
+    client = ModelGardenServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_garden_service.ListPublisherModelsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_publisher_models), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_garden_service.ListPublisherModelsResponse()
+        )
+        await client.list_publisher_models(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_list_publisher_models_flattened():
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_publisher_models), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_garden_service.ListPublisherModelsResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.list_publisher_models(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+def test_list_publisher_models_flattened_error():
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_publisher_models(
+            model_garden_service.ListPublisherModelsRequest(),
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_publisher_models_flattened_async():
+    client = ModelGardenServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_publisher_models), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_garden_service.ListPublisherModelsResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_garden_service.ListPublisherModelsResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.list_publisher_models(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_list_publisher_models_flattened_error_async():
+    client = ModelGardenServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.list_publisher_models(
+            model_garden_service.ListPublisherModelsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_publisher_models_pager(transport_name: str = "grpc"):
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_publisher_models), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                ],
+                next_page_token="abc",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[],
+                next_page_token="def",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                ],
+            ),
+            RuntimeError,
+        )
+
+        metadata = ()
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
+        )
+        pager = client.list_publisher_models(request={})
+
+        assert pager._metadata == metadata
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, publisher_model.PublisherModel) for i in results)
+
+
+def test_list_publisher_models_pages(transport_name: str = "grpc"):
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_publisher_models), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                ],
+                next_page_token="abc",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[],
+                next_page_token="def",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = list(client.list_publisher_models(request={}).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.asyncio
+async def test_list_publisher_models_async_pager():
+    client = ModelGardenServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_publisher_models),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                ],
+                next_page_token="abc",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[],
+                next_page_token="def",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                ],
+            ),
+            RuntimeError,
+        )
+        async_pager = await client.list_publisher_models(
+            request={},
+        )
+        assert async_pager.next_page_token == "abc"
+        responses = []
+        async for response in async_pager:  # pragma: no branch
+            responses.append(response)
+
+        assert len(responses) == 6
+        assert all(isinstance(i, publisher_model.PublisherModel) for i in responses)
+
+
+@pytest.mark.asyncio
+async def test_list_publisher_models_async_pages():
+    client = ModelGardenServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_publisher_models),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                ],
+                next_page_token="abc",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[],
+                next_page_token="def",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_garden_service.ListPublisherModelsResponse(
+                publisher_models=[
+                    publisher_model.PublisherModel(),
+                    publisher_model.PublisherModel(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = []
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
+            await client.list_publisher_models(request={})
+        ).pages:
+            pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.ModelGardenServiceGrpcTransport(
@@ -1120,6 +1566,7 @@ def test_model_garden_service_base_transport():
     # raise NotImplementedError.
     methods = (
         "get_publisher_model",
+        "list_publisher_models",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",

@@ -38,10 +38,15 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
     PersistentResourceServiceClient,
 )
-import constants as test_constants
 from pyfakefs import fake_filesystem_unittest
 import pytest
 import tensorflow.saved_model as tf_saved_model
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+    PersistentResource,
+    ResourcePool,
+    ResourceRuntimeSpec,
+    ServiceAccountSpec,
+)
 
 
 _TEST_PROJECT = "test-project"
@@ -51,6 +56,7 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_DISPLAY_NAME = f"{_TEST_PARENT}/customJobs/12345"
 _TEST_BUCKET_NAME = "gs://test_bucket"
 _TEST_BASE_OUTPUT_DIR = f"{_TEST_BUCKET_NAME}/test_base_output_dir"
+_TEST_SERVICE_ACCOUNT = f"{_TEST_PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 
 _TEST_INPUTS = [
     "--arg_0=string_val_0",
@@ -80,6 +86,28 @@ _TEST_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
             output_uri_prefix=_TEST_BASE_OUTPUT_DIR
         ),
     },
+    labels={"trained_by_vertex_ai": "true"},
+)
+
+_TEST_REQUEST_RUNNING_DEFAULT = PersistentResource(
+    resource_runtime_spec=ResourceRuntimeSpec(service_account_spec=ServiceAccountSpec())
+)
+resource_pool = ResourcePool()
+resource_pool.machine_spec.machine_type = "n1-standard-4"
+resource_pool.replica_count = 1
+resource_pool.disk_spec.boot_disk_type = "pd-ssd"
+resource_pool.disk_spec.boot_disk_size_gb = 100
+_TEST_REQUEST_RUNNING_DEFAULT.resource_pools = [resource_pool]
+
+
+_TEST_PERSISTENT_RESOURCE_RUNNING = PersistentResource(state="RUNNING")
+_TEST_PERSISTENT_RESOURCE_SERVICE_ACCOUNT_RUNNING = PersistentResource(
+    state="RUNNING",
+    resource_runtime_spec=ResourceRuntimeSpec(
+        service_account_spec=ServiceAccountSpec(
+            enable_custom_service_account=True, service_account=_TEST_SERVICE_ACCOUNT
+        )
+    ),
 )
 
 
@@ -263,9 +291,21 @@ def persistent_resource_running_mock():
         "get_persistent_resource",
     ) as persistent_resource_running_mock:
         persistent_resource_running_mock.return_value = (
-            test_constants._TEST_PERSISTENT_RESOURCE_RUNNING
+            _TEST_PERSISTENT_RESOURCE_RUNNING
         )
         yield persistent_resource_running_mock
+
+
+@pytest.fixture
+def persistent_resource_service_account_running_mock():
+    with mock.patch.object(
+        PersistentResourceServiceClient,
+        "get_persistent_resource",
+    ) as persistent_resource_service_account_running_mock:
+        persistent_resource_service_account_running_mock.return_value = (
+            _TEST_PERSISTENT_RESOURCE_SERVICE_ACCOUNT_RUNNING
+        )
+        yield persistent_resource_service_account_running_mock
 
 
 @pytest.fixture
@@ -286,7 +326,7 @@ def create_persistent_resource_default_mock():
     ) as create_persistent_resource_default_mock:
         create_persistent_resource_lro_mock = mock.Mock(ga_operation.Operation)
         create_persistent_resource_lro_mock.result.return_value = (
-            test_constants._TEST_REQUEST_RUNNING_DEFAULT
+            _TEST_REQUEST_RUNNING_DEFAULT
         )
         create_persistent_resource_default_mock.return_value = (
             create_persistent_resource_lro_mock

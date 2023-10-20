@@ -87,6 +87,19 @@ _JOB_ERROR_STATES = (
     gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLED,
 )
 
+_JOB_PENDING_STATES = (
+    gca_job_state.JobState.JOB_STATE_QUEUED,
+    gca_job_state.JobState.JOB_STATE_PENDING,
+    gca_job_state.JobState.JOB_STATE_RUNNING,
+    gca_job_state.JobState.JOB_STATE_CANCELLING,
+    gca_job_state.JobState.JOB_STATE_UPDATING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_QUEUED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_PENDING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_RUNNING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLING,
+    gca_job_state_v1beta1.JobState.JOB_STATE_UPDATING,
+)
+
 # _block_until_complete wait times
 _JOB_WAIT_TIME = 5  # start at five seconds
 _LOG_WAIT_TIME = 5
@@ -2870,6 +2883,7 @@ class ModelDeploymentMonitoringJob(_Job):
             ]
         ] = None,
         deployed_model_ids: Optional[List[str]] = None,
+        update_request_timeout: Optional[float] = None,
     ) -> "ModelDeploymentMonitoringJob":
         """Updates an existing ModelDeploymentMonitoringJob.
 
@@ -2926,6 +2940,8 @@ class ModelDeploymentMonitoringJob(_Job):
                 Optional. Use this argument to specify which deployed models to
                 apply the updated objective config to. If left unspecified, the same config
                 will be applied to all deployed models.
+            upate_request_timeout (float):
+                Optional. Timeout in seconds for the model monitoring job update request.
         """
         self._sync_gca_resource()
         current_job = copy.deepcopy(self._gca_resource)
@@ -2972,8 +2988,9 @@ class ModelDeploymentMonitoringJob(_Job):
         lro = self.api_client.update_model_deployment_monitoring_job(
             model_deployment_monitoring_job=current_job,
             update_mask=field_mask_pb2.FieldMask(paths=update_mask),
+            timeout=update_request_timeout,
         )
-        self._gca_resource = lro.result()
+        self._gca_resource = lro.result(timeout=None)
         return self
 
     def pause(self) -> "ModelDeploymentMonitoringJob":

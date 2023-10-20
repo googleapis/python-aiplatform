@@ -24,12 +24,12 @@ from vertexai.preview._workflow import shared
 class _WorkflowLauncher:
     """Launches workflows either locally or remotely."""
 
-    def launch(self, invokable: shared._Invokable, global_remote: bool):
+    def launch(self, invokable: shared._Invokable, global_remote: bool, rewrapper: Any):
 
         local_remote = invokable.vertex_config.remote
 
         if local_remote or (local_remote is None and global_remote):
-            result = self._remote_launch(invokable)
+            result = self._remote_launch(invokable, rewrapper)
         else:
             for _, arg in invokable.bound_arguments.arguments.items():
                 if "bigframes" in repr(type(arg)):
@@ -39,8 +39,10 @@ class _WorkflowLauncher:
             result = self._local_launch(invokable)
         return result
 
-    def _remote_launch(self, invokable: shared._Invokable) -> Any:
-        result = executor._workflow_executor.remote_execute(invokable)
+    def _remote_launch(self, invokable: shared._Invokable, rewrapper: Any) -> Any:
+        result = executor._workflow_executor.remote_execute(
+            invokable, rewrapper=rewrapper
+        )
         # TODO(b/277343861) workflow tracking goes here
         # E.g., initializer.global_config.workflow.add_remote_step(invokable, result)
 

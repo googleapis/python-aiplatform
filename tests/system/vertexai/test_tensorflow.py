@@ -18,12 +18,10 @@
 import os
 from unittest import mock
 
+from google.cloud import aiplatform
 import vertexai
 from tests.system.aiplatform import e2e_base
 from vertexai.preview._workflow.executor import training
-from vertexai.preview._workflow.serialization_engine import (
-    any_serializer,
-)
 from vertexai.preview._workflow.serialization_engine import (
     serializers,
 )
@@ -108,15 +106,25 @@ class TestRemoteExecutionTensorflow(e2e_base.TestEndToEnd):
         model.fit(tf_train_dataset, epochs=10)
 
         # Assert the right serializer is being used
-        serializer = any_serializer.AnySerializer()
-        assert (
-            serializer._get_predefined_serializer(model.__class__.__mro__[3])
-            is serializers.KerasModelSerializer
+        remote_job = aiplatform.CustomJob.list(
+            filter=f'display_name="{model.fit.vertex.remote_config.display_name}"'
+        )[0]
+        base_path = remote_job.job_spec.base_output_directory.output_uri_prefix
+
+        input_estimator_metadata = serializers._get_metadata(
+            os.path.join(base_path, "input/input_estimator")
         )
-        assert (
-            serializer._get_predefined_serializer(tf_train_dataset.__class__.__mro__[2])
-            is serializers.TFDatasetSerializer
+        assert input_estimator_metadata["serializer"] == "KerasModelSerializer"
+
+        output_estimator_metadata = serializers._get_metadata(
+            os.path.join(base_path, "output/output_estimator")
         )
+        assert output_estimator_metadata["serializer"] == "KerasModelSerializer"
+
+        train_x_metadata = serializers._get_metadata(os.path.join(base_path, "input/x"))
+        assert train_x_metadata["serializer"] == "TFDatasetSerializer"
+
+        shared_state["resources"] = [remote_job]
 
         # Remote prediction on keras
         model.predict.vertex.remote_config.display_name = self._make_display_name(
@@ -124,9 +132,15 @@ class TestRemoteExecutionTensorflow(e2e_base.TestEndToEnd):
         )
         model.predict(tf_remote_prediction_test_data)
 
+        # Add prediction job to teardown resource
+        remote_job = aiplatform.CustomJob.list(
+            filter=f'display_name="{model.predict.vertex.remote_config.display_name}"'
+        )[0]
+        shared_state["resources"].append(remote_job)
+
         # Register trained model
         registered_model = vertexai.preview.register(model)
-        shared_state["resources"] = [registered_model]
+        shared_state["resources"].append(registered_model)
 
         # Load the registered model
         pulled_model = vertexai.preview.from_pretrained(
@@ -141,14 +155,22 @@ class TestRemoteExecutionTensorflow(e2e_base.TestEndToEnd):
         pulled_model.fit(tf_retrain_dataset, epochs=10)
 
         # Assert the right serializer is being used
-        serializer = any_serializer.AnySerializer()
-        assert (
-            serializer._get_predefined_serializer(pulled_model.__class__.__mro__[3])
-            is serializers.KerasModelSerializer
+        remote_job = aiplatform.CustomJob.list(
+            filter=f'display_name="{pulled_model.fit.vertex.remote_config.display_name}"'
+        )[0]
+        base_path = remote_job.job_spec.base_output_directory.output_uri_prefix
+
+        input_estimator_metadata = serializers._get_metadata(
+            os.path.join(base_path, "input/input_estimator")
         )
-        assert (
-            serializer._get_predefined_serializer(
-                tf_retrain_dataset.__class__.__mro__[2]
-            )
-            is serializers.TFDatasetSerializer
+        assert input_estimator_metadata["serializer"] == "KerasModelSerializer"
+
+        output_estimator_metadata = serializers._get_metadata(
+            os.path.join(base_path, "output/output_estimator")
         )
+        assert output_estimator_metadata["serializer"] == "KerasModelSerializer"
+
+        train_x_metadata = serializers._get_metadata(os.path.join(base_path, "input/x"))
+        assert train_x_metadata["serializer"] == "TFDatasetSerializer"
+
+        shared_state["resources"].append(remote_job)

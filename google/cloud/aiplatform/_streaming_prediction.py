@@ -16,7 +16,7 @@
 #
 """Streaming prediction functions."""
 
-from typing import Any, Dict, Iterator, List, Optional, Sequence
+from typing import Any, AsyncIterator, Dict, Iterator, List, Optional, Sequence
 
 from google.cloud.aiplatform_v1.services import prediction_service
 from google.cloud.aiplatform_v1.types import (
@@ -108,6 +108,34 @@ def predict_stream_of_tensor_lists_from_single_tensor_list(
         yield response.outputs
 
 
+async def predict_stream_of_tensor_lists_from_single_tensor_list_async(
+    prediction_service_async_client: prediction_service.PredictionServiceAsyncClient,
+    endpoint_name: str,
+    tensor_list: List[aiplatform_types.Tensor],
+    parameters_tensor: Optional[aiplatform_types.Tensor] = None,
+) -> AsyncIterator[List[aiplatform_types.Tensor]]:
+    """Asynchronously predicts a stream of lists of `Tensor` objects from a single list of `Tensor` objects.
+
+    Args:
+        tensor_list: Model input as a list of `Tensor` objects.
+        parameters_tensor: Optional. Prediction parameters in `Tensor` form.
+        prediction_service_async_client: A PredictionServiceAsyncClient object.
+        endpoint_name: Resource name of Endpoint or PublisherModel.
+
+    Yields:
+        A generator of model prediction `Tensor` lists.
+    """
+    request = prediction_service_types.StreamingPredictRequest(
+        endpoint=endpoint_name,
+        inputs=tensor_list,
+        parameters=parameters_tensor,
+    )
+    async for response in prediction_service_async_client.server_streaming_predict(
+        request=request
+    ):
+        yield response.outputs
+
+
 def predict_stream_of_dict_lists_from_single_dict_list(
     prediction_service_client: prediction_service.PredictionServiceClient,
     endpoint_name: str,
@@ -136,6 +164,34 @@ def predict_stream_of_dict_lists_from_single_dict_list(
         yield [tensor_to_value(tensor._pb) for tensor in tensor_list]
 
 
+async def predict_stream_of_dict_lists_from_single_dict_list_async(
+    prediction_service_async_client: prediction_service.PredictionServiceAsyncClient,
+    endpoint_name: str,
+    dict_list: List[Dict[str, Any]],
+    parameters: Optional[Dict[str, Any]] = None,
+) -> AsyncIterator[List[Dict[str, Any]]]:
+    """Asynchronously predicts a stream of lists of dicts from a stream of lists of dicts.
+
+    Args:
+        dict_list: Model input as a list of `dict` objects.
+        parameters: Optional. Prediction parameters `dict` form.
+        prediction_service_async_client: A PredictionServiceAsyncClient object.
+        endpoint_name: Resource name of Endpoint or PublisherModel.
+
+    Yields:
+        A generator of model prediction dict lists.
+    """
+    tensor_list = [value_to_tensor(d) for d in dict_list]
+    parameters_tensor = value_to_tensor(parameters) if parameters else None
+    async for tensor_list in predict_stream_of_tensor_lists_from_single_tensor_list_async(
+        prediction_service_async_client=prediction_service_async_client,
+        endpoint_name=endpoint_name,
+        tensor_list=tensor_list,
+        parameters_tensor=parameters_tensor,
+    ):
+        yield [tensor_to_value(tensor._pb) for tensor in tensor_list]
+
+
 def predict_stream_of_dicts_from_single_dict(
     prediction_service_client: prediction_service.PredictionServiceClient,
     endpoint_name: str,
@@ -155,6 +211,36 @@ def predict_stream_of_dicts_from_single_dict(
     """
     for dict_list in predict_stream_of_dict_lists_from_single_dict_list(
         prediction_service_client=prediction_service_client,
+        endpoint_name=endpoint_name,
+        dict_list=[instance],
+        parameters=parameters,
+    ):
+        if len(dict_list) > 1:
+            raise ValueError(
+                f"Expected to receive a single output, but got {dict_list}"
+            )
+        yield dict_list[0]
+
+
+async def predict_stream_of_dicts_from_single_dict_async(
+    prediction_service_async_client: prediction_service.PredictionServiceAsyncClient,
+    endpoint_name: str,
+    instance: Dict[str, Any],
+    parameters: Optional[Dict[str, Any]] = None,
+) -> AsyncIterator[Dict[str, Any]]:
+    """Asynchronously predicts a stream of dicts from a single instance dict.
+
+    Args:
+        instance: A single input instance `dict`.
+        parameters: Optional. Prediction parameters `dict`.
+        prediction_service_async_client: A PredictionServiceAsyncClient object.
+        endpoint_name: Resource name of Endpoint or PublisherModel.
+
+    Yields:
+        A generator of model prediction dicts.
+    """
+    async for dict_list in predict_stream_of_dict_lists_from_single_dict_list_async(
+        prediction_service_async_client=prediction_service_async_client,
         endpoint_name=endpoint_name,
         dict_list=[instance],
         parameters=parameters,

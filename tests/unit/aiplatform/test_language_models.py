@@ -40,7 +40,10 @@ from google.cloud.aiplatform.compat.services import (
     model_service_client,
     pipeline_service_client,
 )
-from google.cloud.aiplatform.compat.services import prediction_service_client
+from google.cloud.aiplatform.compat.services import (
+    prediction_service_client,
+    prediction_service_async_client,
+)
 from google.cloud.aiplatform.compat.types import (
     artifact as gca_artifact,
     prediction_service as gca_prediction_service,
@@ -55,6 +58,14 @@ from google.cloud.aiplatform.compat.types import (
     model as gca_model,
 )
 
+from google.cloud.aiplatform_v1beta1.services.prediction_service import (
+    client as prediction_service_client_v1beta1,
+)
+from google.cloud.aiplatform_v1beta1.types import (
+    prediction_service as gca_prediction_service_v1beta1,
+)
+
+import vertexai
 from vertexai.preview import (
     language_models as preview_language_models,
 )
@@ -227,6 +238,30 @@ _TEST_CHAT_GENERATION_PREDICTION2 = {
         }
     ],
 }
+_TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION = {
+    "safetyAttributes": [
+        {
+            "scores": [],
+            "categories": [],
+            "blocked": False,
+        },
+        {
+            "scores": [0.1],
+            "categories": ["Finance"],
+            "blocked": True,
+        },
+    ],
+    "candidates": [
+        {
+            "author": "1",
+            "content": "Chat response 2",
+        },
+        {
+            "author": "1",
+            "content": "",
+        },
+    ],
+}
 
 _TEST_CHAT_PREDICTION_STREAMING = [
     {
@@ -302,6 +337,11 @@ _TEST_TEXT_EMBEDDING_PREDICTION = {
     }
 }
 
+_TEST_COUNT_TOKENS_RESPONSE = {
+    "total_tokens": 5,
+    "total_billable_characters": 25,
+}
+
 
 _TEST_TEXT_BISON_TRAINING_DF = pd.DataFrame(
     {
@@ -325,6 +365,11 @@ _TEST_PIPELINE_SPEC = {
         "dag": {"tasks": {}},
         "inputDefinitions": {
             "parameters": {
+                "accelerator_type": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
                 "api_endpoint": {
                     "defaultValue": "aiplatform.googleapis.com/ui",
                     "isOptional": True,
@@ -1202,6 +1247,43 @@ class TestLanguageModels:
             == _TEST_TEXT_GENERATION_PREDICTION["safetyAttributes"]["scores"][0]
         )
 
+    def test_text_generation_preview_count_tokens(self):
+        """Tests the text generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        gca_count_tokens_response = gca_prediction_service_v1beta1.CountTokensResponse(
+            total_tokens=_TEST_COUNT_TOKENS_RESPONSE["total_tokens"],
+            total_billable_characters=_TEST_COUNT_TOKENS_RESPONSE[
+                "total_billable_characters"
+            ],
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client_v1beta1.PredictionServiceClient,
+            attribute="count_tokens",
+            return_value=gca_count_tokens_response,
+        ):
+            response = model.count_tokens(["What is the best recipe for banana bread?"])
+
+            assert response.total_tokens == _TEST_COUNT_TOKENS_RESPONSE["total_tokens"]
+            assert (
+                response.total_billable_characters
+                == _TEST_COUNT_TOKENS_RESPONSE["total_billable_characters"]
+            )
+
     def test_text_generation_ga(self):
         """Tests the text generation model."""
         aiplatform.init(
@@ -1273,6 +1355,86 @@ class TestLanguageModels:
         assert "topP" not in prediction_parameters
         assert "topK" not in prediction_parameters
 
+    def test_text_generation_multiple_candidates(self):
+        """Tests the text generation model with multiple candidates."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        # Discrepancy between the number of `instances` and the number of `predictions`
+        # is a violation of the prediction service invariant, but the service does this.
+        gca_predict_response.predictions.append(_TEST_TEXT_GENERATION_PREDICTION)
+        gca_predict_response.predictions.append(_TEST_TEXT_GENERATION_PREDICTION)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            response = model.predict(
+                "What is the best recipe for banana bread? Recipe:",
+                candidate_count=2,
+            )
+        prediction_parameters = mock_predict.call_args[1]["parameters"]
+        assert prediction_parameters["candidateCount"] == 2
+
+        assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+        assert len(response.candidates) == 2
+        assert (
+            response.candidates[0].text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+        )
+
+    @pytest.mark.asyncio
+    async def test_text_generation_async(self):
+        """Tests the text generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(_TEST_TEXT_GENERATION_PREDICTION)
+
+        with mock.patch.object(
+            target=prediction_service_async_client.PredictionServiceAsyncClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            response = await model.predict_async(
+                "What is the best recipe for banana bread? Recipe:",
+                max_output_tokens=128,
+                temperature=0.0,
+                top_p=1.0,
+                top_k=5,
+                stop_sequences=["\n"],
+            )
+
+        prediction_parameters = mock_predict.call_args[1]["parameters"]
+        assert prediction_parameters["maxDecodeSteps"] == 128
+        assert prediction_parameters["temperature"] == 0.0
+        assert prediction_parameters["topP"] == 1.0
+        assert prediction_parameters["topK"] == 5
+        assert prediction_parameters["stopSequences"] == ["\n"]
+        assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+
     def test_text_generation_model_predict_streaming(self):
         """Tests the TextGenerationModel.predict_streaming method."""
         with mock.patch.object(
@@ -1307,6 +1469,52 @@ class TestLanguageModels:
                 stop_sequences=["# %%"],
             ):
                 assert len(response.text) > 10
+
+    @pytest.mark.asyncio
+    async def test_text_generation_model_predict_streaming_async(self):
+        """Tests the TextGenerationModel.predict_streaming_async method."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        async def mock_server_streaming_predict_async(*args, **kwargs):
+            for response_dict in _TEST_TEXT_GENERATION_PREDICTION_STREAMING:
+                yield gca_prediction_service.StreamingPredictResponse(
+                    outputs=[_streaming_prediction.value_to_tensor(response_dict)]
+                )
+
+        with mock.patch.object(
+            target=prediction_service_async_client.PredictionServiceAsyncClient,
+            attribute="server_streaming_predict",
+            new=mock_server_streaming_predict_async,
+        ):
+            async for response in model.predict_streaming_async(
+                "Count to 50",
+                max_output_tokens=1000,
+                temperature=0.0,
+                top_p=1.0,
+                top_k=5,
+                stop_sequences=["# %%"],
+            ):
+                assert len(response.text) > 10
+
+    def test_text_generation_response_repr(self):
+        response = language_models.TextGenerationResponse(
+            text="",
+            is_blocked=True,
+            safety_attributes={"Violent": 0.1},
+            _prediction_response=None,
+        )
+        response_repr = repr(response)
+        assert "blocked" in response_repr
+        assert "Violent" in response_repr
 
     @pytest.mark.parametrize(
         "job_spec",
@@ -1365,6 +1573,7 @@ class TestLanguageModels:
                     enable_early_stopping=enable_early_stopping,
                     tensorboard=tensorboard_name,
                 ),
+                accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
@@ -1378,6 +1587,7 @@ class TestLanguageModels:
             assert pipeline_arguments["enable_early_stopping"] == enable_early_stopping
             assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
             assert pipeline_arguments["large_model_reference"] == "text-bison@001"
+            assert pipeline_arguments["accelerator_type"] == "TPU"
             assert (
                 call_kwargs["pipeline_job"].encryption_spec.kms_key_name
                 == _TEST_ENCRYPTION_KEY_NAME
@@ -1446,6 +1656,7 @@ class TestLanguageModels:
                     enable_early_stopping=enable_early_stopping,
                     tensorboard=tensorboard_name,
                 ),
+                accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
@@ -1458,6 +1669,7 @@ class TestLanguageModels:
             assert pipeline_arguments["enable_early_stopping"] == enable_early_stopping
             assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
             assert pipeline_arguments["large_model_reference"] == "text-bison@001"
+            assert pipeline_arguments["accelerator_type"] == "TPU"
             assert (
                 call_kwargs["pipeline_job"].encryption_spec.kms_key_name
                 == _TEST_ENCRYPTION_KEY_NAME
@@ -1469,6 +1681,103 @@ class TestLanguageModels:
                 tuned_model._endpoint_name
                 == test_constants.EndpointConstants._TEST_ENDPOINT_NAME
             )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_tune_text_generation_model_evaluation_with_only_tensorboard(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_job_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_gcs_from_string,
+        mock_gcs_upload,
+        mock_request_urlopen,
+        mock_get_tuned_model,
+    ):
+        """Tests tuning the text generation model."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+            tuning_job_location = "europe-west4"
+            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+
+            model.tune_model(
+                training_data=_TEST_TEXT_BISON_TRAINING_DF,
+                tuning_job_location=tuning_job_location,
+                tuned_model_location="us-central1",
+                tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                    tensorboard=tensorboard_name,
+                ),
+            )
+            call_kwargs = mock_pipeline_service_create.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_tune_text_generation_model_staging_bucket(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_job_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_gcs_from_string,
+        mock_gcs_upload,
+        mock_request_urlopen,
+        mock_get_tuned_model,
+    ):
+        """Tests that tune_model respects staging_bucket."""
+        TEST_STAGING_BUCKET = "gs://test_staging_bucket/path/"
+        aiplatform.init(staging_bucket=TEST_STAGING_BUCKET)
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+            model.tune_model(
+                training_data=_TEST_TEXT_BISON_TRAINING_DF,
+                tuning_job_location="europe-west4",
+                tuned_model_location="us-central1",
+            )
+            call_kwargs = mock_pipeline_service_create.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["dataset_uri"].startswith(TEST_STAGING_BUCKET)
 
     @pytest.mark.parametrize(
         "job_spec",
@@ -1500,7 +1809,7 @@ class TestLanguageModels:
                 _CHAT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
+            model = language_models.ChatModel.from_pretrained("chat-bison@001")
 
             default_context = "Default context"
             tuning_job = model.tune_model(
@@ -1508,6 +1817,7 @@ class TestLanguageModels:
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
                 default_context=default_context,
+                accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
@@ -1515,6 +1825,7 @@ class TestLanguageModels:
             ].runtime_config.parameter_values
             assert pipeline_arguments["large_model_reference"] == "chat-bison@001"
             assert pipeline_arguments["default_context"] == default_context
+            assert pipeline_arguments["accelerator_type"] == "TPU"
 
             # Testing the tuned model
             tuned_model = tuning_job.get_tuned_model()
@@ -1562,12 +1873,14 @@ class TestLanguageModels:
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
+                accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
                 "pipeline_job"
             ].runtime_config.parameter_values
             assert pipeline_arguments["large_model_reference"] == "code-bison@001"
+            assert pipeline_arguments["accelerator_type"] == "TPU"
 
     @pytest.mark.parametrize(
         "job_spec",
@@ -1609,12 +1922,14 @@ class TestLanguageModels:
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
+                accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
                 "pipeline_job"
             ].runtime_config.parameter_values
             assert pipeline_arguments["large_model_reference"] == "codechat-bison@001"
+            assert pipeline_arguments["accelerator_type"] == "TPU"
 
     @pytest.mark.usefixtures(
         "get_model_with_tuned_version_label_mock",
@@ -1932,6 +2247,53 @@ class TestLanguageModels:
             assert prediction_parameters["topP"] == message_top_p
             assert prediction_parameters["stopSequences"] == message_stop_sequences
 
+    def test_chat_model_send_message_with_multiple_candidates(self):
+        """Tests the chat generation model with multiple candidates."""
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = language_models.ChatModel.from_pretrained("chat-bison@001")
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
+        )
+
+        chat = model.start_chat()
+
+        gca_predict_response1 = gca_prediction_service.PredictResponse()
+        gca_predict_response1.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response1,
+        ):
+            message_text1 = "Are my favorite movies based on a book series?"
+            expected_response_candidates = (
+                _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION["candidates"]
+            )
+            expected_candidate_0 = expected_response_candidates[0]["content"]
+            expected_candidate_1 = expected_response_candidates[1]["content"]
+
+            response = chat.send_message(message_text1, candidate_count=2)
+            assert response.text == expected_candidate_0
+            assert len(response.candidates) == 2
+            assert response.candidates[0].text == expected_candidate_0
+            assert response.candidates[1].text == expected_candidate_1
+
+            assert len(chat.message_history) == 2
+            assert chat.message_history[0].author == chat.USER_AUTHOR
+            assert chat.message_history[0].content == message_text1
+            assert chat.message_history[1].author == chat.MODEL_AUTHOR
+            assert chat.message_history[1].content == expected_candidate_0
+
     def test_chat_model_send_message_streaming(self):
         """Tests the chat generation model."""
         with mock.patch.object(
@@ -2014,6 +2376,44 @@ class TestLanguageModels:
         assert chat.message_history[2].author == chat.USER_AUTHOR
         assert chat.message_history[2].content == message_text1
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
+
+    def test_chat_model_preview_count_tokens(self):
+        """Tests the text generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
+
+            chat = model.start_chat()
+            assert isinstance(chat, preview_language_models.ChatSession)
+
+        gca_count_tokens_response = gca_prediction_service_v1beta1.CountTokensResponse(
+            total_tokens=_TEST_COUNT_TOKENS_RESPONSE["total_tokens"],
+            total_billable_characters=_TEST_COUNT_TOKENS_RESPONSE[
+                "total_billable_characters"
+            ],
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client_v1beta1.PredictionServiceClient,
+            attribute="count_tokens",
+            return_value=gca_count_tokens_response,
+        ):
+            response = chat.count_tokens("What is the best recipe for banana bread?")
+
+            assert response.total_tokens == _TEST_COUNT_TOKENS_RESPONSE["total_tokens"]
+            assert (
+                response.total_billable_characters
+                == _TEST_COUNT_TOKENS_RESPONSE["total_billable_characters"]
+            )
 
     def test_code_chat(self):
         """Tests the code chat model."""
@@ -2119,6 +2519,57 @@ class TestLanguageModels:
             assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
             assert prediction_parameters["stopSequences"] == message_stop_sequences
 
+    def test_code_chat_model_send_message_with_multiple_candidates(self):
+        """Tests the code chat model with multiple candidates."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODECHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+            autospec=True,
+        ):
+            model = language_models.CodeChatModel.from_pretrained(
+                "google/codechat-bison@001"
+            )
+
+        chat = model.start_chat()
+
+        gca_predict_response1 = gca_prediction_service.PredictResponse()
+        gca_predict_response1.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response1,
+            autospec=True,
+        ):
+            message_text1 = "Are my favorite movies based on a book series?"
+            expected_response_candidates = (
+                _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION["candidates"]
+            )
+            expected_candidate_0 = expected_response_candidates[0]["content"]
+            expected_candidate_1 = expected_response_candidates[1]["content"]
+
+            response = chat.send_message(
+                message=message_text1,
+                # candidate_count acts as a maximum number, not exact number.
+                candidate_count=7,
+            )
+            # The service can return a different number of candidates.
+            assert response.text == expected_candidate_0
+            assert len(response.candidates) == 2
+            assert response.candidates[0].text == expected_candidate_0
+            assert response.candidates[1].text == expected_candidate_1
+
+            assert len(chat.message_history) == 2
+            assert chat.message_history[0].author == chat.USER_AUTHOR
+            assert chat.message_history[0].content == message_text1
+            assert chat.message_history[1].author == chat.MODEL_AUTHOR
+            assert chat.message_history[1].content == expected_candidate_0
+
     def test_code_chat_model_send_message_streaming(self):
         """Tests the chat generation model."""
         aiplatform.init(
@@ -2163,6 +2614,46 @@ class TestLanguageModels:
         assert chat.message_history[0].author == chat.USER_AUTHOR
         assert chat.message_history[0].content == message_text1
         assert chat.message_history[1].author == chat.MODEL_AUTHOR
+
+    def test_code_chat_model_preview_count_tokens(self):
+        """Tests the text generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODECHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.CodeChatModel.from_pretrained(
+                "codechat-bison@001"
+            )
+
+            chat = model.start_chat()
+            assert isinstance(chat, preview_language_models.CodeChatSession)
+
+        gca_count_tokens_response = gca_prediction_service_v1beta1.CountTokensResponse(
+            total_tokens=_TEST_COUNT_TOKENS_RESPONSE["total_tokens"],
+            total_billable_characters=_TEST_COUNT_TOKENS_RESPONSE[
+                "total_billable_characters"
+            ],
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client_v1beta1.PredictionServiceClient,
+            attribute="count_tokens",
+            return_value=gca_count_tokens_response,
+        ):
+            response = chat.count_tokens("What is the best recipe for banana bread?")
+
+            assert response.total_tokens == _TEST_COUNT_TOKENS_RESPONSE["total_tokens"]
+            assert (
+                response.total_billable_characters
+                == _TEST_COUNT_TOKENS_RESPONSE["total_billable_characters"]
+            )
 
     def test_code_generation(self):
         """Tests code generation with the code generation model."""
@@ -2239,6 +2730,46 @@ class TestLanguageModels:
             prediction_parameters = mock_predict.call_args[1]["parameters"]
             assert "temperature" not in prediction_parameters
             assert "maxOutputTokens" not in prediction_parameters
+
+    def test_code_generation_multiple_candidates(self):
+        """Tests the code generation model with multiple candidates."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
+            ),
+            autospec=True,
+        ):
+            model = language_models.CodeGenerationModel.from_pretrained(
+                "code-bison@001"
+            )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        # Discrepancy between the number of `instances` and the number of `predictions`
+        # is a violation of the prediction service invariant, but the service does this.
+        gca_predict_response.predictions.append(_TEST_CODE_GENERATION_PREDICTION)
+        gca_predict_response.predictions.append(_TEST_CODE_GENERATION_PREDICTION)
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+            autospec=True,
+        ) as mock_predict:
+            response = model.predict(
+                prefix="Write a function that checks if a year is a leap year.",
+                # candidate_count acts as a maximum number, not exact number.
+                candidate_count=7,
+            )
+        prediction_parameters = mock_predict.call_args[1]["parameters"]
+        assert prediction_parameters["candidateCount"] == 7
+
+        assert response.text == _TEST_CODE_GENERATION_PREDICTION["content"]
+        # The service can return a different number of candidates.
+        assert len(response.candidates) == 2
+        assert (
+            response.candidates[0].text == _TEST_CODE_GENERATION_PREDICTION["content"]
+        )
 
     def test_code_completion(self):
         """Tests code completion with the code generation model."""
@@ -2411,6 +2942,47 @@ class TestLanguageModels:
                     == expected_embedding["statistics"]["truncated"]
                 )
 
+    def test_text_embedding_preview_count_tokens(self):
+        """Tests the text embedding model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.TextEmbeddingModel.from_pretrained(
+                "textembedding-gecko@001"
+            )
+
+            gca_count_tokens_response = (
+                gca_prediction_service_v1beta1.CountTokensResponse(
+                    total_tokens=_TEST_COUNT_TOKENS_RESPONSE["total_tokens"],
+                    total_billable_characters=_TEST_COUNT_TOKENS_RESPONSE[
+                        "total_billable_characters"
+                    ],
+                )
+            )
+
+            with mock.patch.object(
+                target=prediction_service_client_v1beta1.PredictionServiceClient,
+                attribute="count_tokens",
+                return_value=gca_count_tokens_response,
+            ):
+                response = model.count_tokens(["What is life?"])
+
+                assert (
+                    response.total_tokens == _TEST_COUNT_TOKENS_RESPONSE["total_tokens"]
+                )
+                assert (
+                    response.total_billable_characters
+                    == _TEST_COUNT_TOKENS_RESPONSE["total_billable_characters"]
+                )
+
     def test_text_embedding_ga(self):
         """Tests the text embedding model."""
         aiplatform.init(
@@ -2540,6 +3112,93 @@ class TestLanguageModels:
                 gcs_destination_prefix="gs://test-bucket/results/",
                 model_parameters={},
             )
+
+    def test_text_generation_top_level_from_pretrained_preview(self):
+        """Tests the text generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = vertexai.preview.from_pretrained(
+                foundation_model_name="text-bison@001"
+            )
+
+            assert isinstance(model, preview_language_models.TextGenerationModel)
+
+        mock_get_publisher_model.assert_called_with(
+            name="publishers/google/models/text-bison@001", retry=base._DEFAULT_RETRY
+        )
+        assert mock_get_publisher_model.call_count == 1
+
+        assert (
+            model._model_resource_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/text-bison@001"
+        )
+
+        # Test that methods on TextGenerationModel still work as expected
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(_TEST_TEXT_GENERATION_PREDICTION)
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            response = model.predict(
+                "What is the best recipe for banana bread? Recipe:",
+                max_output_tokens=128,
+                temperature=0.0,
+                top_p=1.0,
+                top_k=5,
+            )
+
+        assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+        assert (
+            response.raw_prediction_response.predictions[0]
+            == _TEST_TEXT_GENERATION_PREDICTION
+        )
+        assert (
+            response.safety_attributes["Violent"]
+            == _TEST_TEXT_GENERATION_PREDICTION["safetyAttributes"]["scores"][0]
+        )
+
+    def test_text_embedding_top_level_from_pretrained_preview(self):
+        """Tests the text embedding model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = vertexai.preview.from_pretrained(
+                foundation_model_name="textembedding-gecko@001"
+            )
+
+            assert isinstance(model, preview_language_models.TextEmbeddingModel)
+
+            assert (
+                model._endpoint_name
+                == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/textembedding-gecko@001"
+            )
+
+        mock_get_publisher_model.assert_called_with(
+            name="publishers/google/models/textembedding-gecko@001",
+            retry=base._DEFAULT_RETRY,
+        )
+
+        assert mock_get_publisher_model.call_count == 1
 
 
 # TODO (b/285946649): add more test coverage before public preview release

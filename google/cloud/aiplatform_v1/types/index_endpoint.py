@@ -284,18 +284,20 @@ class DeployedIndex(proto.Message):
             Optional. If set, the authentication is
             enabled for the private endpoint.
         reserved_ip_ranges (MutableSequence[str]):
-            Optional. A list of reserved ip ranges under
-            the VPC network that can be used for this
-            DeployedIndex.
+            Optional. A list of reserved ip ranges under the VPC network
+            that can be used for this DeployedIndex.
 
-            If set, we will deploy the index within the
-            provided ip ranges. Otherwise, the index might
-            be deployed to any ip ranges under the provided
-            VPC network.
+            If set, we will deploy the index within the provided ip
+            ranges. Otherwise, the index might be deployed to any ip
+            ranges under the provided VPC network.
 
             The value should be the name of the address
             (https://cloud.google.com/compute/docs/reference/rest/v1/addresses)
-            Example: 'vertex-ai-ip-range'.
+            Example: ['vertex-ai-ip-range'].
+
+            For more information about subnets and network IP ranges,
+            please see
+            https://cloud.google.com/vpc/docs/subnets#manually_created_subnet_ip_ranges.
         deployment_group (str):
             Optional. The deployment group can be no longer than 64
             characters (eg: 'test', 'prod'). If not set, we will use the

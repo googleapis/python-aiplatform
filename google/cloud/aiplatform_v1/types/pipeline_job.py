@@ -134,7 +134,10 @@ class PipelineJob(proto.Message):
         template_uri (str):
             A template uri from where the
             [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec],
-            if empty, will be downloaded.
+            if empty, will be downloaded. Currently, only uri from
+            Vertex Template Registry & Gallery is supported. Reference
+            to
+            https://cloud.google.com/vertex-ai/docs/pipelines/create-pipeline-template.
         template_metadata (google.cloud.aiplatform_v1.types.PipelineTemplateMetadata):
             Output only. Pipeline template metadata. Will fill up fields
             if

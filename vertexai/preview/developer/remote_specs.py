@@ -29,6 +29,7 @@ from typing import Any, Dict, List, Optional
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
+from google.cloud.aiplatform.preview import resource_pool_utils
 from vertexai.preview._workflow.serialization_engine import (
     serializers,
 )
@@ -860,3 +861,28 @@ def setup_pytorch_distributed_training(model: Any) -> Any:
         f"Initialized process rank: {rank}, world_size: {world_size}, device: {device}",
     )
     return model
+
+
+# pylint: disable=protected-access
+class ResourcePool(resource_pool_utils._ResourcePool):
+    """Wraps class that holds a worker pool spec configuration.
+
+    Attributes:
+        replica_count (int):
+            The number of worker replicas.
+        machine_type (str):
+            The type of machine to use for remote training.
+        accelerator_count (int):
+            The number of accelerators to attach to a worker replica.
+        accelerator_type (str):
+            Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
+            NVIDIA_TESLA_A100, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100,
+            NVIDIA_TESLA_K80, NVIDIA_TESLA_T4, NVIDIA_TESLA_P4
+        boot_disk_type (str):
+            Type of the boot disk (default is `pd-ssd`).
+            Valid values: `pd-ssd` (Persistent Disk Solid State Drive) or
+            `pd-standard` (Persistent Disk Hard Disk Drive).
+        boot_disk_size_gb (int):
+            Size in GB of the boot disk (default is 100GB).
+            boot disk size must be within the range of [100, 64000].
+    """

@@ -67,7 +67,11 @@ class RemoteConfig(_BaseConfig):
             `container_uri`, `accelerator_type`, `accelerator_count`.
             Supported frameworks: keras, torch.nn.Module
             Default configs:
-            container_uri="pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime" or "tensorflow/tensorflow:2.12.0-gpu"
+            container_uri=(
+                "pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime"
+                or
+                "us-docker.pkg.dev/vertex-ai/training/tf-gpu.2-11.py310:latest"
+            )
             machine_type="n1-standard-16"
             accelerator_type="NVIDIA_TESLA_P100"
             accelerator_count=1
@@ -296,6 +300,21 @@ class PersistentResourceConfig:
             The cluster name of the remote job. This value may be up to 63
             characters, and valid characters are `[a-z0-9_-]`. The first character
             cannot be a number or hyphen.
+        resource_pool_specs (vertexai.preview.developer.remote_specs.ResourcePoolSpecs):
+            The worker pool specs configuration for a remote job.
+        service_account (str):
+            If intended for experiment autologging, this service account should
+            be specified and consistent with per instance service account, which
+            is configured in `model.fit.vertex.remote_config.service_account`.
+        disable (bool):
+            By default is False, meaning the remote execution runs on
+            the persistent cluster. If users want to disable it (so the remote
+            execution runs on an ephemeral cluster), set it as True.
     """
 
     name: Optional[str] = None
+    resource_pools: Optional[
+        "vertexai.preview.developer.remote_specs.ResourcePool"  # noqa: F821
+    ] = None
+    service_account: Optional[str] = None
+    disable: Optional[bool] = False
