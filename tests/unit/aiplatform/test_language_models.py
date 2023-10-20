@@ -2771,6 +2771,43 @@ class TestLanguageModels:
             response.candidates[0].text == _TEST_CODE_GENERATION_PREDICTION["content"]
         )
 
+    def test_code_generation_preview_count_tokens(self):
+        """Tests the count_tokens method in CodeGenerationModel."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODE_COMPLETION_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.CodeGenerationModel.from_pretrained(
+                "code-gecko@001"
+            )
+
+        gca_count_tokens_response = gca_prediction_service_v1beta1.CountTokensResponse(
+            total_tokens=_TEST_COUNT_TOKENS_RESPONSE["total_tokens"],
+            total_billable_characters=_TEST_COUNT_TOKENS_RESPONSE[
+                "total_billable_characters"
+            ],
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client_v1beta1.PredictionServiceClient,
+            attribute="count_tokens",
+            return_value=gca_count_tokens_response,
+        ):
+            response = model.count_tokens("def reverse_string(s):")
+
+            assert response.total_tokens == _TEST_COUNT_TOKENS_RESPONSE["total_tokens"]
+            assert (
+                response.total_billable_characters
+                == _TEST_COUNT_TOKENS_RESPONSE["total_billable_characters"]
+            )
+
     def test_code_completion(self):
         """Tests code completion with the code generation model."""
         aiplatform.init(

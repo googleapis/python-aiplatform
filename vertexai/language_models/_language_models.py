@@ -2648,7 +2648,47 @@ class CodeGenerationModel(_LanguageModel):
             yield _parse_text_generation_model_response(prediction_obj)
 
 
-class _PreviewCodeGenerationModel(CodeGenerationModel, _TunableModelMixin):
+class _CountTokensCodeGenerationMixin(_LanguageModel):
+    """Mixin for code generation models that support the CountTokens API"""
+
+    def count_tokens(
+        self,
+        prefix: str,
+        *,
+        suffix: Optional[str] = None,
+    ) -> CountTokensResponse:
+        """Counts the tokens and billable characters for a given code generation prompt.
+
+        Note: this does not make a prediction request to the model, it only counts the tokens
+        in the request.
+
+        Args:
+            prefix (str): Code before the current point.
+            suffix (str): Code after the current point.
+
+        Returns:
+            A `CountTokensResponse` object that contains the number of tokens
+            in the text and the number of billable characters.
+        """
+        prediction_request = {"prefix": prefix, "suffix": suffix}
+
+        count_tokens_response = self._endpoint._prediction_client.select_version(
+            "v1beta1"
+        ).count_tokens(
+            endpoint=self._endpoint_name,
+            instances=[prediction_request],
+        )
+
+        return CountTokensResponse(
+            total_tokens=count_tokens_response.total_tokens,
+            total_billable_characters=count_tokens_response.total_billable_characters,
+            _count_tokens_response=count_tokens_response,
+        )
+
+
+class _PreviewCodeGenerationModel(
+    CodeGenerationModel, _TunableModelMixin, _CountTokensCodeGenerationMixin
+):
     __name__ = "CodeGenerationModel"
     __module__ = "vertexai.preview.language_models"
 
