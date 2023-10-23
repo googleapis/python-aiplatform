@@ -143,6 +143,9 @@ class SerializationMetadata:
             SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY: self.custom_commands,
         }
 
+    def to_jsonable_dict(self):
+        return self.to_dict()
+
 
 class SerializationError(Exception):
     """Raised when the object fails to be serialized."""
@@ -167,6 +170,9 @@ def write_and_upload_data(data: bytes, gcs_filename: str):
 
             gcs_utils.upload_to_gcs(temp_file.name, gcs_filename)
     else:
+        dirname = os.path.dirname(gcs_filename)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
         with open(gcs_filename, mode="wb") as f:
             f.write(data)
 

@@ -552,6 +552,24 @@ def mock_any_serializer_serialize_sklearn():
 
 
 @pytest.fixture
+def mock_any_serializer_save_global_metadata():
+    with patch.object(
+        any_serializer.AnySerializer,
+        "save_global_metadata",
+    ) as mock_any_serializer_save_global_metadata:
+        yield mock_any_serializer_save_global_metadata
+
+
+@pytest.fixture
+def mock_any_serializer_load_global_metadata():
+    with patch.object(
+        any_serializer.AnySerializer,
+        "load_global_metadata",
+    ) as mock_any_serializer_load_global_metadata:
+        yield mock_any_serializer_load_global_metadata
+
+
+@pytest.fixture
 def mock_any_serializer_sklearn(
     mock_any_serializer_serialize_sklearn, mock_any_serializer_deserialize_sklearn
 ):
@@ -954,6 +972,7 @@ class TestRemoteTraining:
             _TEST_TRAINING_CONFIG_CONTAINER_URI
         )
         model.fit.vertex.remote_config.machine_type = _TEST_TRAINING_CONFIG_MACHINE_TYPE
+        model.fit.vertex.remote_config.serializer_args = {model: {"extra_params": 1}}
 
         model.fit(_X_TRAIN, _Y_TRAIN)
 
@@ -965,16 +984,19 @@ class TestRemoteTraining:
         mock_any_serializer_sklearn.return_value.serialize.assert_any_call(
             to_serialize=model,
             gcs_path=os.path.join(remote_job_base_path, "input/input_estimator"),
+            **{"extra_params": 1},
         )
 
         # check that args are serialized correctly
         mock_any_serializer_sklearn.return_value.serialize.assert_any_call(
             to_serialize=_X_TRAIN,
             gcs_path=os.path.join(remote_job_base_path, "input/X"),
+            **{},
         )
         mock_any_serializer_sklearn.return_value.serialize.assert_any_call(
             to_serialize=_Y_TRAIN,
             gcs_path=os.path.join(remote_job_base_path, "input/y"),
+            **{},
         )
 
         # ckeck that CustomJob is created correctly
@@ -1091,6 +1113,8 @@ class TestRemoteTraining:
 
     @pytest.mark.usefixtures(
         "mock_timestamped_unique_name",
+        "mock_any_serializer_save_global_metadata",
+        "mock_any_serializer_load_global_metadata",
         "mock_get_custom_job",
         "mock_any_serializer_deserialize_sklearn",
         "mock_autolog_disabled",

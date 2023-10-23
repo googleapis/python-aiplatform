@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 import dataclasses
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 
 @dataclasses.dataclass
@@ -58,6 +58,33 @@ class _BaseConfig:
 @dataclasses.dataclass
 class RemoteConfig(_BaseConfig):
     """A class that holds the configuration for Vertex remote training.
+
+    Example usage:
+        # Specify requirements
+        model.train.vertex.remote_config.requirements = [
+            "requirement1==1.0.0",
+            "requirement2>=2.0.1",
+        ]
+
+        # Specify custom commands to run before installing other requirements
+        model.train.vertex.remote_config.custom_commands = [
+            "export SOME_CONSTANT=value",
+        ]
+
+        # Specify the extra parameters needed for serializing objects.
+        model.train.vertex.remote_config.serializer_args = {
+            model: {
+                "extra_serializer_param1_for_model": param1_value,
+                "extra_serializer_param2_for_model": param2_value,
+            },
+            X_train: {
+                "extra_serializer_param1": param1_value,
+                "extra_serializer_param2": param2_value,
+            }
+        }
+
+        # Train the model as usual
+        model.train(X_train, y_train)
 
     Attributes:
         enable_cuda (bool):
@@ -105,6 +132,9 @@ class RemoteConfig(_BaseConfig):
         custom_commands (List[str]):
             List of custom commands to be run in the remote job environment.
             These commands will be run before the requirements are installed.
+        serializer_args (Dict[Any, Dict[str, Any]]):
+            Map from object to extra arguments when serializing the object. The extra
+            arguments is a dictionary from the argument names to the argument values.
     """
 
     enable_cuda: bool = False
@@ -113,6 +143,7 @@ class RemoteConfig(_BaseConfig):
     service_account: Optional[str] = None
     requirements: List[str] = dataclasses.field(default_factory=list)
     custom_commands: List[str] = dataclasses.field(default_factory=list)
+    serializer_args: Dict[Any, Dict[str, Any]] = dataclasses.field(default_factory=dict)
 
 
 @dataclasses.dataclass

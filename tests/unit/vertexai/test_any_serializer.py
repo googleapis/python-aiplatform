@@ -60,8 +60,9 @@ def tf_dataset_serializer():
 @pytest.fixture
 def mock_keras_model_serialize():
     def stateful_serialize(self, to_serialize, gcs_path):
-        del self, to_serialize, gcs_path
+        del self, to_serialize
         serializers.KerasModelSerializer._metadata.dependencies = ["keras==1.0.0"]
+        return gcs_path
 
     with mock.patch.object(
         serializers.KerasModelSerializer, "serialize", new=stateful_serialize
@@ -81,10 +82,11 @@ def mock_keras_model_deserialize():
 @pytest.fixture
 def mock_sklearn_estimator_serialize():
     def stateful_serialize(self, to_serialize, gcs_path):
-        del self, to_serialize, gcs_path
+        del self, to_serialize
         serializers.SklearnEstimatorSerializer._metadata.dependencies = [
             "sklearn_dependency1==1.0.0"
         ]
+        return gcs_path
 
     with mock.patch.object(
         serializers.SklearnEstimatorSerializer,
@@ -106,8 +108,9 @@ def mock_sklearn_estimator_deserialize():
 @pytest.fixture
 def mock_torch_model_serialize():
     def stateful_serialize(self, to_serialize, gcs_path):
-        del self, to_serialize, gcs_path
+        del self, to_serialize
         serializers.TorchModelSerializer._metadata.dependencies = ["torch==1.0.0"]
+        return gcs_path
 
     with mock.patch.object(
         serializers.TorchModelSerializer, "serialize", new=stateful_serialize
@@ -127,8 +130,9 @@ def mock_torch_model_deserialize():
 @pytest.fixture
 def mock_torch_dataloader_serialize(tmp_path):
     def stateful_serialize(self, to_serialize, gcs_path):
-        del self, to_serialize, gcs_path
+        del self, to_serialize
         serializers.TorchDataLoaderSerializer._metadata.dependencies = ["torch==1.0.0"]
+        return gcs_path
 
     with mock.patch.object(
         serializers.TorchDataLoaderSerializer, "serialize", new=stateful_serialize
@@ -148,12 +152,12 @@ def mock_torch_dataloader_deserialize():
 @pytest.fixture
 def mock_tf_dataset_serialize(tmp_path):
     def stateful_serialize(self, to_serialize, gcs_path):
-        del gcs_path
         serializers.TFDatasetSerializer._metadata.dependencies = ["tensorflow==1.0.0"]
         try:
             to_serialize.save(str(tmp_path / "tf_dataset"))
         except AttributeError:
             tf.data.experimental.save(to_serialize, str(tmp_path / "tf_dataset"))
+        return gcs_path
 
     with mock.patch.object(
         serializers.TFDatasetSerializer, "serialize", new=stateful_serialize
@@ -173,8 +177,9 @@ def mock_tf_dataset_deserialize():
 @pytest.fixture
 def mock_pandas_data_serialize():
     def stateful_serialize(self, to_serialize, gcs_path):
-        del self, to_serialize, gcs_path
+        del self, to_serialize
         serializers.PandasDataSerializer._metadata.dependencies = ["pandas==1.0.0"]
+        return gcs_path
 
     with mock.patch.object(
         serializers.PandasDataSerializer, "serialize", new=stateful_serialize
@@ -220,11 +225,12 @@ def mock_bigframe_deserialize_tensorflow():
 
 @pytest.fixture
 def mock_cloudpickle_serialize():
-    def stateful_serialize(self, to_serialize, gcs_path):
-        del self, to_serialize, gcs_path
+    def stateful_serialize(self, to_serialize, gcs_path, **kwargs):
+        del self, to_serialize, kwargs
         serializers.CloudPickleSerializer._metadata.dependencies = [
             "cloudpickle==1.0.0"
         ]
+        return gcs_path
 
     with mock.patch.object(
         serializers.CloudPickleSerializer, "serialize", new=stateful_serialize
@@ -255,6 +261,100 @@ class TestTorchClass(torch.nn.Module):
 
 class TestAnySerializer:
     """Tests that AnySerializer is acting as 'controller' and router."""
+
+    def test_any_serializer_global_metadata_created(
+        self, mock_cloudpickle_serialize, any_serializer_instance, tmp_path
+    ):
+        # Arrange
+        class RandomClass:
+            pass
+
+        class Nested:
+            pass
+
+        obj = RandomClass()
+        os.makedirs(tmp_path / "job_id/input")
+        fake_gcs_path = os.fspath(tmp_path / "job_id/input/random_obj")
+
+        param_to_be_serialized = Nested()
+        # param_to_be_serialized will be serialized to this path
+        expected_extra_obj_param_path = os.fspath(
+            tmp_path / "job_id/input/serialization_args/extra_obj_param"
+        )
+        expected_serialized = {
+            str(fake_gcs_path): any_serializer.SerializedEntryMetadata(
+                serialization_id=id(obj),
+                obj=obj,
+                serializer_args={
+                    "extra_int_param": any_serializer.SerializerArg(value=1),
+                    "extra_float_param": any_serializer.SerializerArg(value=1.0),
+                    "extra_dict_param": any_serializer.SerializerArg(
+                        value={"key1": 10}
+                    ),
+                    "extra_list_param": any_serializer.SerializerArg(value=[0, 1, 2]),
+                    "extra_obj_param": any_serializer.SerializerArg(
+                        gcs_path=expected_extra_obj_param_path
+                    ),
+                },
+            ),
+            expected_extra_obj_param_path: any_serializer.SerializedEntryMetadata(
+                serialization_id=id(param_to_be_serialized),
+                obj=param_to_be_serialized,
+                serializer_args={},
+            ),
+        }
+        expected_on_disk_global_metadata = {
+            "serializer": "AnySerializer",
+            "dependencies": [],
+            "custom_commands": [],
+            "serialized": {
+                str(fake_gcs_path): {
+                    "serialization_id": id(obj),
+                    "serializer_args": {
+                        "extra_int_param": {"value": 1, "gcs_path": None},
+                        "extra_float_param": {"value": 1.0, "gcs_path": None},
+                        "extra_dict_param": {"value": {"key1": 10}, "gcs_path": None},
+                        "extra_list_param": {"value": [0, 1, 2], "gcs_path": None},
+                        "extra_obj_param": {
+                            "value": None,
+                            "gcs_path": expected_extra_obj_param_path,
+                        },
+                    },
+                },
+                expected_extra_obj_param_path: {
+                    "serialization_id": id(param_to_be_serialized),
+                    "serializer_args": {},
+                },
+            },
+        }
+
+        # Act
+        any_serializer_instance.serialize(
+            obj,
+            fake_gcs_path,
+            extra_int_param=1,
+            extra_float_param=1.0,
+            extra_dict_param={"key1": 10},
+            extra_list_param=[0, 1, 2],
+            extra_obj_param=param_to_be_serialized,
+        )
+
+        # Assert
+        # first, assert the content of the in-memory global metadata
+        assert expected_serialized == any_serializer_instance._metadata.serialized
+
+        # now, assert the content of the global metadata saved to the disk after
+        # saving to the disk
+        # Act again
+        global_metadata_path = os.fspath(
+            tmp_path / "job_id/input" / "serialization_global_metadata.json"
+        )
+
+        any_serializer_instance.save_global_metadata(global_metadata_path)
+        with open(global_metadata_path, "rb") as f:
+            metadata = json.load(f)
+        assert metadata == expected_on_disk_global_metadata
+        print("the read metadata is ", metadata)
 
     @mock.patch.object(serializers.CloudPickleSerializer, "serialize", autospec=True)
     def test_any_serializer_serialize_custom_model_with_custom_serializer(
@@ -609,7 +709,8 @@ class TestAnySerializer:
             def serialize(self, to_serialize: CustomModel, gcs_path: str) -> str:
                 return gcs_path
 
-            def deserialize(self, serialized_gcs_path: str) -> CustomModel:
+            def deserialize(self, serialized_gcs_path: str, **kwargs) -> CustomModel:
+                assert "param1" in kwargs
                 # Pretend that the model is trained
                 return CustomModel(weight=1)  # noqa: F821
 
@@ -618,12 +719,13 @@ class TestAnySerializer:
 
         fake_gcs_path = os.fspath(tmp_path / "job_id/input/custom_model")
         os.makedirs(tmp_path / "job_id/input")
-        metadata_path = (
+        local_metadata_path = (
             tmp_path
             / f"job_id/input/{serializers_base.SERIALIZATION_METADATA_FILENAME}_custom_model.json"
         )
 
-        with open(metadata_path, "wb") as f:
+        # Write the local metadata
+        with open(local_metadata_path, "wb") as f:
             f.write(
                 json.dumps(
                     {
@@ -634,8 +736,27 @@ class TestAnySerializer:
                     }
                 ).encode("utf-8")
             )
+        # Write the global metadata
+        global_metadata_path = (
+            tmp_path / "job_id/input/serialization_global_metadata.json"
+        )
+        global_metadata = {
+            "serializer": "AnySerializer",
+            "dependencies": [],
+            "serialized": {
+                str(fake_gcs_path): {
+                    "serialization_id": "id_holder",
+                    "serializer_args": {"param1": {"value": 1}},
+                },
+            },
+        }
+        with open(global_metadata_path, "wb") as f:
+            f.write(json.dumps(global_metadata).encode("utf-8"))
 
         custom_serializer_path = tmp_path / "job_id/input/CustomSerializer"
+
+        # Load global metadata
+        any_serializer_instance.load_global_metadata(str(global_metadata_path))
 
         # Act
         with mock.patch.object(
@@ -1021,3 +1142,254 @@ class TestAnySerializer:
         with caplog.at_level(level=20, logger="vertexai.serialization_engine"):
             assert "sklearn's version is" in caplog.text
             assert "while the required version is ==1.0.0" in caplog.text
+
+
+def test_get_arg_path_from_file_gcs_uri():
+    gcs_uri = "gs://bucket/job_path/input/estimator"
+    arg_path = any_serializer.get_arg_path_from_file_gcs_uri(
+        gcs_uri=gcs_uri, arg_name="input_func"
+    )
+    assert arg_path == "gs://bucket/job_path/input/serialization_args/input_func"
+
+
+class TestSerializerArg:
+    @pytest.mark.parametrize(
+        "d, expected_value, expected_gcs_path",
+        [
+            ({"value": 1}, 1, None),
+            (
+                {"gcs_path": "gs://path-of-serializer-arg"},
+                None,
+                "gs://path-of-serializer-arg",
+            ),
+        ],
+        ids=[
+            "Value Present",
+            "GCS Path Present",
+        ],
+    )
+    def test_from_dict(self, d, expected_value, expected_gcs_path):
+        serializer_args = any_serializer.SerializerArg.from_dict(d)
+        assert serializer_args.value == expected_value
+        assert serializer_args.gcs_path == expected_gcs_path
+
+    @pytest.mark.parametrize(
+        "d",
+        [
+            {"value": 1, "gcs_path": "gs://path-of-serializer-arg"},
+            {"value": 0, "gcs_path": "gs://path-of-serializer-arg"},
+        ],
+        ids=[
+            "Nonzero Value Present",
+            "Zero Value Present",
+        ],
+    )
+    def test_from_dict_raises_value_error(self, d):
+        with pytest.raises(
+            ValueError, match="Only one of value or gcs_path should be provided"
+        ):
+            _ = any_serializer.SerializerArg.from_dict(d)
+
+    @pytest.mark.parametrize(
+        "serializer_arg, expected_dict",
+        [
+            (any_serializer.SerializerArg(value=1), {"value": 1, "gcs_path": None}),
+            (
+                any_serializer.SerializerArg(gcs_path="gs://path-of-serializer-arg"),
+                {"value": None, "gcs_path": "gs://path-of-serializer-arg"},
+            ),
+        ],
+        ids=[
+            "Value Presents",
+            "GCS Path Presents",
+        ],
+    )
+    def test_to_dict(self, serializer_arg, expected_dict):
+        returned_dict = serializer_arg.to_dict()
+        assert returned_dict == expected_dict
+
+    @pytest.mark.parametrize(
+        "serializer_arg, expected_dict",
+        [
+            (any_serializer.SerializerArg(value=1), {"value": 1, "gcs_path": None}),
+            (
+                any_serializer.SerializerArg(gcs_path="gs://path-of-serializer-arg"),
+                {"value": None, "gcs_path": "gs://path-of-serializer-arg"},
+            ),
+        ],
+        ids=[
+            "Value Presents",
+            "GCS Path Presents",
+        ],
+    )
+    def test_to_jsonable_dict(self, serializer_arg, expected_dict):
+        returned_dict = serializer_arg.to_jsonable_dict()
+        assert returned_dict == expected_dict
+
+
+class TestSerializationEntryMetadata:
+    def test_from_dict(self):
+        # Arrange
+        class RandomClass:
+            pass
+
+        serialized_obj = RandomClass()
+        d = {
+            "serialization_id": "serialized_with_two_args",
+            "obj": serialized_obj,
+            "serializer_args": {
+                "arg1": {"value": 1, "gcs_path": None},
+                "arg2": {"value": None, "gcs_path": "gs://path-of-serializer-arg"},
+            },
+        }
+
+        expected_serialized_entry_metadata = any_serializer.SerializedEntryMetadata(
+            serialization_id="serialized_with_two_args",
+            serializer_args={
+                "arg1": any_serializer.SerializerArg(value=1),
+                "arg2": any_serializer.SerializerArg(
+                    gcs_path="gs://path-of-serializer-arg"
+                ),
+            },
+            obj=serialized_obj,
+        )
+
+        # Act
+        serialized_entry_metadata = any_serializer.SerializedEntryMetadata.from_dict(d)
+
+        # Assert
+        assert (
+            serialized_entry_metadata.serialization_id
+            == expected_serialized_entry_metadata.serialization_id
+        )
+        assert (
+            serialized_entry_metadata.serializer_args
+            == expected_serialized_entry_metadata.serializer_args
+        )
+        assert serialized_entry_metadata.obj == expected_serialized_entry_metadata.obj
+
+    def test_to_jsonable_dict(self):
+        # Arrange
+        class RandomClass:
+            pass
+
+        serialized_args = {
+            "arg1": any_serializer.SerializerArg(value=1),
+            "arg2": any_serializer.SerializerArg(
+                gcs_path="gs://path-of-serializer-arg"
+            ),
+        }
+        serialized_entry = any_serializer.SerializedEntryMetadata(
+            serialization_id="serialized_with_two_args",
+            serializer_args=serialized_args,
+            obj=RandomClass(),
+        )
+
+        expected_dict = {
+            "serialization_id": "serialized_with_two_args",
+            "serializer_args": {
+                "arg1": {"value": 1, "gcs_path": None},
+                "arg2": {"value": None, "gcs_path": "gs://path-of-serializer-arg"},
+            },
+        }
+
+        # Act
+        returned_dict = serialized_entry.to_jsonable_dict()
+
+        # Assert
+        assert returned_dict == expected_dict
+
+    def test_to_json(self):
+        # Arrange
+        class RandomClass:
+            pass
+
+        serialized_args = {
+            "arg1": any_serializer.SerializerArg(value=1),
+            "arg2": any_serializer.SerializerArg(
+                gcs_path="gs://path-of-serializer-arg"
+            ),
+        }
+        serialized_obj = RandomClass()
+        serialized_entry = any_serializer.SerializedEntryMetadata(
+            serialization_id="serialized_with_two_args",
+            serializer_args=serialized_args,
+            obj=serialized_obj,
+        )
+
+        expected_dict = {
+            "serialization_id": "serialized_with_two_args",
+            "obj": serialized_obj,
+            "serializer_args": {
+                "arg1": {"value": 1, "gcs_path": None},
+                "arg2": {"value": None, "gcs_path": "gs://path-of-serializer-arg"},
+            },
+        }
+
+        # Act
+        returned_dict = serialized_entry.to_dict()
+
+        # Assert
+        assert returned_dict == expected_dict
+
+
+class TestAnySerializerMetadata:
+    def test_from_dict(self):
+        serialized_obj1_gcs_path = "gs://bucket/job_dir/input/random_obj1"
+        serialized_obj2_gcs_path = "gs://bucket/job_dir/input/random_obj2"
+        d = {
+            "custom_commands": [],
+            "dependencies": [],
+            "serializer": "AnySerializer",
+            "serialized": {
+                serialized_obj1_gcs_path: {
+                    "serialization_id": "random_obj",
+                    "serializer_args": {
+                        "arg1": {"value": 1, "gcs_path": None},
+                        "arg2": {
+                            "value": None,
+                            "gcs_path": "gs://path-of-serializer-arg",
+                        },
+                    },
+                },
+                serialized_obj2_gcs_path: {
+                    "serialization_id": "random_obj2",
+                    "serializer_args": {
+                        "arg1": {"value": 2.0, "gcs_path": None},
+                        "arg2": {
+                            "value": None,
+                            "gcs_path": "gs://path-of-serializer-arg",
+                        },
+                    },
+                },
+            },
+        }
+        any_serilaizer_metadata = any_serializer.AnySerializationMetadata.from_dict(d)
+        assert (
+            any_serilaizer_metadata.serialized[
+                serialized_obj1_gcs_path
+            ].serialization_id
+            == "random_obj"
+        )
+        assert any_serilaizer_metadata.serialized[
+            serialized_obj1_gcs_path
+        ].serializer_args == {
+            "arg1": any_serializer.SerializerArg(value=1),
+            "arg2": any_serializer.SerializerArg(
+                gcs_path="gs://path-of-serializer-arg"
+            ),
+        }
+        assert (
+            any_serilaizer_metadata.serialized[
+                serialized_obj2_gcs_path
+            ].serialization_id
+            == "random_obj2"
+        )
+        assert any_serilaizer_metadata.serialized[
+            serialized_obj2_gcs_path
+        ].serializer_args == {
+            "arg1": any_serializer.SerializerArg(value=2.0),
+            "arg2": any_serializer.SerializerArg(
+                gcs_path="gs://path-of-serializer-arg"
+            ),
+        }

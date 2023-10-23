@@ -117,6 +117,12 @@ def main(argv):
 
     # retrieve the estimator
     serializer = any_serializer.AnySerializer()
+    # load the global metadata
+    serializer.load_global_metadata(
+        os.path.join(_INPUT_PATH.value, any_serializer.GLOBAL_SERIALIZATION_METADATA)
+    )
+    print(serializer._metadata.to_dict())
+
     estimator = serializer.deserialize(
         os.path.join(_INPUT_PATH.value, "input_estimator")
     )
@@ -228,6 +234,9 @@ def main(argv):
         serializer.serialize(output, output_path)
     except serializers_base.SerializationError as e:
         print(f"failed to serialize the output due to {e}")
+    serializer.save_global_metadata(
+        os.path.join(_OUTPUT_PATH.value, any_serializer.GLOBAL_SERIALIZATION_METADATA)
+    )
 
     print(constants._END_EXECUTION_MSG)
 
