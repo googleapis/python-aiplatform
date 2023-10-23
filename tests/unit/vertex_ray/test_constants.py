@@ -37,6 +37,7 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
 )
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourceRuntimeSpec,
+    ServiceAccountSpec,
 )
 
 
@@ -107,6 +108,7 @@ class ClusterConstants:
     _TEST_REQUEST_RUNNING_1_POOL = PersistentResource(
         resource_pools=[_TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
+            service_account_spec=ServiceAccountSpec(enable_custom_service_account=False),
             ray_spec=RaySpec(resource_pool_images={"head-node": _TEST_GPU_IMAGE}),
         ),
         network=ProjectConstants._TEST_VPC_NETWORK,
@@ -116,6 +118,7 @@ class ClusterConstants:
         name=_TEST_VERTEX_RAY_PR_ADDRESS,
         resource_pools=[_TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
+            service_account_spec=ServiceAccountSpec(enable_custom_service_account=False),
             ray_spec=RaySpec(resource_pool_images={"head-node": _TEST_GPU_IMAGE}),
         ),
         network=ProjectConstants._TEST_VPC_NETWORK,
@@ -164,6 +167,7 @@ class ClusterConstants:
     _TEST_REQUEST_RUNNING_2_POOLS = PersistentResource(
         resource_pools=[_TEST_RESOURCE_POOL_1, _TEST_RESOURCE_POOL_2],
         resource_runtime_spec=ResourceRuntimeSpec(
+            service_account_spec=ServiceAccountSpec(enable_custom_service_account=False),
             ray_spec=RaySpec(
                 resource_pool_images={
                     "head-node": _TEST_CPU_IMAGE,
@@ -177,6 +181,7 @@ class ClusterConstants:
         name=_TEST_VERTEX_RAY_PR_ADDRESS,
         resource_pools=[_TEST_RESOURCE_POOL_1, _TEST_RESOURCE_POOL_2],
         resource_runtime_spec=ResourceRuntimeSpec(
+            service_account_spec=ServiceAccountSpec(enable_custom_service_account=False),
             ray_spec=RaySpec(resource_pool_images={"head-node": _TEST_GPU_IMAGE}),
         ),
         network=ProjectConstants._TEST_VPC_NETWORK,

@@ -28,6 +28,7 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     RaySpec,
     ResourcePool,
     ResourceRuntimeSpec,
+    ServiceAccountSpec,
 )
 
 from google.cloud.aiplatform.preview.vertex_ray.util import (
@@ -45,6 +46,7 @@ def create_ray_cluster(
     ray_version: Optional[str] = "2_4",
     network: Optional[str] = None,
     cluster_name: Optional[str] = None,
+    service_account: Optional[str] = None,
     worker_node_types: Optional[List[resources.Resources]] = None,
 ) -> str:
     """Create a ray cluster on the Vertex AI.
@@ -93,6 +95,7 @@ def create_ray_cluster(
         cluster_name: This value may be up to 63 characters, and valid
             characters are `[a-z0-9_-]`. The first character cannot be a number
             or hyphen.
+        service_account: Configure the use of workload identity on the cluster.
         worker_node_types: The list of Resources of the worker nodes. The same
             Resources object should not appear multiple times in the list.
 
@@ -171,8 +174,15 @@ def create_ray_cluster(
 
     resource_pools = [resource_pool_0] + worker_pools
 
+    enable_custom_service_account = True if service_account is not None else False
     ray_spec = RaySpec(resource_pool_images=resource_pool_images)
-    resource_runtime_spec = ResourceRuntimeSpec(ray_spec=ray_spec)
+    resource_runtime_spec = ResourceRuntimeSpec(
+            ray_spec=ray_spec,
+            service_account_spec=ServiceAccountSpec(
+                    enable_custom_service_account=enable_custom_service_account,
+                    service_account=service_account,
+            ),
+    )
     persistent_resource = PersistentResource(
         resource_pools=resource_pools,
         network=network,

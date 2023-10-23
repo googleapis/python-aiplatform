@@ -100,16 +100,16 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
                 " failed to start Head node properly.",
             )
         # Handling service_account
-        service_account = (
-            self.response.resource_runtime_spec.service_account_spec.service_account
-        )
+        # service_account = (
+        #     self.response.resource_runtime_spec.service_account_spec.service_account
+        # )
 
-        if service_account:
-            raise ValueError(
-                "[Ray on Vertex AI]: Cluster ",
-                address,
-                " failed to start Head node properly because custom service account isn't supported.",
-            )
+        # if service_account:
+        #     raise ValueError(
+        #         "[Ray on Vertex AI]: Cluster ",
+        #         address,
+        #         " failed to start Head node properly because custom service account isn't supported.",
+        #     )
         logging.debug("[Ray on Vertex AI]: Resolved head node ip: %s", address)
         super().__init__(address)
 
