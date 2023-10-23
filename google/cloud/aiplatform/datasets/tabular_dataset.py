@@ -33,7 +33,46 @@ _LOGGER = base.Logger(__name__)
 
 
 class TabularDataset(datasets._ColumnNamesDataset):
-    """Managed tabular dataset resource for Vertex AI."""
+    """Use this class to work with tabular datasets. You can use a CSV file, BigQuery, or a pandas
+    [`DataFrame`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html)
+    to create a tabular dataset. For more information about paging through BigQuery data, see
+    [Read data with BigQuery API using pagination](https://cloud.google.com/bigquery/docs/paging-results).
+    For more information about tabular data, see
+    [Tabular data](https://cloud.google.com/vertex-ai/docs/training-overview#tabular_data).
+
+    The following code shows you how to create and import a tabular
+    dataset with a CSV file.
+
+    ```py
+    my_dataset = aiplatform.TabularDataset.create(
+        display_name="my-dataset", gcs_source=['gs://path/to/my/dataset.csv'])
+    ```
+
+    The following code shows you how to create and import a tabular
+    dataset in two distinct steps.
+
+    ```py
+    my_dataset = aiplatform.TextDataset.create(
+        display_name="my-dataset")
+
+    my_dataset.import(
+        gcs_source=['gs://path/to/my/dataset.csv']
+        import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
+    )
+    ```
+
+    If you create a tabular dataset with a pandas
+    [`DataFrame`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html),
+    you need to use a BigQuery table to stage the data for Vertex AI:
+
+    ```py
+    my_dataset = aiplatform.TabularDataset.create_from_dataframe(
+        df_source=my_pandas_dataframe,
+        staging_path=f"bq://{bq_dataset_id}.table-unique"
+    )
+    ```
+
+    """
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.tabular,
@@ -54,66 +93,74 @@ class TabularDataset(datasets._ColumnNamesDataset):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> "TabularDataset":
-        """Creates a new tabular dataset.
+        """Creates a tabular dataset.
 
         Args:
             display_name (str):
-                Optional. The user-defined name of the Dataset.
-                The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
+                Optional. The user-defined name of the dataset. The maximum
+                length of `display_name` is 128 characters and it must consist
+                of UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
-                Google Cloud Storage URI(-s) to the
-                input file(s).
+                The URI to one or more Google Cloud Storage buckets that contain
+                your datasets. For example:
 
-                Examples:
-                    str: "gs://bucket/file.csv"
-                    Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
+                ```py
+                str: "gs://bucket/file.csv"
+                Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
+                ```
+
             bq_source (str):
-                BigQuery URI to the input table.
-                example:
-                    "bq://project.dataset.table_name"
+                The URI to a BigQuery table that's used as an input source. For
+                example, `bq://project.dataset.table_name`.
             project (str):
-                Project to upload this dataset to. Overrides project set in
-                aiplatform.init.
+                The name of the Google Cloud project to which this
+                `tabular_dataset` is uploaded. This overrides the project that
+                was set by `aiplatform.init`.
+
             location (str):
-                Location to upload this dataset to. Overrides location set in
-                aiplatform.init.
+                The Google Cloud region where this dataset is uploaded. This
+                region overrides the region that was set by `aiplatform.init`.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this dataset. Overrides
-                credentials set in aiplatform.init.
+                The credentials that are used to upload the `tabular_dataset`.
+                These credentials override the credentials set by
+                `aiplatform.init`.
             request_metadata (Sequence[Tuple[str, str]]):
-                Strings which should be sent along with the request as metadata.
+                Strings that contain metadata that's sent with the request.
             labels (Dict[str, str]):
-                Optional. Labels with user-defined metadata to organize your Tensorboards.
-                Label keys and values can be no longer than 64 characters
-                (Unicode codepoints), can only contain lowercase letters, numeric
-                characters, underscores and dashes. International characters are allowed.
-                No more than 64 user labels can be associated with one Tensorboard
-                (System labels are excluded).
-                See https://goo.gl/xmQnxf for more information and examples of labels.
-                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
-                and are immutable.
+                Optional. Labels with user-defined metadata to organize your
+                Vertex AI Tensorboards. The maximum length of a key and of a
+                value is 64 unicode characters. Labels and keys can contain only
+                lowercase letters, numeric characters, underscores, and dashes.
+                International characters are allowed. No more than 64 user
+                labels can be associated with one Tensorboard (system labels are
+                excluded). See https://goo.gl/xmQnxf for more information and
+                examples of labels. System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the dataset. Has the
-                form:
+                managed encryption key that's used to protect the dataset. The
+                format of the key is
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If `encryption_spec_key_name` is set, this `tabular_dataset` and
+                all of its sub-resources are secured by this key.
 
-                Overrides encryption_spec_key_name set in aiplatform.init.
+                This `encryption_spec_key_name` overrides the
+                `encryption_spec_key_name` set by `aiplatform.init`.
             sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
+                If `true`, the `create` method creates a tabular dataset
+                synchronously. If false, the `create` mdthod creates a tabular
+                dataset asynchronously.
             create_request_timeout (float):
-                Optional. The timeout for the create request in seconds.
+                Optional. The number of seconds for the timeout of the create
+                request.
 
         Returns:
             tabular_dataset (TabularDataset):
-                Instantiated representation of the managed tabular dataset resource.
+                An instantiated representation of a managed tabular dataset
+                resource.
         """
         if not display_name:
             display_name = cls._generate_display_name()
