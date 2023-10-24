@@ -15,7 +15,17 @@
 """Classes for working with language models."""
 
 import dataclasses
-from typing import Any, AsyncIterator, Dict, Iterator, List, Literal, Optional, Sequence, Union
+from typing import (
+    Any,
+    AsyncIterator,
+    Dict,
+    Iterator,
+    List,
+    Literal,
+    Optional,
+    Sequence,
+    Union,
+)
 import warnings
 
 from google.cloud import aiplatform
@@ -678,6 +688,37 @@ class TuningEvaluationSpec:
     tensorboard: Optional[Union[aiplatform.Tensorboard, str]] = None
 
 
+class WebSearch:
+    """WebSearch represents a grounding source using public web search."""
+
+    def to_grounding_source_dict(self):
+        return {"type": "WEB"}
+
+
+class VertexAISearchDatastore:
+    """VertexAISearchDatastore represents a grounding source using Vertex AI Search datastore
+    Attributes:
+        name: Data store ID of the Vertex AI Search datastore.
+        vertex_ai_search_location: GCP region where you have set up your Vertex AI Search.
+        Learn more about Vertex AI Search location here:
+        https://cloud.google.com/generative-ai-app-builder/docs/locations
+    """
+
+    def __init__(self, name: str, vertex_ai_search_location: str):
+        self.name = name
+        self.location = vertex_ai_search_location
+
+    def _get_datastore_path(self) -> str:
+        project = aiplatform_initializer.global_config.project
+        return (
+            f"projects/{project}/locations/{self.location}"
+            f"/collections/default_collection/dataStores/{self.name}"
+        )
+
+    def to_grounding_source_dict(self):
+        return {"type": "ENTERPRISE", "enterpriseDatastore": self._get_datastore_path()}
+
+
 @dataclasses.dataclass
 class TextGenerationResponse:
     """TextGenerationResponse represents a response of a language model.
@@ -687,6 +728,7 @@ class TextGenerationResponse:
         safety_attributes: Scores for safety attributes.
             Learn more about the safety attributes here:
             https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
+        grounding_metadata: Metadata for grounding.
     """
 
     __module__ = "vertexai.language_models"
@@ -695,6 +737,7 @@ class TextGenerationResponse:
     _prediction_response: Any
     is_blocked: bool = False
     safety_attributes: Dict[str, float] = dataclasses.field(default_factory=dict)
+    grounding_metadata: Dict[str, Any] = dataclasses.field(default_factory=dict)
 
     def __repr__(self):
         if self.text:
@@ -706,6 +749,7 @@ class TextGenerationResponse:
                 f"text={self.text!r}"
                 f", is_blocked={self.is_blocked!r}"
                 f", safety_attributes={self.safety_attributes!r}"
+                f", grounding_metadata={self.grounding_metadata!r}"
                 ")"
             )
 
@@ -725,6 +769,7 @@ class MultiCandidateTextGenerationResponse(TextGenerationResponse):
         safety_attributes: Scores for safety attributes for the first candidate.
             Learn more about the safety attributes here:
             https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
+        grounding_metadata: Grounding metadata for the first candidate.
         candidates: The candidate responses.
             Usually contains a single candidate unless `candidate_count` is used.
     """
@@ -770,6 +815,7 @@ class _TextGenerationModel(_LanguageModel):
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[Union[WebSearch, VertexAISearchDatastore]] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Gets model response for a single prompt.
 
@@ -781,6 +827,7 @@ class _TextGenerationModel(_LanguageModel):
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of response candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
@@ -793,6 +840,7 @@ class _TextGenerationModel(_LanguageModel):
             top_p=top_p,
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
+            grounding_source=grounding_source,
         )
 
         prediction_response = self._endpoint.predict(
@@ -814,6 +862,7 @@ class _TextGenerationModel(_LanguageModel):
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[Union[WebSearch, VertexAISearchDatastore]] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously gets model response for a single prompt.
 
@@ -825,6 +874,7 @@ class _TextGenerationModel(_LanguageModel):
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of response candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
@@ -837,6 +887,7 @@ class _TextGenerationModel(_LanguageModel):
             top_p=top_p,
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
+            grounding_source=grounding_source,
         )
 
         prediction_response = await self._endpoint.predict_async(
@@ -956,6 +1007,7 @@ def _create_text_generation_prediction_request(
     top_p: Optional[float] = None,
     stop_sequences: Optional[List[str]] = None,
     candidate_count: Optional[int] = None,
+    grounding_source: Optional[Union[WebSearch, VertexAISearchDatastore]] = None,
 ) -> "_PredictionRequest":
     """Prepares the text generation request for a single prompt.
 
@@ -967,6 +1019,8 @@ def _create_text_generation_prediction_request(
         top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
         stop_sequences: Customized stop sequences to stop the decoding process.
         candidate_count: Number of candidates to return.
+        grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
+
 
     Returns:
         A `_PredictionRequest` object that contains prediction instance and parameters.
@@ -996,6 +1050,10 @@ def _create_text_generation_prediction_request(
     if candidate_count is not None:
         prediction_parameters["candidateCount"] = candidate_count
 
+    if grounding_source is not None:
+        sources = [grounding_source.to_grounding_source_dict()]
+        prediction_parameters["groundingConfig"] = {"sources": sources}
+
     return _PredictionRequest(
         instance=instance,
         parameters=prediction_parameters,
@@ -1009,6 +1067,7 @@ def _parse_text_generation_model_response(
     """Converts the raw text_generation model response to `TextGenerationResponse`."""
     prediction = prediction_response.predictions[prediction_idx]
     safety_attributes_dict = prediction.get("safetyAttributes", {})
+    grounding_metadata_dict = prediction.get("groundingMetadata", {})
     return TextGenerationResponse(
         text=prediction["content"],
         _prediction_response=prediction_response,
@@ -1019,6 +1078,7 @@ def _parse_text_generation_model_response(
                 safety_attributes_dict.get("scores") or [],
             )
         ),
+        grounding_metadata=grounding_metadata_dict,
     )
 
 
@@ -1044,6 +1104,7 @@ def _parse_text_generation_model_multi_candidate_response(
         _prediction_response=prediction_response,
         is_blocked=candidates[0].is_blocked,
         safety_attributes=candidates[0].safety_attributes,
+        grounding_metadata=candidates[0].grounding_metadata,
         candidates=candidates,
     )
 

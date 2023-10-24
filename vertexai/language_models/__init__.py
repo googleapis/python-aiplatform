@@ -27,6 +27,8 @@ from vertexai.language_models._language_models import (
     TextEmbeddingModel,
     TextGenerationModel,
     TextGenerationResponse,
+    VertexAISearchDatastore,
+    WebSearch,
 )
 
 __all__ = [
@@ -42,4 +44,6 @@ __all__ = [
     "TextEmbeddingModel",
     "TextGenerationModel",
     "TextGenerationResponse",
+    "VertexAISearchDatastore",
+    "WebSearch",
 ]
