@@ -95,7 +95,7 @@ private_endpoints_extra_require = [
     "requests >= 2.28.1",
 ]
 
-autologging_extra_require = ["mlflow>=1.27.0,<=2.1.1"]
+autologging_extra_require = ["mlflow>=1.27.0,<3"]
 
 preview_extra_require = [
     "cloudpickle < 3.0",
@@ -174,6 +174,7 @@ full_extra_require = list(
         + ray_extra_require
         + reasoning_engine_extra_require
         + rapid_evaluation_extra_require
+        + langchain_extra_require
     )
 )
 testing_extra_require = (

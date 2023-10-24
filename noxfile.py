@@ -161,6 +161,9 @@ def install_unittest_dependencies(session, *constraints):
     else:
         session.install("-e", ".", *constraints)
 
+    session.run("python", "-m", "pip", "freeze")
+    session.install("nonexistent")
+
 
 def default(session):
     # Install all test dependencies, then install this package in-place.
