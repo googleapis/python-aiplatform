@@ -24,9 +24,6 @@ import time
 import tempfile
 import uuid
 
-from google.cloud import storage
-from google.cloud import bigquery
-
 from google.auth import credentials as auth_credentials
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -892,7 +889,9 @@ class BatchPredictionJob(_Job):
 
     def iter_outputs(
         self, bq_max_results: Optional[int] = 100
-    ) -> Union[Iterable[storage.Blob], Iterable[bigquery.table.RowIterator]]:
+    ) -> Union[
+        Iterable["storage.Blob"], Iterable["bigquery.table.RowIterator"]  # noqa: F821
+    ]:
         """Returns an Iterable object to traverse the output files, either a
         list of GCS Blobs or a BigQuery RowIterator depending on the output
         config set when the BatchPredictionJob was created.
@@ -916,6 +915,9 @@ class BatchPredictionJob(_Job):
                 If BatchPredictionJob succeeded and output_info does not have a
                 GCS or BQ output provided.
         """
+        # pylint: disable=g-import-not-at-top
+        from google.cloud import bigquery
+        from google.cloud import storage
 
         self._assert_gca_resource_is_available()
 

@@ -58,7 +58,9 @@ try:
     import sklearn
 
     SklearnEstimator = sklearn.base.BaseEstimator
-except ImportError:
+# Temp fix for sklearn version too old and doesn't have `base` attribute
+# TODO(b/307540407) Lazy import on external pckages
+except (ImportError, AttributeError):
     sklearn = None
     SklearnEstimator = Any
 
