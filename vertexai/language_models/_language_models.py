@@ -15,7 +15,17 @@
 """Classes for working with language models."""
 
 import dataclasses
-from typing import Any, AsyncIterator, Dict, Iterator, List, Literal, Optional, Sequence, Union
+from typing import (
+    Any,
+    AsyncIterator,
+    Dict,
+    Iterator,
+    List,
+    Literal,
+    Optional,
+    Sequence,
+    Union,
+)
 import warnings
 
 from google.cloud import aiplatform
@@ -1696,8 +1706,6 @@ class _PreviewCodeChatModel(CodeChatModel, _TunableChatModelMixin):
         examples: Optional[List[InputOutputTextPair]] = None,
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
-        top_k: Optional[int] = None,
-        top_p: Optional[float] = None,
         message_history: Optional[List[ChatMessage]] = None,
         stop_sequences: Optional[List[str]] = None,
     ) -> "_PreviewCodeChatSession":
@@ -1710,8 +1718,6 @@ class _PreviewCodeChatModel(CodeChatModel, _TunableChatModelMixin):
                 A list of `InputOutputTextPair` objects.
             max_output_tokens: Max length of the output text in tokens. Range: [1, 1024].
             temperature: Controls the randomness of predictions. Range: [0, 1]. Default: 0.
-            top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
-            top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             message_history: A list of previously sent and received messages.
             stop_sequences: Customized stop sequences to stop the decoding process.
 
@@ -1724,8 +1730,6 @@ class _PreviewCodeChatModel(CodeChatModel, _TunableChatModelMixin):
             examples=examples,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
-            top_k=top_k,
-            top_p=top_p,
             message_history=message_history,
             stop_sequences=stop_sequences,
         )
