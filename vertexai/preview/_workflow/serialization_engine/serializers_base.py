@@ -27,82 +27,6 @@ from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 from google.cloud.aiplatform.utils import gcs_utils
 
 
-# TODO(b/272263750): use the centralized module and usage pattern to guard these
-# imports
-# pylint: disable=g-import-not-at-top
-try:
-    import pandas as pd
-    import bigframes as bf
-
-    PandasData = pd.DataFrame
-    BigframesData = bf.dataframe.DataFrame
-except ImportError:
-    pd = None
-    bf = None
-    PandasData = Any
-    BigframesData = Any
-
-try:
-    import pandas as pd
-    import pyarrow as pa
-    import pyarrow.parquet as pq
-
-    PandasData = pd.DataFrame
-except ImportError:
-    pd = None
-    pa = None
-    pq = None
-    PandasData = Any
-
-try:
-    import sklearn
-
-    SklearnEstimator = sklearn.base.BaseEstimator
-# Temp fix for sklearn version too old and doesn't have `base` attribute
-# TODO(b/307540407) Lazy import on external pckages
-except (ImportError, AttributeError):
-    sklearn = None
-    SklearnEstimator = Any
-
-try:
-    from tensorflow import keras
-    import tensorflow as tf
-
-    KerasModel = keras.models.Model
-    TFDataset = tf.data.Dataset
-except ImportError:
-    keras = None
-    tf = None
-    KerasModel = Any
-    TFDataset = Any
-
-try:
-    import torch
-
-    TorchModel = torch.nn.Module
-    TorchDataLoader = torch.utils.data.DataLoader
-except ImportError:
-    torch = None
-    TorchModel = Any
-    TorchDataLoader = Any
-
-try:
-    import lightning.pytorch as pl
-
-    LightningTrainer = pl.Trainer
-except ImportError:
-    pl = None
-    LightningTrainer = Any
-
-
-Types = Union[
-    PandasData,
-    BigframesData,
-    SklearnEstimator,
-    KerasModel,
-    TorchModel,
-    LightningTrainer,
-]
 T = TypeVar("T")
 SERIALIZATION_METADATA_FILENAME = "serialization_metadata"
 SERIALIZATION_METADATA_SERIALIZER_KEY = "serializer"
@@ -216,13 +140,6 @@ def _get_custom_serializer_path_from_file_gcs_uri(
 ) -> str:
     prefix = _get_uri_prefix(gcs_uri=gcs_uri)
     return os.path.join(prefix, f"{serializer_name}")
-
-
-def _load_torch_model(path: str, map_location: "torch.device") -> TorchModel:
-    try:
-        return torch.load(path, map_location=map_location)
-    except Exception:
-        return torch.load(path, map_location=torch.device("cpu"))
 
 
 class Serializer(metaclass=abc.ABCMeta):
