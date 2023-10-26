@@ -50,7 +50,7 @@ bqstorage_info = v1_client_info.ClientInfo(
     gapic_version=_BQS_GAPIC_VERSION, user_agent=f"ray-on-vertex/{_BQS_GAPIC_VERSION}"
 )
 
-MAX_RETRY_CNT = 10
+MAX_RETRY_CNT = 20
 RATE_LIMIT_EXCEEDED_SLEEP_TIME = 11
 
 
@@ -174,8 +174,9 @@ class BigQueryDatasource(Datasource):
         project_id: Optional[str] = None,
         dataset: Optional[str] = None,
     ) -> WriteResult:
-        def _write_single_block(block: Block, project_id: str, dataset: str):
+        def _write_single_block(block: Block, project_id: str, dataset: str) -> None:
             block = BlockAccessor.for_block(block).to_arrow()
+            print(f"[Ray on Vertex AI]: Starting to write {block.num_rows} rows")
 
             client = bigquery.Client(project=project_id, client_info=bq_info)
             job_config = bigquery.LoadJobConfig(autodetect=True)
@@ -197,11 +198,19 @@ class BigQueryDatasource(Datasource):
                         logging.info(job.result())
                         break
                     except exceptions.Forbidden as e:
-                        logging.info(
+                        print(
                             "[Ray on Vertex AI]: Rate limit exceeded... Sleeping to try again"
                         )
                         logging.debug(e)
                         time.sleep(RATE_LIMIT_EXCEEDED_SLEEP_TIME)
+
+            # Raise exception if retry_cnt hits MAX_RETRY_CNT
+            if retry_cnt == MAX_RETRY_CNT:
+                raise RuntimeError(
+                        f"[Ray on Vertex AI]: Write failed due to {MAX_RETRY_CNT}"
+                        + " repeated API rate limit exceeded responses")
+
+            print(f"[Ray on Vertex AI]: Finished writing {block.num_rows} rows")
 
         project_id = project_id or initializer.global_config.project
 
