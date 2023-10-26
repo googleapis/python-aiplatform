@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -159,7 +159,7 @@ class TestAutologging(e2e_base.TestEndToEnd):
         experiment_df_scikit = aiplatform.get_experiment_df()
         assert experiment_df_scikit["run_name"][0].startswith("sklearn-")
         assert experiment_df_scikit["param.fit_intercept"][0] == "True"
-        assert experiment_df_scikit["metric.training_mean_absolute_error"][0] > 0
+        assert experiment_df_scikit["metric.training_mae"][0] > 0
 
         # Write post-training metrics to a scikit-learn model
         assert "metric.LinearRegression_score_X" not in experiment_df_scikit.columns
