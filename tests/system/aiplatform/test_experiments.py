@@ -199,31 +199,43 @@ class TestExperiments(e2e_base.TestEndToEnd):
         model = LinearRegression()
         model.fit(train_x, train_y)
 
-        model_artifact = aiplatform.log_model(
-            model=model,
-            artifact_id="sklearn-model",
-            uri=f"gs://{shared_state['staging_bucket_name']}/sklearn-model",
-            input_example=train_x,
-        )
-        shared_state["resources"].append(model_artifact)
+        try:
+            model_artifact = aiplatform.log_model(
+                model=model,
+                artifact_id="sklearn-model",
+                uri=f"gs://{shared_state['staging_bucket_name']}/sklearn-model",
+                input_example=train_x,
+            )
+            shared_state["resources"].append(model_artifact)
 
-        run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
-        experiment_model = run.get_experiment_models()[0]
-        assert experiment_model.name == "sklearn-model"
-        assert (
-            experiment_model.uri
-            == f"gs://{shared_state['staging_bucket_name']}/sklearn-model"
-        )
-        assert experiment_model.get_model_info() == {
-            "model_class": "sklearn.linear_model._base.LinearRegression",
-            "framework_name": "sklearn",
-            "framework_version": sklearn.__version__,
-            "input_example": {
-                "type": "numpy.ndarray",
-                "data": train_x.tolist(),
-            },
-        }
-        experiment_model.delete()
+            run = aiplatform.ExperimentRun(
+                run_name=_RUN, experiment=self._experiment_name
+            )
+            experiment_model = run.get_experiment_models()[0]
+            assert experiment_model.name == "sklearn-model"
+            assert (
+                experiment_model.uri
+                == f"gs://{shared_state['staging_bucket_name']}/sklearn-model"
+            )
+            assert experiment_model.get_model_info() == {
+                "model_class": "sklearn.linear_model._base.LinearRegression",
+                "framework_name": "sklearn",
+                "framework_version": sklearn.__version__,
+                "input_example": {
+                    "type": "numpy.ndarray",
+                    "data": train_x.tolist(),
+                },
+            }
+            experiment_model.delete()
+        finally:
+            # Make sure that, if the model resources already exists but the call
+            # aiplatform.log_model fails, we clean up the model resource.
+            run = aiplatform.ExperimentRun(
+                run_name=_RUN, experiment=self._experiment_name
+            )
+            experiment_model = run.get_experiment_models()[0]
+            experiment_model.delete()
+            assert False, "log_model() call failed and assertions are not run."
 
     def test_create_artifact(self, shared_state):
         ds = aiplatform.Artifact.create(
