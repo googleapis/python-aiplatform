@@ -233,8 +233,10 @@ class TestExperiments(e2e_base.TestEndToEnd):
             run = aiplatform.ExperimentRun(
                 run_name=_RUN, experiment=self._experiment_name
             )
-            experiment_model = run.get_experiment_models()[0]
-            experiment_model.delete()
+            experiment_models = run.get_experiment_models()
+            if experiment_models:
+                experiment_model = experiment_models[0]
+                experiment_model.delete()
             assert False, "log_model() call failed and assertions are not run."
 
     def test_create_artifact(self, shared_state):
