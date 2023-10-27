@@ -121,7 +121,6 @@ def main(argv):
     serializer.load_global_metadata(
         os.path.join(_INPUT_PATH.value, any_serializer.GLOBAL_SERIALIZATION_METADATA)
     )
-    print(serializer._metadata.to_dict())
 
     estimator = serializer.deserialize(
         os.path.join(_INPUT_PATH.value, "input_estimator")
