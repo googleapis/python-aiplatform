@@ -1170,6 +1170,7 @@ class BigframeSerializer(serializers_base.Serializer):
         # Convert BigframesData to Parquet (GCS)
         parquet_gcs_path = gcs_path + "/*"  # path is required to contain '*'
         to_serialize.to_parquet(parquet_gcs_path, index=True)
+        return parquet_gcs_path
 
     def _get_tfio_verison(self):
         major, minor, _ = version.Version(tf.__version__).release
