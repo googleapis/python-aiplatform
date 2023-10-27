@@ -50,6 +50,8 @@ bqstorage_info = v1_client_info.ClientInfo(
     gapic_version=_BQS_GAPIC_VERSION, user_agent=f"ray-on-vertex/{_BQS_GAPIC_VERSION}"
 )
 
+MAX_RETRY_CNT = 20
+
 
 class _BigQueryDatasourceReader(Reader):
     def __init__(
@@ -192,7 +194,7 @@ class BigQueryDatasource(Datasource):
                 pq.write_table(block, fp, compression="SNAPPY")
 
                 retry_cnt = 0
-                while retry_cnt < 10:
+                while retry_cnt < MAX_RETRY_CNT:
                     with open(fp, "rb") as source_file:
                         job = client.load_table_from_file(
                             source_file, dataset, job_config=job_config
@@ -207,6 +209,14 @@ class BigQueryDatasource(Datasource):
                         )
                         logging.debug(e)
                         time.sleep(11)
+
+                # Raise exception if retry_cnt hits MAX_RETRY_CNT
+                if retry_cnt >= MAX_RETRY_CNT:
+                    raise RuntimeError(
+                        f"[Ray on Vertex AI]: Write failed due to {MAX_RETRY_CNT}"
+                        + " repeated API rate limit exceeded responses"
+                    )
+
             print("[Ray on Vertex AI]: Finished writing", metadata.num_rows, "rows")
 
         project_id = project_id or initializer.global_config.project
