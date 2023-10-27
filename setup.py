@@ -183,6 +183,7 @@ setuptools.setup(
         "google-cloud-bigquery >= 1.15.0, < 4.0.0dev",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
         "shapely < 3.0.0dev",
+        "setuptools; python_version >= '3.12'",
     ),
     extras_require={
         "endpoint": endpoint_extra_require,
