@@ -1484,11 +1484,14 @@ class TestLanguageModels:
                 "text-bison@001"
             )
 
-        async def mock_server_streaming_predict_async(*args, **kwargs):
+        async def mock_server_streaming_predict_async_iter(*args, **kwargs):
             for response_dict in _TEST_TEXT_GENERATION_PREDICTION_STREAMING:
                 yield gca_prediction_service.StreamingPredictResponse(
                     outputs=[_streaming_prediction.value_to_tensor(response_dict)]
                 )
+
+        async def mock_server_streaming_predict_async(*args, **kwargs):
+            return mock_server_streaming_predict_async_iter(*args, **kwargs)
 
         with mock.patch.object(
             target=prediction_service_async_client.PredictionServiceAsyncClient,

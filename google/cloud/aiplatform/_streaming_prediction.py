@@ -130,7 +130,7 @@ async def predict_stream_of_tensor_lists_from_single_tensor_list_async(
         inputs=tensor_list,
         parameters=parameters_tensor,
     )
-    async for response in prediction_service_async_client.server_streaming_predict(
+    async for response in await prediction_service_async_client.server_streaming_predict(
         request=request
     ):
         yield response.outputs
