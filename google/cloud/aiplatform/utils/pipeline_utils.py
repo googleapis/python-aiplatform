@@ -97,11 +97,11 @@ class PipelineRuntimeConfigBuilder(object):
         parameter_values = _parse_runtime_parameters(runtime_config_spec)
         failure_policy = runtime_config_spec.get("failurePolicy")
         return cls(
-            pipeline_root,
-            schema_version,
-            parameter_types,
-            parameter_values,
-            failure_policy,
+            pipeline_root=pipeline_root,
+            schema_version=schema_version,
+            parameter_types=parameter_types,
+            parameter_values=parameter_values,
+            failure_policy=failure_policy,
         )
 
     def update_pipeline_root(self, pipeline_root: Optional[str]) -> None:
