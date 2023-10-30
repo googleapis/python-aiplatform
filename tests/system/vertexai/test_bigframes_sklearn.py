@@ -60,6 +60,8 @@ LogisticRegression = vertexai.preview.remote(LogisticRegression)
     if os.environ.get("KOKORO_GIT_COMMIT")
     else "google-cloud-aiplatform[preview,autologging] @ git+https://github.com/googleapis/python-aiplatform.git@main",
 )
+# To avoid flaky test due to autolog enabled in parallel tests
+@mock.patch.object(vertexai.preview.global_config, "autolog", False)
 @pytest.mark.usefixtures(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
 )
