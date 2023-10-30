@@ -1867,7 +1867,7 @@ class TestLanguageModels:
                 _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = preview_language_models.CodeGenerationModel.from_pretrained(
+            model = language_models.CodeGenerationModel.from_pretrained(
                 "code-bison@001"
             )
             # The tune_model call needs to be inside the PublisherModel mock

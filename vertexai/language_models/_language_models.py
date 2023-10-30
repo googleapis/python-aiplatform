@@ -2405,7 +2405,7 @@ class CodeChatSession(_ChatSessionBase):
         )
 
 
-class CodeGenerationModel(_LanguageModel):
+class _CodeGenerationModel(_LanguageModel):
     """A language model that generates code.
 
     Examples:
@@ -2686,8 +2686,12 @@ class _CountTokensCodeGenerationMixin(_LanguageModel):
         )
 
 
+class CodeGenerationModel(_CodeGenerationModel, _TunableTextModelMixin):
+    pass
+
+
 class _PreviewCodeGenerationModel(
-    CodeGenerationModel, _TunableModelMixin, _CountTokensCodeGenerationMixin
+    CodeGenerationModel, _CountTokensCodeGenerationMixin
 ):
     __name__ = "CodeGenerationModel"
     __module__ = "vertexai.preview.language_models"
