@@ -27,6 +27,7 @@ from vertexai.language_models._language_models import (
     TextEmbeddingModel,
     TextGenerationModel,
     TextGenerationResponse,
+    GroundingSource,
 )
 
 __all__ = [
@@ -42,4 +43,5 @@ __all__ = [
     "TextEmbeddingModel",
     "TextGenerationModel",
     "TextGenerationResponse",
+    "GroundingSource",
 ]

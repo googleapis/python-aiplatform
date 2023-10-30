@@ -14,6 +14,7 @@
 #
 """Classes for working with language models."""
 
+from abc import ABC, abstractmethod
 import dataclasses
 from typing import (
     Any,
@@ -688,6 +689,139 @@ class TuningEvaluationSpec:
     tensorboard: Optional[Union[aiplatform.Tensorboard, str]] = None
 
 
+class _GroundingSourceBase(ABC):
+    """Interface of grounding source dataclass for grounding."""
+
+    @abstractmethod
+    def _to_grounding_source_dict(self) -> Dict[str, Any]:
+        """construct grounding source into dictionary"""
+        pass
+
+
+@dataclasses.dataclass
+class WebSearch(_GroundingSourceBase):
+    """WebSearch represents a grounding source using public web search."""
+
+    _type: str = "WEB"
+
+    def _to_grounding_source_dict(self) -> Dict[str, Any]:
+        return {"type": self._type}
+
+
+@dataclasses.dataclass
+class VertexAISearch(_GroundingSourceBase):
+    """VertexAISearchDatastore represents a grounding source using Vertex AI Search datastore
+    Attributes:
+        name: Data store ID of the Vertex AI Search datastore.
+        location: GCP multi region where you have set up your Vertex AI Search data store. Possible values can be `global`, `us`, `eu`, etc.
+        Learn more about Vertex AI Search location here:
+        https://cloud.google.com/generative-ai-app-builder/docs/locations
+        project_id: The project ID where you have set up your Vertex AI Search.
+        If not specified, will assume that your Vertex AI Search is within your current project.
+    """
+
+    _data_store_id: str
+    _location: str
+    _type: str = "ENTERPRISE"
+
+    def __init__(
+        self, data_store_id: str, location: str, project_id: Optional[str] = None
+    ):
+        self._data_store_id = data_store_id
+        self._location = location
+        self._project_id = project_id
+
+    def _get_datastore_path(self) -> str:
+        _project = self._project_id or aiplatform_initializer.global_config.project
+        return (
+            f"projects/{_project}/locations/{self._location}"
+            f"/collections/default_collection/dataStores/{self._data_store_id}"
+        )
+
+    def _to_grounding_source_dict(self) -> Dict[str, Any]:
+        return {"type": self._type, "enterpriseDatastore": self._get_datastore_path()}
+
+
+@dataclasses.dataclass
+class GroundingSource:
+
+    WebSearch = WebSearch
+    VertexAISearch = VertexAISearch
+
+
+@dataclasses.dataclass
+class GroundingCitation:
+    """Citaion used from grounding.
+    Attributes:
+        start_index: Index in the prediction output where the citation starts
+            (inclusive). Must be >= 0 and < end_index.
+        end_index: Index in the prediction output where the citation ends
+            (exclusive). Must be > start_index and < len(output).
+        url: URL associated with this citation. If present, this URL links to the
+            webpage of the source of this citation. Possible URLs include news
+            websites, GitHub repos, etc.
+        title: Title associated with this citation. If present, it refers to the title
+            of the source of this citation. Possible titles include
+            news titles, book titles, etc.
+        license: License associated with this citation. If present, it refers to the
+            license of the source of this citation. Possible licenses include code
+            licenses, e.g., mit license.
+        publication_date: Publication date associated with this citation. If present, it refers to
+            the date at which the source of this citation was published.
+            Possible formats are YYYY, YYYY-MM, YYYY-MM-DD.
+    """
+
+    start_index: Optional[int] = None
+    end_index: Optional[int] = None
+    url: Optional[str] = None
+    title: Optional[str] = None
+    license: Optional[str] = None
+    publication_date: Optional[str] = None
+
+
+@dataclasses.dataclass
+class GroundingMetadata:
+    """Metadata for grounding.
+    Attributes:
+        citations: List of grounding citations.
+    """
+
+    citations: Optional[List[GroundingCitation]] = None
+
+    def _parse_citation_from_dict(
+        self, citation_dict_camel: Dict[str, Any]
+    ) -> GroundingCitation:
+        citation_dict = {}
+        start_index = citation_dict_camel.get("startIndex", None)
+        end_index = citation_dict_camel.get("endIndex", None)
+        if start_index is not None:
+            start_index = int(start_index)
+        if end_index is not None:
+            end_index = int(end_index)
+        citation_dict["start_index"] = start_index
+        citation_dict["end_index"] = end_index
+        citation_dict["url"] = citation_dict_camel.get("url", None)
+        citation_dict["title"] = citation_dict_camel.get("title", None)
+        citation_dict["license"] = citation_dict_camel.get("license", None)
+        citation_dict["publication_date"] = citation_dict_camel.get(
+            "publicationDate", None
+        )
+        citation_dict["end_index"] = citation_dict_camel.get("endIndex", None)
+        citation_dict["url"] = citation_dict_camel.get("url", None)
+        citation_dict["title"] = citation_dict_camel.get("title", None)
+        citation_dict["license"] = citation_dict_camel.get("license", None)
+        citation_dict["publication_date"] = citation_dict_camel.get(
+            "publicationDate", None
+        )
+        return GroundingCitation(**citation_dict)
+
+    def __init__(self, response: Optional[Dict[str, Any]] = {}):
+        self.citations = [
+            self._parse_citation_from_dict(citation)
+            for citation in response.get("citations", [])
+        ]
+
+
 @dataclasses.dataclass
 class TextGenerationResponse:
     """TextGenerationResponse represents a response of a language model.
@@ -697,6 +831,7 @@ class TextGenerationResponse:
         safety_attributes: Scores for safety attributes.
             Learn more about the safety attributes here:
             https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
+        grounding_metadata: Metadata for grounding.
     """
 
     __module__ = "vertexai.language_models"
@@ -705,6 +840,9 @@ class TextGenerationResponse:
     _prediction_response: Any
     is_blocked: bool = False
     safety_attributes: Dict[str, float] = dataclasses.field(default_factory=dict)
+    grounding_metadata: Optional[GroundingMetadata] = dataclasses.field(
+        default_factory=dict
+    )
 
     def __repr__(self):
         if self.text:
@@ -716,6 +854,7 @@ class TextGenerationResponse:
                 f"text={self.text!r}"
                 f", is_blocked={self.is_blocked!r}"
                 f", safety_attributes={self.safety_attributes!r}"
+                f", grounding_metadata={self.grounding_metadata!r}"
                 ")"
             )
 
@@ -735,6 +874,7 @@ class MultiCandidateTextGenerationResponse(TextGenerationResponse):
         safety_attributes: Scores for safety attributes for the first candidate.
             Learn more about the safety attributes here:
             https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
+        grounding_metadata: Grounding metadata for the first candidate.
         candidates: The candidate responses.
             Usually contains a single candidate unless `candidate_count` is used.
     """
@@ -780,6 +920,9 @@ class _TextGenerationModel(_LanguageModel):
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[
+            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        ] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Gets model response for a single prompt.
 
@@ -791,6 +934,7 @@ class _TextGenerationModel(_LanguageModel):
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of response candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
@@ -803,6 +947,7 @@ class _TextGenerationModel(_LanguageModel):
             top_p=top_p,
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
+            grounding_source=grounding_source,
         )
 
         prediction_response = self._endpoint.predict(
@@ -824,6 +969,9 @@ class _TextGenerationModel(_LanguageModel):
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[
+            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        ] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously gets model response for a single prompt.
 
@@ -835,6 +983,7 @@ class _TextGenerationModel(_LanguageModel):
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of response candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
@@ -847,6 +996,7 @@ class _TextGenerationModel(_LanguageModel):
             top_p=top_p,
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
+            grounding_source=grounding_source,
         )
 
         prediction_response = await self._endpoint.predict_async(
@@ -966,6 +1116,9 @@ def _create_text_generation_prediction_request(
     top_p: Optional[float] = None,
     stop_sequences: Optional[List[str]] = None,
     candidate_count: Optional[int] = None,
+    grounding_source: Optional[
+        Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+    ] = None,
 ) -> "_PredictionRequest":
     """Prepares the text generation request for a single prompt.
 
@@ -977,6 +1130,8 @@ def _create_text_generation_prediction_request(
         top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
         stop_sequences: Customized stop sequences to stop the decoding process.
         candidate_count: Number of candidates to return.
+        grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
+
 
     Returns:
         A `_PredictionRequest` object that contains prediction instance and parameters.
@@ -1006,6 +1161,10 @@ def _create_text_generation_prediction_request(
     if candidate_count is not None:
         prediction_parameters["candidateCount"] = candidate_count
 
+    if grounding_source is not None:
+        sources = [grounding_source._to_grounding_source_dict()]
+        prediction_parameters["groundingConfig"] = {"sources": sources}
+
     return _PredictionRequest(
         instance=instance,
         parameters=prediction_parameters,
@@ -1019,6 +1178,7 @@ def _parse_text_generation_model_response(
     """Converts the raw text_generation model response to `TextGenerationResponse`."""
     prediction = prediction_response.predictions[prediction_idx]
     safety_attributes_dict = prediction.get("safetyAttributes", {})
+    grounding_metadata_dict = prediction.get("groundingMetadata", {})
     return TextGenerationResponse(
         text=prediction["content"],
         _prediction_response=prediction_response,
@@ -1029,6 +1189,7 @@ def _parse_text_generation_model_response(
                 safety_attributes_dict.get("scores") or [],
             )
         ),
+        grounding_metadata=GroundingMetadata(grounding_metadata_dict),
     )
 
 
@@ -1054,6 +1215,7 @@ def _parse_text_generation_model_multi_candidate_response(
         _prediction_response=prediction_response,
         is_blocked=candidates[0].is_blocked,
         safety_attributes=candidates[0].safety_attributes,
+        grounding_metadata=candidates[0].grounding_metadata,
         candidates=candidates,
     )
 
@@ -1778,6 +1940,9 @@ class _ChatSessionBase:
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[
+            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        ] = None,
     ) -> _PredictionRequest:
         """Prepares a request for the language model.
 
@@ -1793,6 +1958,7 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `_PredictionRequest` object.
@@ -1826,6 +1992,10 @@ class _ChatSessionBase:
 
         if candidate_count is not None:
             prediction_parameters["candidateCount"] = candidate_count
+
+        if grounding_source is not None:
+            sources = [grounding_source._to_grounding_source_dict()]
+            prediction_parameters["groundingConfig"] = {"sources": sources}
 
         message_structs = []
         for past_message in self._message_history:
@@ -1878,8 +2048,14 @@ class _ChatSessionBase:
         prediction = prediction_response.predictions[prediction_idx]
         candidate_count = len(prediction["candidates"])
         candidates = []
+        grounding_metadata_list = prediction.get("groundingMetadata", [])
         for candidate_idx in range(candidate_count):
             safety_attributes = prediction["safetyAttributes"][candidate_idx]
+            if len(grounding_metadata_list) > candidate_idx:
+                grounding_metadata_dict = grounding_metadata_list[candidate_idx]
+            else:
+                grounding_metadata_dict = {}
+
             candidate_response = TextGenerationResponse(
                 text=prediction["candidates"][candidate_idx]["content"],
                 _prediction_response=prediction_response,
@@ -1892,6 +2068,7 @@ class _ChatSessionBase:
                         safety_attributes.get("scores") or [],
                     )
                 ),
+                grounding_metadata=GroundingMetadata(grounding_metadata_dict),
             )
             candidates.append(candidate_response)
         return MultiCandidateTextGenerationResponse(
@@ -1899,6 +2076,7 @@ class _ChatSessionBase:
             _prediction_response=prediction_response,
             is_blocked=candidates[0].is_blocked,
             safety_attributes=candidates[0].safety_attributes,
+            grounding_metadata=candidates[0].grounding_metadata,
             candidates=candidates,
         )
 
@@ -1912,6 +2090,9 @@ class _ChatSessionBase:
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[
+            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        ] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Sends message to the language model and gets a response.
 
@@ -1927,6 +2108,7 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the
@@ -1940,6 +2122,7 @@ class _ChatSessionBase:
             top_p=top_p,
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
+            grounding_source=grounding_source,
         )
 
         prediction_response = self._model._endpoint.predict(
@@ -1970,6 +2153,9 @@ class _ChatSessionBase:
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[
+            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        ] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously sends message to the language model and gets a response.
 
@@ -1985,6 +2171,7 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains
@@ -1998,6 +2185,7 @@ class _ChatSessionBase:
             top_p=top_p,
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
+            grounding_source=grounding_source,
         )
 
         prediction_response = await self._model._endpoint.predict_async(
@@ -2690,9 +2878,7 @@ class CodeGenerationModel(_CodeGenerationModel, _TunableTextModelMixin):
     pass
 
 
-class _PreviewCodeGenerationModel(
-    CodeGenerationModel, _CountTokensCodeGenerationMixin
-):
+class _PreviewCodeGenerationModel(CodeGenerationModel, _CountTokensCodeGenerationMixin):
     __name__ = "CodeGenerationModel"
     __module__ = "vertexai.preview.language_models"
 

@@ -16,7 +16,7 @@
 #
 
 # pylint: disable=protected-access,bad-continuation
-
+import dataclasses
 import json
 import pytest
 from importlib import reload
@@ -74,6 +74,7 @@ from vertexai.language_models import _language_models
 from vertexai.language_models import (
     _evaluatable_language_models,
 )
+from vertexai.language_models import GroundingSource
 from google.cloud.aiplatform_v1 import Execution as GapicExecution
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
@@ -164,6 +165,53 @@ _TEXT_EMBEDDING_GECKO_PUBLISHER_MODEL_DICT = {
         "parameters_schema_uri": "gs://google-cloud-aiplatfrom/schema/predict/params/text_generation_1.0.0.yaml",
         "prediction_schema_uri": "gs://google-cloud-aiplatform/schema/predict/prediction/text_embedding_1.0.0.yaml",
     },
+}
+
+_TEST_GROUNDING_WEB_SEARCH = GroundingSource.WebSearch()
+
+_TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE = GroundingSource.VertexAISearch(
+    data_store_id="test_datastore", location="global"
+)
+
+_TEST_TEXT_GENERATION_PREDICTION_GROUNDING = {
+    "safetyAttributes": {
+        "categories": ["Violent"],
+        "blocked": False,
+        "scores": [0.10000000149011612],
+    },
+    "groundingMetadata": {
+        "citations": [
+            {"url": "url1", "startIndex": 1, "endIndex": 2},
+            {"url": "url2", "startIndex": 3, "endIndex": 4},
+        ]
+    },
+    "content": """
+Ingredients:
+* 3 cups all-purpose flour
+
+Instructions:
+1. Preheat oven to 350 degrees F (175 degrees C).""",
+}
+
+_EXPECTED_PARSED_GROUNDING_METADATA = {
+    "citations": [
+        {
+            "url": "url1",
+            "start_index": 1,
+            "end_index": 2,
+            "title": None,
+            "license": None,
+            "publication_date": None,
+        },
+        {
+            "url": "url2",
+            "start_index": 3,
+            "end_index": 4,
+            "title": None,
+            "license": None,
+            "publication_date": None,
+        },
+    ]
 }
 
 _TEST_TEXT_GENERATION_PREDICTION = {
@@ -263,6 +311,19 @@ _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION = {
     ],
 }
 
+_EXPECTED_PARSED_GROUNDING_METADATA_CHAT = {
+    "citations": [
+        {
+            "url": "url1",
+            "start_index": 1,
+            "end_index": 2,
+            "title": None,
+            "license": None,
+            "publication_date": None,
+        },
+    ],
+}
+
 _TEST_CHAT_PREDICTION_STREAMING = [
     {
         "candidates": [
@@ -341,7 +402,6 @@ _TEST_COUNT_TOKENS_RESPONSE = {
     "total_tokens": 5,
     "total_billable_characters": 25,
 }
-
 
 _TEST_TEXT_BISON_TRAINING_DF = pd.DataFrame(
     {
@@ -1392,6 +1452,78 @@ class TestLanguageModels:
             response.candidates[0].text == _TEST_TEXT_GENERATION_PREDICTION["content"]
         )
 
+    def test_text_generation_multiple_candidates_grounding(self):
+        """Tests the text generation model with multiple candidates with web grounding."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        # Discrepancy between the number of `instances` and the number of `predictions`
+        # is a violation of the prediction service invariant, but the service does this.
+        gca_predict_response.predictions.append(
+            _TEST_TEXT_GENERATION_PREDICTION_GROUNDING
+        )
+        gca_predict_response.predictions.append(
+            _TEST_TEXT_GENERATION_PREDICTION_GROUNDING
+        )
+
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {"sources": [{"type": "WEB"}]},
+            {
+                "sources": [
+                    {
+                        "type": "ENTERPRISE",
+                        "enterpriseDatastore": datastore_path,
+                    }
+                ]
+            },
+        ]
+
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_client.PredictionServiceClient,
+                attribute="predict",
+                return_value=gca_predict_response,
+            ) as mock_predict:
+                response = model.predict(
+                    "What is the best recipe for banana bread? Recipe:",
+                    candidate_count=2,
+                    grounding_source=test_grounding_source,
+                )
+            prediction_parameters = mock_predict.call_args[1]["parameters"]
+            assert prediction_parameters["candidateCount"] == 2
+            assert prediction_parameters["groundingConfig"] == expected_grounding_source
+            assert (
+                response.text == _TEST_TEXT_GENERATION_PREDICTION_GROUNDING["content"]
+            )
+            assert len(response.candidates) == 2
+            assert (
+                response.candidates[0].text
+                == _TEST_TEXT_GENERATION_PREDICTION_GROUNDING["content"]
+            )
+            assert (
+                dataclasses.asdict(response.candidates[0].grounding_metadata)
+                == _EXPECTED_PARSED_GROUNDING_METADATA
+            )
+
     @pytest.mark.asyncio
     async def test_text_generation_async(self):
         """Tests the text generation model."""
@@ -1434,6 +1566,79 @@ class TestLanguageModels:
         assert prediction_parameters["topK"] == 5
         assert prediction_parameters["stopSequences"] == ["\n"]
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+
+    @pytest.mark.asyncio
+    async def test_text_generation_multiple_candidates_grounding_async(self):
+        """Tests the text generation model with multiple candidates async with web grounding."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        # Discrepancy between the number of `instances` and the number of `predictions`
+        # is a violation of the prediction service invariant, but the service does this.
+        gca_predict_response.predictions.append(
+            _TEST_TEXT_GENERATION_PREDICTION_GROUNDING
+        )
+
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {"sources": [{"type": "WEB"}]},
+            {
+                "sources": [
+                    {
+                        "type": "ENTERPRISE",
+                        "enterpriseDatastore": datastore_path,
+                    }
+                ]
+            },
+        ]
+
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_async_client.PredictionServiceAsyncClient,
+                attribute="predict",
+                return_value=gca_predict_response,
+            ) as mock_predict:
+                response = await model.predict_async(
+                    "What is the best recipe for banana bread? Recipe:",
+                    max_output_tokens=128,
+                    temperature=0.0,
+                    top_p=1.0,
+                    top_k=5,
+                    stop_sequences=["\n"],
+                    grounding_source=test_grounding_source,
+                )
+            prediction_parameters = mock_predict.call_args[1]["parameters"]
+            assert prediction_parameters["maxDecodeSteps"] == 128
+            assert prediction_parameters["temperature"] == 0.0
+            assert prediction_parameters["topP"] == 1.0
+            assert prediction_parameters["topK"] == 5
+            assert prediction_parameters["stopSequences"] == ["\n"]
+            assert prediction_parameters["groundingConfig"] == expected_grounding_source
+            assert (
+                response.text == _TEST_TEXT_GENERATION_PREDICTION_GROUNDING["content"]
+            )
+            assert (
+                dataclasses.asdict(response.grounding_metadata)
+                == _EXPECTED_PARSED_GROUNDING_METADATA
+            )
 
     def test_text_generation_model_predict_streaming(self):
         """Tests the TextGenerationModel.predict_streaming method."""
@@ -1867,7 +2072,7 @@ class TestLanguageModels:
                 _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = language_models.CodeGenerationModel.from_pretrained(
+            model = preview_language_models.CodeGenerationModel.from_pretrained(
                 "code-bison@001"
             )
             # The tune_model call needs to be inside the PublisherModel mock
@@ -2110,6 +2315,135 @@ class TestLanguageModels:
             assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
             assert prediction_parameters["topK"] == message_top_k
             assert prediction_parameters["topP"] == message_top_p
+
+        gca_predict_response4 = gca_prediction_service.PredictResponse()
+        gca_predict_response4.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING
+        )
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {"sources": [{"type": "WEB"}]},
+            {
+                "sources": [
+                    {
+                        "type": "ENTERPRISE",
+                        "enterpriseDatastore": datastore_path,
+                    }
+                ]
+            },
+        ]
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_client.PredictionServiceClient,
+                attribute="predict",
+                return_value=gca_predict_response4,
+            ) as mock_predict4:
+                response = chat2.send_message(
+                    "Are my favorite movies based on a book series?",
+                    grounding_source=test_grounding_source,
+                )
+                prediction_parameters = mock_predict4.call_args[1]["parameters"]
+                assert prediction_parameters["temperature"] == chat_temperature
+                assert prediction_parameters["maxDecodeSteps"] == chat_max_output_tokens
+                assert prediction_parameters["topK"] == chat_top_k
+                assert prediction_parameters["topP"] == chat_top_p
+                assert (
+                    prediction_parameters["groundingConfig"]
+                    == expected_grounding_source
+                )
+                assert (
+                    dataclasses.asdict(response.grounding_metadata)
+                    == _EXPECTED_PARSED_GROUNDING_METADATA_CHAT
+                )
+
+    @pytest.mark.asyncio
+    async def test_chat(self):
+        """Test the chat generation model async api."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
+        )
+        chat_temperature = 0.1
+        chat_max_output_tokens = 100
+        chat_top_k = 1
+        chat_top_p = 0.1
+
+        chat = model.start_chat(
+            temperature=chat_temperature,
+            max_output_tokens=chat_max_output_tokens,
+            top_k=chat_top_k,
+            top_p=chat_top_p,
+        )
+
+        gca_predict_response5 = gca_prediction_service.PredictResponse()
+        gca_predict_response5.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING
+        )
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {"sources": [{"type": "WEB"}]},
+            {
+                "sources": [
+                    {
+                        "type": "ENTERPRISE",
+                        "enterpriseDatastore": datastore_path,
+                    }
+                ]
+            },
+        ]
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_client.PredictionServiceAsyncClient,
+                attribute="predict",
+                return_value=gca_predict_response5,
+            ) as mock_predict5:
+                response = await chat.send_message_async(
+                    "Are my favorite movies based on a book series?",
+                    grounding_source=test_grounding_source,
+                )
+                prediction_parameters = mock_predict5.call_args[1]["parameters"]
+                assert prediction_parameters["temperature"] == chat_temperature
+                assert prediction_parameters["maxDecodeSteps"] == chat_max_output_tokens
+                assert prediction_parameters["topK"] == chat_top_k
+                assert prediction_parameters["topP"] == chat_top_p
+                assert (
+                    prediction_parameters["groundingConfig"]
+                    == expected_grounding_source
+                )
+                assert (
+                    dataclasses.asdict(response.grounding_metadata)
+                    == _EXPECTED_PARSED_GROUNDING_METADATA_CHAT
+                )
 
     def test_chat_ga(self):
         """Tests the chat generation model."""
