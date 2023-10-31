@@ -15,7 +15,10 @@
 # limitations under the License.
 #
 import dataclasses
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
+from vertexai.preview._workflow.serialization_engine import (
+    serializers_base,
+)
 
 
 @dataclasses.dataclass
@@ -72,16 +75,33 @@ class RemoteConfig(_BaseConfig):
         ]
 
         # Specify the extra parameters needed for serializing objects.
-        model.train.vertex.remote_config.serializer_args = {
-            model: {
-                "extra_serializer_param1_for_model": param1_value,
-                "extra_serializer_param2_for_model": param2_value,
+        from vertexai.preview.developer import SerializerArgs
+
+        # You can put all the hashable objects with their arguments in the
+        # SerializerArgs all at once in a dict. Here we assume "model" is
+        # hashable.
+        model.train.vertex.remote_config.serializer_args = SerializerArgs({
+                model: {
+                        "extra_serializer_param1_for_model": param1_value,
+                        "extra_serializer_param2_for_model": param2_value,
+                        },
+                hashable_obj2: {
+                        "extra_serializer_param1_for_hashable2": param1_value,
+                        "extra_serializer_param2_for_hashable2": param2_value,
+                        },
+        })
+        # Or if the object to be serialized is unhashable, put them into the
+        # serializer_args one by one. If this is the only use case, there is
+        # no need to import `SerializerArgs`. Here we assume "X_train" and
+        # "y_train" is not hashable.
+        model.train.vertex.remote_config.serializer_args[X_train] = {
+                "extra_serializer_param1_for_X_train": param1_value,
+                "extra_serializer_param2_for_X_train": param2_value,
             },
-            X_train: {
-                "extra_serializer_param1": param1_value,
-                "extra_serializer_param2": param2_value,
+        model.train.vertex.remote_config.serializer_args[y_train] = {
+                "extra_serializer_param1_for_y_train": param1_value,
+                "extra_serializer_param2_for_y_train": param2_value,
             }
-        }
 
         # Train the model as usual
         model.train(X_train, y_train)
@@ -132,7 +152,7 @@ class RemoteConfig(_BaseConfig):
         custom_commands (List[str]):
             List of custom commands to be run in the remote job environment.
             These commands will be run before the requirements are installed.
-        serializer_args (Dict[Any, Dict[str, Any]]):
+        serializer_args: serializers_base.SerializerArgs:
             Map from object to extra arguments when serializing the object. The extra
             arguments is a dictionary from the argument names to the argument values.
     """
@@ -143,7 +163,9 @@ class RemoteConfig(_BaseConfig):
     service_account: Optional[str] = None
     requirements: List[str] = dataclasses.field(default_factory=list)
     custom_commands: List[str] = dataclasses.field(default_factory=list)
-    serializer_args: Dict[Any, Dict[str, Any]] = dataclasses.field(default_factory=dict)
+    serializer_args: serializers_base.SerializerArgs = dataclasses.field(
+        default_factory=serializers_base.SerializerArgs
+    )
 
 
 @dataclasses.dataclass

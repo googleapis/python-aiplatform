@@ -29,6 +29,7 @@ from vertexai.preview.developer import remote_specs
 PersistentResourceConfig = configs.PersistentResourceConfig
 Serializer = serializers_base.Serializer
 SerializationMetadata = serializers_base.SerializationMetadata
+SerializerArgs = serializers_base.SerializerArgs
 RemoteConfig = configs.RemoteConfig
 WorkerPoolSpec = remote_specs.WorkerPoolSpec
 WorkerPoolSepcs = remote_specs.WorkerPoolSpecs
@@ -41,6 +42,7 @@ __all__ = (
     "PersistentResourceConfig",
     "register_serializer",
     "Serializer",
+    "SerializerArgs",
     "SerializationMetadata",
     "RemoteConfig",
     "WorkerPoolSpec",

@@ -25,13 +25,16 @@ import tempfile
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 from google.cloud.aiplatform.utils import gcs_utils
-
+from vertexai.preview._workflow.shared import data_structures
 
 T = TypeVar("T")
 SERIALIZATION_METADATA_FILENAME = "serialization_metadata"
 SERIALIZATION_METADATA_SERIALIZER_KEY = "serializer"
 SERIALIZATION_METADATA_DEPENDENCIES_KEY = "dependencies"
 SERIALIZATION_METADATA_CUSTOM_COMMANDS_KEY = "custom_commands"
+
+
+SerializerArgs = data_structures.IdAsKeyDict
 
 
 @dataclasses.dataclass

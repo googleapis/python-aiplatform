@@ -972,7 +972,9 @@ class TestRemoteTraining:
             _TEST_TRAINING_CONFIG_CONTAINER_URI
         )
         model.fit.vertex.remote_config.machine_type = _TEST_TRAINING_CONFIG_MACHINE_TYPE
-        model.fit.vertex.remote_config.serializer_args = {model: {"extra_params": 1}}
+        model.fit.vertex.remote_config.serializer_args[model] = {"extra_params": 1}
+        # X_TRAIN is a numpy array that is not hashable.
+        model.fit.vertex.remote_config.serializer_args[_X_TRAIN] = {"extra_params": 2}
 
         model.fit(_X_TRAIN, _Y_TRAIN)
 
@@ -991,7 +993,7 @@ class TestRemoteTraining:
         mock_any_serializer_sklearn.return_value.serialize.assert_any_call(
             to_serialize=_X_TRAIN,
             gcs_path=os.path.join(remote_job_base_path, "input/X"),
-            **{},
+            **{"extra_params": 2},
         )
         mock_any_serializer_sklearn.return_value.serialize.assert_any_call(
             to_serialize=_Y_TRAIN,

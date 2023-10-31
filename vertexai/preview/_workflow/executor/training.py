@@ -21,7 +21,7 @@ import os
 import re
 import sys
 import time
-from typing import Any, Dict, List, Optional, Set, Tuple, Union, Hashable
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import warnings
 
 from google.api_core import exceptions as api_exceptions
@@ -495,6 +495,8 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
     bound_args = invokable.bound_arguments
     config = invokable.vertex_config.remote_config
     serializer_args = invokable.vertex_config.remote_config.serializer_args
+    if not isinstance(serializer_args, serializers_base.SerializerArgs):
+        raise ValueError("serializer_args must be an instance of SerializerArgs.")
 
     autolog = vertexai.preview.global_config.autolog
     service_account = _get_service_account(config, autolog=autolog)
@@ -609,17 +611,13 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
                 to_serialize=arg_value,
                 gcs_path=os.path.join(remote_job_input_path, f"{arg_name}"),
                 framework=detected_framework,
-                **serializer_args.get(arg_value, {})
-                if isinstance(arg_value, Hashable)
-                else {},
+                **serializer_args.get(arg_value, {}),
             )
         else:
             serialization_metadata = serializer.serialize(
                 to_serialize=arg_value,
                 gcs_path=os.path.join(remote_job_input_path, f"{arg_name}"),
-                **serializer_args.get(arg_value, {})
-                if isinstance(arg_value, Hashable)
-                else {},
+                **serializer_args.get(arg_value, {}),
             )
         # serializer.get_dependencies() must be run after serializer.serialize()
         requirements += serialization_metadata[
