@@ -1,2 +1,0 @@
-scikit-learn
-google-cloud-aiplatform[prediction]

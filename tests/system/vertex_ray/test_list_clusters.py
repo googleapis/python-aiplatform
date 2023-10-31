@@ -15,15 +15,18 @@
 # limitations under the License.
 #
 
-import pandas as pd
-from sklearn.linear_model import LinearRegression
+from google.cloud import aiplatform
+from google.cloud.aiplatform.preview import vertex_ray
+import ray
 
-# Create Dataset
-data = {"A": [1.1, 2.2, 4.1, 5.2], "B": [200, 212.12, 22, 123], "Y": [1, 0, 1, 0]}
-df = pd.DataFrame(data)
-X = df[["A", "B"]]
-Y = df["Y"]
+print(ray.__version__)
 
-# Train model
-model = LinearRegression().fit(X, Y)
-model.score(X, Y)
+aiplatform.init(project='tangmatthew-dev', location='us-central1')
+
+from vertex_ray import Resources
+
+# CPU default cluster
+head_node_type = Resources()
+worker_node_types = [Resources()]
+
+print(vertex_ray.list_ray_clusters())
