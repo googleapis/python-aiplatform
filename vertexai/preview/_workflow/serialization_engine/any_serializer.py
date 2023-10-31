@@ -18,6 +18,7 @@
 """Defines the Serializer classes."""
 import collections
 import dataclasses
+import importlib
 import json
 import os
 import sys
@@ -36,78 +37,8 @@ from vertexai.preview._workflow.shared import (
 
 from packaging import requirements
 
-# TODO(b/272263750): use the centralized module and usage pattern to guard these
-# imports
-# pylint: disable=g-import-not-at-top
-try:
-    import pandas as pd
-    import bigframes as bf
-
-    PandasData = pd.DataFrame
-    BigframesData = bf.dataframe.DataFrame
-except ImportError:
-    pd = None
-    bf = None
-    PandasData = Any
-    BigframesData = Any
-
-try:
-    import pandas as pd
-
-    PandasData = pd.DataFrame
-except ImportError:
-    pd = None
-    PandasData = Any
-
-try:
-    import sklearn
-
-    SklearnEstimator = sklearn.base.BaseEstimator
-except ImportError:
-    sklearn = None
-    SklearnEstimator = Any
-
-try:
-    from tensorflow import keras
-    import tensorflow as tf
-
-    KerasModel = keras.models.Model
-    TFDataset = tf.data.Dataset
-except ImportError:
-    keras = None
-    tf = None
-    KerasModel = Any
-    TFDataset = Any
-
-try:
-    import torch
-
-    TorchModel = torch.nn.Module
-    TorchDataLoader = torch.utils.data.DataLoader
-except ImportError:
-    torch = None
-    TorchModel = Any
-    TorchDataLoader = Any
-
-try:
-    import lightning.pytorch as pl
-
-    LightningTrainer = pl.Trainer
-except ImportError:
-    pl = None
-    LightningTrainer = Any
-
 
 T = TypeVar("T")
-
-Types = Union[
-    PandasData,
-    BigframesData,
-    SklearnEstimator,
-    KerasModel,
-    TorchModel,
-    LightningTrainer,
-]
 
 _LOGGER = base.Logger("vertexai.serialization_engine")
 
@@ -118,6 +49,25 @@ GLOBAL_SERIALIZATION_METADATA = "global_serialization_metadata.json"
 
 _LIGHTNING_ROOT_DIR = "/vertex_lightning_root_dir/"
 _JSONABLE_TYPES = Union[int, float, bytes, bool, str, None]
+
+# This is a collection of all the predefined serializers and the fully qualified
+# class names that these serializers are intended to be used on.
+_PREDEFINED_SERIALIZERS = frozenset(
+    [
+        ("sklearn.base.BaseEstimator", serializers.SklearnEstimatorSerializer),
+        ("tensorflow.keras.models.Model", serializers.KerasModelSerializer),
+        (
+            "tensorflow.keras.callbacks.History",
+            serializers.KerasHistoryCallbackSerializer,
+        ),
+        ("tensorflow.data.Dataset", serializers.TFDatasetSerializer),
+        ("torch.nn.Module", serializers.TorchModelSerializer),
+        ("torch.utils.data.DataLoader", serializers.TorchDataLoaderSerializer),
+        ("lightning.pytorch.Trainer", serializers.LightningTrainerSerializer),
+        ("bigframes.dataframe.DataFrame", serializers.BigframeSerializer),
+        ("pandas.DataFrame", serializers.PandasDataSerializer),
+    ]
+)
 
 
 def get_arg_path_from_file_gcs_uri(gcs_uri: str, arg_name: str) -> str:
@@ -321,32 +271,9 @@ class AnySerializer(serializers_base.Serializer):
         super().__init__()
         # Register with default serializers
         AnySerializer._register(object, serializers.CloudPickleSerializer)
-        if sklearn:
-            AnySerializer._register(
-                sklearn.base.BaseEstimator, serializers.SklearnEstimatorSerializer
-            )
-        if keras:
-            AnySerializer._register(
-                keras.models.Model, serializers.KerasModelSerializer
-            )
-            AnySerializer._register(
-                keras.callbacks.History, serializers.KerasHistoryCallbackSerializer
-            )
-        if tf:
-            AnySerializer._register(tf.data.Dataset, serializers.TFDatasetSerializer)
-        if torch:
-            AnySerializer._register(torch.nn.Module, serializers.TorchModelSerializer)
-            AnySerializer._register(
-                torch.utils.data.DataLoader, serializers.TorchDataLoaderSerializer
-            )
-        if pl:
-            AnySerializer._register(pl.Trainer, serializers.LightningTrainerSerializer)
-        if bf:
-            AnySerializer._register(
-                bf.dataframe.DataFrame, serializers.BigframeSerializer
-            )
-        if pd:
-            AnySerializer._register(pd.DataFrame, serializers.PandasDataSerializer)
+
+        for args in _PREDEFINED_SERIALIZERS:
+            AnySerializer._register_predefined_serializer(*args)
 
     @classmethod
     def _get_custom_serializer(cls, type_cls):
@@ -355,6 +282,24 @@ class AnySerializer(serializers_base.Serializer):
     @classmethod
     def _get_predefined_serializer(cls, type_cls):
         return cls._serialization_scheme.get(type_cls)
+
+    @classmethod
+    def _register_predefined_serializer(
+        cls,
+        full_class_name: str,
+        serializer: serializers_base.Serializer,
+    ):
+        """Registers a predefined serializer to AnySerializer."""
+        try:
+            module_name, class_name = full_class_name.rsplit(".", 1)
+            module = importlib.import_module(module_name)
+            to_serialize_class = getattr(module, class_name)
+
+            AnySerializer._register(to_serialize_class, serializer)
+            _LOGGER.debug(f"Successfully registered {serializer}")
+
+        except Exception as e:
+            _LOGGER.debug(f"Failed to register {serializer} due to: {e}")
 
     def _gcs_path_in_metadata(self, obj) -> Optional[str]:
         """Checks if an object has been (de-)serialized before."""
@@ -631,9 +576,3 @@ def register_serializer(
     any_serializer.register_custom(
         to_serialize_type=to_serialize_type, serializer_cls=serializer_cls
     )
-
-
-try:
-    _any_serializer = AnySerializer()
-except ImportError:
-    pass

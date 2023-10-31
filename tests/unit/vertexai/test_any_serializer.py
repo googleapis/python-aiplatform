@@ -18,6 +18,7 @@ import mock
 import pytest
 
 import cloudpickle
+import logging
 import json
 import os
 from typing import Any
@@ -31,10 +32,35 @@ from vertexai.preview._workflow.serialization_engine import (
 from vertexai.preview._workflow.shared import constants
 
 import pandas as pd
+import sklearn
 from sklearn.linear_model import LogisticRegression
 import tensorflow as tf
 from tensorflow import keras
 import torch
+
+try:
+    # pylint: disable=g-import-not-at-top
+    import lightning.pytorch as pl
+except ImportError:
+    pl = None
+
+try:
+    import bigframes as bf
+except ImportError:
+    bf = None
+
+# lightning trainer and bigframes dataframe are not in this scheme since
+# the test environment may not have these packages.
+_TEST_SERIALIZATION_SCHEME = {
+    object: serializers.CloudPickleSerializer,
+    sklearn.base.BaseEstimator: serializers.SklearnEstimatorSerializer,
+    keras.models.Model: serializers.KerasModelSerializer,
+    keras.callbacks.History: serializers.KerasHistoryCallbackSerializer,
+    tf.data.Dataset: serializers.TFDatasetSerializer,
+    torch.nn.Module: serializers.TorchModelSerializer,
+    torch.utils.data.DataLoader: serializers.TorchDataLoaderSerializer,
+    pd.DataFrame: serializers.PandasDataSerializer,
+}
 
 
 @pytest.fixture
@@ -261,6 +287,41 @@ class TestTorchClass(torch.nn.Module):
 
 class TestAnySerializer:
     """Tests that AnySerializer is acting as 'controller' and router."""
+
+    def test_any_serializer_register_predefined_serializers(self, caplog):
+        with caplog.at_level(
+            level=logging.DEBUG, logger="vertexai.serialization_engine"
+        ):
+            serializers_base.Serializer._instances = {}
+            serializer_instance = any_serializer.AnySerializer()
+
+            if pl:
+                _TEST_SERIALIZATION_SCHEME[
+                    pl.Trainer
+                ] = serializers.LightningTrainerSerializer
+            else:
+                # Lightning trainer is not registered.
+                # Check the logs to make sure we tried to register them.
+                assert (
+                    f"Failed to register {serializers.LightningTrainerSerializer} due to"
+                    in caplog.text
+                )
+
+            if bf:
+                _TEST_SERIALIZATION_SCHEME[
+                    bf.dataframe.DataFrame
+                ] = serializers.BigframeSerializer
+            else:
+                # Bigframes dataframe is not registered.
+                # Check the logs to make sure we tried to register them.
+                assert (
+                    f"Failed to register {serializers.BigframeSerializer} due to"
+                    in caplog.text
+                )
+
+            assert (
+                serializer_instance._serialization_scheme == _TEST_SERIALIZATION_SCHEME
+            )
 
     def test_any_serializer_global_metadata_created(
         self, mock_cloudpickle_serialize, any_serializer_instance, tmp_path
