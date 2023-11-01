@@ -44,6 +44,15 @@ def get_persistent_resource_status_running_mock():
         yield get_persistent_resource
 
 
+@pytest.fixture
+def get_bearer_token_mock():
+    with mock.patch.object(
+        vertex_ray.util._validation_utils, "get_bearer_token"
+    ) as get_bearer_token_mock:
+        get_bearer_token_mock.return_value = tc.ClusterConstants._TEST_BEARER_TOKEN
+        yield get_bearer_token_mock
+
+
 class TestGetJobSubmissionClientClusterInfo:
     def setup_method(self):
         importlib.reload(aiplatform.initializer)
@@ -82,4 +91,23 @@ class TestGetJobSubmissionClientClusterInfo:
         )
         ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
             address=tc.ClusterConstants._TEST_VERTEX_RAY_JOB_CLIENT_IP
+        )
+
+    @pytest.mark.usefixtures(
+        "get_persistent_resource_status_running_mock", "google_auth_mock"
+    )
+    def test_job_submission_client_cluster_info_with_dashboard_address(
+        self,
+        ray_get_job_submission_client_cluster_info_mock,
+        get_bearer_token_mock,
+    ):
+        aiplatform.init(project=tc.ProjectConstants._TEST_GCP_PROJECT_ID)
+
+        vertex_ray.get_job_submission_client_cluster_info(
+            tc.ClusterConstants._TEST_VERTEX_RAY_DASHBOARD_ADDRESS
+        )
+        get_bearer_token_mock.assert_called_once_with()
+        ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
+            address=tc.ClusterConstants._TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+            headers=tc.ClusterConstants._TEST_HEADERS,
         )

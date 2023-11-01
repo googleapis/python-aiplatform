@@ -82,6 +82,8 @@ class Cluster:
             If not set, by default it is a CPU node with machine_type of n1-standard-4.
         worker_node_types: The list of Resources of the worker nodes. Should not
             duplicate the elements in the list.
+        dashboard_address: For Ray Job API (JobSubmissionClient), with this
+           cluster connection doesn't require VPC peering.
     """
 
     cluster_resource_name: str = None
@@ -91,6 +93,7 @@ class Cluster:
     ray_version: str = None
     head_node_type: Resources = None
     worker_node_types: List[Resources] = None
+    dashboard_address: str = None
 
 
 def _check_machine_spec_identical(

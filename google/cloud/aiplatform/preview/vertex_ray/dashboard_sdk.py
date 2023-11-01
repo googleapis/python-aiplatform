@@ -46,6 +46,19 @@ def get_job_submission_client_cluster_info(
     Raises:
         RuntimeError if head_address is None.
     """
+    # If passing the dashboard uri, programmatically get headers
+    if _validation_utils.valid_dashboard_address(address):
+        bearer_token = _validation_utils.get_bearer_token()
+        if kwargs.get("headers", None) is None:
+            kwargs["headers"] = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {}".format(bearer_token),
+            }
+        return oss_dashboard_sdk.get_job_submission_client_cluster_info(
+            address=address,
+            *args,
+            **kwargs,
+        )
     address = _validation_utils.maybe_reconstruct_resource_name(address)
     _validation_utils.valid_resource_name(address)
 

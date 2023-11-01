@@ -65,7 +65,7 @@ class ClusterConstants:
 
     _TEST_VERTEX_RAY_HEAD_NODE_IP = "1.2.3.4:10001"
     _TEST_VERTEX_RAY_JOB_CLIENT_IP = "1.2.3.4:8888"
-    _TEST_VERTEX_RAY_DASHBOARD_URL = (
+    _TEST_VERTEX_RAY_DASHBOARD_ADDRESS = (
         "48b400ad90b8dd3c-dot-us-central1.aiplatform-training.googleusercontent.com"
     )
     _TEST_VERTEX_RAY_PR_ID = "user-persistent-resource-1234567890"
@@ -121,7 +121,7 @@ class ClusterConstants:
         network=ProjectConstants._TEST_VPC_NETWORK,
         resource_runtime=ResourceRuntime(
             access_uris={
-                "RAY_DASHBOARD_URI": _TEST_VERTEX_RAY_DASHBOARD_URL,
+                "RAY_DASHBOARD_URI": _TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
                 "RAY_HEAD_NODE_INTERNAL_IP": _TEST_VERTEX_RAY_HEAD_NODE_IP,
             }
         ),
@@ -182,7 +182,7 @@ class ClusterConstants:
         network=ProjectConstants._TEST_VPC_NETWORK,
         resource_runtime=ResourceRuntime(
             access_uris={
-                "RAY_DASHBOARD_URI": _TEST_VERTEX_RAY_DASHBOARD_URL,
+                "RAY_DASHBOARD_URI": _TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
                 "RAY_HEAD_NODE_INTERNAL_IP": _TEST_VERTEX_RAY_HEAD_NODE_IP,
             }
         ),
@@ -196,6 +196,7 @@ class ClusterConstants:
         state="RUNNING",
         head_node_type=_TEST_HEAD_NODE_TYPE_1_POOL,
         worker_node_types=_TEST_WORKER_NODE_TYPES_1_POOL,
+        dashboard_address=_TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
     )
     _TEST_CLUSTER_2 = Cluster(
         cluster_resource_name=_TEST_VERTEX_RAY_PR_ADDRESS,
@@ -205,4 +206,10 @@ class ClusterConstants:
         state="RUNNING",
         head_node_type=_TEST_HEAD_NODE_TYPE_2_POOLS,
         worker_node_types=_TEST_WORKER_NODE_TYPES_2_POOLS,
+        dashboard_address=_TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
     )
+    _TEST_BEARER_TOKEN = "test-bearer-token"
+    _TEST_HEADERS = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {}".format(_TEST_BEARER_TOKEN),
+    }

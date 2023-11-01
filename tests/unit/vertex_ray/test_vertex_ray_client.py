@@ -25,7 +25,7 @@ import ray
 # -*- coding: utf-8 -*-
 
 _TEST_CLIENT_CONTEXT = ray.client_builder.ClientContext(
-    dashboard_url=tc.ClusterConstants._TEST_VERTEX_RAY_DASHBOARD_URL,
+    dashboard_url=tc.ClusterConstants._TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
     python_version="MOCK_PYTHON_VERSION",
     ray_version="MOCK_RAY_VERSION",
     ray_commit="MOCK_RAY_COMMIT",
@@ -37,7 +37,7 @@ _TEST_CLIENT_CONTEXT = ray.client_builder.ClientContext(
 _TEST_VERTEX_RAY_CLIENT_CONTEXT = vertex_ray.client_builder._VertexRayClientContext(
     persistent_resource_id="MOCK_PERSISTENT_RESOURCE_ID",
     ray_head_uris={
-        "RAY_DASHBOARD_URI": tc.ClusterConstants._TEST_VERTEX_RAY_DASHBOARD_URL,
+        "RAY_DASHBOARD_URI": tc.ClusterConstants._TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
         "RAY_HEAD_NODE_INTERNAL_IP": tc.ClusterConstants._TEST_VERTEX_RAY_HEAD_NODE_IP,
     },
     ray_client_context=_TEST_CLIENT_CONTEXT,

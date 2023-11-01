@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import google.auth
+import google.auth.transport.requests
 import logging
 import re
 
@@ -29,6 +31,7 @@ _DEFAULT_REGION = "us"
 
 _PERSISTENT_RESOURCE_NAME_PATTERN = "projects/{}/locations/{}/persistentResources/{}"
 _VALID_RESOURCE_NAME_REGEX = "[a-z][a-zA-Z0-9._-]{0,127}"
+_DASHBOARD_URI_SUFFIX = "aiplatform-training.googleusercontent.com"
 
 
 def valid_resource_name(resource_name):
@@ -91,3 +94,19 @@ def get_versions_from_image_uri(image_uri):
     py_version = image_label[-3] + "_" + image_label[-2:]
     ray_version = image_label.split(".")[1].replace("-", "_")
     return py_version, ray_version
+
+
+def valid_dashboard_address(address):
+    """Check if address is a valid dashboard uri."""
+    return address.endswith(_DASHBOARD_URI_SUFFIX)
+
+
+def get_bearer_token():
+    """Get bearer token through Application Default Credentials."""
+    creds, _ = google.auth.default()
+
+    # creds.valid is False, and creds.token is None
+    # Need to refresh credentials to populate those
+    auth_req = google.auth.transport.requests.Request()
+    creds.refresh(auth_req)
+    return creds.token
