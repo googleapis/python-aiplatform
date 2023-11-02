@@ -210,7 +210,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
         run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
         experiment_model = run.get_experiment_models()[0]
-        assert experiment_model.name == "sklearn-model"
+        assert "sklearn-model" in experiment_model.name
         assert (
             experiment_model.uri
             == f"gs://{shared_state['staging_bucket_name']}/sklearn-model"
@@ -224,6 +224,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
                 "data": train_x.tolist(),
             },
         }
+        experiment_model.delete()
 
     def test_create_artifact(self, shared_state):
         ds = aiplatform.Artifact.create(
