@@ -50,7 +50,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
-
+        grounding_source = language_models.WebSearchGroundingSource()
         assert model.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
@@ -58,6 +58,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             top_p=1.0,
             top_k=5,
             stop_sequences=["# %%"],
+            grounding_source=grounding_source,
         ).text
 
     def test_text_generation_preview_count_tokens(self):
@@ -77,7 +78,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
-
+        grounding_source = language_models.WebSearchGroundingSource()
         response = await model.predict_async(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
@@ -85,6 +86,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             top_p=1.0,
             top_k=5,
             stop_sequences=["# %%"],
+            grounding_source=grounding_source,
         )
         assert response.text
 
