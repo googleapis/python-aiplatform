@@ -50,7 +50,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
-        grounding_source = language_models.WebSearchGroundingSource()
+        grounding_source = language_models.GroundingSource.WebSearch()
         assert model.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
@@ -78,7 +78,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
-        grounding_source = language_models.WebSearchGroundingSource()
+        grounding_source = language_models.GroundingSource.WebSearch()
         response = await model.predict_async(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
@@ -124,8 +124,8 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
     def test_chat_on_chat_model(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
-
         chat_model = ChatModel.from_pretrained("google/chat-bison@001")
+        grounding_source = language_models.GroundingSource.WebSearch()
         chat = chat_model.start_chat(
             context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
             examples=[
@@ -143,8 +143,12 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         )
 
         message1 = "Are my favorite movies based on a book series?"
-        response1 = chat.send_message(message1)
+        response1 = chat.send_message(
+            message1,
+            grounding_source=grounding_source,
+        )
         assert response1.text
+        assert response1.grounding_metadata
         assert len(chat.message_history) == 2
         assert chat.message_history[0].author == chat.USER_AUTHOR
         assert chat.message_history[0].content == message1
@@ -152,10 +156,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         message2 = "When were these books published?"
         response2 = chat.send_message(
-            message2,
-            temperature=0.1,
+            message2, temperature=0.1, grounding_source=grounding_source
         )
         assert response2.text
+        assert response2.grounding_metadata
         assert len(chat.message_history) == 4
         assert chat.message_history[2].author == chat.USER_AUTHOR
         assert chat.message_history[2].content == message2
@@ -189,6 +193,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         chat_model = ChatModel.from_pretrained("google/chat-bison@001")
+        grounding_source = language_models.GroundingSource.WebSearch()
         chat = chat_model.start_chat(
             context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
             examples=[
@@ -206,8 +211,12 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         )
 
         message1 = "Are my favorite movies based on a book series?"
-        response1 = await chat.send_message_async(message1)
+        response1 = await chat.send_message_async(
+            message1,
+            grounding_source=grounding_source,
+        )
         assert response1.text
+        assert response1.grounding_metadata
         assert len(chat.message_history) == 2
         assert chat.message_history[0].author == chat.USER_AUTHOR
         assert chat.message_history[0].content == message1
@@ -217,8 +226,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         response2 = await chat.send_message_async(
             message2,
             temperature=0.1,
+            grounding_source=grounding_source,
         )
         assert response2.text
+        assert response2.grounding_metadata
         assert len(chat.message_history) == 4
         assert chat.message_history[2].author == chat.USER_AUTHOR
         assert chat.message_history[2].content == message2
