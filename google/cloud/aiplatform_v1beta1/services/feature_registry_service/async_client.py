@@ -1035,7 +1035,7 @@ class FeatureRegistryServiceAsyncClient:
             response,
             self._client._transport.operations_client,
             gca_feature.Feature,
-            metadata_type=feature_registry_service.CreateRegistryFeatureOperationMetadata,
+            metadata_type=featurestore_service.CreateFeatureOperationMetadata,
         )
 
         # Done; return the response.
