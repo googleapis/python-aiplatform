@@ -16,7 +16,8 @@
 #
 
 import copy
-from typing import List, Optional
+import logging
+from typing import Dict, List, Optional
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -46,6 +47,7 @@ def create_ray_cluster(
     network: Optional[str] = None,
     cluster_name: Optional[str] = None,
     worker_node_types: Optional[List[resources.Resources]] = None,
+    labels: Optional[Dict[str, str]] = None,
 ) -> str:
     """Create a ray cluster on the Vertex AI.
 
@@ -95,14 +97,22 @@ def create_ray_cluster(
             or hyphen.
         worker_node_types: The list of Resources of the worker nodes. The same
             Resources object should not appear multiple times in the list.
+        labels:
+            The labels with user-defined metadata to organize Ray cluster.
+
+            Label keys and values can be no longer than 64 characters (Unicode
+            codepoints), can only contain lowercase letters, numeric characters,
+            underscores and dashes. International characters are allowed.
+
+            See https://goo.gl/xmQnxf for more information and examples of labels.
 
     Returns:
         The cluster_resource_name of the initiated Ray cluster on Vertex.
     """
 
     if network is None:
-        raise ValueError(
-            "[Ray on Vertex]: VPC network is required for client connection."
+        logging.info(
+            "[Ray on Vertex]: No VPC network configured. It is required for client connection."
         )
 
     if cluster_name is None:
@@ -176,6 +186,7 @@ def create_ray_cluster(
     persistent_resource = PersistentResource(
         resource_pools=resource_pools,
         network=network,
+        labels=labels,
         resource_runtime_spec=resource_runtime_spec,
     )
 

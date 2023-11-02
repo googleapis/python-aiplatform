@@ -213,6 +213,31 @@ class TestClusterManagement:
             request,
         )
 
+    @pytest.mark.usefixtures("get_persistent_resource_1_pool_mock")
+    def test_create_ray_cluster_1_pool_gpu_with_labels_success(
+        self, create_persistent_resource_1_pool_mock
+    ):
+        """If head and worker nodes are duplicate, merge to head pool."""
+        cluster_name = vertex_ray.create_ray_cluster(
+            head_node_type=tc.ClusterConstants._TEST_HEAD_NODE_TYPE_1_POOL,
+            worker_node_types=tc.ClusterConstants._TEST_WORKER_NODE_TYPES_1_POOL,
+            network=tc.ProjectConstants._TEST_VPC_NETWORK,
+            cluster_name=tc.ClusterConstants._TEST_VERTEX_RAY_PR_ID,
+            labels=tc.ClusterConstants._TEST_LABELS,
+        )
+
+        assert tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
+
+        request = persistent_resource_service.CreatePersistentResourceRequest(
+            parent=tc.ProjectConstants._TEST_PARENT,
+            persistent_resource=tc.ClusterConstants._TEST_REQUEST_RUNNING_1_POOL_WITH_LABELS,
+            persistent_resource_id=tc.ClusterConstants._TEST_VERTEX_RAY_PR_ID,
+        )
+
+        create_persistent_resource_1_pool_mock.assert_called_with(
+            request,
+        )
+
     @pytest.mark.usefixtures("get_persistent_resource_2_pools_mock")
     def test_create_ray_cluster_2_pools_success(
         self, create_persistent_resource_2_pools_mock

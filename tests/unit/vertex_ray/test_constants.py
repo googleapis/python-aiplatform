@@ -63,6 +63,7 @@ class ProjectConstants:
 class ClusterConstants:
     """Defines cluster constants used by tests."""
 
+    _TEST_LABELS = {"my_key": "my_value"}
     _TEST_VERTEX_RAY_HEAD_NODE_IP = "1.2.3.4:10001"
     _TEST_VERTEX_RAY_JOB_CLIENT_IP = "1.2.3.4:8888"
     _TEST_VERTEX_RAY_DASHBOARD_ADDRESS = (
@@ -110,6 +111,14 @@ class ClusterConstants:
             ray_spec=RaySpec(resource_pool_images={"head-node": _TEST_GPU_IMAGE}),
         ),
         network=ProjectConstants._TEST_VPC_NETWORK,
+    )
+    _TEST_REQUEST_RUNNING_1_POOL_WITH_LABELS = PersistentResource(
+        resource_pools=[_TEST_RESOURCE_POOL_0],
+        resource_runtime_spec=ResourceRuntimeSpec(
+            ray_spec=RaySpec(resource_pool_images={"head-node": _TEST_GPU_IMAGE}),
+        ),
+        network=ProjectConstants._TEST_VPC_NETWORK,
+        labels=_TEST_LABELS,
     )
     # Get response has generated name, and URIs
     _TEST_RESPONSE_RUNNING_1_POOL = PersistentResource(

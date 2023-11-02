@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 import dataclasses
-from typing import List, Optional
+from typing import Dict, List, Optional
 from google.cloud.aiplatform_v1beta1.types import PersistentResource
 
 
@@ -84,6 +84,14 @@ class Cluster:
             duplicate the elements in the list.
         dashboard_address: For Ray Job API (JobSubmissionClient), with this
            cluster connection doesn't require VPC peering.
+        labels:
+            The labels with user-defined metadata to organize Ray cluster.
+
+            Label keys and values can be no longer than 64 characters (Unicode
+            codepoints), can only contain lowercase letters, numeric characters,
+            underscores and dashes. International characters are allowed.
+
+            See https://goo.gl/xmQnxf for more information and examples of labels.
     """
 
     cluster_resource_name: str = None
@@ -94,6 +102,7 @@ class Cluster:
     head_node_type: Resources = None
     worker_node_types: List[Resources] = None
     dashboard_address: str = None
+    labels: Dict[str, str] = None
 
 
 def _check_machine_spec_identical(
