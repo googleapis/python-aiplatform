@@ -232,8 +232,6 @@ _TEST_FILTER = [
     Namespace(name="class", allow_tokens=["token_1"], deny_tokens=["token_2"])
 ]
 _TEST_IDS = ["123", "456", "789"]
-_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS = 3
-_TEST_APPROX_NUM_NEIGHBORS = 2
 
 
 def uuid_mock():
@@ -868,8 +866,6 @@ class TestMatchingEngineIndexEndpoint:
             queries=_TEST_QUERIES,
             num_neighbors=_TEST_NUM_NEIGHBOURS,
             filter=_TEST_FILTER,
-            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
-            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
         )
 
         batch_request = match_service_pb2.BatchMatchRequest(
@@ -888,8 +884,6 @@ class TestMatchingEngineIndexEndpoint:
                                     deny_tokens=["token_2"],
                                 )
                             ],
-                            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
-                            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
                         )
                     ],
                 )

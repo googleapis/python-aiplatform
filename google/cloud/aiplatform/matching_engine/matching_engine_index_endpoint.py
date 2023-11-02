@@ -1071,8 +1071,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self,
         deployed_index_id: str,
         queries: List[List[float]],
-        per_crowding_attribute_num_neighbors: int,
-        approx_num_neighbors: int,
         num_neighbors: int = 1,
         filter: Optional[List[Namespace]] = [],
     ) -> List[List[MatchNeighbor]]:
@@ -1083,15 +1081,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. The ID of the DeployedIndex to match the queries against.
             queries (List[List[float]]):
                 Required. A list of queries. Each query is a list of floats, representing a single embedding.
-            per_crowding_attribute_num_neighbors (int):
-                Optional. Crowding is a constraint on a neighbor list produced by nearest neighbor
-                search requiring that no more than some value k' of the k neighbors
-                returned have the same value of crowding_attribute.
-                It's used for improving result diversity.
-                This field is the maximum number of matches with the same crowding tag.
-            approx_num_neighbors (int):
-                The number of neighbors to find via approximate search before exact reordering is performed.
-                If not set, the default value from scam config is used; if set, this value must be > 0.
             num_neighbors (int):
                 Required. The number of nearest neighbors to be retrieved from database for
                 each query.
@@ -1134,8 +1123,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 num_neighbors=num_neighbors,
                 deployed_index_id=deployed_index_id,
                 float_val=query,
-                per_crowding_attribute_num_neighbors=per_crowding_attribute_num_neighbors,
-                approx_num_neighbors=approx_num_neighbors,
             )
             for namespace in filter:
                 restrict = match_service_pb2.Namespace()
