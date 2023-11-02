@@ -41,6 +41,7 @@ from vertexai.preview._workflow.serialization_engine import (
 from packaging import version
 
 try:
+    # pylint: disable=g-import-not-at-top
     import cloudpickle
 except ImportError:
     cloudpickle = None
@@ -49,7 +50,6 @@ SERIALIZATION_METADATA_FRAMEWORK_KEY = "framework"
 
 # TODO(b/272263750): use the centralized module and usage pattern to guard these
 # imports
-# pylint: disable=g-import-not-at-top
 try:
     import pandas as pd
     import bigframes as bf
@@ -75,14 +75,6 @@ except ImportError:
     PandasData = Any
 
 try:
-    import sklearn
-
-    SklearnEstimator = sklearn.base.BaseEstimator
-except ImportError:
-    sklearn = None
-    SklearnEstimator = Any
-
-try:
     from tensorflow import keras
     import tensorflow as tf
 
@@ -106,23 +98,6 @@ except ImportError:
     TorchDataLoader = Any
     TorchTensor = Any
 
-try:
-    import lightning.pytorch as pl
-
-    LightningTrainer = pl.Trainer
-except ImportError:
-    pl = None
-    LightningTrainer = Any
-
-
-Types = Union[
-    PandasData,
-    BigframesData,
-    SklearnEstimator,
-    KerasModel,
-    TorchModel,
-    LightningTrainer,
-]
 
 _LIGHTNING_ROOT_DIR = "/vertex_lightning_root_dir/"
 SERIALIZATION_METADATA_FILENAME = "serialization_metadata"
@@ -420,7 +395,12 @@ class SklearnEstimatorSerializer(serializers_base.Serializer):
         serializers_base.SerializationMetadata(serializer="SklearnEstimatorSerializer")
     )
 
-    def serialize(self, to_serialize: SklearnEstimator, gcs_path: str, **kwargs) -> str:
+    def serialize(
+        self,
+        to_serialize: "sklearn.base.BaseEstimator",  # noqa: F821
+        gcs_path: str,
+        **kwargs,
+    ) -> str:
         """Serializes a sklearn estimator to a gcs path.
 
         Args:
@@ -447,7 +427,9 @@ class SklearnEstimatorSerializer(serializers_base.Serializer):
 
         return gcs_path
 
-    def deserialize(self, serialized_gcs_path: str, **kwargs) -> SklearnEstimator:
+    def deserialize(
+        self, serialized_gcs_path: str, **kwargs
+    ) -> "sklearn.base.BaseEstimator":  # noqa: F821
         """Deserialize a sklearn estimator given the gcs file name.
 
         Args:
@@ -572,7 +554,9 @@ class LightningTrainerSerializer(serializers_base.Serializer):
         serializers_base.SerializationMetadata(serializer="LightningTrainerSerializer")
     )
 
-    def _serialize_to_local(self, to_serialize: LightningTrainer, path: str):
+    def _serialize_to_local(
+        self, to_serialize: "lightning.pytorch.Trainer", path: str  # noqa: F821
+    ):
         """Serializes a lightning.pytorch.Trainer to a local path.
 
         Args:
@@ -626,7 +610,12 @@ class LightningTrainerSerializer(serializers_base.Serializer):
                 dirs_exist_ok=True,
             )
 
-    def serialize(self, to_serialize: LightningTrainer, gcs_path: str, **kwargs) -> str:
+    def serialize(
+        self,
+        to_serialize: "lightning.pytorch.Trainer",  # noqa: F821
+        gcs_path: str,
+        **kwargs,
+    ) -> str:
         """Serializes a lightning.pytorch.Trainer to a gcs path.
 
         Args:
@@ -660,7 +649,9 @@ class LightningTrainerSerializer(serializers_base.Serializer):
 
         return gcs_path
 
-    def _deserialize_from_local(self, path: str) -> LightningTrainer:
+    def _deserialize_from_local(
+        self, path: str
+    ) -> "lightning.pytorch.Trainer":  # noqa: F821
         """Deserialize a lightning.pytorch.Trainer given a local path.
 
         Args:
@@ -734,7 +725,9 @@ class LightningTrainerSerializer(serializers_base.Serializer):
 
         return trainer
 
-    def deserialize(self, serialized_gcs_path: str, **kwargs) -> LightningTrainer:
+    def deserialize(
+        self, serialized_gcs_path: str, **kwargs
+    ) -> "lightning.pytorch.Trainer":  # noqa: F821
         """Deserialize a lightning.pytorch.Trainer given the gcs path.
 
         Args:
@@ -1154,10 +1147,14 @@ class BigframeSerializer(serializers_base.Serializer):
         elif detected_framework == "torch":
             # Install using custom_commands to avoid numpy dependency conflict
             BigframeSerializer._metadata.custom_commands.append("pip install torchdata")
-            BigframeSerializer._metadata.custom_commands.append("pip install torcharrow")
+            BigframeSerializer._metadata.custom_commands.append(
+                "pip install torcharrow"
+            )
         elif detected_framework == "tensorflow":
             tensorflow_io_dep = "tensorflow-io==" + self._get_tfio_verison()
-            tensorflow_io_gcs_fs_dep = "tensorflow-io-gcs-filesystem==" + self._get_tfio_verison()
+            tensorflow_io_gcs_fs_dep = (
+                "tensorflow-io-gcs-filesystem==" + self._get_tfio_verison()
+            )
             BigframeSerializer._metadata.dependencies.append(tensorflow_io_dep)
             BigframeSerializer._metadata.dependencies.append(tensorflow_io_gcs_fs_dep)
 
