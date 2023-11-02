@@ -1915,9 +1915,7 @@ class TestLanguageModels:
                 _CODECHAT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-            model = preview_language_models.CodeChatModel.from_pretrained(
-                "codechat-bison@001"
-            )
+            model = language_models.CodeChatModel.from_pretrained("codechat-bison@001")
 
             # The tune_model call needs to be inside the PublisherModel mock
             # since it gets a new PublisherModel when tuning completes.

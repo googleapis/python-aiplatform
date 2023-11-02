@@ -1640,8 +1640,7 @@ class _PreviewChatModel(ChatModel, _PreviewTunableChatModelMixin):
             stop_sequences=stop_sequences,
         )
 
-
-class CodeChatModel(_ChatModelBase):
+class CodeChatModel(_ChatModelBase, _TunableChatModelMixin):
     """CodeChatModel represents a model that is capable of completing code.
 
     Examples:
@@ -1693,7 +1692,7 @@ class CodeChatModel(_ChatModelBase):
         )
 
 
-class _PreviewCodeChatModel(CodeChatModel, _TunableChatModelMixin):
+class _PreviewCodeChatModel(CodeChatModel):
     __name__ = "CodeChatModel"
     __module__ = "vertexai.preview.language_models"
 
