@@ -70,17 +70,17 @@ def create_ray_cluster(
     )]
 
     cluster_resource_name = vertex_ray.create_ray_cluster(
-            head_node_type=head_node_type,
-            network="my-vpc",
-            worker_node_types=worker_node_types,
+        head_node_type=head_node_type,
+        network="projects/my-project-number/global/networks/my-vpc-name",
+        worker_node_types=worker_node_types,
     )
 
     After a ray cluster is set up, you can call
-    `ray.init(vertex_ray://{cluster_resource_name}, runtime_env=...)` without
+    `ray.init(f"vertex_ray://{cluster_resource_name}", runtime_env=...)` without
     specifying ray cluster address to connect to the cluster. To shut down the
     cluster you can call `ray.delete_ray_cluster()`.
-    Note: If the active ray cluster haven't shut down, you cannot create a new ray
-    cluster with the same cluster_name.
+    Note: If the active ray cluster has not finished shutting down, you cannot
+    create a new ray cluster with the same cluster_name.
 
     Args:
         head_node_type: The head node resource. Resources.node_count must be 1.
