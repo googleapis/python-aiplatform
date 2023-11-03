@@ -17,7 +17,7 @@
 """Launches Tensorboard Uploader for SDK."""
 
 import threading
-from typing import Optional
+from typing import FrozenSet, Optional
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
@@ -48,6 +48,7 @@ class _TensorBoardTracker:
         run_name_prefix: Optional[str] = None,
         description: Optional[str] = None,
         verbosity: Optional[int] = 1,
+        allowed_plugins: Optional[FrozenSet[str]] = None,
     ):
         """upload only the existing data in the logdir and then return immediately
 
@@ -74,6 +75,7 @@ class _TensorBoardTracker:
           verbosity (str): Optional. Level of verbosity, an integer. Supported
             value: 0 - No upload statistics is printed. 1 - Print upload statistics
               while uploading data (default).
+          allowed_plugins (FrozenSet[str]): Optional. List of additional allowed plugin names.
         """
         self._create_uploader(
             tensorboard_id=tensorboard_id,
@@ -85,6 +87,8 @@ class _TensorBoardTracker:
             experiment_display_name=experiment_display_name,
             run_name_prefix=run_name_prefix,
             description=description,
+            verbosity=verbosity,
+            allowed_plugins=allowed_plugins,
         ).start_uploading()
         _LOGGER.info("One time TensorBoard log upload completed.")
 
@@ -98,6 +102,7 @@ class _TensorBoardTracker:
         experiment_display_name: Optional[str] = None,
         run_name_prefix: Optional[str] = None,
         description: Optional[str] = None,
+        allowed_plugins: Optional[FrozenSet[str]] = None,
     ):
         """continues to listen for new data in the logdir and uploads when it appears.
 
@@ -121,6 +126,7 @@ class _TensorBoardTracker:
             invocation will have their name prefixed by this value.
           description (str): Optional. String description to assign to the
             experiment.
+          allowed_plugins (FrozenSet[str]): Optional. List of additional allowed plugin names.
         """
         if self._tensorboard_uploader:
             _LOGGER.info(
@@ -141,6 +147,7 @@ class _TensorBoardTracker:
             run_name_prefix=run_name_prefix,
             description=description,
             verbosity=0,
+            allowed_plugins=allowed_plugins,
         )
         threading.Thread(target=self._tensorboard_uploader.start_uploading).start()
 
@@ -174,6 +181,7 @@ class _TensorBoardTracker:
         run_name_prefix: Optional[str] = None,
         description: Optional[str] = None,
         verbosity: Optional[int] = 1,
+        allowed_plugins: Optional[FrozenSet[str]] = None,
     ) -> "TensorBoardUploader":  # noqa: F821
         """Create a TensorBoardUploader and a TensorBoard Experiment
 
@@ -188,6 +196,7 @@ class _TensorBoardTracker:
           run_name_prefix (str): Optional. If present, all runs created by this invocation will have their name prefixed by this value.
           description (str): Optional. String description to assign to the experiment.
           verbosity (int)): Optional. Level of verbosity. Supported value: 0 - No upload statistics is printed. 1 - Print upload statistics while uploading data (default).
+          allowed_plugins (FrozenSet[str]): Optional. List of additional allowed plugin names.
 
         Returns:
             An instance of TensorBoardUploader.
@@ -244,13 +253,21 @@ class _TensorBoardTracker:
         ) = uploader_utils.get_blob_storage_bucket_and_folder(
             api_client, tensorboard_resource_name, project
         )
+
+        plugins = uploader_constants.ALLOWED_PLUGINS
+        plugins += [
+            plugin
+            for plugin in allowed_plugins
+            if plugin not in uploader_constants.ALLOWED_PLUGINS
+        ]
+
         tensorboard_uploader = TensorBoardUploader(
             experiment_name=tensorboard_experiment_name,
             tensorboard_resource_name=tensorboard_resource_name,
             experiment_display_name=experiment_display_name,
             blob_storage_bucket=blob_storage_bucket,
             blob_storage_folder=blob_storage_folder,
-            allowed_plugins=uploader_constants.ALLOWED_PLUGINS,
+            allowed_plugins=plugins,
             writer_client=api_client,
             logdir=logdir,
             one_shot=one_shot,
