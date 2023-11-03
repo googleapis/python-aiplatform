@@ -50,7 +50,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
-        grounding_source = language_models.WebSearchGroundingSource()
+        grounding_source = language_models.GroundingSource.WebSearch()
         assert model.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
@@ -78,7 +78,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
-        grounding_source = language_models.WebSearchGroundingSource()
+        grounding_source = language_models.GroundingSource.WebSearch()
         response = await model.predict_async(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
