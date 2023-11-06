@@ -39,7 +39,7 @@ from google.cloud.aiplatform.utils import prediction_utils
 DEFAULT_PREDICT_ROUTE = "/predict"
 DEFAULT_HEALTH_ROUTE = "/health"
 DEFAULT_HTTP_PORT = 8080
-_DEFAULT_SDK_REQUIREMENTS = ["google-cloud-aiplatform[prediction]>=1.16.0"]
+_DEFAULT_SDK_REQUIREMENTS = ["google-cloud-aiplatform[prediction]>=1.27.0"]
 _DEFAULT_HANDLER_MODULE = "google.cloud.aiplatform.prediction.handler"
 _DEFAULT_HANDLER_CLASS = "PredictionHandler"
 _DEFAULT_PYTHON_MODULE = "google.cloud.aiplatform.prediction.model_server"
@@ -150,7 +150,7 @@ class LocalModel:
         output_image_uri: str,
         predictor: Optional[Type[Predictor]] = None,
         handler: Type[Handler] = PredictionHandler,
-        base_image: str = "python:3.7",
+        base_image: str = "python:3.10",
         requirements_path: Optional[str] = None,
         extra_packages: Optional[List[str]] = None,
         no_cache: bool = False,

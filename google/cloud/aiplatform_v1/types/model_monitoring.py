@@ -349,6 +349,10 @@ class ModelMonitoringAlertConfig(proto.Message):
             [google.cloud.aiplatform.logging.ModelMonitoringAnomaliesLogEntry][].
             This can be further sinked to Pub/Sub or any other services
             supported by Cloud Logging.
+        notification_channels (MutableSequence[str]):
+            Resource names of the NotificationChannels to send alert.
+            Must be of the format
+            ``projects/<project_id_or_number>/notificationChannels/<channel_id>``
     """
 
     class EmailAlertConfig(proto.Message):
@@ -374,6 +378,10 @@ class ModelMonitoringAlertConfig(proto.Message):
         proto.BOOL,
         number=2,
     )
+    notification_channels: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=3,
+    )
 
 
 class ThresholdConfig(proto.Message):
@@ -388,10 +396,11 @@ class ThresholdConfig(proto.Message):
             feature distribution distance:
 
               1. For categorical feature, the distribution
-            distance is calculated by      L-inifinity norm.
+                distance is calculated by      L-inifinity
+                norm.
               2. For numerical feature, the distribution
-            distance is calculated by      Jensen–Shannon
-            divergence.
+                distance is calculated by
+                Jensen–Shannon divergence.
             Each feature must have a non-zero threshold if
             they need to be monitored. Otherwise no alert
             will be triggered for that feature.

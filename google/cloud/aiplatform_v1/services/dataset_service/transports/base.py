@@ -31,10 +31,10 @@ from google.cloud.aiplatform_v1.types import annotation_spec
 from google.cloud.aiplatform_v1.types import dataset
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import dataset_service
+from google.cloud.aiplatform_v1.types import dataset_version
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
@@ -167,6 +167,31 @@ class DatasetServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.create_dataset_version: gapic_v1.method.wrap_method(
+                self.create_dataset_version,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_dataset_version: gapic_v1.method.wrap_method(
+                self.delete_dataset_version,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_dataset_version: gapic_v1.method.wrap_method(
+                self.get_dataset_version,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_dataset_versions: gapic_v1.method.wrap_method(
+                self.list_dataset_versions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.restore_dataset_version: gapic_v1.method.wrap_method(
+                self.restore_dataset_version,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.list_data_items: gapic_v1.method.wrap_method(
                 self.list_data_items,
                 default_timeout=None,
@@ -275,6 +300,56 @@ class DatasetServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [dataset_service.ExportDataRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_dataset_version(
+        self,
+    ) -> Callable[
+        [dataset_service.CreateDatasetVersionRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_dataset_version(
+        self,
+    ) -> Callable[
+        [dataset_service.DeleteDatasetVersionRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_dataset_version(
+        self,
+    ) -> Callable[
+        [dataset_service.GetDatasetVersionRequest],
+        Union[
+            dataset_version.DatasetVersion, Awaitable[dataset_version.DatasetVersion]
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_dataset_versions(
+        self,
+    ) -> Callable[
+        [dataset_service.ListDatasetVersionsRequest],
+        Union[
+            dataset_service.ListDatasetVersionsResponse,
+            Awaitable[dataset_service.ListDatasetVersionsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def restore_dataset_version(
+        self,
+    ) -> Callable[
+        [dataset_service.RestoreDatasetVersionRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

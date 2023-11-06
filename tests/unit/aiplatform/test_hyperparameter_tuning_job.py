@@ -27,6 +27,7 @@ from google.rpc import status_pb2
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import hyperparameter_tuning as hpt
+from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
@@ -66,6 +67,7 @@ _TEST_TIMEOUT = test_constants.TrainingJobConstants._TEST_TIMEOUT
 _TEST_RESTART_JOB_ON_WORKER_RESTART = (
     test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
 )
+_TEST_DISABLE_RETRIES = test_constants.TrainingJobConstants._TEST_DISABLE_RETRIES
 
 _TEST_METRIC_SPEC_KEY = "test-metric"
 _TEST_METRIC_SPEC_VALUE = "maximize"
@@ -394,6 +396,8 @@ class TestHyperparameterTuningJob:
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     def test_create_hyperparameter_tuning_job(
         self,
         create_hyperparameter_tuning_job_mock,
@@ -448,6 +452,7 @@ class TestHyperparameterTuningJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait()
@@ -519,6 +524,7 @@ class TestHyperparameterTuningJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=180.0,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait()
@@ -586,6 +592,7 @@ class TestHyperparameterTuningJob:
                 restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
                 sync=sync,
                 create_request_timeout=None,
+                disable_retries=_TEST_DISABLE_RETRIES,
             )
 
             job.wait()
@@ -647,6 +654,7 @@ class TestHyperparameterTuningJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=False,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         with pytest.raises(RuntimeError) as e:
@@ -783,6 +791,7 @@ class TestHyperparameterTuningJob:
             tensorboard=test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait()
@@ -803,6 +812,8 @@ class TestHyperparameterTuningJob:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     def test_create_hyperparameter_tuning_job_with_enable_web_access(
         self,
         create_hyperparameter_tuning_job_mock_with_enable_web_access,
@@ -860,6 +871,7 @@ class TestHyperparameterTuningJob:
             enable_web_access=test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         job.wait()
@@ -882,6 +894,8 @@ class TestHyperparameterTuningJob:
 
         caplog.clear()
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     def test_log_enable_web_access_after_get_hyperparameter_tuning_job(
         self,
         get_hyperparameter_tuning_job_mock_with_enable_web_access,

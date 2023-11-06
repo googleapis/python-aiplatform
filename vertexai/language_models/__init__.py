@@ -23,9 +23,11 @@ from vertexai.language_models._language_models import (
     CodeGenerationModel,
     InputOutputTextPair,
     TextEmbedding,
+    TextEmbeddingInput,
     TextEmbeddingModel,
     TextGenerationModel,
     TextGenerationResponse,
+    GroundingSource,
 )
 
 __all__ = [
@@ -37,7 +39,9 @@ __all__ = [
     "CodeGenerationModel",
     "InputOutputTextPair",
     "TextEmbedding",
+    "TextEmbeddingInput",
     "TextEmbeddingModel",
     "TextGenerationModel",
     "TextGenerationResponse",
+    "GroundingSource",
 ]

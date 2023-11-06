@@ -125,6 +125,7 @@ class TrainingJobConstants:
     )
     _TEST_TIMEOUT = 8000
     _TEST_RESTART_JOB_ON_WORKER_RESTART = True
+    _TEST_DISABLE_RETRIES = True
 
     _TEST_BASE_CUSTOM_JOB_PROTO = custom_job.CustomJob(
         display_name=_TEST_DISPLAY_NAME,
@@ -136,6 +137,7 @@ class TrainingJobConstants:
             scheduling=custom_job.Scheduling(
                 timeout=duration_pb2.Duration(seconds=_TEST_TIMEOUT),
                 restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+                disable_retries=_TEST_DISABLE_RETRIES,
             ),
             service_account=ProjectConstants._TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,

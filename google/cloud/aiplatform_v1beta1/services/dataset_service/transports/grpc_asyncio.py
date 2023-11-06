@@ -29,10 +29,10 @@ from google.cloud.aiplatform_v1beta1.types import annotation_spec
 from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
+from google.cloud.aiplatform_v1beta1.types import dataset_version
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 from .base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import DatasetServiceGrpcTransport
@@ -453,6 +453,151 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["export_data"]
+
+    @property
+    def create_dataset_version(
+        self,
+    ) -> Callable[
+        [dataset_service.CreateDatasetVersionRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the create dataset version method over gRPC.
+
+        Create a version from a Dataset.
+
+        Returns:
+            Callable[[~.CreateDatasetVersionRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "create_dataset_version" not in self._stubs:
+            self._stubs["create_dataset_version"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DatasetService/CreateDatasetVersion",
+                request_serializer=dataset_service.CreateDatasetVersionRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["create_dataset_version"]
+
+    @property
+    def delete_dataset_version(
+        self,
+    ) -> Callable[
+        [dataset_service.DeleteDatasetVersionRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the delete dataset version method over gRPC.
+
+        Deletes a Dataset version.
+
+        Returns:
+            Callable[[~.DeleteDatasetVersionRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_dataset_version" not in self._stubs:
+            self._stubs["delete_dataset_version"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DatasetService/DeleteDatasetVersion",
+                request_serializer=dataset_service.DeleteDatasetVersionRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_dataset_version"]
+
+    @property
+    def get_dataset_version(
+        self,
+    ) -> Callable[
+        [dataset_service.GetDatasetVersionRequest],
+        Awaitable[dataset_version.DatasetVersion],
+    ]:
+        r"""Return a callable for the get dataset version method over gRPC.
+
+        Gets a Dataset version.
+
+        Returns:
+            Callable[[~.GetDatasetVersionRequest],
+                    Awaitable[~.DatasetVersion]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "get_dataset_version" not in self._stubs:
+            self._stubs["get_dataset_version"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DatasetService/GetDatasetVersion",
+                request_serializer=dataset_service.GetDatasetVersionRequest.serialize,
+                response_deserializer=dataset_version.DatasetVersion.deserialize,
+            )
+        return self._stubs["get_dataset_version"]
+
+    @property
+    def list_dataset_versions(
+        self,
+    ) -> Callable[
+        [dataset_service.ListDatasetVersionsRequest],
+        Awaitable[dataset_service.ListDatasetVersionsResponse],
+    ]:
+        r"""Return a callable for the list dataset versions method over gRPC.
+
+        Lists DatasetVersions in a Dataset.
+
+        Returns:
+            Callable[[~.ListDatasetVersionsRequest],
+                    Awaitable[~.ListDatasetVersionsResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_dataset_versions" not in self._stubs:
+            self._stubs["list_dataset_versions"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DatasetService/ListDatasetVersions",
+                request_serializer=dataset_service.ListDatasetVersionsRequest.serialize,
+                response_deserializer=dataset_service.ListDatasetVersionsResponse.deserialize,
+            )
+        return self._stubs["list_dataset_versions"]
+
+    @property
+    def restore_dataset_version(
+        self,
+    ) -> Callable[
+        [dataset_service.RestoreDatasetVersionRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the restore dataset version method over gRPC.
+
+        Restores a dataset version.
+
+        Returns:
+            Callable[[~.RestoreDatasetVersionRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "restore_dataset_version" not in self._stubs:
+            self._stubs["restore_dataset_version"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DatasetService/RestoreDatasetVersion",
+                request_serializer=dataset_service.RestoreDatasetVersionRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["restore_dataset_version"]
 
     @property
     def list_data_items(

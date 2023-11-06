@@ -29,7 +29,7 @@ class TestPipelineJob(e2e_base.TestEndToEnd):
     _temp_prefix = "tmpvrtxsdk-e2e"
 
     def test_add_pipeline_job_to_experiment(self, shared_state):
-        from kfp import components
+        from kfp import dsl
 
         # Components:
         def train(
@@ -39,7 +39,7 @@ class TestPipelineJob(e2e_base.TestEndToEnd):
             print(f"number_of_epochs={number_of_epochs}")
             print(f"learning_rate={learning_rate}")
 
-        train_op = components.create_component_from_func(train)
+        train_op = dsl.component(train)
 
         # Pipeline:
         def training_pipeline(number_of_epochs: int = 10):

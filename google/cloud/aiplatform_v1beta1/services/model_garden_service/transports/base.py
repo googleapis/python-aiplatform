@@ -31,7 +31,7 @@ from google.cloud.aiplatform_v1beta1.types import publisher_model
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
@@ -133,6 +133,11 @@ class ModelGardenServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.list_publisher_models: gapic_v1.method.wrap_method(
+                self.list_publisher_models,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -151,6 +156,18 @@ class ModelGardenServiceTransport(abc.ABC):
         [model_garden_service.GetPublisherModelRequest],
         Union[
             publisher_model.PublisherModel, Awaitable[publisher_model.PublisherModel]
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_publisher_models(
+        self,
+    ) -> Callable[
+        [model_garden_service.ListPublisherModelsRequest],
+        Union[
+            model_garden_service.ListPublisherModelsResponse,
+            Awaitable[model_garden_service.ListPublisherModelsResponse],
         ],
     ]:
         raise NotImplementedError()

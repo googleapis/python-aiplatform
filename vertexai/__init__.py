@@ -15,7 +15,9 @@
 """The vertexai module."""
 
 from google.cloud.aiplatform import init
+from vertexai import preview
 
 __all__ = [
     "init",
+    "preview",
 ]

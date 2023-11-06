@@ -79,6 +79,7 @@ class PersistentResource(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         network (str):
@@ -96,7 +97,7 @@ class PersistentResource(proto.Message):
             Network Peering for Vertex
             AI <https://cloud.google.com/vertex-ai/docs/general/vpc-peering>`__.
 
-            If this field is left unspecified, the resources is not
+            If this field is left unspecified, the resources aren't
             peered with any network.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Optional. Customer-managed encryption key
@@ -105,18 +106,18 @@ class PersistentResource(proto.Message):
             PersistentResource will be secured by this key.
         resource_runtime_spec (google.cloud.aiplatform_v1beta1.types.ResourceRuntimeSpec):
             Optional. Persistent Resource runtime spec.
-            Used for e.g. Ray cluster configuration.
+            For example, used for Ray cluster configuration.
         resource_runtime (google.cloud.aiplatform_v1beta1.types.ResourceRuntime):
             Output only. Runtime information of the
             Persistent Resource.
         reserved_ip_ranges (MutableSequence[str]):
-            Optional. A list of names for the reserved ip ranges under
+            Optional. A list of names for the reserved IP ranges under
             the VPC network that can be used for this persistent
             resource.
 
             If set, we will deploy the persistent resource within the
-            provided ip ranges. Otherwise, the persistent resource will
-            be deployed to any ip ranges under the provided VPC network.
+            provided IP ranges. Otherwise, the persistent resource is
+            deployed to any IP ranges under the provided VPC network.
 
             Example: ['vertex-ai-ip-range'].
     """
@@ -215,8 +216,9 @@ class PersistentResource(proto.Message):
 
 
 class ResourcePool(proto.Message):
-    r"""Represents the spec a group of resources of same type, e.g.
-    machine, disk and accelerators, in a PersistentResource.
+    r"""Represents the spec of a group of resources of the same type,
+    for example machine type, disk, and accelerators, in a
+    PersistentResource.
 
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
@@ -224,9 +226,9 @@ class ResourcePool(proto.Message):
     Attributes:
         id (str):
             Immutable. The unique ID in a
-            PersistentResource to refer the this resource
-            pool. User can specify it if need to use it,
-            otherwise we will generate it automatically.
+            PersistentResource for referring to this
+            resource pool. User can specify it if necessary.
+            Otherwise, it's generated automatically.
         machine_spec (google.cloud.aiplatform_v1beta1.types.MachineSpec):
             Required. Immutable. The specification of a
             single machine.
@@ -309,11 +311,11 @@ class ResourcePool(proto.Message):
 
 
 class ResourceRuntimeSpec(proto.Message):
-    r"""Configure runtime on a PersistentResource instance, including but
-    may not limited to:
+    r"""Configuration for the runtime on a PersistentResource instance,
+    including but not limited to:
 
-    -  Service accounts used to run the workloads;
-    -  Whether make it a dedicated Ray Cluster;
+    -  Service accounts used to run the workloads.
+    -  Whether to make it a dedicated Ray Cluster.
 
     Attributes:
         service_account_spec (google.cloud.aiplatform_v1beta1.types.ServiceAccountSpec):
@@ -346,18 +348,41 @@ class RaySpec(proto.Message):
     Attributes:
         image_uri (str):
             Optional. Default image for user to choose a preferred ML
-            framework(e.g. tensorflow or Pytorch) by choosing from
-            Vertex prebuild
-            images(https://cloud.google.com/vertex-ai/docs/training/pre-built-containers).
+            framework (for example, TensorFlow or Pytorch) by choosing
+            from `Vertex prebuilt
+            images <https://cloud.google.com/vertex-ai/docs/training/pre-built-containers>`__.
             Either this or the resource_pool_images is required. Use
             this field if you need all the resource pools to have the
-            same Ray image, Otherwise, use the {@code
+            same Ray image. Otherwise, use the {@code
             resource_pool_images} field.
+        resource_pool_images (MutableMapping[str, str]):
+            Optional. Required if image_uri isn't set. A map of
+            resource_pool_id to prebuild Ray image if user need to use
+            different images for different head/worker pools. This map
+            needs to cover all the resource pool ids. Example: {
+            "ray_head_node_pool": "head image" "ray_worker_node_pool1":
+            "worker image" "ray_worker_node_pool2": "another worker
+            image" }
+        head_node_resource_pool_id (str):
+            Optional. This will be used to indicate which
+            resource pool will serve as the Ray head
+            node(the first node within that pool). Will use
+            the machine from the first workerpool as the
+            head node by default if this field isn't set.
     """
 
     image_uri: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    resource_pool_images: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6,
+    )
+    head_node_resource_pool_id: str = proto.Field(
+        proto.STRING,
+        number=7,
     )
 
 
@@ -385,17 +410,17 @@ class ServiceAccountSpec(proto.Message):
     Attributes:
         enable_custom_service_account (bool):
             Required. If true, custom user-managed service account is
-            enforced to run any workloads (e.g. Vertex Jobs) on the
-            resource; Otherwise, will always use `Vertex AI Custom Code
+            enforced to run any workloads (for example, Vertex Jobs) on
+            the resource. Otherwise, uses the `Vertex AI Custom Code
             Service
-            Agent <https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents>`__
+            Agent <https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents>`__.
         service_account (str):
             Optional. Default service account that this
             PersistentResource's workloads run as. The workloads
             include:
 
             -  Any runtime specified via ``ResourceRuntimeSpec`` on
-               creation time, e.g. Ray;
+               creation time, for example, Ray.
             -  Jobs submitted to PersistentResource, if no other service
                account specified in the job specs.
 
@@ -403,7 +428,7 @@ class ServiceAccountSpec(proto.Message):
             have the ``iam.serviceAccounts.actAs`` permission on this
             service account.
 
-            Required if any containers specified in
+            Required if any containers are specified in
             ``ResourceRuntimeSpec``.
     """
 

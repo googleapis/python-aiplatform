@@ -226,12 +226,38 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         # Lazy load the Endpoint gca_resource until needed
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
 
-        self._prediction_client = self._instantiate_prediction_client(
-            location=self.location,
-            credentials=credentials,
-        )
         self.authorized_session = None
         self.raw_predict_request_url = None
+
+    @property
+    def _prediction_client(self) -> utils.PredictionClientWithOverride:
+        # The attribute might not exist due to issues in
+        # `VertexAiResourceNounWithFutureManager._sync_object_with_future_result`
+        # We should switch to @functools.cached_property once its available.
+        if not getattr(self, "_prediction_client_value", None):
+            self._prediction_client_value = initializer.global_config.create_client(
+                client_class=utils.PredictionClientWithOverride,
+                credentials=self.credentials,
+                location_override=self.location,
+                prediction_client=True,
+            )
+        return self._prediction_client_value
+
+    @property
+    def _prediction_async_client(self) -> utils.PredictionAsyncClientWithOverride:
+        # The attribute might not exist due to issues in
+        # `VertexAiResourceNounWithFutureManager._sync_object_with_future_result`
+        # We should switch to @functools.cached_property once its available.
+        if not getattr(self, "_prediction_async_client_value", None):
+            self._prediction_async_client_value = (
+                initializer.global_config.create_client(
+                    client_class=utils.PredictionAsyncClientWithOverride,
+                    credentials=self.credentials,
+                    location_override=self.location,
+                    prediction_client=True,
+                )
+            )
+        return self._prediction_async_client_value
 
     def _skipped_getter_call(self) -> bool:
         """Check if GAPIC resource was populated by call to get/list API methods
@@ -569,11 +595,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             gapic_resource=gapic_resource,
             project=project,
             location=location,
-            credentials=credentials,
-        )
-
-        endpoint._prediction_client = cls._instantiate_prediction_client(
-            location=endpoint.location,
             credentials=credentials,
         )
         endpoint.authorized_session = None
@@ -1096,6 +1117,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
+                If not specified, uses the service account set in aiplatform.init.
             explanation_spec (aiplatform.explain.ExplanationSpec):
                 Optional. Specification of Model explanation.
             metadata (Sequence[Tuple[str, str]]):
@@ -1119,6 +1141,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             ValueError: If there is not current traffic split and traffic percentage
                 is not 0 or 100.
         """
+
+        service_account = service_account or initializer.global_config.service_account
 
         max_replica_count = max(min_replica_count, max_replica_count)
 
@@ -1380,31 +1404,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         # update local resource
         self._sync_gca_resource()
 
-    @staticmethod
-    def _instantiate_prediction_client(
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> utils.PredictionClientWithOverride:
-        """Helper method to instantiates prediction client with optional
-        overrides for this endpoint.
-
-        Args:
-            location (str): The location of this endpoint.
-            credentials (google.auth.credentials.Credentials):
-                Optional custom credentials to use when accessing interacting with
-                the prediction client.
-
-        Returns:
-            prediction_client (prediction_service_client.PredictionServiceClient):
-                Initialized prediction client with optional overrides.
-        """
-        return initializer.global_config.create_client(
-            client_class=utils.PredictionClientWithOverride,
-            credentials=credentials,
-            location_override=location,
-            prediction_client=True,
-        )
-
     def update(
         self,
         display_name: Optional[str] = None,
@@ -1578,6 +1577,65 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 model_resource_name=prediction_response.model,
             )
 
+    async def predict_async(
+        self,
+        instances: List,
+        *,
+        parameters: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Make an asynchronous prediction against this Endpoint.
+        Example usage:
+            ```
+            response = await my_endpoint.predict_async(instances=[...])
+            my_predictions = response.predictions
+            ```
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                Optional. The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            timeout (float): Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                Prediction with returned predictions and Model ID.
+        """
+        self.wait()
+
+        prediction_response = await self._prediction_async_client.predict(
+            endpoint=self._gca_resource.name,
+            instances=instances,
+            parameters=parameters,
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in prediction_response.predictions.pb
+            ],
+            deployed_model_id=prediction_response.deployed_model_id,
+            model_version_id=prediction_response.model_version_id,
+            model_resource_name=prediction_response.model,
+        )
+
     def raw_predict(
         self, body: bytes, headers: Dict[str, str]
     ) -> requests.models.Response:
@@ -1657,6 +1715,70 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         self.wait()
 
         explain_response = self._prediction_client.explain(
+            endpoint=self.resource_name,
+            instances=instances,
+            parameters=parameters,
+            deployed_model_id=deployed_model_id,
+            timeout=timeout,
+        )
+
+        return Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in explain_response.predictions.pb
+            ],
+            deployed_model_id=explain_response.deployed_model_id,
+            explanations=explain_response.explanations,
+        )
+
+    async def explain_async(
+        self,
+        instances: List[Dict],
+        *,
+        parameters: Optional[Dict] = None,
+        deployed_model_id: Optional[str] = None,
+        timeout: Optional[float] = None,
+    ) -> Prediction:
+        """Make a prediction with explanations against this Endpoint.
+
+        Example usage:
+            ```
+            response = await my_endpoint.explain_async(instances=[...])
+            my_explanations = response.explanations
+            ```
+
+        Args:
+            instances (List):
+                Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+            deployed_model_id (str):
+                Optional. If specified, this ExplainRequest will be served by the
+                chosen DeployedModel, overriding this Endpoint's traffic split.
+            timeout (float): Optional. The timeout for this request in seconds.
+
+        Returns:
+            prediction (aiplatform.Prediction):
+                Prediction with returned predictions, explanations, and Model ID.
+        """
+        self.wait()
+
+        explain_response = await self._prediction_async_client.explain(
             endpoint=self.resource_name,
             instances=instances,
             parameters=parameters,

@@ -61,7 +61,7 @@ from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_p
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -1291,7 +1291,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 provided, an ID will be automatically generated.
 
                 This value should be less than 128 characters, and valid
-                characters are /[a-z][0-9]-/.
+                characters are ``/[a-z][0-9]-/``.
 
                 This corresponds to the ``pipeline_job_id`` field
                 on the ``request`` instance; if ``request`` is provided, this

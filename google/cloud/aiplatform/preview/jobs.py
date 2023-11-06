@@ -28,6 +28,8 @@ from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
     custom_job_v1beta1 as gca_custom_job_compat,
+    job_state as gca_job_state,
+    job_state_v1beta1 as gca_job_state_v1beta1,
 )
 from google.cloud.aiplatform.compat.types import (
     execution_v1beta1 as gcs_execution_compat,
@@ -42,6 +44,24 @@ from google.protobuf import duration_pb2  # type: ignore
 
 _LOGGER = base.Logger(__name__)
 _DEFAULT_RETRY = retry.Retry()
+# TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
+_JOB_COMPLETE_STATES = (
+    gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+    gca_job_state.JobState.JOB_STATE_FAILED,
+    gca_job_state.JobState.JOB_STATE_CANCELLED,
+    gca_job_state.JobState.JOB_STATE_PAUSED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_SUCCEEDED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_FAILED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_PAUSED,
+)
+
+_JOB_ERROR_STATES = (
+    gca_job_state.JobState.JOB_STATE_FAILED,
+    gca_job_state.JobState.JOB_STATE_CANCELLED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_FAILED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLED,
+)
 
 
 class CustomJob(jobs.CustomJob):
@@ -238,6 +258,7 @@ class CustomJob(jobs.CustomJob):
         experiment_run: Optional[Union["aiplatform.ExperimentRun", str]] = None,
         tensorboard: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
     ) -> None:
         """Submit the configured CustomJob.
 
@@ -290,6 +311,10 @@ class CustomJob(jobs.CustomJob):
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
 
         Raises:
             ValueError:
@@ -310,11 +335,12 @@ class CustomJob(jobs.CustomJob):
         if network:
             self._gca_resource.job_spec.network = network
 
-        if timeout or restart_job_on_worker_restart:
+        if timeout or restart_job_on_worker_restart or disable_retries:
             timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
             self._gca_resource.job_spec.scheduling = gca_custom_job_compat.Scheduling(
                 timeout=timeout,
                 restart_job_on_worker_restart=restart_job_on_worker_restart,
+                disable_retries=disable_retries,
             )
 
         if enable_web_access:

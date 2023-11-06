@@ -82,7 +82,7 @@ from google.cloud.aiplatform_v1.types import unmanaged_container_model
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -476,6 +476,26 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         """Parses a network path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def notification_channel_path(
+        project: str,
+        notification_channel: str,
+    ) -> str:
+        """Returns a fully-qualified notification_channel string."""
+        return "projects/{project}/notificationChannels/{notification_channel}".format(
+            project=project,
+            notification_channel=notification_channel,
+        )
+
+    @staticmethod
+    def parse_notification_channel_path(path: str) -> Dict[str, str]:
+        """Parses a notification_channel path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/notificationChannels/(?P<notification_channel>.+?)$",
+            path,
         )
         return m.groupdict() if m else {}
 

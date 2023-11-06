@@ -235,7 +235,7 @@ class CreatePipelineJobRequest(proto.Message):
             ID will be automatically generated.
 
             This value should be less than 128 characters, and valid
-            characters are /[a-z][0-9]-/.
+            characters are ``/[a-z][0-9]-/``.
     """
 
     parent: str = proto.Field(

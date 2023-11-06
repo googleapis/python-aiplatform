@@ -31,7 +31,6 @@ from google.cloud.aiplatform_v1.types import vizier_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from .base import VizierServiceTransport, DEFAULT_CLIENT_INFO
@@ -42,6 +41,7 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     """gRPC AsyncIO backend transport for VizierService.
 
     Vertex AI Vizier API.
+
     Vertex AI Vizier is a service to solve blackbox optimization
     problems, such as tuning machine learning hyperparameters and
     searching over deep learning architectures.

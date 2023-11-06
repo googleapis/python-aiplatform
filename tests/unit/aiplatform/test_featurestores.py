@@ -35,6 +35,7 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
 
 from google.cloud.aiplatform.utils import featurestore_utils
+from google.cloud.aiplatform.featurestore.feature import Feature
 from google.cloud.aiplatform.compat.services import (
     featurestore_service_client,
 )
@@ -721,8 +722,10 @@ def update_feature_mock():
     with patch.object(
         featurestore_service_client.FeaturestoreServiceClient, "update_feature"
     ) as update_feature_mock:
-        update_feature_lro_mock = mock.Mock(operation.Operation)
-        update_feature_mock.return_value = update_feature_lro_mock
+        update_feature_mock.return_value = gca_feature.Feature(
+            name=_TEST_FEATURE_NAME,
+            value_type=_TEST_FEATURE_VALUE_TYPE_ENUM,
+        )
         yield update_feature_mock
 
 
@@ -3693,7 +3696,7 @@ class TestFeature:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_feature = aiplatform.Feature(feature_name=_TEST_FEATURE_NAME)
-        my_feature.update(
+        updated_feature = my_feature.update(
             labels=_TEST_LABELS_UPDATE,
             update_request_timeout=None,
         )
@@ -3708,6 +3711,8 @@ class TestFeature:
             metadata=_TEST_REQUEST_METADATA,
             timeout=None,
         )
+
+        assert isinstance(updated_feature, Feature)
 
     @pytest.mark.parametrize(
         "entity_type_name, featurestore_id",

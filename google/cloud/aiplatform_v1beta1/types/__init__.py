@@ -58,14 +58,20 @@ from .dataset_service import (
     CreateDatasetOperationMetadata,
     CreateDatasetRequest,
     CreateDatasetVersionOperationMetadata,
+<<<<<<< HEAD
+=======
+    CreateDatasetVersionRequest,
+>>>>>>> main
     DataItemView,
     DeleteDatasetRequest,
+    DeleteDatasetVersionRequest,
     DeleteSavedQueryRequest,
     ExportDataOperationMetadata,
     ExportDataRequest,
     ExportDataResponse,
     GetAnnotationSpecRequest,
     GetDatasetRequest,
+    GetDatasetVersionRequest,
     ImportDataOperationMetadata,
     ImportDataRequest,
     ImportDataResponse,
@@ -75,12 +81,21 @@ from .dataset_service import (
     ListDataItemsResponse,
     ListDatasetsRequest,
     ListDatasetsResponse,
+    ListDatasetVersionsRequest,
+    ListDatasetVersionsResponse,
     ListSavedQueriesRequest,
     ListSavedQueriesResponse,
     RestoreDatasetVersionOperationMetadata,
+<<<<<<< HEAD
+=======
+    RestoreDatasetVersionRequest,
+>>>>>>> main
     SearchDataItemsRequest,
     SearchDataItemsResponse,
     UpdateDatasetRequest,
+)
+from .dataset_version import (
+    DatasetVersion,
 )
 from .deployed_index_ref import (
     DeployedIndexRef,
@@ -172,12 +187,67 @@ from .explanation_metadata import (
 from .feature import (
     Feature,
 )
+from .feature_group import (
+    FeatureGroup,
+)
 from .feature_monitoring_stats import (
     FeatureStatsAnomaly,
+)
+from .feature_online_store import (
+    FeatureOnlineStore,
+)
+from .feature_online_store_admin_service import (
+    CreateFeatureOnlineStoreOperationMetadata,
+    CreateFeatureOnlineStoreRequest,
+    CreateFeatureViewOperationMetadata,
+    CreateFeatureViewRequest,
+    DeleteFeatureOnlineStoreRequest,
+    DeleteFeatureViewRequest,
+    GetFeatureOnlineStoreRequest,
+    GetFeatureViewRequest,
+    GetFeatureViewSyncRequest,
+    ListFeatureOnlineStoresRequest,
+    ListFeatureOnlineStoresResponse,
+    ListFeatureViewsRequest,
+    ListFeatureViewsResponse,
+    ListFeatureViewSyncsRequest,
+    ListFeatureViewSyncsResponse,
+    SyncFeatureViewRequest,
+    SyncFeatureViewResponse,
+    UpdateFeatureOnlineStoreOperationMetadata,
+    UpdateFeatureOnlineStoreRequest,
+    UpdateFeatureViewOperationMetadata,
+    UpdateFeatureViewRequest,
+)
+from .feature_online_store_service import (
+    FetchFeatureValuesRequest,
+    FetchFeatureValuesResponse,
+    NearestNeighborQuery,
+    NearestNeighbors,
+    SearchNearestEntitiesRequest,
+    SearchNearestEntitiesResponse,
+)
+from .feature_registry_service import (
+    CreateFeatureGroupOperationMetadata,
+    CreateFeatureGroupRequest,
+    CreateRegistryFeatureOperationMetadata,
+    DeleteFeatureGroupRequest,
+    GetFeatureGroupRequest,
+    ListFeatureGroupsRequest,
+    ListFeatureGroupsResponse,
+    UpdateFeatureGroupOperationMetadata,
+    UpdateFeatureGroupRequest,
+    UpdateFeatureOperationMetadata,
 )
 from .feature_selector import (
     FeatureSelector,
     IdMatcher,
+)
+from .feature_view import (
+    FeatureView,
+)
+from .feature_view_sync import (
+    FeatureViewSync,
 )
 from .featurestore import (
     Featurestore,
@@ -459,6 +529,8 @@ from .model_evaluation_slice import (
 )
 from .model_garden_service import (
     GetPublisherModelRequest,
+    ListPublisherModelsRequest,
+    ListPublisherModelsResponse,
     PublisherModelView,
 )
 from .model_monitoring import (
@@ -528,6 +600,8 @@ from .persistent_resource_service import (
     GetPersistentResourceRequest,
     ListPersistentResourcesRequest,
     ListPersistentResourcesResponse,
+    UpdatePersistentResourceOperationMetadata,
+    UpdatePersistentResourceRequest,
 )
 from .pipeline_job import (
     PipelineJob,
@@ -601,6 +675,7 @@ from .study import (
     Study,
     StudySpec,
     Trial,
+    TrialContext,
 )
 from .tensorboard import (
     Tensorboard,
@@ -746,14 +821,20 @@ __all__ = (
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
     "CreateDatasetVersionOperationMetadata",
+<<<<<<< HEAD
+=======
+    "CreateDatasetVersionRequest",
+>>>>>>> main
     "DataItemView",
     "DeleteDatasetRequest",
+    "DeleteDatasetVersionRequest",
     "DeleteSavedQueryRequest",
     "ExportDataOperationMetadata",
     "ExportDataRequest",
     "ExportDataResponse",
     "GetAnnotationSpecRequest",
     "GetDatasetRequest",
+    "GetDatasetVersionRequest",
     "ImportDataOperationMetadata",
     "ImportDataRequest",
     "ImportDataResponse",
@@ -763,12 +844,19 @@ __all__ = (
     "ListDataItemsResponse",
     "ListDatasetsRequest",
     "ListDatasetsResponse",
+    "ListDatasetVersionsRequest",
+    "ListDatasetVersionsResponse",
     "ListSavedQueriesRequest",
     "ListSavedQueriesResponse",
     "RestoreDatasetVersionOperationMetadata",
+<<<<<<< HEAD
+=======
+    "RestoreDatasetVersionRequest",
+>>>>>>> main
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
     "UpdateDatasetRequest",
+    "DatasetVersion",
     "DeployedIndexRef",
     "DeployedModelRef",
     "DeploymentResourcePool",
@@ -829,9 +917,50 @@ __all__ = (
     "XraiAttribution",
     "ExplanationMetadata",
     "Feature",
+    "FeatureGroup",
     "FeatureStatsAnomaly",
+    "FeatureOnlineStore",
+    "CreateFeatureOnlineStoreOperationMetadata",
+    "CreateFeatureOnlineStoreRequest",
+    "CreateFeatureViewOperationMetadata",
+    "CreateFeatureViewRequest",
+    "DeleteFeatureOnlineStoreRequest",
+    "DeleteFeatureViewRequest",
+    "GetFeatureOnlineStoreRequest",
+    "GetFeatureViewRequest",
+    "GetFeatureViewSyncRequest",
+    "ListFeatureOnlineStoresRequest",
+    "ListFeatureOnlineStoresResponse",
+    "ListFeatureViewsRequest",
+    "ListFeatureViewsResponse",
+    "ListFeatureViewSyncsRequest",
+    "ListFeatureViewSyncsResponse",
+    "SyncFeatureViewRequest",
+    "SyncFeatureViewResponse",
+    "UpdateFeatureOnlineStoreOperationMetadata",
+    "UpdateFeatureOnlineStoreRequest",
+    "UpdateFeatureViewOperationMetadata",
+    "UpdateFeatureViewRequest",
+    "FetchFeatureValuesRequest",
+    "FetchFeatureValuesResponse",
+    "NearestNeighborQuery",
+    "NearestNeighbors",
+    "SearchNearestEntitiesRequest",
+    "SearchNearestEntitiesResponse",
+    "CreateFeatureGroupOperationMetadata",
+    "CreateFeatureGroupRequest",
+    "CreateRegistryFeatureOperationMetadata",
+    "DeleteFeatureGroupRequest",
+    "GetFeatureGroupRequest",
+    "ListFeatureGroupsRequest",
+    "ListFeatureGroupsResponse",
+    "UpdateFeatureGroupOperationMetadata",
+    "UpdateFeatureGroupRequest",
+    "UpdateFeatureOperationMetadata",
     "FeatureSelector",
     "IdMatcher",
+    "FeatureView",
+    "FeatureViewSync",
     "Featurestore",
     "FeaturestoreMonitoringConfig",
     "FeatureValue",
@@ -1064,6 +1193,8 @@ __all__ = (
     "ModelEvaluation",
     "ModelEvaluationSlice",
     "GetPublisherModelRequest",
+    "ListPublisherModelsRequest",
+    "ListPublisherModelsResponse",
     "PublisherModelView",
     "ModelMonitoringAlertConfig",
     "ModelMonitoringConfig",
@@ -1121,6 +1252,8 @@ __all__ = (
     "GetPersistentResourceRequest",
     "ListPersistentResourcesRequest",
     "ListPersistentResourcesResponse",
+    "UpdatePersistentResourceOperationMetadata",
+    "UpdatePersistentResourceRequest",
     "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
@@ -1174,6 +1307,7 @@ __all__ = (
     "Study",
     "StudySpec",
     "Trial",
+    "TrialContext",
     "Tensorboard",
     "Scalar",
     "TensorboardBlob",

@@ -84,14 +84,17 @@ from .types.dataset import ImportDataConfig
 from .types.dataset_service import CreateDatasetOperationMetadata
 from .types.dataset_service import CreateDatasetRequest
 from .types.dataset_service import CreateDatasetVersionOperationMetadata
+from .types.dataset_service import CreateDatasetVersionRequest
 from .types.dataset_service import DataItemView
 from .types.dataset_service import DeleteDatasetRequest
+from .types.dataset_service import DeleteDatasetVersionRequest
 from .types.dataset_service import DeleteSavedQueryRequest
 from .types.dataset_service import ExportDataOperationMetadata
 from .types.dataset_service import ExportDataRequest
 from .types.dataset_service import ExportDataResponse
 from .types.dataset_service import GetAnnotationSpecRequest
 from .types.dataset_service import GetDatasetRequest
+from .types.dataset_service import GetDatasetVersionRequest
 from .types.dataset_service import ImportDataOperationMetadata
 from .types.dataset_service import ImportDataRequest
 from .types.dataset_service import ImportDataResponse
@@ -101,12 +104,16 @@ from .types.dataset_service import ListDataItemsRequest
 from .types.dataset_service import ListDataItemsResponse
 from .types.dataset_service import ListDatasetsRequest
 from .types.dataset_service import ListDatasetsResponse
+from .types.dataset_service import ListDatasetVersionsRequest
+from .types.dataset_service import ListDatasetVersionsResponse
 from .types.dataset_service import ListSavedQueriesRequest
 from .types.dataset_service import ListSavedQueriesResponse
 from .types.dataset_service import RestoreDatasetVersionOperationMetadata
+from .types.dataset_service import RestoreDatasetVersionRequest
 from .types.dataset_service import SearchDataItemsRequest
 from .types.dataset_service import SearchDataItemsResponse
 from .types.dataset_service import UpdateDatasetRequest
+from .types.dataset_version import DatasetVersion
 from .types.deployed_index_ref import DeployedIndexRef
 from .types.deployed_model_ref import DeployedModelRef
 from .types.encryption_spec import EncryptionSpec
@@ -311,6 +318,7 @@ from .types.machine_resources import DedicatedResources
 from .types.machine_resources import DiskSpec
 from .types.machine_resources import MachineSpec
 from .types.machine_resources import NfsMount
+from .types.machine_resources import PersistentDiskSpec
 from .types.machine_resources import ResourcesConsumed
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
 from .types.match_service import FindNeighborsRequest
@@ -494,6 +502,7 @@ from .types.study import Measurement
 from .types.study import Study
 from .types.study import StudySpec
 from .types.study import Trial
+from .types.study import TrialContext
 from .types.tensorboard import Tensorboard
 from .types.tensorboard_data import Scalar
 from .types.tensorboard_data import TensorboardBlob
@@ -674,6 +683,7 @@ __all__ = (
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
     "CreateDatasetVersionOperationMetadata",
+    "CreateDatasetVersionRequest",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
     "CreateEntityTypeOperationMetadata",
@@ -714,6 +724,7 @@ __all__ = (
     "DataLabelingJob",
     "Dataset",
     "DatasetServiceClient",
+    "DatasetVersion",
     "DedicatedResources",
     "DeleteArtifactRequest",
     "DeleteBatchPredictionJobRequest",
@@ -721,6 +732,7 @@ __all__ = (
     "DeleteCustomJobRequest",
     "DeleteDataLabelingJobRequest",
     "DeleteDatasetRequest",
+    "DeleteDatasetVersionRequest",
     "DeleteEndpointRequest",
     "DeleteEntityTypeRequest",
     "DeleteExecutionRequest",
@@ -824,6 +836,7 @@ __all__ = (
     "GetCustomJobRequest",
     "GetDataLabelingJobRequest",
     "GetDatasetRequest",
+    "GetDatasetVersionRequest",
     "GetEndpointRequest",
     "GetEntityTypeRequest",
     "GetExecutionRequest",
@@ -889,6 +902,8 @@ __all__ = (
     "ListDataItemsResponse",
     "ListDataLabelingJobsRequest",
     "ListDataLabelingJobsResponse",
+    "ListDatasetVersionsRequest",
+    "ListDatasetVersionsResponse",
     "ListDatasetsRequest",
     "ListDatasetsResponse",
     "ListEndpointsRequest",
@@ -994,6 +1009,7 @@ __all__ = (
     "NfsMount",
     "PauseModelDeploymentMonitoringJobRequest",
     "PauseScheduleRequest",
+    "PersistentDiskSpec",
     "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
@@ -1046,6 +1062,7 @@ __all__ = (
     "RemoveDatapointsResponse",
     "ResourcesConsumed",
     "RestoreDatasetVersionOperationMetadata",
+    "RestoreDatasetVersionRequest",
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "SampleConfig",
@@ -1095,6 +1112,7 @@ __all__ = (
     "TrainingConfig",
     "TrainingPipeline",
     "Trial",
+    "TrialContext",
     "UndeployIndexOperationMetadata",
     "UndeployIndexRequest",
     "UndeployIndexResponse",

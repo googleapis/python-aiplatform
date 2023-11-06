@@ -34,7 +34,6 @@ from google.cloud.aiplatform_v1beta1.types import featurestore_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 from .base import FeaturestoreServiceTransport, DEFAULT_CLIENT_INFO
 
@@ -720,13 +719,16 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         operation. The imported features are guaranteed to be
         visible to subsequent read operations after the
         operation is marked as successfully done.
+
         If an import operation fails, the Feature values
         returned from reads and exports may be inconsistent. If
         consistency is required, the caller must retry the same
         import request again and wait till the new operation
         returned is marked as successfully done.
+
         There are also scenarios where the caller can cause
         inconsistency.
+
          - Source data for import contains multiple distinct
           Feature values for    the same entity ID and
           timestamp.
@@ -764,6 +766,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         r"""Return a callable for the batch read feature values method over gRPC.
 
         Batch reads Feature values from a Featurestore.
+
         This API enables batch reading Feature values, where
         each read instance in the batch may read Feature values
         of entities from one or more EntityTypes. Point-in-time
@@ -826,10 +829,12 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         r"""Return a callable for the delete feature values method over gRPC.
 
         Delete Feature values from Featurestore.
+
         The progress of the deletion is tracked by the returned
         operation. The deleted feature values are guaranteed to
         be invisible to subsequent read operations after the
         operation is marked as successfully done.
+
         If a delete feature values operation fails, the feature
         values returned from reads and exports may be
         inconsistent. If consistency is required, the caller

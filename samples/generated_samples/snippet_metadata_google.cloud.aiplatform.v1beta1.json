@@ -8,9 +8,178 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-    "version": "1.30.1"
+    "version": "1.36.0"
   },
   "snippets": [
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient",
+          "shortName": "DatasetServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient.create_dataset_version",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.CreateDatasetVersion",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "CreateDatasetVersion"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateDatasetVersionRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "dataset_version",
+            "type": "google.cloud.aiplatform_v1beta1.types.DatasetVersion"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "create_dataset_version"
+      },
+      "description": "Sample for CreateDatasetVersion",
+      "file": "aiplatform_v1beta1_generated_dataset_service_create_dataset_version_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_CreateDatasetVersion_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_create_dataset_version_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient",
+          "shortName": "DatasetServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient.create_dataset_version",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.CreateDatasetVersion",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "CreateDatasetVersion"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateDatasetVersionRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "dataset_version",
+            "type": "google.cloud.aiplatform_v1beta1.types.DatasetVersion"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "create_dataset_version"
+      },
+      "description": "Sample for CreateDatasetVersion",
+      "file": "aiplatform_v1beta1_generated_dataset_service_create_dataset_version_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_CreateDatasetVersion_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_create_dataset_version_sync.py"
+    },
     {
       "canonical": true,
       "clientMethod": {
@@ -179,6 +348,167 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_dataset_service_create_dataset_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient",
+          "shortName": "DatasetServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient.delete_dataset_version",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.DeleteDatasetVersion",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "DeleteDatasetVersion"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteDatasetVersionRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_dataset_version"
+      },
+      "description": "Sample for DeleteDatasetVersion",
+      "file": "aiplatform_v1beta1_generated_dataset_service_delete_dataset_version_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_DeleteDatasetVersion_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_delete_dataset_version_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient",
+          "shortName": "DatasetServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient.delete_dataset_version",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.DeleteDatasetVersion",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "DeleteDatasetVersion"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteDatasetVersionRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_dataset_version"
+      },
+      "description": "Sample for DeleteDatasetVersion",
+      "file": "aiplatform_v1beta1_generated_dataset_service_delete_dataset_version_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_DeleteDatasetVersion_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_delete_dataset_version_sync.py"
     },
     {
       "canonical": true,
@@ -840,6 +1170,167 @@
           "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient",
           "shortName": "DatasetServiceAsyncClient"
         },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient.get_dataset_version",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.GetDatasetVersion",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "GetDatasetVersion"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetDatasetVersionRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.DatasetVersion",
+        "shortName": "get_dataset_version"
+      },
+      "description": "Sample for GetDatasetVersion",
+      "file": "aiplatform_v1beta1_generated_dataset_service_get_dataset_version_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_GetDatasetVersion_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_get_dataset_version_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient",
+          "shortName": "DatasetServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient.get_dataset_version",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.GetDatasetVersion",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "GetDatasetVersion"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetDatasetVersionRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.DatasetVersion",
+        "shortName": "get_dataset_version"
+      },
+      "description": "Sample for GetDatasetVersion",
+      "file": "aiplatform_v1beta1_generated_dataset_service_get_dataset_version_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_GetDatasetVersion_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_get_dataset_version_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient",
+          "shortName": "DatasetServiceAsyncClient"
+        },
         "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient.get_dataset",
         "method": {
           "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.GetDataset",
@@ -1492,6 +1983,167 @@
           "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient",
           "shortName": "DatasetServiceAsyncClient"
         },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient.list_dataset_versions",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.ListDatasetVersions",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "ListDatasetVersions"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListDatasetVersionsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListDatasetVersionsAsyncPager",
+        "shortName": "list_dataset_versions"
+      },
+      "description": "Sample for ListDatasetVersions",
+      "file": "aiplatform_v1beta1_generated_dataset_service_list_dataset_versions_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_ListDatasetVersions_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_list_dataset_versions_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient",
+          "shortName": "DatasetServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient.list_dataset_versions",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.ListDatasetVersions",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "ListDatasetVersions"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListDatasetVersionsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListDatasetVersionsPager",
+        "shortName": "list_dataset_versions"
+      },
+      "description": "Sample for ListDatasetVersions",
+      "file": "aiplatform_v1beta1_generated_dataset_service_list_dataset_versions_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_ListDatasetVersions_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_list_dataset_versions_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient",
+          "shortName": "DatasetServiceAsyncClient"
+        },
         "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient.list_datasets",
         "method": {
           "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets",
@@ -1805,6 +2457,167 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_dataset_service_list_saved_queries_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient",
+          "shortName": "DatasetServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceAsyncClient.restore_dataset_version",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.RestoreDatasetVersion",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "RestoreDatasetVersion"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.RestoreDatasetVersionRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "restore_dataset_version"
+      },
+      "description": "Sample for RestoreDatasetVersion",
+      "file": "aiplatform_v1beta1_generated_dataset_service_restore_dataset_version_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_RestoreDatasetVersion_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_restore_dataset_version_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient",
+          "shortName": "DatasetServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.DatasetServiceClient.restore_dataset_version",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.DatasetService.RestoreDatasetVersion",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.DatasetService",
+            "shortName": "DatasetService"
+          },
+          "shortName": "RestoreDatasetVersion"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.RestoreDatasetVersionRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "restore_dataset_version"
+      },
+      "description": "Sample for RestoreDatasetVersion",
+      "file": "aiplatform_v1beta1_generated_dataset_service_restore_dataset_version_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_DatasetService_RestoreDatasetVersion_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_dataset_service_restore_dataset_version_sync.py"
     },
     {
       "canonical": true,
@@ -4314,6 +5127,4143 @@
       "clientMethod": {
         "async": true,
         "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.create_feature_online_store",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.CreateFeatureOnlineStore",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "CreateFeatureOnlineStore"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateFeatureOnlineStoreRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "feature_online_store",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore"
+          },
+          {
+            "name": "feature_online_store_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "create_feature_online_store"
+      },
+      "description": "Sample for CreateFeatureOnlineStore",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_create_feature_online_store_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_CreateFeatureOnlineStore_async",
+      "segments": [
+        {
+          "end": 61,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 61,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 58,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 62,
+          "start": 59,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_create_feature_online_store_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.create_feature_online_store",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.CreateFeatureOnlineStore",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "CreateFeatureOnlineStore"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateFeatureOnlineStoreRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "feature_online_store",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore"
+          },
+          {
+            "name": "feature_online_store_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "create_feature_online_store"
+      },
+      "description": "Sample for CreateFeatureOnlineStore",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_create_feature_online_store_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_CreateFeatureOnlineStore_sync",
+      "segments": [
+        {
+          "end": 61,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 61,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 58,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 62,
+          "start": 59,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_create_feature_online_store_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.create_feature_view",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.CreateFeatureView",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "CreateFeatureView"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateFeatureViewRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "feature_view",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureView"
+          },
+          {
+            "name": "feature_view_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "create_feature_view"
+      },
+      "description": "Sample for CreateFeatureView",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_create_feature_view_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_CreateFeatureView_async",
+      "segments": [
+        {
+          "end": 61,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 61,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 58,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 62,
+          "start": 59,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_create_feature_view_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.create_feature_view",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.CreateFeatureView",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "CreateFeatureView"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateFeatureViewRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "feature_view",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureView"
+          },
+          {
+            "name": "feature_view_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "create_feature_view"
+      },
+      "description": "Sample for CreateFeatureView",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_create_feature_view_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_CreateFeatureView_sync",
+      "segments": [
+        {
+          "end": 61,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 61,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 58,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 62,
+          "start": 59,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_create_feature_view_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.delete_feature_online_store",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.DeleteFeatureOnlineStore",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "DeleteFeatureOnlineStore"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteFeatureOnlineStoreRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "force",
+            "type": "bool"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_feature_online_store"
+      },
+      "description": "Sample for DeleteFeatureOnlineStore",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_delete_feature_online_store_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_DeleteFeatureOnlineStore_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_delete_feature_online_store_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.delete_feature_online_store",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.DeleteFeatureOnlineStore",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "DeleteFeatureOnlineStore"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteFeatureOnlineStoreRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "force",
+            "type": "bool"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_feature_online_store"
+      },
+      "description": "Sample for DeleteFeatureOnlineStore",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_delete_feature_online_store_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_DeleteFeatureOnlineStore_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_delete_feature_online_store_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.delete_feature_view",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.DeleteFeatureView",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "DeleteFeatureView"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteFeatureViewRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_feature_view"
+      },
+      "description": "Sample for DeleteFeatureView",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_delete_feature_view_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_DeleteFeatureView_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_delete_feature_view_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.delete_feature_view",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.DeleteFeatureView",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "DeleteFeatureView"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteFeatureViewRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_feature_view"
+      },
+      "description": "Sample for DeleteFeatureView",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_delete_feature_view_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_DeleteFeatureView_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_delete_feature_view_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.get_feature_online_store",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.GetFeatureOnlineStore",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "GetFeatureOnlineStore"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetFeatureOnlineStoreRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore",
+        "shortName": "get_feature_online_store"
+      },
+      "description": "Sample for GetFeatureOnlineStore",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_online_store_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_GetFeatureOnlineStore_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_online_store_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.get_feature_online_store",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.GetFeatureOnlineStore",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "GetFeatureOnlineStore"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetFeatureOnlineStoreRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore",
+        "shortName": "get_feature_online_store"
+      },
+      "description": "Sample for GetFeatureOnlineStore",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_online_store_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_GetFeatureOnlineStore_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_online_store_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.get_feature_view_sync",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.GetFeatureViewSync",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "GetFeatureViewSync"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetFeatureViewSyncRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FeatureViewSync",
+        "shortName": "get_feature_view_sync"
+      },
+      "description": "Sample for GetFeatureViewSync",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_view_sync_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_GetFeatureViewSync_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_view_sync_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.get_feature_view_sync",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.GetFeatureViewSync",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "GetFeatureViewSync"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetFeatureViewSyncRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FeatureViewSync",
+        "shortName": "get_feature_view_sync"
+      },
+      "description": "Sample for GetFeatureViewSync",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_view_sync_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_GetFeatureViewSync_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_view_sync_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.get_feature_view",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.GetFeatureView",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "GetFeatureView"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetFeatureViewRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FeatureView",
+        "shortName": "get_feature_view"
+      },
+      "description": "Sample for GetFeatureView",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_view_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_GetFeatureView_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_view_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.get_feature_view",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.GetFeatureView",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "GetFeatureView"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetFeatureViewRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FeatureView",
+        "shortName": "get_feature_view"
+      },
+      "description": "Sample for GetFeatureView",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_view_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_GetFeatureView_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_get_feature_view_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.list_feature_online_stores",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.ListFeatureOnlineStores",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "ListFeatureOnlineStores"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListFeatureOnlineStoresRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.feature_online_store_admin_service.pagers.ListFeatureOnlineStoresAsyncPager",
+        "shortName": "list_feature_online_stores"
+      },
+      "description": "Sample for ListFeatureOnlineStores",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_online_stores_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_ListFeatureOnlineStores_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_online_stores_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.list_feature_online_stores",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.ListFeatureOnlineStores",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "ListFeatureOnlineStores"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListFeatureOnlineStoresRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.feature_online_store_admin_service.pagers.ListFeatureOnlineStoresPager",
+        "shortName": "list_feature_online_stores"
+      },
+      "description": "Sample for ListFeatureOnlineStores",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_online_stores_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_ListFeatureOnlineStores_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_online_stores_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.list_feature_view_syncs",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.ListFeatureViewSyncs",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "ListFeatureViewSyncs"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListFeatureViewSyncsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.feature_online_store_admin_service.pagers.ListFeatureViewSyncsAsyncPager",
+        "shortName": "list_feature_view_syncs"
+      },
+      "description": "Sample for ListFeatureViewSyncs",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_view_syncs_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_ListFeatureViewSyncs_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_view_syncs_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.list_feature_view_syncs",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.ListFeatureViewSyncs",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "ListFeatureViewSyncs"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListFeatureViewSyncsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.feature_online_store_admin_service.pagers.ListFeatureViewSyncsPager",
+        "shortName": "list_feature_view_syncs"
+      },
+      "description": "Sample for ListFeatureViewSyncs",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_view_syncs_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_ListFeatureViewSyncs_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_view_syncs_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.list_feature_views",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.ListFeatureViews",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "ListFeatureViews"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListFeatureViewsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.feature_online_store_admin_service.pagers.ListFeatureViewsAsyncPager",
+        "shortName": "list_feature_views"
+      },
+      "description": "Sample for ListFeatureViews",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_views_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_ListFeatureViews_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_views_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.list_feature_views",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.ListFeatureViews",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "ListFeatureViews"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListFeatureViewsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.feature_online_store_admin_service.pagers.ListFeatureViewsPager",
+        "shortName": "list_feature_views"
+      },
+      "description": "Sample for ListFeatureViews",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_views_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_ListFeatureViews_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_list_feature_views_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.sync_feature_view",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.SyncFeatureView",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "SyncFeatureView"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.SyncFeatureViewRequest"
+          },
+          {
+            "name": "feature_view",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.SyncFeatureViewResponse",
+        "shortName": "sync_feature_view"
+      },
+      "description": "Sample for SyncFeatureView",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_sync_feature_view_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_SyncFeatureView_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_sync_feature_view_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.sync_feature_view",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.SyncFeatureView",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "SyncFeatureView"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.SyncFeatureViewRequest"
+          },
+          {
+            "name": "feature_view",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.SyncFeatureViewResponse",
+        "shortName": "sync_feature_view"
+      },
+      "description": "Sample for SyncFeatureView",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_sync_feature_view_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_SyncFeatureView_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_sync_feature_view_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.update_feature_online_store",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.UpdateFeatureOnlineStore",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "UpdateFeatureOnlineStore"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateFeatureOnlineStoreRequest"
+          },
+          {
+            "name": "feature_online_store",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "update_feature_online_store"
+      },
+      "description": "Sample for UpdateFeatureOnlineStore",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_update_feature_online_store_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_UpdateFeatureOnlineStore_async",
+      "segments": [
+        {
+          "end": 59,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 59,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 56,
+          "start": 50,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 60,
+          "start": 57,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_update_feature_online_store_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.update_feature_online_store",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.UpdateFeatureOnlineStore",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "UpdateFeatureOnlineStore"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateFeatureOnlineStoreRequest"
+          },
+          {
+            "name": "feature_online_store",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "update_feature_online_store"
+      },
+      "description": "Sample for UpdateFeatureOnlineStore",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_update_feature_online_store_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_UpdateFeatureOnlineStore_sync",
+      "segments": [
+        {
+          "end": 59,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 59,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 56,
+          "start": 50,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 60,
+          "start": 57,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_update_feature_online_store_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreAdminServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceAsyncClient.update_feature_view",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.UpdateFeatureView",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "UpdateFeatureView"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateFeatureViewRequest"
+          },
+          {
+            "name": "feature_view",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureView"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "update_feature_view"
+      },
+      "description": "Sample for UpdateFeatureView",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_update_feature_view_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_UpdateFeatureView_async",
+      "segments": [
+        {
+          "end": 59,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 59,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 56,
+          "start": 50,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 60,
+          "start": 57,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_update_feature_view_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient",
+          "shortName": "FeatureOnlineStoreAdminServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreAdminServiceClient.update_feature_view",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService.UpdateFeatureView",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService",
+            "shortName": "FeatureOnlineStoreAdminService"
+          },
+          "shortName": "UpdateFeatureView"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateFeatureViewRequest"
+          },
+          {
+            "name": "feature_view",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureView"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "update_feature_view"
+      },
+      "description": "Sample for UpdateFeatureView",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_admin_service_update_feature_view_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreAdminService_UpdateFeatureView_sync",
+      "segments": [
+        {
+          "end": 59,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 59,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 56,
+          "start": 50,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 60,
+          "start": 57,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_admin_service_update_feature_view_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreServiceAsyncClient.fetch_feature_values",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService.FetchFeatureValues",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService",
+            "shortName": "FeatureOnlineStoreService"
+          },
+          "shortName": "FetchFeatureValues"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.FetchFeatureValuesRequest"
+          },
+          {
+            "name": "feature_view",
+            "type": "str"
+          },
+          {
+            "name": "id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FetchFeatureValuesResponse",
+        "shortName": "fetch_feature_values"
+      },
+      "description": "Sample for FetchFeatureValues",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_service_fetch_feature_values_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreService_FetchFeatureValues_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 46,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 47,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_service_fetch_feature_values_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreServiceClient",
+          "shortName": "FeatureOnlineStoreServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreServiceClient.fetch_feature_values",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService.FetchFeatureValues",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService",
+            "shortName": "FeatureOnlineStoreService"
+          },
+          "shortName": "FetchFeatureValues"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.FetchFeatureValuesRequest"
+          },
+          {
+            "name": "feature_view",
+            "type": "str"
+          },
+          {
+            "name": "id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FetchFeatureValuesResponse",
+        "shortName": "fetch_feature_values"
+      },
+      "description": "Sample for FetchFeatureValues",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_service_fetch_feature_values_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreService_FetchFeatureValues_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 46,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 47,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 50,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_service_fetch_feature_values_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreServiceAsyncClient",
+          "shortName": "FeatureOnlineStoreServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreServiceAsyncClient.search_nearest_entities",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService.SearchNearestEntities",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService",
+            "shortName": "FeatureOnlineStoreService"
+          },
+          "shortName": "SearchNearestEntities"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.SearchNearestEntitiesRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.SearchNearestEntitiesResponse",
+        "shortName": "search_nearest_entities"
+      },
+      "description": "Sample for SearchNearestEntities",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_service_search_nearest_entities_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreService_SearchNearestEntities_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 50,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_service_search_nearest_entities_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreServiceClient",
+          "shortName": "FeatureOnlineStoreServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureOnlineStoreServiceClient.search_nearest_entities",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService.SearchNearestEntities",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService",
+            "shortName": "FeatureOnlineStoreService"
+          },
+          "shortName": "SearchNearestEntities"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.SearchNearestEntitiesRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.SearchNearestEntitiesResponse",
+        "shortName": "search_nearest_entities"
+      },
+      "description": "Sample for SearchNearestEntities",
+      "file": "aiplatform_v1beta1_generated_feature_online_store_service_search_nearest_entities_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureOnlineStoreService_SearchNearestEntities_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 50,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_online_store_service_search_nearest_entities_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient",
+          "shortName": "FeatureRegistryServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient.create_feature_group",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.CreateFeatureGroup",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "CreateFeatureGroup"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateFeatureGroupRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "feature_group",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureGroup"
+          },
+          {
+            "name": "feature_group_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "create_feature_group"
+      },
+      "description": "Sample for CreateFeatureGroup",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_create_feature_group_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_CreateFeatureGroup_async",
+      "segments": [
+        {
+          "end": 60,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 60,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 50,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 57,
+          "start": 51,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 61,
+          "start": 58,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_create_feature_group_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient",
+          "shortName": "FeatureRegistryServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient.create_feature_group",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.CreateFeatureGroup",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "CreateFeatureGroup"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateFeatureGroupRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "feature_group",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureGroup"
+          },
+          {
+            "name": "feature_group_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "create_feature_group"
+      },
+      "description": "Sample for CreateFeatureGroup",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_create_feature_group_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_CreateFeatureGroup_sync",
+      "segments": [
+        {
+          "end": 60,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 60,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 50,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 57,
+          "start": 51,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 61,
+          "start": 58,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_create_feature_group_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient",
+          "shortName": "FeatureRegistryServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient.create_feature",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.CreateFeature",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "CreateFeature"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "feature",
+            "type": "google.cloud.aiplatform_v1beta1.types.Feature"
+          },
+          {
+            "name": "feature_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "create_feature"
+      },
+      "description": "Sample for CreateFeature",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_create_feature_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_CreateFeature_async",
+      "segments": [
+        {
+          "end": 56,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 56,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 46,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 53,
+          "start": 47,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 57,
+          "start": 54,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_create_feature_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient",
+          "shortName": "FeatureRegistryServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient.create_feature",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.CreateFeature",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "CreateFeature"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "feature",
+            "type": "google.cloud.aiplatform_v1beta1.types.Feature"
+          },
+          {
+            "name": "feature_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "create_feature"
+      },
+      "description": "Sample for CreateFeature",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_create_feature_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_CreateFeature_sync",
+      "segments": [
+        {
+          "end": 56,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 56,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 46,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 53,
+          "start": 47,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 57,
+          "start": 54,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_create_feature_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient",
+          "shortName": "FeatureRegistryServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient.delete_feature_group",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.DeleteFeatureGroup",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "DeleteFeatureGroup"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteFeatureGroupRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "force",
+            "type": "bool"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_feature_group"
+      },
+      "description": "Sample for DeleteFeatureGroup",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_delete_feature_group_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_DeleteFeatureGroup_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_delete_feature_group_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient",
+          "shortName": "FeatureRegistryServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient.delete_feature_group",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.DeleteFeatureGroup",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "DeleteFeatureGroup"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteFeatureGroupRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "force",
+            "type": "bool"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_feature_group"
+      },
+      "description": "Sample for DeleteFeatureGroup",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_delete_feature_group_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_DeleteFeatureGroup_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_delete_feature_group_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient",
+          "shortName": "FeatureRegistryServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient.delete_feature",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.DeleteFeature",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "DeleteFeature"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteFeatureRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_feature"
+      },
+      "description": "Sample for DeleteFeature",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_delete_feature_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_DeleteFeature_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_delete_feature_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient",
+          "shortName": "FeatureRegistryServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient.delete_feature",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.DeleteFeature",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "DeleteFeature"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteFeatureRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_feature"
+      },
+      "description": "Sample for DeleteFeature",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_delete_feature_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_DeleteFeature_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_delete_feature_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient",
+          "shortName": "FeatureRegistryServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient.get_feature_group",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeatureGroup",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "GetFeatureGroup"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetFeatureGroupRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FeatureGroup",
+        "shortName": "get_feature_group"
+      },
+      "description": "Sample for GetFeatureGroup",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_get_feature_group_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_GetFeatureGroup_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_get_feature_group_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient",
+          "shortName": "FeatureRegistryServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient.get_feature_group",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeatureGroup",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "GetFeatureGroup"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetFeatureGroupRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.FeatureGroup",
+        "shortName": "get_feature_group"
+      },
+      "description": "Sample for GetFeatureGroup",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_get_feature_group_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_GetFeatureGroup_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_get_feature_group_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient",
+          "shortName": "FeatureRegistryServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient.get_feature",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeature",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "GetFeature"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetFeatureRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.Feature",
+        "shortName": "get_feature"
+      },
+      "description": "Sample for GetFeature",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_get_feature_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_GetFeature_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_get_feature_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient",
+          "shortName": "FeatureRegistryServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient.get_feature",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeature",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "GetFeature"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetFeatureRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.Feature",
+        "shortName": "get_feature"
+      },
+      "description": "Sample for GetFeature",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_get_feature_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_GetFeature_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_get_feature_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient",
+          "shortName": "FeatureRegistryServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient.list_feature_groups",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureGroups",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "ListFeatureGroups"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListFeatureGroupsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.feature_registry_service.pagers.ListFeatureGroupsAsyncPager",
+        "shortName": "list_feature_groups"
+      },
+      "description": "Sample for ListFeatureGroups",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_list_feature_groups_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_ListFeatureGroups_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_list_feature_groups_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient",
+          "shortName": "FeatureRegistryServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient.list_feature_groups",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureGroups",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "ListFeatureGroups"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListFeatureGroupsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.feature_registry_service.pagers.ListFeatureGroupsPager",
+        "shortName": "list_feature_groups"
+      },
+      "description": "Sample for ListFeatureGroups",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_list_feature_groups_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_ListFeatureGroups_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_list_feature_groups_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient",
+          "shortName": "FeatureRegistryServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient.list_features",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatures",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "ListFeatures"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.feature_registry_service.pagers.ListFeaturesAsyncPager",
+        "shortName": "list_features"
+      },
+      "description": "Sample for ListFeatures",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_list_features_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_ListFeatures_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_list_features_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient",
+          "shortName": "FeatureRegistryServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient.list_features",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatures",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "ListFeatures"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.feature_registry_service.pagers.ListFeaturesPager",
+        "shortName": "list_features"
+      },
+      "description": "Sample for ListFeatures",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_list_features_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_ListFeatures_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_list_features_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient",
+          "shortName": "FeatureRegistryServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient.update_feature_group",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.UpdateFeatureGroup",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "UpdateFeatureGroup"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateFeatureGroupRequest"
+          },
+          {
+            "name": "feature_group",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureGroup"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "update_feature_group"
+      },
+      "description": "Sample for UpdateFeatureGroup",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_update_feature_group_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_UpdateFeatureGroup_async",
+      "segments": [
+        {
+          "end": 58,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 58,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 55,
+          "start": 49,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 59,
+          "start": 56,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_update_feature_group_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient",
+          "shortName": "FeatureRegistryServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient.update_feature_group",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.UpdateFeatureGroup",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "UpdateFeatureGroup"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateFeatureGroupRequest"
+          },
+          {
+            "name": "feature_group",
+            "type": "google.cloud.aiplatform_v1beta1.types.FeatureGroup"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "update_feature_group"
+      },
+      "description": "Sample for UpdateFeatureGroup",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_update_feature_group_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_UpdateFeatureGroup_sync",
+      "segments": [
+        {
+          "end": 58,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 58,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 55,
+          "start": 49,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 59,
+          "start": 56,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_update_feature_group_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient",
+          "shortName": "FeatureRegistryServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceAsyncClient.update_feature",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.UpdateFeature",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "UpdateFeature"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateFeatureRequest"
+          },
+          {
+            "name": "feature",
+            "type": "google.cloud.aiplatform_v1beta1.types.Feature"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "update_feature"
+      },
+      "description": "Sample for UpdateFeature",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_update_feature_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_UpdateFeature_async",
+      "segments": [
+        {
+          "end": 54,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 54,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 44,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 45,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 55,
+          "start": 52,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_update_feature_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient",
+          "shortName": "FeatureRegistryServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.FeatureRegistryServiceClient.update_feature",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService.UpdateFeature",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+            "shortName": "FeatureRegistryService"
+          },
+          "shortName": "UpdateFeature"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateFeatureRequest"
+          },
+          {
+            "name": "feature",
+            "type": "google.cloud.aiplatform_v1beta1.types.Feature"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "update_feature"
+      },
+      "description": "Sample for UpdateFeature",
+      "file": "aiplatform_v1beta1_generated_feature_registry_service_update_feature_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_FeatureRegistryService_UpdateFeature_sync",
+      "segments": [
+        {
+          "end": 54,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 54,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 44,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 45,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 55,
+          "start": 52,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_feature_registry_service_update_feature_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
           "fullName": "google.cloud.aiplatform_v1beta1.FeaturestoreOnlineServingServiceAsyncClient",
           "shortName": "FeaturestoreOnlineServingServiceAsyncClient"
         },
@@ -4853,12 +9803,12 @@
       "regionTag": "aiplatform_v1beta1_generated_FeaturestoreService_BatchCreateFeatures_async",
       "segments": [
         {
-          "end": 61,
+          "end": 60,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 61,
+          "end": 60,
           "start": 27,
           "type": "SHORT"
         },
@@ -4868,18 +9818,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 51,
+          "end": 50,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 58,
-          "start": 52,
+          "end": 57,
+          "start": 51,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 62,
-          "start": 59,
+          "end": 61,
+          "start": 58,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -4937,12 +9887,12 @@
       "regionTag": "aiplatform_v1beta1_generated_FeaturestoreService_BatchCreateFeatures_sync",
       "segments": [
         {
-          "end": 61,
+          "end": 60,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 61,
+          "end": 60,
           "start": 27,
           "type": "SHORT"
         },
@@ -4952,18 +9902,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 51,
+          "end": 50,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 58,
-          "start": 52,
+          "end": 57,
+          "start": 51,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 62,
-          "start": 59,
+          "end": 61,
+          "start": 58,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -5364,12 +10314,12 @@
       "regionTag": "aiplatform_v1beta1_generated_FeaturestoreService_CreateFeature_async",
       "segments": [
         {
-          "end": 60,
+          "end": 56,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 60,
+          "end": 56,
           "start": 27,
           "type": "SHORT"
         },
@@ -5379,18 +10329,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 50,
+          "end": 46,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 57,
-          "start": 51,
+          "end": 53,
+          "start": 47,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 61,
-          "start": 58,
+          "end": 57,
+          "start": 54,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -5452,12 +10402,12 @@
       "regionTag": "aiplatform_v1beta1_generated_FeaturestoreService_CreateFeature_sync",
       "segments": [
         {
-          "end": 60,
+          "end": 56,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 60,
+          "end": 56,
           "start": 27,
           "type": "SHORT"
         },
@@ -5467,18 +10417,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 50,
+          "end": 46,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 57,
-          "start": 51,
+          "end": 53,
+          "start": 47,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 61,
-          "start": 58,
+          "end": 57,
+          "start": 54,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -8000,12 +12950,12 @@
       "regionTag": "aiplatform_v1beta1_generated_FeaturestoreService_UpdateFeature_async",
       "segments": [
         {
-          "end": 54,
+          "end": 50,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 54,
+          "end": 50,
           "start": 27,
           "type": "SHORT"
         },
@@ -8015,18 +12965,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 48,
+          "end": 44,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 51,
-          "start": 49,
+          "end": 47,
+          "start": 45,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 55,
-          "start": 52,
+          "end": 51,
+          "start": 48,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -8084,12 +13034,12 @@
       "regionTag": "aiplatform_v1beta1_generated_FeaturestoreService_UpdateFeature_sync",
       "segments": [
         {
-          "end": 54,
+          "end": 50,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 54,
+          "end": 50,
           "start": 27,
           "type": "SHORT"
         },
@@ -8099,18 +13049,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 48,
+          "end": 44,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 51,
-          "start": 49,
+          "end": 47,
+          "start": 45,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 55,
-          "start": 52,
+          "end": 51,
+          "start": 48,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -22495,6 +27445,167 @@
       "clientMethod": {
         "async": true,
         "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceAsyncClient",
+          "shortName": "ModelGardenServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceAsyncClient.list_publisher_models",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService.ListPublisherModels",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+            "shortName": "ModelGardenService"
+          },
+          "shortName": "ListPublisherModels"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListPublisherModelsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.model_garden_service.pagers.ListPublisherModelsAsyncPager",
+        "shortName": "list_publisher_models"
+      },
+      "description": "Sample for ListPublisherModels",
+      "file": "aiplatform_v1beta1_generated_model_garden_service_list_publisher_models_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelGardenService_ListPublisherModels_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_garden_service_list_publisher_models_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceClient",
+          "shortName": "ModelGardenServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceClient.list_publisher_models",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService.ListPublisherModels",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+            "shortName": "ModelGardenService"
+          },
+          "shortName": "ListPublisherModels"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListPublisherModelsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.model_garden_service.pagers.ListPublisherModelsPager",
+        "shortName": "list_publisher_models"
+      },
+      "description": "Sample for ListPublisherModels",
+      "file": "aiplatform_v1beta1_generated_model_garden_service_list_publisher_models_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelGardenService_ListPublisherModels_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_garden_service_list_publisher_models_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
           "fullName": "google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient",
           "shortName": "ModelServiceAsyncClient"
         },
@@ -26111,6 +31222,175 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_persistent_resource_service_list_persistent_resources_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceAsyncClient",
+          "shortName": "PersistentResourceServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceAsyncClient.update_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService.UpdatePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "UpdatePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdatePersistentResourceRequest"
+          },
+          {
+            "name": "persistent_resource",
+            "type": "google.cloud.aiplatform_v1beta1.types.PersistentResource"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "update_persistent_resource"
+      },
+      "description": "Sample for UpdatePersistentResource",
+      "file": "aiplatform_v1beta1_generated_persistent_resource_service_update_persistent_resource_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_PersistentResourceService_UpdatePersistentResource_async",
+      "segments": [
+        {
+          "end": 54,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 54,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 44,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 45,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 55,
+          "start": 52,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_persistent_resource_service_update_persistent_resource_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceClient",
+          "shortName": "PersistentResourceServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.PersistentResourceServiceClient.update_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService.UpdatePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "UpdatePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdatePersistentResourceRequest"
+          },
+          {
+            "name": "persistent_resource",
+            "type": "google.cloud.aiplatform_v1beta1.types.PersistentResource"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "update_persistent_resource"
+      },
+      "description": "Sample for UpdatePersistentResource",
+      "file": "aiplatform_v1beta1_generated_persistent_resource_service_update_persistent_resource_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_PersistentResourceService_UpdatePersistentResource_sync",
+      "segments": [
+        {
+          "end": 54,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 54,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 44,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 45,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 55,
+          "start": 52,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_persistent_resource_service_update_persistent_resource_sync.py"
     },
     {
       "canonical": true,

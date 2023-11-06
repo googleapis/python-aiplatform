@@ -58,14 +58,17 @@ from .dataset_service import (
     CreateDatasetOperationMetadata,
     CreateDatasetRequest,
     CreateDatasetVersionOperationMetadata,
+    CreateDatasetVersionRequest,
     DataItemView,
     DeleteDatasetRequest,
+    DeleteDatasetVersionRequest,
     DeleteSavedQueryRequest,
     ExportDataOperationMetadata,
     ExportDataRequest,
     ExportDataResponse,
     GetAnnotationSpecRequest,
     GetDatasetRequest,
+    GetDatasetVersionRequest,
     ImportDataOperationMetadata,
     ImportDataRequest,
     ImportDataResponse,
@@ -75,12 +78,18 @@ from .dataset_service import (
     ListDataItemsResponse,
     ListDatasetsRequest,
     ListDatasetsResponse,
+    ListDatasetVersionsRequest,
+    ListDatasetVersionsResponse,
     ListSavedQueriesRequest,
     ListSavedQueriesResponse,
     RestoreDatasetVersionOperationMetadata,
+    RestoreDatasetVersionRequest,
     SearchDataItemsRequest,
     SearchDataItemsResponse,
     UpdateDatasetRequest,
+)
+from .dataset_version import (
+    DatasetVersion,
 )
 from .deployed_index_ref import (
     DeployedIndexRef,
@@ -340,6 +349,7 @@ from .machine_resources import (
     DiskSpec,
     MachineSpec,
     NfsMount,
+    PersistentDiskSpec,
     ResourcesConsumed,
 )
 from .manual_batch_tuning_parameters import (
@@ -549,6 +559,7 @@ from .schedule_service import (
 from .service_networking import (
     PrivateServiceConnectConfig,
 )
+
 from .publisher_model import (
     PublisherModel,
 )
@@ -571,6 +582,7 @@ from .schedule_service import (
 from .service_networking import (
     PrivateServiceConnectConfig,
 )
+
 from .specialist_pool import (
     SpecialistPool,
 )
@@ -589,6 +601,7 @@ from .study import (
     Study,
     StudySpec,
     Trial,
+    TrialContext,
 )
 from .tensorboard import (
     Tensorboard,
@@ -734,14 +747,17 @@ __all__ = (
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
     "CreateDatasetVersionOperationMetadata",
+    "CreateDatasetVersionRequest",
     "DataItemView",
     "DeleteDatasetRequest",
+    "DeleteDatasetVersionRequest",
     "DeleteSavedQueryRequest",
     "ExportDataOperationMetadata",
     "ExportDataRequest",
     "ExportDataResponse",
     "GetAnnotationSpecRequest",
     "GetDatasetRequest",
+    "GetDatasetVersionRequest",
     "ImportDataOperationMetadata",
     "ImportDataRequest",
     "ImportDataResponse",
@@ -751,12 +767,16 @@ __all__ = (
     "ListDataItemsResponse",
     "ListDatasetsRequest",
     "ListDatasetsResponse",
+    "ListDatasetVersionsRequest",
+    "ListDatasetVersionsResponse",
     "ListSavedQueriesRequest",
     "ListSavedQueriesResponse",
     "RestoreDatasetVersionOperationMetadata",
+    "RestoreDatasetVersionRequest",
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
     "UpdateDatasetRequest",
+    "DatasetVersion",
     "DeployedIndexRef",
     "DeployedModelRef",
     "EncryptionSpec",
@@ -961,6 +981,7 @@ __all__ = (
     "DiskSpec",
     "MachineSpec",
     "NfsMount",
+    "PersistentDiskSpec",
     "ResourcesConsumed",
     "ManualBatchTuningParameters",
     "FindNeighborsRequest",
@@ -1136,6 +1157,7 @@ __all__ = (
     "Study",
     "StudySpec",
     "Trial",
+    "TrialContext",
     "Tensorboard",
     "Scalar",
     "TensorboardBlob",

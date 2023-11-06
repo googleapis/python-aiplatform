@@ -16,16 +16,11 @@
 #
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.compat.types import (
-    schedule_v1beta1 as gca_schedule,
-)
-from google.cloud.aiplatform.preview.pipelinejobschedule import (
-    pipeline_job_schedules,
-)
+from google.cloud.aiplatform import pipeline_job_schedules
+from google.cloud.aiplatform.compat.types import schedule as gca_schedule
 from tests.system.aiplatform import e2e_base
-
-from kfp import components
-from kfp.v2 import compiler
+from kfp import compiler
+from kfp import dsl
 
 import pytest
 from google.protobuf.json_format import MessageToDict
@@ -34,7 +29,7 @@ from google.protobuf.json_format import MessageToDict
 @pytest.mark.usefixtures(
     "tear_down_resources", "prepare_staging_bucket", "delete_staging_bucket"
 )
-class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
+class TestPipelineJobSchedule(e2e_base.TestEndToEnd):
     _temp_prefix = "tmpvrtxsdk-e2e-pjs"
 
     def test_create_get_pause_resume_update_list(self, shared_state):
@@ -46,13 +41,14 @@ class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
             print(f"number_of_epochs={number_of_epochs}")
             print(f"learning_rate={learning_rate}")
 
-        train_op = components.create_component_from_func(train)
+        train_op = dsl.component(train)
 
         # Pipeline:
+        @dsl.pipeline(name="system-test-training-pipeline")
         def training_pipeline(number_of_epochs: int = 2):
             train_op(
                 number_of_epochs=number_of_epochs,
-                learning_rate="0.1",
+                learning_rate=0.1,
             )
 
         # Creating the pipeline job schedule.
@@ -61,11 +57,10 @@ class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
             location=e2e_base._LOCATION,
         )
 
-        ir_file = "pipeline.json"
+        ir_file = "pipeline.yaml"
         compiler.Compiler().compile(
             pipeline_func=training_pipeline,
             package_path=ir_file,
-            pipeline_name="system-test-training-pipeline",
         )
         job = aiplatform.PipelineJob(
             template_path=ir_file,
@@ -77,9 +72,9 @@ class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
         )
 
         max_run_count = 2
-        cron_expression = "*/5 * * * *"
+        cron = "*/5 * * * *"
         pipeline_job_schedule.create(
-            cron_expression=cron_expression,
+            cron=cron,
             max_run_count=max_run_count,
             max_concurrent_run_count=2,
         )
@@ -90,13 +85,13 @@ class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
         pipeline_job_schedule.pause()
         assert pipeline_job_schedule.state == gca_schedule.Schedule.State.PAUSED
 
-        # Before updating, confirm the cron_expression is correctly set from the create step.
-        assert pipeline_job_schedule.cron_expression == cron_expression
+        # Before updating, confirm cron is correctly set from the create step.
+        assert pipeline_job_schedule.cron == cron
 
         # Updating the pipeline job schedule.
-        new_cron_expression = "* * * * *"
-        pipeline_job_schedule.update(cron_expression=new_cron_expression)
-        assert pipeline_job_schedule.cron_expression == new_cron_expression
+        new_cron = "* * * * *"
+        pipeline_job_schedule.update(cron=new_cron)
+        assert pipeline_job_schedule.cron == new_cron
 
         # Resuming the pipeline job schedule.
         pipeline_job_schedule.resume(catch_up=True)
@@ -105,12 +100,12 @@ class TestPreviewPipelineJobSchedule(e2e_base.TestEndToEnd):
         pipeline_job_schedule.wait()
 
         # Confirming that correct number of runs were scheduled and completed by this pipeline job schedule.
-        list_jobs_with_read_mask = pipeline_job_schedule.list_jobs(
-            enable_simple_view=True
-        )
+        list_jobs_with_read_mask = pipeline_job_schedule.list_jobs()
         assert len(list_jobs_with_read_mask) == max_run_count
 
-        list_jobs_without_read_mask = pipeline_job_schedule.list_jobs()
+        list_jobs_without_read_mask = pipeline_job_schedule.list_jobs(
+            enable_simple_view=False
+        )
 
         # enable_simple_view=True should apply the `read_mask` filter to limit PipelineJob fields returned
         assert "serviceAccount" in MessageToDict(

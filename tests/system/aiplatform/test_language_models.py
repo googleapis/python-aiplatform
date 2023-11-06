@@ -17,17 +17,28 @@
 
 # pylint: disable=protected-access, g-multiple-import
 
+import pytest
+
+
 from google.cloud import aiplatform
 from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state,
 )
+import vertexai
 from tests.system.aiplatform import e2e_base
+from google.cloud.aiplatform.utils import gcs_utils
+from vertexai import language_models
+from vertexai.preview import (
+    language_models as preview_language_models,
+)
 from vertexai.preview.language_models import (
     ChatModel,
     InputOutputTextPair,
     TextGenerationModel,
     TextEmbeddingModel,
 )
+
+STAGING_DIR_URI = "gs://ucaip-samples-us-central1/tmp/staging"
 
 
 class TestLanguageModels(e2e_base.TestEndToEnd):
@@ -39,14 +50,77 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
+        grounding_source = language_models.GroundingSource.WebSearch()
+        assert model.predict(
+            "What is the best recipe for banana bread? Recipe:",
+            max_output_tokens=128,
+            temperature=0.0,
+            top_p=1.0,
+            top_k=5,
+            stop_sequences=["# %%"],
+            grounding_source=grounding_source,
+        ).text
+
+    def test_text_generation_preview_count_tokens(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = preview_language_models.TextGenerationModel.from_pretrained(
+            "google/text-bison@001"
+        )
+
+        response = model.count_tokens(["How are you doing?"])
+
+        assert response.total_tokens
+        assert response.total_billable_characters
+
+    @pytest.mark.asyncio
+    async def test_text_generation_model_predict_async(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = TextGenerationModel.from_pretrained("google/text-bison@001")
+        grounding_source = language_models.GroundingSource.WebSearch()
+        response = await model.predict_async(
+            "What is the best recipe for banana bread? Recipe:",
+            max_output_tokens=128,
+            temperature=0.0,
+            top_p=1.0,
+            top_k=5,
+            stop_sequences=["# %%"],
+            grounding_source=grounding_source,
+        )
+        assert response.text
+
+    def test_text_generation_streaming(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = TextGenerationModel.from_pretrained("google/text-bison@001")
+
+        for response in model.predict_streaming(
+            "What is the best recipe for banana bread? Recipe:",
+            max_output_tokens=128,
+            temperature=0.0,
+            top_p=1.0,
+            top_k=5,
+        ):
+            assert response.text
+
+    def test_preview_text_embedding_top_level_from_pretrained(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = vertexai.preview.from_pretrained(
+            foundation_model_name="google/text-bison@001"
+        )
 
         assert model.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
-            temperature=0,
-            top_p=1,
+            temperature=0.0,
+            top_p=1.0,
             top_k=5,
+            stop_sequences=["# %%"],
         ).text
+
+        assert isinstance(model, preview_language_models.TextGenerationModel)
 
     def test_chat_on_chat_model(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
@@ -65,6 +139,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
                 ),
             ],
             temperature=0.0,
+            stop_sequences=["# %%"],
         )
 
         message1 = "Are my favorite movies based on a book series?"
@@ -86,21 +161,145 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert chat.message_history[2].content == message2
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
+    def test_chat_model_preview_count_tokens(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        chat_model = ChatModel.from_pretrained("google/chat-bison@001")
+
+        chat = chat_model.start_chat()
+
+        chat.send_message("What should I do today?")
+
+        response_with_history = chat.count_tokens("Any ideas?")
+
+        response_without_history = chat_model.start_chat().count_tokens(
+            "What should I do today?"
+        )
+
+        assert (
+            response_with_history.total_tokens > response_without_history.total_tokens
+        )
+        assert (
+            response_with_history.total_billable_characters
+            > response_without_history.total_billable_characters
+        )
+
+    @pytest.mark.asyncio
+    async def test_chat_model_async(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        chat_model = ChatModel.from_pretrained("google/chat-bison@001")
+        chat = chat_model.start_chat(
+            context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
+            examples=[
+                InputOutputTextPair(
+                    input_text="Who do you work for?",
+                    output_text="I work for Ned.",
+                ),
+                InputOutputTextPair(
+                    input_text="What do I like?",
+                    output_text="Ned likes watching movies.",
+                ),
+            ],
+            temperature=0.0,
+            stop_sequences=["# %%"],
+        )
+
+        message1 = "Are my favorite movies based on a book series?"
+        response1 = await chat.send_message_async(message1)
+        assert response1.text
+        assert len(chat.message_history) == 2
+        assert chat.message_history[0].author == chat.USER_AUTHOR
+        assert chat.message_history[0].content == message1
+        assert chat.message_history[1].author == chat.MODEL_AUTHOR
+
+        message2 = "When were these books published?"
+        response2 = await chat.send_message_async(
+            message2,
+            temperature=0.1,
+        )
+        assert response2.text
+        assert len(chat.message_history) == 4
+        assert chat.message_history[2].author == chat.USER_AUTHOR
+        assert chat.message_history[2].content == message2
+        assert chat.message_history[3].author == chat.MODEL_AUTHOR
+
+    def test_chat_model_send_message_streaming(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        chat_model = ChatModel.from_pretrained("google/chat-bison@001")
+        chat = chat_model.start_chat(
+            context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
+            examples=[
+                InputOutputTextPair(
+                    input_text="Who do you work for?",
+                    output_text="I work for Ned.",
+                ),
+                InputOutputTextPair(
+                    input_text="What do I like?",
+                    output_text="Ned likes watching movies.",
+                ),
+            ],
+            temperature=0.0,
+        )
+
+        message1 = "Are my favorite movies based on a book series?"
+        for response in chat.send_message_streaming(message1):
+            assert response.text
+        assert len(chat.message_history) == 2
+        assert chat.message_history[0].author == chat.USER_AUTHOR
+        assert chat.message_history[0].content == message1
+        assert chat.message_history[1].author == chat.MODEL_AUTHOR
+
+        message2 = "When were these books published?"
+        for response2 in chat.send_message_streaming(
+            message2,
+            temperature=0.1,
+        ):
+            assert response2.text
+        assert len(chat.message_history) == 4
+        assert chat.message_history[2].author == chat.USER_AUTHOR
+        assert chat.message_history[2].content == message2
+        assert chat.message_history[3].author == chat.MODEL_AUTHOR
+
     def test_text_embedding(self):
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
         model = TextEmbeddingModel.from_pretrained("google/textembedding-gecko@001")
-        embeddings = model.get_embeddings(["What is life?"])
-        assert embeddings
-        for embedding in embeddings:
-            vector = embedding.values
-            assert len(vector) == 768
+        # One short text, one llong text (to check truncation)
+        texts = ["What is life?", "What is life?" * 1000]
+        embeddings = model.get_embeddings(texts)
+        assert len(embeddings) == 2
+        assert len(embeddings[0].values) == 768
+        assert embeddings[0].statistics.token_count > 0
+        assert not embeddings[0].statistics.truncated
+
+        assert len(embeddings[1].values) == 768
+        assert embeddings[1].statistics.token_count > 1000
+        assert embeddings[1].statistics.truncated
+
+    @pytest.mark.asyncio
+    async def test_text_embedding_async(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = TextEmbeddingModel.from_pretrained("google/textembedding-gecko@001")
+        # One short text, one llong text (to check truncation)
+        texts = ["What is life?", "What is life?" * 1000]
+        embeddings = await model.get_embeddings_async(texts)
+        assert len(embeddings) == 2
+        assert len(embeddings[0].values) == 768
+        assert embeddings[0].statistics.token_count > 0
+        assert not embeddings[0].statistics.truncated
+
+        assert len(embeddings[1].values) == 768
+        assert embeddings[1].statistics.token_count > 1000
+        assert embeddings[1].statistics.truncated
 
     def test_tuning(self, shared_state):
         """Test tuning, listing and loading models."""
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
-        model = TextGenerationModel.from_pretrained("google/text-bison@001")
+        model = language_models.TextGenerationModel.from_pretrained("text-bison@001")
 
         import pandas
 
@@ -119,12 +318,24 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             ]
         )
 
-        model.tune_model(
+        dataset_uri = (
+            STAGING_DIR_URI + "/veretx_llm_tuning_training_data.text-bison.dummy.jsonl"
+        )
+        gcs_utils._upload_pandas_df_to_gcs(
+            df=training_data, upload_gcs_path=dataset_uri
+        )
+
+        tuning_job = model.tune_model(
             training_data=training_data,
             train_steps=1,
             tuning_job_location="europe-west4",
             tuned_model_location="us-central1",
-            learning_rate=2.0,
+            learning_rate_multiplier=2.0,
+            tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                evaluation_data=dataset_uri,
+                evaluation_interval=37,
+                enable_early_stopping=True,
+            ),
         )
         # According to the Pipelines design, external resources created by a pipeline
         # must not be modified or deleted. Otherwise caching will break next pipeline runs.
@@ -136,11 +347,23 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         )
         # Deleting the Endpoint is a little less bad since the LLM SDK will recreate it, but it's not advised for the same reason.
 
+        # Testing the new model returned by the `tuning_job.get_tuned_model` method
+        tuned_model1 = tuning_job.get_tuned_model()
+        response1 = tuned_model1.predict(
+            "What is the best recipe for banana bread? Recipe:",
+            max_output_tokens=128,
+            temperature=0.0,
+            top_p=1.0,
+            top_k=5,
+        )
+        assert response1.text
+
+        # Testing the model updated in-place (Deprecated. Preview only)
         response = model.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
-            temperature=0,
-            top_p=1,
+            temperature=0.0,
+            top_p=1.0,
             top_k=5,
         )
         assert response.text
@@ -154,8 +377,8 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         tuned_model_response = tuned_model.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
-            temperature=0,
-            top_p=1,
+            temperature=0.0,
+            top_p=1.0,
             top_k=5,
         )
         assert tuned_model_response.text
@@ -181,7 +404,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
     def test_batch_prediction_for_textembedding(self):
-        source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/batch_prediction_prompts1.jsonl"
+        source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/batch_prediction_prompts_textembedding_dummy1.jsonl"
         destination_uri_prefix = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/predictions/textembedding-gecko@001_"
 
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
@@ -199,3 +422,27 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         job.delete()
 
         assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
+
+    def test_code_generation_streaming(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = language_models.CodeGenerationModel.from_pretrained("code-bison@001")
+
+        for response in model.predict_streaming(
+            prefix="def reverse_string(s):",
+            # code-bison does not support suffix
+            # suffix="    return s",
+            max_output_tokens=128,
+            temperature=0.0,
+        ):
+            assert response.text
+
+    def test_code_chat_model_send_message_streaming(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        chat_model = language_models.CodeChatModel.from_pretrained("codechat-bison@001")
+        chat = chat_model.start_chat()
+
+        message1 = "Please help write a function to calculate the max of two numbers"
+        for response in chat.send_message_streaming(message1):
+            assert response.text

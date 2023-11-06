@@ -217,6 +217,7 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
     """
     project = project or initializer.global_config.project
     location = location or initializer.global_config.location
+    service_account = service_account or initializer.global_config.service_account
     credentials = credentials or initializer.global_config.credentials
 
     output_artifacts_gcs_dir = (
@@ -374,7 +375,8 @@ def _upload_pandas_df_to_gcs(
             raise ValueError(f"Unsupported file format: {file_format}")
 
         storage_client = storage.Client(
-            credentials=initializer.global_config.credentials
+            project=initializer.global_config.project,
+            credentials=initializer.global_config.credentials,
         )
         storage.Blob.from_string(
             uri=upload_gcs_path, client=storage_client
