@@ -290,6 +290,14 @@ class ExplainRequest(proto.Message):
                methods to reduce approximate errors;
             -  Using different baselines for explaining the prediction
                results.
+        concurrent_explanation_spec_override (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ExplanationSpecOverride]):
+            Optional. This field is the same as the one above, but
+            supports multiple explanations to occur in parallel. The key
+            can be any string. Each override will be run against the
+            model, then its explanations will be grouped together.
+
+            Note - these explanations are run **In Addition** to the
+            default Explanation in the deployed model.
         deployed_model_id (str):
             If specified, this ExplainRequest will be served by the
             chosen DeployedModel, overriding
@@ -315,6 +323,14 @@ class ExplainRequest(proto.Message):
         number=5,
         message=explanation.ExplanationSpecOverride,
     )
+    concurrent_explanation_spec_override: MutableMapping[
+        str, explanation.ExplanationSpecOverride
+    ] = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=6,
+        message=explanation.ExplanationSpecOverride,
+    )
     deployed_model_id: str = proto.Field(
         proto.STRING,
         number=3,
@@ -333,6 +349,10 @@ class ExplainResponse(proto.Message):
             It has the same number of elements as
             [instances][google.cloud.aiplatform.v1beta1.ExplainRequest.instances]
             to be explained.
+        concurrent_explanations (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ExplainResponse.ConcurrentExplanation]):
+            This field stores the results of the
+            explanations run in parallel with the default
+            explanation strategy/method.
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
             served this explanation.
@@ -342,10 +362,37 @@ class ExplainResponse(proto.Message):
             [PredictResponse.predictions][google.cloud.aiplatform.v1beta1.PredictResponse.predictions].
     """
 
+    class ConcurrentExplanation(proto.Message):
+        r"""This message is a wrapper grouping Concurrent Explanations.
+
+        Attributes:
+            explanations (MutableSequence[google.cloud.aiplatform_v1beta1.types.Explanation]):
+                The explanations of the Model's
+                [PredictResponse.predictions][google.cloud.aiplatform.v1beta1.PredictResponse.predictions].
+
+                It has the same number of elements as
+                [instances][google.cloud.aiplatform.v1beta1.ExplainRequest.instances]
+                to be explained.
+        """
+
+        explanations: MutableSequence[explanation.Explanation] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=explanation.Explanation,
+        )
+
     explanations: MutableSequence[explanation.Explanation] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=explanation.Explanation,
+    )
+    concurrent_explanations: MutableMapping[
+        str, ConcurrentExplanation
+    ] = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=4,
+        message=ConcurrentExplanation,
     )
     deployed_model_id: str = proto.Field(
         proto.STRING,

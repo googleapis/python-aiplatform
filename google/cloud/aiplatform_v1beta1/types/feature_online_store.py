@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -35,6 +36,10 @@ class FeatureOnlineStore(proto.Message):
     repository for serving ML features and embedding indexes at low
     latency. The Feature Online Store is a top-level container.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -44,6 +49,16 @@ class FeatureOnlineStore(proto.Message):
             instance that will be created to serve
             featureValues for all FeatureViews under this
             FeatureOnlineStore.
+
+            This field is a member of `oneof`_ ``storage_type``.
+        optimized (google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore.Optimized):
+            Contains settings for the Optimized store that will be
+            created to serve featureValues for all FeatureViews under
+            this FeatureOnlineStore. When choose Optimized storage type,
+            need to set
+            [PrivateServiceConnectConfig.enable_private_service_connect][google.cloud.aiplatform.v1beta1.PrivateServiceConnectConfig.enable_private_service_connect]
+            to use private endpoint. Otherwise will use public endpoint
+            by default.
 
             This field is a member of `oneof`_ ``storage_type``.
         name (str):
@@ -161,19 +176,44 @@ class FeatureOnlineStore(proto.Message):
             message="FeatureOnlineStore.Bigtable.AutoScaling",
         )
 
+    class Optimized(proto.Message):
+        r"""Optimized storage type to replace lightning"""
+
     class DedicatedServingEndpoint(proto.Message):
         r"""The dedicated serving endpoint for this FeatureOnlineStore.
+        Only need to set when you choose Optimized storage type or
+        enable EmbeddingManagement. Will use public endpoint by default.
 
         Attributes:
             public_endpoint_domain_name (str):
                 Output only. This field will be populated
                 with the domain name to use for this
                 FeatureOnlineStore
+            private_service_connect_config (google.cloud.aiplatform_v1beta1.types.PrivateServiceConnectConfig):
+                Optional. Private service connect config. If
+                [PrivateServiceConnectConfig.enable_private_service_connect][google.cloud.aiplatform.v1beta1.PrivateServiceConnectConfig.enable_private_service_connect]
+                set to true, customers will use private service connection
+                to send request. Otherwise, the connection will set to
+                public endpoint.
+            service_attachment (str):
+                Output only. The name of the service
+                attachment resource. Populated if private
+                service connect is enabled and after
+                FeatureViewSync is created.
         """
 
         public_endpoint_domain_name: str = proto.Field(
             proto.STRING,
             number=2,
+        )
+        private_service_connect_config: service_networking.PrivateServiceConnectConfig = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            message=service_networking.PrivateServiceConnectConfig,
+        )
+        service_attachment: str = proto.Field(
+            proto.STRING,
+            number=4,
         )
 
     class EmbeddingManagement(proto.Message):
@@ -197,6 +237,12 @@ class FeatureOnlineStore(proto.Message):
         number=8,
         oneof="storage_type",
         message=Bigtable,
+    )
+    optimized: Optimized = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        oneof="storage_type",
+        message=Optimized,
     )
     name: str = proto.Field(
         proto.STRING,
