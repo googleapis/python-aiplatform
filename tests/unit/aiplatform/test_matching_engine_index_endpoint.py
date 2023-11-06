@@ -234,6 +234,8 @@ _TEST_FILTER = [
 _TEST_IDS = ["123", "456", "789"]
 _TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS = 3
 _TEST_APPROX_NUM_NEIGHBORS = 2
+_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE = 0.8
+_TEST_RETURN_FULL_DATAPOINT = True
 
 
 def uuid_mock():
@@ -954,6 +956,10 @@ class TestMatchingEngineIndexEndpoint:
             queries=_TEST_QUERIES,
             num_neighbors=_TEST_NUM_NEIGHBOURS,
             filter=_TEST_FILTER,
+            per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
         )
 
         find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest(
@@ -972,8 +978,12 @@ class TestMatchingEngineIndexEndpoint:
                             )
                         ],
                     ),
+                    per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                    approximate_neighbor_count=_TEST_APPROX_NUM_NEIGHBORS,
+                    fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
                 )
             ],
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
         )
 
         index_public_endpoint_match_queries_mock.assert_called_with(
