@@ -245,6 +245,10 @@ class _TunableModelMixin(_LanguageModel):
                 tuning_parameters[
                     "enable_early_stopping"
                 ] = eval_spec.enable_early_stopping
+            if eval_spec.enable_checkpoint_selection is not None:
+                tuning_parameters[
+                    "enable_checkpoint_selection"
+                ] = eval_spec.enable_checkpoint_selection
             if eval_spec.tensorboard is not None:
                 if isinstance(eval_spec.tensorboard, aiplatform.Tensorboard):
                     if eval_spec.tensorboard.location != tuning_job_location:
@@ -677,6 +681,10 @@ class TuningEvaluationSpec:
             evaluation_interval tuning steps. Default: 20.
         enable_early_stopping: If True, the tuning may stop early before
             completing all the tuning steps. Requires evaluation_data.
+        enable_checkpoint_selection: If set to True, the tuning process returns
+            the best model checkpoint (based on model evaluation).
+            If set to False, the latest model checkpoint is returned.
+            If unset, the selection is only enabled for `*-bison@001` models.
         tensorboard: Vertex Tensorboard where to write the evaluation metrics.
             The Tensorboard must be in the same location as the tuning job.
     """
@@ -686,6 +694,7 @@ class TuningEvaluationSpec:
     evaluation_data: Optional[str] = None
     evaluation_interval: Optional[int] = None
     enable_early_stopping: Optional[bool] = None
+    enable_checkpoint_selection: Optional[bool] = None
     tensorboard: Optional[Union[aiplatform.Tensorboard, str]] = None
 
 

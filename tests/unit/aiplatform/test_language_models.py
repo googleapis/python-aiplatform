@@ -437,6 +437,11 @@ _TEST_PIPELINE_SPEC = {
                     "isOptional": True,
                     "parameterType": "STRING",
                 },
+                "enable_checkpoint_selection": {
+                    "defaultValue": "default",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
                 "enable_early_stopping": {
                     "defaultValue": True,
                     "isOptional": True,
@@ -1837,6 +1842,7 @@ class TestLanguageModels:
             evaluation_data_uri = "gs://bucket/eval.jsonl"
             evaluation_interval = 37
             enable_early_stopping = True
+            enable_checkpoint_selection = True
             tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
 
             tuning_job = model.tune_model(
@@ -1849,6 +1855,7 @@ class TestLanguageModels:
                     evaluation_data=evaluation_data_uri,
                     evaluation_interval=evaluation_interval,
                     enable_early_stopping=enable_early_stopping,
+                    enable_checkpoint_selection=enable_checkpoint_selection,
                     tensorboard=tensorboard_name,
                 ),
                 accelerator_type="TPU",
@@ -1862,6 +1869,10 @@ class TestLanguageModels:
             assert pipeline_arguments["evaluation_data_uri"] == evaluation_data_uri
             assert pipeline_arguments["evaluation_interval"] == evaluation_interval
             assert pipeline_arguments["enable_early_stopping"] == enable_early_stopping
+            assert (
+                pipeline_arguments["enable_checkpoint_selection"]
+                == enable_checkpoint_selection
+            )
             assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
             assert pipeline_arguments["large_model_reference"] == "text-bison@001"
             assert pipeline_arguments["accelerator_type"] == "TPU"
