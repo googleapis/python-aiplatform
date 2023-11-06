@@ -58,10 +58,7 @@ from .dataset_service import (
     CreateDatasetOperationMetadata,
     CreateDatasetRequest,
     CreateDatasetVersionOperationMetadata,
-<<<<<<< HEAD
-=======
     CreateDatasetVersionRequest,
->>>>>>> main
     DataItemView,
     DeleteDatasetRequest,
     DeleteDatasetVersionRequest,
@@ -86,10 +83,7 @@ from .dataset_service import (
     ListSavedQueriesRequest,
     ListSavedQueriesResponse,
     RestoreDatasetVersionOperationMetadata,
-<<<<<<< HEAD
-=======
     RestoreDatasetVersionRequest,
->>>>>>> main
     SearchDataItemsRequest,
     SearchDataItemsResponse,
     UpdateDatasetRequest,
@@ -821,10 +815,7 @@ __all__ = (
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
     "CreateDatasetVersionOperationMetadata",
-<<<<<<< HEAD
-=======
     "CreateDatasetVersionRequest",
->>>>>>> main
     "DataItemView",
     "DeleteDatasetRequest",
     "DeleteDatasetVersionRequest",
@@ -849,10 +840,7 @@ __all__ = (
     "ListSavedQueriesRequest",
     "ListSavedQueriesResponse",
     "RestoreDatasetVersionOperationMetadata",
-<<<<<<< HEAD
-=======
     "RestoreDatasetVersionRequest",
->>>>>>> main
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
     "UpdateDatasetRequest",
