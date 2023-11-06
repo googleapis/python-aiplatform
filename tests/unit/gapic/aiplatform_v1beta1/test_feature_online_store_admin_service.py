@@ -62,6 +62,7 @@ from google.cloud.aiplatform_v1beta1.types import feature_view
 from google.cloud.aiplatform_v1beta1.types import feature_view as gca_feature_view
 from google.cloud.aiplatform_v1beta1.types import feature_view_sync
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
