@@ -220,6 +220,7 @@ class TestImageGenerationModels:
         number_of_images = 4
         seed = 1
         guidance_scale = 15
+        language = "en"
 
         image_generation_response = make_image_generation_response(
             width=width, height=height, count=number_of_images
@@ -246,6 +247,7 @@ class TestImageGenerationModels:
                 # height=height,
                 seed=seed,
                 guidance_scale=guidance_scale,
+                language=language,
             )
             predict_kwargs = mock_predict.call_args[1]
             actual_parameters = predict_kwargs["parameters"]
@@ -257,6 +259,7 @@ class TestImageGenerationModels:
             # assert actual_parameters["aspectRatio"] == f"{width}:{height}"
             assert actual_parameters["seed"] == seed
             assert actual_parameters["guidanceScale"] == guidance_scale
+            assert actual_parameters["language"] == language
 
         assert len(image_response.images) == number_of_images
         for idx, image in enumerate(image_response):
@@ -269,6 +272,7 @@ class TestImageGenerationModels:
             # assert image.generation_parameters["height"] == height
             assert image.generation_parameters["seed"] == seed
             assert image.generation_parameters["guidance_scale"] == guidance_scale
+            assert image.generation_parameters["language"] == language
             assert image.generation_parameters["index_of_image_in_batch"] == idx
             image.show()
 
@@ -280,6 +284,7 @@ class TestImageGenerationModels:
             # assert image1._pil_image.size == (width, height)
             assert image1.generation_parameters
             assert image1.generation_parameters["prompt"] == prompt1
+            assert image1.generation_parameters["language"] == language
 
             # Preparing mask
             mask_path = os.path.join(temp_dir, "mask.png")
@@ -302,12 +307,15 @@ class TestImageGenerationModels:
                 guidance_scale=guidance_scale,
                 base_image=image1,
                 mask=mask_image,
+                language=language,
             )
             predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
             actual_instance = predict_kwargs["instances"][0]
             assert actual_instance["prompt"] == prompt2
             assert actual_instance["image"]["bytesBase64Encoded"]
             assert actual_instance["mask"]["image"]["bytesBase64Encoded"]
+            assert actual_parameters["language"] == language
 
         assert len(image_response2.images) == number_of_images
         for image in image_response2:
@@ -316,6 +324,7 @@ class TestImageGenerationModels:
             assert image.generation_parameters["prompt"] == prompt2
             assert image.generation_parameters["base_image_hash"]
             assert image.generation_parameters["mask_hash"]
+            assert image.generation_parameters["language"] == language
 
     @unittest.skip(reason="b/295946075 The service stopped supporting image sizes.")
     def test_generate_images_requests_square_images_by_default(self):

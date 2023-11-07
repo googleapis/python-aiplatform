@@ -142,6 +142,7 @@ class ImageGenerationModel(
         seed: Optional[int] = None,
         base_image: Optional["Image"] = None,
         mask: Optional["Image"] = None,
+        language:Optional[str] = None,
     ) -> "ImageGenerationResponse":
         """Generates images from text prompt.
 
@@ -160,6 +161,9 @@ class ImageGenerationModel(
             seed: Image generation random seed.
             base_image: Base image to use for the image generation.
             mask: Mask for the base image.
+            language: Language of the text prompt for the image. Default: None.
+                Supported values are `"en"` for English, `"hi"` for Hindi,
+                `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for automatic language detection.
 
         Returns:
             An `ImageGenerationResponse` object.
@@ -216,6 +220,10 @@ class ImageGenerationModel(
             parameters["guidanceScale"] = guidance_scale
             shared_generation_parameters["guidance_scale"] = guidance_scale
 
+        if language is not None:
+            parameters["language"] = language
+            shared_generation_parameters["language"] = language
+
         response = self._endpoint.predict(
             instances=[instance],
             parameters=parameters,
@@ -241,6 +249,7 @@ class ImageGenerationModel(
         negative_prompt: Optional[str] = None,
         number_of_images: int = 1,
         guidance_scale: Optional[float] = None,
+        language: Optional[str] = None,
         seed: Optional[int] = None,
     ) -> "ImageGenerationResponse":
         """Generates images from text prompt.
@@ -255,6 +264,9 @@ class ImageGenerationModel(
                 * 0-9 (low strength)
                 * 10-20 (medium strength)
                 * 21+ (high strength)
+            language: Language of the text prompt for the image. Default: None.
+                Supported values are `"en"` for English, `"hi"` for Hindi,
+                `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for automatic language detection.
             seed: Image generation random seed.
 
         Returns:
@@ -268,6 +280,7 @@ class ImageGenerationModel(
             width=None,
             height=None,
             guidance_scale=guidance_scale,
+            language=language,
             seed=seed,
         )
 
@@ -280,6 +293,7 @@ class ImageGenerationModel(
         negative_prompt: Optional[str] = None,
         number_of_images: int = 1,
         guidance_scale: Optional[float] = None,
+        language: Optional[str] = None,
         seed: Optional[int] = None,
     ) -> "ImageGenerationResponse":
         """Edits an existing image based on text prompt.
@@ -296,6 +310,9 @@ class ImageGenerationModel(
                 * 0-9 (low strength)
                 * 10-20 (medium strength)
                 * 21+ (high strength)
+            language: Language of the text prompt for the image. Default: None.
+                Supported values are `"en"` for English, `"hi"` for Hindi,
+                `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for automatic language detection.
             seed: Image generation random seed.
 
         Returns:
@@ -309,6 +326,7 @@ class ImageGenerationModel(
             seed=seed,
             base_image=base_image,
             mask=mask,
+            language=language,
         )
 
     def upscale_image(
