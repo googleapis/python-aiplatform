@@ -1520,6 +1520,10 @@ class TextEmbeddingModel(_LanguageModel):
         Returns:
             A `_MultiInstancePredictionRequest` object.
         """
+        if isinstance(texts, str) or not isinstance(texts, Sequence):
+            raise TypeError(
+                "The `texts` argument must be a list, not a single string."
+            )
         instances = []
         for text in texts:
             if isinstance(text, TextEmbeddingInput):

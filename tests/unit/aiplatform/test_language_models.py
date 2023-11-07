@@ -3567,6 +3567,10 @@ class TestLanguageModels:
                 assert len(vector) == _TEXT_EMBEDDING_VECTOR_LENGTH
                 assert vector == _TEST_TEXT_EMBEDDING_PREDICTION["embeddings"]["values"]
 
+        # Validating that a single string is not accepted.
+        with pytest.raises(TypeError):
+            model.get_embeddings("What is life?")
+
     def test_batch_prediction(
         self,
         get_endpoint_mock,
