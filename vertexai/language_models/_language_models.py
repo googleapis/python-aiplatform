@@ -496,6 +496,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
         model_display_name: Optional[str] = None,
         default_context: Optional[str] = None,
         accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
+        tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -520,6 +521,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
             model_display_name: Custom display name for the tuned model.
             default_context: The context to use for all training samples by default.
             accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
+            tuning_evaluation_spec: Specification for the model evaluation during tuning.
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -540,6 +542,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
             model_display_name=model_display_name,
             default_context=default_context,
             accelerator_type=accelerator_type,
+            tuning_evaluation_spec=tuning_evaluation_spec,
         )
 
 
