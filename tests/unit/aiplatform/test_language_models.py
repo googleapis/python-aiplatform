@@ -311,6 +311,97 @@ _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION = {
     ],
 }
 
+_TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING = {
+    "safetyAttributes": [
+        {
+            "scores": [],
+            "categories": [],
+            "blocked": False,
+        },
+        {
+            "scores": [0.1],
+            "categories": ["Finance"],
+            "blocked": True,
+        },
+    ],
+    "groundingMetadata": [
+        {
+            "citations": [
+                {
+                    "startIndex": 1,
+                    "endIndex": 2,
+                    "url": "url1",
+                }
+            ]
+        },
+        {
+            "citations": [
+                {
+                    "startIndex": 3,
+                    "endIndex": 4,
+                    "url": "url2",
+                }
+            ]
+        },
+    ],
+    "candidates": [
+        {
+            "author": "1",
+            "content": "Chat response 2",
+        },
+        {
+            "author": "1",
+            "content": "",
+        },
+    ],
+}
+
+_TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING_NONE = {
+    "safetyAttributes": [
+        {
+            "scores": [],
+            "categories": [],
+            "blocked": False,
+        },
+        {
+            "scores": [0.1],
+            "categories": ["Finance"],
+            "blocked": True,
+        },
+    ],
+    "groundingMetadata": [
+        None,
+        None,
+    ],
+    "candidates": [
+        {
+            "author": "1",
+            "content": "Chat response 2",
+        },
+        {
+            "author": "1",
+            "content": "",
+        },
+    ],
+}
+
+_EXPECTED_PARSED_GROUNDING_METADATA_CHAT = {
+    "citations": [
+        {
+            "url": "url1",
+            "start_index": 1,
+            "end_index": 2,
+            "title": None,
+            "license": None,
+            "publication_date": None,
+        },
+    ],
+}
+
+_EXPECTED_PARSED_GROUNDING_METADATA_CHAT_NONE = {
+    "citations": [],
+}
+
 _TEST_CHAT_PREDICTION_STREAMING = [
     {
         "candidates": [
@@ -2311,6 +2402,221 @@ class TestLanguageModels:
             assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
             assert prediction_parameters["topK"] == message_top_k
             assert prediction_parameters["topP"] == message_top_p
+
+        gca_predict_response4 = gca_prediction_service.PredictResponse()
+        gca_predict_response4.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING
+        )
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {"sources": [{"type": "WEB"}]},
+            {
+                "sources": [
+                    {
+                        "type": "ENTERPRISE",
+                        "enterpriseDatastore": datastore_path,
+                    }
+                ]
+            },
+        ]
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_client.PredictionServiceClient,
+                attribute="predict",
+                return_value=gca_predict_response4,
+            ) as mock_predict4:
+                response = chat2.send_message(
+                    "Are my favorite movies based on a book series?",
+                    grounding_source=test_grounding_source,
+                )
+                prediction_parameters = mock_predict4.call_args[1]["parameters"]
+                assert (
+                    prediction_parameters["groundingConfig"]
+                    == expected_grounding_source
+                )
+                assert (
+                    dataclasses.asdict(response.grounding_metadata)
+                    == _EXPECTED_PARSED_GROUNDING_METADATA_CHAT
+                )
+
+        gca_predict_response5 = gca_prediction_service.PredictResponse()
+        gca_predict_response5.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING_NONE
+        )
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {"sources": [{"type": "WEB"}]},
+            {
+                "sources": [
+                    {
+                        "type": "ENTERPRISE",
+                        "enterpriseDatastore": datastore_path,
+                    }
+                ]
+            },
+        ]
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_client.PredictionServiceClient,
+                attribute="predict",
+                return_value=gca_predict_response5,
+            ) as mock_predict5:
+                response = chat2.send_message(
+                    "Are my favorite movies based on a book series?",
+                    grounding_source=test_grounding_source,
+                )
+                prediction_parameters = mock_predict5.call_args[1]["parameters"]
+                assert (
+                    prediction_parameters["groundingConfig"]
+                    == expected_grounding_source
+                )
+                assert (
+                    dataclasses.asdict(response.grounding_metadata)
+                    == _EXPECTED_PARSED_GROUNDING_METADATA_CHAT_NONE
+                )
+
+    @pytest.mark.asyncio
+    async def test_chat_async(self):
+        """Test the chat generation model async api."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
+        )
+        chat_temperature = 0.1
+        chat_max_output_tokens = 100
+        chat_top_k = 1
+        chat_top_p = 0.1
+
+        chat = model.start_chat(
+            temperature=chat_temperature,
+            max_output_tokens=chat_max_output_tokens,
+            top_k=chat_top_k,
+            top_p=chat_top_p,
+        )
+
+        gca_predict_response6 = gca_prediction_service.PredictResponse()
+        gca_predict_response6.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING
+        )
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {"sources": [{"type": "WEB"}]},
+            {
+                "sources": [
+                    {
+                        "type": "ENTERPRISE",
+                        "enterpriseDatastore": datastore_path,
+                    }
+                ]
+            },
+        ]
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_async_client.PredictionServiceAsyncClient,
+                attribute="predict",
+                return_value=gca_predict_response6,
+            ) as mock_predict6:
+                response = await chat.send_message_async(
+                    "Are my favorite movies based on a book series?",
+                    grounding_source=test_grounding_source,
+                )
+                prediction_parameters = mock_predict6.call_args[1]["parameters"]
+                assert prediction_parameters["temperature"] == chat_temperature
+                assert prediction_parameters["maxDecodeSteps"] == chat_max_output_tokens
+                assert prediction_parameters["topK"] == chat_top_k
+                assert prediction_parameters["topP"] == chat_top_p
+                assert (
+                    prediction_parameters["groundingConfig"]
+                    == expected_grounding_source
+                )
+                assert (
+                    dataclasses.asdict(response.grounding_metadata)
+                    == _EXPECTED_PARSED_GROUNDING_METADATA_CHAT
+                )
+
+        gca_predict_response7 = gca_prediction_service.PredictResponse()
+        gca_predict_response7.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING_NONE
+        )
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {"sources": [{"type": "WEB"}]},
+            {
+                "sources": [
+                    {
+                        "type": "ENTERPRISE",
+                        "enterpriseDatastore": datastore_path,
+                    }
+                ]
+            },
+        ]
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_async_client.PredictionServiceAsyncClient,
+                attribute="predict",
+                return_value=gca_predict_response7,
+            ) as mock_predict7:
+                response = await chat.send_message_async(
+                    "Are my favorite movies based on a book series?",
+                    grounding_source=test_grounding_source,
+                )
+                prediction_parameters = mock_predict7.call_args[1]["parameters"]
+                assert (
+                    prediction_parameters["groundingConfig"]
+                    == expected_grounding_source
+                )
+                assert (
+                    dataclasses.asdict(response.grounding_metadata)
+                    == _EXPECTED_PARSED_GROUNDING_METADATA_CHAT_NONE
+                )
 
     def test_chat_ga(self):
         """Tests the chat generation model."""

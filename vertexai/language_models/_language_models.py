@@ -711,7 +711,7 @@ class _GroundingSourceBase(abc.ABC):
 class WebSearch(_GroundingSourceBase):
     """WebSearch represents a grounding source using public web search."""
 
-    _type: str = "WEB"
+    _type: str = dataclasses.field(default="WEB", init=False, repr=False)
 
     def _to_grounding_source_dict(self) -> Dict[str, Any]:
         return {"type": self._type}
@@ -729,22 +729,16 @@ class VertexAISearch(_GroundingSourceBase):
         If not specified, will assume that your Vertex AI Search is within your current project.
     """
 
-    _data_store_id: str
-    _location: str
-    _type: str = "ENTERPRISE"
-
-    def __init__(
-        self, data_store_id: str, location: str, project: Optional[str] = None
-    ):
-        self._data_store_id = data_store_id
-        self._location = location
-        self._project = project
+    data_store_id: str
+    location: str
+    project: Optional[str] = None
+    _type: str = dataclasses.field(default="ENTERPRISE", init=False, repr=False)
 
     def _get_datastore_path(self) -> str:
-        _project = self._project or aiplatform_initializer.global_config.project
+        _project = self.project or aiplatform_initializer.global_config.project
         return (
-            f"projects/{_project}/locations/{self._location}"
-            f"/collections/default_collection/dataStores/{self._data_store_id}"
+            f"projects/{_project}/locations/{self.location}"
+            f"/collections/default_collection/dataStores/{self.data_store_id}"
         )
 
     def _to_grounding_source_dict(self) -> Dict[str, Any]:
@@ -1813,6 +1807,7 @@ class _PreviewChatModel(ChatModel, _PreviewTunableChatModelMixin):
             stop_sequences=stop_sequences,
         )
 
+
 class CodeChatModel(_ChatModelBase, _TunableChatModelMixin):
     """CodeChatModel represents a model that is capable of completing code.
 
@@ -1950,6 +1945,9 @@ class _ChatSessionBase:
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[
+            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        ] = None,
     ) -> _PredictionRequest:
         """Prepares a request for the language model.
 
@@ -1965,6 +1963,7 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `_PredictionRequest` object.
@@ -1998,6 +1997,10 @@ class _ChatSessionBase:
 
         if candidate_count is not None:
             prediction_parameters["candidateCount"] = candidate_count
+
+        if grounding_source is not None:
+            sources = [grounding_source._to_grounding_source_dict()]
+            prediction_parameters["groundingConfig"] = {"sources": sources}
 
         message_structs = []
         for past_message in self._message_history:
@@ -2050,8 +2053,12 @@ class _ChatSessionBase:
         prediction = prediction_response.predictions[prediction_idx]
         candidate_count = len(prediction["candidates"])
         candidates = []
+        grounding_metadata_list = prediction.get("groundingMetadata")
         for candidate_idx in range(candidate_count):
             safety_attributes = prediction["safetyAttributes"][candidate_idx]
+            grounding_metadata_dict = {}
+            if grounding_metadata_list and grounding_metadata_list[candidate_idx]:
+                grounding_metadata_dict = grounding_metadata_list[candidate_idx]
             candidate_response = TextGenerationResponse(
                 text=prediction["candidates"][candidate_idx]["content"],
                 _prediction_response=prediction_response,
@@ -2064,6 +2071,7 @@ class _ChatSessionBase:
                         safety_attributes.get("scores") or [],
                     )
                 ),
+                grounding_metadata=GroundingMetadata(grounding_metadata_dict),
             )
             candidates.append(candidate_response)
         return MultiCandidateTextGenerationResponse(
@@ -2071,6 +2079,7 @@ class _ChatSessionBase:
             _prediction_response=prediction_response,
             is_blocked=candidates[0].is_blocked,
             safety_attributes=candidates[0].safety_attributes,
+            grounding_metadata=candidates[0].grounding_metadata,
             candidates=candidates,
         )
 
@@ -2084,6 +2093,9 @@ class _ChatSessionBase:
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[
+            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        ] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Sends message to the language model and gets a response.
 
@@ -2099,6 +2111,7 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the
@@ -2112,6 +2125,7 @@ class _ChatSessionBase:
             top_p=top_p,
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
+            grounding_source=grounding_source,
         )
 
         prediction_response = self._model._endpoint.predict(
@@ -2142,6 +2156,9 @@ class _ChatSessionBase:
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[
+            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        ] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously sends message to the language model and gets a response.
 
@@ -2157,6 +2174,7 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains
@@ -2170,6 +2188,7 @@ class _ChatSessionBase:
             top_p=top_p,
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
+            grounding_source=grounding_source,
         )
 
         prediction_response = await self._model._endpoint.predict_async(
