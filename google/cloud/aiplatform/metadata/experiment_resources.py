@@ -511,10 +511,16 @@ class Experiment:
             )
 
         if tensorboard_resource_name:
-            return tensorboard_resource.Tensorboard(
-                tensorboard_resource_name,
-                credentials=self._metadata_context.credentials,
-            )
+            try:
+                return tensorboard_resource.Tensorboard(
+                    tensorboard_resource_name,
+                    credentials=self._metadata_context.credentials,
+                )
+            except exceptions.NotFound:
+                _LOGGER.info(
+                    "Backing tensorboard %s not found" % (tensorboard_resource_name)
+                )
+                return None
 
     def get_backing_tensorboard_resource(
         self,

@@ -512,3 +512,25 @@ class TestExperiments(e2e_base.TestEndToEnd):
             )
             == tensorboard.resource_name
         )
+
+    def test_delete_tensorboard(self, shared_state):
+
+        tensorboard = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=self._make_display_name("")[:64],
+        )
+
+        shared_state["resources"] = [tensorboard]
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+            experiment_tensorboard=tensorboard,
+        )
+
+        tensorboard.delete(sync=True)
+
+        experiment = aiplatform.Experiment.get_by_name(self._experiment_name)
+        assert experiment._lookup_backing_tensorboard().resource_name is None
