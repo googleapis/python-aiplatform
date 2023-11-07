@@ -709,12 +709,16 @@ class _GroundingSourceBase(abc.ABC):
 
 @dataclasses.dataclass
 class WebSearch(_GroundingSourceBase):
-    """WebSearch represents a grounding source using public web search."""
+    """WebSearch represents a grounding source using public web search.
+    Attributes:
+        disable_attribution: If set to `True`, skip finding claim attributions (i.e not generate grounding citation). Default: False.
+    """
 
+    disable_attribution: bool = False
     _type: str = dataclasses.field(default="WEB", init=False, repr=False)
 
     def _to_grounding_source_dict(self) -> Dict[str, Any]:
-        return {"type": self._type}
+        return {"type": self._type, "disableAttribution": self.disable_attribution}
 
 
 @dataclasses.dataclass
@@ -723,16 +727,18 @@ class VertexAISearch(_GroundingSourceBase):
     Attributes:
         data_store_id: Data store ID of the Vertex AI Search datastore.
         location: GCP multi region where you have set up your Vertex AI Search data store. Possible values can be `global`, `us`, `eu`, etc.
-        Learn more about Vertex AI Search location here:
-        https://cloud.google.com/generative-ai-app-builder/docs/locations
+            Learn more about Vertex AI Search location here:
+            https://cloud.google.com/generative-ai-app-builder/docs/locations
         project: The project where you have set up your Vertex AI Search.
-        If not specified, will assume that your Vertex AI Search is within your current project.
+            If not specified, will assume that your Vertex AI Search is within your current project.
+        disable_attribution: If set to `True`, skip finding claim attributions (i.e not generate grounding citation). Default: False.
     """
 
     data_store_id: str
     location: str
     project: Optional[str] = None
-    _type: str = dataclasses.field(default="ENTERPRISE", init=False, repr=False)
+    disable_attribution: bool = False
+    _type: str = dataclasses.field(default="VERTEX_AI_SEARCH", init=False, repr=False)
 
     def _get_datastore_path(self) -> str:
         _project = self.project or aiplatform_initializer.global_config.project
@@ -742,7 +748,11 @@ class VertexAISearch(_GroundingSourceBase):
         )
 
     def _to_grounding_source_dict(self) -> Dict[str, Any]:
-        return {"type": self._type, "enterpriseDatastore": self._get_datastore_path()}
+        return {
+            "type": self._type,
+            "vertexAiSearchDatastore": self._get_datastore_path(),
+            "disableAttribution": self.disable_attribution,
+        }
 
 
 @dataclasses.dataclass
@@ -790,6 +800,7 @@ class GroundingMetadata:
     """
 
     citations: Optional[List[GroundingCitation]] = None
+    search_queries: Optional[List[str]] = None
 
     def _parse_citation_from_dict(
         self, citation_dict_camel: Dict[str, Any]
@@ -819,6 +830,7 @@ class GroundingMetadata:
             self._parse_citation_from_dict(citation)
             for citation in response.get("citations", [])
         ]
+        self.search_queries = response.get("searchQueries", [])
 
 
 @dataclasses.dataclass
@@ -1521,9 +1533,7 @@ class TextEmbeddingModel(_LanguageModel):
             A `_MultiInstancePredictionRequest` object.
         """
         if isinstance(texts, str) or not isinstance(texts, Sequence):
-            raise TypeError(
-                "The `texts` argument must be a list, not a single string."
-            )
+            raise TypeError("The `texts` argument must be a list, not a single string.")
         instances = []
         for text in texts:
             if isinstance(text, TextEmbeddingInput):

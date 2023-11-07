@@ -183,7 +183,10 @@ _TEST_TEXT_GENERATION_PREDICTION_GROUNDING = {
         "citations": [
             {"url": "url1", "startIndex": 1, "endIndex": 2},
             {"url": "url2", "startIndex": 3, "endIndex": 4},
-        ]
+        ],
+        "searchQueries": [
+            "searchQuery",
+        ],
     },
     "content": """
 Ingredients:
@@ -211,7 +214,8 @@ _EXPECTED_PARSED_GROUNDING_METADATA = {
             "license": None,
             "publication_date": None,
         },
-    ]
+    ],
+    "search_queries": ["searchQuery"],
 }
 
 _TEST_TEXT_GENERATION_PREDICTION = {
@@ -332,7 +336,8 @@ _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING = {
                     "endIndex": 2,
                     "url": "url1",
                 }
-            ]
+            ],
+            "searchQueries": ["searchQuery1"],
         },
         {
             "citations": [
@@ -341,7 +346,8 @@ _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING = {
                     "endIndex": 4,
                     "url": "url2",
                 }
-            ]
+            ],
+            "searchQueries": ["searchQuery2"],
         },
     ],
     "candidates": [
@@ -396,10 +402,12 @@ _EXPECTED_PARSED_GROUNDING_METADATA_CHAT = {
             "publication_date": None,
         },
     ],
+    "search_queries": ["searchQuery1"],
 }
 
 _EXPECTED_PARSED_GROUNDING_METADATA_CHAT_NONE = {
     "citations": [],
+    "search_queries": [],
 }
 
 _TEST_CHAT_PREDICTION_STREAMING = [
@@ -1567,12 +1575,13 @@ class TestLanguageModels:
             "collections/default_collection/dataStores/test_datastore"
         )
         expected_grounding_sources = [
-            {"sources": [{"type": "WEB"}]},
+            {"sources": [{"type": "WEB", "disableAttribution": False}]},
             {
                 "sources": [
                     {
-                        "type": "ENTERPRISE",
-                        "enterpriseDatastore": datastore_path,
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
                     }
                 ]
             },
@@ -1680,12 +1689,20 @@ class TestLanguageModels:
             "collections/default_collection/dataStores/test_datastore"
         )
         expected_grounding_sources = [
-            {"sources": [{"type": "WEB"}]},
             {
                 "sources": [
                     {
-                        "type": "ENTERPRISE",
-                        "enterpriseDatastore": datastore_path,
+                        "type": "WEB",
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+            {
+                "sources": [
+                    {
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
                     }
                 ]
             },
@@ -2416,12 +2433,20 @@ class TestLanguageModels:
             "collections/default_collection/dataStores/test_datastore"
         )
         expected_grounding_sources = [
-            {"sources": [{"type": "WEB"}]},
             {
                 "sources": [
                     {
-                        "type": "ENTERPRISE",
-                        "enterpriseDatastore": datastore_path,
+                        "type": "WEB",
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+            {
+                "sources": [
+                    {
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
                     }
                 ]
             },
@@ -2461,12 +2486,20 @@ class TestLanguageModels:
             "collections/default_collection/dataStores/test_datastore"
         )
         expected_grounding_sources = [
-            {"sources": [{"type": "WEB"}]},
             {
                 "sources": [
                     {
-                        "type": "ENTERPRISE",
-                        "enterpriseDatastore": datastore_path,
+                        "type": "WEB",
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+            {
+                "sources": [
+                    {
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
                     }
                 ]
             },
@@ -2537,12 +2570,20 @@ class TestLanguageModels:
             "collections/default_collection/dataStores/test_datastore"
         )
         expected_grounding_sources = [
-            {"sources": [{"type": "WEB"}]},
             {
                 "sources": [
                     {
-                        "type": "ENTERPRISE",
-                        "enterpriseDatastore": datastore_path,
+                        "type": "WEB",
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+            {
+                "sources": [
+                    {
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
                     }
                 ]
             },
@@ -2586,12 +2627,20 @@ class TestLanguageModels:
             "collections/default_collection/dataStores/test_datastore"
         )
         expected_grounding_sources = [
-            {"sources": [{"type": "WEB"}]},
             {
                 "sources": [
                     {
-                        "type": "ENTERPRISE",
-                        "enterpriseDatastore": datastore_path,
+                        "type": "WEB",
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+            {
+                "sources": [
+                    {
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
                     }
                 ]
             },
