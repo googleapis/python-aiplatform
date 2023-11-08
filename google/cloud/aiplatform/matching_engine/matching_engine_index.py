@@ -108,6 +108,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        index_update_method: Optional[str] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource.
 
@@ -153,20 +154,25 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-            encryption_spec (str):
-                Optional. Customer-managed encryption key
-                spec for data storage. If set, both of the
-                online and offline data storage will be secured
-                by this key.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            index_update_method (str):
+                Optional. The update method to use with this index. Choose
+                stream_update or batch_update. If not set, batch update will be
+                used by default.
 
         Returns:
             MatchingEngineIndex - Index resource object
 
         """
+        index_update_method_enum = None
+        if index_update_method in _INDEX_UPDATE_METHOD_TO_ENUM_VALUE:
+            index_update_method_enum = _INDEX_UPDATE_METHOD_TO_ENUM_VALUE[
+                index_update_method
+            ]
+
         gapic_index = gca_matching_engine_index.Index(
             display_name=display_name,
             description=description,
@@ -174,6 +180,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 "config": config.as_dict(),
                 "contentsDeltaUri": contents_delta_uri,
             },
+            index_update_method=index_update_method_enum,
         )
 
         if labels:
@@ -386,6 +393,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        index_update_method: Optional[str] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource that uses the tree-AH algorithm.
 
@@ -456,15 +464,14 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-            encryption_spec (str):
-                Optional. Customer-managed encryption key
-                spec for data storage. If set, both of the
-                online and offline data storage will be secured
-                by this key.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            index_update_method (str):
+                Optional. The update method to use with this index. Choose
+                STREAM_UPDATE or BATCH_UPDATE. If not set, batch update will be
+                used by default.
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -494,6 +501,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             request_metadata=request_metadata,
             sync=sync,
+            index_update_method=index_update_method,
         )
 
     @classmethod
@@ -512,6 +520,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        index_update_method: Optional[str] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource that uses the brute force algorithm.
 
@@ -571,15 +580,14 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-            encryption_spec (str):
-                Optional. Customer-managed encryption key
-                spec for data storage. If set, both of the
-                online and offline data storage will be secured
-                by this key.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            index_update_method (str):
+                Optional. The update method to use with this index. Choose
+                stream_update or batch_update. If not set, batch update will be
+                used by default.
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -605,4 +613,11 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             request_metadata=request_metadata,
             sync=sync,
+            index_update_method=index_update_method,
         )
+
+
+_INDEX_UPDATE_METHOD_TO_ENUM_VALUE = {
+    "STREAM_UPDATE": gca_matching_engine_index.Index.IndexUpdateMethod.STREAM_UPDATE,
+    "BATCH_UPDATE": gca_matching_engine_index.Index.IndexUpdateMethod.BATCH_UPDATE,
+}

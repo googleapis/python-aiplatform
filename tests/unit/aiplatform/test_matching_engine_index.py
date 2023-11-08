@@ -92,6 +92,18 @@ _TEST_INDEX_LIST = [
     ),
 ]
 
+# Index update method
+_TEST_INDEX_BATCH_UPDATE_METHOD = "BATCH_UPDATE"
+_TEST_INDEX_STREAM_UPDATE_METHOD = "STREAM_UPDATE"
+_TEST_INDEX_EMPTY_UPDATE_METHOD = None
+_TEST_INDEX_INVALID_UPDATE_METHOD = "INVALID_UPDATE_METHOD"
+_TEST_INDEX_UPDATE_METHOD_EXPECTED_RESULT_MAP = {
+    _TEST_INDEX_BATCH_UPDATE_METHOD: gca_index.Index.IndexUpdateMethod.BATCH_UPDATE,
+    _TEST_INDEX_STREAM_UPDATE_METHOD: gca_index.Index.IndexUpdateMethod.STREAM_UPDATE,
+    _TEST_INDEX_EMPTY_UPDATE_METHOD: None,
+    _TEST_INDEX_INVALID_UPDATE_METHOD: None,
+}
+
 
 def uuid_mock():
     return uuid.UUID(int=1)
@@ -273,7 +285,16 @@ class TestMatchingEngineIndex:
 
     @pytest.mark.usefixtures("get_index_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_create_tree_ah_index(self, create_index_mock, sync):
+    @pytest.mark.parametrize(
+        "index_update_method",
+        [
+            _TEST_INDEX_STREAM_UPDATE_METHOD,
+            _TEST_INDEX_BATCH_UPDATE_METHOD,
+            _TEST_INDEX_EMPTY_UPDATE_METHOD,
+            _TEST_INDEX_INVALID_UPDATE_METHOD,
+        ],
+    )
+    def test_create_tree_ah_index(self, create_index_mock, sync, index_update_method):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
@@ -287,6 +308,7 @@ class TestMatchingEngineIndex:
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
             sync=sync,
+            index_update_method=index_update_method,
         )
 
         if not sync:
@@ -312,6 +334,9 @@ class TestMatchingEngineIndex:
             },
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
+            index_update_method=_TEST_INDEX_UPDATE_METHOD_EXPECTED_RESULT_MAP[
+                index_update_method
+            ],
         )
 
         create_index_mock.assert_called_once_with(
@@ -322,7 +347,18 @@ class TestMatchingEngineIndex:
 
     @pytest.mark.usefixtures("get_index_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_create_brute_force_index(self, create_index_mock, sync):
+    @pytest.mark.parametrize(
+        "index_update_method",
+        [
+            _TEST_INDEX_STREAM_UPDATE_METHOD,
+            _TEST_INDEX_BATCH_UPDATE_METHOD,
+            _TEST_INDEX_EMPTY_UPDATE_METHOD,
+            _TEST_INDEX_INVALID_UPDATE_METHOD,
+        ],
+    )
+    def test_create_brute_force_index(
+        self, create_index_mock, sync, index_update_method
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index = aiplatform.MatchingEngineIndex.create_brute_force_index(
@@ -333,6 +369,7 @@ class TestMatchingEngineIndex:
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
             sync=sync,
+            index_update_method=index_update_method,
         )
 
         if not sync:
@@ -353,6 +390,9 @@ class TestMatchingEngineIndex:
             },
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
+            index_update_method=_TEST_INDEX_UPDATE_METHOD_EXPECTED_RESULT_MAP[
+                index_update_method
+            ],
         )
 
         create_index_mock.assert_called_once_with(
