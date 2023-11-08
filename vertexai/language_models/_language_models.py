@@ -496,6 +496,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
         model_display_name: Optional[str] = None,
         default_context: Optional[str] = None,
         accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
+        tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -520,6 +521,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
             model_display_name: Custom display name for the tuned model.
             default_context: The context to use for all training samples by default.
             accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
+            tuning_evaluation_spec: Specification for the model evaluation during tuning.
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -529,8 +531,25 @@ class _TunableChatModelMixin(_TunableModelMixin):
             ValueError: If the "tuning_job_location" value is not supported
             ValueError: If the "tuned_model_location" value is not supported
             RuntimeError: If the model does not support tuning
+            AttributeError: If any attribute in the "tuning_evaluation_spec" is not supported
         """
-        # Note: Chat models do not support tuning_evaluation_spec
+
+        if tuning_evaluation_spec is not None:
+            unsupported_chat_model_tuning_eval_spec = {
+                "evaluation_data": tuning_evaluation_spec.evaluation_data,
+                "evaluation_interval": tuning_evaluation_spec.evaluation_interval,
+                "enable_early_stopping": tuning_evaluation_spec.enable_early_stopping,
+                "enable_checkpoint_selection": tuning_evaluation_spec.enable_checkpoint_selection,
+            }
+
+            for att_name, att_value in unsupported_chat_model_tuning_eval_spec.items():
+                if not att_value is None:
+                    raise AttributeError(
+                        (
+                            f"ChatModel and CodeChatModel only support tensorboard as attribute for TuningEvaluationSpec"
+                            f"found attribute name {att_name} with value {att_value}, please leave {att_name} to None"
+                        )
+                    )
         return super().tune_model(
             training_data=training_data,
             train_steps=train_steps,
@@ -540,6 +559,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
             model_display_name=model_display_name,
             default_context=default_context,
             accelerator_type=accelerator_type,
+            tuning_evaluation_spec=tuning_evaluation_spec,
         )
 
 

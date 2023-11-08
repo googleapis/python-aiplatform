@@ -2125,12 +2125,18 @@ class TestLanguageModels:
         ):
             model = language_models.ChatModel.from_pretrained("chat-bison@001")
 
+            tuning_job_location = "europe-west4"
+            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+
             default_context = "Default context"
             tuning_job = model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
                 default_context=default_context,
+                tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                    tensorboard=tensorboard_name,
+                ),
                 accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
@@ -2140,6 +2146,7 @@ class TestLanguageModels:
             assert pipeline_arguments["large_model_reference"] == "chat-bison@001"
             assert pipeline_arguments["default_context"] == default_context
             assert pipeline_arguments["accelerator_type"] == "TPU"
+            assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
 
             # Testing the tuned model
             tuned_model = tuning_job.get_tuned_model()
@@ -2147,6 +2154,26 @@ class TestLanguageModels:
                 tuned_model._endpoint_name
                 == test_constants.EndpointConstants._TEST_ENDPOINT_NAME
             )
+
+            unsupported_tuning_evaluation_spec_att = (
+                {"evaluation_data": "gs://bucket/eval.jsonl"},
+                {"evaluation_interval": 37},
+                {"enable_early_stopping": True},
+                {"enable_checkpoint_selection": True},
+            )
+            for unsupported_att in unsupported_tuning_evaluation_spec_att:
+                unsupported_tuning_evaluation_spec = (
+                    preview_language_models.TuningEvaluationSpec(**unsupported_att)
+                )
+                with pytest.raises(AttributeError):
+                    model.tune_model(
+                        training_data=_TEST_TEXT_BISON_TRAINING_DF,
+                        tuning_job_location="europe-west4",
+                        tuned_model_location="us-central1",
+                        default_context=default_context,
+                        tuning_evaluation_spec=unsupported_tuning_evaluation_spec,
+                        accelerator_type="TPU",
+                    )
 
     @pytest.mark.parametrize(
         "job_spec",
@@ -2228,12 +2255,18 @@ class TestLanguageModels:
         ):
             model = language_models.CodeChatModel.from_pretrained("codechat-bison@001")
 
+            tuning_job_location = "europe-west4"
+            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+
             # The tune_model call needs to be inside the PublisherModel mock
             # since it gets a new PublisherModel when tuning completes.
             model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
+                tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                    tensorboard=tensorboard_name,
+                ),
                 accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
@@ -2242,6 +2275,26 @@ class TestLanguageModels:
             ].runtime_config.parameter_values
             assert pipeline_arguments["large_model_reference"] == "codechat-bison@001"
             assert pipeline_arguments["accelerator_type"] == "TPU"
+            assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
+
+            unsupported_tuning_evaluation_spec_att = (
+                {"evaluation_data": "gs://bucket/eval.jsonl"},
+                {"evaluation_interval": 37},
+                {"enable_early_stopping": True},
+                {"enable_checkpoint_selection": True},
+            )
+            for unsupported_att in unsupported_tuning_evaluation_spec_att:
+                unsupported_tuning_evaluation_spec = (
+                    preview_language_models.TuningEvaluationSpec(**unsupported_att)
+                )
+                with pytest.raises(AttributeError):
+                    model.tune_model(
+                        training_data=_TEST_TEXT_BISON_TRAINING_DF,
+                        tuning_job_location="europe-west4",
+                        tuned_model_location="us-central1",
+                        tuning_evaluation_spec=unsupported_tuning_evaluation_spec,
+                        accelerator_type="TPU",
+                    )
 
     @pytest.mark.usefixtures(
         "get_model_with_tuned_version_label_mock",
