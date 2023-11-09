@@ -64,6 +64,9 @@ XGBOOST_CONTAINER_URIS = [
 ]
 
 SKLEARN_CONTAINER_URIS = [
+    "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-3:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-3:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-3:latest",
     "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-2:latest",
     "europe-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-2:latest",
     "asia-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-2:latest",
@@ -85,6 +88,12 @@ SKLEARN_CONTAINER_URIS = [
 ]
 
 TF_CONTAINER_URIS = [
+    "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-13:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-13:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-13:latest",
+    "us-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-13:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-13:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-13:latest",
     "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-12:latest",
     "europe-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-12:latest",
     "asia-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-12:latest",
