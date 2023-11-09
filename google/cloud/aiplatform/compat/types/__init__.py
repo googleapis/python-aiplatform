@@ -161,6 +161,160 @@ from google.cloud.aiplatform_v1.types import (
     vizier_service as vizier_service_v1,
 )
 
+from google.cloud.aiplatform.compat import versions
+
+
+if versions.DEFAULT_VERSION == versions.V1BETA1:
+    accelerator_type = accelerator_type_v1beta1
+    annotation = annotation_v1beta1
+    annotation_spec = annotation_spec_v1beta1
+    artifact = artifact_v1beta1
+    batch_prediction_job = batch_prediction_job_v1beta1
+    completion_stats = completion_stats_v1beta1
+    context = context_v1beta1
+    custom_job = custom_job_v1beta1
+    data_item = data_item_v1beta1
+    data_labeling_job = data_labeling_job_v1beta1
+    dataset = dataset_v1beta1
+    dataset_service = dataset_service_v1beta1
+    deployed_model_ref = deployed_model_ref_v1beta1
+    deployment_resource_pool = deployment_resource_pool_v1beta1
+    encryption_spec = encryption_spec_v1beta1
+    endpoint = endpoint_v1beta1
+    endpoint_service = endpoint_service_v1beta1
+    entity_type = entity_type_v1beta1
+    env_var = env_var_v1beta1
+    event = event_v1beta1
+    execution = execution_v1beta1
+    explanation = explanation_v1beta1
+    explanation_metadata = explanation_metadata_v1beta1
+    feature = feature_v1beta1
+    feature_monitoring_stats = feature_monitoring_stats_v1beta1
+    feature_selector = feature_selector_v1beta1
+    featurestore = featurestore_v1beta1
+    featurestore_monitoring = featurestore_monitoring_v1beta1
+    featurestore_online_service = featurestore_online_service_v1beta1
+    featurestore_service = featurestore_service_v1beta1
+    hyperparameter_tuning_job = hyperparameter_tuning_job_v1beta1
+    index = index_v1beta1
+    index_endpoint = index_endpoint_v1beta1
+    io = io_v1beta1
+    job_service = job_service_v1beta1
+    job_state = job_state_v1beta1
+    lineage_subgraph = lineage_subgraph_v1beta1
+    machine_resources = machine_resources_v1beta1
+    manual_batch_tuning_parameters = manual_batch_tuning_parameters_v1beta1
+    matching_engine_deployed_index_ref = matching_engine_deployed_index_ref_v1beta1
+    matching_engine_index = index_v1beta1
+    matching_engine_index_endpoint = index_endpoint_v1beta1
+    metadata_service = metadata_service_v1beta1
+    metadata_schema = metadata_schema_v1beta1
+    metadata_store = metadata_store_v1beta1
+    model = model_v1beta1
+    model_evaluation = model_evaluation_v1beta1
+    model_evaluation_slice = model_evaluation_slice_v1beta1
+    model_deployment_monitoring_job = model_deployment_monitoring_job_v1beta1
+    model_garden_service = model_garden_service_v1beta1
+    model_monitoring = model_monitoring_v1beta1
+    model_service = model_service_v1beta1
+    operation = operation_v1beta1
+    pipeline_failure_policy = pipeline_failure_policy_v1beta1
+    pipeline_job = pipeline_job_v1beta1
+    pipeline_service = pipeline_service_v1beta1
+    pipeline_state = pipeline_state_v1beta1
+    prediction_service = prediction_service_v1beta1
+    publisher_model = publisher_model_v1beta1
+    schedule = schedule_v1beta1
+    schedule_service = schedule_service_v1beta1
+    specialist_pool = specialist_pool_v1beta1
+    specialist_pool_service = specialist_pool_service_v1beta1
+    study = study_v1beta1
+    tensorboard = tensorboard_v1beta1
+    tensorboard_service = tensorboard_service_v1beta1
+    tensorboard_data = tensorboard_data_v1beta1
+    tensorboard_experiment = tensorboard_experiment_v1beta1
+    tensorboard_run = tensorboard_run_v1beta1
+    tensorboard_service = tensorboard_service_v1beta1
+    tensorboard_time_series = tensorboard_time_series_v1beta1
+    training_pipeline = training_pipeline_v1beta1
+    types = types_v1beta1
+    vizier_service = vizier_service_v1beta1
+
+# if versions.DEFAULT_VERSION == versions.V1:
+else:
+    accelerator_type = accelerator_type_v1
+    annotation = annotation_v1
+    annotation_spec = annotation_spec_v1
+    artifact = artifact_v1
+    batch_prediction_job = batch_prediction_job_v1
+    completion_stats = completion_stats_v1
+    context = context_v1
+    custom_job = custom_job_v1
+    data_item = data_item_v1
+    data_labeling_job = data_labeling_job_v1
+    dataset = dataset_v1
+    dataset_service = dataset_service_v1
+    deployed_model_ref = deployed_model_ref_v1
+    encryption_spec = encryption_spec_v1
+    endpoint = endpoint_v1
+    endpoint_service = endpoint_service_v1
+    entity_type = entity_type_v1
+    env_var = env_var_v1
+    event = event_v1
+    execution = execution_v1
+    explanation = explanation_v1
+    explanation_metadata = explanation_metadata_v1
+    feature = feature_v1
+    feature_monitoring_stats = feature_monitoring_stats_v1
+    feature_selector = feature_selector_v1
+    featurestore = featurestore_v1
+    featurestore_online_service = featurestore_online_service_v1
+    featurestore_service = featurestore_service_v1
+    hyperparameter_tuning_job = hyperparameter_tuning_job_v1
+    index = index_v1
+    index_endpoint = index_endpoint_v1
+    io = io_v1
+    job_service = job_service_v1
+    job_state = job_state_v1
+    lineage_subgraph = lineage_subgraph_v1
+    machine_resources = machine_resources_v1
+    manual_batch_tuning_parameters = manual_batch_tuning_parameters_v1
+    matching_engine_deployed_index_ref = matching_engine_deployed_index_ref_v1
+    matching_engine_index = index_v1
+    matching_engine_index_endpoint = index_endpoint_v1
+    metadata_service = metadata_service_v1
+    metadata_schema = metadata_schema_v1
+    metadata_store = metadata_store_v1
+    model = model_v1
+    model_evaluation = model_evaluation_v1
+    model_evaluation_slice = model_evaluation_slice_v1
+    model_deployment_monitoring_job = model_deployment_monitoring_job_v1
+    model_monitoring = model_monitoring_v1
+    model_service = model_service_v1
+    operation = operation_v1
+    pipeline_failure_policy = pipeline_failure_policy_v1
+    pipeline_job = pipeline_job_v1
+    pipeline_service = pipeline_service_v1
+    pipeline_state = pipeline_state_v1
+    prediction_service = prediction_service_v1
+    publisher_model = publisher_model_v1
+    schedule = schedule_v1
+    schedule_service = schedule_service_v1
+    specialist_pool = specialist_pool_v1
+    specialist_pool_service = specialist_pool_service_v1
+    study = study_v1
+    tensorboard = tensorboard_v1
+    tensorboard_service = tensorboard_service_v1
+    tensorboard_data = tensorboard_data_v1
+    tensorboard_experiment = tensorboard_experiment_v1
+    tensorboard_run = tensorboard_run_v1
+    tensorboard_service = tensorboard_service_v1
+    tensorboard_time_series = tensorboard_time_series_v1
+    training_pipeline = training_pipeline_v1
+    types = types_v1
+    vizier_service = vizier_service_v1
+
+
 __all__ = (
     # v1
     accelerator_type_v1,
@@ -305,4 +459,84 @@ __all__ = (
     training_pipeline_v1beta1,
     types_v1beta1,
     vizier_service_v1beta1,
+    # defult
+    "accelerator_type",
+    "annotation",
+    "annotation_spec",
+    "artifact",
+    "batch_prediction_job",
+    "completion_stats",
+    "context",
+    "custom_job",
+    "data_item",
+    "data_labeling_job",
+    "dataset",
+    "dataset_service",
+    "deployment_resource_pool",
+    "deployed_model_ref",
+    "encryption_spec",
+    "endpoint",
+    "endpoint_service",
+    "entity_type",
+    "env_var",
+    "event",
+    "execution",
+    "explanation",
+    "explanation_metadata",
+    "feature",
+    "feature_monitoring_stats",
+    "feature_selector",
+    "featurestore",
+    "featurestore_monitoring",
+    "featurestore_online_service",
+    "featurestore_service",
+    "hyperparameter_tuning_job",
+    "io",
+    "job_service",
+    "job_state",
+    "lineage_subgraph",
+    "machine_resources",
+    "manual_batch_tuning_parameters",
+    "matching_engine_deployed_index_ref",
+    "index",
+    "index_endpoint",
+    "metadata_service",
+    "metadata_schema",
+    "metadata_store",
+    "model",
+    "model_evaluation",
+    "model_evaluation_slice",
+    "model_deployment_monitoring_job",
+    "model_garden_service",
+    "model_service",
+    "model_monitoring",
+    "operation",
+    "pipeline_failure_policy",
+    "pipeline_job",
+    "pipeline_service",
+    "pipeline_state",
+    "prediction_service",
+    "publisher_model",
+    "schedule",
+    "schedule_service",
+    "specialist_pool",
+    "specialist_pool_service",
+    "study",
+    "tensorboard",
+    "tensorboard_data",
+    "tensorboard_experiment",
+    "tensorboard_run",
+    "tensorboard_service",
+    "tensorboard_time_series",
+    "training_pipeline",
+    "types",
+    "vizier_service",
 )
+
+if versions.DEFAULT_VERSION == versions.V1BETA1:
+    __all__.extend(
+        [
+            "deployment_resource_pool_service",
+            "match_service",
+        ]
+    )

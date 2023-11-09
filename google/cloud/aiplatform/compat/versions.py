@@ -15,20 +15,7 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.compat import services
-from google.cloud.aiplatform.compat import types
+V1BETA1 = "v1beta1"
+V1 = "v1"
 
-from google.cloud.aiplatform.compat.versions import (
-    DEFAULT_VERSION,
-    V1BETA1,
-    V1,
-)
-
-
-__all__ = (
-    DEFAULT_VERSION,
-    V1BETA1,
-    V1,
-    services,
-    types,
-)
+DEFAULT_VERSION = V1
