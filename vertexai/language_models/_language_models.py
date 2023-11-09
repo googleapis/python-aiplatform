@@ -2558,12 +2558,13 @@ class CodeChatSession(_ChatSessionBase):
             A `MultiCandidateTextGenerationResponse` object that contains the
             text produced by the model.
         """
-        return super().send_message_async(
+        response = await super().send_message_async(
             message=message,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             candidate_count=candidate_count,
         )
+        return response
 
     def send_message_streaming(
         self,
