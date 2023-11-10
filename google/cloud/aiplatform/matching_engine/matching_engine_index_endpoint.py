@@ -28,6 +28,8 @@ from google.cloud.aiplatform.compat.types import (
     matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
     match_service_v1beta1 as gca_match_service_v1beta1,
     index_v1beta1 as gca_index_v1beta1,
+    service_networking as gca_service_networking,
+    encryption_spec as gca_encryption_spec,
 )
 from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
 from google.cloud.aiplatform.matching_engine._protos import (
@@ -145,6 +147,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        enable_private_service_connect: Optional[bool] = False,
+        project_allowlist: Optional[Sequence[str]] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ) -> "MatchingEngineIndexEndpoint":
         """Creates a MatchingEngineIndexEndpoint resource.
 
@@ -205,6 +210,23 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            enable_private_service_connect (bool):
+                If true, expose the index endpoint via private service connect.
+            project_allowlist (Sequence[str]):
+                Optional. List of projects from which the forwarding rule will
+                target the service attachment.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the index endpoint.
+                Has the form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this index endpoint and all sub-resources of this
+                index endpoint will be secured by this key.
+                The key needs to be in the same region as where the index
+                endpoint is created.
 
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
@@ -214,14 +236,27 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         """
         network = network or initializer.global_config.network
 
-        if not network and not public_endpoint_enabled:
+        if not (network or public_endpoint_enabled or enable_private_service_connect):
             raise ValueError(
-                "Please provide `network` argument for private endpoint or provide `public_endpoint_enabled` to deploy this index to a public endpoint"
+                "Please provide `network` argument for Private Service Access endpoint,"
+                "or provide `enable_private_service_connect` for Private Service"
+                "Connect endpoint, or provide `public_endpoint_enabled` to"
+                "deploy to a public endpoint"
             )
 
-        if network and public_endpoint_enabled:
+        if (
+            sum(
+                bool(network_setting)
+                for network_setting in [
+                    network,
+                    public_endpoint_enabled,
+                    enable_private_service_connect,
+                ]
+            )
+            > 1
+        ):
             raise ValueError(
-                "`network` and `public_endpoint_enabled` argument should not be set at the same time"
+                "One and only one among network, public_endpoint_enabled and enable_private_service_connect should be set."
             )
 
         return cls._create(
@@ -235,6 +270,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             request_metadata=request_metadata,
             sync=sync,
+            enable_private_service_connect=enable_private_service_connect,
+            project_allowlist=project_allowlist,
+            encryption_spec_key_name=encryption_spec_key_name,
         )
 
     @classmethod
@@ -251,6 +289,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        enable_private_service_connect: Optional[bool] = False,
+        project_allowlist: Optional[Sequence[str]] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ) -> "MatchingEngineIndexEndpoint":
         """Helper method to ensure network synchronization and to
         create a MatchingEngineIndexEndpoint resource.
@@ -304,20 +345,53 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            encryption_spec_key_name (str):
+                Immutable. Customer-managed encryption key
+                spec for an IndexEndpoint. If set, this
+                IndexEndpoint and all sub-resources of this
+                IndexEndpoint will be secured by this key.
+            enable_private_service_connect (bool):
+                Required. If true, expose the IndexEndpoint
+                via private service connect.
+            project_allowlist (MutableSequence[str]):
+                A list of Projects from which the forwarding
+                rule will target the service attachment.
 
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
-
+        # Public
         if public_endpoint_enabled:
             gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
                 display_name=display_name,
                 description=description,
                 public_endpoint_enabled=public_endpoint_enabled,
+                encryption_spec=gca_encryption_spec.EncryptionSpec(
+                    kms_key_name=encryption_spec_key_name
+                ),
             )
+        # PSA
+        elif network:
+            gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
+                display_name=display_name,
+                description=description,
+                network=network,
+                encryption_spec=gca_encryption_spec.EncryptionSpec(
+                    kms_key_name=encryption_spec_key_name
+                ),
+            )
+        # PSC
         else:
             gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-                display_name=display_name, description=description, network=network
+                display_name=display_name,
+                description=description,
+                private_service_connect_config=gca_service_networking.PrivateServiceConnectConfig(
+                    project_allowlist=project_allowlist,
+                    enable_private_service_connect=enable_private_service_connect,
+                ),
+                encryption_spec=gca_encryption_spec.EncryptionSpec(
+                    kms_key_name=encryption_spec_key_name
+                ),
             )
 
         if labels:
