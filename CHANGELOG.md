@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.36.2](https://github.com/googleapis/python-aiplatform/compare/v1.36.1...v1.36.2) (2023-11-10)
+
+
+### Features
+
+* Add `encryption_spec_key_name` to `MatchingEngineIndex` `create_tree_ah_index` and ([1a9e36f](https://github.com/googleapis/python-aiplatform/commit/1a9e36f4ea1672d0fc6ce1587c86c4f132c15190))
+* Add `encryption_spec_key_name`, `enable_private_service_connect`,`project_allowlist` to MatchingEngineIndexEndpoint `create`. ([750e17b](https://github.com/googleapis/python-aiplatform/commit/750e17b4c25c9030018521545b3c21e1fb1404c2))
+* Add `index_update_method` to MatchingEngineIndex `create()` ([dcb6205](https://github.com/googleapis/python-aiplatform/commit/dcb62051a7f3aeaa009b64165569c788d8c5ec44))
+* Expose max_retry_cnt parameter for Ray on Vertex BigQuery write ([568907c](https://github.com/googleapis/python-aiplatform/commit/568907c3876b10dc104de5d19a973135b2638d62))
+* LLM - Grounding - Added support for the `disable_attribution` grounding parameter ([91e985a](https://github.com/googleapis/python-aiplatform/commit/91e985a258180226053a23a9280249079574ad16))
+* LLM - Support model evaluation when tuning chat models (`ChatModel`, `CodeChatModel`) ([755c3f9](https://github.com/googleapis/python-aiplatform/commit/755c3f99478e537ef5675ed7120a17eaf94ee5cd))
+* LVM - Added multi-language support for `ImageGenerationModel` ([791eff5](https://github.com/googleapis/python-aiplatform/commit/791eff5fac48a4395017d7f9296cfb2209a073ba))
+
+
+### Bug Fixes
+
+* Async call bug in CodeChatModel.send_message_async method ([fcf05cb](https://github.com/googleapis/python-aiplatform/commit/fcf05cb6da15c83e91e6ce5f20ab3e6649983685))
+
+
+### Documentation
+
+* Add Bigframes remote training example to vertexai README ([8b993b3](https://github.com/googleapis/python-aiplatform/commit/8b993b367758dc4f195a7a80d13923687da53e04))
+* Update the documentation for the `tabular_dataset` class ([6f40f1b](https://github.com/googleapis/python-aiplatform/commit/6f40f1baf02b279299c7ea825754fe1868d56276))
+
+
+### Miscellaneous Chores
+
+* Release 1.36.2 ([01be0c9](https://github.com/googleapis/python-aiplatform/commit/01be0c99ff86726962146bcf9601a04f7298cda1))
+
 ## [1.36.1](https://github.com/googleapis/python-aiplatform/compare/v1.36.0...v1.36.1) (2023-11-07)
 
 
