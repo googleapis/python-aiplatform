@@ -40,6 +40,8 @@ __protobuf__ = proto.module(
         "ListPipelineJobsRequest",
         "ListPipelineJobsResponse",
         "DeletePipelineJobRequest",
+        "BatchDeletePipelineJobsRequest",
+        "BatchDeletePipelineJobsResponse",
         "CancelPipelineJobRequest",
     },
 )
@@ -417,6 +419,46 @@ class DeletePipelineJobRequest(proto.Message):
     name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class BatchDeletePipelineJobsRequest(proto.Message):
+    r"""Request message for
+    [PipelineService.BatchDeletePipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.BatchDeletePipelineJobs].
+
+    Attributes:
+        parent (str):
+            Required. The name of the PipelineJobs' parent resource.
+            Format: ``projects/{project}/locations/{location}``
+        names (MutableSequence[str]):
+            Required. The names of the PipelineJobs to delete. A maximum
+            of 32 PipelineJobs can be deleted in a batch. Format:
+            ``projects/{project}/locations/{location}/pipelineJobs/{pipelineJob}``
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    names: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
+
+
+class BatchDeletePipelineJobsResponse(proto.Message):
+    r"""Response message for
+    [PipelineService.BatchDeletePipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.BatchDeletePipelineJobs].
+
+    Attributes:
+        pipeline_jobs (MutableSequence[google.cloud.aiplatform_v1beta1.types.PipelineJob]):
+            PipelineJobs deleted.
+    """
+
+    pipeline_jobs: MutableSequence[gca_pipeline_job.PipelineJob] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_pipeline_job.PipelineJob,
     )
 
 

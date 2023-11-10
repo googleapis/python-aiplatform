@@ -893,7 +893,7 @@ def test_fetch_feature_values_flattened():
         # using the keyword arguments to the method.
         client.fetch_feature_values(
             feature_view="feature_view_value",
-            id="id_value",
+            data_key=feature_online_store_service.FeatureViewDataKey(key="key_value"),
         )
 
         # Establish that the underlying call was made with the expected
@@ -903,7 +903,9 @@ def test_fetch_feature_values_flattened():
         arg = args[0].feature_view
         mock_val = "feature_view_value"
         assert arg == mock_val
-        assert args[0].id == "id_value"
+        arg = args[0].data_key
+        mock_val = feature_online_store_service.FeatureViewDataKey(key="key_value")
+        assert arg == mock_val
 
 
 def test_fetch_feature_values_flattened_error():
@@ -917,7 +919,7 @@ def test_fetch_feature_values_flattened_error():
         client.fetch_feature_values(
             feature_online_store_service.FetchFeatureValuesRequest(),
             feature_view="feature_view_value",
-            id="id_value",
+            data_key=feature_online_store_service.FeatureViewDataKey(key="key_value"),
         )
 
 
@@ -941,7 +943,7 @@ async def test_fetch_feature_values_flattened_async():
         # using the keyword arguments to the method.
         response = await client.fetch_feature_values(
             feature_view="feature_view_value",
-            id="id_value",
+            data_key=feature_online_store_service.FeatureViewDataKey(key="key_value"),
         )
 
         # Establish that the underlying call was made with the expected
@@ -951,7 +953,9 @@ async def test_fetch_feature_values_flattened_async():
         arg = args[0].feature_view
         mock_val = "feature_view_value"
         assert arg == mock_val
-        assert args[0].id == "id_value"
+        arg = args[0].data_key
+        mock_val = feature_online_store_service.FeatureViewDataKey(key="key_value")
+        assert arg == mock_val
 
 
 @pytest.mark.asyncio
@@ -966,7 +970,7 @@ async def test_fetch_feature_values_flattened_error_async():
         await client.fetch_feature_values(
             feature_online_store_service.FetchFeatureValuesRequest(),
             feature_view="feature_view_value",
-            id="id_value",
+            data_key=feature_online_store_service.FeatureViewDataKey(key="key_value"),
         )
 
 

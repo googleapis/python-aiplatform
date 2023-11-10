@@ -233,7 +233,7 @@ class FeatureOnlineStoreServiceAsyncClient:
         ] = None,
         *,
         feature_view: Optional[str] = None,
-        id: Optional[str] = None,
+        data_key: Optional[feature_online_store_service.FeatureViewDataKey] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -280,12 +280,11 @@ class FeatureOnlineStoreServiceAsyncClient:
                 This corresponds to the ``feature_view`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            id (:class:`str`):
-                Simple ID. The whole string will be
-                used as is to identify Entity to fetch
+            data_key (:class:`google.cloud.aiplatform_v1beta1.types.FeatureViewDataKey`):
+                Optional. The request key to fetch
                 feature values for.
 
-                This corresponds to the ``id`` field
+                This corresponds to the ``data_key`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -303,7 +302,7 @@ class FeatureOnlineStoreServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([feature_view, id])
+        has_flattened_params = any([feature_view, data_key])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -316,8 +315,8 @@ class FeatureOnlineStoreServiceAsyncClient:
         # request, apply these.
         if feature_view is not None:
             request.feature_view = feature_view
-        if id is not None:
-            request.id = id
+        if data_key is not None:
+            request.data_key = data_key
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.

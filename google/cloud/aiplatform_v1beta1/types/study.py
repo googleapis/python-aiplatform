@@ -22,6 +22,7 @@ import proto  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.protobuf import wrappers_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -30,6 +31,7 @@ __protobuf__ = proto.module(
         "Study",
         "Trial",
         "TrialContext",
+        "StudyTimeConstraint",
         "StudySpec",
         "Measurement",
     },
@@ -321,6 +323,43 @@ class TrialContext(proto.Message):
     )
 
 
+class StudyTimeConstraint(proto.Message):
+    r"""Time-based Constraint for Study
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        max_duration (google.protobuf.duration_pb2.Duration):
+            Counts the wallclock time passed since the
+            creation of this Study.
+
+            This field is a member of `oneof`_ ``constraint``.
+        end_time (google.protobuf.timestamp_pb2.Timestamp):
+            Compares the wallclock time to this time.
+            Must use UTC timezone.
+
+            This field is a member of `oneof`_ ``constraint``.
+    """
+
+    max_duration: duration_pb2.Duration = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="constraint",
+        message=duration_pb2.Duration,
+    )
+    end_time: timestamp_pb2.Timestamp = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="constraint",
+        message=timestamp_pb2.Timestamp,
+    )
+
+
 class StudySpec(proto.Message):
     r"""Represents specification of a Study.
 
@@ -371,6 +410,12 @@ class StudySpec(proto.Message):
             The configuration info/options for transfer
             learning. Currently supported for Vertex AI
             Vizier service, not HyperParameterTuningJob
+        study_stopping_config (google.cloud.aiplatform_v1beta1.types.StudySpec.StudyStoppingConfig):
+            Conditions for automated stopping of a Study.
+            Enable automated stopping by configuring at
+            least one condition.
+
+            This field is a member of `oneof`_ ``_study_stopping_config``.
     """
 
     class Algorithm(proto.Enum):
@@ -1107,6 +1152,103 @@ class StudySpec(proto.Message):
             number=2,
         )
 
+    class StudyStoppingConfig(proto.Message):
+        r"""The configuration (stopping conditions) for automated
+        stopping of a Study. Conditions include trial budgets, time
+        budgets, and convergence detection.
+
+        Attributes:
+            should_stop_asap (google.protobuf.wrappers_pb2.BoolValue):
+                If true, a Study enters STOPPING_ASAP whenever it would
+                normally enters STOPPING state.
+
+                The bottom line is: set to true if you want to interrupt
+                on-going evaluations of Trials as soon as the study stopping
+                condition is met. (Please see Study.State documentation for
+                the source of truth).
+            minimum_runtime_constraint (google.cloud.aiplatform_v1beta1.types.StudyTimeConstraint):
+                Each "stopping rule" in this proto specifies an "if"
+                condition. Before Vizier would generate a new suggestion, it
+                first checks each specified stopping rule, from top to
+                bottom in this list. Note that the first few rules (e.g.
+                minimum_runtime_constraint, min_num_trials) will prevent
+                other stopping rules from being evaluated until they are
+                met. For example, setting ``min_num_trials=5`` and
+                ``always_stop_after= 1 hour`` means that the Study will ONLY
+                stop after it has 5 COMPLETED trials, even if more than an
+                hour has passed since its creation. It follows the first
+                applicable rule (whose "if" condition is satisfied) to make
+                a stopping decision. If none of the specified rules are
+                applicable, then Vizier decides that the study should not
+                stop. If Vizier decides that the study should stop, the
+                study enters STOPPING state (or STOPPING_ASAP if
+                should_stop_asap = true). IMPORTANT: The automatic study
+                state transition happens precisely as described above; that
+                is, deleting trials or updating StudyConfig NEVER
+                automatically moves the study state back to ACTIVE. If you
+                want to *resume* a Study that was stopped, 1) change the
+                stopping conditions if necessary, 2) activate the study, and
+                then 3) ask for suggestions. If the specified time or
+                duration has not passed, do not stop the study.
+            maximum_runtime_constraint (google.cloud.aiplatform_v1beta1.types.StudyTimeConstraint):
+                If the specified time or duration has passed,
+                stop the study.
+            min_num_trials (google.protobuf.wrappers_pb2.Int32Value):
+                If there are fewer than this many COMPLETED
+                trials, do not stop the study.
+            max_num_trials (google.protobuf.wrappers_pb2.Int32Value):
+                If there are more than this many trials, stop
+                the study.
+            max_num_trials_no_progress (google.protobuf.wrappers_pb2.Int32Value):
+                If the objective value has not improved for
+                this many consecutive trials, stop the study.
+
+                WARNING: Effective only for single-objective
+                studies.
+            max_duration_no_progress (google.protobuf.duration_pb2.Duration):
+                If the objective value has not improved for
+                this much time, stop the study.
+
+                WARNING: Effective only for single-objective
+                studies.
+        """
+
+        should_stop_asap: wrappers_pb2.BoolValue = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message=wrappers_pb2.BoolValue,
+        )
+        minimum_runtime_constraint: "StudyTimeConstraint" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message="StudyTimeConstraint",
+        )
+        maximum_runtime_constraint: "StudyTimeConstraint" = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            message="StudyTimeConstraint",
+        )
+        min_num_trials: wrappers_pb2.Int32Value = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            message=wrappers_pb2.Int32Value,
+        )
+        max_num_trials: wrappers_pb2.Int32Value = proto.Field(
+            proto.MESSAGE,
+            number=5,
+            message=wrappers_pb2.Int32Value,
+        )
+        max_num_trials_no_progress: wrappers_pb2.Int32Value = proto.Field(
+            proto.MESSAGE,
+            number=6,
+            message=wrappers_pb2.Int32Value,
+        )
+        max_duration_no_progress: duration_pb2.Duration = proto.Field(
+            proto.MESSAGE,
+            number=7,
+            message=duration_pb2.Duration,
+        )
+
     decay_curve_stopping_spec: DecayCurveAutomatedStoppingSpec = proto.Field(
         proto.MESSAGE,
         number=4,
@@ -1160,6 +1302,12 @@ class StudySpec(proto.Message):
         proto.MESSAGE,
         number=10,
         message=TransferLearningConfig,
+    )
+    study_stopping_config: StudyStoppingConfig = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        optional=True,
+        message=StudyStoppingConfig,
     )
 
 

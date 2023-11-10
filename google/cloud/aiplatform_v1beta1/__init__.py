@@ -224,12 +224,14 @@ from .types.feature_online_store_admin_service import (
 from .types.feature_online_store_admin_service import UpdateFeatureOnlineStoreRequest
 from .types.feature_online_store_admin_service import UpdateFeatureViewOperationMetadata
 from .types.feature_online_store_admin_service import UpdateFeatureViewRequest
+from .types.feature_online_store_service import FeatureViewDataKey
 from .types.feature_online_store_service import FetchFeatureValuesRequest
 from .types.feature_online_store_service import FetchFeatureValuesResponse
 from .types.feature_online_store_service import NearestNeighborQuery
 from .types.feature_online_store_service import NearestNeighbors
 from .types.feature_online_store_service import SearchNearestEntitiesRequest
 from .types.feature_online_store_service import SearchNearestEntitiesResponse
+from .types.feature_online_store_service import FeatureViewDataFormat
 from .types.feature_registry_service import CreateFeatureGroupOperationMetadata
 from .types.feature_registry_service import CreateFeatureGroupRequest
 from .types.feature_registry_service import CreateRegistryFeatureOperationMetadata
@@ -551,6 +553,8 @@ from .types.pipeline_job import PipelineJobDetail
 from .types.pipeline_job import PipelineTaskDetail
 from .types.pipeline_job import PipelineTaskExecutorDetail
 from .types.pipeline_job import PipelineTemplateMetadata
+from .types.pipeline_service import BatchDeletePipelineJobsRequest
+from .types.pipeline_service import BatchDeletePipelineJobsResponse
 from .types.pipeline_service import CancelPipelineJobRequest
 from .types.pipeline_service import CancelTrainingPipelineRequest
 from .types.pipeline_service import CreatePipelineJobRequest
@@ -597,6 +601,7 @@ from .types.specialist_pool_service import UpdateSpecialistPoolRequest
 from .types.study import Measurement
 from .types.study import Study
 from .types.study import StudySpec
+from .types.study import StudyTimeConstraint
 from .types.study import Trial
 from .types.study import TrialContext
 from .types.tensorboard import Tensorboard
@@ -741,6 +746,8 @@ __all__ = (
     "BatchCreateTensorboardTimeSeriesRequest",
     "BatchCreateTensorboardTimeSeriesResponse",
     "BatchDedicatedResources",
+    "BatchDeletePipelineJobsRequest",
+    "BatchDeletePipelineJobsResponse",
     "BatchImportEvaluatedAnnotationsRequest",
     "BatchImportEvaluatedAnnotationsResponse",
     "BatchImportModelEvaluationSlicesRequest",
@@ -945,6 +952,8 @@ __all__ = (
     "FeatureValueDestination",
     "FeatureValueList",
     "FeatureView",
+    "FeatureViewDataFormat",
+    "FeatureViewDataKey",
     "FeatureViewSync",
     "Featurestore",
     "FeaturestoreMonitoringConfig",
@@ -1256,6 +1265,7 @@ __all__ = (
     "StringArray",
     "Study",
     "StudySpec",
+    "StudyTimeConstraint",
     "SuggestTrialsMetadata",
     "SuggestTrialsRequest",
     "SuggestTrialsResponse",

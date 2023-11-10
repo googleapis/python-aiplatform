@@ -251,9 +251,10 @@ class DeployedIndex(proto.Message):
         dedicated_resources (google.cloud.aiplatform_v1beta1.types.DedicatedResources):
             Optional. A description of resources that are dedicated to
             the DeployedIndex, and that need a higher degree of manual
-            configuration. If min_replica_count is not set, the default
-            value is 2 (we don't provide SLA when min_replica_count=1).
-            If max_replica_count is not set, the default value is
+            configuration. The field min_replica_count must be set to a
+            value strictly greater than 0, or else validation will fail.
+            We don't provide SLA when min_replica_count=1. If
+            max_replica_count is not set, the default value is
             min_replica_count. The max allowed replica count is 1000.
 
             Available machine types for SMALL shard: e2-standard-2 and

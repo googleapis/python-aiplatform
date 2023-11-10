@@ -2158,6 +2158,11 @@
         "grpc": {
           "libraryClient": "PipelineServiceClient",
           "rpcs": {
+            "BatchDeletePipelineJobs": {
+              "methods": [
+                "batch_delete_pipeline_jobs"
+              ]
+            },
             "CancelPipelineJob": {
               "methods": [
                 "cancel_pipeline_job"
@@ -2213,6 +2218,11 @@
         "grpc-async": {
           "libraryClient": "PipelineServiceAsyncClient",
           "rpcs": {
+            "BatchDeletePipelineJobs": {
+              "methods": [
+                "batch_delete_pipeline_jobs"
+              ]
+            },
             "CancelPipelineJob": {
               "methods": [
                 "cancel_pipeline_job"

@@ -26,6 +26,8 @@ from google.protobuf import struct_pb2  # type: ignore
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
+        "FeatureViewDataFormat",
+        "FeatureViewDataKey",
         "FetchFeatureValuesRequest",
         "FetchFeatureValuesResponse",
         "NearestNeighborQuery",
@@ -34,6 +36,42 @@ __protobuf__ = proto.module(
         "SearchNearestEntitiesResponse",
     },
 )
+
+
+class FeatureViewDataFormat(proto.Enum):
+    r"""Format of the data in the Feature View.
+
+    Values:
+        FEATURE_VIEW_DATA_FORMAT_UNSPECIFIED (0):
+            Not set. Will be treated as the KeyValue
+            format.
+        KEY_VALUE (1):
+            Return response data in key-value format.
+        PROTO_STRUCT (2):
+            Return response data in proto Struct format.
+    """
+    FEATURE_VIEW_DATA_FORMAT_UNSPECIFIED = 0
+    KEY_VALUE = 1
+    PROTO_STRUCT = 2
+
+
+class FeatureViewDataKey(proto.Message):
+    r"""Lookup key for a feature view.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        key (str):
+            String key to use for lookup.
+
+            This field is a member of `oneof`_ ``key_oneof``.
+    """
+
+    key: str = proto.Field(
+        proto.STRING,
+        number=1,
+        oneof="key_oneof",
+    )
 
 
 class FetchFeatureValuesRequest(proto.Message):
@@ -54,9 +92,17 @@ class FetchFeatureValuesRequest(proto.Message):
         feature_view (str):
             Required. FeatureView resource format
             ``projects/{project}/locations/{location}/featureOnlineStores/{featureOnlineStore}/featureViews/{featureView}``
+        data_key (google.cloud.aiplatform_v1beta1.types.FeatureViewDataKey):
+            Optional. The request key to fetch feature
+            values for.
+        data_format (google.cloud.aiplatform_v1beta1.types.FeatureViewDataFormat):
+            Optional. Response data format. If not set,
+            [FeatureViewDataFormat.KEY_VALUE][google.cloud.aiplatform.v1beta1.FeatureViewDataFormat.KEY_VALUE]
+            will be used.
         format_ (google.cloud.aiplatform_v1beta1.types.FetchFeatureValuesRequest.Format):
-            Specify response data format. If not set,
-            KeyValue format will be used.
+            Specify response data format. If not set, KeyValue format
+            will be used. Deprecated. Use
+            [FetchFeatureValuesRequest.data_format][google.cloud.aiplatform.v1beta1.FetchFeatureValuesRequest.data_format].
     """
 
     class Format(proto.Enum):
@@ -71,6 +117,7 @@ class FetchFeatureValuesRequest(proto.Message):
             PROTO_STRUCT (2):
                 Return response data in proto Struct format.
         """
+        _pb_options = {"deprecated": True}
         FORMAT_UNSPECIFIED = 0
         KEY_VALUE = 1
         PROTO_STRUCT = 2
@@ -83,6 +130,16 @@ class FetchFeatureValuesRequest(proto.Message):
     feature_view: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    data_key: "FeatureViewDataKey" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message="FeatureViewDataKey",
+    )
+    data_format: "FeatureViewDataFormat" = proto.Field(
+        proto.ENUM,
+        number=7,
+        enum="FeatureViewDataFormat",
     )
     format_: Format = proto.Field(
         proto.ENUM,
