@@ -4180,6 +4180,7 @@ def test_get_feature(request_type, transport: str = "grpc"):
             value_type=feature.Feature.ValueType.BOOL,
             etag="etag_value",
             disable_monitoring=True,
+            version_column_name="version_column_name_value",
         )
         response = client.get_feature(request)
 
@@ -4195,6 +4196,7 @@ def test_get_feature(request_type, transport: str = "grpc"):
     assert response.value_type == feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
     assert response.disable_monitoring is True
+    assert response.version_column_name == "version_column_name_value"
 
 
 def test_get_feature_empty_call():
@@ -4236,6 +4238,7 @@ async def test_get_feature_async(
                 value_type=feature.Feature.ValueType.BOOL,
                 etag="etag_value",
                 disable_monitoring=True,
+                version_column_name="version_column_name_value",
             )
         )
         response = await client.get_feature(request)
@@ -4252,6 +4255,7 @@ async def test_get_feature_async(
     assert response.value_type == feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
     assert response.disable_monitoring is True
+    assert response.version_column_name == "version_column_name_value"
 
 
 @pytest.mark.asyncio
@@ -4847,6 +4851,7 @@ def test_update_feature(request_type, transport: str = "grpc"):
             value_type=gca_feature.Feature.ValueType.BOOL,
             etag="etag_value",
             disable_monitoring=True,
+            version_column_name="version_column_name_value",
         )
         response = client.update_feature(request)
 
@@ -4862,6 +4867,7 @@ def test_update_feature(request_type, transport: str = "grpc"):
     assert response.value_type == gca_feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
     assert response.disable_monitoring is True
+    assert response.version_column_name == "version_column_name_value"
 
 
 def test_update_feature_empty_call():
@@ -4904,6 +4910,7 @@ async def test_update_feature_async(
                 value_type=gca_feature.Feature.ValueType.BOOL,
                 etag="etag_value",
                 disable_monitoring=True,
+                version_column_name="version_column_name_value",
             )
         )
         response = await client.update_feature(request)
@@ -4920,6 +4927,7 @@ async def test_update_feature_async(
     assert response.value_type == gca_feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
     assert response.disable_monitoring is True
+    assert response.version_column_name == "version_column_name_value"
 
 
 @pytest.mark.asyncio

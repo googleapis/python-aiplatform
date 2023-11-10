@@ -66,6 +66,10 @@ class MachineSpec(proto.Message):
         accelerator_count (int):
             The number of accelerators to attach to the
             machine.
+        tpu_topology (str):
+            Immutable. The topology of the TPUs. Corresponds to the TPU
+            topologies available from GKE. (Example: tpu_topology:
+            "2x2x1").
     """
 
     machine_type: str = proto.Field(
@@ -80,6 +84,10 @@ class MachineSpec(proto.Message):
     accelerator_count: int = proto.Field(
         proto.INT32,
         number=3,
+    )
+    tpu_topology: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 

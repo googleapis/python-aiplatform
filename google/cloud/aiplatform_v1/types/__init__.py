@@ -167,12 +167,65 @@ from .explanation_metadata import (
 from .feature import (
     Feature,
 )
+from .feature_group import (
+    FeatureGroup,
+)
 from .feature_monitoring_stats import (
     FeatureStatsAnomaly,
+)
+from .feature_online_store import (
+    FeatureOnlineStore,
+)
+from .feature_online_store_admin_service import (
+    CreateFeatureOnlineStoreOperationMetadata,
+    CreateFeatureOnlineStoreRequest,
+    CreateFeatureViewOperationMetadata,
+    CreateFeatureViewRequest,
+    DeleteFeatureOnlineStoreRequest,
+    DeleteFeatureViewRequest,
+    GetFeatureOnlineStoreRequest,
+    GetFeatureViewRequest,
+    GetFeatureViewSyncRequest,
+    ListFeatureOnlineStoresRequest,
+    ListFeatureOnlineStoresResponse,
+    ListFeatureViewsRequest,
+    ListFeatureViewsResponse,
+    ListFeatureViewSyncsRequest,
+    ListFeatureViewSyncsResponse,
+    SyncFeatureViewRequest,
+    SyncFeatureViewResponse,
+    UpdateFeatureOnlineStoreOperationMetadata,
+    UpdateFeatureOnlineStoreRequest,
+    UpdateFeatureViewOperationMetadata,
+    UpdateFeatureViewRequest,
+)
+from .feature_online_store_service import (
+    FeatureViewDataKey,
+    FetchFeatureValuesRequest,
+    FetchFeatureValuesResponse,
+    FeatureViewDataFormat,
+)
+from .feature_registry_service import (
+    CreateFeatureGroupOperationMetadata,
+    CreateFeatureGroupRequest,
+    CreateRegistryFeatureOperationMetadata,
+    DeleteFeatureGroupRequest,
+    GetFeatureGroupRequest,
+    ListFeatureGroupsRequest,
+    ListFeatureGroupsResponse,
+    UpdateFeatureGroupOperationMetadata,
+    UpdateFeatureGroupRequest,
+    UpdateFeatureOperationMetadata,
 )
 from .feature_selector import (
     FeatureSelector,
     IdMatcher,
+)
+from .feature_view import (
+    FeatureView,
+)
+from .feature_view_sync import (
+    FeatureViewSync,
 )
 from .featurestore import (
     Featurestore,
@@ -529,6 +582,8 @@ from .pipeline_service import (
     ListTrainingPipelinesResponse,
 )
 from .prediction_service import (
+    CountTokensRequest,
+    CountTokensResponse,
     ExplainRequest,
     ExplainResponse,
     PredictRequest,
@@ -576,6 +631,7 @@ from .study import (
     Measurement,
     Study,
     StudySpec,
+    StudyTimeConstraint,
     Trial,
     TrialContext,
 )
@@ -803,9 +859,48 @@ __all__ = (
     "XraiAttribution",
     "ExplanationMetadata",
     "Feature",
+    "FeatureGroup",
     "FeatureStatsAnomaly",
+    "FeatureOnlineStore",
+    "CreateFeatureOnlineStoreOperationMetadata",
+    "CreateFeatureOnlineStoreRequest",
+    "CreateFeatureViewOperationMetadata",
+    "CreateFeatureViewRequest",
+    "DeleteFeatureOnlineStoreRequest",
+    "DeleteFeatureViewRequest",
+    "GetFeatureOnlineStoreRequest",
+    "GetFeatureViewRequest",
+    "GetFeatureViewSyncRequest",
+    "ListFeatureOnlineStoresRequest",
+    "ListFeatureOnlineStoresResponse",
+    "ListFeatureViewsRequest",
+    "ListFeatureViewsResponse",
+    "ListFeatureViewSyncsRequest",
+    "ListFeatureViewSyncsResponse",
+    "SyncFeatureViewRequest",
+    "SyncFeatureViewResponse",
+    "UpdateFeatureOnlineStoreOperationMetadata",
+    "UpdateFeatureOnlineStoreRequest",
+    "UpdateFeatureViewOperationMetadata",
+    "UpdateFeatureViewRequest",
+    "FeatureViewDataKey",
+    "FetchFeatureValuesRequest",
+    "FetchFeatureValuesResponse",
+    "FeatureViewDataFormat",
+    "CreateFeatureGroupOperationMetadata",
+    "CreateFeatureGroupRequest",
+    "CreateRegistryFeatureOperationMetadata",
+    "DeleteFeatureGroupRequest",
+    "GetFeatureGroupRequest",
+    "ListFeatureGroupsRequest",
+    "ListFeatureGroupsResponse",
+    "UpdateFeatureGroupOperationMetadata",
+    "UpdateFeatureGroupRequest",
+    "UpdateFeatureOperationMetadata",
     "FeatureSelector",
     "IdMatcher",
+    "FeatureView",
+    "FeatureViewSync",
     "Featurestore",
     "FeaturestoreMonitoringConfig",
     "FeatureValue",
@@ -1101,6 +1196,8 @@ __all__ = (
     "ListTrainingPipelinesRequest",
     "ListTrainingPipelinesResponse",
     "PipelineState",
+    "CountTokensRequest",
+    "CountTokensResponse",
     "ExplainRequest",
     "ExplainResponse",
     "PredictRequest",
@@ -1132,6 +1229,7 @@ __all__ = (
     "Measurement",
     "Study",
     "StudySpec",
+    "StudyTimeConstraint",
     "Trial",
     "TrialContext",
     "Tensorboard",

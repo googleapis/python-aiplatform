@@ -293,6 +293,288 @@
         }
       }
     },
+    "FeatureOnlineStoreAdminService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "FeatureOnlineStoreAdminServiceClient",
+          "rpcs": {
+            "CreateFeatureOnlineStore": {
+              "methods": [
+                "create_feature_online_store"
+              ]
+            },
+            "CreateFeatureView": {
+              "methods": [
+                "create_feature_view"
+              ]
+            },
+            "DeleteFeatureOnlineStore": {
+              "methods": [
+                "delete_feature_online_store"
+              ]
+            },
+            "DeleteFeatureView": {
+              "methods": [
+                "delete_feature_view"
+              ]
+            },
+            "GetFeatureOnlineStore": {
+              "methods": [
+                "get_feature_online_store"
+              ]
+            },
+            "GetFeatureView": {
+              "methods": [
+                "get_feature_view"
+              ]
+            },
+            "GetFeatureViewSync": {
+              "methods": [
+                "get_feature_view_sync"
+              ]
+            },
+            "ListFeatureOnlineStores": {
+              "methods": [
+                "list_feature_online_stores"
+              ]
+            },
+            "ListFeatureViewSyncs": {
+              "methods": [
+                "list_feature_view_syncs"
+              ]
+            },
+            "ListFeatureViews": {
+              "methods": [
+                "list_feature_views"
+              ]
+            },
+            "SyncFeatureView": {
+              "methods": [
+                "sync_feature_view"
+              ]
+            },
+            "UpdateFeatureOnlineStore": {
+              "methods": [
+                "update_feature_online_store"
+              ]
+            },
+            "UpdateFeatureView": {
+              "methods": [
+                "update_feature_view"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "FeatureOnlineStoreAdminServiceAsyncClient",
+          "rpcs": {
+            "CreateFeatureOnlineStore": {
+              "methods": [
+                "create_feature_online_store"
+              ]
+            },
+            "CreateFeatureView": {
+              "methods": [
+                "create_feature_view"
+              ]
+            },
+            "DeleteFeatureOnlineStore": {
+              "methods": [
+                "delete_feature_online_store"
+              ]
+            },
+            "DeleteFeatureView": {
+              "methods": [
+                "delete_feature_view"
+              ]
+            },
+            "GetFeatureOnlineStore": {
+              "methods": [
+                "get_feature_online_store"
+              ]
+            },
+            "GetFeatureView": {
+              "methods": [
+                "get_feature_view"
+              ]
+            },
+            "GetFeatureViewSync": {
+              "methods": [
+                "get_feature_view_sync"
+              ]
+            },
+            "ListFeatureOnlineStores": {
+              "methods": [
+                "list_feature_online_stores"
+              ]
+            },
+            "ListFeatureViewSyncs": {
+              "methods": [
+                "list_feature_view_syncs"
+              ]
+            },
+            "ListFeatureViews": {
+              "methods": [
+                "list_feature_views"
+              ]
+            },
+            "SyncFeatureView": {
+              "methods": [
+                "sync_feature_view"
+              ]
+            },
+            "UpdateFeatureOnlineStore": {
+              "methods": [
+                "update_feature_online_store"
+              ]
+            },
+            "UpdateFeatureView": {
+              "methods": [
+                "update_feature_view"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "FeatureOnlineStoreService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "FeatureOnlineStoreServiceClient",
+          "rpcs": {
+            "FetchFeatureValues": {
+              "methods": [
+                "fetch_feature_values"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "FeatureOnlineStoreServiceAsyncClient",
+          "rpcs": {
+            "FetchFeatureValues": {
+              "methods": [
+                "fetch_feature_values"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "FeatureRegistryService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "FeatureRegistryServiceClient",
+          "rpcs": {
+            "CreateFeature": {
+              "methods": [
+                "create_feature"
+              ]
+            },
+            "CreateFeatureGroup": {
+              "methods": [
+                "create_feature_group"
+              ]
+            },
+            "DeleteFeature": {
+              "methods": [
+                "delete_feature"
+              ]
+            },
+            "DeleteFeatureGroup": {
+              "methods": [
+                "delete_feature_group"
+              ]
+            },
+            "GetFeature": {
+              "methods": [
+                "get_feature"
+              ]
+            },
+            "GetFeatureGroup": {
+              "methods": [
+                "get_feature_group"
+              ]
+            },
+            "ListFeatureGroups": {
+              "methods": [
+                "list_feature_groups"
+              ]
+            },
+            "ListFeatures": {
+              "methods": [
+                "list_features"
+              ]
+            },
+            "UpdateFeature": {
+              "methods": [
+                "update_feature"
+              ]
+            },
+            "UpdateFeatureGroup": {
+              "methods": [
+                "update_feature_group"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "FeatureRegistryServiceAsyncClient",
+          "rpcs": {
+            "CreateFeature": {
+              "methods": [
+                "create_feature"
+              ]
+            },
+            "CreateFeatureGroup": {
+              "methods": [
+                "create_feature_group"
+              ]
+            },
+            "DeleteFeature": {
+              "methods": [
+                "delete_feature"
+              ]
+            },
+            "DeleteFeatureGroup": {
+              "methods": [
+                "delete_feature_group"
+              ]
+            },
+            "GetFeature": {
+              "methods": [
+                "get_feature"
+              ]
+            },
+            "GetFeatureGroup": {
+              "methods": [
+                "get_feature_group"
+              ]
+            },
+            "ListFeatureGroups": {
+              "methods": [
+                "list_feature_groups"
+              ]
+            },
+            "ListFeatures": {
+              "methods": [
+                "list_features"
+              ]
+            },
+            "UpdateFeature": {
+              "methods": [
+                "update_feature"
+              ]
+            },
+            "UpdateFeatureGroup": {
+              "methods": [
+                "update_feature_group"
+              ]
+            }
+          }
+        }
+      }
+    },
     "FeaturestoreOnlineServingService": {
       "clients": {
         "grpc": {
