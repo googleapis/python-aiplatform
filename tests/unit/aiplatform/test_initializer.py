@@ -114,7 +114,9 @@ class TestInit:
     def test_init_experiment_sets_experiment(self, set_experiment_mock):
         initializer.global_config.init(experiment=_TEST_EXPERIMENT)
         set_experiment_mock.assert_called_once_with(
-            experiment=_TEST_EXPERIMENT, description=None, backing_tensorboard=None
+            experiment=_TEST_EXPERIMENT,
+            description=None,
+            backing_tensorboard=None,
         )
 
     @patch.object(_experiment_tracker, "set_experiment")
@@ -162,25 +164,44 @@ class TestInit:
             credentials=None,
         )
 
-    @patch.object(_experiment_tracker, "set_tensorboard")
     @patch.object(_experiment_tracker, "set_experiment")
     def test_init_experiment_without_tensorboard_uses_global_tensorboard(
-        self,
-        set_tensorboard_mock,
-        set_experiment_mock,
+        self, set_experiment_mock
     ):
 
-        initializer.global_config.init(experiment_tensorboard=_TEST_TENSORBOARD_NAME)
+        initializer.global_config.tensorboard = _TEST_TENSORBOARD_NAME
 
         initializer.global_config.init(
             experiment=_TEST_EXPERIMENT,
         )
 
         set_experiment_mock.assert_called_once_with(
-            tensorboard=_TEST_TENSORBOARD_NAME,
-            project=None,
-            location=None,
-            credentials=None,
+            experiment=_TEST_EXPERIMENT,
+            description=None,
+            backing_tensorboard=None,
+        )
+
+        assert initializer.global_config.tensorboard == _TEST_TENSORBOARD_NAME
+
+    @patch.object(_experiment_tracker, "set_tensorboard")
+    @patch.object(_experiment_tracker, "set_experiment")
+    def test_init_experiment_tensorboard_false_does_not_set_tensorboard(
+        self, set_experiment_mock, set_tensorboard_mock
+    ):
+
+        initializer.global_config.tensorboard = _TEST_TENSORBOARD_NAME
+
+        initializer.global_config.init(
+            experiment=_TEST_EXPERIMENT,
+            experiment_tensorboard=False,
+        )
+
+        set_tensorboard_mock.assert_not_called()
+
+        set_experiment_mock.assert_called_once_with(
+            experiment=_TEST_EXPERIMENT,
+            description=None,
+            backing_tensorboard=False,
         )
 
     def test_init_experiment_description_fail_without_experiment(self):

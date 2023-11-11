@@ -1140,6 +1140,57 @@ class TestExperiments:
         )
         assign_backing_tensorboard_mock.assert_called_once()
 
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_tensorboard_false_doesNotSet_backing_tensorboard(
+        self, list_default_tensorboard_mock, assign_backing_tensorboard_mock
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            experiment_tensorboard=False,
+        )
+
+        list_default_tensorboard_mock.assert_not_called()
+        assign_backing_tensorboard_mock.assert_not_called()
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_tensorboard_true_sets_backing_tensorboard(
+        self, list_default_tensorboard_mock, assign_backing_tensorboard_mock
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            experiment_tensorboard=True,
+        )
+
+        list_default_tensorboard_mock.assert_called()
+        assign_backing_tensorboard_mock.assert_called()
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_tensorboard_none_sets_backing_tensorboard(
+        self, list_default_tensorboard_mock, assign_backing_tensorboard_mock
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            experiment_tensorboard=None,
+        )
+
+        list_default_tensorboard_mock.assert_called()
+        assign_backing_tensorboard_mock.assert_called()
+
     @pytest.mark.usefixtures("get_metadata_store_mock")
     def test_create_experiment(self, create_experiment_context_mock):
         exp = aiplatform.Experiment.create(
