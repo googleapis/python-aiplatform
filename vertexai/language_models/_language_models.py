@@ -245,6 +245,10 @@ class _TunableModelMixin(_LanguageModel):
                 tuning_parameters[
                     "enable_early_stopping"
                 ] = eval_spec.enable_early_stopping
+            if eval_spec.enable_checkpoint_selection is not None:
+                tuning_parameters[
+                    "enable_checkpoint_selection"
+                ] = eval_spec.enable_checkpoint_selection
             if eval_spec.tensorboard is not None:
                 if isinstance(eval_spec.tensorboard, aiplatform.Tensorboard):
                     if eval_spec.tensorboard.location != tuning_job_location:
@@ -492,6 +496,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
         model_display_name: Optional[str] = None,
         default_context: Optional[str] = None,
         accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
+        tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model based on training data.
 
@@ -516,6 +521,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
             model_display_name: Custom display name for the tuned model.
             default_context: The context to use for all training samples by default.
             accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
+            tuning_evaluation_spec: Specification for the model evaluation during tuning.
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -525,8 +531,25 @@ class _TunableChatModelMixin(_TunableModelMixin):
             ValueError: If the "tuning_job_location" value is not supported
             ValueError: If the "tuned_model_location" value is not supported
             RuntimeError: If the model does not support tuning
+            AttributeError: If any attribute in the "tuning_evaluation_spec" is not supported
         """
-        # Note: Chat models do not support tuning_evaluation_spec
+
+        if tuning_evaluation_spec is not None:
+            unsupported_chat_model_tuning_eval_spec = {
+                "evaluation_data": tuning_evaluation_spec.evaluation_data,
+                "evaluation_interval": tuning_evaluation_spec.evaluation_interval,
+                "enable_early_stopping": tuning_evaluation_spec.enable_early_stopping,
+                "enable_checkpoint_selection": tuning_evaluation_spec.enable_checkpoint_selection,
+            }
+
+            for att_name, att_value in unsupported_chat_model_tuning_eval_spec.items():
+                if not att_value is None:
+                    raise AttributeError(
+                        (
+                            f"ChatModel and CodeChatModel only support tensorboard as attribute for TuningEvaluationSpec"
+                            f"found attribute name {att_name} with value {att_value}, please leave {att_name} to None"
+                        )
+                    )
         return super().tune_model(
             training_data=training_data,
             train_steps=train_steps,
@@ -536,6 +559,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
             model_display_name=model_display_name,
             default_context=default_context,
             accelerator_type=accelerator_type,
+            tuning_evaluation_spec=tuning_evaluation_spec,
         )
 
 
@@ -677,6 +701,10 @@ class TuningEvaluationSpec:
             evaluation_interval tuning steps. Default: 20.
         enable_early_stopping: If True, the tuning may stop early before
             completing all the tuning steps. Requires evaluation_data.
+        enable_checkpoint_selection: If set to True, the tuning process returns
+            the best model checkpoint (based on model evaluation).
+            If set to False, the latest model checkpoint is returned.
+            If unset, the selection is only enabled for `*-bison@001` models.
         tensorboard: Vertex Tensorboard where to write the evaluation metrics.
             The Tensorboard must be in the same location as the tuning job.
     """
@@ -686,6 +714,7 @@ class TuningEvaluationSpec:
     evaluation_data: Optional[str] = None
     evaluation_interval: Optional[int] = None
     enable_early_stopping: Optional[bool] = None
+    enable_checkpoint_selection: Optional[bool] = None
     tensorboard: Optional[Union[aiplatform.Tensorboard, str]] = None
 
 
@@ -700,12 +729,16 @@ class _GroundingSourceBase(abc.ABC):
 
 @dataclasses.dataclass
 class WebSearch(_GroundingSourceBase):
-    """WebSearch represents a grounding source using public web search."""
+    """WebSearch represents a grounding source using public web search.
+    Attributes:
+        disable_attribution: If set to `True`, skip finding claim attributions (i.e not generate grounding citation). Default: False.
+    """
 
-    _type: str = "WEB"
+    disable_attribution: bool = False
+    _type: str = dataclasses.field(default="WEB", init=False, repr=False)
 
     def _to_grounding_source_dict(self) -> Dict[str, Any]:
-        return {"type": self._type}
+        return {"type": self._type, "disableAttribution": self.disable_attribution}
 
 
 @dataclasses.dataclass
@@ -714,32 +747,32 @@ class VertexAISearch(_GroundingSourceBase):
     Attributes:
         data_store_id: Data store ID of the Vertex AI Search datastore.
         location: GCP multi region where you have set up your Vertex AI Search data store. Possible values can be `global`, `us`, `eu`, etc.
-        Learn more about Vertex AI Search location here:
-        https://cloud.google.com/generative-ai-app-builder/docs/locations
+            Learn more about Vertex AI Search location here:
+            https://cloud.google.com/generative-ai-app-builder/docs/locations
         project: The project where you have set up your Vertex AI Search.
-        If not specified, will assume that your Vertex AI Search is within your current project.
+            If not specified, will assume that your Vertex AI Search is within your current project.
+        disable_attribution: If set to `True`, skip finding claim attributions (i.e not generate grounding citation). Default: False.
     """
 
-    _data_store_id: str
-    _location: str
-    _type: str = "ENTERPRISE"
-
-    def __init__(
-        self, data_store_id: str, location: str, project: Optional[str] = None
-    ):
-        self._data_store_id = data_store_id
-        self._location = location
-        self._project = project
+    data_store_id: str
+    location: str
+    project: Optional[str] = None
+    disable_attribution: bool = False
+    _type: str = dataclasses.field(default="VERTEX_AI_SEARCH", init=False, repr=False)
 
     def _get_datastore_path(self) -> str:
-        _project = self._project or aiplatform_initializer.global_config.project
+        _project = self.project or aiplatform_initializer.global_config.project
         return (
-            f"projects/{_project}/locations/{self._location}"
-            f"/collections/default_collection/dataStores/{self._data_store_id}"
+            f"projects/{_project}/locations/{self.location}"
+            f"/collections/default_collection/dataStores/{self.data_store_id}"
         )
 
     def _to_grounding_source_dict(self) -> Dict[str, Any]:
-        return {"type": self._type, "enterpriseDatastore": self._get_datastore_path()}
+        return {
+            "type": self._type,
+            "vertexAiSearchDatastore": self._get_datastore_path(),
+            "disableAttribution": self.disable_attribution,
+        }
 
 
 @dataclasses.dataclass
@@ -787,6 +820,7 @@ class GroundingMetadata:
     """
 
     citations: Optional[List[GroundingCitation]] = None
+    search_queries: Optional[List[str]] = None
 
     def _parse_citation_from_dict(
         self, citation_dict_camel: Dict[str, Any]
@@ -816,6 +850,7 @@ class GroundingMetadata:
             self._parse_citation_from_dict(citation)
             for citation in response.get("citations", [])
         ]
+        self.search_queries = response.get("searchQueries", [])
 
 
 @dataclasses.dataclass
@@ -1517,6 +1552,8 @@ class TextEmbeddingModel(_LanguageModel):
         Returns:
             A `_MultiInstancePredictionRequest` object.
         """
+        if isinstance(texts, str) or not isinstance(texts, Sequence):
+            raise TypeError("The `texts` argument must be a list, not a single string.")
         instances = []
         for text in texts:
             if isinstance(text, TextEmbeddingInput):
@@ -1804,6 +1841,7 @@ class _PreviewChatModel(ChatModel, _PreviewTunableChatModelMixin):
             stop_sequences=stop_sequences,
         )
 
+
 class CodeChatModel(_ChatModelBase, _TunableChatModelMixin):
     """CodeChatModel represents a model that is capable of completing code.
 
@@ -1941,6 +1979,9 @@ class _ChatSessionBase:
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[
+            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        ] = None,
     ) -> _PredictionRequest:
         """Prepares a request for the language model.
 
@@ -1956,6 +1997,7 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `_PredictionRequest` object.
@@ -1989,6 +2031,10 @@ class _ChatSessionBase:
 
         if candidate_count is not None:
             prediction_parameters["candidateCount"] = candidate_count
+
+        if grounding_source is not None:
+            sources = [grounding_source._to_grounding_source_dict()]
+            prediction_parameters["groundingConfig"] = {"sources": sources}
 
         message_structs = []
         for past_message in self._message_history:
@@ -2041,8 +2087,12 @@ class _ChatSessionBase:
         prediction = prediction_response.predictions[prediction_idx]
         candidate_count = len(prediction["candidates"])
         candidates = []
+        grounding_metadata_list = prediction.get("groundingMetadata")
         for candidate_idx in range(candidate_count):
             safety_attributes = prediction["safetyAttributes"][candidate_idx]
+            grounding_metadata_dict = {}
+            if grounding_metadata_list and grounding_metadata_list[candidate_idx]:
+                grounding_metadata_dict = grounding_metadata_list[candidate_idx]
             candidate_response = TextGenerationResponse(
                 text=prediction["candidates"][candidate_idx]["content"],
                 _prediction_response=prediction_response,
@@ -2055,6 +2105,7 @@ class _ChatSessionBase:
                         safety_attributes.get("scores") or [],
                     )
                 ),
+                grounding_metadata=GroundingMetadata(grounding_metadata_dict),
             )
             candidates.append(candidate_response)
         return MultiCandidateTextGenerationResponse(
@@ -2062,6 +2113,7 @@ class _ChatSessionBase:
             _prediction_response=prediction_response,
             is_blocked=candidates[0].is_blocked,
             safety_attributes=candidates[0].safety_attributes,
+            grounding_metadata=candidates[0].grounding_metadata,
             candidates=candidates,
         )
 
@@ -2075,6 +2127,9 @@ class _ChatSessionBase:
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[
+            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        ] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Sends message to the language model and gets a response.
 
@@ -2090,6 +2145,7 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the
@@ -2103,6 +2159,7 @@ class _ChatSessionBase:
             top_p=top_p,
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
+            grounding_source=grounding_source,
         )
 
         prediction_response = self._model._endpoint.predict(
@@ -2133,6 +2190,9 @@ class _ChatSessionBase:
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
+        grounding_source: Optional[
+            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        ] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously sends message to the language model and gets a response.
 
@@ -2148,6 +2208,7 @@ class _ChatSessionBase:
                 Uses the value specified when calling `ChatModel.start_chat` by default.
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of candidates to return.
+            grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains
@@ -2161,6 +2222,7 @@ class _ChatSessionBase:
             top_p=top_p,
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
+            grounding_source=grounding_source,
         )
 
         prediction_response = await self._model._endpoint.predict_async(
@@ -2496,12 +2558,13 @@ class CodeChatSession(_ChatSessionBase):
             A `MultiCandidateTextGenerationResponse` object that contains the
             text produced by the model.
         """
-        return super().send_message_async(
+        response = await super().send_message_async(
             message=message,
             max_output_tokens=max_output_tokens,
             temperature=temperature,
             candidate_count=candidate_count,
         )
+        return response
 
     def send_message_streaming(
         self,

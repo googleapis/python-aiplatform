@@ -305,6 +305,40 @@ tuner.fit(X_train, y_train)
 best_model = tuner.get_best_models()[0]
 ```
 
+## Remote Training with BigFrames data source
+Remote training supports [BigFrames](https://cloud.google.com/python/docs/reference/bigframes/latest) as the input data source. The user journey is identical to remote training for a given framework after the BigFrames dataframe is passed in as arguments for the train function.
+
+### Supported frameworks
+1. scikit-learn
+2. tensorflow
+3. pytorch
+
+### User journey
+```py
+import vertexai
+import bigframes.pandas as bf
+from bigframes.ml.model_selection import train_test_split as bf_train_test_split
+
+# Init vertexai and switch to remote mode for tuning
+vertexai.init(project="my-project", location="my-location")
+vertexai.preview.init(remote=True)
+
+# Load the table into a bigframe dataframe
+df = bf.read_gbq("mydataset.mytable")
+
+feature_columns = df[["x_col1", "x_col2", "x_col3"]]
+label_columns = df[["y_col"]]
+
+# Use bigframes split method to create train and test datasets
+X_train, X_test, y_train, y_test = bf_train_test_split(
+    feature_columns, label_columns, test_size=0.2
+)
+
+# Continue with the framework of your choice
+# X_train and y_train are bigframes dataframe
+model.train(X_train, y_train)
+```
+
 
 ## Sample Notebooks
 The notebooks below showcase the different usage of Vertex AI SDK.
@@ -329,3 +363,19 @@ The notebooks below showcase the different usage of Vertex AI SDK.
 
 - [remote_hyperparameter_tuning.ipynb](https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/vertex_ai_sdk/remote_hyperparameter_tuning.ipynb)
     - Vizier Hyperparameter Tuning
+
+- [remote_training_bigframes_sklearn.ipynb](https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/vertex_ai_sdk/remote_training_bigframes_sklearn.ipynb)
+    - BigFrames data ingestion
+    - Remote training
+    - Remote prediction
+
+- [remote_training_bigframes_pytorch.ipynb](https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/vertex_ai_sdk/remote_training_bigframes_pytorch.ipynb)
+    - BigFrames data ingestion
+    - Remote training
+    - Remote prediction
+
+- [remote_training_bigframes_tensorflow.ipynb](https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/vertex_ai_sdk/remote_training_bigframes_tensorflow.ipynb)
+    - BigFrames data ingestion
+    - Remote training
+    - Remote GPU training
+    - Remote prediction

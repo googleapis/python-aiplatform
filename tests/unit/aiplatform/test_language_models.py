@@ -183,7 +183,10 @@ _TEST_TEXT_GENERATION_PREDICTION_GROUNDING = {
         "citations": [
             {"url": "url1", "startIndex": 1, "endIndex": 2},
             {"url": "url2", "startIndex": 3, "endIndex": 4},
-        ]
+        ],
+        "searchQueries": [
+            "searchQuery",
+        ],
     },
     "content": """
 Ingredients:
@@ -211,7 +214,8 @@ _EXPECTED_PARSED_GROUNDING_METADATA = {
             "license": None,
             "publication_date": None,
         },
-    ]
+    ],
+    "search_queries": ["searchQuery"],
 }
 
 _TEST_TEXT_GENERATION_PREDICTION = {
@@ -309,6 +313,101 @@ _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION = {
             "content": "",
         },
     ],
+}
+
+_TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING = {
+    "safetyAttributes": [
+        {
+            "scores": [],
+            "categories": [],
+            "blocked": False,
+        },
+        {
+            "scores": [0.1],
+            "categories": ["Finance"],
+            "blocked": True,
+        },
+    ],
+    "groundingMetadata": [
+        {
+            "citations": [
+                {
+                    "startIndex": 1,
+                    "endIndex": 2,
+                    "url": "url1",
+                }
+            ],
+            "searchQueries": ["searchQuery1"],
+        },
+        {
+            "citations": [
+                {
+                    "startIndex": 3,
+                    "endIndex": 4,
+                    "url": "url2",
+                }
+            ],
+            "searchQueries": ["searchQuery2"],
+        },
+    ],
+    "candidates": [
+        {
+            "author": "1",
+            "content": "Chat response 2",
+        },
+        {
+            "author": "1",
+            "content": "",
+        },
+    ],
+}
+
+_TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING_NONE = {
+    "safetyAttributes": [
+        {
+            "scores": [],
+            "categories": [],
+            "blocked": False,
+        },
+        {
+            "scores": [0.1],
+            "categories": ["Finance"],
+            "blocked": True,
+        },
+    ],
+    "groundingMetadata": [
+        None,
+        None,
+    ],
+    "candidates": [
+        {
+            "author": "1",
+            "content": "Chat response 2",
+        },
+        {
+            "author": "1",
+            "content": "",
+        },
+    ],
+}
+
+_EXPECTED_PARSED_GROUNDING_METADATA_CHAT = {
+    "citations": [
+        {
+            "url": "url1",
+            "start_index": 1,
+            "end_index": 2,
+            "title": None,
+            "license": None,
+            "publication_date": None,
+        },
+    ],
+    "search_queries": ["searchQuery1"],
+}
+
+_EXPECTED_PARSED_GROUNDING_METADATA_CHAT_NONE = {
+    "citations": [],
+    "search_queries": [],
 }
 
 _TEST_CHAT_PREDICTION_STREAMING = [
@@ -434,6 +533,11 @@ _TEST_PIPELINE_SPEC = {
                 },
                 "default_context": {
                     "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "enable_checkpoint_selection": {
+                    "defaultValue": "default",
                     "isOptional": True,
                     "parameterType": "STRING",
                 },
@@ -1471,12 +1575,13 @@ class TestLanguageModels:
             "collections/default_collection/dataStores/test_datastore"
         )
         expected_grounding_sources = [
-            {"sources": [{"type": "WEB"}]},
+            {"sources": [{"type": "WEB", "disableAttribution": False}]},
             {
                 "sources": [
                     {
-                        "type": "ENTERPRISE",
-                        "enterpriseDatastore": datastore_path,
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
                     }
                 ]
             },
@@ -1584,12 +1689,20 @@ class TestLanguageModels:
             "collections/default_collection/dataStores/test_datastore"
         )
         expected_grounding_sources = [
-            {"sources": [{"type": "WEB"}]},
             {
                 "sources": [
                     {
-                        "type": "ENTERPRISE",
-                        "enterpriseDatastore": datastore_path,
+                        "type": "WEB",
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+            {
+                "sources": [
+                    {
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
                     }
                 ]
             },
@@ -1837,6 +1950,7 @@ class TestLanguageModels:
             evaluation_data_uri = "gs://bucket/eval.jsonl"
             evaluation_interval = 37
             enable_early_stopping = True
+            enable_checkpoint_selection = True
             tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
 
             tuning_job = model.tune_model(
@@ -1849,6 +1963,7 @@ class TestLanguageModels:
                     evaluation_data=evaluation_data_uri,
                     evaluation_interval=evaluation_interval,
                     enable_early_stopping=enable_early_stopping,
+                    enable_checkpoint_selection=enable_checkpoint_selection,
                     tensorboard=tensorboard_name,
                 ),
                 accelerator_type="TPU",
@@ -1862,6 +1977,10 @@ class TestLanguageModels:
             assert pipeline_arguments["evaluation_data_uri"] == evaluation_data_uri
             assert pipeline_arguments["evaluation_interval"] == evaluation_interval
             assert pipeline_arguments["enable_early_stopping"] == enable_early_stopping
+            assert (
+                pipeline_arguments["enable_checkpoint_selection"]
+                == enable_checkpoint_selection
+            )
             assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
             assert pipeline_arguments["large_model_reference"] == "text-bison@001"
             assert pipeline_arguments["accelerator_type"] == "TPU"
@@ -2006,12 +2125,18 @@ class TestLanguageModels:
         ):
             model = language_models.ChatModel.from_pretrained("chat-bison@001")
 
+            tuning_job_location = "europe-west4"
+            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+
             default_context = "Default context"
             tuning_job = model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
                 default_context=default_context,
+                tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                    tensorboard=tensorboard_name,
+                ),
                 accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
@@ -2021,6 +2146,7 @@ class TestLanguageModels:
             assert pipeline_arguments["large_model_reference"] == "chat-bison@001"
             assert pipeline_arguments["default_context"] == default_context
             assert pipeline_arguments["accelerator_type"] == "TPU"
+            assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
 
             # Testing the tuned model
             tuned_model = tuning_job.get_tuned_model()
@@ -2028,6 +2154,26 @@ class TestLanguageModels:
                 tuned_model._endpoint_name
                 == test_constants.EndpointConstants._TEST_ENDPOINT_NAME
             )
+
+            unsupported_tuning_evaluation_spec_att = (
+                {"evaluation_data": "gs://bucket/eval.jsonl"},
+                {"evaluation_interval": 37},
+                {"enable_early_stopping": True},
+                {"enable_checkpoint_selection": True},
+            )
+            for unsupported_att in unsupported_tuning_evaluation_spec_att:
+                unsupported_tuning_evaluation_spec = (
+                    preview_language_models.TuningEvaluationSpec(**unsupported_att)
+                )
+                with pytest.raises(AttributeError):
+                    model.tune_model(
+                        training_data=_TEST_TEXT_BISON_TRAINING_DF,
+                        tuning_job_location="europe-west4",
+                        tuned_model_location="us-central1",
+                        default_context=default_context,
+                        tuning_evaluation_spec=unsupported_tuning_evaluation_spec,
+                        accelerator_type="TPU",
+                    )
 
     @pytest.mark.parametrize(
         "job_spec",
@@ -2109,12 +2255,18 @@ class TestLanguageModels:
         ):
             model = language_models.CodeChatModel.from_pretrained("codechat-bison@001")
 
+            tuning_job_location = "europe-west4"
+            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+
             # The tune_model call needs to be inside the PublisherModel mock
             # since it gets a new PublisherModel when tuning completes.
             model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
                 tuning_job_location="europe-west4",
                 tuned_model_location="us-central1",
+                tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                    tensorboard=tensorboard_name,
+                ),
                 accelerator_type="TPU",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
@@ -2123,6 +2275,26 @@ class TestLanguageModels:
             ].runtime_config.parameter_values
             assert pipeline_arguments["large_model_reference"] == "codechat-bison@001"
             assert pipeline_arguments["accelerator_type"] == "TPU"
+            assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
+
+            unsupported_tuning_evaluation_spec_att = (
+                {"evaluation_data": "gs://bucket/eval.jsonl"},
+                {"evaluation_interval": 37},
+                {"enable_early_stopping": True},
+                {"enable_checkpoint_selection": True},
+            )
+            for unsupported_att in unsupported_tuning_evaluation_spec_att:
+                unsupported_tuning_evaluation_spec = (
+                    preview_language_models.TuningEvaluationSpec(**unsupported_att)
+                )
+                with pytest.raises(AttributeError):
+                    model.tune_model(
+                        training_data=_TEST_TEXT_BISON_TRAINING_DF,
+                        tuning_job_location="europe-west4",
+                        tuned_model_location="us-central1",
+                        tuning_evaluation_spec=unsupported_tuning_evaluation_spec,
+                        accelerator_type="TPU",
+                    )
 
     @pytest.mark.usefixtures(
         "get_model_with_tuned_version_label_mock",
@@ -2300,6 +2472,253 @@ class TestLanguageModels:
             assert prediction_parameters["maxDecodeSteps"] == message_max_output_tokens
             assert prediction_parameters["topK"] == message_top_k
             assert prediction_parameters["topP"] == message_top_p
+
+        gca_predict_response4 = gca_prediction_service.PredictResponse()
+        gca_predict_response4.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING
+        )
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {
+                "sources": [
+                    {
+                        "type": "WEB",
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+            {
+                "sources": [
+                    {
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+        ]
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_client.PredictionServiceClient,
+                attribute="predict",
+                return_value=gca_predict_response4,
+            ) as mock_predict4:
+                response = chat2.send_message(
+                    "Are my favorite movies based on a book series?",
+                    grounding_source=test_grounding_source,
+                )
+                prediction_parameters = mock_predict4.call_args[1]["parameters"]
+                assert (
+                    prediction_parameters["groundingConfig"]
+                    == expected_grounding_source
+                )
+                assert (
+                    dataclasses.asdict(response.grounding_metadata)
+                    == _EXPECTED_PARSED_GROUNDING_METADATA_CHAT
+                )
+
+        gca_predict_response5 = gca_prediction_service.PredictResponse()
+        gca_predict_response5.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING_NONE
+        )
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {
+                "sources": [
+                    {
+                        "type": "WEB",
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+            {
+                "sources": [
+                    {
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+        ]
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_client.PredictionServiceClient,
+                attribute="predict",
+                return_value=gca_predict_response5,
+            ) as mock_predict5:
+                response = chat2.send_message(
+                    "Are my favorite movies based on a book series?",
+                    grounding_source=test_grounding_source,
+                )
+                prediction_parameters = mock_predict5.call_args[1]["parameters"]
+                assert (
+                    prediction_parameters["groundingConfig"]
+                    == expected_grounding_source
+                )
+                assert (
+                    dataclasses.asdict(response.grounding_metadata)
+                    == _EXPECTED_PARSED_GROUNDING_METADATA_CHAT_NONE
+                )
+
+    @pytest.mark.asyncio
+    async def test_chat_async(self):
+        """Test the chat generation model async api."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = preview_language_models.ChatModel.from_pretrained("chat-bison@001")
+
+        mock_get_publisher_model.assert_called_once_with(
+            name="publishers/google/models/chat-bison@001", retry=base._DEFAULT_RETRY
+        )
+        chat_temperature = 0.1
+        chat_max_output_tokens = 100
+        chat_top_k = 1
+        chat_top_p = 0.1
+
+        chat = model.start_chat(
+            temperature=chat_temperature,
+            max_output_tokens=chat_max_output_tokens,
+            top_k=chat_top_k,
+            top_p=chat_top_p,
+        )
+
+        gca_predict_response6 = gca_prediction_service.PredictResponse()
+        gca_predict_response6.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING
+        )
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {
+                "sources": [
+                    {
+                        "type": "WEB",
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+            {
+                "sources": [
+                    {
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+        ]
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_async_client.PredictionServiceAsyncClient,
+                attribute="predict",
+                return_value=gca_predict_response6,
+            ) as mock_predict6:
+                response = await chat.send_message_async(
+                    "Are my favorite movies based on a book series?",
+                    grounding_source=test_grounding_source,
+                )
+                prediction_parameters = mock_predict6.call_args[1]["parameters"]
+                assert prediction_parameters["temperature"] == chat_temperature
+                assert prediction_parameters["maxDecodeSteps"] == chat_max_output_tokens
+                assert prediction_parameters["topK"] == chat_top_k
+                assert prediction_parameters["topP"] == chat_top_p
+                assert (
+                    prediction_parameters["groundingConfig"]
+                    == expected_grounding_source
+                )
+                assert (
+                    dataclasses.asdict(response.grounding_metadata)
+                    == _EXPECTED_PARSED_GROUNDING_METADATA_CHAT
+                )
+
+        gca_predict_response7 = gca_prediction_service.PredictResponse()
+        gca_predict_response7.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING_NONE
+        )
+        test_grounding_sources = [
+            _TEST_GROUNDING_WEB_SEARCH,
+            _TEST_GROUNDING_VERTEX_AI_SEARCH_DATASTORE,
+        ]
+        datastore_path = (
+            "projects/test-project/locations/global/"
+            "collections/default_collection/dataStores/test_datastore"
+        )
+        expected_grounding_sources = [
+            {
+                "sources": [
+                    {
+                        "type": "WEB",
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+            {
+                "sources": [
+                    {
+                        "type": "VERTEX_AI_SEARCH",
+                        "vertexAiSearchDatastore": datastore_path,
+                        "disableAttribution": False,
+                    }
+                ]
+            },
+        ]
+        for test_grounding_source, expected_grounding_source in zip(
+            test_grounding_sources, expected_grounding_sources
+        ):
+            with mock.patch.object(
+                target=prediction_service_async_client.PredictionServiceAsyncClient,
+                attribute="predict",
+                return_value=gca_predict_response7,
+            ) as mock_predict7:
+                response = await chat.send_message_async(
+                    "Are my favorite movies based on a book series?",
+                    grounding_source=test_grounding_source,
+                )
+                prediction_parameters = mock_predict7.call_args[1]["parameters"]
+                assert (
+                    prediction_parameters["groundingConfig"]
+                    == expected_grounding_source
+                )
+                assert (
+                    dataclasses.asdict(response.grounding_metadata)
+                    == _EXPECTED_PARSED_GROUNDING_METADATA_CHAT_NONE
+                )
 
     def test_chat_ga(self):
         """Tests the chat generation model."""
@@ -2760,6 +3179,54 @@ class TestLanguageModels:
             assert len(chat.message_history) == 2
             assert chat.message_history[0].author == chat.USER_AUTHOR
             assert chat.message_history[0].content == message_text1
+            assert chat.message_history[1].author == chat.MODEL_AUTHOR
+            assert chat.message_history[1].content == expected_candidate_0
+
+    async def test_code_chat_model_send_message_async(self):
+        """Tests the send_message_async method for code chat model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODECHAT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.CodeChatModel.from_pretrained("codechat-bison@001")
+        chat = model.start_chat()
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(
+            _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION
+        )
+        with mock.patch.object(
+            target=prediction_service_async_client.PredictionServiceAsyncClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+            autospec=True,
+        ):
+            message_text = "Are my favorite movies based on a book series?"
+            expected_response_candidates = (
+                _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION["candidates"]
+            )
+            expected_candidate_0 = expected_response_candidates[0]["content"]
+            expected_candidate_1 = expected_response_candidates[1]["content"]
+
+            response = await chat.send_message_async(
+                message=message_text,
+            )
+            # The service can return a different number of candidates.
+            assert response.text == expected_candidate_0
+            assert len(response.candidates) == 2
+            assert response.candidates[0].text == expected_candidate_0
+            assert response.candidates[1].text == expected_candidate_1
+
+            assert len(chat.message_history) == 2
+            assert chat.message_history[0].author == chat.USER_AUTHOR
+            assert chat.message_history[0].content == message_text
             assert chat.message_history[1].author == chat.MODEL_AUTHOR
             assert chat.message_history[1].content == expected_candidate_0
 
@@ -3249,6 +3716,10 @@ class TestLanguageModels:
                 vector = embedding.values
                 assert len(vector) == _TEXT_EMBEDDING_VECTOR_LENGTH
                 assert vector == _TEST_TEXT_EMBEDDING_PREDICTION["embeddings"]["values"]
+
+        # Validating that a single string is not accepted.
+        with pytest.raises(TypeError):
+            model.get_embeddings("What is life?")
 
     def test_batch_prediction(
         self,

@@ -23,6 +23,7 @@ import json
 import os
 from typing import Any
 
+import vertexai
 from vertexai.preview import developer
 from vertexai.preview._workflow.serialization_engine import (
     any_serializer,
@@ -322,6 +323,29 @@ class TestAnySerializer:
             assert (
                 serializer_instance._serialization_scheme == _TEST_SERIALIZATION_SCHEME
             )
+
+    def test_any_serializer_with_wrapped_class(self):
+        # Reset the serializer instances
+        serializers_base.Serializer._instances = {}
+
+        # Wrap a ML class that we have predefined serializer
+        unwrapped_keras_class = keras.models.Model
+        keras.models.Model = vertexai.preview.remote(keras.models.Model)
+
+        try:
+            # Assert that AnySerializer still registered the original class
+            serializer_instance = any_serializer.AnySerializer()
+            assert keras.models.Model not in serializer_instance._serialization_scheme
+            assert unwrapped_keras_class in serializer_instance._serialization_scheme
+            assert (
+                serializer_instance._serialization_scheme[unwrapped_keras_class]
+                == serializers.KerasModelSerializer
+            )
+        except Exception as e:
+            raise e
+        finally:
+            # Revert the class after testing
+            keras.models.Model = unwrapped_keras_class
 
     def test_any_serializer_global_metadata_created(
         self, mock_cloudpickle_serialize, any_serializer_instance, tmp_path

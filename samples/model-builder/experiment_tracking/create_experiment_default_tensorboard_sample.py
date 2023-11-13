@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,30 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Union
-
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_autologging_with_auto_run_creation_sample]
-def autologging_with_auto_run_creation_sample(
+#  [START aiplatform_sdk_create_experiment_default_tensorboard_sample]
+def create_experiment_default_tensorboard_sample(
     experiment_name: str,
+    experiment_description: str,
     project: str,
     location: str,
-    experiment_tensorboard: Optional[Union[str, aiplatform.Tensorboard]] = None,
 ):
     aiplatform.init(
         experiment=experiment_name,
+        experiment_description=experiment_description,
         project=project,
         location=location,
-        experiment_tensorboard=experiment_tensorboard,
     )
 
-    aiplatform.autolog()
 
-    # Your model training code goes here
-
-    aiplatform.autolog(disable=True)
-
-
-#  [END aiplatform_sdk_autologging_with_auto_run_creation_sample]
+#  [END aiplatform_sdk_create_experiment_default_tensorboard_sample]

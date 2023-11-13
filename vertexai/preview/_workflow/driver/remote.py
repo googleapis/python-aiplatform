@@ -23,6 +23,9 @@ from vertexai.preview._workflow import driver
 from vertexai.preview._workflow.executor import (
     training,
 )
+from vertexai.preview._workflow.serialization_engine import (
+    any_serializer,
+)
 from vertexai.preview._workflow.shared import (
     supported_frameworks,
 )
@@ -72,6 +75,10 @@ def remote(cls_or_method: Any) -> Any:
     Returns:
         A class or method that can be executed remotely.
     """
+    # Make sure AnySerializer has been instantiated before wrapping any classes.
+    if any_serializer.AnySerializer not in any_serializer.AnySerializer._instances:
+        any_serializer.AnySerializer()
+
     if inspect.isclass(cls_or_method):
         return remote_class_decorator(cls_or_method)
     else:

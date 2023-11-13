@@ -1,5 +1,65 @@
 # Changelog
 
+## [1.36.2](https://github.com/googleapis/python-aiplatform/compare/v1.36.1...v1.36.2) (2023-11-10)
+
+
+### Features
+
+* Add `encryption_spec_key_name` to `MatchingEngineIndex` `create_tree_ah_index` and ([1a9e36f](https://github.com/googleapis/python-aiplatform/commit/1a9e36f4ea1672d0fc6ce1587c86c4f132c15190))
+* Add `encryption_spec_key_name`, `enable_private_service_connect`,`project_allowlist` to MatchingEngineIndexEndpoint `create`. ([750e17b](https://github.com/googleapis/python-aiplatform/commit/750e17b4c25c9030018521545b3c21e1fb1404c2))
+* Add `index_update_method` to MatchingEngineIndex `create()` ([dcb6205](https://github.com/googleapis/python-aiplatform/commit/dcb62051a7f3aeaa009b64165569c788d8c5ec44))
+* Expose max_retry_cnt parameter for Ray on Vertex BigQuery write ([568907c](https://github.com/googleapis/python-aiplatform/commit/568907c3876b10dc104de5d19a973135b2638d62))
+* LLM - Grounding - Added support for the `disable_attribution` grounding parameter ([91e985a](https://github.com/googleapis/python-aiplatform/commit/91e985a258180226053a23a9280249079574ad16))
+* LLM - Support model evaluation when tuning chat models (`ChatModel`, `CodeChatModel`) ([755c3f9](https://github.com/googleapis/python-aiplatform/commit/755c3f99478e537ef5675ed7120a17eaf94ee5cd))
+* LVM - Added multi-language support for `ImageGenerationModel` ([791eff5](https://github.com/googleapis/python-aiplatform/commit/791eff5fac48a4395017d7f9296cfb2209a073ba))
+
+
+### Bug Fixes
+
+* Async call bug in CodeChatModel.send_message_async method ([fcf05cb](https://github.com/googleapis/python-aiplatform/commit/fcf05cb6da15c83e91e6ce5f20ab3e6649983685))
+
+
+### Documentation
+
+* Add Bigframes remote training example to vertexai README ([8b993b3](https://github.com/googleapis/python-aiplatform/commit/8b993b367758dc4f195a7a80d13923687da53e04))
+* Update the documentation for the `tabular_dataset` class ([6f40f1b](https://github.com/googleapis/python-aiplatform/commit/6f40f1baf02b279299c7ea825754fe1868d56276))
+
+
+### Miscellaneous Chores
+
+* Release 1.36.2 ([01be0c9](https://github.com/googleapis/python-aiplatform/commit/01be0c99ff86726962146bcf9601a04f7298cda1))
+
+## [1.36.1](https://github.com/googleapis/python-aiplatform/compare/v1.36.0...v1.36.1) (2023-11-07)
+
+
+### Features
+
+* Add `per_crowding_attribute_neighbor_count`, `approx_num_neighbors`, `fraction_leaf_nodes_to_search_override`, and `return_full_datapoint` to MatchingEngineIndexEndpoint `find_neighbors` ([33c551e](https://github.com/googleapis/python-aiplatform/commit/33c551efca38688c8c62ef5847dfcef0221e848c))
+* Add profiler support to tensorboard uploader sdk ([be1df7f](https://github.com/googleapis/python-aiplatform/commit/be1df7f4823f7b40022d31f529204dfe27fdb4d7))
+* Add support for `per_crowding_attribute_num_neighbors` `approx_num_neighbors`to MatchingEngineIndexEndpoint `match()` ([e5c20c3](https://github.com/googleapis/python-aiplatform/commit/e5c20c3b5c0078c9dfc70e2d1d13513a4dcefa63))
+* Add support for `per_crowding_attribute_num_neighbors` `approx_num_neighbors`to MatchingEngineIndexEndpoint `match()` ([53d31b5](https://github.com/googleapis/python-aiplatform/commit/53d31b5b6ec477e6f2b4391aaeadc8ae349800b8))
+* Add support for `per_crowding_attribute_num_neighbors` `approx_num_neighbors`to MatchingEngineIndexEndpoint `match()` ([4e357d5](https://github.com/googleapis/python-aiplatform/commit/4e357d5121d053dc313f3a3f180131e1850bebe2))
+* Enable grounding to ChatModel send_message and send_message_async methods ([d4667f2](https://github.com/googleapis/python-aiplatform/commit/d4667f25a7c95bd16511beaed85edf45307176b5))
+* Enable grounding to TextGenerationModel predict and predict_async methods ([b0b4e6b](https://github.com/googleapis/python-aiplatform/commit/b0b4e6b8243cbdb829288e3fc204d94005f1e8b4))
+* LLM - Added support for the `enable_checkpoint_selection` tuning evaluation parameter ([eaf4420](https://github.com/googleapis/python-aiplatform/commit/eaf4420479b64740cdd464afb64b8780f57c8199))
+* LLM - Added tuning support for the `*-bison-32k` models ([9eba18f](https://github.com/googleapis/python-aiplatform/commit/9eba18f70d36ac3901ba8b580cde6dde04413bc3))
+* LLM - Released `CodeChatModel` tuning to GA ([621af52](https://github.com/googleapis/python-aiplatform/commit/621af5244797a0e218195c72d9781cbd86b24fa0))
+
+
+### Bug Fixes
+
+* Correct class name in system test ([b822b57](https://github.com/googleapis/python-aiplatform/commit/b822b57fa490c8d89802ee5fbf0f3736e0811208))
+
+
+### Documentation
+
+* Clean up RoV create_ray_cluster docstring ([1473e19](https://github.com/googleapis/python-aiplatform/commit/1473e19c9b05c89ba2229f42a8d72588fa267d17))
+
+
+### Miscellaneous Chores
+
+* Release 1.36.1 ([1cde170](https://github.com/googleapis/python-aiplatform/commit/1cde1708fd26357995f3ee86194aa92aa7de5519))
+
 ## [1.36.0](https://github.com/googleapis/python-aiplatform/compare/v1.35.0...v1.36.0) (2023-10-31)
 
 

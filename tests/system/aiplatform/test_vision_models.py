@@ -97,6 +97,7 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
         number_of_images = 4
         seed = 1
         guidance_scale = 15
+        language = "en"
 
         prompt1 = "Astronaut riding a horse"
         negative_prompt1 = "bad quality"
@@ -110,6 +111,7 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             # height=height,
             seed=seed,
             guidance_scale=guidance_scale,
+            language=language,
         )
 
         assert len(image_response.images) == number_of_images
@@ -125,6 +127,7 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             assert image.generation_parameters["seed"] == seed
             assert image.generation_parameters["guidance_scale"] == guidance_scale
             assert image.generation_parameters["index_of_image_in_batch"] == idx
+            assert image.generation_parameters["language"] == language
 
         # Test saving and loading images
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -134,6 +137,7 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             # assert image1._pil_image.size == (width, height)
             assert image1.generation_parameters
             assert image1.generation_parameters["prompt"] == prompt1
+            assert image1.generation_parameters["language"] == language
 
             # Preparing mask
             mask_path = os.path.join(temp_dir, "mask.png")
@@ -151,6 +155,7 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             guidance_scale=guidance_scale,
             base_image=image1,
             mask=mask_image,
+            language=language,
         )
         assert len(image_response2.images) == number_of_images
         for idx, image in enumerate(image_response2):
@@ -161,5 +166,6 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             assert image.generation_parameters["seed"] == seed
             assert image.generation_parameters["guidance_scale"] == guidance_scale
             assert image.generation_parameters["index_of_image_in_batch"] == idx
+            assert image.generation_parameters["language"] == language
             assert "base_image_hash" in image.generation_parameters
             assert "mask_hash" in image.generation_parameters

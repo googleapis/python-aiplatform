@@ -48,32 +48,6 @@ except ImportError:
 
 SERIALIZATION_METADATA_FRAMEWORK_KEY = "framework"
 
-# TODO(b/272263750): use the centralized module and usage pattern to guard these
-# imports
-try:
-    import pandas as pd
-    import bigframes as bf
-
-    PandasData = pd.DataFrame
-    BigframesData = bf.dataframe.DataFrame
-except ImportError:
-    pd = None
-    bf = None
-    PandasData = Any
-    BigframesData = Any
-
-try:
-    import pandas as pd
-    import pyarrow as pa
-    import pyarrow.parquet as pq
-
-    PandasData = pd.DataFrame
-except ImportError:
-    pd = None
-    pa = None
-    pq = None
-    PandasData = Any
-
 try:
     from tensorflow import keras
     import tensorflow as tf
@@ -977,7 +951,9 @@ class PandasDataSerializer(serializers_base.Serializer):
         serializers_base.SerializationMetadata(serializer="PandasDataSerializer")
     )
 
-    def serialize(self, to_serialize: PandasData, gcs_path: str, **kwargs) -> str:
+    def serialize(
+        self, to_serialize: "pandas.DataFrame", gcs_path: str, **kwargs  # noqa: F821
+    ) -> str:
         del kwargs
         if not _is_valid_gcs_path(gcs_path):
             raise ValueError(f"Invalid gcs path: {gcs_path}")
@@ -996,7 +972,9 @@ class PandasDataSerializer(serializers_base.Serializer):
         else:
             to_serialize.to_parquet(gcs_path)
 
-    def deserialize(self, serialized_gcs_path: str, **kwargs) -> PandasData:
+    def deserialize(
+        self, serialized_gcs_path: str, **kwargs
+    ) -> "pandas.DataFrame":  # noqa: F821
         del kwargs
         try:
             import pandas as pd
@@ -1024,11 +1002,28 @@ class PandasDataSerializerDev(serializers_base.Serializer):
         super().__init__()
         self.helper = data_serializer_utils._Helper()
 
-    def serialize(self, to_serialize: PandasData, gcs_path: str, **kwargs) -> str:
+    def serialize(
+        self, to_serialize: "pandas.DataFrame", gcs_path: str, **kwargs  # noqa: F821
+    ) -> str:
         del kwargs
         PandasDataSerializerDev._metadata.dependencies = (
             supported_frameworks._get_deps_if_pandas_dataframe(to_serialize)
         )
+        try:
+            import pandas as pd
+        except ImportError as e:
+            raise ImportError(
+                f"pandas is not installed and required to serialize {to_serialize}."
+            ) from e
+
+        try:
+            import pyarrow as pa
+            import pyarrow.parquet as pq
+        except ImportError as e:
+            raise ImportError(
+                f"pyarrow is not installed and required to serialize {to_serialize}."
+            ) from e
+
         try:
             if not (
                 isinstance(to_serialize.index, pd.MultiIndex)
@@ -1072,7 +1067,17 @@ class PandasDataSerializerDev(serializers_base.Serializer):
                 func(to_serialize, *args) if len(args) > 0 else func(to_serialize)
             return gcs_path
 
-    def deserialize(self, serialized_gcs_path: str, **kwargs) -> PandasData:
+    def deserialize(
+        self, serialized_gcs_path: str, **kwargs
+    ) -> "pandas.DataFrame":  # noqa: F821
+        try:
+            import pyarrow.parquet as pq
+        except ImportError as e:
+            raise ImportError(
+                "pyarrow is not installed and required to deserialize the file "
+                f"from {serialized_gcs_path}."
+            ) from e
+
         del kwargs
         restored_table = pq.read_table(serialized_gcs_path)
         restored_df = restored_table.to_pandas()
@@ -1123,7 +1128,9 @@ class BigframeSerializer(serializers_base.Serializer):
 
     def serialize(
         self,
-        to_serialize: Union[BigframesData, PandasData],
+        to_serialize: Union[
+            "bigframes.dataframe.DataFrame", "pandas.DataFrame"  # noqa: F821
+        ],
         gcs_path: str,
         **kwargs,
     ) -> str:
@@ -1164,7 +1171,7 @@ class BigframeSerializer(serializers_base.Serializer):
         if to_serialize.index.name is None:
             to_serialize.index.name = "index"
 
-        # Convert BigframesData to Parquet (GCS)
+        # Convert bigframes.dataframe.DataFrame to Parquet (GCS)
         parquet_gcs_path = gcs_path + "/*"  # path is required to contain '*'
         to_serialize.to_parquet(parquet_gcs_path, index=True)
         return parquet_gcs_path
@@ -1182,7 +1189,7 @@ class BigframeSerializer(serializers_base.Serializer):
 
     def deserialize(
         self, serialized_gcs_path: str, **kwargs
-    ) -> Union[PandasData, BigframesData]:
+    ) -> Union["pandas.DataFrame", "bigframes.dataframe.DataFrame"]:  # noqa: F821
         del kwargs
 
         detected_framework = BigframeSerializer._metadata.framework
@@ -1195,7 +1202,9 @@ class BigframeSerializer(serializers_base.Serializer):
         else:
             raise ValueError(f"Unsupported framework: {detected_framework}")
 
-    def _deserialize_sklearn(self, serialized_gcs_path: str) -> PandasData:
+    def _deserialize_sklearn(
+        self, serialized_gcs_path: str
+    ) -> "pandas.DataFrame":  # noqa: F821
         """Sklearn deserializes parquet (GCS) --> pandas.DataFrame
 
         By default, sklearn returns a numpy array which uses CloudPickleSerializer.

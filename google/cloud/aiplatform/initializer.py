@@ -112,7 +112,7 @@ class _Config:
         experiment: Optional[str] = None,
         experiment_description: Optional[str] = None,
         experiment_tensorboard: Optional[
-            Union[str, tensorboard_resource.Tensorboard]
+            Union[str, tensorboard_resource.Tensorboard, bool]
         ] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -128,7 +128,7 @@ class _Config:
                 set defaults to us-central-1.
             experiment (str): Optional. The experiment name.
             experiment_description (str): Optional. The description of the experiment.
-            experiment_tensorboard (Union[str, tensorboard_resource.Tensorboard]):
+            experiment_tensorboard (Union[str, tensorboard_resource.Tensorboard, bool]):
                 Optional. The Vertex AI TensorBoard instance, Tensorboard resource name,
                 or Tensorboard resource ID to use as a backing Tensorboard for the provided
                 experiment.
@@ -141,6 +141,13 @@ class _Config:
                 Any subsequent calls to aiplatform.init() with `experiment` and without
                 `experiment_tensorboard` will automatically assign the global Tensorboard
                 to the `experiment`.
+
+                If `experiment_tensorboard` is ommitted or set to `True` or `None` the global
+                Tensorboard will be assigned to the `experiment`. If a global Tensorboard is
+                not set, the default Tensorboard instance will be used, and created if it deos not exist.
+
+                To disable creating and using Tensorboard with `experiment`, set `experiment_tensorboard` to False.
+                Any subsequent calls to aiplatform.init() should include this setting as well.
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
             credentials (google.auth.credentials.Credentials): The default custom
@@ -177,7 +184,7 @@ class _Config:
                 "Experiment needs to be set in `init` in order to add experiment descriptions."
             )
 
-        if experiment_tensorboard:
+        if experiment_tensorboard and not isinstance(experiment_tensorboard, bool):
             metadata._experiment_tracker.set_tensorboard(
                 tensorboard=experiment_tensorboard,
                 project=project,

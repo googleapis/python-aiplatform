@@ -28,6 +28,8 @@ from google.cloud.aiplatform.compat.types import (
     matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
     match_service_v1beta1 as gca_match_service_v1beta1,
     index_v1beta1 as gca_index_v1beta1,
+    service_networking as gca_service_networking,
+    encryption_spec as gca_encryption_spec,
 )
 from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
 from google.cloud.aiplatform.matching_engine._protos import (
@@ -145,6 +147,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        enable_private_service_connect: Optional[bool] = False,
+        project_allowlist: Optional[Sequence[str]] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ) -> "MatchingEngineIndexEndpoint":
         """Creates a MatchingEngineIndexEndpoint resource.
 
@@ -205,6 +210,23 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            enable_private_service_connect (bool):
+                If true, expose the index endpoint via private service connect.
+            project_allowlist (Sequence[str]):
+                Optional. List of projects from which the forwarding rule will
+                target the service attachment.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the index endpoint.
+                Has the form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this index endpoint and all sub-resources of this
+                index endpoint will be secured by this key.
+                The key needs to be in the same region as where the index
+                endpoint is created.
 
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
@@ -214,14 +236,27 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         """
         network = network or initializer.global_config.network
 
-        if not network and not public_endpoint_enabled:
+        if not (network or public_endpoint_enabled or enable_private_service_connect):
             raise ValueError(
-                "Please provide `network` argument for private endpoint or provide `public_endpoint_enabled` to deploy this index to a public endpoint"
+                "Please provide `network` argument for Private Service Access endpoint,"
+                "or provide `enable_private_service_connect` for Private Service"
+                "Connect endpoint, or provide `public_endpoint_enabled` to"
+                "deploy to a public endpoint"
             )
 
-        if network and public_endpoint_enabled:
+        if (
+            sum(
+                bool(network_setting)
+                for network_setting in [
+                    network,
+                    public_endpoint_enabled,
+                    enable_private_service_connect,
+                ]
+            )
+            > 1
+        ):
             raise ValueError(
-                "`network` and `public_endpoint_enabled` argument should not be set at the same time"
+                "One and only one among network, public_endpoint_enabled and enable_private_service_connect should be set."
             )
 
         return cls._create(
@@ -235,6 +270,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             request_metadata=request_metadata,
             sync=sync,
+            enable_private_service_connect=enable_private_service_connect,
+            project_allowlist=project_allowlist,
+            encryption_spec_key_name=encryption_spec_key_name,
         )
 
     @classmethod
@@ -251,6 +289,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        enable_private_service_connect: Optional[bool] = False,
+        project_allowlist: Optional[Sequence[str]] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ) -> "MatchingEngineIndexEndpoint":
         """Helper method to ensure network synchronization and to
         create a MatchingEngineIndexEndpoint resource.
@@ -304,20 +345,53 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            encryption_spec_key_name (str):
+                Immutable. Customer-managed encryption key
+                spec for an IndexEndpoint. If set, this
+                IndexEndpoint and all sub-resources of this
+                IndexEndpoint will be secured by this key.
+            enable_private_service_connect (bool):
+                Required. If true, expose the IndexEndpoint
+                via private service connect.
+            project_allowlist (MutableSequence[str]):
+                A list of Projects from which the forwarding
+                rule will target the service attachment.
 
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
-
+        # Public
         if public_endpoint_enabled:
             gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
                 display_name=display_name,
                 description=description,
                 public_endpoint_enabled=public_endpoint_enabled,
+                encryption_spec=gca_encryption_spec.EncryptionSpec(
+                    kms_key_name=encryption_spec_key_name
+                ),
             )
+        # PSA
+        elif network:
+            gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
+                display_name=display_name,
+                description=description,
+                network=network,
+                encryption_spec=gca_encryption_spec.EncryptionSpec(
+                    kms_key_name=encryption_spec_key_name
+                ),
+            )
+        # PSC
         else:
             gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-                display_name=display_name, description=description, network=network
+                display_name=display_name,
+                description=description,
+                private_service_connect_config=gca_service_networking.PrivateServiceConnectConfig(
+                    project_allowlist=project_allowlist,
+                    enable_private_service_connect=enable_private_service_connect,
+                ),
+                encryption_spec=gca_encryption_spec.EncryptionSpec(
+                    kms_key_name=encryption_spec_key_name
+                ),
             )
 
         if labels:
@@ -956,6 +1030,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         queries: List[List[float]],
         num_neighbors: int = 10,
         filter: Optional[List[Namespace]] = [],
+        per_crowding_attribute_neighbor_count: Optional[int] = None,
+        approx_num_neighbors: Optional[int] = None,
+        fraction_leaf_nodes_to_search_override: Optional[float] = None,
+        return_full_datapoint: bool = False,
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the specified deployed index which is deployed to public endpoint.
 
@@ -979,25 +1057,58 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 For example, [Namespace("color", ["red"], []), Namespace("shape", [], ["squared"])] will match datapoints
                 that satisfy "red color" but not include datapoints with "squared shape".
                 Please refer to https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#json for more detail.
+
+            per_crowding_attribute_neighbor_count (int):
+                Optional. Crowding is a constraint on a neighbor list produced
+                by nearest neighbor search requiring that no more than some
+                value k' of the k neighbors returned have the same value of
+                crowding_attribute. It's used for improving result diversity.
+                This field is the maximum number of matches with the same crowding tag.
+
+            approx_num_neighbors (int):
+                Optional. The number of neighbors to find via approximate search
+                before exact reordering is performed. If not set, the default
+                value from scam config is used; if set, this value must be > 0.
+
+            fraction_leaf_nodes_to_search_override (float):
+                Optional. The fraction of the number of leaves to search, set at
+                query time allows user to tune search performance. This value
+                increase result in both search accuracy and latency increase.
+                The value should be between 0.0 and 1.0.
+
+            return_full_datapoint (bool):
+                Optional. If set to true, the full datapoints (including all
+                vector values and of the nearest neighbors are returned.
+                Note that returning full datapoint will significantly increase the
+                latency and cost of the query.
+
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
         """
 
         if not self._public_match_client:
             raise ValueError(
-                "Please make sure index has been deployed to public endpoint, and follow the example usage to call this method."
+                "Please make sure index has been deployed to public endpoint,and follow the example usage to call this method."
             )
 
         # Create the FindNeighbors request
         find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest()
         find_neighbors_request.index_endpoint = self.resource_name
         find_neighbors_request.deployed_index_id = deployed_index_id
+        find_neighbors_request.return_full_datapoint = return_full_datapoint
 
         for query in queries:
             find_neighbors_query = (
                 gca_match_service_v1beta1.FindNeighborsRequest.Query()
             )
             find_neighbors_query.neighbor_count = num_neighbors
+            find_neighbors_query.per_crowding_attribute_neighbor_count = (
+                per_crowding_attribute_neighbor_count
+            )
+            find_neighbors_query.approximate_neighbor_count = approx_num_neighbors
+            find_neighbors_query.fraction_leaf_nodes_to_search_override = (
+                fraction_leaf_nodes_to_search_override
+            )
             datapoint = gca_index_v1beta1.IndexDatapoint(feature_vector=query)
             for namespace in filter:
                 restrict = gca_index_v1beta1.IndexDatapoint.Restriction()
