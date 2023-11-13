@@ -16,6 +16,8 @@
 #
 
 from typing import Dict, List, Optional, Union
+
+import copy
 import uuid
 
 from google.api_core import retry
@@ -28,14 +30,17 @@ from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
     custom_job_v1beta1 as gca_custom_job_compat,
+    hyperparameter_tuning_job_v1beta1 as gca_hyperparameter_tuning_job_compat,
     job_state as gca_job_state,
     job_state_v1beta1 as gca_job_state_v1beta1,
+    study_v1beta1,
 )
 from google.cloud.aiplatform.compat.types import (
     execution_v1beta1 as gcs_execution_compat,
 )
 from google.cloud.aiplatform.compat.types import io_v1beta1 as gca_io_compat
 from google.cloud.aiplatform.metadata import constants as metadata_constants
+from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform.utils import console_utils
 import proto
 
@@ -103,7 +108,7 @@ class CustomJob(jobs.CustomJob):
                 }
             ]
 
-        my_job = aiplatform.CustomJob(
+        my_job = aiplatform.preview.jobs.CustomJob(
             display_name='my_job',
             worker_pool_specs=worker_pool_specs,
             labels={'my_key': 'my_value'},
@@ -464,3 +469,366 @@ class CustomJob(jobs.CustomJob):
             else:
                 custom_jobs = [custom_job]
             run_context.update({metadata_constants._CUSTOM_JOB_KEY: custom_jobs})
+
+
+class HyperparameterTuningJob(jobs.HyperparameterTuningJob):
+    """Vertex AI Hyperparameter Tuning Job."""
+
+    def __init__(
+        self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
+        display_name: str,
+        custom_job: CustomJob,
+        metric_spec: Dict[str, str],
+        parameter_spec: Dict[str, hyperparameter_tuning._ParameterSpec],
+        max_trial_count: int,
+        parallel_trial_count: int,
+        max_failed_trial_count: int = 0,
+        search_algorithm: Optional[str] = None,
+        measurement_selection: Optional[str] = "best",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
+        encryption_spec_key_name: Optional[str] = None,
+    ):
+        """
+        Configures a HyperparameterTuning Job.
+
+        Example usage:
+
+        ```
+        from google.cloud.aiplatform import hyperparameter_tuning as hpt
+
+        worker_pool_specs = [
+                {
+                    "machine_spec": {
+                        "machine_type": "n1-standard-4",
+                        "accelerator_type": "NVIDIA_TESLA_K80",
+                        "accelerator_count": 1,
+                    },
+                    "replica_count": 1,
+                    "container_spec": {
+                        "image_uri": container_image_uri,
+                        "command": [],
+                        "args": [],
+                    },
+                }
+            ]
+
+        custom_job = aiplatform.preview.jobs.CustomJob(
+            display_name='my_job',
+            worker_pool_specs=worker_pool_specs,
+            labels={'my_key': 'my_value'},
+            persistent_resource_id='my_persistent_resource',
+        )
+
+
+        hp_job = aiplatform.preview.jobs.HyperparameterTuningJob(
+            display_name='hp-test',
+            custom_job=job,
+            metric_spec={
+                'loss': 'minimize',
+            },
+            parameter_spec={
+                'lr': hpt.DoubleParameterSpec(min=0.001, max=0.1, scale='log'),
+                'units': hpt.IntegerParameterSpec(min=4, max=128, scale='linear'),
+                'activation': hpt.CategoricalParameterSpec(values=['relu', 'selu']),
+                'batch_size': hpt.DiscreteParameterSpec(values=[128, 256], scale='linear')
+            },
+            max_trial_count=128,
+            parallel_trial_count=8,
+            labels={'my_key': 'my_value'},
+            )
+
+        hp_job.run()
+
+        print(hp_job.trials)
+        ```
+
+
+        For more information on using hyperparameter tuning please visit:
+        https://cloud.google.com/ai-platform-unified/docs/training/using-hyperparameter-tuning
+
+        Args:
+            display_name (str):
+                Required. The user-defined name of the HyperparameterTuningJob.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            custom_job (aiplatform.preview.jobs.CustomJob):
+                Required. Configured CustomJob. The worker pool spec from this custom job
+                applies to the CustomJobs created in all the trials. A persistent_resource_id can be
+                specified on the custom job to be used when running this Hyperparameter Tuning job.
+            metric_spec: Dict[str, str]
+                Required. Dictionary representing metrics to optimize. The dictionary key is the metric_id,
+                which is reported by your training job, and the dictionary value is the
+                optimization goal of the metric('minimize' or 'maximize'). example:
+
+                metric_spec = {'loss': 'minimize', 'accuracy': 'maximize'}
+
+            parameter_spec (Dict[str, hyperparameter_tuning._ParameterSpec]):
+                Required. Dictionary representing parameters to optimize. The dictionary key is the metric_id,
+                which is passed into your training job as a command line key word argument, and the
+                dictionary value is the parameter specification of the metric.
+
+
+                from google.cloud.aiplatform import hyperparameter_tuning as hpt
+
+                parameter_spec={
+                    'decay': hpt.DoubleParameterSpec(min=1e-7, max=1, scale='linear'),
+                    'learning_rate': hpt.DoubleParameterSpec(min=1e-7, max=1, scale='linear')
+                    'batch_size': hpt.DiscreteParamterSpec(values=[4, 8, 16, 32, 64, 128], scale='linear')
+                }
+
+                Supported parameter specifications can be found until aiplatform.hyperparameter_tuning.
+                These parameter specification are currently supported:
+                DoubleParameterSpec, IntegerParameterSpec, CategoricalParameterSpace, DiscreteParameterSpec
+
+            max_trial_count (int):
+                Required. The desired total number of Trials.
+            parallel_trial_count (int):
+                Required. The desired number of Trials to run in parallel.
+            max_failed_trial_count (int):
+                Optional. The number of failed Trials that need to be
+                seen before failing the HyperparameterTuningJob.
+                If set to 0, Vertex AI decides how many Trials
+                must fail before the whole job fails.
+            search_algorithm (str):
+                The search algorithm specified for the Study.
+                Accepts one of the following:
+                    `None` - If you do not specify an algorithm, your job uses
+                    the default Vertex AI algorithm. The default algorithm
+                    applies Bayesian optimization to arrive at the optimal
+                    solution with a more effective search over the parameter space.
+
+                    'grid' - A simple grid search within the feasible space. This
+                    option is particularly useful if you want to specify a quantity
+                    of trials that is greater than the number of points in the
+                    feasible space. In such cases, if you do not specify a grid
+                    search, the Vertex AI default algorithm may generate duplicate
+                    suggestions. To use grid search, all parameter specs must be
+                    of type `IntegerParameterSpec`, `CategoricalParameterSpace`,
+                    or `DiscreteParameterSpec`.
+
+                    'random' - A simple random search within the feasible space.
+            measurement_selection (str):
+                This indicates which measurement to use if/when the service
+                automatically selects the final measurement from previously reported
+                intermediate measurements.
+
+                Accepts: 'best', 'last'
+
+                Choose this based on two considerations:
+                A) Do you expect your measurements to monotonically improve? If so,
+                choose 'last'. On the other hand, if you're in a situation
+                where your system can "over-train" and you expect the performance to
+                get better for a while but then start declining, choose
+                'best'. B) Are your measurements significantly noisy
+                and/or irreproducible? If so, 'best' will tend to be
+                over-optimistic, and it may be better to choose 'last'. If
+                both or neither of (A) and (B) apply, it doesn't matter which
+                selection type is chosen.
+            project (str):
+                Optional. Project to run the HyperparameterTuningjob in. Overrides project set in aiplatform.init.
+            location (str):
+                Optional. Location to run the HyperparameterTuning in. Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to run call HyperparameterTuning service. Overrides
+                credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize HyperparameterTuningJobs.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            encryption_spec_key_name (str):
+                Optional. Customer-managed encryption key options for a
+                HyperparameterTuningJob. If this is set, then
+                all resources created by the
+                HyperparameterTuningJob will be encrypted with
+                the provided encryption key.
+        """
+
+        super(jobs.HyperparameterTuningJob, self).__init__(
+            project=project, location=location, credentials=credentials
+        )
+
+        metrics = [
+            study_v1beta1.StudySpec.MetricSpec(metric_id=metric_id, goal=goal.upper())
+            for metric_id, goal in metric_spec.items()
+        ]
+
+        parameters = [
+            parameter._to_parameter_spec_v1beta1(parameter_id=parameter_id)
+            for parameter_id, parameter in parameter_spec.items()
+        ]
+
+        study_spec = study_v1beta1.StudySpec(
+            metrics=metrics,
+            parameters=parameters,
+            algorithm=hyperparameter_tuning.SEARCH_ALGORITHM_TO_PROTO_VALUE[
+                search_algorithm
+            ],
+            measurement_selection_type=hyperparameter_tuning.MEASUREMENT_SELECTION_TO_PROTO_VALUE[
+                measurement_selection
+            ],
+        )
+
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
+
+        self._gca_resource = (
+            gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
+                display_name=display_name,
+                study_spec=study_spec,
+                max_trial_count=max_trial_count,
+                parallel_trial_count=parallel_trial_count,
+                max_failed_trial_count=max_failed_trial_count,
+                trial_job_spec=copy.deepcopy(custom_job.job_spec),
+                labels=labels,
+                encryption_spec=initializer.global_config.get_encryption_spec(
+                    encryption_spec_key_name=encryption_spec_key_name,
+                    select_version=compat.V1BETA1,
+                ),
+            )
+        )
+
+    def _get_gca_resource(
+        self,
+        resource_name: str,
+        parent_resource_name_fields: Optional[Dict[str, str]] = None,
+    ) -> proto.Message:
+        """Returns GAPIC service representation of client class resource.
+
+        Args:
+            resource_name (str): Required. A fully-qualified resource name or ID.
+            parent_resource_name_fields (Dict[str,str]):
+                Optional. Mapping of parent resource name key to values. These
+                will be used to compose the resource name if only resource ID is given.
+                Should not include project and location.
+        """
+        resource_name = utils.full_resource_name(
+            resource_name=resource_name,
+            resource_noun=self._resource_noun,
+            parse_resource_name_method=self._parse_resource_name,
+            format_resource_name_method=self._format_resource_name,
+            project=self.project,
+            location=self.location,
+            parent_resource_name_fields=parent_resource_name_fields,
+            resource_id_validator=self._resource_id_validator,
+        )
+
+        return getattr(self.api_client.select_version("v1beta1"), self._getter_method)(
+            name=resource_name, retry=_DEFAULT_RETRY
+        )
+
+    @base.optional_sync()
+    def _run(
+        self,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        timeout: Optional[int] = None,  # seconds
+        restart_job_on_worker_restart: bool = False,
+        enable_web_access: bool = False,
+        tensorboard: Optional[str] = None,
+        sync: bool = True,
+        create_request_timeout: Optional[float] = None,
+        disable_retries: bool = False,
+    ) -> None:
+        """Helper method to ensure network synchronization and to run the configured CustomJob.
+
+        Args:
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+            timeout (int):
+                Optional. The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
+            enable_web_access (bool):
+                Whether you want Vertex AI to enable interactive shell access
+                to training containers.
+                https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            tensorboard (str):
+                Optional. The name of a Vertex AI
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following Vertex AI environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will unblock and it will be executed in a concurrent Future.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+            disable_retries (bool):
+                Indicates if the job should retry for internal errors after the
+                job starts running. If True, overrides
+                `restart_job_on_worker_restart` to False.
+        """
+        if service_account:
+            self._gca_resource.trial_job_spec.service_account = service_account
+
+        if network:
+            self._gca_resource.trial_job_spec.network = network
+
+        if timeout or restart_job_on_worker_restart or disable_retries:
+            duration = duration_pb2.Duration(seconds=timeout) if timeout else None
+            self._gca_resource.trial_job_spec.scheduling = (
+                gca_custom_job_compat.Scheduling(
+                    timeout=duration,
+                    restart_job_on_worker_restart=restart_job_on_worker_restart,
+                    disable_retries=disable_retries,
+                )
+            )
+
+        if enable_web_access:
+            self._gca_resource.trial_job_spec.enable_web_access = enable_web_access
+
+        if tensorboard:
+            self._gca_resource.trial_job_spec.tensorboard = tensorboard
+
+        _LOGGER.log_create_with_lro(self.__class__)
+
+        self._gca_resource = self.api_client.select_version(
+            "v1beta1"
+        ).create_hyperparameter_tuning_job(
+            parent=self._parent,
+            hyperparameter_tuning_job=self._gca_resource,
+            timeout=create_request_timeout,
+        )
+
+        _LOGGER.log_create_complete_with_getter(
+            self.__class__, self._gca_resource, "hpt_job"
+        )
+
+        _LOGGER.info("View HyperparameterTuningJob:\n%s" % self._dashboard_uri())
+
+        if tensorboard:
+            _LOGGER.info(
+                "View Tensorboard:\n%s"
+                % console_utils.custom_job_tensorboard_console_uri(
+                    tensorboard, self.resource_name
+                )
+            )
+
+        self._block_until_complete()

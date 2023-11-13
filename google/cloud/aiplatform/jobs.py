@@ -2036,7 +2036,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         return self._gca_resource.job_spec
 
 
-class HyperparameterTuningJob(_RunnableJob):
+class HyperparameterTuningJob(_RunnableJob, base.PreviewMixin):
     """Vertex AI Hyperparameter Tuning Job."""
 
     _resource_noun = "hyperparameterTuningJobs"
@@ -2047,6 +2047,9 @@ class HyperparameterTuningJob(_RunnableJob):
     _parse_resource_name_method = "parse_hyperparameter_tuning_job_path"
     _format_resource_name_method = "hyperparameter_tuning_job_path"
     _job_type = "training"
+    _preview_class = (
+        "google.cloud.aiplatform.aiplatform.preview.jobs.HyperparameterTuningJob"
+    )
 
     def __init__(
         self,
