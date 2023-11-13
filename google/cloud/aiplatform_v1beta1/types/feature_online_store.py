@@ -177,7 +177,7 @@ class FeatureOnlineStore(proto.Message):
         )
 
     class Optimized(proto.Message):
-        r"""Optimized storage type to replace lightning"""
+        r"""Optimized storage type"""
 
     class DedicatedServingEndpoint(proto.Message):
         r"""The dedicated serving endpoint for this FeatureOnlineStore.

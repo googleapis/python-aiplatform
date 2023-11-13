@@ -35,6 +35,8 @@ __protobuf__ = proto.module(
         "StreamingPredictResponse",
         "ExplainRequest",
         "ExplainResponse",
+        "CountTokensRequest",
+        "CountTokensResponse",
     },
 )
 
@@ -350,6 +352,53 @@ class ExplainResponse(proto.Message):
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Value,
+    )
+
+
+class CountTokensRequest(proto.Message):
+    r"""Request message for [PredictionService.CountTokens][].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to perform
+            token counting. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        instances (MutableSequence[google.protobuf.struct_pb2.Value]):
+            Required. The instances that are the input to
+            token counting call. Schema is identical to the
+            prediction schema of the underlying model.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    instances: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=struct_pb2.Value,
+    )
+
+
+class CountTokensResponse(proto.Message):
+    r"""Response message for [PredictionService.CountTokens][].
+
+    Attributes:
+        total_tokens (int):
+            The total number of tokens counted across all
+            instances from the request.
+        total_billable_characters (int):
+            The total number of billable characters
+            counted across all instances from the request.
+    """
+
+    total_tokens: int = proto.Field(
+        proto.INT32,
+        number=1,
+    )
+    total_billable_characters: int = proto.Field(
+        proto.INT32,
+        number=2,
     )
 
 

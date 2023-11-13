@@ -351,7 +351,7 @@ class ExplainResponse(proto.Message):
             to be explained.
         concurrent_explanations (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ExplainResponse.ConcurrentExplanation]):
             This field stores the results of the
-            explanations run in parallel with the default
+            explanations run in parallel with The default
             explanation strategy/method.
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that

@@ -59,6 +59,7 @@ from google.oauth2 import service_account
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.protobuf import wrappers_pb2  # type: ignore
 import google.auth
 
 

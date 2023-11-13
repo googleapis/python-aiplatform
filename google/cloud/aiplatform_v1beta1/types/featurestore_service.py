@@ -1123,7 +1123,12 @@ class CreateFeatureRequest(proto.Message):
 
     Attributes:
         parent (str):
-
+            Required. The resource name of the EntityType or
+            FeatureGroup to create a Feature. Format for entity_type as
+            parent:
+            ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+            Format for feature_group as parent:
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
         feature (google.cloud.aiplatform_v1beta1.types.Feature):
             Required. The Feature to create.
         feature_id (str):
@@ -1204,8 +1209,10 @@ class GetFeatureRequest(proto.Message):
 
     Attributes:
         name (str):
-            Required. The name of the Feature resource. Format:
+            Required. The name of the Feature resource. Format for
+            entity_type as parent:
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+            Format for feature_group as parent:
             ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
     """
 
@@ -1224,8 +1231,9 @@ class ListFeaturesRequest(proto.Message):
     Attributes:
         parent (str):
             Required. The resource name of the Location to list
-            Features. Format:
+            Features. Format for entity_type as parent:
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+            Format for feature_group as parent:
             ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
         filter (str):
             Lists the Features that match the filter expression. The
@@ -1260,10 +1268,14 @@ class ListFeaturesRequest(proto.Message):
         page_token (str):
             A page token, received from a previous
             [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures]
+            call or
+            [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatures]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
             [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures]
+            or or
+            [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatures]
             must match the call that provided the page token.
         order_by (str):
             A comma-separated list of fields to order by, sorted in
@@ -1278,7 +1290,8 @@ class ListFeaturesRequest(proto.Message):
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
         latest_stats_count (int):
-            If set, return the most recent
+            Only applicable for Vertex AI Feature Store (Legacy). If
+            set, return the most recent
             [ListFeaturesRequest.latest_stats_count][google.cloud.aiplatform.v1beta1.ListFeaturesRequest.latest_stats_count]
             of stats for each Feature in response. Valid value is [0,
             10]. If number of stats exists <
@@ -1523,7 +1536,8 @@ class UpdateFeatureRequest(proto.Message):
 
             -  ``description``
             -  ``labels``
-            -  ``disable_monitoring``
+            -  ``disable_monitoring`` (Not supported for FeatureRegistry
+               Feature)
     """
 
     feature: gca_feature.Feature = proto.Field(
