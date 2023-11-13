@@ -39,11 +39,7 @@ async def sample_update_feature():
     client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
     # Initialize request argument(s)
-    feature = aiplatform_v1.Feature()
-    feature.value_type = "BYTES"
-
     request = aiplatform_v1.UpdateFeatureRequest(
-        feature=feature,
     )
 
     # Make the request

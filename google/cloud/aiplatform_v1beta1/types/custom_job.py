@@ -249,6 +249,13 @@ class CustomJobSpec(proto.Message):
                ``<base_output_directory>/<trial_id>/checkpoints/``
             -  AIP_TENSORBOARD_LOG_DIR =
                ``<base_output_directory>/<trial_id>/logs/``
+        protected_artifact_location_id (str):
+            The ID of the location to store protected
+            artifacts. e.g. us-central1. Populate only when
+            the location is different than CustomJob
+            location. List of supported locations:
+
+            https://cloud.google.com/vertex-ai/docs/general/locations
         tensorboard (str):
             Optional. The name of a Vertex AI
             [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -318,6 +325,10 @@ class CustomJobSpec(proto.Message):
         proto.MESSAGE,
         number=6,
         message=io.GcsDestination,
+    )
+    protected_artifact_location_id: str = proto.Field(
+        proto.STRING,
+        number=19,
     )
     tensorboard: str = proto.Field(
         proto.STRING,

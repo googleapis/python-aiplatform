@@ -214,12 +214,14 @@ from .feature_online_store_admin_service import (
     UpdateFeatureViewRequest,
 )
 from .feature_online_store_service import (
+    FeatureViewDataKey,
     FetchFeatureValuesRequest,
     FetchFeatureValuesResponse,
     NearestNeighborQuery,
     NearestNeighbors,
     SearchNearestEntitiesRequest,
     SearchNearestEntitiesResponse,
+    FeatureViewDataFormat,
 )
 from .feature_registry_service import (
     CreateFeatureGroupOperationMetadata,
@@ -605,6 +607,8 @@ from .pipeline_job import (
     PipelineTemplateMetadata,
 )
 from .pipeline_service import (
+    BatchDeletePipelineJobsRequest,
+    BatchDeletePipelineJobsResponse,
     CancelPipelineJobRequest,
     CancelTrainingPipelineRequest,
     CreatePipelineJobRequest,
@@ -668,6 +672,7 @@ from .study import (
     Measurement,
     Study,
     StudySpec,
+    StudyTimeConstraint,
     Trial,
     TrialContext,
 )
@@ -929,12 +934,14 @@ __all__ = (
     "UpdateFeatureOnlineStoreRequest",
     "UpdateFeatureViewOperationMetadata",
     "UpdateFeatureViewRequest",
+    "FeatureViewDataKey",
     "FetchFeatureValuesRequest",
     "FetchFeatureValuesResponse",
     "NearestNeighborQuery",
     "NearestNeighbors",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
+    "FeatureViewDataFormat",
     "CreateFeatureGroupOperationMetadata",
     "CreateFeatureGroupRequest",
     "CreateRegistryFeatureOperationMetadata",
@@ -1248,6 +1255,8 @@ __all__ = (
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
     "PipelineTemplateMetadata",
+    "BatchDeletePipelineJobsRequest",
+    "BatchDeletePipelineJobsResponse",
     "CancelPipelineJobRequest",
     "CancelTrainingPipelineRequest",
     "CreatePipelineJobRequest",
@@ -1294,6 +1303,7 @@ __all__ = (
     "Measurement",
     "Study",
     "StudySpec",
+    "StudyTimeConstraint",
     "Trial",
     "TrialContext",
     "Tensorboard",

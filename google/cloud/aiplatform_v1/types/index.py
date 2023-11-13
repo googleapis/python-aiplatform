@@ -211,6 +211,12 @@ class IndexDatapoint(proto.Message):
             categorical tokens. See:
 
             https://cloud.google.com/vertex-ai/docs/matching-engine/filtering
+        numeric_restricts (MutableSequence[google.cloud.aiplatform_v1.types.IndexDatapoint.NumericRestriction]):
+            Optional. List of Restrict of the datapoint,
+            used to perform "restricted searches" where
+            boolean rule are used to filter the subset of
+            the database eligible for matching. This uses
+            numeric comparisons.
         crowding_tag (google.cloud.aiplatform_v1.types.IndexDatapoint.CrowdingTag):
             Optional. CrowdingTag of the datapoint, the
             number of neighbors to return in each crowding
@@ -247,6 +253,96 @@ class IndexDatapoint(proto.Message):
             number=3,
         )
 
+    class NumericRestriction(proto.Message):
+        r"""This field allows restricts to be based on numeric
+        comparisons rather than categorical tokens.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            value_int (int):
+                Represents 64 bit integer.
+
+                This field is a member of `oneof`_ ``Value``.
+            value_float (float):
+                Represents 32 bit float.
+
+                This field is a member of `oneof`_ ``Value``.
+            value_double (float):
+                Represents 64 bit float.
+
+                This field is a member of `oneof`_ ``Value``.
+            namespace (str):
+                The namespace of this restriction. e.g.:
+                cost.
+            op (google.cloud.aiplatform_v1.types.IndexDatapoint.NumericRestriction.Operator):
+                This MUST be specified for queries and must
+                NOT be specified for datapoints.
+        """
+
+        class Operator(proto.Enum):
+            r"""Which comparison operator to use.  Should be specified for
+            queries only; specifying this for a datapoint is an error.
+
+            Datapoints for which Operator is true relative to the query's
+            Value field will be allowlisted.
+
+            Values:
+                OPERATOR_UNSPECIFIED (0):
+                    Default value of the enum.
+                LESS (1):
+                    Datapoints are eligible iff their value is <
+                    the query's.
+                LESS_EQUAL (2):
+                    Datapoints are eligible iff their value is <=
+                    the query's.
+                EQUAL (3):
+                    Datapoints are eligible iff their value is ==
+                    the query's.
+                GREATER_EQUAL (4):
+                    Datapoints are eligible iff their value is >=
+                    the query's.
+                GREATER (5):
+                    Datapoints are eligible iff their value is >
+                    the query's.
+            """
+            OPERATOR_UNSPECIFIED = 0
+            LESS = 1
+            LESS_EQUAL = 2
+            EQUAL = 3
+            GREATER_EQUAL = 4
+            GREATER = 5
+
+        value_int: int = proto.Field(
+            proto.INT64,
+            number=2,
+            oneof="Value",
+        )
+        value_float: float = proto.Field(
+            proto.FLOAT,
+            number=3,
+            oneof="Value",
+        )
+        value_double: float = proto.Field(
+            proto.DOUBLE,
+            number=4,
+            oneof="Value",
+        )
+        namespace: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        op: "IndexDatapoint.NumericRestriction.Operator" = proto.Field(
+            proto.ENUM,
+            number=5,
+            enum="IndexDatapoint.NumericRestriction.Operator",
+        )
+
     class CrowdingTag(proto.Message):
         r"""Crowding tag is a constraint on a neighbor list produced by nearest
         neighbor search requiring that no more than some value k' of the k
@@ -279,6 +375,11 @@ class IndexDatapoint(proto.Message):
         proto.MESSAGE,
         number=4,
         message=Restriction,
+    )
+    numeric_restricts: MutableSequence[NumericRestriction] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=6,
+        message=NumericRestriction,
     )
     crowding_tag: CrowdingTag = proto.Field(
         proto.MESSAGE,

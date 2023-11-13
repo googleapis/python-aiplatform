@@ -948,6 +948,12 @@ class FeatureRegistryServiceAsyncClient:
                 Request message for
                 [FeatureRegistryService.CreateFeature][google.cloud.aiplatform.v1beta1.FeatureRegistryService.CreateFeature].
             parent (:class:`str`):
+                Required. The resource name of the EntityType or
+                FeatureGroup to create a Feature. Format for entity_type
+                as parent:
+                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                Format for feature_group as parent:
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -982,9 +988,9 @@ class FeatureRegistryServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.Feature` Feature Metadata information that describes an attribute of an entity type.
-                   For example, apple is an entity type, and color is a
-                   feature that describes apple.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.Feature` Feature Metadata information.
+                   For example, color is a feature that describes an
+                   apple.
 
         """
         # Create or coerce a protobuf request object.
@@ -1085,8 +1091,10 @@ class FeatureRegistryServiceAsyncClient:
                 Request message for
                 [FeatureRegistryService.GetFeature][google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeature].
             name (:class:`str`):
-                Required. The name of the Feature resource. Format:
+                Required. The name of the Feature resource. Format for
+                entity_type as parent:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                Format for feature_group as parent:
                 ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``name`` field
@@ -1100,11 +1108,9 @@ class FeatureRegistryServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1beta1.types.Feature:
-                Feature Metadata information that
-                describes an attribute of an entity
-                type. For example, apple is an entity
-                type, and color is a feature that
-                describes apple.
+                Feature Metadata information.
+                For example, color is a feature that
+                describes an apple.
 
         """
         # Create or coerce a protobuf request object.
@@ -1195,8 +1201,9 @@ class FeatureRegistryServiceAsyncClient:
                 [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatures].
             parent (:class:`str`):
                 Required. The resource name of the Location to list
-                Features. Format:
+                Features. Format for entity_type as parent:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                Format for feature_group as parent:
                 ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``parent`` field
@@ -1342,7 +1349,8 @@ class FeatureRegistryServiceAsyncClient:
 
                 -  ``description``
                 -  ``labels``
-                -  ``disable_monitoring``
+                -  ``disable_monitoring`` (Not supported for
+                   FeatureRegistry Feature)
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1357,9 +1365,9 @@ class FeatureRegistryServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.Feature` Feature Metadata information that describes an attribute of an entity type.
-                   For example, apple is an entity type, and color is a
-                   feature that describes apple.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.Feature` Feature Metadata information.
+                   For example, color is a feature that describes an
+                   apple.
 
         """
         # Create or coerce a protobuf request object.

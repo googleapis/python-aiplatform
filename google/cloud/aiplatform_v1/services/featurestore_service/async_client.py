@@ -1587,12 +1587,8 @@ class FeaturestoreServiceAsyncClient:
                 client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
-                feature = aiplatform_v1.Feature()
-                feature.value_type = "BYTES"
-
                 request = aiplatform_v1.CreateFeatureRequest(
                     parent="parent_value",
-                    feature=feature,
                     feature_id="feature_id_value",
                 )
 
@@ -1610,10 +1606,15 @@ class FeaturestoreServiceAsyncClient:
             request (Optional[Union[google.cloud.aiplatform_v1.types.CreateFeatureRequest, dict]]):
                 The request object. Request message for
                 [FeaturestoreService.CreateFeature][google.cloud.aiplatform.v1.FeaturestoreService.CreateFeature].
+                Request message for
+                [FeatureRegistryService.CreateFeature][google.cloud.aiplatform.v1.FeatureRegistryService.CreateFeature].
             parent (:class:`str`):
-                Required. The resource name of the EntityType to create
-                a Feature. Format:
+                Required. The resource name of the EntityType or
+                FeatureGroup to create a Feature. Format for entity_type
+                as parent:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                Format for feature_group as parent:
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1632,7 +1633,8 @@ class FeaturestoreServiceAsyncClient:
                 characters are ``[a-z0-9_]``. The first character cannot
                 be a number.
 
-                The value must be unique within an EntityType.
+                The value must be unique within an
+                EntityType/FeatureGroup.
 
                 This corresponds to the ``feature_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1647,9 +1649,9 @@ class FeaturestoreServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Feature` Feature Metadata information that describes an attribute of an entity type.
-                   For example, apple is an entity type, and color is a
-                   feature that describes apple.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Feature` Feature Metadata information.
+                   For example, color is a feature that describes an
+                   apple.
 
         """
         # Create or coerce a protobuf request object.
@@ -1740,7 +1742,6 @@ class FeaturestoreServiceAsyncClient:
                 # Initialize request argument(s)
                 requests = aiplatform_v1.CreateFeatureRequest()
                 requests.parent = "parent_value"
-                requests.feature.value_type = "BYTES"
                 requests.feature_id = "feature_id_value"
 
                 request = aiplatform_v1.BatchCreateFeaturesRequest(
@@ -1888,9 +1889,14 @@ class FeaturestoreServiceAsyncClient:
             request (Optional[Union[google.cloud.aiplatform_v1.types.GetFeatureRequest, dict]]):
                 The request object. Request message for
                 [FeaturestoreService.GetFeature][google.cloud.aiplatform.v1.FeaturestoreService.GetFeature].
+                Request message for
+                [FeatureRegistryService.GetFeature][google.cloud.aiplatform.v1.FeatureRegistryService.GetFeature].
             name (:class:`str`):
-                Required. The name of the Feature resource. Format:
+                Required. The name of the Feature resource. Format for
+                entity_type as parent:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                Format for feature_group as parent:
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1903,11 +1909,9 @@ class FeaturestoreServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1.types.Feature:
-                Feature Metadata information that
-                describes an attribute of an entity
-                type. For example, apple is an entity
-                type, and color is a feature that
-                describes apple.
+                Feature Metadata information.
+                For example, color is a feature that
+                describes an apple.
 
         """
         # Create or coerce a protobuf request object.
@@ -1994,10 +1998,14 @@ class FeaturestoreServiceAsyncClient:
             request (Optional[Union[google.cloud.aiplatform_v1.types.ListFeaturesRequest, dict]]):
                 The request object. Request message for
                 [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1.FeaturestoreService.ListFeatures].
+                Request message for
+                [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1.FeatureRegistryService.ListFeatures].
             parent (:class:`str`):
                 Required. The resource name of the Location to list
-                Features. Format:
+                Features. Format for entity_type as parent:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                Format for feature_group as parent:
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2012,6 +2020,8 @@ class FeaturestoreServiceAsyncClient:
             google.cloud.aiplatform_v1.services.featurestore_service.pagers.ListFeaturesAsyncPager:
                 Response message for
                    [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1.FeaturestoreService.ListFeatures].
+                   Response message for
+                   [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1.FeatureRegistryService.ListFeatures].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2098,11 +2108,7 @@ class FeaturestoreServiceAsyncClient:
                 client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
-                feature = aiplatform_v1.Feature()
-                feature.value_type = "BYTES"
-
                 request = aiplatform_v1.UpdateFeatureRequest(
-                    feature=feature,
                 )
 
                 # Make the request
@@ -2115,10 +2121,13 @@ class FeaturestoreServiceAsyncClient:
             request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateFeatureRequest, dict]]):
                 The request object. Request message for
                 [FeaturestoreService.UpdateFeature][google.cloud.aiplatform.v1.FeaturestoreService.UpdateFeature].
+                Request message for
+                [FeatureRegistryService.UpdateFeature][google.cloud.aiplatform.v1.FeatureRegistryService.UpdateFeature].
             feature (:class:`google.cloud.aiplatform_v1.types.Feature`):
                 Required. The Feature's ``name`` field is used to
                 identify the Feature to be updated. Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}``
 
                 This corresponds to the ``feature`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2137,7 +2146,8 @@ class FeaturestoreServiceAsyncClient:
 
                 -  ``description``
                 -  ``labels``
-                -  ``disable_monitoring``
+                -  ``disable_monitoring`` (Not supported for
+                   FeatureRegistry Feature)
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2150,11 +2160,9 @@ class FeaturestoreServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1.types.Feature:
-                Feature Metadata information that
-                describes an attribute of an entity
-                type. For example, apple is an entity
-                type, and color is a feature that
-                describes apple.
+                Feature Metadata information.
+                For example, color is a feature that
+                describes an apple.
 
         """
         # Create or coerce a protobuf request object.
@@ -2250,10 +2258,13 @@ class FeaturestoreServiceAsyncClient:
             request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteFeatureRequest, dict]]):
                 The request object. Request message for
                 [FeaturestoreService.DeleteFeature][google.cloud.aiplatform.v1.FeaturestoreService.DeleteFeature].
+                Request message for
+                [FeatureRegistryService.DeleteFeature][google.cloud.aiplatform.v1.FeatureRegistryService.DeleteFeature].
             name (:class:`str`):
                 Required. The name of the Features to be deleted.
                 Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
