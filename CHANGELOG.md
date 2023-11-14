@@ -7,6 +7,7 @@
 
 * Add option to not use default tensorboard ([a25c669](https://github.com/googleapis/python-aiplatform/commit/a25c6697d75444e4134ac0b9ca8964458f70e275))
 * Add preview HyperparameterTuningJob which can be run on persistent resource ([0da8c53](https://github.com/googleapis/python-aiplatform/commit/0da8c5373b35d9bc7520e93934b109c3ff583dac))
+* Add Featurestore Bigtable Serving, Feature Registry v1, November bulk GAPIC release ([9f46f7c](https://www.google.com/url?sa=D&q=https%3A%2F%2Fgithub.com%2Fgoogleapis%2Fpython-aiplatform%2Fcommit%2F9f46f7c4289e78fb825837f602aecd4105f21e19))
 
 
 ### Documentation
