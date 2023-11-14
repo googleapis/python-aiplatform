@@ -495,6 +495,7 @@ from .model import (
     ModelSourceInfo,
     Port,
     PredictSchemata,
+    Probe,
 )
 from .model_deployment_monitoring_job import (
     ModelDeploymentMonitoringBigQueryTable,
@@ -1132,6 +1133,7 @@ __all__ = (
     "ModelSourceInfo",
     "Port",
     "PredictSchemata",
+    "Probe",
     "ModelDeploymentMonitoringBigQueryTable",
     "ModelDeploymentMonitoringJob",
     "ModelDeploymentMonitoringObjectiveConfig",

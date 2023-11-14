@@ -448,6 +448,7 @@ from .types.model import ModelContainerSpec
 from .types.model import ModelSourceInfo
 from .types.model import Port
 from .types.model import PredictSchemata
+from .types.model import Probe
 from .types.model_deployment_monitoring_job import (
     ModelDeploymentMonitoringBigQueryTable,
 )
@@ -1131,6 +1132,7 @@ __all__ = (
     "Presets",
     "PrivateEndpoints",
     "PrivateServiceConnectConfig",
+    "Probe",
     "PublisherModel",
     "PublisherModelView",
     "PurgeArtifactsMetadata",
