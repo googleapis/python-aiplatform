@@ -465,6 +465,19 @@ def mock_create_tensorboard(mock_tensorboard):
 
 
 @pytest.fixture
+def mock_get_tensorboard(mock_tensorboard):
+    with patch.object(aiplatform, "Tensorboard") as mock_get_tensorboard:
+        mock_get_tensorboard.return_value = mock_tensorboard
+        yield mock_get_tensorboard
+
+
+@pytest.fixture
+def mock_tensorboard_delete(mock_tensorboard):
+    with patch.object(mock_tensorboard, "delete") as mock_tensorboard_delete:
+        yield mock_tensorboard_delete
+
+
+@pytest.fixture
 def mock_tensorboard_uploader_onetime():
     with patch.object(aiplatform, "upload_tb_log") as mock_tensorboard_uploader_onetime:
         mock_tensorboard_uploader_onetime.return_value = None
