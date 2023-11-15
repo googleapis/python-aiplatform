@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.36.3](https://github.com/googleapis/python-aiplatform/compare/v1.36.2...v1.36.3) (2023-11-14)
+
+
+### Features
+
+* Add option to not use default tensorboard ([a25c669](https://github.com/googleapis/python-aiplatform/commit/a25c6697d75444e4134ac0b9ca8964458f70e275))
+* Add preview HyperparameterTuningJob which can be run on persistent resource ([0da8c53](https://github.com/googleapis/python-aiplatform/commit/0da8c5373b35d9bc7520e93934b109c3ff583dac))
+* Add Featurestore Bigtable Serving, Feature Registry v1, November bulk GAPIC release ([9f46f7c](https://www.google.com/url?sa=D&q=https%3A%2F%2Fgithub.com%2Fgoogleapis%2Fpython-aiplatform%2Fcommit%2F9f46f7c4289e78fb825837f602aecd4105f21e19))
+
+
+### Documentation
+
+* Fix documentation for obsolete link to GCS formatting ([95184de](https://github.com/googleapis/python-aiplatform/commit/95184de2570636e4ee0968dbcfb48c37f811e12f))
+
+
+### Miscellaneous Chores
+
+* Release 1.36.3 ([fdee5cb](https://github.com/googleapis/python-aiplatform/commit/fdee5cb1779344731b4cab0482079691601154d7))
+
 ## [1.36.2](https://github.com/googleapis/python-aiplatform/compare/v1.36.1...v1.36.2) (2023-11-10)
 
 

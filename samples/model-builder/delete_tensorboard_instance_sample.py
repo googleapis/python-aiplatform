@@ -12,31 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
+
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_tensorboard_sample]
-def create_tensorboard_sample(
+#  [START aiplatform_sdk_delete_tensorboard_instance_sample]
+def delete_tensorboard_instance_sample(
+    tensorboard_resource_name: str,
     project: str,
     location: str,
-    display_name: Optional[str] = None,
 ):
     aiplatform.init(project=project, location=location)
 
-    tensorboard = aiplatform.Tensorboard.create(
-        display_name=display_name,
-        project=project,
-        location=location,
+    tensorboard = aiplatform.Tensorboard(
+        tensorboard_name=tensorboard_resource_name
     )
 
-    aiplatform.init(
-        project=project,
-        location=location,
-        experiment_tensorboard=tensorboard
-    )
-
-    return tensorboard
+    tensorboard.delete()
 
 
-#  [END aiplatform_sdk_create_tensorboard_sample]
+#  [END aiplatform_sdk_delete_tensorboard_instance_sample]

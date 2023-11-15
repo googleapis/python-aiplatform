@@ -20,7 +20,10 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import proto
 
-from google.cloud.aiplatform.compat.types import study as gca_study_compat
+from google.cloud.aiplatform.compat.types import (
+    study_v1beta1 as gca_study_compat_v1beta1,
+    study as gca_study_compat,
+)
 
 SEARCH_ALGORITHM_TO_PROTO_VALUE = {
     "random": gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
@@ -91,6 +94,46 @@ class _ParameterSpec(metaclass=abc.ABCMeta):
             )
         return proto_parameter_value_spec
 
+    @property
+    def _proto_parameter_value_spec_v1beta1(self) -> proto.Message:
+        """Converts this parameter to it's parameter value representation."""
+        if isinstance(
+            self._proto_parameter_value_class(),
+            gca_study_compat.StudySpec.ParameterSpec.DoubleValueSpec,
+        ):
+            proto_parameter_value_spec = (
+                gca_study_compat_v1beta1.StudySpec.ParameterSpec.DoubleValueSpec()
+            )
+        elif isinstance(
+            self._proto_parameter_value_class(),
+            gca_study_compat.StudySpec.ParameterSpec.IntegerValueSpec,
+        ):
+            proto_parameter_value_spec = (
+                gca_study_compat_v1beta1.StudySpec.ParameterSpec.IntegerValueSpec()
+            )
+        elif isinstance(
+            self._proto_parameter_value_class(),
+            gca_study_compat.StudySpec.ParameterSpec.CategoricalValueSpec,
+        ):
+            proto_parameter_value_spec = (
+                gca_study_compat_v1beta1.StudySpec.ParameterSpec.CategoricalValueSpec()
+            )
+        elif isinstance(
+            self._proto_parameter_value_class(),
+            gca_study_compat.StudySpec.ParameterSpec.DiscreteValueSpec,
+        ):
+            proto_parameter_value_spec = (
+                gca_study_compat_v1beta1.StudySpec.ParameterSpec.DiscreteValueSpec()
+            )
+        else:
+            proto_parameter_value_spec = self._proto_parameter_value_class()
+
+        for self_attr_key, proto_attr_key in self._parameter_value_map:
+            setattr(
+                proto_parameter_value_spec, proto_attr_key, getattr(self, self_attr_key)
+            )
+        return proto_parameter_value_spec
+
     def _to_parameter_spec(
         self, parameter_id: str
     ) -> gca_study_compat.StudySpec.ParameterSpec:
@@ -125,6 +168,46 @@ class _ParameterSpec(metaclass=abc.ABCMeta):
             parameter_spec,
             self._parameter_spec_value_key,
             self._proto_parameter_value_spec,
+        )
+
+        return parameter_spec
+
+    def _to_parameter_spec_v1beta1(
+        self, parameter_id: str
+    ) -> gca_study_compat_v1beta1.StudySpec.ParameterSpec:
+        """Converts this parameter to ParameterSpec."""
+        conditions = []
+        if self.conditional_parameter_spec is not None:
+            for (conditional_param_id, spec) in self.conditional_parameter_spec.items():
+                condition = (
+                    gca_study_compat_v1beta1.StudySpec.ParameterSpec.ConditionalParameterSpec()
+                )
+                if self._parameter_spec_value_key == _INT_VALUE_SPEC:
+                    condition.parent_int_values = gca_study_compat_v1beta1.StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition(
+                        values=spec.parent_values
+                    )
+                elif self._parameter_spec_value_key == _CATEGORICAL_VALUE_SPEC:
+                    condition.parent_categorical_values = gca_study_compat_v1beta1.StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition(
+                        values=spec.parent_values
+                    )
+                elif self._parameter_spec_value_key == _DISCRETE_VALUE_SPEC:
+                    condition.parent_discrete_values = gca_study_compat_v1beta1.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition(
+                        values=spec.parent_values
+                    )
+                condition.parameter_spec = spec._to_parameter_spec_v1beta1(
+                    conditional_param_id
+                )
+                conditions.append(condition)
+        parameter_spec = gca_study_compat_v1beta1.StudySpec.ParameterSpec(
+            parameter_id=parameter_id,
+            scale_type=_SCALE_TYPE_MAP.get(getattr(self, "scale", "unspecified")),
+            conditional_parameter_specs=conditions,
+        )
+
+        setattr(
+            parameter_spec,
+            self._parameter_spec_value_key,
+            self._proto_parameter_value_spec_v1beta1,
         )
 
         return parameter_spec
