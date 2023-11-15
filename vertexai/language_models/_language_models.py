@@ -25,6 +25,7 @@ from typing import (
     Literal,
     Optional,
     Sequence,
+    Tuple,
     Union,
 )
 import warnings
@@ -859,6 +860,9 @@ class TextGenerationResponse:
     Attributes:
         text: The generated text
         is_blocked: Whether the the request was blocked.
+        errors: The error codes indicate why the response was blocked.
+            Learn more information about safety errors here:
+            this documentation https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_errors
         safety_attributes: Scores for safety attributes.
             Learn more about the safety attributes here:
             https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai#safety_attribute_descriptions
@@ -870,6 +874,7 @@ class TextGenerationResponse:
     text: str
     _prediction_response: Any
     is_blocked: bool = False
+    errors: Tuple[int] = tuple()
     safety_attributes: Dict[str, float] = dataclasses.field(default_factory=dict)
     grounding_metadata: Optional[GroundingMetadata] = None
 
@@ -882,6 +887,7 @@ class TextGenerationResponse:
                 "TextGenerationResponse("
                 f"text={self.text!r}"
                 f", is_blocked={self.is_blocked!r}"
+                f", errors={self.errors!r}"
                 f", safety_attributes={self.safety_attributes!r}"
                 f", grounding_metadata={self.grounding_metadata!r}"
                 ")"
@@ -891,6 +897,7 @@ class TextGenerationResponse:
                 "TextGenerationResponse("
                 f"text={self.text!r}"
                 f", is_blocked={self.is_blocked!r}"
+                f", errors={self.errors!r}"
                 f", safety_attributes={self.safety_attributes!r}"
                 ")"
             )
@@ -1216,10 +1223,13 @@ def _parse_text_generation_model_response(
     prediction = prediction_response.predictions[prediction_idx]
     safety_attributes_dict = prediction.get("safetyAttributes", {})
     grounding_metadata_dict = prediction.get("groundingMetadata", {})
+    errors_list = safety_attributes_dict.get("errors", [])
+    errors = tuple(map(int, errors_list))
     return TextGenerationResponse(
         text=prediction["content"],
         _prediction_response=prediction_response,
         is_blocked=safety_attributes_dict.get("blocked", False),
+        errors=errors,
         safety_attributes=dict(
             zip(
                 safety_attributes_dict.get("categories") or [],
@@ -1251,6 +1261,7 @@ def _parse_text_generation_model_multi_candidate_response(
         text=candidates[0].text,
         _prediction_response=prediction_response,
         is_blocked=candidates[0].is_blocked,
+        errors=candidates[0].errors,
         safety_attributes=candidates[0].safety_attributes,
         grounding_metadata=candidates[0].grounding_metadata,
         candidates=candidates,
@@ -2090,6 +2101,8 @@ class _ChatSessionBase:
         grounding_metadata_list = prediction.get("groundingMetadata")
         for candidate_idx in range(candidate_count):
             safety_attributes = prediction["safetyAttributes"][candidate_idx]
+            errors_list = safety_attributes.get("errors", [])
+            errors = tuple(map(int, errors_list))
             grounding_metadata_dict = {}
             if grounding_metadata_list and grounding_metadata_list[candidate_idx]:
                 grounding_metadata_dict = grounding_metadata_list[candidate_idx]
@@ -2097,6 +2110,7 @@ class _ChatSessionBase:
                 text=prediction["candidates"][candidate_idx]["content"],
                 _prediction_response=prediction_response,
                 is_blocked=safety_attributes.get("blocked", False),
+                errors=errors,
                 safety_attributes=dict(
                     zip(
                         # Unlike with normal prediction, in streaming prediction
@@ -2112,6 +2126,7 @@ class _ChatSessionBase:
             text=candidates[0].text,
             _prediction_response=prediction_response,
             is_blocked=candidates[0].is_blocked,
+            errors=candidates[0].errors,
             safety_attributes=candidates[0].safety_attributes,
             grounding_metadata=candidates[0].grounding_metadata,
             candidates=candidates,
