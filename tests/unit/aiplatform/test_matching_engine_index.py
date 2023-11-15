@@ -34,7 +34,6 @@ from google.cloud.aiplatform.compat.services import (
 
 from google.cloud.aiplatform.compat.types import (
     index as gca_index,
-    encryption_spec as gca_encryption_spec,
     index_service_v1beta1 as gca_index_service_v1beta1,
 )
 import constants as test_constants
@@ -108,8 +107,6 @@ _TEST_INDEX_UPDATE_METHOD_EXPECTED_RESULT_MAP = {
     _TEST_INDEX_INVALID_UPDATE_METHOD: None,
 }
 
-# Encryption spec
-_TEST_ENCRYPTION_SPEC_KEY_NAME = "TEST_ENCRYPTION_SPEC"
 
 # Streaming update
 _TEST_DATAPOINT_IDS = ("1", "2")
@@ -329,7 +326,6 @@ class TestMatchingEngineIndex:
             labels=_TEST_LABELS,
             sync=sync,
             index_update_method=index_update_method,
-            encryption_spec_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
         )
 
         if not sync:
@@ -358,9 +354,6 @@ class TestMatchingEngineIndex:
             index_update_method=_TEST_INDEX_UPDATE_METHOD_EXPECTED_RESULT_MAP[
                 index_update_method
             ],
-            encryption_spec=gca_encryption_spec.EncryptionSpec(
-                kms_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME
-            ),
         )
 
         create_index_mock.assert_called_once_with(
@@ -394,7 +387,6 @@ class TestMatchingEngineIndex:
             labels=_TEST_LABELS,
             sync=sync,
             index_update_method=index_update_method,
-            encryption_spec_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
         )
 
         if not sync:
@@ -418,9 +410,6 @@ class TestMatchingEngineIndex:
             index_update_method=_TEST_INDEX_UPDATE_METHOD_EXPECTED_RESULT_MAP[
                 index_update_method
             ],
-            encryption_spec=gca_encryption_spec.EncryptionSpec(
-                kms_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME
-            ),
         )
 
         create_index_mock.assert_called_once_with(
