@@ -1385,6 +1385,40 @@
         }
       }
     },
+    "LlmUtilityService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "LlmUtilityServiceClient",
+          "rpcs": {
+            "ComputeTokens": {
+              "methods": [
+                "compute_tokens"
+              ]
+            },
+            "CountTokens": {
+              "methods": [
+                "count_tokens"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "LlmUtilityServiceAsyncClient",
+          "rpcs": {
+            "ComputeTokens": {
+              "methods": [
+                "compute_tokens"
+              ]
+            },
+            "CountTokens": {
+              "methods": [
+                "count_tokens"
+              ]
+            }
+          }
+        }
+      }
+    },
     "MatchService": {
       "clients": {
         "grpc": {
