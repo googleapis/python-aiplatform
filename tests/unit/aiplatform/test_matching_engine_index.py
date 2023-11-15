@@ -35,6 +35,7 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform.compat.types import (
     index as gca_index,
     encryption_spec as gca_encryption_spec,
+    index_service_v1beta1 as gca_index_service_v1beta1,
 )
 import constants as test_constants
 
@@ -109,6 +110,9 @@ _TEST_INDEX_UPDATE_METHOD_EXPECTED_RESULT_MAP = {
 
 # Encryption spec
 _TEST_ENCRYPTION_SPEC_KEY_NAME = "TEST_ENCRYPTION_SPEC"
+
+# Streaming update
+_TEST_DATAPOINT_IDS = ("1", "2")
 
 
 def uuid_mock():
@@ -190,6 +194,16 @@ def create_index_mock():
         )
         create_index_mock.return_value = create_index_lro_mock
         yield create_index_mock
+
+
+@pytest.fixture
+def remove_datapoints_mock():
+    with patch.object(
+        index_service_client.IndexServiceClient, "remove_datapoints"
+    ) as remove_datapoints_mock:
+        remove_datapoints_lro_mock = mock.Mock(operation.Operation)
+        remove_datapoints_mock.return_value = remove_datapoints_lro_mock
+        yield remove_datapoints_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -414,3 +428,19 @@ class TestMatchingEngineIndex:
             index=expected,
             metadata=_TEST_REQUEST_METADATA,
         )
+
+    @pytest.mark.usefixtures("get_index_mock")
+    def test_remove_datapoints(self, remove_datapoints_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
+        my_index.remove_datapoints(
+            datapoint_ids=_TEST_DATAPOINT_IDS,
+        )
+
+        remove_datapoints_request = gca_index_service_v1beta1.RemoveDatapointsRequest(
+            index=_TEST_INDEX_NAME,
+            datapoint_ids=_TEST_DATAPOINT_IDS,
+        )
+
+        remove_datapoints_mock.assert_called_once_with(remove_datapoints_request)

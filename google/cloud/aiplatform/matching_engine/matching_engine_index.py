@@ -21,6 +21,7 @@ from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
+    index_service_v1beta1 as gca_index_service_v1beta1,
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
     matching_engine_index as gca_matching_engine_index,
     encryption_spec as gca_encryption_spec,
@@ -660,6 +661,46 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             index_update_method=index_update_method,
             encryption_spec_key_name=encryption_spec_key_name,
         )
+
+    def remove_datapoints(
+        self,
+        datapoint_ids: Sequence[str],
+    ) -> "MatchingEngineIndex":
+        """Remove datapoints for this index.
+
+        Args:
+            datapoints_ids (Sequence[str]):
+                Required. The list of datapoints ids to be deleted.
+
+        Returns:
+            MatchingEngineIndex - Index resource object
+        """
+        self.wait()
+
+        _LOGGER.log_action_start_against_resource(
+            "Removing datapoints",
+            "index",
+            self,
+        )
+
+        remove_lro = self.api_client.remove_datapoints(
+            gca_index_service_v1beta1.RemoveDatapointsRequest(
+                index=self.resource_name,
+                datapoint_ids=datapoint_ids,
+            )
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Remove datapoints", "index", self.__class__, remove_lro
+        )
+
+        self._gca_resource = remove_lro.result(timeout=None)
+
+        _LOGGER.log_action_completed_against_resource(
+            "index", "Removed datapoints", self
+        )
+
+        return self
 
 
 _INDEX_UPDATE_METHOD_TO_ENUM_VALUE = {
