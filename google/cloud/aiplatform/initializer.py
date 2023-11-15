@@ -49,6 +49,8 @@ _TVertexAiServiceClientWithOverride = TypeVar(
 )
 
 _TOP_GOOGLE_CONSTRUCTOR_METHOD_TAG = "top_google_constructor_method"
+_TOP_GOOGLE_CALLER_METHOD_TAG = "top_google_caller_method"
+_TOP_GOOGLE_CALLER_METHOD_PLACEHOLDER = "<top_google_caller_method>"
 
 
 class _Config:
@@ -444,11 +446,15 @@ class _Config:
         except Exception:  # pylint: disable=broad-exception-caught
             pass
 
+        gapic_version += (
+            f"+{_TOP_GOOGLE_CALLER_METHOD_TAG}+{_TOP_GOOGLE_CALLER_METHOD_PLACEHOLDER}"
+        )
+
         user_agent = f"{constants.USER_AGENT_PRODUCT}/{gapic_version}"
         if appended_user_agent:
             user_agent = f"{user_agent} {' '.join(appended_user_agent)}"
 
-        client_info = gapic_v1.client_info.ClientInfo(
+        client_info = _ClientInfoWithTopLevelCallerMethod(
             gapic_version=gapic_version,
             user_agent=user_agent,
         )
@@ -533,3 +539,43 @@ def _get_top_level_google_caller_method_name() -> Optional[str]:
         ):
             top_level_method = function_name
     return top_level_method
+
+
+class _DynamicString(str):
+    """Dynamic string represents a string which is ynamically generated when accessed.
+
+    DynamicString mimics a Python string. When the user calls any string method,
+    the string content is dynamically generated based on the generator function.
+    """
+
+    def __new__(cls, generator, default_string: str = ""):
+        instance = super().__new__(cls, default_string)
+        instance._generator = generator
+        return instance
+
+    def __getattribute__(self, name: str):
+        # Avoid infinite recursion when generator reads stack and accesses `__class__`
+        if name.startswith("__"):
+            return super().__getattribute__(name)
+        generator = object.__getattribute__(self, "_generator")
+        return getattr(generator(), name)
+
+
+class _ClientInfoWithTopLevelCallerMethod(gapic_v1.client_info.ClientInfo):
+
+    def to_user_agent(self):
+        user_agent = super().to_user_agent()
+
+        try:
+            top_level_method = _get_top_level_google_caller_method_name()
+        except:  # pylint: disable=bare-except
+            top_level_method = "<error>"
+
+        user_agent = user_agent.replace(
+            _TOP_GOOGLE_CALLER_METHOD_PLACEHOLDER, top_level_method
+        )
+        return user_agent
+
+    def to_grpc_metadata(self):
+        dynamic_user_agent = _DynamicString(generator=self.to_user_agent)
+        return (gapic_v1.client_info.METRICS_METADATA_KEY, dynamic_user_agent)
