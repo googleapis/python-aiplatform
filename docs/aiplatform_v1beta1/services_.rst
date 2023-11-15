@@ -14,6 +14,7 @@ Services for Google Cloud Aiplatform v1beta1 API
     index_endpoint_service
     index_service
     job_service
+    llm_utility_service
     match_service
     metadata_service
     migration_service

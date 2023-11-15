@@ -412,6 +412,11 @@ from .job_service import (
 from .lineage_subgraph import (
     LineageSubgraph,
 )
+from .llm_utility_service import (
+    ComputeTokensRequest,
+    ComputeTokensResponse,
+    TokensInfo,
+)
 from .machine_resources import (
     AutomaticResources,
     AutoscalingMetricSpec,
@@ -1101,6 +1106,9 @@ __all__ = (
     "UpdateModelDeploymentMonitoringJobRequest",
     "JobState",
     "LineageSubgraph",
+    "ComputeTokensRequest",
+    "ComputeTokensResponse",
+    "TokensInfo",
     "AutomaticResources",
     "AutoscalingMetricSpec",
     "BatchDedicatedResources",
