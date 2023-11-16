@@ -103,26 +103,26 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 Optional. The user-defined name of the dataset. The name must
                 contain 128 or fewer UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
-                The URI to one or more Google Cloud Storage buckets that contain
+                Optional. The URI to one or more Google Cloud Storage buckets that contain
                 your datasets. For example, `str: "gs://bucket/file.csv"` or
                 `Sequence[str]: ["gs://bucket/file1.csv",
                 "gs://bucket/file2.csv"]`.
             bq_source (str):
-                The URI to a BigQuery table that's used as an input source. For
+                Optional. The URI to a BigQuery table that's used as an input source. For
                 example, `bq://project.dataset.table_name`.
             project (str):
-                The name of the Google Cloud project to which this
+                Optional. The name of the Google Cloud project to which this
                 `TabularDataset` is uploaded. This overrides the project that
                 was set by `aiplatform.init`.
             location (str):
-                The Google Cloud region where this dataset is uploaded. This
+                Optional. The Google Cloud region where this dataset is uploaded. This
                 region overrides the region that was set by `aiplatform.init`.
             credentials (auth_credentials.Credentials):
-                The credentials that are used to upload the `TabularDataset`.
+                Optional. The credentials that are used to upload the `TabularDataset`.
                 These credentials override the credentials set by
                 `aiplatform.init`.
             request_metadata (Sequence[Tuple[str, str]]):
-                Strings that contain metadata that's sent with the request.
+                Optional. Strings that contain metadata that's sent with the request.
             labels (Dict[str, str]):
                 Optional. Labels with user-defined metadata to organize your
                 Vertex AI Tensorboards. The maximum length of a key and of a
@@ -149,7 +149,7 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 `encryption_spec_key_name` set by `aiplatform.init`.
             sync (bool):
                 If `true`, the `create` method creates a tabular dataset
-                synchronously. If false, the `create` mdthod creates a tabular
+                synchronously. If `false`, the `create` method creates a tabular
                 dataset asynchronously.
             create_request_timeout (float):
                 Optional. The number of seconds for the timeout of the create
