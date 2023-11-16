@@ -138,11 +138,15 @@ def persistent_resource_to_cluster(
     Returns:
         Cluster.
     """
+    dashboard_address = persistent_resource.resource_runtime.access_uris.get(
+        "RAY_DASHBOARD_URI"
+    )
     cluster = Cluster(
         cluster_resource_name=persistent_resource.name,
         network=persistent_resource.network,
         state=persistent_resource.state.name,
         labels=persistent_resource.labels,
+        dashboard_address=dashboard_address,
     )
     if not persistent_resource.resource_runtime_spec.ray_spec:
         # skip PersistentResource without RaySpec
