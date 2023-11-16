@@ -21,7 +21,7 @@ from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
-    index_service_v1beta1 as gca_index_service_v1beta1,
+    index_service as gca_index_service,
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
     matching_engine_index as gca_matching_engine_index,
     encryption_spec as gca_encryption_spec,
@@ -665,6 +665,42 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             encryption_spec_key_name=encryption_spec_key_name,
         )
 
+    def upsert_datapoints(
+        self,
+        datapoints: Sequence[gca_matching_engine_index.IndexDatapoint],
+    ) -> "MatchingEngineIndex":
+        """Upsert datapoints to this index.
+
+        Args:
+            datapoints (Sequence[gca_matching_engine_index.IndexDatapoint]):
+                Required. Datapoints to be upserted to this index.
+
+        Returns:
+            MatchingEngineIndex - Index resource object
+
+        """
+
+        self.wait()
+
+        _LOGGER.log_action_start_against_resource(
+            "Upserting datapoints",
+            "index",
+            self,
+        )
+
+        self.api_client.upsert_datapoints(
+            gca_index_service.UpsertDatapointsRequest(
+                index=self.resource_name,
+                datapoints=datapoints,
+            )
+        )
+
+        _LOGGER.log_action_completed_against_resource(
+            "index", "Upserted datapoints", self
+        )
+
+        return self
+
     def remove_datapoints(
         self,
         datapoint_ids: Sequence[str],
@@ -678,6 +714,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         Returns:
             MatchingEngineIndex - Index resource object
         """
+
         self.wait()
 
         _LOGGER.log_action_start_against_resource(
@@ -686,18 +723,12 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             self,
         )
 
-        remove_lro = self.api_client.remove_datapoints(
-            gca_index_service_v1beta1.RemoveDatapointsRequest(
+        self.api_client.remove_datapoints(
+            gca_index_service.RemoveDatapointsRequest(
                 index=self.resource_name,
                 datapoint_ids=datapoint_ids,
             )
         )
-
-        _LOGGER.log_action_started_against_resource_with_lro(
-            "Remove datapoints", "index", self.__class__, remove_lro
-        )
-
-        self._gca_resource = remove_lro.result(timeout=None)
 
         _LOGGER.log_action_completed_against_resource(
             "index", "Removed datapoints", self

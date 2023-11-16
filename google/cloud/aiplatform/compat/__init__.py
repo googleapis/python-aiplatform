@@ -88,6 +88,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.hyperparameter_tuning_job = types.hyperparameter_tuning_job_v1beta1
     types.index = types.index_v1beta1
     types.index_endpoint = types.index_endpoint_v1beta1
+    types.index_service = types.index_service_v1beta1
     types.io = types.io_v1beta1
     types.job_service = types.job_service_v1beta1
     types.job_state = types.job_state_v1beta1
@@ -189,6 +190,7 @@ if DEFAULT_VERSION == V1:
     types.hyperparameter_tuning_job = types.hyperparameter_tuning_job_v1
     types.index = types.index_v1
     types.index_endpoint = types.index_endpoint_v1
+    types.index_service = types.index_service_v1
     types.io = types.io_v1
     types.job_service = types.job_service_v1
     types.job_state = types.job_state_v1

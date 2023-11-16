@@ -35,7 +35,7 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform.compat.types import (
     index as gca_index,
     encryption_spec as gca_encryption_spec,
-    index_service_v1beta1 as gca_index_service_v1beta1,
+    index_service as gca_index_service,
 )
 import constants as test_constants
 
@@ -111,8 +111,42 @@ _TEST_INDEX_UPDATE_METHOD_EXPECTED_RESULT_MAP = {
 # Encryption spec
 _TEST_ENCRYPTION_SPEC_KEY_NAME = "TEST_ENCRYPTION_SPEC"
 
-# Streaming update
 _TEST_DATAPOINT_IDS = ("1", "2")
+_TEST_DATAPOINT_1 = gca_index.IndexDatapoint(
+    datapoint_id="0",
+    feature_vector=[0.00526886899, -0.0198396724],
+    restricts=[
+        gca_index.IndexDatapoint.Restriction(namespace="Color", allow_list=["red"])
+    ],
+    numeric_restricts=[
+        gca_index.IndexDatapoint.NumericRestriction(
+            namespace="cost",
+            value_int=1,
+        )
+    ],
+)
+_TEST_DATAPOINT_2 = gca_index.IndexDatapoint(
+    datapoint_id="1",
+    feature_vector=[0.00526886899, -0.0198396724],
+    numeric_restricts=[
+        gca_index.IndexDatapoint.NumericRestriction(
+            namespace="cost",
+            value_double=0.1,
+        )
+    ],
+    crowding_tag=gca_index.IndexDatapoint.CrowdingTag(crowding_attribute="crowding"),
+)
+_TEST_DATAPOINT_3 = gca_index.IndexDatapoint(
+    datapoint_id="2",
+    feature_vector=[0.00526886899, -0.0198396724],
+    numeric_restricts=[
+        gca_index.IndexDatapoint.NumericRestriction(
+            namespace="cost",
+            value_float=1.1,
+        )
+    ],
+)
+_TEST_DATAPOINTS = (_TEST_DATAPOINT_1, _TEST_DATAPOINT_2, _TEST_DATAPOINT_3)
 
 
 def uuid_mock():
@@ -197,12 +231,18 @@ def create_index_mock():
 
 
 @pytest.fixture
+def upsert_datapoints_mock():
+    with patch.object(
+        index_service_client.IndexServiceClient, "upsert_datapoints"
+    ) as upsert_datapoints_mock:
+        yield upsert_datapoints_mock
+
+
+@pytest.fixture
 def remove_datapoints_mock():
     with patch.object(
         index_service_client.IndexServiceClient, "remove_datapoints"
     ) as remove_datapoints_mock:
-        remove_datapoints_lro_mock = mock.Mock(operation.Operation)
-        remove_datapoints_mock.return_value = remove_datapoints_lro_mock
         yield remove_datapoints_mock
 
 
@@ -510,6 +550,22 @@ class TestMatchingEngineIndex:
         )
 
     @pytest.mark.usefixtures("get_index_mock")
+    def test_upsert_datapoints(self, upsert_datapoints_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
+        my_index.upsert_datapoints(
+            datapoints=_TEST_DATAPOINTS,
+        )
+
+        upsert_datapoints_request = gca_index_service.UpsertDatapointsRequest(
+            index=_TEST_INDEX_NAME,
+            datapoints=_TEST_DATAPOINTS,
+        )
+
+        upsert_datapoints_mock.assert_called_once_with(upsert_datapoints_request)
+
+    @pytest.mark.usefixtures("get_index_mock")
     def test_remove_datapoints(self, remove_datapoints_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -518,7 +574,7 @@ class TestMatchingEngineIndex:
             datapoint_ids=_TEST_DATAPOINT_IDS,
         )
 
-        remove_datapoints_request = gca_index_service_v1beta1.RemoveDatapointsRequest(
+        remove_datapoints_request = gca_index_service.RemoveDatapointsRequest(
             index=_TEST_INDEX_NAME,
             datapoint_ids=_TEST_DATAPOINT_IDS,
         )
