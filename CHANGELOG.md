@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.36.4](https://github.com/googleapis/python-aiplatform/compare/v1.36.3...v1.36.4) (2023-11-16)
+
+
+### Features
+
+* Add `numeric_restricts` to MatchingEngineIndex `find_neighbors()` for querying ([6c1f2cc](https://github.com/googleapis/python-aiplatform/commit/6c1f2cc650cfe0c6cc9896de13746d1a25d7315a))
+* Add `remove_datapoints()` to `MatchingEngineIndex`. ([b86a404](https://github.com/googleapis/python-aiplatform/commit/b86a4046c2cd0c189efc609bd6319f8da76cd6e7))
+* Add `upsert_datapoints()` to `MatchingEngineIndex` to support streaming update index. ([7ca484d](https://github.com/googleapis/python-aiplatform/commit/7ca484da0431699c460358584b9e8be102d9cc46))
+* LLM - include error code into blocked response from TextGenerationModel, ChatModel, CodeChatMode, and CodeGenerationModel. ([1f81cf2](https://github.com/googleapis/python-aiplatform/commit/1f81cf200c9394b50a43c3830ab8343ead1dc0d3))
+* Populate Ray Cluster dashboard_address from proto field ([dd4b852](https://github.com/googleapis/python-aiplatform/commit/dd4b8529a72f6d08e56e8437cdd3cd0874df8a47))
+* add CountTokens API, ComputeTokens API, and ModelContainerSpec features ([ba2fb39](https://github.com/googleapis/python-aiplatform/commit/ba2fb398b46b04fc2c9d0ea902746737ace64767))
+
+
+### Bug Fixes
+
+* Add check for empty `encryption_spec_key_name` for MatchingEngineIndexEndpoint `create`. ([7740132](https://github.com/googleapis/python-aiplatform/commit/7740132c315b2f1e55504e5c5b462eb27bf89937))
+* Fix server error due to no `encryption_spec_key_name` in MatchingEngineIndex `create_tree_ah_index` and `create_brute_force_index` ([595b580](https://github.com/googleapis/python-aiplatform/commit/595b580bfaa238b63f61cb69a7829094c747aaea))
+
+
+### Miscellaneous Chores
+
+* Release 1.36.4 ([1fd7b4e](https://github.com/googleapis/python-aiplatform/commit/1fd7b4eb4773c9c58cb4e957e176c0053169afc0))
+
 ## [1.36.3](https://github.com/googleapis/python-aiplatform/compare/v1.36.2...v1.36.3) (2023-11-14)
 
 
