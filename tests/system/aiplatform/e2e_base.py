@@ -16,6 +16,7 @@
 #
 
 import abc
+import asyncio
 import importlib
 import logging
 import os
@@ -26,6 +27,7 @@ from typing import Any, Dict, Generator
 
 from google.api_core import exceptions
 from google.cloud import aiplatform
+import vertexai
 from google.cloud import bigquery
 from google.cloud import resourcemanager
 from google.cloud import storage
@@ -62,6 +64,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
+        importlib.reload(vertexai)
 
     @pytest.fixture(scope="class")
     def shared_state(self) -> Generator[Dict[str, Any], None, None]:
@@ -202,3 +205,9 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
                     resource.delete()
             except exceptions.GoogleAPIError as e:
                 logging.error(f"Could not delete resource: {resource} due to: {e}")
+
+    @pytest.fixture(scope="session")
+    def event_loop(event_loop):
+        loop = asyncio.get_event_loop()
+        yield loop
+        loop.close()

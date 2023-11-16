@@ -20,7 +20,7 @@ def test_list_artifact_with_sdk_sample(mock_artifact, mock_list_artifact):
     artifacts = list_artifact_sample.list_artifact_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        display_name_fitler=constants.DISPLAY_NAME,
+        display_name_filter=constants.DISPLAY_NAME,
         create_date_filter=constants.CREATE_DATE,
         order_by=constants.ORDER_BY,
     )

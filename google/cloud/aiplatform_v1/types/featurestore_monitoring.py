@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -192,15 +192,15 @@ class FeaturestoreMonitoringConfig(proto.Message):
         Attributes:
             value (float):
                 Specify a threshold value that can trigger
-                the alert. 1. For categorical feature, the
-                distribution distance is calculated by
-                L-inifinity norm.
+                the alert.
+                1. For categorical feature, the distribution
+                    distance is calculated by L-inifinity norm.
                 2. For numerical feature, the distribution
-                distance is calculated by Jensen–Shannon
-                divergence. Each feature must have a non-zero
-                threshold if they need to be monitored.
-                Otherwise no alert will be triggered for that
-                feature.
+                    distance is calculated by Jensen–Shannon
+                    divergence. Each feature must have a
+                    non-zero threshold if they need to be
+                    monitored. Otherwise no alert will be
+                    triggered for that feature.
 
                 This field is a member of `oneof`_ ``threshold``.
         """

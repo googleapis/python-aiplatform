@@ -35,7 +35,6 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform_v1 import (
-    AddContextArtifactsAndExecutionsResponse,
     Artifact as GapicArtifact,
     Context as GapicContext,
     Execution as GapicExecution,
@@ -393,17 +392,6 @@ def add_context_children_mock():
         MetadataServiceClient, "add_context_children"
     ) as add_context_children_mock:
         yield add_context_children_mock
-
-
-@pytest.fixture
-def add_context_artifacts_and_executions_mock():
-    with patch.object(
-        MetadataServiceClient, "add_context_artifacts_and_executions"
-    ) as add_context_artifacts_and_executions_mock:
-        add_context_artifacts_and_executions_mock.return_value = (
-            AddContextArtifactsAndExecutionsResponse()
-        )
-        yield add_context_artifacts_and_executions_mock
 
 
 @pytest.fixture

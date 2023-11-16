@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ from google.cloud.aiplatform_v1beta1.types import prediction_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from .base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import PredictionServiceGrpcTransport
 
@@ -305,6 +305,36 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         return self._stubs["raw_predict"]
 
     @property
+    def server_streaming_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamingPredictRequest],
+        Awaitable[prediction_service.StreamingPredictResponse],
+    ]:
+        r"""Return a callable for the server streaming predict method over gRPC.
+
+        Perform a server-side streaming online prediction
+        request for Vertex LLM streaming.
+
+        Returns:
+            Callable[[~.StreamingPredictRequest],
+                    Awaitable[~.StreamingPredictResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "server_streaming_predict" not in self._stubs:
+            self._stubs["server_streaming_predict"] = self.grpc_channel.unary_stream(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/ServerStreamingPredict",
+                request_serializer=prediction_service.StreamingPredictRequest.serialize,
+                response_deserializer=prediction_service.StreamingPredictResponse.deserialize,
+            )
+        return self._stubs["server_streaming_predict"]
+
+    @property
     def explain(
         self,
     ) -> Callable[
@@ -342,6 +372,35 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
                 response_deserializer=prediction_service.ExplainResponse.deserialize,
             )
         return self._stubs["explain"]
+
+    @property
+    def count_tokens(
+        self,
+    ) -> Callable[
+        [prediction_service.CountTokensRequest],
+        Awaitable[prediction_service.CountTokensResponse],
+    ]:
+        r"""Return a callable for the count tokens method over gRPC.
+
+        Perform a token counting.
+
+        Returns:
+            Callable[[~.CountTokensRequest],
+                    Awaitable[~.CountTokensResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "count_tokens" not in self._stubs:
+            self._stubs["count_tokens"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/CountTokens",
+                request_serializer=prediction_service.CountTokensRequest.serialize,
+                response_deserializer=prediction_service.CountTokensResponse.deserialize,
+            )
+        return self._stubs["count_tokens"]
 
     def close(self):
         return self.grpc_channel.close()

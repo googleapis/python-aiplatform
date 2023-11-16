@@ -16,6 +16,7 @@
 #
 
 import json
+import pytest
 
 from google.cloud import aiplatform
 
@@ -64,3 +65,11 @@ class TestModelInteractions(e2e_base.TestEndToEnd):
         )
         assert raw_prediction_response.status_code == 200
         assert len(json.loads(raw_prediction_response.text)) == 1
+
+    @pytest.mark.asyncio
+    async def test_endpoint_predict_async(self):
+        # Test the Endpoint.predict_async method.
+        prediction_response = await self.endpoint.predict_async(
+            instances=[_PREDICTION_INSTANCE]
+        )
+        assert len(prediction_response.predictions) == 1

@@ -21,11 +21,11 @@ def test_create_tensorboard_sample(mock_sdk_init, mock_create_tensorboard):
 
     create_tensorboard_sample.create_tensorboard_sample(
         project=constants.PROJECT,
-        display_name=constants.DISPLAY_NAME,
         location=constants.LOCATION,
+        display_name=constants.DISPLAY_NAME,
     )
 
-    mock_sdk_init.assert_called_once_with(
+    mock_sdk_init.assert_any_call(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
@@ -33,4 +33,10 @@ def test_create_tensorboard_sample(mock_sdk_init, mock_create_tensorboard):
         display_name=constants.DISPLAY_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
+    )
+
+    mock_sdk_init.assert_any_call(
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        experiment_tensorboard=mock_create_tensorboard.return_value
     )

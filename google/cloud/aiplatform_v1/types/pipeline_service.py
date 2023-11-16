@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -233,7 +233,7 @@ class CreatePipelineJobRequest(proto.Message):
             ID will be automatically generated.
 
             This value should be less than 128 characters, and valid
-            characters are /[a-z][0-9]-/.
+            characters are ``/[a-z][0-9]-/``.
     """
 
     parent: str = proto.Field(

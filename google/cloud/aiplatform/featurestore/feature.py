@@ -238,21 +238,12 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             self,
         )
 
-        update_feature_lro = self.api_client.update_feature(
+        self._gca_resource = self.api_client.update_feature(
             feature=gapic_feature,
             update_mask=update_mask,
             metadata=request_metadata,
             timeout=update_request_timeout,
         )
-
-        _LOGGER.log_action_started_against_resource_with_lro(
-            "Update", "feature", self.__class__, update_feature_lro
-        )
-
-        update_feature_lro.result()
-
-        _LOGGER.log_action_completed_against_resource("feature", "updated", self)
-
         return self
 
     @classmethod

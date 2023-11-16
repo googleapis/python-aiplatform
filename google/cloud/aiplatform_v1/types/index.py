@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import deployed_index_ref
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -80,6 +81,7 @@ class Index(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -101,6 +103,11 @@ class Index(proto.Message):
         index_update_method (google.cloud.aiplatform_v1.types.Index.IndexUpdateMethod):
             Immutable. The update method to use with this Index. If not
             set, BATCH_UPDATE will be used by default.
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Immutable. Customer-managed encryption key
+            spec for an Index. If set, this Index and all
+            sub-resources of this Index will be secured by
+            this key.
     """
 
     class IndexUpdateMethod(proto.Enum):
@@ -111,7 +118,7 @@ class Index(proto.Message):
                 Should not be used.
             BATCH_UPDATE (1):
                 BatchUpdate: user can call UpdateIndex with
-                files on Cloud Storage of datapoints to update.
+                files on Cloud Storage of Datapoints to update.
             STREAM_UPDATE (2):
                 StreamUpdate: user can call
                 UpsertDatapoints/DeleteDatapoints to update the
@@ -180,6 +187,11 @@ class Index(proto.Message):
         number=16,
         enum=IndexUpdateMethod,
     )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=17,
+        message=gca_encryption_spec.EncryptionSpec,
+    )
 
 
 class IndexDatapoint(proto.Message):
@@ -195,8 +207,16 @@ class IndexDatapoint(proto.Message):
             Optional. List of Restrict of the datapoint,
             used to perform "restricted searches" where
             boolean rule are used to filter the subset of
-            the database eligible for matching. See:
+            the database eligible for matching. This uses
+            categorical tokens. See:
+
             https://cloud.google.com/vertex-ai/docs/matching-engine/filtering
+        numeric_restricts (MutableSequence[google.cloud.aiplatform_v1.types.IndexDatapoint.NumericRestriction]):
+            Optional. List of Restrict of the datapoint,
+            used to perform "restricted searches" where
+            boolean rule are used to filter the subset of
+            the database eligible for matching. This uses
+            numeric comparisons.
         crowding_tag (google.cloud.aiplatform_v1.types.IndexDatapoint.CrowdingTag):
             Optional. CrowdingTag of the datapoint, the
             number of neighbors to return in each crowding
@@ -210,13 +230,14 @@ class IndexDatapoint(proto.Message):
 
         Attributes:
             namespace (str):
-                The namespace of this restriction. eg: color.
+                The namespace of this restriction. e.g.:
+                color.
             allow_list (MutableSequence[str]):
                 The attributes to allow in this namespace.
-                eg: 'red'
+                e.g.: 'red'
             deny_list (MutableSequence[str]):
-                The attributes to deny in this namespace. eg:
-                'blue'
+                The attributes to deny in this namespace.
+                e.g.: 'blue'
         """
 
         namespace: str = proto.Field(
@@ -230,6 +251,96 @@ class IndexDatapoint(proto.Message):
         deny_list: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=3,
+        )
+
+    class NumericRestriction(proto.Message):
+        r"""This field allows restricts to be based on numeric
+        comparisons rather than categorical tokens.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            value_int (int):
+                Represents 64 bit integer.
+
+                This field is a member of `oneof`_ ``Value``.
+            value_float (float):
+                Represents 32 bit float.
+
+                This field is a member of `oneof`_ ``Value``.
+            value_double (float):
+                Represents 64 bit float.
+
+                This field is a member of `oneof`_ ``Value``.
+            namespace (str):
+                The namespace of this restriction. e.g.:
+                cost.
+            op (google.cloud.aiplatform_v1.types.IndexDatapoint.NumericRestriction.Operator):
+                This MUST be specified for queries and must
+                NOT be specified for datapoints.
+        """
+
+        class Operator(proto.Enum):
+            r"""Which comparison operator to use.  Should be specified for
+            queries only; specifying this for a datapoint is an error.
+
+            Datapoints for which Operator is true relative to the query's
+            Value field will be allowlisted.
+
+            Values:
+                OPERATOR_UNSPECIFIED (0):
+                    Default value of the enum.
+                LESS (1):
+                    Datapoints are eligible iff their value is <
+                    the query's.
+                LESS_EQUAL (2):
+                    Datapoints are eligible iff their value is <=
+                    the query's.
+                EQUAL (3):
+                    Datapoints are eligible iff their value is ==
+                    the query's.
+                GREATER_EQUAL (4):
+                    Datapoints are eligible iff their value is >=
+                    the query's.
+                GREATER (5):
+                    Datapoints are eligible iff their value is >
+                    the query's.
+            """
+            OPERATOR_UNSPECIFIED = 0
+            LESS = 1
+            LESS_EQUAL = 2
+            EQUAL = 3
+            GREATER_EQUAL = 4
+            GREATER = 5
+
+        value_int: int = proto.Field(
+            proto.INT64,
+            number=2,
+            oneof="Value",
+        )
+        value_float: float = proto.Field(
+            proto.FLOAT,
+            number=3,
+            oneof="Value",
+        )
+        value_double: float = proto.Field(
+            proto.DOUBLE,
+            number=4,
+            oneof="Value",
+        )
+        namespace: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        op: "IndexDatapoint.NumericRestriction.Operator" = proto.Field(
+            proto.ENUM,
+            number=5,
+            enum="IndexDatapoint.NumericRestriction.Operator",
         )
 
     class CrowdingTag(proto.Message):
@@ -264,6 +375,11 @@ class IndexDatapoint(proto.Message):
         proto.MESSAGE,
         number=4,
         message=Restriction,
+    )
+    numeric_restricts: MutableSequence[NumericRestriction] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=6,
+        message=NumericRestriction,
     )
     crowding_tag: CrowdingTag = proto.Field(
         proto.MESSAGE,

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ from google.cloud.aiplatform_v1.types import vizier_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import VizierServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import VizierServiceGrpcAsyncIOTransport
@@ -60,6 +60,7 @@ from .client import VizierServiceClient
 
 class VizierServiceAsyncClient:
     """Vertex AI Vizier API.
+
     Vertex AI Vizier is a service to solve blackbox optimization
     problems, such as tuning machine learning hyperparameters and
     searching over deep learning architectures.
@@ -2433,7 +2434,7 @@ class VizierServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "VizierServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

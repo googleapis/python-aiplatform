@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +16,16 @@
 #
 
 from importlib import reload
+import logging
 import pytest
 import time
 from typing import Optional
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+
+
+_TEST_LOGGER_NAME = "test_logger"
 
 
 class _TestClass(base.FutureManager):
@@ -199,3 +203,12 @@ class TestFutureManager:
         assert isinstance(a, _TestClass)
         assert isinstance(b, _TestClassDownStream)
         assert isinstance(c, _TestClass)
+
+
+class TestLogger:
+    def test_logger_handler(self):
+        logger = base.Logger(_TEST_LOGGER_NAME)
+
+        assert logger.level == logging.INFO
+        # the logger won't have a StreamHandler because root logger already has one
+        assert not logger.handlers

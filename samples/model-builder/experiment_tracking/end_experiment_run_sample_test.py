@@ -26,7 +26,7 @@ def test_end_experiment_run_sample(mock_sdk_init, mock_start_run, mock_end_run):
     )
 
     mock_sdk_init.assert_called_with(
-        experiment_name=constants.EXPERIMENT_NAME,
+        experiment=constants.EXPERIMENT_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
     )

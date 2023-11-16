@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,14 +33,14 @@ __protobuf__ = proto.module(
 
 
 class Feature(proto.Message):
-    r"""Feature Metadata information that describes an attribute of
-    an entity type. For example, apple is an entity type, and color
-    is a feature that describes apple.
+    r"""Feature Metadata information.
+    For example, color is a feature that describes an apple.
 
     Attributes:
         name (str):
             Immutable. Name of the Feature. Format:
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}``
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}``
 
             The last part feature is assigned by the client. The feature
             can be up to 64 characters long and can consist only of
@@ -50,13 +50,16 @@ class Feature(proto.Message):
         description (str):
             Description of the Feature.
         value_type (google.cloud.aiplatform_v1beta1.types.Feature.ValueType):
-            Required. Immutable. Type of Feature value.
+            Immutable. Only applicable for Vertex AI
+            Feature Store (Legacy). Type of Feature value.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
-            Output only. Timestamp when this EntityType
-            was created.
+            Output only. Only applicable for Vertex AI
+            Feature Store (Legacy). Timestamp when this
+            EntityType was created.
         update_time (google.protobuf.timestamp_pb2.Timestamp):
-            Output only. Timestamp when this EntityType
-            was most recently updated.
+            Output only. Only applicable for Vertex AI
+            Feature Store (Legacy). Timestamp when this
+            EntityType was most recently updated.
         labels (MutableMapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your Features.
@@ -65,6 +68,7 @@ class Feature(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             on and examples of labels. No more than 64 user
             labels can be associated with one Feature
@@ -76,7 +80,8 @@ class Feature(proto.Message):
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
         monitoring_config (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig):
-            Optional. Deprecated: The custom monitoring configuration
+            Optional. Only applicable for Vertex AI Feature Store
+            (Legacy). Deprecated: The custom monitoring configuration
             for this Feature, if not set, use the monitoring_config
             defined for the EntityType this Feature belongs to. Only
             Features with type
@@ -91,7 +96,8 @@ class Feature(proto.Message):
             Otherwise, snapshot analysis monitoring config is same as
             the EntityType's this Feature belongs to.
         disable_monitoring (bool):
-            Optional. If not set, use the monitoring_config defined for
+            Optional. Only applicable for Vertex AI Feature Store
+            (Legacy). If not set, use the monitoring_config defined for
             the EntityType this Feature belongs to. Only Features with
             type
             ([Feature.ValueType][google.cloud.aiplatform.v1beta1.Feature.ValueType])
@@ -100,18 +106,25 @@ class Feature(proto.Message):
             If set to true, all types of data monitoring are disabled
             despite the config on EntityType.
         monitoring_stats (MutableSequence[google.cloud.aiplatform_v1beta1.types.FeatureStatsAnomaly]):
-            Output only. A list of historical
+            Output only. Only applicable for Vertex AI Feature Store
+            (Legacy). A list of historical
             [SnapshotAnalysis][google.cloud.aiplatform.v1beta1.FeaturestoreMonitoringConfig.SnapshotAnalysis]
             stats requested by user, sorted by
             [FeatureStatsAnomaly.start_time][google.cloud.aiplatform.v1beta1.FeatureStatsAnomaly.start_time]
             descending.
         monitoring_stats_anomalies (MutableSequence[google.cloud.aiplatform_v1beta1.types.Feature.MonitoringStatsAnomaly]):
-            Output only. The list of historical stats and
-            anomalies with specified objectives.
+            Output only. Only applicable for Vertex AI
+            Feature Store (Legacy). The list of historical
+            stats and anomalies with specified objectives.
+        version_column_name (str):
+            Only applicable for Vertex AI Feature Store. The name of the
+            BigQuery Table/View columnn hosting data for this version.
+            If no value is provided, will use feature_id.
     """
 
     class ValueType(proto.Enum):
-        r"""An enum representing the value type of a feature.
+        r"""Only applicable for Vertex AI Legacy Feature Store.
+        An enum representing the value type of a feature.
 
         Values:
             VALUE_TYPE_UNSPECIFIED (0):
@@ -252,6 +265,10 @@ class Feature(proto.Message):
         proto.MESSAGE,
         number=11,
         message=MonitoringStatsAnomaly,
+    )
+    version_column_name: str = proto.Field(
+        proto.STRING,
+        number=106,
     )
 
 

@@ -14,4 +14,8 @@ branchProtectionRules:
   requiresStrictStatusChecks: true
   requiredStatusCheckContexts:
     - 'cla/google'
-    - 'Presubmit - Unit Tests'
+    - 'Presubmit - Lint and Coverage'
+    - 'Presubmit - Unit Tests Python 3.8'
+    - 'Presubmit - Unit Tests Python 3.9'
+    - 'Presubmit - Unit Tests Python 3.10'
+    - 'Presubmit - Unit Tests Python 3.11'

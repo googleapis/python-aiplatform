@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Union
+from typing import Optional, Union
 
 from google.cloud import aiplatform
 
@@ -21,12 +21,12 @@ from google.cloud import aiplatform
 def autologging_with_manual_run_creation_sample(
     experiment_name: str,
     run_name: str,
-    experiment_tensorboard: Union[str, aiplatform.Tensorboard],
     project: str,
     location: str,
+    experiment_tensorboard: Optional[Union[str, aiplatform.Tensorboard]] = None,
 ):
     aiplatform.init(
-        experiment_name=experiment_name,
+        experiment=experiment_name,
         project=project,
         location=location,
         experiment_tensorboard=experiment_tensorboard,

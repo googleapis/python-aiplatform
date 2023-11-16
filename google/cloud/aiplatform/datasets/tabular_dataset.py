@@ -33,7 +33,49 @@ _LOGGER = base.Logger(__name__)
 
 
 class TabularDataset(datasets._ColumnNamesDataset):
-    """Managed tabular dataset resource for Vertex AI."""
+    """A managed tabular dataset resource for Vertex AI.
+
+    Use this class to work with tabular datasets. You can use a CSV file, BigQuery, or a pandas
+    [`DataFrame`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html)
+    to create a tabular dataset. For more information about paging through
+    BigQuery data, see [Read data with BigQuery API using
+    pagination](https://cloud.google.com/bigquery/docs/paging-results). For more
+    information about tabular data, see [Tabular
+    data](https://cloud.google.com/vertex-ai/docs/training-overview#tabular_data).
+
+    The following code shows you how to create and import a tabular
+    dataset with a CSV file.
+
+    ```py
+    my_dataset = aiplatform.TabularDataset.create(
+        display_name="my-dataset", gcs_source=['gs://path/to/my/dataset.csv'])
+    ```
+
+    The following code shows you how to create and import a tabular
+    dataset in two distinct steps.
+
+    ```py
+    my_dataset = aiplatform.TextDataset.create(
+        display_name="my-dataset")
+
+    my_dataset.import(
+        gcs_source=['gs://path/to/my/dataset.csv']
+        import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
+    )
+    ```
+
+    If you create a tabular dataset with a pandas
+    [`DataFrame`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html),
+    you need to use a BigQuery table to stage the data for Vertex AI:
+
+    ```py
+    my_dataset = aiplatform.TabularDataset.create_from_dataframe(
+        df_source=my_pandas_dataframe,
+        staging_path=f"bq://{bq_dataset_id}.table-unique"
+    )
+    ```
+
+    """
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.tabular,
@@ -54,66 +96,68 @@ class TabularDataset(datasets._ColumnNamesDataset):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> "TabularDataset":
-        """Creates a new tabular dataset.
+        """Creates a tabular dataset.
 
         Args:
             display_name (str):
-                Optional. The user-defined name of the Dataset.
-                The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
+                Optional. The user-defined name of the dataset. The name must
+                contain 128 or fewer UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
-                Google Cloud Storage URI(-s) to the
-                input file(s).
-
-                Examples:
-                    str: "gs://bucket/file.csv"
-                    Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
+                The URI to one or more Google Cloud Storage buckets that contain
+                your datasets. For example, `str: "gs://bucket/file.csv"` or
+                `Sequence[str]: ["gs://bucket/file1.csv",
+                "gs://bucket/file2.csv"]`.
             bq_source (str):
-                BigQuery URI to the input table.
-                example:
-                    "bq://project.dataset.table_name"
+                The URI to a BigQuery table that's used as an input source. For
+                example, `bq://project.dataset.table_name`.
             project (str):
-                Project to upload this dataset to. Overrides project set in
-                aiplatform.init.
+                The name of the Google Cloud project to which this
+                `TabularDataset` is uploaded. This overrides the project that
+                was set by `aiplatform.init`.
             location (str):
-                Location to upload this dataset to. Overrides location set in
-                aiplatform.init.
+                The Google Cloud region where this dataset is uploaded. This
+                region overrides the region that was set by `aiplatform.init`.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this dataset. Overrides
-                credentials set in aiplatform.init.
+                The credentials that are used to upload the `TabularDataset`.
+                These credentials override the credentials set by
+                `aiplatform.init`.
             request_metadata (Sequence[Tuple[str, str]]):
-                Strings which should be sent along with the request as metadata.
+                Strings that contain metadata that's sent with the request.
             labels (Dict[str, str]):
-                Optional. Labels with user-defined metadata to organize your Tensorboards.
-                Label keys and values can be no longer than 64 characters
-                (Unicode codepoints), can only contain lowercase letters, numeric
-                characters, underscores and dashes. International characters are allowed.
-                No more than 64 user labels can be associated with one Tensorboard
-                (System labels are excluded).
-                See https://goo.gl/xmQnxf for more information and examples of labels.
-                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
-                and are immutable.
+                Optional. Labels with user-defined metadata to organize your
+                Vertex AI Tensorboards. The maximum length of a key and of a
+                value is 64 unicode characters. Labels and keys can contain only
+                lowercase letters, numeric characters, underscores, and dashes.
+                International characters are allowed. No more than 64 user
+                labels can be associated with one Tensorboard (system labels are
+                excluded). For more information and examples of using labels, see
+                [Using labels to organize Google Cloud Platform resources](https://goo.gl/xmQnxf).
+                System reserved label keys are prefixed with
+                `aiplatform.googleapis.com/` and are immutable.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the dataset. Has the
-                form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                managed encryption key that's used to protect the dataset. The
+                format of the key is
+                `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If `encryption_spec_key_name` is set, this `TabularDataset` and
+                all of its sub-resources are secured by this key.
 
-                Overrides encryption_spec_key_name set in aiplatform.init.
+                This `encryption_spec_key_name` overrides the
+                `encryption_spec_key_name` set by `aiplatform.init`.
             sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
+                If `true`, the `create` method creates a tabular dataset
+                synchronously. If false, the `create` mdthod creates a tabular
+                dataset asynchronously.
             create_request_timeout (float):
-                Optional. The timeout for the create request in seconds.
+                Optional. The number of seconds for the timeout of the create
+                request.
 
         Returns:
             tabular_dataset (TabularDataset):
-                Instantiated representation of the managed tabular dataset resource.
+                An instantiated representation of the managed `TabularDataset` resource.
         """
         if not display_name:
             display_name = cls._generate_display_name()
@@ -162,44 +206,49 @@ class TabularDataset(datasets._ColumnNamesDataset):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "TabularDataset":
-        """Creates a new tabular dataset from a Pandas DataFrame.
+        """Creates a new tabular dataset from a pandas `DataFrame`.
 
         Args:
             df_source (pd.DataFrame):
-                Required. Pandas DataFrame containing the source data for
-                ingestion as a TabularDataset. This method will use the data
-                types from the provided DataFrame when creating the dataset.
+                Required. A pandas
+                [`DataFrame`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html)
+                containing the source data for ingestion as a `TabularDataset`.
+                This method uses the data types from the provided `DataFrame`
+                when the `TabularDataset` is created.
             staging_path (str):
-                Required. The BigQuery table to stage the data
-                for Vertex. Because Vertex maintains a reference to this source
-                to create the Vertex Dataset, this BigQuery table should
-                not be deleted. Example: `bq://my-project.my-dataset.my-table`.
-                If the provided BigQuery table doesn't exist, this method will
-                create the table. If the provided BigQuery table already exists,
+                Required. The BigQuery table used to stage the data for Vertex
+                AI. Because Vertex AI maintains a reference to this source to
+                create the `TabularDataset`, you shouldn't delete this BigQuery
+                table. For example: `bq://my-project.my-dataset.my-table`.
+                If the specified BigQuery table doesn't exist, then the table is
+                created for you. If the provided BigQuery table already exists,
                 and the schemas of the BigQuery table and your DataFrame match,
-                this method will append the data in your local DataFrame to the table.
-                The location of the provided BigQuery table should conform to the location requirements
-                specified here: https://cloud.google.com/vertex-ai/docs/general/locations#bq-locations.
+                then the data in your local `DataFrame` is appended to the table.
+                The location of the BigQuery table must conform to the
+                [BigQuery location requirements](https://cloud.google.com/vertex-ai/docs/general/locations#bq-locations).
             bq_schema (Optional[Union[str, bigquery.SchemaField]]):
-                Optional. If not set, BigQuery will autodetect the schema using your DataFrame's column types.
-                If set, BigQuery will use the schema you provide when creating the staging table. For more details,
-                see: https://cloud.google.com/python/docs/reference/bigquery/latest/google.cloud.bigquery.job.LoadJobConfig#google_cloud_bigquery_job_LoadJobConfig_schema
+                Optional. If not set, BigQuery autodetects the schema using the
+                column types of your `DataFrame`. If set, BigQuery uses the
+                schema you provide when the staging table is created. For more
+                information,
+                see the BigQuery
+                [`LoadJobConfig.schema`](https://cloud.google.com/python/docs/reference/bigquery/latest/google.cloud.bigquery.job.LoadJobConfig#google_cloud_bigquery_job_LoadJobConfig_schema)
+                property.
             display_name (str):
-                Optional. The user-defined name of the Dataset.
-                The name can be up to 128 characters long and can be consist
-                of any UTF-8 charact
+                Optional. The user-defined name of the `Dataset`. The name must
+                contain 128 or fewer UTF-8 characters.
             project (str):
-                Optional. Project to upload this dataset to. Overrides project set in
-                aiplatform.init.
+                Optional. The project to upload this dataset to. This overrides
+                the project set using `aiplatform.init`.
             location (str):
-                Optional. Location to upload this dataset to. Overrides location set in
-                aiplatform.init.
+                Optional. The location to upload this dataset to. This overrides
+                the location set using `aiplatform.init`.
             credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to upload this dataset. Overrides
-                credentials set in aiplatform.init.
+                Optional. The custom credentials used to upload this dataset.
+                This overrides credentials set using `aiplatform.init`.
         Returns:
             tabular_dataset (TabularDataset):
-                Instantiated representation of the managed tabular dataset resource.
+                An instantiated representation of the managed `TabularDataset` resource.
         """
 
         if staging_path.startswith("bq://"):

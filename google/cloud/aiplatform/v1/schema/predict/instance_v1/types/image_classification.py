@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@ class ImageClassificationPredictionInstance(proto.Message):
         mime_type (str):
             The MIME type of the content of the image.
             Only the images in below listed MIME types are
-            supported. - image/jpeg
+            supported.
+            - image/jpeg
             - image/gif
             - image/png
             - image/webp

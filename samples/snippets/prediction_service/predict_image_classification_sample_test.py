@@ -31,4 +31,4 @@ def test_ucaip_generated_predict_image_classification_sample(capsys):
     )
 
     out, _ = capsys.readouterr()
-    assert 'deployed_model_id:' in out
+    assert "deployed_model_id:" in out

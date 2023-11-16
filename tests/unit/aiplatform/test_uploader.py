@@ -1126,7 +1126,7 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         writer_a.flush()
         uploader_thread = threading.Thread(target=uploader.start_uploading)
         uploader_thread.start()
-        time.sleep(10)
+        time.sleep(5)
         self.assertEqual(3, mock_client.create_tensorboard_time_series.call_count)
         call_args_list = mock_client.create_tensorboard_time_series.call_args_list
         request = call_args_list[1][1]["tensorboard_time_series"]
@@ -1170,7 +1170,7 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         self.assertProtoEquals(expected_request2[0], request2[0])
 
         uploader._end_uploading()
-        time.sleep(2)
+        time.sleep(1)
         self.assertFalse(uploader_thread.is_alive())
         mock_client.write_tensorboard_experiment_data.reset_mock()
 
@@ -1178,7 +1178,7 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         uploader._upload_once()
         mock_client.write_tensorboard_experiment_data.assert_not_called()
         uploader._end_uploading()
-        time.sleep(2)
+        time.sleep(1)
         self.assertFalse(uploader_thread.is_alive())
 
 

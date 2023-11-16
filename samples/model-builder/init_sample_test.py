@@ -26,6 +26,7 @@ def test_init_sample(mock_sdk_init):
         staging_bucket=constants.STAGING_BUCKET,
         credentials=constants.CREDENTIALS,
         encryption_spec_key_name=constants.ENCRYPTION_SPEC_KEY_NAME,
+        service_account=constants.SERVICE_ACCOUNT,
     )
 
     mock_sdk_init.assert_called_once_with(
@@ -35,4 +36,5 @@ def test_init_sample(mock_sdk_init):
         staging_bucket=constants.STAGING_BUCKET,
         credentials=constants.CREDENTIALS,
         encryption_spec_key_name=constants.ENCRYPTION_SPEC_KEY_NAME,
+        service_account=constants.SERVICE_ACCOUNT,
     )

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,8 +36,7 @@ class Context(proto.Message):
 
     Attributes:
         name (str):
-            Output only. The resource name of the
-            Context.
+            Immutable. The resource name of the Context.
         display_name (str):
             User provided display name of the Context.
             May be up to 128 Unicode characters.

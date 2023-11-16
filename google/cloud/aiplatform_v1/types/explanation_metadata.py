@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ class ExplanationMetadata(proto.Message):
             For Vertex AI-provided Tensorflow images, keys
             can be any user defined string that consists of
             any UTF-8 characters.
+
             For custom images, keys are the name of the
             output field in the prediction to be explained.
 
@@ -149,6 +150,7 @@ class ExplanationMetadata(proto.Message):
                 encoded by a lookup table.
             encoded_baselines (MutableSequence[google.protobuf.struct_pb2.Value]):
                 A list of baselines for the encoded tensor.
+
                 The shape of each baseline should match the
                 shape of the encoded tensor. If a scalar is
                 provided, Vertex AI broadcasts to the same shape

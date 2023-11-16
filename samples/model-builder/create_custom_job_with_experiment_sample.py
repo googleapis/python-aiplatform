@@ -29,7 +29,12 @@ def create_custom_job_with_experiment_sample(
     experiment: str,
     experiment_run: Optional[str] = None,
 ) -> None:
-    aiplatform.init(project=project, location=location, staging_bucket=staging_bucket)
+    aiplatform.init(
+        project=project,
+        location=location,
+        staging_bucket=staging_bucket,
+        experiment=experiment
+    )
 
     job = aiplatform.CustomJob.from_local_script(
         display_name=display_name,

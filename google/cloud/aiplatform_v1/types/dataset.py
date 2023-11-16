@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,6 +60,9 @@ class Dataset(proto.Message):
         metadata (google.protobuf.struct_pb2.Value):
             Required. Additional information about the
             Dataset.
+        data_item_count (int):
+            Output only. The number of DataItems in this
+            Dataset. Only apply for non-structured Dataset.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Dataset was
             created.
@@ -130,6 +133,10 @@ class Dataset(proto.Message):
         proto.MESSAGE,
         number=8,
         message=struct_pb2.Value,
+    )
+    data_item_count: int = proto.Field(
+        proto.INT64,
+        number=10,
     )
     create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,

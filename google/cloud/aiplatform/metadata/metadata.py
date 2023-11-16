@@ -267,7 +267,7 @@ class _ExperimentTracker:
         *,
         description: Optional[str] = None,
         backing_tensorboard: Optional[
-            Union[str, tensorboard_resource.Tensorboard]
+            Union[str, tensorboard_resource.Tensorboard, bool]
         ] = None,
     ):
         """Set the experiment. Will retrieve the Experiment if it exists or create one with the provided name.
@@ -277,9 +277,15 @@ class _ExperimentTracker:
                 Required. Name of the experiment to set.
             description (str):
                 Optional. Description of an experiment.
-            backing_tensorboard Union[str, aiplatform.Tensorboard]:
+            backing_tensorboard Union[str, aiplatform.Tensorboard, bool]:
                 Optional. If provided, assigns tensorboard as backing tensorboard to support time series metrics
                 logging.
+
+                If ommitted, or set to `True` or `None`, the global tensorboard is used.
+                If no global tensorboard is set, the default tensorboard will be used, and created if it does not exist.
+
+                To disable using a backign tensorboard, set `backing_tensorboard` to `False`.
+                To maintain this behavior, set `experiment_tensorboard` to `False` in subsequent calls to aiplatform.init().
         """
         self.reset()
 
@@ -287,11 +293,14 @@ class _ExperimentTracker:
             experiment_name=experiment, description=description
         )
 
-        backing_tb = (
-            backing_tensorboard
-            or self._global_tensorboard
-            or _get_or_create_default_tensorboard()
-        )
+        if backing_tensorboard and not isinstance(backing_tensorboard, bool):
+            backing_tb = backing_tensorboard
+        elif isinstance(backing_tensorboard, bool) and not backing_tensorboard:
+            backing_tb = None
+        else:
+            backing_tb = (
+                self._global_tensorboard or _get_or_create_default_tensorboard()
+            )
 
         current_backing_tb = experiment.backing_tensorboard_resource_name
 
@@ -322,7 +331,7 @@ class _ExperimentTracker:
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to set this Tensorboard resource.
         """
-        if isinstance(tensorboard, str):
+        if tensorboard and isinstance(tensorboard, str):
             tensorboard = tensorboard_resource.Tensorboard(
                 tensorboard,
                 project=project,

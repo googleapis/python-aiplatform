@@ -75,7 +75,7 @@ _TEST_MODEL_NAME = (
 
 @pytest.fixture
 def mock_datetime_now(monkeypatch):
-    class DateTime:
+    class DateTime(datetime.datetime):
         @classmethod
         def now(cls):
             return _TEST_DATETIME

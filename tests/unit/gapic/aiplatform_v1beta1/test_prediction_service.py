@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,11 +48,12 @@ from google.cloud.aiplatform_v1beta1.services.prediction_service import transpor
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import prediction_service
+from google.cloud.aiplatform_v1beta1.types import types
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
@@ -1152,6 +1153,165 @@ async def test_raw_predict_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
+        prediction_service.StreamingPredictRequest,
+        dict,
+    ],
+)
+def test_server_streaming_predict(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.server_streaming_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([prediction_service.StreamingPredictResponse()])
+        response = client.server_streaming_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamingPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(message, prediction_service.StreamingPredictResponse)
+
+
+def test_server_streaming_predict_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.server_streaming_predict), "__call__"
+    ) as call:
+        client.server_streaming_predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamingPredictRequest()
+
+
+@pytest.mark.asyncio
+async def test_server_streaming_predict_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.StreamingPredictRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.server_streaming_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.StreamingPredictResponse()]
+        )
+        response = await client.server_streaming_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamingPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(message, prediction_service.StreamingPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_server_streaming_predict_async_from_dict():
+    await test_server_streaming_predict_async(request_type=dict)
+
+
+def test_server_streaming_predict_field_headers():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.StreamingPredictRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.server_streaming_predict), "__call__"
+    ) as call:
+        call.return_value = iter([prediction_service.StreamingPredictResponse()])
+        client.server_streaming_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_server_streaming_predict_field_headers_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.StreamingPredictRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.server_streaming_predict), "__call__"
+    ) as call:
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.StreamingPredictResponse()]
+        )
+        await client.server_streaming_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         prediction_service.ExplainRequest,
         dict,
     ],
@@ -1334,6 +1494,252 @@ async def test_explain_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.CountTokensRequest,
+        dict,
+    ],
+)
+def test_count_tokens(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.count_tokens), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.CountTokensResponse(
+            total_tokens=1303,
+            total_billable_characters=2617,
+        )
+        response = client.count_tokens(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.CountTokensRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.CountTokensResponse)
+    assert response.total_tokens == 1303
+    assert response.total_billable_characters == 2617
+
+
+def test_count_tokens_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.count_tokens), "__call__") as call:
+        client.count_tokens()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.CountTokensRequest()
+
+
+@pytest.mark.asyncio
+async def test_count_tokens_async(
+    transport: str = "grpc_asyncio", request_type=prediction_service.CountTokensRequest
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.count_tokens), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.CountTokensResponse(
+                total_tokens=1303,
+                total_billable_characters=2617,
+            )
+        )
+        response = await client.count_tokens(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.CountTokensRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.CountTokensResponse)
+    assert response.total_tokens == 1303
+    assert response.total_billable_characters == 2617
+
+
+@pytest.mark.asyncio
+async def test_count_tokens_async_from_dict():
+    await test_count_tokens_async(request_type=dict)
+
+
+def test_count_tokens_field_headers():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.CountTokensRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.count_tokens), "__call__") as call:
+        call.return_value = prediction_service.CountTokensResponse()
+        client.count_tokens(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_count_tokens_field_headers_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.CountTokensRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.count_tokens), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.CountTokensResponse()
+        )
+        await client.count_tokens(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+def test_count_tokens_flattened():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.count_tokens), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.CountTokensResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.count_tokens(
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].instances
+        mock_val = [struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)]
+        assert arg == mock_val
+
+
+def test_count_tokens_flattened_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.count_tokens(
+            prediction_service.CountTokensRequest(),
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+        )
+
+
+@pytest.mark.asyncio
+async def test_count_tokens_flattened_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.count_tokens), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.CountTokensResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.CountTokensResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.count_tokens(
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].instances
+        mock_val = [struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)]
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_count_tokens_flattened_error_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.count_tokens(
+            prediction_service.CountTokensRequest(),
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+        )
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.PredictionServiceGrpcTransport(
@@ -1473,7 +1879,9 @@ def test_prediction_service_base_transport():
     methods = (
         "predict",
         "raw_predict",
+        "server_streaming_predict",
         "explain",
+        "count_tokens",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",

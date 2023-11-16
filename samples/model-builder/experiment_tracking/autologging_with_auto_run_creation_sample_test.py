@@ -27,7 +27,7 @@ def test_autologging_with_auto_run_creation_sample(mock_sdk_init, mock_autolog):
     )
 
     mock_sdk_init.assert_called_with(
-        experiment_name=constants.EXPERIMENT_NAME,
+        experiment=constants.EXPERIMENT_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
         experiment_tensorboard=constants.TENSORBOARD_NAME,

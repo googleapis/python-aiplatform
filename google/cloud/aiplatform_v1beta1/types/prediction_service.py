@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import proto  # type: ignore
 
 from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import explanation
+from google.cloud.aiplatform_v1beta1.types import types
 from google.protobuf import struct_pb2  # type: ignore
 
 
@@ -30,8 +31,12 @@ __protobuf__ = proto.module(
         "PredictRequest",
         "PredictResponse",
         "RawPredictRequest",
+        "StreamingPredictRequest",
+        "StreamingPredictResponse",
         "ExplainRequest",
         "ExplainResponse",
+        "CountTokensRequest",
+        "CountTokensResponse",
     },
 )
 
@@ -110,6 +115,10 @@ class PredictResponse(proto.Message):
             name][google.cloud.aiplatform.v1beta1.Model.display_name] of
             the Model which is deployed as the DeployedModel that this
             prediction hits.
+        metadata (google.protobuf.struct_pb2.Value):
+            Output only. Request-level metadata returned
+            by the model. The metadata type will be
+            dependent upon the model implementation.
     """
 
     predictions: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
@@ -132,6 +141,11 @@ class PredictResponse(proto.Message):
     model_display_name: str = proto.Field(
         proto.STRING,
         number=4,
+    )
+    metadata: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=struct_pb2.Value,
     )
 
 
@@ -178,6 +192,65 @@ class RawPredictRequest(proto.Message):
     )
 
 
+class StreamingPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.StreamingPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamingPredict].
+
+    The first message must contain
+    [endpoint][google.cloud.aiplatform.v1beta1.StreamingPredictRequest.endpoint]
+    field and optionally [input][]. The subsequent messages must contain
+    [input][].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        inputs (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tensor]):
+            The prediction input.
+        parameters (google.cloud.aiplatform_v1beta1.types.Tensor):
+            The parameters that govern the prediction.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    inputs: MutableSequence[types.Tensor] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=types.Tensor,
+    )
+    parameters: types.Tensor = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=types.Tensor,
+    )
+
+
+class StreamingPredictResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.StreamingPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamingPredict].
+
+    Attributes:
+        outputs (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tensor]):
+            The prediction output.
+        parameters (google.cloud.aiplatform_v1beta1.types.Tensor):
+            The parameters that govern the prediction.
+    """
+
+    outputs: MutableSequence[types.Tensor] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=types.Tensor,
+    )
+    parameters: types.Tensor = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=types.Tensor,
+    )
+
+
 class ExplainRequest(proto.Message):
     r"""Request message for
     [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
@@ -217,6 +290,14 @@ class ExplainRequest(proto.Message):
                methods to reduce approximate errors;
             -  Using different baselines for explaining the prediction
                results.
+        concurrent_explanation_spec_override (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ExplanationSpecOverride]):
+            Optional. This field is the same as the one above, but
+            supports multiple explanations to occur in parallel. The key
+            can be any string. Each override will be run against the
+            model, then its explanations will be grouped together.
+
+            Note - these explanations are run **In Addition** to the
+            default Explanation in the deployed model.
         deployed_model_id (str):
             If specified, this ExplainRequest will be served by the
             chosen DeployedModel, overriding
@@ -242,6 +323,14 @@ class ExplainRequest(proto.Message):
         number=5,
         message=explanation.ExplanationSpecOverride,
     )
+    concurrent_explanation_spec_override: MutableMapping[
+        str, explanation.ExplanationSpecOverride
+    ] = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=6,
+        message=explanation.ExplanationSpecOverride,
+    )
     deployed_model_id: str = proto.Field(
         proto.STRING,
         number=3,
@@ -260,6 +349,10 @@ class ExplainResponse(proto.Message):
             It has the same number of elements as
             [instances][google.cloud.aiplatform.v1beta1.ExplainRequest.instances]
             to be explained.
+        concurrent_explanations (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ExplainResponse.ConcurrentExplanation]):
+            This field stores the results of the
+            explanations run in parallel with The default
+            explanation strategy/method.
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
             served this explanation.
@@ -269,10 +362,37 @@ class ExplainResponse(proto.Message):
             [PredictResponse.predictions][google.cloud.aiplatform.v1beta1.PredictResponse.predictions].
     """
 
+    class ConcurrentExplanation(proto.Message):
+        r"""This message is a wrapper grouping Concurrent Explanations.
+
+        Attributes:
+            explanations (MutableSequence[google.cloud.aiplatform_v1beta1.types.Explanation]):
+                The explanations of the Model's
+                [PredictResponse.predictions][google.cloud.aiplatform.v1beta1.PredictResponse.predictions].
+
+                It has the same number of elements as
+                [instances][google.cloud.aiplatform.v1beta1.ExplainRequest.instances]
+                to be explained.
+        """
+
+        explanations: MutableSequence[explanation.Explanation] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=explanation.Explanation,
+        )
+
     explanations: MutableSequence[explanation.Explanation] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=explanation.Explanation,
+    )
+    concurrent_explanations: MutableMapping[
+        str, ConcurrentExplanation
+    ] = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=4,
+        message=ConcurrentExplanation,
     )
     deployed_model_id: str = proto.Field(
         proto.STRING,
@@ -282,6 +402,55 @@ class ExplainResponse(proto.Message):
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Value,
+    )
+
+
+class CountTokensRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.CountTokens][google.cloud.aiplatform.v1beta1.PredictionService.CountTokens].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to perform
+            token counting. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        instances (MutableSequence[google.protobuf.struct_pb2.Value]):
+            Required. The instances that are the input to
+            token counting call. Schema is identical to the
+            prediction schema of the underlying model.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    instances: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=struct_pb2.Value,
+    )
+
+
+class CountTokensResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.CountTokens][google.cloud.aiplatform.v1beta1.PredictionService.CountTokens].
+
+    Attributes:
+        total_tokens (int):
+            The total number of tokens counted across all
+            instances from the request.
+        total_billable_characters (int):
+            The total number of billable characters
+            counted across all instances from the request.
+    """
+
+    total_tokens: int = proto.Field(
+        proto.INT32,
+        number=1,
+    )
+    total_billable_characters: int = proto.Field(
+        proto.INT32,
+        number=2,
     )
 
 

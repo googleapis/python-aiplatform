@@ -63,6 +63,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
     def setup_class(cls):
         cls._experiment_name = cls._make_display_name("")[:64]
+        cls._experiment_model_name = cls._make_display_name("sklearn-model")[:64]
         cls._dataset_artifact_name = cls._make_display_name("")[:64]
         cls._dataset_artifact_uri = cls._make_display_name("ds-uri")
         cls._pipeline_job_id = cls._make_display_name("job-id")
@@ -201,7 +202,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
         model_artifact = aiplatform.log_model(
             model=model,
-            artifact_id="sklearn-model",
+            artifact_id=self._experiment_model_name,
             uri=f"gs://{shared_state['staging_bucket_name']}/sklearn-model",
             input_example=train_x,
         )
@@ -209,7 +210,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
         run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
         experiment_model = run.get_experiment_models()[0]
-        assert experiment_model.name == "sklearn-model"
+        assert "sklearn-model" in experiment_model.name
         assert (
             experiment_model.uri
             == f"gs://{shared_state['staging_bucket_name']}/sklearn-model"

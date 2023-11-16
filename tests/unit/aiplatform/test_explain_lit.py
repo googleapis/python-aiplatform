@@ -29,21 +29,31 @@ from google.cloud.aiplatform.compat.types import (
     prediction_service as gca_prediction_service,
     explanation as gca_explanation,
 )
-from google.cloud.aiplatform.explain.lit import (
+
+# TODO (b/301592787): update testing_extra_require deps to numpy >= 1.22.0 when it doesn't cause conflicts
+try:
+    from lit_nlp import notebook  # noqa: F401
+except ImportError:
+    pytest.skip(
+        "Skipping test_explain_list due to dependency conflict with numpy",
+        allow_module_level=True,
+    )
+
+from google.cloud.aiplatform.explain.lit import (  # noqa: E402
     create_lit_dataset,
     create_lit_model,
     create_lit_model_from_endpoint,
     open_lit,
     set_up_and_open_lit,
 )
-from google.cloud.aiplatform.compat.services import (
+from google.cloud.aiplatform.compat.services import (  # noqa: E402
     endpoint_service_client,
     prediction_service_client,
 )
-from importlib import reload
-from lit_nlp.api import types as lit_types
-from lit_nlp import notebook
-from unittest import mock
+from importlib import reload  # noqa: E402
+from lit_nlp.api import types as lit_types  # noqa: E402
+from lit_nlp import notebook  # noqa: E402, F811
+from unittest import mock  # noqa: E402
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"

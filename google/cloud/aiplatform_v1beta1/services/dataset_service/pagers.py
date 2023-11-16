@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ from google.cloud.aiplatform_v1beta1.types import annotation
 from google.cloud.aiplatform_v1beta1.types import data_item
 from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
+from google.cloud.aiplatform_v1beta1.types import dataset_version
 from google.cloud.aiplatform_v1beta1.types import saved_query
 
 
@@ -151,6 +152,134 @@ class ListDatasetsAsyncPager:
         async def async_generator():
             async for page in self.pages:
                 for response in page.datasets:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListDatasetVersionsPager:
+    """A pager for iterating through ``list_dataset_versions`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.ListDatasetVersionsResponse` object, and
+    provides an ``__iter__`` method to iterate through its
+    ``dataset_versions`` field.
+
+    If there are more pages, the ``__iter__`` method will make additional
+    ``ListDatasetVersions`` requests and continue to iterate
+    through the ``dataset_versions`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListDatasetVersionsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., dataset_service.ListDatasetVersionsResponse],
+        request: dataset_service.ListDatasetVersionsRequest,
+        response: dataset_service.ListDatasetVersionsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.ListDatasetVersionsRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.ListDatasetVersionsResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = dataset_service.ListDatasetVersionsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    def pages(self) -> Iterator[dataset_service.ListDatasetVersionsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __iter__(self) -> Iterator[dataset_version.DatasetVersion]:
+        for page in self.pages:
+            yield from page.dataset_versions
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListDatasetVersionsAsyncPager:
+    """A pager for iterating through ``list_dataset_versions`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.ListDatasetVersionsResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``dataset_versions`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListDatasetVersions`` requests and continue to iterate
+    through the ``dataset_versions`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListDatasetVersionsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[dataset_service.ListDatasetVersionsResponse]],
+        request: dataset_service.ListDatasetVersionsRequest,
+        response: dataset_service.ListDatasetVersionsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiates the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.ListDatasetVersionsRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.ListDatasetVersionsResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = dataset_service.ListDatasetVersionsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(self) -> AsyncIterator[dataset_service.ListDatasetVersionsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterator[dataset_version.DatasetVersion]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.dataset_versions:
                     yield response
 
         return async_generator()

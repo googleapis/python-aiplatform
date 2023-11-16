@@ -26,12 +26,14 @@ from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import schema
+from google.cloud.aiplatform.metadata import constants as metadata_constants
 
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
 )
 
 from google.cloud.aiplatform.compat.types import (
+    context,
     custom_job,
     encryption_spec,
     endpoint,
@@ -123,6 +125,7 @@ class TrainingJobConstants:
     )
     _TEST_TIMEOUT = 8000
     _TEST_RESTART_JOB_ON_WORKER_RESTART = True
+    _TEST_DISABLE_RETRIES = True
 
     _TEST_BASE_CUSTOM_JOB_PROTO = custom_job.CustomJob(
         display_name=_TEST_DISPLAY_NAME,
@@ -134,6 +137,7 @@ class TrainingJobConstants:
             scheduling=custom_job.Scheduling(
                 timeout=duration_pb2.Duration(seconds=_TEST_TIMEOUT),
                 restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+                disable_retries=_TEST_DISABLE_RETRIES,
             ),
             service_account=ProjectConstants._TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
@@ -326,6 +330,30 @@ class DatasetConstants:
     _TEST_DATA_LABEL_ITEMS = None
     _TEST_REQUEST_METADATA = ()
     _TEST_SOURCE_URI_GCS = "gs://my-bucket/my_index_file.jsonl"
+
+
+@dataclasses.dataclass(frozen=True)
+class ExperimentConstants:
+    """Defines constants used by Experiments and Metadata tests."""
+
+    _TEST_EXPERIMENT = "test-experiment"
+    _TEST_CONTEXT_ID = _TEST_EXPERIMENT
+    _TEST_METADATA_PARENT = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/metadataStores/default"
+    _TEST_CONTEXT_NAME = f"{_TEST_METADATA_PARENT}/contexts/{_TEST_CONTEXT_ID}"
+    _TEST_EXPERIMENT_DESCRIPTION = "test-experiment-description"
+
+    _EXPERIMENT_MOCK = context.Context(
+        name=_TEST_CONTEXT_NAME,
+        display_name=_TEST_EXPERIMENT,
+        description=_TEST_EXPERIMENT_DESCRIPTION,
+        schema_title=metadata_constants.SYSTEM_EXPERIMENT,
+        schema_version=metadata_constants.SCHEMA_VERSIONS[
+            metadata_constants.SYSTEM_EXPERIMENT
+        ],
+        metadata={**metadata_constants.EXPERIMENT_METADATA},
+    )
+
+    _TEST_METADATASTORE = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/metadataStores/default"
 
 
 @dataclasses.dataclass(frozen=True)

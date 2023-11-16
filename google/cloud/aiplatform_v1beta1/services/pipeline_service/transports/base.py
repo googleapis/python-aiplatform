@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ from google.cloud.aiplatform_v1beta1.types import (
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 
@@ -181,6 +180,11 @@ class PipelineServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.batch_delete_pipeline_jobs: gapic_v1.method.wrap_method(
+                self.batch_delete_pipeline_jobs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.cancel_pipeline_job: gapic_v1.method.wrap_method(
                 self.cancel_pipeline_job,
                 default_timeout=None,
@@ -291,6 +295,15 @@ class PipelineServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [pipeline_service.DeletePipelineJobRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_delete_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.BatchDeletePipelineJobsRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

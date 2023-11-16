@@ -17,10 +17,12 @@
 
 
 from concurrent import futures
+import inspect
 import logging
-import pkg_resources  # Note this is used after copybara replacement
+import pkg_resources  # noqa: F401 # Note this is used after copybara replacement
 import os
-from typing import List, Optional, Type, Union
+import types
+from typing import Iterator, List, Optional, Type, TypeVar, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -40,6 +42,13 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec_v1 as gca_encryption_spec_v1,
     encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
 )
+
+_TVertexAiServiceClientWithOverride = TypeVar(
+    "_TVertexAiServiceClientWithOverride",
+    bound=utils.VertexAiServiceClientWithOverride,
+)
+
+_TOP_GOOGLE_CONSTRUCTOR_METHOD_TAG = "top_google_constructor_method"
 
 
 class _Config:
@@ -93,6 +102,7 @@ class _Config:
         self._credentials = None
         self._encryption_spec_key_name = None
         self._network = None
+        self._service_account = None
 
     def init(
         self,
@@ -102,12 +112,13 @@ class _Config:
         experiment: Optional[str] = None,
         experiment_description: Optional[str] = None,
         experiment_tensorboard: Optional[
-            Union[str, tensorboard_resource.Tensorboard]
+            Union[str, tensorboard_resource.Tensorboard, bool]
         ] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         network: Optional[str] = None,
+        service_account: Optional[str] = None,
     ):
         """Updates common initialization parameters with provided options.
 
@@ -117,7 +128,7 @@ class _Config:
                 set defaults to us-central-1.
             experiment (str): Optional. The experiment name.
             experiment_description (str): Optional. The description of the experiment.
-            experiment_tensorboard (Union[str, tensorboard_resource.Tensorboard]):
+            experiment_tensorboard (Union[str, tensorboard_resource.Tensorboard, bool]):
                 Optional. The Vertex AI TensorBoard instance, Tensorboard resource name,
                 or Tensorboard resource ID to use as a backing Tensorboard for the provided
                 experiment.
@@ -130,6 +141,13 @@ class _Config:
                 Any subsequent calls to aiplatform.init() with `experiment` and without
                 `experiment_tensorboard` will automatically assign the global Tensorboard
                 to the `experiment`.
+
+                If `experiment_tensorboard` is ommitted or set to `True` or `None` the global
+                Tensorboard will be assigned to the `experiment`. If a global Tensorboard is
+                not set, the default Tensorboard instance will be used, and created if it deos not exist.
+
+                To disable creating and using Tensorboard with `experiment`, set `experiment_tensorboard` to False.
+                Any subsequent calls to aiplatform.init() should include this setting as well.
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
             credentials (google.auth.credentials.Credentials): The default custom
@@ -150,6 +168,12 @@ class _Config:
                 Private services access must already be configured for the network.
                 If specified, all eligible jobs and resources created will be peered
                 with this VPC.
+            service_account (str):
+                Optional. The service account used to launch jobs and deploy models.
+                Jobs that use service_account: BatchPredictionJob, CustomJob,
+                PipelineJob, HyperparameterTuningJob, CustomTrainingJob,
+                CustomPythonPackageTrainingJob, CustomContainerTrainingJob,
+                ModelEvaluationJob.
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
@@ -160,7 +184,7 @@ class _Config:
                 "Experiment needs to be set in `init` in order to add experiment descriptions."
             )
 
-        if experiment_tensorboard:
+        if experiment_tensorboard and not isinstance(experiment_tensorboard, bool):
             metadata._experiment_tracker.set_tensorboard(
                 tensorboard=experiment_tensorboard,
                 project=project,
@@ -189,6 +213,8 @@ class _Config:
             self._encryption_spec_key_name = encryption_spec_key_name
         if network is not None:
             self._network = network
+        if service_account is not None:
+            self._service_account = service_account
 
         if experiment:
             metadata._experiment_tracker.set_experiment(
@@ -293,6 +319,11 @@ class _Config:
         return self._network
 
     @property
+    def service_account(self) -> Optional[str]:
+        """Default service account, if provided."""
+        return self._service_account
+
+    @property
     def experiment_name(self) -> Optional[str]:
         """Default experiment name, if provided."""
         return metadata._experiment_tracker.experiment_name
@@ -368,14 +399,15 @@ class _Config:
 
     def create_client(
         self,
-        client_class: Type[utils.VertexAiServiceClientWithOverride],
+        client_class: Type[_TVertexAiServiceClientWithOverride],
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
         prediction_client: bool = False,
         api_base_path_override: Optional[str] = None,
         api_path_override: Optional[str] = None,
         appended_user_agent: Optional[List[str]] = None,
-    ) -> utils.VertexAiServiceClientWithOverride:
+        appended_gapic_version: Optional[str] = None,
+    ) -> _TVertexAiServiceClientWithOverride:
         """Instantiates a given VertexAiServiceClient with optional
         overrides.
 
@@ -391,12 +423,26 @@ class _Config:
             appended_user_agent (List[str]):
                 Optional. User agent appended in the client info. If more than one, it will be
                 separated by spaces.
+            appended_gapic_version (str):
+                Optional. GAPIC version suffix appended in the client info.
         Returns:
             client: Instantiated Vertex AI Service client with optional overrides
         """
         gapic_version = pkg_resources.get_distribution(
             "google-cloud-aiplatform",
         ).version
+
+        if appended_gapic_version:
+            gapic_version = f"{gapic_version}+{appended_gapic_version}"
+
+        try:
+            caller_method = _get_top_level_google_caller_method_name()
+            if caller_method:
+                gapic_version += (
+                    f"+{_TOP_GOOGLE_CONSTRUCTOR_METHOD_TAG}+{caller_method}"
+                )
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass
 
         user_agent = f"{constants.USER_AGENT_PRODUCT}/{gapic_version}"
         if appended_user_agent:
@@ -427,3 +473,63 @@ global_config = _Config()
 global_pool = futures.ThreadPoolExecutor(
     max_workers=min(32, max(4, (os.cpu_count() or 0) * 5))
 )
+
+
+def _get_function_name_from_stack_frame(frame) -> str:
+    """Gates fully qualified function or method name.
+
+    Args:
+        frame: A stack frame
+
+    Returns:
+        Fully qualified function or method name
+    """
+    module_name = frame.f_globals["__name__"]
+    function_name = frame.f_code.co_name
+
+    # Getting the class from instance and class methods
+    # We need to differentiate between function parameters and other local variables.
+    if frame.f_code.co_argcount > 0:
+        first_arg_name = frame.f_code.co_varnames[0]
+    else:
+        first_arg_name = None
+
+    # Inferring the class based on the name of the function's first parameter.
+    if first_arg_name == "self":
+        f_cls = frame.f_locals["self"].__class__
+    elif first_arg_name == "cls":
+        f_cls = frame.f_locals["cls"]
+    else:
+        f_cls = None
+
+    if f_cls:
+        module_name = f_cls.__module__ or module_name
+        # Not using __qualname__ since it's not affected by the __name__ changes
+        class_name = f_cls.__name__
+        return f"{module_name}.{class_name}.{function_name}"
+    else:
+        return f"{module_name}.{function_name}"
+
+
+def _get_stack_frames() -> Iterator[types.FrameType]:
+    """A faster version of inspect.stack().
+
+    This function avoids the expensive inspect.getframeinfo() calls which locate
+    the source code and extract the traceback context code lines.
+    """
+    frame = inspect.currentframe()
+    while frame:
+        yield frame
+        frame = frame.f_back
+
+
+def _get_top_level_google_caller_method_name() -> Optional[str]:
+    top_level_method = None
+    for frame in _get_stack_frames():
+        function_name = _get_function_name_from_stack_frame(frame)
+        if function_name.startswith("vertexai.") or (
+            function_name.startswith("google.cloud.aiplatform.")
+            and not function_name.startswith("google.cloud.aiplatform.tests")
+        ):
+            top_level_method = function_name
+    return top_level_method

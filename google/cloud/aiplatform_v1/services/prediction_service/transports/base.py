@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ from google.cloud.aiplatform_v1.types import prediction_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
@@ -138,6 +138,11 @@ class PredictionServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.server_streaming_predict: gapic_v1.method.wrap_method(
+                self.server_streaming_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.explain: gapic_v1.method.wrap_method(
                 self.explain,
                 default_timeout=None,
@@ -172,6 +177,18 @@ class PredictionServiceTransport(abc.ABC):
     ) -> Callable[
         [prediction_service.RawPredictRequest],
         Union[httpbody_pb2.HttpBody, Awaitable[httpbody_pb2.HttpBody]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def server_streaming_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamingPredictRequest],
+        Union[
+            prediction_service.StreamingPredictResponse,
+            Awaitable[prediction_service.StreamingPredictResponse],
+        ],
     ]:
         raise NotImplementedError()
 

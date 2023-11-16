@@ -15,7 +15,7 @@ Vertex AI SDK for Python
 .. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
    :target: https://pypi.org/project/google-cloud-aiplatform/
 .. _Vertex AI: https://cloud.google.com/vertex-ai/docs
-.. _Client Library Documentation: https://googleapis.dev/python/aiplatform/latest
+.. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
 
@@ -26,12 +26,12 @@ In order to use this library, you first need to go through the following steps:
 
 1. `Select or create a Cloud Platform project.`_
 2. `Enable billing for your project.`_
-3. `Enable the Cloud AI Platform API.`_
+3. `Enable the Vertex AI API.`_
 4. `Setup Authentication.`_
 
 .. _Select or create a Cloud Platform project.: https://console.cloud.google.com/project
 .. _Enable billing for your project.: https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project
-.. _Enable the Cloud AI Platform API.:  https://cloud.google.com/ai-platform/docs
+.. _Enable the Vertex AI API.:  https://cloud.google.com/vertex-ai/docs/start/use-vertex-ai-python-sdk
 .. _Setup Authentication.: https://googleapis.dev/python/google-api-core/latest/auth.html
 
 Installation
@@ -45,7 +45,7 @@ With `virtualenv`_, it's possible to install this library without needing system
 install permissions, and without clashing with the installed system
 dependencies.
 
-.. _`virtualenv`: https://virtualenv.pypa.io/en/latest/
+.. _virtualenv: https://virtualenv.pypa.io/en/latest/
 
 
 Mac/Linux
@@ -59,6 +59,7 @@ Mac/Linux
     <your-env>/bin/pip install google-cloud-aiplatform
 
 
+
 Windows
 ^^^^^^^
 
@@ -69,19 +70,52 @@ Windows
     <your-env>\Scripts\activate
     <your-env>\Scripts\pip.exe install google-cloud-aiplatform
 
+Supported Python Versions
+^^^^^^^^^^^^^^^^^^^^^^^^^
+Python >= 3.7
+
+Deprecated Python Versions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Python == 3.6.
+
+The last version of this library compatible with Python 3.6 is google-cloud-aiplatform==1.12.1.
+
 Overview
 ~~~~~~~~
 This section provides a brief overview of the Vertex AI SDK for Python. You can also reference the notebooks in `vertex-ai-samples`_ for examples.
 
-.. _vertex-ai-samples: https://github.com/GoogleCloudPlatform/ai-platform-samples/tree/master/ai-platform-unified/notebooks/unofficial/sdk
+.. _vertex-ai-samples: https://github.com/GoogleCloudPlatform/vertex-ai-samples/tree/main/notebooks/community/sdk
+
+All publicly available SDK features can be found in the :code:`google/cloud/aiplatform` directory.
+Under the hood, Vertex SDK builds on top of GAPIC, which stands for Google API CodeGen.
+The GAPIC library code sits in :code:`google/cloud/aiplatform_v1` and :code:`google/cloud/aiplatform_v1beta1`,
+and it is auto-generated from Google's service proto files.
+
+For most developers' programmatic needs, they can follow these steps to figure out which libraries to import:
+
+1. Look through :code:`google/cloud/aiplatform` first -- Vertex SDK's APIs will almost always be easier to use and more concise comparing with GAPIC
+2. If the feature that you are looking for cannot be found there, look through :code:`aiplatform_v1` to see if it's available in GAPIC
+3. If it is still in beta phase, it will be available in :code:`aiplatform_v1beta1`
+
+If none of the above scenarios could help you find the right tools for your task, please feel free to open a github issue and send us a feature request.
 
 Importing
 ^^^^^^^^^
-SDK functionality can be used from the root of the package:
+Vertex AI SDK functionality can be used by importing the following namespace:
 
 .. code-block:: Python
 
     from google.cloud import aiplatform
+
+Vertex AI SDK preview functionality can be used by importing the following namespace:
+
+.. code-block:: Python
+
+    from vertexai import preview
+
+Vertex AI client library functionality can be used by importing the following namespace:
+
+.. code-block:: Python
 
 
 Initialization
@@ -104,7 +138,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         staging_bucket='gs://my_staging_bucket',
 
         # custom google.auth.credentials.Credentials
-        # environment default creds used if not set
+        # environment default credentials used if not set
         credentials=my_credentials,
 
         # customer managed encryption key resource name
@@ -116,7 +150,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         experiment='my-experiment',
 
         # description of the experiment above
-        experiment_description='my experiment decsription'
+        experiment_description='my experiment description'
     )
 
 Datasets
@@ -181,7 +215,7 @@ Please visit `Using a managed dataset in a custom training application`_ for a d
 
 .. _Using a managed dataset in a custom training application: https://cloud.google.com/vertex-ai/docs/training/using-managed-datasets
 
-It must write the model artifact to the environment variable populated by the traing service:
+It must write the model artifact to the environment variable populated by the training service:
 
 .. code-block:: Python
 
@@ -194,9 +228,10 @@ It must write the model artifact to the environment variable populated by the tr
   job = aiplatform.CustomTrainingJob(
       display_name="my-training-job",
       script_path="training_script.py",
-      container_uri="gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest",
+      container_uri="us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-2:latest",
       requirements=["gcsfs==0.7.1"],
-      model_serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-2:latest",
+      model_serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
+
   )
 
   model = job.run(my_dataset,
@@ -238,6 +273,26 @@ To train an AutoML tabular model:
 
 Models
 ------
+To get a model:
+
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+
+
+
+To upload a model:
+
+.. code-block:: Python
+
+  model = aiplatform.Model.upload(
+      display_name='my-model',
+      artifact_uri="gs://python/to/my/model/dir",
+      serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
+  )
+
+
 
 To deploy a model:
 
@@ -252,25 +307,51 @@ To deploy a model:
                           accelerator_count=1)
 
 
-To upload a model:
-
-.. code-block:: Python
-
-  model = aiplatform.Model.upload(
-      display_name='my-model',
-      artifact_uri="gs://python/to/my/model/dir",
-      serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-2:latest",
-  )
-
-To get a model:
-
-.. code-block:: Python
-
-  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
-
 Please visit `Importing models to Vertex AI`_ for a detailed overview:
 
 .. _Importing models to Vertex AI: https://cloud.google.com/vertex-ai/docs/general/import-model
+
+
+Model Evaluation
+----------------
+
+The Vertex AI SDK for Python currently supports getting model evaluation metrics for all AutoML models.
+
+To list all model evaluations for a model:
+
+.. code-block:: Python
+
+  model = aiplatform.Model('projects/my-project/locations/us-central1/models/{MODEL_ID}')
+
+  evaluations = model.list_model_evaluations()
+
+
+To get the model evaluation resource for a given model:
+
+.. code-block:: Python
+
+  model = aiplatform.Model('projects/my-project/locations/us-central1/models/{MODEL_ID}')
+
+  # returns the first evaluation with no arguments, you can also pass the evaluation ID
+  evaluation = model.get_model_evaluation()
+
+  eval_metrics = evaluation.metrics
+
+
+You can also create a reference to your model evaluation directly by passing in the resource name of the model evaluation:
+
+.. code-block:: Python
+
+  evaluation = aiplatform.ModelEvaluation(
+    evaluation_name='projects/my-project/locations/us-central1/models/{MODEL_ID}/evaluations/{EVALUATION_ID}')
+
+Alternatively, you can create a reference to your evaluation by passing in the model and evaluation IDs:
+
+.. code-block:: Python
+
+  evaluation = aiplatform.ModelEvaluation(
+    evaluation_name={EVALUATION_ID},
+    model_id={MODEL_ID})
 
 
 Batch Prediction
@@ -310,18 +391,11 @@ You can also create a batch prediction job asynchronously by including the `sync
 Endpoints
 ---------
 
-To get predictions from endpoints:
+To create an endpoint:
 
 .. code-block:: Python
 
-  endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
-
-
-To create an endpoint
-
-.. code-block:: Python
-
-  endpoint = endpoint.create(display_name='my-endpoint')
+  endpoint = aiplatform.Endpoint.create(display_name='my-endpoint')
 
 To deploy a model to a created endpoint:
 
@@ -331,10 +405,17 @@ To deploy a model to a created endpoint:
 
   endpoint.deploy(model,
                   min_replica_count=1,
-                  max_replica_count=5
+                  max_replica_count=5,
                   machine_type='n1-standard-4',
                   accelerator_type='NVIDIA_TESLA_K80',
                   accelerator_count=1)
+
+To get predictions from endpoints:
+
+.. code-block:: Python
+
+  endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
+
 
 To undeploy models from an endpoint:
 
@@ -456,6 +537,25 @@ To use Explanation Metadata in endpoint deployment and model upload:
 
   # To upload a model with explanation
   aiplatform.Model.upload(..., explanation_metadata=explanation_metadata)
+
+
+
+Cloud Profiler
+----------------------------
+
+Cloud Profiler allows you to profile your remote Vertex AI Training jobs on demand and visualize the results in Vertex AI Tensorboard.
+
+To start using the profiler with TensorFlow, update your training script to include the following:
+
+.. code-block:: Python
+
+    from google.cloud.aiplatform.training_utils import cloud_profiler
+    ...
+    cloud_profiler.init()
+
+Next, run the job with with a Vertex AI TensorBoard instance. For full details on how to do this, visit https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-overview
+
+Finally, visit your TensorBoard in your Google Cloud Console, navigate to the "Profile" tab, and click the `Capture Profile` button. This will allow users to capture profiling statistics for the running jobs.
 
 
 Next Steps
