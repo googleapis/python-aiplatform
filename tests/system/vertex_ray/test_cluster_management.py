@@ -32,6 +32,17 @@ class TestClusterManagement(e2e_base.TestEndToEnd):
         assert ray.__version__ == RAY_VERSION
         aiplatform.init(project=PROJECT_ID, location="us-central1")
 
+        import google.auth
+
+        credentials, project_id = google.auth.default()
+
+        if hasattr(credentials, "service_account_email"):
+            print(credentials.service_account_email)
+        else:
+            print("WARNING: no service account credential. User account credential?")
+
+        assert credentials.service_account_email is "sa"
+
         # CPU default cluster
         head_node_type = vertex_ray.Resources()
         worker_node_types = [vertex_ray.Resources()]
