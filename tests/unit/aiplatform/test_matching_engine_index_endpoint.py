@@ -629,7 +629,6 @@ class TestMatchingEngineIndexEndpoint:
             network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
-            encryption_spec_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
         )
 
         if not sync:
@@ -640,9 +639,6 @@ class TestMatchingEngineIndexEndpoint:
             network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
-            encryption_spec=gca_encryption_spec.EncryptionSpec(
-                kms_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME
-            ),
         )
         create_index_endpoint_mock.assert_called_once_with(
             parent=_TEST_PARENT,
