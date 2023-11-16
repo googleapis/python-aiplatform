@@ -46,6 +46,8 @@ from .services.index_service import IndexServiceClient
 from .services.index_service import IndexServiceAsyncClient
 from .services.job_service import JobServiceClient
 from .services.job_service import JobServiceAsyncClient
+from .services.llm_utility_service import LlmUtilityServiceClient
+from .services.llm_utility_service import LlmUtilityServiceAsyncClient
 from .services.match_service import MatchServiceClient
 from .services.match_service import MatchServiceAsyncClient
 from .services.metadata_service import MetadataServiceClient
@@ -364,6 +366,9 @@ from .types.job_service import UpdateModelDeploymentMonitoringJobOperationMetada
 from .types.job_service import UpdateModelDeploymentMonitoringJobRequest
 from .types.job_state import JobState
 from .types.lineage_subgraph import LineageSubgraph
+from .types.llm_utility_service import ComputeTokensRequest
+from .types.llm_utility_service import ComputeTokensResponse
+from .types.llm_utility_service import TokensInfo
 from .types.machine_resources import AutomaticResources
 from .types.machine_resources import AutoscalingMetricSpec
 from .types.machine_resources import BatchDedicatedResources
@@ -443,6 +448,7 @@ from .types.model import ModelContainerSpec
 from .types.model import ModelSourceInfo
 from .types.model import Port
 from .types.model import PredictSchemata
+from .types.model import Probe
 from .types.model_deployment_monitoring_job import (
     ModelDeploymentMonitoringBigQueryTable,
 )
@@ -664,6 +670,7 @@ __all__ = (
     "IndexEndpointServiceAsyncClient",
     "IndexServiceAsyncClient",
     "JobServiceAsyncClient",
+    "LlmUtilityServiceAsyncClient",
     "MatchServiceAsyncClient",
     "MetadataServiceAsyncClient",
     "MigrationServiceAsyncClient",
@@ -728,6 +735,8 @@ __all__ = (
     "CheckTrialEarlyStoppingStateResponse",
     "CompleteTrialRequest",
     "CompletionStats",
+    "ComputeTokensRequest",
+    "ComputeTokensResponse",
     "ContainerRegistryDestination",
     "ContainerSpec",
     "Context",
@@ -1058,6 +1067,7 @@ __all__ = (
     "ListTrainingPipelinesResponse",
     "ListTrialsRequest",
     "ListTrialsResponse",
+    "LlmUtilityServiceClient",
     "LookupStudyRequest",
     "MachineSpec",
     "ManualBatchTuningParameters",
@@ -1122,6 +1132,7 @@ __all__ = (
     "Presets",
     "PrivateEndpoints",
     "PrivateServiceConnectConfig",
+    "Probe",
     "PublisherModel",
     "PublisherModelView",
     "PurgeArtifactsMetadata",
@@ -1206,6 +1217,7 @@ __all__ = (
     "TimeSeriesData",
     "TimeSeriesDataPoint",
     "TimestampSplit",
+    "TokensInfo",
     "TrainingConfig",
     "TrainingPipeline",
     "Trial",

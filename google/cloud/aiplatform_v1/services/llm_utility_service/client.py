@@ -46,22 +46,20 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
-from google.api_core import operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1.services.migration_service import pagers
-from google.cloud.aiplatform_v1.types import migratable_resource
-from google.cloud.aiplatform_v1.types import migration_service
+from google.cloud.aiplatform_v1.types import llm_utility_service
+from google.cloud.aiplatform_v1.types import prediction_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc import MigrationServiceGrpcTransport
-from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
+from google.protobuf import struct_pb2  # type: ignore
+from .transports.base import LlmUtilityServiceTransport, DEFAULT_CLIENT_INFO
+from .transports.grpc import LlmUtilityServiceGrpcTransport
+from .transports.grpc_asyncio import LlmUtilityServiceGrpcAsyncIOTransport
 
 
-class MigrationServiceClientMeta(type):
-    """Metaclass for the MigrationService client.
+class LlmUtilityServiceClientMeta(type):
+    """Metaclass for the LlmUtilityService client.
 
     This provides class-level methods for building and retrieving
     support objects (e.g. transport) without polluting the client instance
@@ -70,14 +68,14 @@ class MigrationServiceClientMeta(type):
 
     _transport_registry = (
         OrderedDict()
-    )  # type: Dict[str, Type[MigrationServiceTransport]]
-    _transport_registry["grpc"] = MigrationServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = MigrationServiceGrpcAsyncIOTransport
+    )  # type: Dict[str, Type[LlmUtilityServiceTransport]]
+    _transport_registry["grpc"] = LlmUtilityServiceGrpcTransport
+    _transport_registry["grpc_asyncio"] = LlmUtilityServiceGrpcAsyncIOTransport
 
     def get_transport_class(
         cls,
         label: Optional[str] = None,
-    ) -> Type[MigrationServiceTransport]:
+    ) -> Type[LlmUtilityServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -96,10 +94,8 @@ class MigrationServiceClientMeta(type):
         return next(iter(cls._transport_registry.values()))
 
 
-class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
-    """A service that migrates resources from automl.googleapis.com,
-    datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
-    """
+class LlmUtilityServiceClient(metaclass=LlmUtilityServiceClientMeta):
+    """Service for LLM related utility functions."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
@@ -147,7 +143,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            LlmUtilityServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_info(info)
         kwargs["credentials"] = credentials
@@ -165,7 +161,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            LlmUtilityServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -174,160 +170,33 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @property
-    def transport(self) -> MigrationServiceTransport:
+    def transport(self) -> LlmUtilityServiceTransport:
         """Returns the transport used by the client instance.
 
         Returns:
-            MigrationServiceTransport: The transport used by the client
+            LlmUtilityServiceTransport: The transport used by the client
                 instance.
         """
         return self._transport
 
     @staticmethod
-    def annotated_dataset_path(
-        project: str,
-        dataset: str,
-        annotated_dataset: str,
-    ) -> str:
-        """Returns a fully-qualified annotated_dataset string."""
-        return "projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}".format(
-            project=project,
-            dataset=dataset,
-            annotated_dataset=annotated_dataset,
-        )
-
-    @staticmethod
-    def parse_annotated_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a annotated_dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)/annotatedDatasets/(?P<annotated_dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
+    def endpoint_path(
         project: str,
         location: str,
-        dataset: str,
+        endpoint: str,
     ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        """Returns a fully-qualified endpoint string."""
+        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
             project=project,
             location=location,
-            dataset=dataset,
+            endpoint=endpoint,
         )
 
     @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
+    def parse_endpoint_path(path: str) -> Dict[str, str]:
+        """Parses a endpoint path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/datasets/{dataset}".format(
-            project=project,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_path(
-        project: str,
-        location: str,
-        model: str,
-    ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
-            model=model,
-        )
-
-    @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_path(
-        project: str,
-        location: str,
-        model: str,
-    ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
-            model=model,
-        )
-
-    @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def version_path(
-        project: str,
-        model: str,
-        version: str,
-    ) -> str:
-        """Returns a fully-qualified version string."""
-        return "projects/{project}/models/{model}/versions/{version}".format(
-            project=project,
-            model=model,
-            version=version,
-        )
-
-    @staticmethod
-    def parse_version_path(path: str) -> Dict[str, str]:
-        """Parses a version path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/models/(?P<model>.+?)/versions/(?P<version>.+?)$",
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -480,11 +349,11 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, MigrationServiceTransport]] = None,
+        transport: Optional[Union[str, LlmUtilityServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the migration service client.
+        """Instantiates the llm utility service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -492,7 +361,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, MigrationServiceTransport]): The
+            transport (Union[str, LlmUtilityServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
@@ -540,8 +409,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
-        if isinstance(transport, MigrationServiceTransport):
-            # transport is a MigrationServiceTransport instance.
+        if isinstance(transport, LlmUtilityServiceTransport):
+            # transport is a LlmUtilityServiceTransport instance.
             if credentials or client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
@@ -576,21 +445,17 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 api_audience=client_options.api_audience,
             )
 
-    def search_migratable_resources(
+    def count_tokens(
         self,
-        request: Optional[
-            Union[migration_service.SearchMigratableResourcesRequest, dict]
-        ] = None,
+        request: Optional[Union[prediction_service.CountTokensRequest, dict]] = None,
         *,
-        parent: Optional[str] = None,
+        endpoint: Optional[str] = None,
+        instances: Optional[MutableSequence[struct_pb2.Value]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.SearchMigratableResourcesPager:
-        r"""Searches all of the resources in
-        automl.googleapis.com, datalabeling.googleapis.com and
-        ml.googleapis.com that can be migrated to Vertex AI's
-        given location.
+    ) -> prediction_service.CountTokensResponse:
+        r"""Perform a token counting.
 
         .. code-block:: python
 
@@ -603,178 +468,43 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
-            def sample_search_migratable_resources():
+            def sample_count_tokens():
                 # Create a client
-                client = aiplatform_v1.MigrationServiceClient()
+                client = aiplatform_v1.LlmUtilityServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1.SearchMigratableResourcesRequest(
-                    parent="parent_value",
+                instances = aiplatform_v1.Value()
+                instances.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1.CountTokensRequest(
+                    endpoint="endpoint_value",
+                    instances=instances,
                 )
 
                 # Make the request
-                page_result = client.search_migratable_resources(request=request)
-
-                # Handle the response
-                for response in page_result:
-                    print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1.types.SearchMigratableResourcesRequest, dict]):
-                The request object. Request message for
-                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
-            parent (str):
-                Required. The location that the migratable resources
-                should be searched from. It's the Vertex AI location
-                that the resources can be migrated to, not the
-                resources' original location. Format:
-                ``projects/{project}/locations/{location}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1.services.migration_service.pagers.SearchMigratableResourcesPager:
-                Response message for
-                   [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
-
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a migration_service.SearchMigratableResourcesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, migration_service.SearchMigratableResourcesRequest):
-            request = migration_service.SearchMigratableResourcesRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.search_migratable_resources
-        ]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
-        )
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.SearchMigratableResourcesPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def batch_migrate_resources(
-        self,
-        request: Optional[
-            Union[migration_service.BatchMigrateResourcesRequest, dict]
-        ] = None,
-        *,
-        parent: Optional[str] = None,
-        migrate_resource_requests: Optional[
-            MutableSequence[migration_service.MigrateResourceRequest]
-        ] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation.Operation:
-        r"""Batch migrates resources from ml.googleapis.com,
-        automl.googleapis.com, and datalabeling.googleapis.com
-        to Vertex AI.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1
-
-            def sample_batch_migrate_resources():
-                # Create a client
-                client = aiplatform_v1.MigrationServiceClient()
-
-                # Initialize request argument(s)
-                migrate_resource_requests = aiplatform_v1.MigrateResourceRequest()
-                migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
-
-                request = aiplatform_v1.BatchMigrateResourcesRequest(
-                    parent="parent_value",
-                    migrate_resource_requests=migrate_resource_requests,
-                )
-
-                # Make the request
-                operation = client.batch_migrate_resources(request=request)
-
-                print("Waiting for operation to complete...")
-
-                response = operation.result()
+                response = client.count_tokens(request=request)
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.BatchMigrateResourcesRequest, dict]):
-                The request object. Request message for
-                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
-            parent (str):
-                Required. The location of the migrated resource will
-                live in. Format:
-                ``projects/{project}/locations/{location}``
+            request (Union[google.cloud.aiplatform_v1.types.CountTokensRequest, dict]):
+                The request object. Request message for [PredictionService.CountTokens][].
+            endpoint (str):
+                Required. The name of the Endpoint requested to perform
+                token counting. Format:
+                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
 
-                This corresponds to the ``parent`` field
+                This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            migrate_resource_requests (MutableSequence[google.cloud.aiplatform_v1.types.MigrateResourceRequest]):
-                Required. The request messages
-                specifying the resources to migrate.
-                They must be in the same location as the
-                destination. Up to 50 resources can be
-                migrated in one batch.
+            instances (MutableSequence[google.protobuf.struct_pb2.Value]):
+                Required. The instances that are the
+                input to token counting call. Schema is
+                identical to the prediction schema of
+                the underlying model.
 
-                This corresponds to the ``migrate_resource_requests`` field
+                This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -784,17 +514,13 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            google.api_core.operation.Operation:
-                An object representing a long-running operation.
-
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.BatchMigrateResourcesResponse` Response message for
-                   [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
-
+            google.cloud.aiplatform_v1.types.CountTokensResponse:
+                Response message for [PredictionService.CountTokens][].
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, migrate_resource_requests])
+        has_flattened_params = any([endpoint, instances])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -802,26 +528,26 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a migration_service.BatchMigrateResourcesRequest.
+        # in a prediction_service.CountTokensRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, migration_service.BatchMigrateResourcesRequest):
-            request = migration_service.BatchMigrateResourcesRequest(request)
+        if not isinstance(request, prediction_service.CountTokensRequest):
+            request = prediction_service.CountTokensRequest(request)
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-            if parent is not None:
-                request.parent = parent
-            if migrate_resource_requests is not None:
-                request.migrate_resource_requests = migrate_resource_requests
+            if endpoint is not None:
+                request.endpoint = endpoint
+            if instances is not None:
+                request.instances.extend(instances)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.batch_migrate_resources]
+        rpc = self._transport._wrapped_methods[self._transport.count_tokens]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
         )
 
         # Send the request.
@@ -832,18 +558,131 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             metadata=metadata,
         )
 
-        # Wrap the response in an operation future.
-        response = operation.from_gapic(
-            response,
-            self._transport.operations_client,
-            migration_service.BatchMigrateResourcesResponse,
-            metadata_type=migration_service.BatchMigrateResourcesOperationMetadata,
+        # Done; return the response.
+        return response
+
+    def compute_tokens(
+        self,
+        request: Optional[Union[llm_utility_service.ComputeTokensRequest, dict]] = None,
+        *,
+        endpoint: Optional[str] = None,
+        instances: Optional[MutableSequence[struct_pb2.Value]] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> llm_utility_service.ComputeTokensResponse:
+        r"""Return a list of tokens based on the input text.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_compute_tokens():
+                # Create a client
+                client = aiplatform_v1.LlmUtilityServiceClient()
+
+                # Initialize request argument(s)
+                instances = aiplatform_v1.Value()
+                instances.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1.ComputeTokensRequest(
+                    endpoint="endpoint_value",
+                    instances=instances,
+                )
+
+                # Make the request
+                response = client.compute_tokens(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.ComputeTokensRequest, dict]):
+                The request object. Request message for ComputeTokens RPC
+                call.
+            endpoint (str):
+                Required. The name of the Endpoint
+                requested to get lists of tokens and
+                token ids.
+
+                This corresponds to the ``endpoint`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            instances (MutableSequence[google.protobuf.struct_pb2.Value]):
+                Required. The instances that are the
+                input to token computing API call.
+                Schema is identical to the prediction
+                schema of the text model, even for the
+                non-text models, like chat models, or
+                Codey models.
+
+                This corresponds to the ``instances`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.ComputeTokensResponse:
+                Response message for ComputeTokens
+                RPC call.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([endpoint, instances])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a llm_utility_service.ComputeTokensRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, llm_utility_service.ComputeTokensRequest):
+            request = llm_utility_service.ComputeTokensRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if endpoint is not None:
+                request.endpoint = endpoint
+            if instances is not None:
+                request.instances.extend(instances)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.compute_tokens]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    def __enter__(self) -> "MigrationServiceClient":
+    def __enter__(self) -> "LlmUtilityServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -1547,4 +1386,4 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
 )
 
 
-__all__ = ("MigrationServiceClient",)
+__all__ = ("LlmUtilityServiceClient",)
