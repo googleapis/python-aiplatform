@@ -445,25 +445,17 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
-        # Public
+        # public
         if public_endpoint_enabled:
             gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
                 display_name=display_name,
                 description=description,
                 public_endpoint_enabled=public_endpoint_enabled,
-                encryption_spec=gca_encryption_spec.EncryptionSpec(
-                    kms_key_name=encryption_spec_key_name
-                ),
             )
         # PSA
         elif network:
             gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-                display_name=display_name,
-                description=description,
-                network=network,
-                encryption_spec=gca_encryption_spec.EncryptionSpec(
-                    kms_key_name=encryption_spec_key_name
-                ),
+                display_name=display_name, description=description, network=network
             )
         # PSC
         else:
@@ -474,9 +466,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                     project_allowlist=project_allowlist,
                     enable_private_service_connect=enable_private_service_connect,
                 ),
-                encryption_spec=gca_encryption_spec.EncryptionSpec(
-                    kms_key_name=encryption_spec_key_name
-                ),
+            )
+
+        if encryption_spec_key_name:
+            gapic_index_endpoint.encryption_spec = gca_encryption_spec.EncryptionSpec(
+                kms_key_name=encryption_spec_key_name
             )
 
         if labels:
