@@ -196,10 +196,13 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 "contentsDeltaUri": contents_delta_uri,
             },
             index_update_method=index_update_method_enum,
-            encryption_spec=gca_encryption_spec.EncryptionSpec(
-                kms_key_name=encryption_spec_key_name
-            ),
         )
+
+        if encryption_spec_key_name:
+            encryption_spec = gca_encryption_spec.EncryptionSpec(
+                kms_key_name=encryption_spec_key_name
+            )
+            gapic_index.encryption_spec = encryption_spec
 
         if labels:
             utils.validate_labels(labels)
