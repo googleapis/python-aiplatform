@@ -10,6 +10,7 @@
 * Add `upsert_datapoints()` to `MatchingEngineIndex` to support streaming update index. ([7ca484d](https://github.com/googleapis/python-aiplatform/commit/7ca484da0431699c460358584b9e8be102d9cc46))
 * LLM - include error code into blocked response from TextGenerationModel, ChatModel, CodeChatMode, and CodeGenerationModel. ([1f81cf2](https://github.com/googleapis/python-aiplatform/commit/1f81cf200c9394b50a43c3830ab8343ead1dc0d3))
 * Populate Ray Cluster dashboard_address from proto field ([dd4b852](https://github.com/googleapis/python-aiplatform/commit/dd4b8529a72f6d08e56e8437cdd3cd0874df8a47))
+* add CountTokens API, ComputeTokens API, and ModelContainerSpec features ([ba2fb39](https://github.com/googleapis/python-aiplatform/commit/ba2fb398b46b04fc2c9d0ea902746737ace64767))
 
 
 ### Bug Fixes
