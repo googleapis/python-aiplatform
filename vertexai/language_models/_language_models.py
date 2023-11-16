@@ -739,7 +739,14 @@ class WebSearch(_GroundingSourceBase):
     _type: str = dataclasses.field(default="WEB", init=False, repr=False)
 
     def _to_grounding_source_dict(self) -> Dict[str, Any]:
-        return {"type": self._type, "disableAttribution": self.disable_attribution}
+        return {
+            "sources": [
+                {
+                    "type": self._type,
+                }
+            ],
+            "disableAttribution": self.disable_attribution,
+        }
 
 
 @dataclasses.dataclass
@@ -770,8 +777,12 @@ class VertexAISearch(_GroundingSourceBase):
 
     def _to_grounding_source_dict(self) -> Dict[str, Any]:
         return {
-            "type": self._type,
-            "vertexAiSearchDatastore": self._get_datastore_path(),
+            "sources": [
+                {
+                    "type": self._type,
+                    "vertexAiSearchDatastore": self._get_datastore_path(),
+                }
+            ],
             "disableAttribution": self.disable_attribution,
         }
 
@@ -1206,8 +1217,9 @@ def _create_text_generation_prediction_request(
         prediction_parameters["candidateCount"] = candidate_count
 
     if grounding_source is not None:
-        sources = [grounding_source._to_grounding_source_dict()]
-        prediction_parameters["groundingConfig"] = {"sources": sources}
+        prediction_parameters[
+            "groundingConfig"
+        ] = grounding_source._to_grounding_source_dict()
 
     return _PredictionRequest(
         instance=instance,
@@ -2044,8 +2056,9 @@ class _ChatSessionBase:
             prediction_parameters["candidateCount"] = candidate_count
 
         if grounding_source is not None:
-            sources = [grounding_source._to_grounding_source_dict()]
-            prediction_parameters["groundingConfig"] = {"sources": sources}
+            prediction_parameters[
+                "groundingConfig"
+            ] = grounding_source._to_grounding_source_dict()
 
         message_structs = []
         for past_message in self._message_history:

@@ -1584,15 +1584,18 @@ class TestLanguageModels:
             "collections/default_collection/dataStores/test_datastore"
         )
         expected_grounding_sources = [
-            {"sources": [{"type": "WEB", "disableAttribution": False}]},
+            {
+                "sources": [{"type": "WEB"}],
+                "disableAttribution": False,
+            },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
 
@@ -1702,18 +1705,18 @@ class TestLanguageModels:
                 "sources": [
                     {
                         "type": "WEB",
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
 
@@ -2499,18 +2502,18 @@ class TestLanguageModels:
                 "sources": [
                     {
                         "type": "WEB",
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
         for test_grounding_source, expected_grounding_source in zip(
@@ -2552,18 +2555,18 @@ class TestLanguageModels:
                 "sources": [
                     {
                         "type": "WEB",
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
         for test_grounding_source, expected_grounding_source in zip(
@@ -2636,18 +2639,18 @@ class TestLanguageModels:
                 "sources": [
                     {
                         "type": "WEB",
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
         for test_grounding_source, expected_grounding_source in zip(
@@ -2693,18 +2696,18 @@ class TestLanguageModels:
                 "sources": [
                     {
                         "type": "WEB",
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
         for test_grounding_source, expected_grounding_source in zip(
