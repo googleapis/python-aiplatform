@@ -76,6 +76,91 @@ class Namespace:
     deny_tokens: list = field(default_factory=list)
 
 
+@dataclass
+class NumericNamespace:
+    """NumericNamespace specifies the rules for determining the datapoints that
+    are eligible for each matching query, overall query is an AND across namespaces.
+    This uses numeric comparisons.
+
+    Args:
+        name (str):
+            Required. The name of this numeric namespace.
+        value_int (int):
+            Optional. 64 bit integer value for comparison. Must choose one among
+            `value_int`, `value_float` and `value_double` for intended
+            precision.
+        value_float (float):
+            Optional. 32 bit float value for comparison. Must choose one among
+            `value_int`, `value_float` and `value_double` for
+            intended precision.
+        value_double (float):
+            Optional. 64b bit float value for comparison. Must choose one among
+            `value_int`, `value_float` and `value_double` for
+            intended precision.
+        operator (str):
+            Optional. Should be specified for query only, not for a datapoints.
+            Specify one operator to use for comparison. Datapoints for which
+            comparisons with query's values are true for the operator and value
+            combination will be allowlisted. Choose among:
+                "LESS" for datapoints' values < query's value;
+                "LESS_EQUAL" for datapoints' values <= query's value;
+                "EQUAL" for datapoints' values = query's value;
+                "GREATER_EQUAL" for datapoints' values >= query's value;
+                "GREATER" for datapoints' values > query's value;
+    """
+
+    name: str
+    value_int: Optional[int] = None
+    value_float: Optional[float] = None
+    value_double: Optional[float] = None
+    op: Optional[str] = None
+
+    def __post_init__(self):
+        """Check NumericNamespace values are of correct types and values are
+        not all none.
+        Args:
+            None.
+
+        Raises:
+            ValueError: Numeric Namespace provided values must be of correct
+            types and one of value_int, value_float, value_double must exist.
+        """
+        # Check one of
+        if (
+            self.value_int is None
+            and self.value_float is None
+            and self.value_double is None
+        ):
+            raise ValueError(
+                "Must choose one among `value_int`,"
+                "`value_float` and `value_double` for "
+                "intended precision."
+            )
+
+        # Check value type
+        if self.value_int is not None and not isinstance(self.value_int, int):
+            raise ValueError(
+                "value_int must be of type int, got" f" { type(self.value_int)}."
+            )
+        if self.value_float is not None and not isinstance(self.value_float, float):
+            raise ValueError(
+                "value_float must be of type float, got " f"{ type(self.value_float)}."
+            )
+        if self.value_double is not None and not isinstance(self.value_double, float):
+            raise ValueError(
+                "value_double must be of type float, got "
+                f"{ type(self.value_double)}."
+            )
+        # Check operator validity
+        if (
+            self.op
+            not in gca_index_v1beta1.IndexDatapoint.NumericRestriction.Operator._member_names_
+        ):
+            raise ValueError(
+                f"Invalid operator '{self.op}'," " must be one of the valid operators."
+            )
+
+
 class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
     """Matching Engine index endpoint resource for Vertex AI."""
 
@@ -1034,6 +1119,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         approx_num_neighbors: Optional[int] = None,
         fraction_leaf_nodes_to_search_override: Optional[float] = None,
         return_full_datapoint: bool = False,
+        numeric_filter: Optional[List[NumericNamespace]] = [],
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the specified deployed index which is deployed to public endpoint.
 
@@ -1082,6 +1168,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Note that returning full datapoint will significantly increase the
                 latency and cost of the query.
 
+            numeric_filter (Optional[list[NumericNamespace]]):
+                Optional. A list of NumericNamespaces for filtering the matching
+                results. For example:
+                [NumericNamespace(name="cost", value_int=5, op="GREATER")]
+                will match datapoints that its cost is greater than 5.
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
         """
@@ -1110,12 +1201,22 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 fraction_leaf_nodes_to_search_override
             )
             datapoint = gca_index_v1beta1.IndexDatapoint(feature_vector=query)
+            # Token restricts
             for namespace in filter:
                 restrict = gca_index_v1beta1.IndexDatapoint.Restriction()
                 restrict.namespace = namespace.name
                 restrict.allow_list.extend(namespace.allow_tokens)
                 restrict.deny_list.extend(namespace.deny_tokens)
                 datapoint.restricts.append(restrict)
+            # Numeric restricts
+            for numeric_namespace in numeric_filter:
+                numeric_restrict = gca_index_v1beta1.IndexDatapoint.NumericRestriction()
+                numeric_restrict.namespace = numeric_namespace.name
+                numeric_restrict.op = numeric_namespace.op
+                numeric_restrict.value_int = numeric_namespace.value_int
+                numeric_restrict.value_float = numeric_namespace.value_float
+                numeric_restrict.value_double = numeric_namespace.value_double
+                datapoint.numeric_restricts.append(numeric_restrict)
             find_neighbors_query.datapoint = datapoint
             find_neighbors_request.queries.append(find_neighbors_query)
 

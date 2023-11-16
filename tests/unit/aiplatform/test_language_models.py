@@ -221,7 +221,8 @@ _EXPECTED_PARSED_GROUNDING_METADATA = {
 _TEST_TEXT_GENERATION_PREDICTION = {
     "safetyAttributes": {
         "categories": ["Violent"],
-        "blocked": False,
+        "blocked": True,
+        "errors": [100],
         "scores": [0.10000000149011612],
     },
     "content": """
@@ -254,6 +255,7 @@ _TEST_TEXT_GENERATION_PREDICTION_STREAMING = [
         },
         "safetyAttributes": {
             "blocked": True,
+            "errors": [100],
             "categories": ["Finance"],
             "scores": [0.1],
         },
@@ -301,6 +303,7 @@ _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION = {
             "scores": [0.1],
             "categories": ["Finance"],
             "blocked": True,
+            "errors": [100],
         },
     ],
     "candidates": [
@@ -326,6 +329,7 @@ _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING = {
             "scores": [0.1],
             "categories": ["Finance"],
             "blocked": True,
+            "errors": [100],
         },
     ],
     "groundingMetadata": [
@@ -373,6 +377,7 @@ _TEST_CHAT_GENERATION_MULTI_CANDIDATE_PREDICTION_GROUNDING_NONE = {
             "scores": [0.1],
             "categories": ["Finance"],
             "blocked": True,
+            "errors": [100],
         },
     ],
     "groundingMetadata": [
@@ -430,6 +435,7 @@ _TEST_CHAT_PREDICTION_STREAMING = [
         "safetyAttributes": [
             {
                 "blocked": True,
+                "errors": [100],
                 "categories": ["Finance"],
                 "scores": [0.1],
             }
@@ -440,6 +446,7 @@ _TEST_CHAT_PREDICTION_STREAMING = [
 _TEST_CODE_GENERATION_PREDICTION = {
     "safetyAttributes": {
         "blocked": True,
+        "errors": [100],
         "categories": ["Finance"],
         "scores": [0.1],
     },
@@ -1478,6 +1485,7 @@ class TestLanguageModels:
                 stop_sequences=["\n"],
             )
 
+        expected_errors = (100,)
         prediction_parameters = mock_predict.call_args[1]["parameters"]
         assert prediction_parameters["maxDecodeSteps"] == 128
         assert prediction_parameters["temperature"] == 0.0
@@ -1485,6 +1493,7 @@ class TestLanguageModels:
         assert prediction_parameters["topK"] == 5
         assert prediction_parameters["stopSequences"] == ["\n"]
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+        assert response.errors == expected_errors
 
         # Validating that unspecified parameters are not passed to the model
         # (except `max_output_tokens`).
@@ -1575,15 +1584,18 @@ class TestLanguageModels:
             "collections/default_collection/dataStores/test_datastore"
         )
         expected_grounding_sources = [
-            {"sources": [{"type": "WEB", "disableAttribution": False}]},
+            {
+                "sources": [{"type": "WEB"}],
+                "disableAttribution": False,
+            },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
 
@@ -1693,18 +1705,18 @@ class TestLanguageModels:
                 "sources": [
                     {
                         "type": "WEB",
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
 
@@ -2490,18 +2502,18 @@ class TestLanguageModels:
                 "sources": [
                     {
                         "type": "WEB",
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
         for test_grounding_source, expected_grounding_source in zip(
@@ -2543,18 +2555,18 @@ class TestLanguageModels:
                 "sources": [
                     {
                         "type": "WEB",
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
         for test_grounding_source, expected_grounding_source in zip(
@@ -2627,18 +2639,18 @@ class TestLanguageModels:
                 "sources": [
                     {
                         "type": "WEB",
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
         for test_grounding_source, expected_grounding_source in zip(
@@ -2684,18 +2696,18 @@ class TestLanguageModels:
                 "sources": [
                     {
                         "type": "WEB",
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
             {
                 "sources": [
                     {
                         "type": "VERTEX_AI_SEARCH",
                         "vertexAiSearchDatastore": datastore_path,
-                        "disableAttribution": False,
                     }
-                ]
+                ],
+                "disableAttribution": False,
             },
         ]
         for test_grounding_source, expected_grounding_source in zip(
@@ -2893,12 +2905,16 @@ class TestLanguageModels:
             )
             expected_candidate_0 = expected_response_candidates[0]["content"]
             expected_candidate_1 = expected_response_candidates[1]["content"]
+            expected_errors_0 = ()
+            expected_errors_1 = (100,)
 
             response = chat.send_message(message_text1, candidate_count=2)
             assert response.text == expected_candidate_0
             assert len(response.candidates) == 2
             assert response.candidates[0].text == expected_candidate_0
             assert response.candidates[1].text == expected_candidate_1
+            assert response.candidates[0].errors == expected_errors_0
+            assert response.candidates[1].errors == expected_errors_1
 
             assert len(chat.message_history) == 2
             assert chat.message_history[0].author == chat.USER_AUTHOR

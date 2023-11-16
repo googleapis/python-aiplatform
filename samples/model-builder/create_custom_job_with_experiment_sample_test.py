@@ -38,6 +38,7 @@ def test_create_custom_job_with_experiment_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         staging_bucket=constants.STAGING_BUCKET,
+        experiment=constants.EXPERIMENT_NAME,
     )
 
     mock_get_custom_job_from_local_script.assert_called_once_with(

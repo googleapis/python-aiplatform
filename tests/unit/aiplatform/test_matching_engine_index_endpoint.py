@@ -27,6 +27,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
 from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
     Namespace,
+    NumericNamespace,
 )
 from google.cloud.aiplatform.compat.types import (
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
@@ -232,6 +233,11 @@ _TEST_QUERIES = [
 _TEST_NUM_NEIGHBOURS = 1
 _TEST_FILTER = [
     Namespace(name="class", allow_tokens=["token_1"], deny_tokens=["token_2"])
+]
+_TEST_NUMERIC_FILTER = [
+    NumericNamespace(name="cost", value_double=0.3, op="EQUAL"),
+    NumericNamespace(name="size", value_int=10, op="GREATER"),
+    NumericNamespace(name="seconds", value_float=20.5, op="LESS_EQUAL"),
 ]
 _TEST_IDS = ["123", "456", "789"]
 _TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS = 3
@@ -1079,6 +1085,102 @@ class TestMatchingEngineIndexEndpoint:
         index_public_endpoint_match_queries_mock.assert_called_with(
             find_neighbors_request
         )
+
+    @pytest.mark.usefixtures("get_index_public_endpoint_mock")
+    def test_index_public_endpoint_match_queries_with_numeric_filtering(
+        self, index_public_endpoint_match_queries_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_pubic_index_endpoint.find_neighbors(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+            numeric_filter=_TEST_NUMERIC_FILTER,
+        )
+
+        find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest(
+            index_endpoint=my_pubic_index_endpoint.resource_name,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=[
+                gca_match_service_v1beta1.FindNeighborsRequest.Query(
+                    neighbor_count=_TEST_NUM_NEIGHBOURS,
+                    datapoint=gca_index_v1beta1.IndexDatapoint(
+                        feature_vector=_TEST_QUERIES[0],
+                        restricts=[
+                            gca_index_v1beta1.IndexDatapoint.Restriction(
+                                namespace="class",
+                                allow_list=["token_1"],
+                                deny_list=["token_2"],
+                            )
+                        ],
+                        numeric_restricts=[
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace="cost", value_double=0.3, op="EQUAL"
+                            ),
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace="size", value_int=10, op="GREATER"
+                            ),
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace="seconds", value_float=20.5, op="LESS_EQUAL"
+                            ),
+                        ],
+                    ),
+                    per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                    approximate_neighbor_count=_TEST_APPROX_NUM_NEIGHBORS,
+                    fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                )
+            ],
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+        )
+
+        index_public_endpoint_match_queries_mock.assert_called_with(
+            find_neighbors_request
+        )
+
+    def test_post_init_numeric_filter_invalid_operator_throws_exception(
+        self,
+    ):
+        expected_message = (
+            "Invalid operator 'NOT_EQ', must be one of the valid operators."
+        )
+        with pytest.raises(ValueError) as exception:
+            NumericNamespace(name="cost", value_int=3, op="NOT_EQ")
+
+        assert str(exception.value) == expected_message
+
+    def test_post_init_numeric_namespace_missing_value_throws_exception(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        expected_message = (
+            "Must choose one among `value_int`,"
+            "`value_float` and `value_double` for "
+            "intended precision."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            NumericNamespace(name="cost", op="EQUAL")
+
+        assert str(exception.value) == expected_message
+
+    def test_index_public_endpoint_match_queries_with_numeric_filtering_value_type_mismatch_throws_exception(
+        self,
+    ):
+        expected_message = "value_int must be of type int, got <class 'float'>."
+
+        with pytest.raises(ValueError) as exception:
+            NumericNamespace(name="cost", value_int=0.3, op="EQUAL")
+
+        assert str(exception.value) == expected_message
 
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
     def test_index_public_endpoint_read_index_datapoints(

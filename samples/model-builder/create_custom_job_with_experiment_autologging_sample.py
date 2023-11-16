@@ -29,12 +29,7 @@ def create_custom_job_with_experiment_autologging_sample(
     experiment: str,
     experiment_run: Optional[str] = None,
 ) -> None:
-    aiplatform.init(project=project, location=location, staging_bucket=staging_bucket)
-
-    # Ignore the next two lines of code if the experiment you are using already
-    # has backing tensorboard instance.
-    tb_instance = aiplatform.Tensorboard.create()
-    aiplatform.init(experiment=experiment, experiment_tensorboard=tb_instance)
+    aiplatform.init(project=project, location=location, staging_bucket=staging_bucket, experiment=experiment)
 
     job = aiplatform.CustomJob.from_local_script(
         display_name=display_name,

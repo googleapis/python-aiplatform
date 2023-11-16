@@ -370,6 +370,50 @@ class TestMatchingEngineIndex:
         )
 
     @pytest.mark.usefixtures("get_index_mock")
+    def test_create_tree_ah_index_backward_compatibility(self, create_index_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.MatchingEngineIndex.create_tree_ah_index(
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
+            approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
+            leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        config = {
+            "treeAhConfig": {
+                "leafNodeEmbeddingCount": _TEST_LEAF_NODE_EMBEDDING_COUNT,
+                "leafNodesToSearchPercent": _TEST_LEAF_NODES_TO_SEARCH_PERCENT,
+            }
+        }
+
+        expected = gca_index.Index(
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            metadata={
+                "config": {
+                    "algorithmConfig": config,
+                    "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
+                    "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+                    "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                },
+                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
+            },
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        create_index_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            index=expected,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_index_mock")
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "index_update_method",
@@ -419,8 +463,44 @@ class TestMatchingEngineIndex:
                 index_update_method
             ],
             encryption_spec=gca_encryption_spec.EncryptionSpec(
-                kms_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME
+                kms_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
             ),
+        )
+
+        create_index_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            index=expected,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_index_mock")
+    def test_create_brute_force_index_backward_compatibility(self, create_index_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.MatchingEngineIndex.create_brute_force_index(
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
+            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        config = {"bruteForceConfig": {}}
+
+        expected = gca_index.Index(
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            metadata={
+                "config": {
+                    "algorithmConfig": config,
+                    "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
+                    "approximateNeighborsCount": None,
+                    "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                },
+                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
+            },
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
         )
 
         create_index_mock.assert_called_once_with(
