@@ -103,6 +103,7 @@ class _Config:
         self._encryption_spec_key_name = None
         self._network = None
         self._service_account = None
+        self._api_endpoint = None
 
     def init(
         self,
@@ -119,6 +120,7 @@ class _Config:
         encryption_spec_key_name: Optional[str] = None,
         network: Optional[str] = None,
         service_account: Optional[str] = None,
+        api_endpoint: Optional[str] = None,
     ):
         """Updates common initialization parameters with provided options.
 
@@ -174,10 +176,16 @@ class _Config:
                 PipelineJob, HyperparameterTuningJob, CustomTrainingJob,
                 CustomPythonPackageTrainingJob, CustomContainerTrainingJob,
                 ModelEvaluationJob.
+            api_endpoint (str):
+                Optional. The desired API endpoint,
+                e.g., us-central1-aiplatform.googleapis.com
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
         """
+
+        if api_endpoint is not None:
+            self._api_endpoint = api_endpoint
 
         if experiment_description and experiment is None:
             raise ValueError(
@@ -251,6 +259,11 @@ class _Config:
                 kms_key_name=kms_key_name
             )
         return encryption_spec
+
+    @property
+    def api_endpoint(self) -> Optional[str]:
+        """Default API endpoint, if provided."""
+        return self._api_endpoint
 
     @property
     def project(self) -> str:
@@ -351,27 +364,32 @@ class _Config:
                 { "api_endpoint": "us-central1-aiplatform.googleapis.com" } or
                 { "api_endpoint": "asia-east1-aiplatform.googleapis.com" }
         """
-        if not (self.location or location_override):
-            raise ValueError(
-                "No location found. Provide or initialize SDK with a location."
+
+        api_endpoint = self.api_endpoint
+
+        if api_endpoint is None:
+            if not (self.location or location_override):
+                raise ValueError(
+                    "No location found. Provide or initialize SDK with a location."
+                )
+
+            region = location_override or self.location
+            region = region.lower()
+
+            utils.validate_region(region)
+
+            service_base_path = api_base_path_override or (
+                constants.PREDICTION_API_BASE_PATH
+                if prediction_client
+                else constants.API_BASE_PATH
             )
 
-        region = location_override or self.location
-        region = region.lower()
+            api_endpoint = (
+                f"{region}-{service_base_path}"
+                if not api_path_override
+                else api_path_override
+            )
 
-        utils.validate_region(region)
-
-        service_base_path = api_base_path_override or (
-            constants.PREDICTION_API_BASE_PATH
-            if prediction_client
-            else constants.API_BASE_PATH
-        )
-
-        api_endpoint = (
-            f"{region}-{service_base_path}"
-            if not api_path_override
-            else api_path_override
-        )
         return client_options.ClientOptions(api_endpoint=api_endpoint)
 
     def common_location_path(

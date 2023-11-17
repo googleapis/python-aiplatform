@@ -17,19 +17,19 @@
 
 import importlib
 import os
-import pytest
+from typing import Optional
 from unittest import mock
 from unittest.mock import patch
 
+import pytest
+
 import google.auth
 from google.auth import credentials
-
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata.metadata import _experiment_tracker
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
-
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
 )
@@ -307,30 +307,64 @@ class TestInit:
             assert " " + appended_user_agent[0] in user_agent
             assert " " + appended_user_agent[1] in user_agent
 
+    def test_set_api_endpoint(self):
+        initializer.global_config.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_endpoint="test.googleapis.com",
+        )
+
+        assert initializer.global_config.api_endpoint == "test.googleapis.com"
+
+    def test_not_set_api_endpoint(self):
+        initializer.global_config.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        assert initializer.global_config.api_endpoint is None
+
     @pytest.mark.parametrize(
-        "init_location, location_override, expected_endpoint",
+        "init_location, location_override, api_endpoint, expected_endpoint",
         [
-            ("us-central1", None, "us-central1-aiplatform.googleapis.com"),
+            ("us-central1", None, None, "us-central1-aiplatform.googleapis.com"),
             (
                 "us-central1",
                 "europe-west4",
+                None,
                 "europe-west4-aiplatform.googleapis.com",
             ),
-            ("asia-east1", None, "asia-east1-aiplatform.googleapis.com"),
+            ("asia-east1", None, None, "asia-east1-aiplatform.googleapis.com"),
             (
                 "asia-southeast1",
                 "australia-southeast1",
+                None,
                 "australia-southeast1-aiplatform.googleapis.com",
+            ),
+            (
+                "asia-east1",
+                None,
+                "us-central1-aiplatform.googleapis.com",
+                "us-central1-aiplatform.googleapis.com",
+            ),
+            (
+                "us-central1",
+                None,
+                "test.aiplatform.googleapis.com",
+                "test.aiplatform.googleapis.com",
             ),
         ],
     )
     def test_get_client_options(
         self,
         init_location: str,
-        location_override: str,
+        location_override: Optional[str],
+        api_endpoint: Optional[str],
         expected_endpoint: str,
     ):
-        initializer.global_config.init(location=init_location)
+        initializer.global_config.init(
+            location=init_location, api_endpoint=api_endpoint
+        )
 
         assert (
             initializer.global_config.get_client_options(
