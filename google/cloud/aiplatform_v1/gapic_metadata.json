@@ -2158,6 +2158,16 @@
         "grpc": {
           "libraryClient": "PredictionServiceClient",
           "rpcs": {
+            "DirectPredict": {
+              "methods": [
+                "direct_predict"
+              ]
+            },
+            "DirectRawPredict": {
+              "methods": [
+                "direct_raw_predict"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
@@ -2176,6 +2186,16 @@
             "ServerStreamingPredict": {
               "methods": [
                 "server_streaming_predict"
+              ]
+            },
+            "StreamingPredict": {
+              "methods": [
+                "streaming_predict"
+              ]
+            },
+            "StreamingRawPredict": {
+              "methods": [
+                "streaming_raw_predict"
               ]
             }
           }
@@ -2183,6 +2203,16 @@
         "grpc-async": {
           "libraryClient": "PredictionServiceAsyncClient",
           "rpcs": {
+            "DirectPredict": {
+              "methods": [
+                "direct_predict"
+              ]
+            },
+            "DirectRawPredict": {
+              "methods": [
+                "direct_raw_predict"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
@@ -2201,6 +2231,16 @@
             "ServerStreamingPredict": {
               "methods": [
                 "server_streaming_predict"
+              ]
+            },
+            "StreamingPredict": {
+              "methods": [
+                "streaming_predict"
+              ]
+            },
+            "StreamingRawPredict": {
+              "methods": [
+                "streaming_raw_predict"
               ]
             }
           }

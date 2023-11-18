@@ -31,8 +31,14 @@ __protobuf__ = proto.module(
         "PredictRequest",
         "PredictResponse",
         "RawPredictRequest",
+        "DirectPredictRequest",
+        "DirectPredictResponse",
+        "DirectRawPredictRequest",
+        "DirectRawPredictResponse",
         "StreamingPredictRequest",
         "StreamingPredictResponse",
+        "StreamingRawPredictRequest",
+        "StreamingRawPredictResponse",
         "ExplainRequest",
         "ExplainResponse",
         "CountTokensRequest",
@@ -190,6 +196,108 @@ class RawPredictRequest(proto.Message):
     )
 
 
+class DirectPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.DirectPredict][google.cloud.aiplatform.v1.PredictionService.DirectPredict].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        inputs (MutableSequence[google.cloud.aiplatform_v1.types.Tensor]):
+            The prediction input.
+        parameters (google.cloud.aiplatform_v1.types.Tensor):
+            The parameters that govern the prediction.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    inputs: MutableSequence[types.Tensor] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=types.Tensor,
+    )
+    parameters: types.Tensor = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=types.Tensor,
+    )
+
+
+class DirectPredictResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.DirectPredict][google.cloud.aiplatform.v1.PredictionService.DirectPredict].
+
+    Attributes:
+        outputs (MutableSequence[google.cloud.aiplatform_v1.types.Tensor]):
+            The prediction output.
+        parameters (google.cloud.aiplatform_v1.types.Tensor):
+            The parameters that govern the prediction.
+    """
+
+    outputs: MutableSequence[types.Tensor] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=types.Tensor,
+    )
+    parameters: types.Tensor = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=types.Tensor,
+    )
+
+
+class DirectRawPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.DirectRawPredict][google.cloud.aiplatform.v1.PredictionService.DirectRawPredict].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        method_name (str):
+            Fully qualified name of the API method being invoked to
+            perform predictions.
+
+            Format: ``/namespace.Service/Method/`` Example:
+            ``/tensorflow.serving.PredictionService/Predict``
+        input (bytes):
+            The prediction input.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    method_name: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    input: bytes = proto.Field(
+        proto.BYTES,
+        number=3,
+    )
+
+
+class DirectRawPredictResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.DirectRawPredict][google.cloud.aiplatform.v1.PredictionService.DirectRawPredict].
+
+    Attributes:
+        output (bytes):
+            The prediction output.
+    """
+
+    output: bytes = proto.Field(
+        proto.BYTES,
+        number=1,
+    )
+
+
 class StreamingPredictRequest(proto.Message):
     r"""Request message for
     [PredictionService.StreamingPredict][google.cloud.aiplatform.v1.PredictionService.StreamingPredict].
@@ -246,6 +354,65 @@ class StreamingPredictResponse(proto.Message):
         proto.MESSAGE,
         number=2,
         message=types.Tensor,
+    )
+
+
+class StreamingRawPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.StreamingRawPredict][google.cloud.aiplatform.v1.PredictionService.StreamingRawPredict].
+
+    The first message must contain
+    [endpoint][google.cloud.aiplatform.v1.StreamingRawPredictRequest.endpoint]
+    and
+    [method_name][google.cloud.aiplatform.v1.StreamingRawPredictRequest.method_name]
+    fields and optionally
+    [input][google.cloud.aiplatform.v1.StreamingRawPredictRequest.input].
+    The subsequent messages must contain
+    [input][google.cloud.aiplatform.v1.StreamingRawPredictRequest.input].
+    [method_name][google.cloud.aiplatform.v1.StreamingRawPredictRequest.method_name]
+    in the subsequent messages have no effect.
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        method_name (str):
+            Fully qualified name of the API method being invoked to
+            perform predictions.
+
+            Format: ``/namespace.Service/Method/`` Example:
+            ``/tensorflow.serving.PredictionService/Predict``
+        input (bytes):
+            The prediction input.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    method_name: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    input: bytes = proto.Field(
+        proto.BYTES,
+        number=3,
+    )
+
+
+class StreamingRawPredictResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.StreamingRawPredict][google.cloud.aiplatform.v1.PredictionService.StreamingRawPredict].
+
+    Attributes:
+        output (bytes):
+            The prediction output.
+    """
+
+    output: bytes = proto.Field(
+        proto.BYTES,
+        number=1,
     )
 
 
