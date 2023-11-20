@@ -340,7 +340,7 @@ class TensorBoardUploader(object):
                 raise ValueError(
                     "Profile plugin currently only supported for one shot."
                 )
-            logger.info("Profile plugin is enalbed.")
+            logger.info("Profile plugin is enabled.")
             return True
         return False
 
