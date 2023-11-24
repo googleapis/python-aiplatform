@@ -90,7 +90,7 @@ for library in s.get_staging_dirs(default_version):
 s.remove_staging_dirs()
 
 # only run post processor when there are changes to the generated code
-if has_generator_updates:
+if True or has_generator_updates:
 
     # ----------------------------------------------------------------------------
     # Add templated files
@@ -99,7 +99,7 @@ if has_generator_updates:
     templated_files = common.py_library(
         cov_level=98,
         system_test_python_versions=["3.8"],
-        unit_test_python_versions=["3.8", "3.9", "3.10", "3.11"],
+        unit_test_python_versions=["3.8", "3.9", "3.10", "3.11", "3.12"],
         unit_test_extras=["testing"],
         system_test_extras=["testing"],
         microgenerator=True,
