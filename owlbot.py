@@ -90,7 +90,7 @@ for library in s.get_staging_dirs(default_version):
 s.remove_staging_dirs()
 
 # only run post processor when there are changes to the generated code
-if True or has_generator_updates:
+if has_generator_updates:
 
     # ----------------------------------------------------------------------------
     # Add templated files
