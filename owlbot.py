@@ -121,11 +121,13 @@ if has_generator_updates:
             ".kokoro/samples/python3.9/common.cfg",
             ".kokoro/samples/python3.10/common.cfg",
             ".kokoro/samples/python3.11/common.cfg",
+            ".kokoro/samples/python3.12/common.cfg",
             ".kokoro/samples/python3.7/periodic.cfg",
             ".kokoro/samples/python3.8/periodic.cfg",
             ".kokoro/samples/python3.9/periodic.cfg",
             ".kokoro/samples/python3.10/periodic.cfg",
             ".kokoro/samples/python3.11/periodic.cfg",
+            ".kokoro/samples/python3.12/periodic.cfg",
             ".github/CODEOWNERS",
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/workflows",  # exclude gh actions as credentials are needed for tests
