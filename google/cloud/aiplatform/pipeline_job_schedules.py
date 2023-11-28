@@ -102,6 +102,10 @@ class PipelineJobSchedule(
             create_pipeline_job_request["pipeline_job"][
                 "template_uri"
             ] = pipeline_job._gca_resource.template_uri
+        if "labels" in pipeline_job._gca_resource:
+            create_pipeline_job_request["pipeline_job"][
+                "labels"
+            ] = pipeline_job._gca_resource.labels
         pipeline_job_schedule_args = {
             "display_name": display_name,
             "create_pipeline_job_request": create_pipeline_job_request,
