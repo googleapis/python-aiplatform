@@ -255,11 +255,12 @@ class _TensorBoardTracker:
         )
 
         plugins = uploader_constants.ALLOWED_PLUGINS
-        plugins += [
-            plugin
-            for plugin in allowed_plugins
-            if plugin not in uploader_constants.ALLOWED_PLUGINS
-        ]
+        if allowed_plugins:
+            plugins += [
+                plugin
+                for plugin in allowed_plugins
+                if plugin not in uploader_constants.ALLOWED_PLUGINS
+            ]
 
         tensorboard_uploader = TensorBoardUploader(
             experiment_name=tensorboard_experiment_name,
