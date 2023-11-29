@@ -78,7 +78,12 @@ from google.cloud.aiplatform.prediction import LocalModel
 from google.cloud.aiplatform_v1 import Execution as GapicExecution
 from google.cloud.aiplatform.model_evaluation import model_evaluation_job
 
-from google.protobuf import field_mask_pb2, struct_pb2, timestamp_pb2
+from google.protobuf import (
+    field_mask_pb2,
+    struct_pb2,
+    timestamp_pb2,
+    duration_pb2,
+)
 
 import constants as test_constants
 
@@ -108,6 +113,14 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
     "loss_fn": "mse",
 }
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
+_TEST_SERVING_CONTAINER_DEPLOYMENT_TIMEOUT = 100
+_TEST_SERVING_CONTAINER_SHARED_MEMORY_SIZE_MB = 1000
+_TEST_SERVING_CONTAINER_STARTUP_PROBE_EXEC = ["a", "b"]
+_TEST_SERVING_CONTAINER_STARTUP_PROBE_PERIOD_SECONDS = 5
+_TEST_SERVING_CONTAINER_STARTUP_PROBE_TIMEOUT_SECONDS = 100
+_TEST_SERVING_CONTAINER_HEALTH_PROBE_EXEC = ["c", "d"]
+_TEST_SERVING_CONTAINER_HEALTH_PROBE_PERIOD_SECONDS = 20
+_TEST_SERVING_CONTAINER_HEALTH_PROBE_TIMEOUT_SECONDS = 200
 _TEST_ID = "1028944691210842416"
 _TEST_LABEL = test_constants.ProjectConstants._TEST_LABELS
 _TEST_APPENDED_USER_AGENT = ["fake_user_agent", "another_fake_user_agent"]
@@ -1598,6 +1611,14 @@ class TestModel:
             labels=_TEST_LABEL,
             sync=sync,
             upload_request_timeout=None,
+            serving_container_deployment_timeout=_TEST_SERVING_CONTAINER_DEPLOYMENT_TIMEOUT,
+            serving_container_shared_memory_size_mb=_TEST_SERVING_CONTAINER_SHARED_MEMORY_SIZE_MB,
+            serving_container_startup_probe_exec=_TEST_SERVING_CONTAINER_STARTUP_PROBE_EXEC,
+            serving_container_startup_probe_period_seconds=_TEST_SERVING_CONTAINER_STARTUP_PROBE_PERIOD_SECONDS,
+            serving_container_startup_probe_timeout_seconds=_TEST_SERVING_CONTAINER_STARTUP_PROBE_TIMEOUT_SECONDS,
+            serving_container_health_probe_exec=_TEST_SERVING_CONTAINER_HEALTH_PROBE_EXEC,
+            serving_container_health_probe_period_seconds=_TEST_SERVING_CONTAINER_HEALTH_PROBE_PERIOD_SECONDS,
+            serving_container_health_probe_timeout_seconds=_TEST_SERVING_CONTAINER_HEALTH_PROBE_TIMEOUT_SECONDS,
         )
 
         if not sync:
@@ -1613,6 +1634,26 @@ class TestModel:
             for port in _TEST_SERVING_CONTAINER_PORTS
         ]
 
+        deployment_timeout = duration_pb2.Duration(
+            seconds=_TEST_SERVING_CONTAINER_DEPLOYMENT_TIMEOUT
+        )
+
+        startup_probe = gca_model.Probe(
+            exec=gca_model.Probe.ExecAction(
+                command=_TEST_SERVING_CONTAINER_STARTUP_PROBE_EXEC
+            ),
+            period_seconds=_TEST_SERVING_CONTAINER_STARTUP_PROBE_PERIOD_SECONDS,
+            timeout_seconds=_TEST_SERVING_CONTAINER_STARTUP_PROBE_TIMEOUT_SECONDS,
+        )
+
+        health_probe = gca_model.Probe(
+            exec=gca_model.Probe.ExecAction(
+                command=_TEST_SERVING_CONTAINER_HEALTH_PROBE_EXEC
+            ),
+            period_seconds=_TEST_SERVING_CONTAINER_HEALTH_PROBE_PERIOD_SECONDS,
+            timeout_seconds=_TEST_SERVING_CONTAINER_HEALTH_PROBE_TIMEOUT_SECONDS,
+        )
+
         container_spec = gca_model.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
@@ -1621,6 +1662,10 @@ class TestModel:
             args=_TEST_SERVING_CONTAINER_ARGS,
             env=env,
             ports=ports,
+            deployment_timeout=deployment_timeout,
+            shared_memory_size_mb=_TEST_SERVING_CONTAINER_SHARED_MEMORY_SIZE_MB,
+            startup_probe=startup_probe,
+            health_probe=health_probe,
         )
 
         managed_model = gca_model.Model(
