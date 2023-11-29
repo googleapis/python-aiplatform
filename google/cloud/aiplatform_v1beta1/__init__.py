@@ -576,6 +576,10 @@ from .types.pipeline_service import ListTrainingPipelinesResponse
 from .types.pipeline_state import PipelineState
 from .types.prediction_service import CountTokensRequest
 from .types.prediction_service import CountTokensResponse
+from .types.prediction_service import DirectPredictRequest
+from .types.prediction_service import DirectPredictResponse
+from .types.prediction_service import DirectRawPredictRequest
+from .types.prediction_service import DirectRawPredictResponse
 from .types.prediction_service import ExplainRequest
 from .types.prediction_service import ExplainResponse
 from .types.prediction_service import PredictRequest
@@ -583,6 +587,8 @@ from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
 from .types.prediction_service import StreamingPredictRequest
 from .types.prediction_service import StreamingPredictResponse
+from .types.prediction_service import StreamingRawPredictRequest
+from .types.prediction_service import StreamingRawPredictResponse
 from .types.publisher_model import PublisherModel
 from .types.saved_query import SavedQuery
 from .types.schedule import Schedule
@@ -911,6 +917,10 @@ __all__ = (
     "DeploymentResourcePool",
     "DeploymentResourcePoolServiceClient",
     "DestinationFeatureSetting",
+    "DirectPredictRequest",
+    "DirectPredictResponse",
+    "DirectRawPredictRequest",
+    "DirectRawPredictResponse",
     "DiskSpec",
     "DoubleArray",
     "EncryptionSpec",
@@ -1272,6 +1282,8 @@ __all__ = (
     "StratifiedSplit",
     "StreamingPredictRequest",
     "StreamingPredictResponse",
+    "StreamingRawPredictRequest",
+    "StreamingRawPredictResponse",
     "StreamingReadFeatureValuesRequest",
     "StringArray",
     "Study",
