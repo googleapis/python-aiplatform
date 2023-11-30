@@ -1046,7 +1046,10 @@ class TestParameterConfigConverterToProto:
 
 
 class TestParameterConfigConverterFromProto:
-    def test_creates_from_good_proto(self):
+    """Test ParameterConfigConverter.from_proto."""
+
+    def test_from_proto_discrete(self):
+        """Test from_proto."""
         proto = study_pb2.StudySpec.ParameterSpec(
             parameter_id="name",
             discrete_value_spec=study_pb2.StudySpec.ParameterSpec.DiscreteValueSpec(
@@ -1061,3 +1064,38 @@ class TestParameterConfigConverterFromProto:
         assert parameter_config.bounds == (1.0, 3.0)
         assert parameter_config.feasible_values == [1.0, 2.0, 3.0]
         assert parameter_config.default_value == 2.0
+        assert parameter_config.external_type == pyvizier.ExternalType.INTERNAL
+
+    def test_from_proto_integer(self):
+        """Test from_proto."""
+        proto = study_pb2.StudySpec.ParameterSpec(
+            parameter_id="name",
+            integer_value_spec=study_pb2.StudySpec.ParameterSpec.IntegerValueSpec(
+                default_value=2, min_value=1, max_value=3
+            ),
+        )
+
+        parameter_config = proto_converters.ParameterConfigConverter.from_proto(proto)
+
+        assert parameter_config.name == proto.parameter_id
+        assert parameter_config.type == pyvizier.ParameterType.INTEGER
+        assert parameter_config.bounds == (1, 3)
+        assert parameter_config.default_value == 2
+        assert parameter_config.external_type == pyvizier.ExternalType.INTEGER
+
+    def test_from_proto_bool(self):
+        """Test from_proto."""
+        proto = study_pb2.StudySpec.ParameterSpec(
+            parameter_id="name",
+            categorical_value_spec=study_pb2.StudySpec.ParameterSpec.CategoricalValueSpec(
+                default_value="True", values=["True", "False"]
+            ),
+        )
+
+        parameter_config = proto_converters.ParameterConfigConverter.from_proto(proto)
+
+        assert parameter_config.name == proto.parameter_id
+        assert parameter_config.type == pyvizier.ParameterType.CATEGORICAL
+        assert parameter_config.feasible_values == ["False", "True"]
+        assert parameter_config.default_value == "True"
+        assert parameter_config.external_type == pyvizier.ExternalType.BOOLEAN
