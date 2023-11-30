@@ -19,6 +19,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform.preview import vertex_ray
 from ray.job_submission import JobSubmissionClient
 from tests.system.aiplatform import e2e_base
+import datetime
 import os
 import ray
 import time
@@ -39,17 +40,22 @@ class TestJobSubmissionDashboard(e2e_base.TestEndToEnd):
         head_node_type = vertex_ray.Resources()
         worker_node_types = [vertex_ray.Resources()]
 
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
         # Create cluster, get dashboard address
         cluster_resource_name = vertex_ray.create_ray_cluster(
             head_node_type=head_node_type,
             worker_node_types=worker_node_types,
+            cluster_name=f"ray-cluster{timestamp}-test-job-submission-dashboard",
         )
 
         cluster_details = vertex_ray.get_ray_cluster(cluster_resource_name)
 
-        # Connect to cluster
+        # Need to use the full path since the installation is editable, not from a release
         client = JobSubmissionClient(
-            "vertex_ray://{}".format(cluster_details.dashboard_address)
+            "google.cloud.aiplatform.preview.vertex_ray://{}".format(
+                cluster_details.dashboard_address
+            )
         )
 
         my_script = """

@@ -18,6 +18,7 @@
 from google.cloud import aiplatform
 from google.cloud.aiplatform.preview import vertex_ray
 from tests.system.aiplatform import e2e_base
+import datetime
 import ray
 
 RAY_VERSION = "2.4.0"
@@ -36,9 +37,12 @@ class TestClusterManagement(e2e_base.TestEndToEnd):
         head_node_type = vertex_ray.Resources()
         worker_node_types = [vertex_ray.Resources()]
 
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
         cluster_resource_name = vertex_ray.create_ray_cluster(
             head_node_type=head_node_type,
             worker_node_types=worker_node_types,
+            cluster_name=f"ray-cluster-{timestamp}-test-cluster-management",
         )
 
         cluster_details = vertex_ray.get_ray_cluster(cluster_resource_name)
