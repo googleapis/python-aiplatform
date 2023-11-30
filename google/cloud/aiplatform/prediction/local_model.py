@@ -36,6 +36,8 @@ from google.cloud.aiplatform.prediction.handler import PredictionHandler
 from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.utils import prediction_utils
 
+from google.protobuf import duration_pb2
+
 DEFAULT_PREDICT_ROUTE = "/predict"
 DEFAULT_HEALTH_ROUTE = "/health"
 DEFAULT_HTTP_PORT = 8080
@@ -58,6 +60,14 @@ class LocalModel:
         serving_container_args: Optional[Sequence[str]] = None,
         serving_container_environment_variables: Optional[Dict[str, str]] = None,
         serving_container_ports: Optional[Sequence[int]] = None,
+        serving_container_deployment_timeout: Optional[int] = None,
+        serving_container_shared_memory_size_mb: Optional[int] = None,
+        serving_container_startup_probe_exec: Optional[Sequence[str]] = None,
+        serving_container_startup_probe_period_seconds: Optional[int] = None,
+        serving_container_startup_probe_timeout_seconds: Optional[int] = None,
+        serving_container_health_probe_exec: Optional[Sequence[str]] = None,
+        serving_container_health_probe_period_seconds: Optional[int] = None,
+        serving_container_health_probe_timeout_seconds: Optional[int] = None,
     ):
         """Creates a local model instance.
 
@@ -100,6 +110,31 @@ class LocalModel:
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
                 the network.
+            serving_container_deployment_timeout (int):
+                Optional. Deployment timeout in seconds.
+            serving_container_shared_memory_size_mb (int):
+                Optional. The amount of the VM memory to reserve as the shared
+                memory for the model in megabytes.
+            serving_container_startup_probe_exec (Sequence[str]):
+                Optional. Exec specifies the action to take. Used by startup
+                probe. An example of this argument would be
+                ["cat", "/tmp/healthy"]
+            serving_container_startup_probe_period_seconds (int):
+                Optional. How often (in seconds) to perform the startup probe.
+                Default to 10 seconds. Minimum value is 1.
+            serving_container_startup_probe_timeout_seconds (int):
+                Optional. Number of seconds after which the startup probe times
+                out. Defaults to 1 second. Minimum value is 1.
+            serving_container_health_probe_exec (Sequence[str]):
+                Optional. Exec specifies the action to take. Used by health
+                probe. An example of this argument would be
+                ["cat", "/tmp/healthy"]
+            serving_container_health_probe_period_seconds (int):
+                Optional. How often (in seconds) to perform the health probe.
+                Default to 10 seconds. Minimum value is 1.
+            serving_container_health_probe_timeout_seconds (int):
+                Optional. Number of seconds after which the health probe times
+                out. Defaults to 1 second. Minimum value is 1.
 
         Raises:
             ValueError: If ``serving_container_spec`` is specified but ``serving_container_spec.image_uri``
@@ -121,6 +156,13 @@ class LocalModel:
 
             env = None
             ports = None
+            deployment_timeout = (
+                duration_pb2.Duration(seconds=serving_container_deployment_timeout)
+                if serving_container_deployment_timeout
+                else None
+            )
+            startup_probe = None
+            health_probe = None
 
             if serving_container_environment_variables:
                 env = [
@@ -132,6 +174,36 @@ class LocalModel:
                     gca_model_compat.Port(container_port=port)
                     for port in serving_container_ports
                 ]
+            if (
+                serving_container_startup_probe_exec
+                or serving_container_startup_probe_period_seconds
+                or serving_container_startup_probe_timeout_seconds
+            ):
+                startup_probe_exec = None
+                if serving_container_startup_probe_exec:
+                    startup_probe_exec = gca_model_compat.Probe.ExecAction(
+                        command=serving_container_startup_probe_exec
+                    )
+                startup_probe = gca_model_compat.Probe(
+                    exec=startup_probe_exec,
+                    period_seconds=serving_container_startup_probe_period_seconds,
+                    timeout_seconds=serving_container_startup_probe_timeout_seconds,
+                )
+            if (
+                serving_container_health_probe_exec
+                or serving_container_health_probe_period_seconds
+                or serving_container_health_probe_timeout_seconds
+            ):
+                health_probe_exec = None
+                if serving_container_health_probe_exec:
+                    health_probe_exec = gca_model_compat.Probe.ExecAction(
+                        command=serving_container_health_probe_exec
+                    )
+                health_probe = gca_model_compat.Probe(
+                    exec=health_probe_exec,
+                    period_seconds=serving_container_health_probe_period_seconds,
+                    timeout_seconds=serving_container_health_probe_timeout_seconds,
+                )
 
             self.serving_container_spec = gca_model_compat.ModelContainerSpec(
                 image_uri=serving_container_image_uri,
@@ -141,6 +213,10 @@ class LocalModel:
                 ports=ports,
                 predict_route=serving_container_predict_route,
                 health_route=serving_container_health_route,
+                deployment_timeout=deployment_timeout,
+                shared_memory_size_mb=serving_container_shared_memory_size_mb,
+                startup_probe=startup_probe,
+                health_probe=health_probe,
             )
 
     @classmethod
