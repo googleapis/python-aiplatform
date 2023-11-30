@@ -36,6 +36,7 @@ from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 from google.auth.transport import requests as google_auth_requests
+from google.protobuf import duration_pb2
 import proto
 
 from google.cloud import aiplatform
@@ -2974,6 +2975,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         staging_bucket: Optional[str] = None,
         sync=True,
         upload_request_timeout: Optional[float] = None,
+        serving_container_deployment_timeout: Optional[int] = None,
+        serving_container_shared_memory_size_mb: Optional[int] = None,
+        serving_container_startup_probe_exec: Optional[Sequence[str]] = None,
+        serving_container_startup_probe_period_seconds: Optional[int] = None,
+        serving_container_startup_probe_timeout_seconds: Optional[int] = None,
+        serving_container_health_probe_exec: Optional[Sequence[str]] = None,
+        serving_container_health_probe_period_seconds: Optional[int] = None,
+        serving_container_health_probe_timeout_seconds: Optional[int] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -3153,6 +3162,31 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
                 Optional. The timeout for the upload request in seconds.
+            serving_container_deployment_timeout (int):
+                Optional. Deployment timeout in seconds.
+            serving_container_shared_memory_size_mb (int):
+                Optional. The amount of the VM memory to reserve as the shared
+                memory for the model in megabytes.
+            serving_container_startup_probe_exec (Sequence[str]):
+                Optional. Exec specifies the action to take. Used by startup
+                probe. An example of this argument would be
+                ["cat", "/tmp/healthy"]
+            serving_container_startup_probe_period_seconds (int):
+                Optional. How often (in seconds) to perform the startup probe.
+                Default to 10 seconds. Minimum value is 1.
+            serving_container_startup_probe_timeout_seconds (int):
+                Optional. Number of seconds after which the startup probe times
+                out. Defaults to 1 second. Minimum value is 1.
+            serving_container_health_probe_exec (Sequence[str]):
+                Optional. Exec specifies the action to take. Used by health
+                probe. An example of this argument would be
+                ["cat", "/tmp/healthy"]
+            serving_container_health_probe_period_seconds (int):
+                Optional. How often (in seconds) to perform the health probe.
+                Default to 10 seconds. Minimum value is 1.
+            serving_container_health_probe_timeout_seconds (int):
+                Optional. Number of seconds after which the health probe times
+                out. Defaults to 1 second. Minimum value is 1.
 
         Returns:
             model (aiplatform.Model):
@@ -3187,6 +3221,13 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
             env = None
             ports = None
+            deployment_timeout = (
+                duration_pb2.Duration(seconds=serving_container_deployment_timeout)
+                if serving_container_deployment_timeout
+                else None
+            )
+            startup_probe = None
+            health_probe = None
 
             if serving_container_environment_variables:
                 env = [
@@ -3198,6 +3239,36 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     gca_model_compat.Port(container_port=port)
                     for port in serving_container_ports
                 ]
+            if (
+                serving_container_startup_probe_exec
+                or serving_container_startup_probe_period_seconds
+                or serving_container_startup_probe_timeout_seconds
+            ):
+                startup_probe_exec = None
+                if serving_container_startup_probe_exec:
+                    startup_probe_exec = gca_model_compat.Probe.ExecAction(
+                        command=serving_container_startup_probe_exec
+                    )
+                startup_probe = gca_model_compat.Probe(
+                    exec=startup_probe_exec,
+                    period_seconds=serving_container_startup_probe_period_seconds,
+                    timeout_seconds=serving_container_startup_probe_timeout_seconds,
+                )
+            if (
+                serving_container_health_probe_exec
+                or serving_container_health_probe_period_seconds
+                or serving_container_health_probe_timeout_seconds
+            ):
+                health_probe_exec = None
+                if serving_container_health_probe_exec:
+                    health_probe_exec = gca_model_compat.Probe.ExecAction(
+                        command=serving_container_health_probe_exec
+                    )
+                health_probe = gca_model_compat.Probe(
+                    exec=health_probe_exec,
+                    period_seconds=serving_container_health_probe_period_seconds,
+                    timeout_seconds=serving_container_health_probe_timeout_seconds,
+                )
 
             container_spec = gca_model_compat.ModelContainerSpec(
                 image_uri=serving_container_image_uri,
@@ -3207,6 +3278,10 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 ports=ports,
                 predict_route=serving_container_predict_route,
                 health_route=serving_container_health_route,
+                deployment_timeout=deployment_timeout,
+                shared_memory_size_mb=serving_container_shared_memory_size_mb,
+                startup_probe=startup_probe,
+                health_probe=health_probe,
             )
 
         model_predict_schemata = None

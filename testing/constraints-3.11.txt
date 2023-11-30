@@ -6,3 +6,4 @@ proto-plus
 protobuf
 mock==4.0.2
 google-cloud-storage==2.0.0
+pytest-xdist==3.3.1 # Pinned to unbreak unit tests

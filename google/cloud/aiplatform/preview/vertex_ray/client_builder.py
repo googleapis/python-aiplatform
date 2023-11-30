@@ -97,7 +97,7 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
             raise ValueError(
                 "[Ray on Vertex AI]: Ray Cluster ",
                 persistent_resource_id,
-                " failed to start Head node properly.",
+                " Head node is not reachable. Please ensure that a valid VPC network has been specified.",
             )
         # Handling service_account
         service_account = (
@@ -106,7 +106,7 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
 
         if service_account:
             raise ValueError(
-                "[Ray on Vertex AI]: Cluster ",
+                "[Ray on Vertex AI]: Ray Cluster ",
                 address,
                 " failed to start Head node properly because custom service account isn't supported.",
             )

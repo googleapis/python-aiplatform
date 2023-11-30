@@ -97,6 +97,8 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
             local_model=local_model,
             display_name=f"cpr_e2e_test_{_TIMESTAMP}",
             artifact_uri=_ARTIFACT_URI,
+            serving_container_deployment_timeout=3600,
+            serving_container_shared_memory_size_mb=20,
         )
         shared_state["resources"] = [model]
 
