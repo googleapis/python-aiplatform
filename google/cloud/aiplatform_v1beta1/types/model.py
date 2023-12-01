@@ -867,6 +867,18 @@ class ModelContainerSpec(proto.Message):
                available to your container code as the
                ```AIP_DEPLOYED_MODEL_ID`` environment
                variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
+        grpc_ports (MutableSequence[google.cloud.aiplatform_v1beta1.types.Port]):
+            Immutable. List of ports to expose from the container.
+            Vertex AI sends gRPC prediction requests that it receives to
+            the first port on this list. Vertex AI also sends liveness
+            and health checks to this port.
+
+            If you do not specify this field, gRPC requests to the
+            container will be disabled.
+
+            Vertex AI does not use ports other than the first one
+            listed. This field corresponds to the ``ports`` field of the
+            Kubernetes Containers v1 core API.
         deployment_timeout (google.protobuf.duration_pb2.Duration):
             Immutable. Deployment timeout.
             Limit for deployment timeout is 2 hours.
@@ -911,6 +923,11 @@ class ModelContainerSpec(proto.Message):
     health_route: str = proto.Field(
         proto.STRING,
         number=7,
+    )
+    grpc_ports: MutableSequence["Port"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message="Port",
     )
     deployment_timeout: duration_pb2.Duration = proto.Field(
         proto.MESSAGE,
