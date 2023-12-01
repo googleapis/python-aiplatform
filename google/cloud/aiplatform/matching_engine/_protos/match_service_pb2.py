@@ -32,13 +32,20 @@ from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\nCgoogle/cloud/aiplatform/matching_engine/_protos/match_service.proto\x12)google.cloud.aiplatform.container.v1beta1\x1a\x17google/rpc/status.proto"\x97\x02\n\x0cMatchRequest\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\x11\n\tfloat_val\x18\x02 \x03(\x02\x12\x15\n\rnum_neighbors\x18\x03 \x01(\x05\x12G\n\trestricts\x18\x04 \x03(\x0b\x32\x34.google.cloud.aiplatform.container.v1beta1.Namespace\x12,\n$per_crowding_attribute_num_neighbors\x18\x05 \x01(\x05\x12\x1c\n\x14\x61pprox_num_neighbors\x18\x06 \x01(\x05\x12-\n%leaf_nodes_to_search_percent_override\x18\x07 \x01(\x05"\x8e\x01\n\rMatchResponse\x12S\n\x08neighbor\x18\x01 \x03(\x0b\x32\x41.google.cloud.aiplatform.container.v1beta1.MatchResponse.Neighbor\x1a(\n\x08Neighbor\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08\x64istance\x18\x02 \x01(\x01"\x9f\x02\n\x11\x42\x61tchMatchRequest\x12h\n\x08requests\x18\x01 \x03(\x0b\x32V.google.cloud.aiplatform.container.v1beta1.BatchMatchRequest.BatchMatchRequestPerIndex\x1a\x9f\x01\n\x19\x42\x61tchMatchRequestPerIndex\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12I\n\x08requests\x18\x02 \x03(\x0b\x32\x37.google.cloud.aiplatform.container.v1beta1.MatchRequest\x12\x1c\n\x14low_level_batch_size\x18\x03 \x01(\x05"\xac\x02\n\x12\x42\x61tchMatchResponse\x12k\n\tresponses\x18\x01 \x03(\x0b\x32X.google.cloud.aiplatform.container.v1beta1.BatchMatchResponse.BatchMatchResponsePerIndex\x1a\xa8\x01\n\x1a\x42\x61tchMatchResponsePerIndex\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12K\n\tresponses\x18\x02 \x03(\x0b\x32\x38.google.cloud.aiplatform.container.v1beta1.MatchResponse\x12"\n\x06status\x18\x03 \x01(\x0b\x32\x12.google.rpc.Status"D\n\tNamespace\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0c\x61llow_tokens\x18\x02 \x03(\t\x12\x13\n\x0b\x64\x65ny_tokens\x18\x03 \x03(\t2\x9a\x02\n\x0cMatchService\x12|\n\x05Match\x12\x37.google.cloud.aiplatform.container.v1beta1.MatchRequest\x1a\x38.google.cloud.aiplatform.container.v1beta1.MatchResponse"\x00\x12\x8b\x01\n\nBatchMatch\x12<.google.cloud.aiplatform.container.v1beta1.BatchMatchRequest\x1a=.google.cloud.aiplatform.container.v1beta1.BatchMatchResponse"\x00\x62\x06proto3'
+    b'\nCgoogle/cloud/aiplatform/matching_engine/_protos/match_service.proto\x12$google.cloud.aiplatform.container.v1\x1a\x17google/rpc/status.proto"\xf3\x02\n\x0cMatchRequest\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\x11\n\tfloat_val\x18\x02 \x03(\x02\x12\x15\n\rnum_neighbors\x18\x03 \x01(\x05\x12\x42\n\trestricts\x18\x04 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Namespace\x12,\n$per_crowding_attribute_num_neighbors\x18\x05 \x01(\x05\x12\x1c\n\x14\x61pprox_num_neighbors\x18\x06 \x01(\x05\x12-\n%leaf_nodes_to_search_percent_override\x18\x07 \x01(\x05\x12.\n&fraction_leaf_nodes_to_search_override\x18\t \x01(\x01\x12\x19\n\x11\x65mbedding_enabled\x18\x08 \x01(\x08\x12\x14\n\x0c\x65mbedding_id\x18\n \x01(\t"\x8a\x01\n\tEmbedding\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tfloat_val\x18\x02 \x03(\x02\x12\x42\n\trestricts\x18\x03 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Namespace\x12\x1a\n\x12\x63rowding_attribute\x18\x04 \x01(\x03"\xea\x01\n\rMatchResponse\x12N\n\x08neighbor\x18\x01 \x03(\x0b\x32<.google.cloud.aiplatform.container.v1.MatchResponse.Neighbor\x12\x43\n\nembeddings\x18\x02 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Embedding\x1a\x44\n\x08Neighbor\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08\x64istance\x18\x02 \x01(\x01\x12\x1a\n\x12\x63rowding_attribute\x18\x03 \x01(\x03"B\n\x19\x42\x61tchGetEmbeddingsRequest\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x03(\t"a\n\x1a\x42\x61tchGetEmbeddingsResponse\x12\x43\n\nembeddings\x18\x01 \x03(\x0b\x32/.google.cloud.aiplatform.container.v1.Embedding"\x95\x02\n\x11\x42\x61tchMatchRequest\x12\x63\n\x08requests\x18\x01 \x03(\x0b\x32Q.google.cloud.aiplatform.container.v1.BatchMatchRequest.BatchMatchRequestPerIndex\x1a\x9a\x01\n\x19\x42\x61tchMatchRequestPerIndex\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\x44\n\x08requests\x18\x02 \x03(\x0b\x32\x32.google.cloud.aiplatform.container.v1.MatchRequest\x12\x1c\n\x14low_level_batch_size\x18\x03 \x01(\x05"\xa2\x02\n\x12\x42\x61tchMatchResponse\x12\x66\n\tresponses\x18\x01 \x03(\x0b\x32S.google.cloud.aiplatform.container.v1.BatchMatchResponse.BatchMatchResponsePerIndex\x1a\xa3\x01\n\x1a\x42\x61tchMatchResponsePerIndex\x12\x19\n\x11\x64\x65ployed_index_id\x18\x01 \x01(\t\x12\x46\n\tresponses\x18\x02 \x03(\x0b\x32\x33.google.cloud.aiplatform.container.v1.MatchResponse\x12"\n\x06status\x18\x03 \x01(\x0b\x32\x12.google.rpc.Status"D\n\tNamespace\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0c\x61llow_tokens\x18\x02 \x03(\t\x12\x13\n\x0b\x64\x65ny_tokens\x18\x03 \x03(\t2\xa2\x03\n\x0cMatchService\x12r\n\x05Match\x12\x32.google.cloud.aiplatform.container.v1.MatchRequest\x1a\x33.google.cloud.aiplatform.container.v1.MatchResponse"\x00\x12\x81\x01\n\nBatchMatch\x12\x37.google.cloud.aiplatform.container.v1.BatchMatchRequest\x1a\x38.google.cloud.aiplatform.container.v1.BatchMatchResponse"\x00\x12\x99\x01\n\x12\x42\x61tchGetEmbeddings\x12?.google.cloud.aiplatform.container.v1.BatchGetEmbeddingsRequest\x1a@.google.cloud.aiplatform.container.v1.BatchGetEmbeddingsResponse"\x00\x62\x06proto3'
 )
 
 
 _MATCHREQUEST = DESCRIPTOR.message_types_by_name["MatchRequest"]
+_EMBEDDING = DESCRIPTOR.message_types_by_name["Embedding"]
 _MATCHRESPONSE = DESCRIPTOR.message_types_by_name["MatchResponse"]
 _MATCHRESPONSE_NEIGHBOR = _MATCHRESPONSE.nested_types_by_name["Neighbor"]
+_BATCHGETEMBEDDINGSREQUEST = DESCRIPTOR.message_types_by_name[
+    "BatchGetEmbeddingsRequest"
+]
+_BATCHGETEMBEDDINGSRESPONSE = DESCRIPTOR.message_types_by_name[
+    "BatchGetEmbeddingsResponse"
+]
 _BATCHMATCHREQUEST = DESCRIPTOR.message_types_by_name["BatchMatchRequest"]
 _BATCHMATCHREQUEST_BATCHMATCHREQUESTPERINDEX = _BATCHMATCHREQUEST.nested_types_by_name[
     "BatchMatchRequestPerIndex"
@@ -54,10 +61,21 @@ MatchRequest = _reflection.GeneratedProtocolMessageType(
     {
         "DESCRIPTOR": _MATCHREQUEST,
         "__module__": "google.cloud.aiplatform.matching_engine._protos.match_service_pb2"
-        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1beta1.MatchRequest)
+        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1.MatchRequest)
     },
 )
 _sym_db.RegisterMessage(MatchRequest)
+
+Embedding = _reflection.GeneratedProtocolMessageType(
+    "Embedding",
+    (_message.Message,),
+    {
+        "DESCRIPTOR": _EMBEDDING,
+        "__module__": "google.cloud.aiplatform.matching_engine._protos.match_service_pb2"
+        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1.Embedding)
+    },
+)
+_sym_db.RegisterMessage(Embedding)
 
 MatchResponse = _reflection.GeneratedProtocolMessageType(
     "MatchResponse",
@@ -69,16 +87,38 @@ MatchResponse = _reflection.GeneratedProtocolMessageType(
             {
                 "DESCRIPTOR": _MATCHRESPONSE_NEIGHBOR,
                 "__module__": "google.cloud.aiplatform.matching_engine._protos.match_service_pb2"
-                # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1beta1.MatchResponse.Neighbor)
+                # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1.MatchResponse.Neighbor)
             },
         ),
         "DESCRIPTOR": _MATCHRESPONSE,
         "__module__": "google.cloud.aiplatform.matching_engine._protos.match_service_pb2"
-        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1beta1.MatchResponse)
+        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1.MatchResponse)
     },
 )
 _sym_db.RegisterMessage(MatchResponse)
 _sym_db.RegisterMessage(MatchResponse.Neighbor)
+
+BatchGetEmbeddingsRequest = _reflection.GeneratedProtocolMessageType(
+    "BatchGetEmbeddingsRequest",
+    (_message.Message,),
+    {
+        "DESCRIPTOR": _BATCHGETEMBEDDINGSREQUEST,
+        "__module__": "google.cloud.aiplatform.matching_engine._protos.match_service_pb2"
+        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1.BatchGetEmbeddingsRequest)
+    },
+)
+_sym_db.RegisterMessage(BatchGetEmbeddingsRequest)
+
+BatchGetEmbeddingsResponse = _reflection.GeneratedProtocolMessageType(
+    "BatchGetEmbeddingsResponse",
+    (_message.Message,),
+    {
+        "DESCRIPTOR": _BATCHGETEMBEDDINGSRESPONSE,
+        "__module__": "google.cloud.aiplatform.matching_engine._protos.match_service_pb2"
+        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1.BatchGetEmbeddingsResponse)
+    },
+)
+_sym_db.RegisterMessage(BatchGetEmbeddingsResponse)
 
 BatchMatchRequest = _reflection.GeneratedProtocolMessageType(
     "BatchMatchRequest",
@@ -90,12 +130,12 @@ BatchMatchRequest = _reflection.GeneratedProtocolMessageType(
             {
                 "DESCRIPTOR": _BATCHMATCHREQUEST_BATCHMATCHREQUESTPERINDEX,
                 "__module__": "google.cloud.aiplatform.matching_engine._protos.match_service_pb2"
-                # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1beta1.BatchMatchRequest.BatchMatchRequestPerIndex)
+                # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1.BatchMatchRequest.BatchMatchRequestPerIndex)
             },
         ),
         "DESCRIPTOR": _BATCHMATCHREQUEST,
         "__module__": "google.cloud.aiplatform.matching_engine._protos.match_service_pb2"
-        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1beta1.BatchMatchRequest)
+        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1.BatchMatchRequest)
     },
 )
 _sym_db.RegisterMessage(BatchMatchRequest)
@@ -111,12 +151,12 @@ BatchMatchResponse = _reflection.GeneratedProtocolMessageType(
             {
                 "DESCRIPTOR": _BATCHMATCHRESPONSE_BATCHMATCHRESPONSEPERINDEX,
                 "__module__": "google.cloud.aiplatform.matching_engine._protos.match_service_pb2"
-                # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1beta1.BatchMatchResponse.BatchMatchResponsePerIndex)
+                # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1.BatchMatchResponse.BatchMatchResponsePerIndex)
             },
         ),
         "DESCRIPTOR": _BATCHMATCHRESPONSE,
         "__module__": "google.cloud.aiplatform.matching_engine._protos.match_service_pb2"
-        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1beta1.BatchMatchResponse)
+        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1.BatchMatchResponse)
     },
 )
 _sym_db.RegisterMessage(BatchMatchResponse)
@@ -128,7 +168,7 @@ Namespace = _reflection.GeneratedProtocolMessageType(
     {
         "DESCRIPTOR": _NAMESPACE,
         "__module__": "google.cloud.aiplatform.matching_engine._protos.match_service_pb2"
-        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1beta1.Namespace)
+        # @@protoc_insertion_point(class_scope:google.cloud.aiplatform.container.v1.Namespace)
     },
 )
 _sym_db.RegisterMessage(Namespace)
@@ -137,22 +177,28 @@ _MATCHSERVICE = DESCRIPTOR.services_by_name["MatchService"]
 if _descriptor._USE_C_DESCRIPTORS == False:
 
     DESCRIPTOR._options = None
-    _MATCHREQUEST._serialized_start = 140
-    _MATCHREQUEST._serialized_end = 419
-    _MATCHRESPONSE._serialized_start = 422
-    _MATCHRESPONSE._serialized_end = 564
-    _MATCHRESPONSE_NEIGHBOR._serialized_start = 524
-    _MATCHRESPONSE_NEIGHBOR._serialized_end = 564
-    _BATCHMATCHREQUEST._serialized_start = 567
-    _BATCHMATCHREQUEST._serialized_end = 854
-    _BATCHMATCHREQUEST_BATCHMATCHREQUESTPERINDEX._serialized_start = 695
-    _BATCHMATCHREQUEST_BATCHMATCHREQUESTPERINDEX._serialized_end = 854
-    _BATCHMATCHRESPONSE._serialized_start = 857
-    _BATCHMATCHRESPONSE._serialized_end = 1157
-    _BATCHMATCHRESPONSE_BATCHMATCHRESPONSEPERINDEX._serialized_start = 989
-    _BATCHMATCHRESPONSE_BATCHMATCHRESPONSEPERINDEX._serialized_end = 1157
-    _NAMESPACE._serialized_start = 1159
-    _NAMESPACE._serialized_end = 1227
-    _MATCHSERVICE._serialized_start = 1230
-    _MATCHSERVICE._serialized_end = 1512
+    _MATCHREQUEST._serialized_start = 135
+    _MATCHREQUEST._serialized_end = 506
+    _EMBEDDING._serialized_start = 509
+    _EMBEDDING._serialized_end = 647
+    _MATCHRESPONSE._serialized_start = 650
+    _MATCHRESPONSE._serialized_end = 884
+    _MATCHRESPONSE_NEIGHBOR._serialized_start = 816
+    _MATCHRESPONSE_NEIGHBOR._serialized_end = 884
+    _BATCHGETEMBEDDINGSREQUEST._serialized_start = 886
+    _BATCHGETEMBEDDINGSREQUEST._serialized_end = 952
+    _BATCHGETEMBEDDINGSRESPONSE._serialized_start = 954
+    _BATCHGETEMBEDDINGSRESPONSE._serialized_end = 1051
+    _BATCHMATCHREQUEST._serialized_start = 1054
+    _BATCHMATCHREQUEST._serialized_end = 1331
+    _BATCHMATCHREQUEST_BATCHMATCHREQUESTPERINDEX._serialized_start = 1177
+    _BATCHMATCHREQUEST_BATCHMATCHREQUESTPERINDEX._serialized_end = 1331
+    _BATCHMATCHRESPONSE._serialized_start = 1334
+    _BATCHMATCHRESPONSE._serialized_end = 1624
+    _BATCHMATCHRESPONSE_BATCHMATCHRESPONSEPERINDEX._serialized_start = 1461
+    _BATCHMATCHRESPONSE_BATCHMATCHRESPONSEPERINDEX._serialized_end = 1624
+    _NAMESPACE._serialized_start = 1626
+    _NAMESPACE._serialized_end = 1694
+    _MATCHSERVICE._serialized_start = 1697
+    _MATCHSERVICE._serialized_end = 2115
 # @@protoc_insertion_point(module_scope)
