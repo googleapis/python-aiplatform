@@ -138,8 +138,28 @@ class PredictionServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.direct_predict: gapic_v1.method.wrap_method(
+                self.direct_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.direct_raw_predict: gapic_v1.method.wrap_method(
+                self.direct_raw_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.streaming_predict: gapic_v1.method.wrap_method(
+                self.streaming_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.server_streaming_predict: gapic_v1.method.wrap_method(
                 self.server_streaming_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.streaming_raw_predict: gapic_v1.method.wrap_method(
+                self.streaming_raw_predict,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -186,6 +206,42 @@ class PredictionServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def direct_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.DirectPredictRequest],
+        Union[
+            prediction_service.DirectPredictResponse,
+            Awaitable[prediction_service.DirectPredictResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def direct_raw_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.DirectRawPredictRequest],
+        Union[
+            prediction_service.DirectRawPredictResponse,
+            Awaitable[prediction_service.DirectRawPredictResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def streaming_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamingPredictRequest],
+        Union[
+            prediction_service.StreamingPredictResponse,
+            Awaitable[prediction_service.StreamingPredictResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def server_streaming_predict(
         self,
     ) -> Callable[
@@ -193,6 +249,18 @@ class PredictionServiceTransport(abc.ABC):
         Union[
             prediction_service.StreamingPredictResponse,
             Awaitable[prediction_service.StreamingPredictResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def streaming_raw_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamingRawPredictRequest],
+        Union[
+            prediction_service.StreamingRawPredictResponse,
+            Awaitable[prediction_service.StreamingRawPredictResponse],
         ],
     ]:
         raise NotImplementedError()
