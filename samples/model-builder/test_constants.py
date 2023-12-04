@@ -337,3 +337,4 @@ TENSORBOARD_NAME = (
     f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard"
 )
 TENSORBOARD_EXPERIMENT_NAME = "my-tensorboard-experiment"
+TENSORBOARD_PLUGIN_PROFILE_NAME = "profile"
