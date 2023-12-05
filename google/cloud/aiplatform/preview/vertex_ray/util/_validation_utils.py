@@ -103,7 +103,9 @@ def valid_dashboard_address(address):
 
 def get_bearer_token():
     """Get bearer token through Application Default Credentials."""
-    creds, _ = google.auth.default()
+    creds, _ = google.auth.default(
+        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+    )
 
     # creds.valid is False, and creds.token is None
     # Need to refresh credentials to populate those
