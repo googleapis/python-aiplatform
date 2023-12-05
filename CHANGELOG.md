@@ -9,7 +9,7 @@
 * Adding support for concurrent explanations ([8e2ad75](https://github.com/googleapis/python-aiplatform/commit/8e2ad75e255210f99ab091802899a75df92b6a20))
 * Allow configuring container logging settings on models when deploying. ([beae48f](https://github.com/googleapis/python-aiplatform/commit/beae48f63e40ea171c3f1625164569e7311b8e5a))
 * Support user provided api endpoint. ([92f2b4e](https://github.com/googleapis/python-aiplatform/commit/92f2b4e32035a35f5f2a4956fee443fe3061bc32))
-
+* Add grpc_ports to UploadModel ModelContainerSpec, add DirectPredict, DirectRawPredict, StreamingPredict, StreamingRawPredict to PredictionService. ([6dfbad7](https://github.com/googleapis/python-aiplatform/commit/6dfbad7dcb29ef3b481bb90d989a1f6f68976996))
 
 ### Bug Fixes
 
