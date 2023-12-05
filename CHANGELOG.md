@@ -1,29 +1,5 @@
 # Changelog
 
-## [1.37.0](https://github.com/googleapis/python-aiplatform/compare/v1.36.4...v1.37.0) (2023-12-05)
-
-
-### Features
-
-* Add additional parameters to Model.upload(). ([7b7d7d2](https://github.com/googleapis/python-aiplatform/commit/7b7d7d2f2c7f074e62ee009a308341228fcd6582))
-* Adding support for concurrent explanations ([8e2ad75](https://github.com/googleapis/python-aiplatform/commit/8e2ad75e255210f99ab091802899a75df92b6a20))
-* Allow configuring container logging settings on models when deploying. ([beae48f](https://github.com/googleapis/python-aiplatform/commit/beae48f63e40ea171c3f1625164569e7311b8e5a))
-* Support user provided api endpoint. ([92f2b4e](https://github.com/googleapis/python-aiplatform/commit/92f2b4e32035a35f5f2a4956fee443fe3061bc32))
-* Add grpc_ports to UploadModel ModelContainerSpec, add DirectPredict, DirectRawPredict, StreamingPredict, StreamingRawPredict to PredictionService. ([6dfbad7](https://github.com/googleapis/python-aiplatform/commit/6dfbad7dcb29ef3b481bb90d989a1f6f68976996))
-
-### Bug Fixes
-
-* Clarify wording when Ray on Vertex cluster is missing head node ip ([4a71c8c](https://github.com/googleapis/python-aiplatform/commit/4a71c8c1df499aec763e7d16c2f022eb3593d3de))
-* Fix error when allowed_plugins is set to None. ([6f2860a](https://github.com/googleapis/python-aiplatform/commit/6f2860aafce9b77819a3891fb6c29bfb65ea8a2a))
-* Fixed INTEGER and BOOL parameters casting issue. Fix conversion bug where `INTEGER` and `BOOL` parameters are not cast to the correct type. ([9a204c4](https://github.com/googleapis/python-aiplatform/commit/9a204c4ffb16ba34c36f3869fbc36c52bc9986bb))
-* Make PipelineJobSchedule propagate labels to created PipelineJobs ([a34533f](https://github.com/googleapis/python-aiplatform/commit/a34533f536d1d5caa46a68a640bd507e979c161e))
-
-
-### Documentation
-
-* Add upload Tensorboard profile log to Experiment sample. ([5780513](https://github.com/googleapis/python-aiplatform/commit/57805132f82e1e21d3999e130b5c5fdbc105143a))
-* Update the documentation for the `image_dataset` class ([8562368](https://github.com/googleapis/python-aiplatform/commit/856236887a9159991b400829f5c05a307aaedd58))
-
 ## [1.36.4](https://github.com/googleapis/python-aiplatform/compare/v1.36.3...v1.36.4) (2023-11-16)
 
 
