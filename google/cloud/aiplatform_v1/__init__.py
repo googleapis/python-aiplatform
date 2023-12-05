@@ -91,6 +91,7 @@ from .types.data_labeling_job import SampleConfig
 from .types.data_labeling_job import TrainingConfig
 from .types.dataset import Dataset
 from .types.dataset import ExportDataConfig
+from .types.dataset import ExportFilterSplit
 from .types.dataset import ExportFractionSplit
 from .types.dataset import ImportDataConfig
 from .types.dataset_service import CreateDatasetOperationMetadata
@@ -895,6 +896,7 @@ __all__ = (
     "ExportFeatureValuesOperationMetadata",
     "ExportFeatureValuesRequest",
     "ExportFeatureValuesResponse",
+    "ExportFilterSplit",
     "ExportFractionSplit",
     "ExportModelOperationMetadata",
     "ExportModelRequest",

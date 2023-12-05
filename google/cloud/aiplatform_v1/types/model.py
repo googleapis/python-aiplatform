@@ -286,6 +286,12 @@ class Model(proto.Message):
 
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
+        data_stats (google.cloud.aiplatform_v1.types.Model.DataStats):
+            Stats of data used for training or evaluating the Model.
+
+            Only populated when the Model is trained by a
+            TrainingPipeline with
+            [data_input_config][TrainingPipeline.data_input_config].
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
             Customer-managed encryption key spec for a
             Model. If set, this Model and all sub-resources
@@ -394,6 +400,61 @@ class Model(proto.Message):
             proto.ENUM,
             number=2,
             enum="Model.ExportFormat.ExportableContent",
+        )
+
+    class DataStats(proto.Message):
+        r"""Stats of data used for train or evaluate the Model.
+
+        Attributes:
+            training_data_items_count (int):
+                Number of DataItems that were used for
+                training this Model.
+            validation_data_items_count (int):
+                Number of DataItems that were used for
+                validating this Model during training.
+            test_data_items_count (int):
+                Number of DataItems that were used for
+                evaluating this Model. If the Model is evaluated
+                multiple times, this will be the number of test
+                DataItems used by the first evaluation. If the
+                Model is not evaluated, the number is 0.
+            training_annotations_count (int):
+                Number of Annotations that are used for
+                training this Model.
+            validation_annotations_count (int):
+                Number of Annotations that are used for
+                validating this Model during training.
+            test_annotations_count (int):
+                Number of Annotations that are used for
+                evaluating this Model. If the Model is evaluated
+                multiple times, this will be the number of test
+                Annotations used by the first evaluation. If the
+                Model is not evaluated, the number is 0.
+        """
+
+        training_data_items_count: int = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        validation_data_items_count: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+        test_data_items_count: int = proto.Field(
+            proto.INT64,
+            number=3,
+        )
+        training_annotations_count: int = proto.Field(
+            proto.INT64,
+            number=4,
+        )
+        validation_annotations_count: int = proto.Field(
+            proto.INT64,
+            number=5,
+        )
+        test_annotations_count: int = proto.Field(
+            proto.INT64,
+            number=6,
         )
 
     class OriginalModelInfo(proto.Message):
@@ -527,6 +588,11 @@ class Model(proto.Message):
         proto.STRING,
         proto.STRING,
         number=17,
+    )
+    data_stats: DataStats = proto.Field(
+        proto.MESSAGE,
+        number=21,
+        message=DataStats,
     )
     encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
@@ -1003,6 +1069,9 @@ class ModelSourceInfo(proto.Message):
                 Garden.
             GENIE (5):
                 The Model is saved or tuned from Genie.
+            CUSTOM_TEXT_EMBEDDING (6):
+                The Model is uploaded by text embedding
+                finetuning pipeline.
         """
         MODEL_SOURCE_TYPE_UNSPECIFIED = 0
         AUTOML = 1
@@ -1010,6 +1079,7 @@ class ModelSourceInfo(proto.Message):
         BQML = 3
         MODEL_GARDEN = 4
         GENIE = 5
+        CUSTOM_TEXT_EMBEDDING = 6
 
     source_type: ModelSourceType = proto.Field(
         proto.ENUM,

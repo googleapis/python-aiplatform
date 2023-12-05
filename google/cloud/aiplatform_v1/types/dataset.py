@@ -33,6 +33,7 @@ __protobuf__ = proto.module(
         "ImportDataConfig",
         "ExportDataConfig",
         "ExportFractionSplit",
+        "ExportFilterSplit",
     },
 )
 
@@ -248,6 +249,10 @@ class ExportDataConfig(proto.Message):
     r"""Describes what part of the Dataset is to be exported, the
     destination of the export and how to export.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -271,12 +276,82 @@ class ExportDataConfig(proto.Message):
             each set.
 
             This field is a member of `oneof`_ ``split``.
+        filter_split (google.cloud.aiplatform_v1.types.ExportFilterSplit):
+            Split based on the provided filters for each
+            set.
+
+            This field is a member of `oneof`_ ``split``.
         annotations_filter (str):
             An expression for filtering what part of the Dataset is to
             be exported. Only Annotations that match this filter will be
             exported. The filter syntax is the same as in
             [ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
+        saved_query_id (str):
+            The ID of a SavedQuery (annotation set) under the Dataset
+            specified by [dataset_id][] used for filtering Annotations
+            for training.
+
+            Only used for custom training data export use cases. Only
+            applicable to Datasets that have SavedQueries.
+
+            Only Annotations that are associated with this SavedQuery
+            are used in respectively training. When used in conjunction
+            with
+            [annotations_filter][google.cloud.aiplatform.v1.ExportDataConfig.annotations_filter],
+            the Annotations used for training are filtered by both
+            [saved_query_id][google.cloud.aiplatform.v1.ExportDataConfig.saved_query_id]
+            and
+            [annotations_filter][google.cloud.aiplatform.v1.ExportDataConfig.annotations_filter].
+
+            Only one of
+            [saved_query_id][google.cloud.aiplatform.v1.ExportDataConfig.saved_query_id]
+            and
+            [annotation_schema_uri][google.cloud.aiplatform.v1.ExportDataConfig.annotation_schema_uri]
+            should be specified as both of them represent the same
+            thing: problem type.
+        annotation_schema_uri (str):
+            The Cloud Storage URI that points to a YAML file describing
+            the annotation schema. The schema is defined as an OpenAPI
+            3.0.2 `Schema
+            Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
+            The schema files that can be used here are found in
+            gs://google-cloud-aiplatform/schema/dataset/annotation/,
+            note that the chosen schema must be consistent with
+            [metadata][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri]
+            of the Dataset specified by [dataset_id][].
+
+            Only used for custom training data export use cases. Only
+            applicable to Datasets that have DataItems and Annotations.
+
+            Only Annotations that both match this schema and belong to
+            DataItems not ignored by the split method are used in
+            respectively training, validation or test role, depending on
+            the role of the DataItem they are on.
+
+            When used in conjunction with
+            [annotations_filter][google.cloud.aiplatform.v1.ExportDataConfig.annotations_filter],
+            the Annotations used for training are filtered by both
+            [annotations_filter][google.cloud.aiplatform.v1.ExportDataConfig.annotations_filter]
+            and
+            [annotation_schema_uri][google.cloud.aiplatform.v1.ExportDataConfig.annotation_schema_uri].
+        export_use (google.cloud.aiplatform_v1.types.ExportDataConfig.ExportUse):
+            Indicates the usage of the exported files.
     """
+
+    class ExportUse(proto.Enum):
+        r"""ExportUse indicates the usage of the exported files. It
+        restricts file destination, format, annotations to be exported,
+        whether to allow unannotated data to be exported and whether to
+        clone files to temp Cloud Storage bucket.
+
+        Values:
+            EXPORT_USE_UNSPECIFIED (0):
+                Regular user export.
+            CUSTOM_CODE_TRAINING (6):
+                Export for custom code training.
+        """
+        EXPORT_USE_UNSPECIFIED = 0
+        CUSTOM_CODE_TRAINING = 6
 
     gcs_destination: io.GcsDestination = proto.Field(
         proto.MESSAGE,
@@ -290,9 +365,28 @@ class ExportDataConfig(proto.Message):
         oneof="split",
         message="ExportFractionSplit",
     )
+    filter_split: "ExportFilterSplit" = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        oneof="split",
+        message="ExportFilterSplit",
+    )
     annotations_filter: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+    saved_query_id: str = proto.Field(
+        proto.STRING,
+        number=11,
+    )
+    annotation_schema_uri: str = proto.Field(
+        proto.STRING,
+        number=12,
+    )
+    export_use: ExportUse = proto.Field(
+        proto.ENUM,
+        number=4,
+        enum=ExportUse,
     )
 
 
@@ -327,6 +421,60 @@ class ExportFractionSplit(proto.Message):
     )
     test_fraction: float = proto.Field(
         proto.DOUBLE,
+        number=3,
+    )
+
+
+class ExportFilterSplit(proto.Message):
+    r"""Assigns input data to training, validation, and test sets
+    based on the given filters, data pieces not matched by any
+    filter are ignored. Currently only supported for Datasets
+    containing DataItems.
+    If any of the filters in this message are to match nothing, then
+    they can be set as '-' (the minus sign).
+
+    Supported only for unstructured Datasets.
+
+    Attributes:
+        training_filter (str):
+            Required. A filter on DataItems of the Dataset. DataItems
+            that match this filter are used to train the Model. A filter
+            with same syntax as the one used in
+            [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems]
+            may be used. If a single DataItem is matched by more than
+            one of the FilterSplit filters, then it is assigned to the
+            first set that applies to it in the training, validation,
+            test order.
+        validation_filter (str):
+            Required. A filter on DataItems of the Dataset. DataItems
+            that match this filter are used to validate the Model. A
+            filter with same syntax as the one used in
+            [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems]
+            may be used. If a single DataItem is matched by more than
+            one of the FilterSplit filters, then it is assigned to the
+            first set that applies to it in the training, validation,
+            test order.
+        test_filter (str):
+            Required. A filter on DataItems of the Dataset. DataItems
+            that match this filter are used to test the Model. A filter
+            with same syntax as the one used in
+            [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems]
+            may be used. If a single DataItem is matched by more than
+            one of the FilterSplit filters, then it is assigned to the
+            first set that applies to it in the training, validation,
+            test order.
+    """
+
+    training_filter: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    validation_filter: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    test_filter: str = proto.Field(
+        proto.STRING,
         number=3,
     )
 

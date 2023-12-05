@@ -23,6 +23,7 @@ from google.cloud.aiplatform_v1.types import annotation
 from google.cloud.aiplatform_v1.types import data_item as gca_data_item
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import dataset_version as gca_dataset_version
+from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import operation
 from google.cloud.aiplatform_v1.types import saved_query as gca_saved_query
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -349,13 +350,25 @@ class ExportDataResponse(proto.Message):
 
     Attributes:
         exported_files (MutableSequence[str]):
-            All of the files that are exported in this
-            export operation.
+            All of the files that are exported in this export operation.
+            For custom code training export, only three (training,
+            validation and test) GCS paths in wildcard format are
+            populated (e.g., gs://.../training-*).
+        data_stats (google.cloud.aiplatform_v1.types.Model.DataStats):
+            Only present for custom code training export
+            use case. Records data stats, i.e.,
+            train/validation/test item/annotation counts
+            calculated during the export operation.
     """
 
     exported_files: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=1,
+    )
+    data_stats: model.Model.DataStats = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=model.Model.DataStats,
     )
 
 

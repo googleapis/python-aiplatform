@@ -51,6 +51,7 @@ from .data_labeling_job import (
 from .dataset import (
     Dataset,
     ExportDataConfig,
+    ExportFilterSplit,
     ExportFractionSplit,
     ImportDataConfig,
 )
@@ -786,6 +787,7 @@ __all__ = (
     "TrainingConfig",
     "Dataset",
     "ExportDataConfig",
+    "ExportFilterSplit",
     "ExportFractionSplit",
     "ImportDataConfig",
     "CreateDatasetOperationMetadata",
