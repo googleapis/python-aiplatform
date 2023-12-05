@@ -2171,6 +2171,47 @@ class TestModel:
             timeout=None,
         )
 
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_disable_container_logging(self, deploy_model_mock, sync):
+
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        assert (
+            test_model.deploy(
+                test_endpoint,
+                disable_container_logging=True,
+                sync=sync,
+            )
+            == test_endpoint
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            disable_container_logging=True,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures(
         "get_model_mock", "get_drp_mock", "create_endpoint_mock", "get_endpoint_mock"
     )
@@ -2196,6 +2237,7 @@ class TestModel:
             shared_resources=_TEST_DRP_NAME,
             model=test_model.resource_name,
             display_name=None,
+            enable_container_logging=True,
         )
         preview_deploy_model_mock.assert_called_once_with(
             endpoint=test_endpoint.resource_name,
