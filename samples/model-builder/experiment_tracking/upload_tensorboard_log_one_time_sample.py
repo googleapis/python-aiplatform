@@ -12,34 +12,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
+from typing import Optional, FrozenSet
 
 from google.cloud import aiplatform
 
 
 #  [START aiplatform_sdk_upload_tensorboard_log_one_time_sample]
 def upload_tensorboard_log_one_time_sample(
+    tensorboard_id: str,
     tensorboard_experiment_name: str,
     logdir: str,
-    tensorboard_id: str,
     project: str,
     location: str,
-    experiment_display_name: Optional[str] = None,
     run_name_prefix: Optional[str] = None,
+    allowed_plugins: Optional[FrozenSet[str]] = None,
+    experiment_display_name: Optional[str] = None,
     description: Optional[str] = None,
     verbosity: Optional[int] = 1,
 ) -> None:
 
-    aiplatform.init(project=project, location=location)
+    aiplatform.init(
+        project=project,
+        location=location,
+        experiment=tensorboard_experiment_name
+    )
 
     # one time upload
     aiplatform.upload_tb_log(
         tensorboard_id=tensorboard_id,
         tensorboard_experiment_name=tensorboard_experiment_name,
         logdir=logdir,
-        experiment_display_name=experiment_display_name,
         run_name_prefix=run_name_prefix,
+        allowed_plugins=allowed_plugins,
+        experiment_display_name=experiment_display_name,
         description=description,
+        verbosity=verbosity
     )
 
 
