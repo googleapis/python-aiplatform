@@ -513,6 +513,36 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
             )
         return self._stubs["count_tokens"]
 
+    @property
+    def stream_generate_content(
+        self,
+    ) -> Callable[
+        [prediction_service.GenerateContentRequest],
+        prediction_service.GenerateContentResponse,
+    ]:
+        r"""Return a callable for the stream generate content method over gRPC.
+
+        Generate content with multimodal inputs with
+        streaming support.
+
+        Returns:
+            Callable[[~.GenerateContentRequest],
+                    ~.GenerateContentResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "stream_generate_content" not in self._stubs:
+            self._stubs["stream_generate_content"] = self.grpc_channel.unary_stream(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/StreamGenerateContent",
+                request_serializer=prediction_service.GenerateContentRequest.serialize,
+                response_deserializer=prediction_service.GenerateContentResponse.deserialize,
+            )
+        return self._stubs["stream_generate_content"]
+
     def close(self):
         self.grpc_channel.close()
 

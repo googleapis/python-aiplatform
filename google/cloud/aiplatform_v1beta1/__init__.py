@@ -85,6 +85,18 @@ from .types.annotation_spec import AnnotationSpec
 from .types.artifact import Artifact
 from .types.batch_prediction_job import BatchPredictionJob
 from .types.completion_stats import CompletionStats
+from .types.content import Blob
+from .types.content import Candidate
+from .types.content import Citation
+from .types.content import CitationMetadata
+from .types.content import Content
+from .types.content import FileData
+from .types.content import GenerationConfig
+from .types.content import Part
+from .types.content import SafetyRating
+from .types.content import SafetySetting
+from .types.content import VideoMetadata
+from .types.content import HarmCategory
 from .types.context import Context
 from .types.custom_job import ContainerSpec
 from .types.custom_job import CustomJob
@@ -537,6 +549,8 @@ from .types.nas_job import NasJobOutput
 from .types.nas_job import NasJobSpec
 from .types.nas_job import NasTrial
 from .types.nas_job import NasTrialDetail
+from .types.openapi import Schema
+from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
 from .types.persistent_resource import PersistentResource
@@ -582,6 +596,8 @@ from .types.prediction_service import DirectRawPredictRequest
 from .types.prediction_service import DirectRawPredictResponse
 from .types.prediction_service import ExplainRequest
 from .types.prediction_service import ExplainResponse
+from .types.prediction_service import GenerateContentRequest
+from .types.prediction_service import GenerateContentResponse
 from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
@@ -672,6 +688,10 @@ from .types.tensorboard_service import WriteTensorboardExperimentDataResponse
 from .types.tensorboard_service import WriteTensorboardRunDataRequest
 from .types.tensorboard_service import WriteTensorboardRunDataResponse
 from .types.tensorboard_time_series import TensorboardTimeSeries
+from .types.tool import FunctionCall
+from .types.tool import FunctionDeclaration
+from .types.tool import FunctionResponse
+from .types.tool import Tool
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
 from .types.training_pipeline import InputDataConfig
@@ -776,6 +796,7 @@ __all__ = (
     "BatchReadTensorboardTimeSeriesDataResponse",
     "BigQueryDestination",
     "BigQuerySource",
+    "Blob",
     "BlurBaselineConfig",
     "BoolArray",
     "CancelBatchPredictionJobRequest",
@@ -785,15 +806,19 @@ __all__ = (
     "CancelNasJobRequest",
     "CancelPipelineJobRequest",
     "CancelTrainingPipelineRequest",
+    "Candidate",
     "CheckTrialEarlyStoppingStateMetatdata",
     "CheckTrialEarlyStoppingStateRequest",
     "CheckTrialEarlyStoppingStateResponse",
+    "Citation",
+    "CitationMetadata",
     "CompleteTrialRequest",
     "CompletionStats",
     "ComputeTokensRequest",
     "ComputeTokensResponse",
     "ContainerRegistryDestination",
     "ContainerSpec",
+    "Content",
     "Context",
     "CopyModelOperationMetadata",
     "CopyModelRequest",
@@ -980,12 +1005,19 @@ __all__ = (
     "FeaturestoreServiceClient",
     "FetchFeatureValuesRequest",
     "FetchFeatureValuesResponse",
+    "FileData",
     "FilterSplit",
     "FindNeighborsRequest",
     "FindNeighborsResponse",
     "FractionSplit",
+    "FunctionCall",
+    "FunctionDeclaration",
+    "FunctionResponse",
     "GcsDestination",
     "GcsSource",
+    "GenerateContentRequest",
+    "GenerateContentResponse",
+    "GenerationConfig",
     "GenericOperationMetadata",
     "GetAnnotationSpecRequest",
     "GetArtifactRequest",
@@ -1028,6 +1060,7 @@ __all__ = (
     "GetTensorboardTimeSeriesRequest",
     "GetTrainingPipelineRequest",
     "GetTrialRequest",
+    "HarmCategory",
     "HyperparameterTuningJob",
     "IdMatcher",
     "ImportDataConfig",
@@ -1189,6 +1222,7 @@ __all__ = (
     "NearestNeighbors",
     "Neighbor",
     "NfsMount",
+    "Part",
     "PauseModelDeploymentMonitoringJobRequest",
     "PauseScheduleRequest",
     "PersistentDiskSpec",
@@ -1256,6 +1290,8 @@ __all__ = (
     "RestoreDatasetVersionRequest",
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
+    "SafetyRating",
+    "SafetySetting",
     "SampleConfig",
     "SampledShapleyAttribution",
     "SamplingStrategy",
@@ -1264,6 +1300,7 @@ __all__ = (
     "Schedule",
     "ScheduleServiceClient",
     "Scheduling",
+    "Schema",
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
     "SearchFeaturesRequest",
@@ -1309,10 +1346,12 @@ __all__ = (
     "TimeSeriesDataPoint",
     "TimestampSplit",
     "TokensInfo",
+    "Tool",
     "TrainingConfig",
     "TrainingPipeline",
     "Trial",
     "TrialContext",
+    "Type",
     "UndeployIndexOperationMetadata",
     "UndeployIndexRequest",
     "UndeployIndexResponse",
@@ -1363,6 +1402,7 @@ __all__ = (
     "UpsertDatapointsResponse",
     "UserActionReference",
     "Value",
+    "VideoMetadata",
     "VizierServiceClient",
     "WorkerPoolSpec",
     "WriteFeatureValuesPayload",

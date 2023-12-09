@@ -38,6 +38,9 @@ class DeployedIndexRef(proto.Message):
         deployed_index_id (str):
             Immutable. The ID of the DeployedIndex in the
             above IndexEndpoint.
+        display_name (str):
+            Output only. The display name of the
+            DeployedIndex.
     """
 
     index_endpoint: str = proto.Field(
@@ -47,6 +50,10 @@ class DeployedIndexRef(proto.Message):
     deployed_index_id: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+    display_name: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 

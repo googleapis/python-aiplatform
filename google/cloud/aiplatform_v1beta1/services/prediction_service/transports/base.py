@@ -173,6 +173,11 @@ class PredictionServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.stream_generate_content: gapic_v1.method.wrap_method(
+                self.stream_generate_content,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -285,6 +290,18 @@ class PredictionServiceTransport(abc.ABC):
         Union[
             prediction_service.CountTokensResponse,
             Awaitable[prediction_service.CountTokensResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def stream_generate_content(
+        self,
+    ) -> Callable[
+        [prediction_service.GenerateContentRequest],
+        Union[
+            prediction_service.GenerateContentResponse,
+            Awaitable[prediction_service.GenerateContentResponse],
         ],
     ]:
         raise NotImplementedError()
