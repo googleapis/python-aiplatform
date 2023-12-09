@@ -20,6 +20,8 @@ __version__ = package_version.__version__
 
 from google.cloud.aiplatform_v1.services.dataset_service.client import DatasetServiceClient
 from google.cloud.aiplatform_v1.services.dataset_service.async_client import DatasetServiceAsyncClient
+from google.cloud.aiplatform_v1.services.deployment_resource_pool_service.client import DeploymentResourcePoolServiceClient
+from google.cloud.aiplatform_v1.services.deployment_resource_pool_service.async_client import DeploymentResourcePoolServiceAsyncClient
 from google.cloud.aiplatform_v1.services.endpoint_service.client import EndpointServiceClient
 from google.cloud.aiplatform_v1.services.endpoint_service.async_client import EndpointServiceAsyncClient
 from google.cloud.aiplatform_v1.services.feature_online_store_admin_service.client import FeatureOnlineStoreAdminServiceClient
@@ -69,6 +71,18 @@ from google.cloud.aiplatform_v1.types.annotation_spec import AnnotationSpec
 from google.cloud.aiplatform_v1.types.artifact import Artifact
 from google.cloud.aiplatform_v1.types.batch_prediction_job import BatchPredictionJob
 from google.cloud.aiplatform_v1.types.completion_stats import CompletionStats
+from google.cloud.aiplatform_v1.types.content import Blob
+from google.cloud.aiplatform_v1.types.content import Candidate
+from google.cloud.aiplatform_v1.types.content import Citation
+from google.cloud.aiplatform_v1.types.content import CitationMetadata
+from google.cloud.aiplatform_v1.types.content import Content
+from google.cloud.aiplatform_v1.types.content import FileData
+from google.cloud.aiplatform_v1.types.content import GenerationConfig
+from google.cloud.aiplatform_v1.types.content import Part
+from google.cloud.aiplatform_v1.types.content import SafetyRating
+from google.cloud.aiplatform_v1.types.content import SafetySetting
+from google.cloud.aiplatform_v1.types.content import VideoMetadata
+from google.cloud.aiplatform_v1.types.content import HarmCategory
 from google.cloud.aiplatform_v1.types.context import Context
 from google.cloud.aiplatform_v1.types.custom_job import ContainerSpec
 from google.cloud.aiplatform_v1.types.custom_job import CustomJob
@@ -121,6 +135,16 @@ from google.cloud.aiplatform_v1.types.dataset_service import UpdateDatasetReques
 from google.cloud.aiplatform_v1.types.dataset_version import DatasetVersion
 from google.cloud.aiplatform_v1.types.deployed_index_ref import DeployedIndexRef
 from google.cloud.aiplatform_v1.types.deployed_model_ref import DeployedModelRef
+from google.cloud.aiplatform_v1.types.deployment_resource_pool import DeploymentResourcePool
+from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import CreateDeploymentResourcePoolOperationMetadata
+from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import CreateDeploymentResourcePoolRequest
+from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import DeleteDeploymentResourcePoolRequest
+from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import GetDeploymentResourcePoolRequest
+from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import ListDeploymentResourcePoolsRequest
+from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import ListDeploymentResourcePoolsResponse
+from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import QueryDeployedModelsRequest
+from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import QueryDeployedModelsResponse
+from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import UpdateDeploymentResourcePoolOperationMetadata
 from google.cloud.aiplatform_v1.types.encryption_spec import EncryptionSpec
 from google.cloud.aiplatform_v1.types.endpoint import DeployedModel
 from google.cloud.aiplatform_v1.types.endpoint import Endpoint
@@ -489,6 +513,8 @@ from google.cloud.aiplatform_v1.types.nas_job import NasJobOutput
 from google.cloud.aiplatform_v1.types.nas_job import NasJobSpec
 from google.cloud.aiplatform_v1.types.nas_job import NasTrial
 from google.cloud.aiplatform_v1.types.nas_job import NasTrialDetail
+from google.cloud.aiplatform_v1.types.openapi import Schema
+from google.cloud.aiplatform_v1.types.openapi import Type
 from google.cloud.aiplatform_v1.types.operation import DeleteOperationMetadata
 from google.cloud.aiplatform_v1.types.operation import GenericOperationMetadata
 from google.cloud.aiplatform_v1.types.pipeline_failure_policy import PipelineFailurePolicy
@@ -518,6 +544,8 @@ from google.cloud.aiplatform_v1.types.prediction_service import DirectRawPredict
 from google.cloud.aiplatform_v1.types.prediction_service import DirectRawPredictResponse
 from google.cloud.aiplatform_v1.types.prediction_service import ExplainRequest
 from google.cloud.aiplatform_v1.types.prediction_service import ExplainResponse
+from google.cloud.aiplatform_v1.types.prediction_service import GenerateContentRequest
+from google.cloud.aiplatform_v1.types.prediction_service import GenerateContentResponse
 from google.cloud.aiplatform_v1.types.prediction_service import PredictRequest
 from google.cloud.aiplatform_v1.types.prediction_service import PredictResponse
 from google.cloud.aiplatform_v1.types.prediction_service import RawPredictRequest
@@ -608,6 +636,10 @@ from google.cloud.aiplatform_v1.types.tensorboard_service import WriteTensorboar
 from google.cloud.aiplatform_v1.types.tensorboard_service import WriteTensorboardRunDataRequest
 from google.cloud.aiplatform_v1.types.tensorboard_service import WriteTensorboardRunDataResponse
 from google.cloud.aiplatform_v1.types.tensorboard_time_series import TensorboardTimeSeries
+from google.cloud.aiplatform_v1.types.tool import FunctionCall
+from google.cloud.aiplatform_v1.types.tool import FunctionDeclaration
+from google.cloud.aiplatform_v1.types.tool import FunctionResponse
+from google.cloud.aiplatform_v1.types.tool import Tool
 from google.cloud.aiplatform_v1.types.training_pipeline import FilterSplit
 from google.cloud.aiplatform_v1.types.training_pipeline import FractionSplit
 from google.cloud.aiplatform_v1.types.training_pipeline import InputDataConfig
@@ -648,6 +680,8 @@ from google.cloud.aiplatform_v1.types.vizier_service import SuggestTrialsRespons
 
 __all__ = ('DatasetServiceClient',
     'DatasetServiceAsyncClient',
+    'DeploymentResourcePoolServiceClient',
+    'DeploymentResourcePoolServiceAsyncClient',
     'EndpointServiceClient',
     'EndpointServiceAsyncClient',
     'FeatureOnlineStoreAdminServiceClient',
@@ -696,6 +730,18 @@ __all__ = ('DatasetServiceClient',
     'Artifact',
     'BatchPredictionJob',
     'CompletionStats',
+    'Blob',
+    'Candidate',
+    'Citation',
+    'CitationMetadata',
+    'Content',
+    'FileData',
+    'GenerationConfig',
+    'Part',
+    'SafetyRating',
+    'SafetySetting',
+    'VideoMetadata',
+    'HarmCategory',
     'Context',
     'ContainerSpec',
     'CustomJob',
@@ -748,6 +794,16 @@ __all__ = ('DatasetServiceClient',
     'DatasetVersion',
     'DeployedIndexRef',
     'DeployedModelRef',
+    'DeploymentResourcePool',
+    'CreateDeploymentResourcePoolOperationMetadata',
+    'CreateDeploymentResourcePoolRequest',
+    'DeleteDeploymentResourcePoolRequest',
+    'GetDeploymentResourcePoolRequest',
+    'ListDeploymentResourcePoolsRequest',
+    'ListDeploymentResourcePoolsResponse',
+    'QueryDeployedModelsRequest',
+    'QueryDeployedModelsResponse',
+    'UpdateDeploymentResourcePoolOperationMetadata',
     'EncryptionSpec',
     'DeployedModel',
     'Endpoint',
@@ -1116,6 +1172,8 @@ __all__ = ('DatasetServiceClient',
     'NasJobSpec',
     'NasTrial',
     'NasTrialDetail',
+    'Schema',
+    'Type',
     'DeleteOperationMetadata',
     'GenericOperationMetadata',
     'PipelineFailurePolicy',
@@ -1145,6 +1203,8 @@ __all__ = ('DatasetServiceClient',
     'DirectRawPredictResponse',
     'ExplainRequest',
     'ExplainResponse',
+    'GenerateContentRequest',
+    'GenerateContentResponse',
     'PredictRequest',
     'PredictResponse',
     'RawPredictRequest',
@@ -1235,6 +1295,10 @@ __all__ = ('DatasetServiceClient',
     'WriteTensorboardRunDataRequest',
     'WriteTensorboardRunDataResponse',
     'TensorboardTimeSeries',
+    'FunctionCall',
+    'FunctionDeclaration',
+    'FunctionResponse',
+    'Tool',
     'FilterSplit',
     'FractionSplit',
     'InputDataConfig',

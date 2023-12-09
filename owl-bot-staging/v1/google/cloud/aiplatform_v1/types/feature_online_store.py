@@ -47,7 +47,7 @@ class FeatureOnlineStore(proto.Message):
 
             This field is a member of `oneof`_ ``storage_type``.
         name (str):
-            Output only. Name of the FeatureOnlineStore. Format:
+            Identifier. Name of the FeatureOnlineStore. Format:
             ``projects/{project}/locations/{location}/featureOnlineStores/{featureOnlineStore}``
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
