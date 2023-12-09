@@ -46,6 +46,7 @@ except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object]  # type: ignore
 
 from google.api import httpbody_pb2  # type: ignore
+from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import prediction_service
 from google.cloud.aiplatform_v1.types import types
@@ -1144,6 +1145,130 @@ class PredictionServiceAsyncClient:
 
         # Send the request.
         response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def stream_generate_content(
+        self,
+        request: Optional[
+            Union[prediction_service.GenerateContentRequest, dict]
+        ] = None,
+        *,
+        model: Optional[str] = None,
+        contents: Optional[MutableSequence[content.Content]] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> Awaitable[AsyncIterable[prediction_service.GenerateContentResponse]]:
+        r"""Generate content with multimodal inputs with
+        streaming support.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_stream_generate_content():
+                # Create a client
+                client = aiplatform_v1.PredictionServiceAsyncClient()
+
+                # Initialize request argument(s)
+                contents = aiplatform_v1.Content()
+                contents.parts.text = "text_value"
+
+                request = aiplatform_v1.GenerateContentRequest(
+                    model="model_value",
+                    contents=contents,
+                )
+
+                # Make the request
+                stream = await client.stream_generate_content(request=request)
+
+                # Handle the response
+                async for response in stream:
+                    print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GenerateContentRequest, dict]]):
+                The request object. Request message for [PredictionService.GenerateContent].
+            model (:class:`str`):
+                Required. The name of the publisher model requested to
+                serve the prediction. Format:
+                ``projects/{project}/locations/{location}/publishers/*/models/*``
+
+                This corresponds to the ``model`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            contents (:class:`MutableSequence[google.cloud.aiplatform_v1.types.Content]`):
+                Required. The content of the current
+                conversation with the model.
+                For single-turn queries, this is a
+                single instance. For multi-turn queries,
+                this is a repeated field that contains
+                conversation history + latest request.
+
+                This corresponds to the ``contents`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            AsyncIterable[google.cloud.aiplatform_v1.types.GenerateContentResponse]:
+                Response message for
+                [PredictionService.GenerateContent].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([model, contents])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = prediction_service.GenerateContentRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if model is not None:
+            request.model = model
+        if contents:
+            request.contents.extend(contents)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.stream_generate_content,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("model", request.model),)),
+        )
+
+        # Send the request.
+        response = rpc(
             request,
             retry=retry,
             timeout=timeout,
