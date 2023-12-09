@@ -978,6 +978,10 @@ class _TextGenerationModel(_LanguageModel):
         grounding_source: Optional[
             Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
         ] = None,
+        logprobs: Optional[int] = None,
+        presence_penalty: Optional[float] = None,
+        frequency_penalty: Optional[float] = None,
+        logit_bias: Optional[Dict[int, float]] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Gets model response for a single prompt.
 
@@ -990,6 +994,26 @@ class _TextGenerationModel(_LanguageModel):
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of response candidates to return.
             grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
+            logprobs: Returns the top `logprobs` most likely candidate tokens with their log probabilities
+                at each generation step. The chosen tokens and their log probabilities at each step are always
+                returned. The chosen token may or may not be in the top `logprobs` most likely candidates.
+                The minimum value for `logprobs` is 0, which means only the chosen tokens and their log
+                probabilities are returned.
+                The maximum value for `logprobs` is 5.
+            presence_penalty:
+                Positive values penalize tokens that have appeared in the generated text,
+                thus increasing the possibility of generating more diversed topics.
+                Range: [-2.0, 2.0]
+            frequency_penalty:
+                Positive values penalize tokens that repeatedly appear in the generated
+                text, thus decreasing the possibility of repeating the same content.
+                Range: [-2.0, 2.0]
+            logit_bias:
+                Mapping from token IDs (integers) to their bias values (floats).
+                The bias values are added to the logits before sampling.
+                Larger positive bias increases the probability of choosing the token.
+                Smaller negative bias decreases the probability of choosing the token.
+                Range: [-100.0, 100.0]
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
@@ -1003,6 +1027,10 @@ class _TextGenerationModel(_LanguageModel):
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
             grounding_source=grounding_source,
+            logprobs=logprobs,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
         )
 
         prediction_response = self._endpoint.predict(
@@ -1027,6 +1055,10 @@ class _TextGenerationModel(_LanguageModel):
         grounding_source: Optional[
             Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
         ] = None,
+        logprobs: Optional[int] = None,
+        presence_penalty: Optional[float] = None,
+        frequency_penalty: Optional[float] = None,
+        logit_bias: Optional[Dict[int, float]] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously gets model response for a single prompt.
 
@@ -1039,6 +1071,26 @@ class _TextGenerationModel(_LanguageModel):
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of response candidates to return.
             grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
+            logprobs: Returns the top `logprobs` most likely candidate tokens with their log probabilities
+                at each generation step. The chosen tokens and their log probabilities at each step are always
+                returned. The chosen token may or may not be in the top `logprobs` most likely candidates.
+                The minimum value for `logprobs` is 0, which means only the chosen tokens and their log
+                probabilities are returned.
+                The maximum value for `logprobs` is 5.
+            presence_penalty:
+                Positive values penalize tokens that have appeared in the generated text,
+                thus increasing the possibility of generating more diversed topics.
+                Range: [-2.0, 2.0]
+            frequency_penalty:
+                Positive values penalize tokens that repeatedly appear in the generated
+                text, thus decreasing the possibility of repeating the same content.
+                Range: [-2.0, 2.0]
+            logit_bias:
+                Mapping from token IDs (integers) to their bias values (floats).
+                The bias values are added to the logits before sampling.
+                Larger positive bias increases the probability of choosing the token.
+                Smaller negative bias decreases the probability of choosing the token.
+                Range: [-100.0, 100.0]
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
@@ -1052,6 +1104,10 @@ class _TextGenerationModel(_LanguageModel):
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
             grounding_source=grounding_source,
+            logprobs=logprobs,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
         )
 
         prediction_response = await self._endpoint.predict_async(
@@ -1072,6 +1128,10 @@ class _TextGenerationModel(_LanguageModel):
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
+        logprobs: Optional[int] = None,
+        presence_penalty: Optional[float] = None,
+        frequency_penalty: Optional[float] = None,
+        logit_bias: Optional[Dict[int, float]] = None,
     ) -> Iterator[TextGenerationResponse]:
         """Gets a streaming model response for a single prompt.
 
@@ -1084,6 +1144,26 @@ class _TextGenerationModel(_LanguageModel):
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            logprobs: Returns the top `logprobs` most likely candidate tokens with their log probabilities
+                at each generation step. The chosen tokens and their log probabilities at each step are always
+                returned. The chosen token may or may not be in the top `logprobs` most likely candidates.
+                The minimum value for `logprobs` is 0, which means only the chosen tokens and their log
+                probabilities are returned.
+                The maximum value for `logprobs` is 5.
+            presence_penalty:
+                Positive values penalize tokens that have appeared in the generated text,
+                thus increasing the possibility of generating more diversed topics.
+                Range: [-2.0, 2.0]
+            frequency_penalty:
+                Positive values penalize tokens that repeatedly appear in the generated
+                text, thus decreasing the possibility of repeating the same content.
+                Range: [-2.0, 2.0]
+            logit_bias:
+                Mapping from token IDs (integers) to their bias values (floats).
+                The bias values are added to the logits before sampling.
+                Larger positive bias increases the probability of choosing the token.
+                Smaller negative bias decreases the probability of choosing the token.
+                Range: [-100.0, 100.0]
 
         Yields:
             A stream of `TextGenerationResponse` objects that contain partial
@@ -1096,6 +1176,10 @@ class _TextGenerationModel(_LanguageModel):
             top_k=top_k,
             top_p=top_p,
             stop_sequences=stop_sequences,
+            logprobs=logprobs,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
         )
 
         prediction_service_client = self._endpoint._prediction_client
@@ -1122,6 +1206,10 @@ class _TextGenerationModel(_LanguageModel):
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
+        logprobs: Optional[int] = None,
+        presence_penalty: Optional[float] = None,
+        frequency_penalty: Optional[float] = None,
+        logit_bias: Optional[Dict[int, float]] = None,
     ) -> AsyncIterator[TextGenerationResponse]:
         """Asynchronously gets a streaming model response for a single prompt.
 
@@ -1134,6 +1222,26 @@ class _TextGenerationModel(_LanguageModel):
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            logprobs: Returns the top `logprobs` most likely candidate tokens with their log probabilities
+                at each generation step. The chosen tokens and their log probabilities at each step are always
+                returned. The chosen token may or may not be in the top `logprobs` most likely candidates.
+                The minimum value for `logprobs` is 0, which means only the chosen tokens and their log
+                probabilities are returned.
+                The maximum value for `logprobs` is 5.
+            presence_penalty:
+                Positive values penalize tokens that have appeared in the generated text,
+                thus increasing the possibility of generating more diversed topics.
+                Range: [-2.0, 2.0]
+            frequency_penalty:
+                Positive values penalize tokens that repeatedly appear in the generated
+                text, thus decreasing the possibility of repeating the same content.
+                Range: [-2.0, 2.0]
+            logit_bias:
+                Mapping from token IDs (integers) to their bias values (floats).
+                The bias values are added to the logits before sampling.
+                Larger positive bias increases the probability of choosing the token.
+                Smaller negative bias decreases the probability of choosing the token.
+                Range: [-100.0, 100.0]
 
         Yields:
             A stream of `TextGenerationResponse` objects that contain partial
@@ -1146,6 +1254,10 @@ class _TextGenerationModel(_LanguageModel):
             top_k=top_k,
             top_p=top_p,
             stop_sequences=stop_sequences,
+            logprobs=logprobs,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
         )
 
         prediction_service_async_client = self._endpoint._prediction_async_client
@@ -1174,6 +1286,10 @@ def _create_text_generation_prediction_request(
     grounding_source: Optional[
         Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
     ] = None,
+    logprobs: Optional[int] = None,
+    presence_penalty: Optional[float] = None,
+    frequency_penalty: Optional[float] = None,
+    logit_bias: Optional[Dict[int, int]] = None,
 ) -> "_PredictionRequest":
     """Prepares the text generation request for a single prompt.
 
@@ -1186,7 +1302,26 @@ def _create_text_generation_prediction_request(
         stop_sequences: Customized stop sequences to stop the decoding process.
         candidate_count: Number of candidates to return.
         grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
-
+        logprobs: Returns the top `logprobs` most likely candidate tokens with their log probabilities
+            at each generation step. The chosen tokens and their log probabilities at each step are always
+            returned. The chosen token may or may not be in the top `logprobs` most likely candidates.
+            The minimum value for `logprobs` is 0, which means only the chosen tokens and their log
+            probabilities are returned.
+            The maximum value for `logprobs` is 5.
+        presence_penalty:
+            Positive values penalize tokens that have appeared in the generated text,
+            thus increasing the possibility of generating more diversed topics.
+            Range: [-2.0, 2.0]
+        frequency_penalty:
+            Positive values penalize tokens that repeatedly appear in the generated
+            text, thus decreasing the possibility of repeating the same content.
+            Range: [-2.0, 2.0]
+        logit_bias:
+            Mapping from token IDs (integers) to their bias values (floats).
+            The bias values are added to the logits before sampling.
+            Larger positive bias increases the probability of choosing the token.
+            Smaller negative bias decreases the probability of choosing the token.
+            Range: [-100.0, 100.0]
 
     Returns:
         A `_PredictionRequest` object that contains prediction instance and parameters.
@@ -1220,6 +1355,18 @@ def _create_text_generation_prediction_request(
         prediction_parameters[
             "groundingConfig"
         ] = grounding_source._to_grounding_source_dict()
+
+    if logprobs is not None:
+        prediction_parameters["logprobs"] = logprobs
+
+    if presence_penalty is not None:
+        prediction_parameters["presencePenalty"] = presence_penalty
+
+    if frequency_penalty is not None:
+        prediction_parameters["frequencyPenalty"] = frequency_penalty
+
+    if logit_bias is not None:
+        prediction_parameters["logitBias"] = logit_bias
 
     return _PredictionRequest(
         instance=instance,

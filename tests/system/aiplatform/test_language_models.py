@@ -35,6 +35,7 @@ from vertexai.preview.language_models import (
     ChatModel,
     InputOutputTextPair,
     TextGenerationModel,
+    TextGenerationResponse,
     TextEmbeddingModel,
 )
 
@@ -256,7 +257,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         message1 = "Are my favorite movies based on a book series?"
         for response in chat.send_message_streaming(message1):
-            assert response.text
+            assert isinstance(response, TextGenerationResponse)
         assert len(chat.message_history) == 2
         assert chat.message_history[0].author == chat.USER_AUTHOR
         assert chat.message_history[0].content == message1
@@ -267,7 +268,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             message2,
             temperature=0.1,
         ):
-            assert response2.text
+            assert isinstance(response2, TextGenerationResponse)
         assert len(chat.message_history) == 4
         assert chat.message_history[2].author == chat.USER_AUTHOR
         assert chat.message_history[2].content == message2

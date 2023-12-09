@@ -42,6 +42,9 @@ message MatchRequest {
   // The list of restricts.
   repeated Namespace restricts = 4;
 
+  //The list of numeric restricts.
+  repeated NumericNamespace numeric_restricts = 11;
+
   // Crowding is a constraint on a neighbor list produced by nearest neighbor
   // search requiring that no more than some value k' of the k neighbors
   // returned have the same value of crowding_attribute.
@@ -87,6 +90,9 @@ message Embedding {
 
   // The list of restricts.
   repeated Namespace restricts = 3;
+
+  // The list of numeric restricts.
+  repeated NumericNamespace numeric_restricts = 5;
 
   // The attribute value used for crowding.  The maximum number of neighbors
   // to return per crowding attribute value
@@ -175,6 +181,7 @@ message BatchMatchResponse {
 
 // Namespace specifies the rules for determining the datapoints that are
 // eligible for each matching query, overall query is an AND across namespaces.
+//  This uses categorical tokens.
 message Namespace {
   // The string name of the namespace that this proto is specifying,
   // such as "color", "shape", "geo", or "tags".
@@ -192,4 +199,53 @@ message Namespace {
   // query will match datapoints that are red or blue, but if those points are
   // also purple, then they will be excluded even if they are red/blue.
   repeated string deny_tokens = 3;
+}
+
+// NumericNamespace specifies the rules for determining the datapoints that are
+// eligible for each matching query, overall query is an AND across namespaces.
+// This uses numeric comparisons.
+message NumericNamespace {
+
+  // The string name of the namespace that this proto is specifying,
+  // such as "size" or "cost".
+  string name = 1;
+
+  // The type of Value must be consistent for all datapoints with a given
+  // namespace name. This is verified at runtime.
+  oneof Value {
+    // Represents 64 bit integer.
+    int64 value_int = 2;
+    // Represents 32 bit float.
+    float value_float = 3;
+    // Represents 64 bit float.
+    double value_double = 4;
+  }
+
+  // Which comparison operator to use.  Should be specified for queries only;
+  // specifying this for a datapoint is an error.
+  //
+  // Datapoints for which Operator is true relative to the query's Value
+  // field will be allowlisted.
+  enum Operator {
+    // Default value of the enum.
+    OPERATOR_UNSPECIFIED = 0;
+
+    // Datapoints are eligible iff their value is < the query's.
+    LESS = 1;
+
+    // Datapoints are eligible iff their value is <= the query's.
+    LESS_EQUAL = 2;
+
+    // Datapoints are eligible iff their value is == the query's.
+    EQUAL = 3;
+
+    // Datapoints are eligible iff their value is >= the query's.
+    GREATER_EQUAL = 4;
+
+    // Datapoints are eligible iff their value is > the query's.
+    GREATER = 5;
+  }
+
+  // Which comparison operator to use.
+  Operator op = 5;
 }

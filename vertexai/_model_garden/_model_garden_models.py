@@ -17,6 +17,7 @@
 
 import dataclasses
 from typing import Dict, Optional, Type, TypeVar
+from google.auth import exceptions as auth_exceptions
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -320,4 +321,17 @@ class _ModelGardenModel:
             ValueError: If model does not support this class.
         """
 
-        return _from_pretrained(interface_class=cls, model_name=model_name)
+        credential_exception_str = (
+            "\nUnable to authenticate your request."
+            "\nDepending on your runtime environment, you can complete authentication by:"
+            "\n- if in local JupyterLab instance: `!gcloud auth login` "
+            "\n- if in Colab:"
+            "\n    -`from google.colab import auth`"
+            "\n    -`auth.authenticate_user()`"
+            "\n- if in service account or other: please follow guidance in https://cloud.google.com/docs/authentication"
+        )
+
+        try:
+            return _from_pretrained(interface_class=cls, model_name=model_name)
+        except auth_exceptions.GoogleAuthError as e:
+            raise auth_exceptions.GoogleAuthError(credential_exception_str) from e
