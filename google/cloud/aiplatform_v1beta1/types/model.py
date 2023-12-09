@@ -998,6 +998,9 @@ class ModelSourceInfo(proto.Message):
                 Garden.
             GENIE (5):
                 The Model is saved or tuned from Genie.
+            CUSTOM_TEXT_EMBEDDING (6):
+                The Model is uploaded by text embedding
+                finetuning pipeline.
         """
         MODEL_SOURCE_TYPE_UNSPECIFIED = 0
         AUTOML = 1
@@ -1005,6 +1008,7 @@ class ModelSourceInfo(proto.Message):
         BQML = 3
         MODEL_GARDEN = 4
         GENIE = 5
+        CUSTOM_TEXT_EMBEDDING = 6
 
     source_type: ModelSourceType = proto.Field(
         proto.ENUM,

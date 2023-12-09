@@ -38,7 +38,7 @@ class FeatureViewSync(proto.Message):
 
     Attributes:
         name (str):
-            Output only. Name of the FeatureViewSync. Format:
+            Identifier. Name of the FeatureViewSync. Format:
             ``projects/{project}/locations/{location}/featureOnlineStores/{feature_online_store}/featureViews/{feature_view}/featureViewSyncs/{feature_view_sync}``
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when this FeatureViewSync

@@ -329,7 +329,9 @@ class Model(proto.Message):
             SHARED_RESOURCES (3):
                 Resources that can be shared by multiple
                 [DeployedModels][google.cloud.aiplatform.v1.DeployedModel].
-                A pre-configured [DeploymentResourcePool][] is required.
+                A pre-configured
+                [DeploymentResourcePool][google.cloud.aiplatform.v1.DeploymentResourcePool]
+                is required.
         """
         DEPLOYMENT_RESOURCES_TYPE_UNSPECIFIED = 0
         DEDICATED_RESOURCES = 1
