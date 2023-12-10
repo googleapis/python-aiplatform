@@ -1284,25 +1284,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             List[gca_index_v1beta1.IndexDatapoint] - A list of datapoints/vectors of the given IDs.
         """
         if not self._public_match_client:
-            # Call private match service stub with BatchGetEmbeddings request
-            response = self._batch_get_embeddings(
-                deployed_index_id=deployed_index_id, ids=ids
-            )
-            return [
-                gca_index_v1beta1.IndexDatapoint(
-                    datapoint_id=embedding.id,
-                    feature_vector=embedding.float_val,
-                    restricts=gca_index_v1beta1.IndexDatapoint.Restriction(
-                        namespace=embedding.restricts.name,
-                        allow_list=embedding.restricts.allow_tokens,
-                    ),
-                    deny_list=embedding.restricts.deny_tokens,
-                    crowding_attributes=gca_index_v1beta1.CrowdingEmbedding(
-                        str(embedding.crowding_tag)
-                    ),
-                )
-                for embedding in response.embeddings
-            ]
+            raise ValueError("Please make sure index has been deployed to public endpoint,and follow the example usage to call this method.")
 
         # Create the ReadIndexDatapoints request
         read_index_datapoints_request = (
