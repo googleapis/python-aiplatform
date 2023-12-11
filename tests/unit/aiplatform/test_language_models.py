@@ -1483,10 +1483,6 @@ class TestLanguageModels:
                 top_p=1.0,
                 top_k=5,
                 stop_sequences=["\n"],
-                logprobs=3,
-                presence_penalty=1.0,
-                frequency_penalty=1.0,
-                logit_bias={1: 100.0, 2: -100.0},
             )
 
         expected_errors = (100,)
@@ -1496,10 +1492,6 @@ class TestLanguageModels:
         assert prediction_parameters["topP"] == 1.0
         assert prediction_parameters["topK"] == 5
         assert prediction_parameters["stopSequences"] == ["\n"]
-        assert prediction_parameters["logprobs"] == 3
-        assert prediction_parameters["presencePenalty"] == 1.0
-        assert prediction_parameters["frequencyPenalty"] == 1.0
-        assert prediction_parameters["logitBias"] == {1: 100.0, 2: -100.0}
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
         assert response.errors == expected_errors
 

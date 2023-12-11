@@ -3506,38 +3506,10 @@ def test_endpoint_service_grpc_lro_async_client():
     assert transport.operations_client is transport.operations_client
 
 
-def test_deployment_resource_pool_path():
+def test_endpoint_path():
     project = "squid"
     location = "clam"
-    deployment_resource_pool = "whelk"
-    expected = "projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}".format(
-        project=project,
-        location=location,
-        deployment_resource_pool=deployment_resource_pool,
-    )
-    actual = EndpointServiceClient.deployment_resource_pool_path(
-        project, location, deployment_resource_pool
-    )
-    assert expected == actual
-
-
-def test_parse_deployment_resource_pool_path():
-    expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "deployment_resource_pool": "nudibranch",
-    }
-    path = EndpointServiceClient.deployment_resource_pool_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = EndpointServiceClient.parse_deployment_resource_pool_path(path)
-    assert expected == actual
-
-
-def test_endpoint_path():
-    project = "cuttlefish"
-    location = "mussel"
-    endpoint = "winkle"
+    endpoint = "whelk"
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
         project=project,
         location=location,
@@ -3549,9 +3521,9 @@ def test_endpoint_path():
 
 def test_parse_endpoint_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "endpoint": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "endpoint": "nudibranch",
     }
     path = EndpointServiceClient.endpoint_path(**expected)
 
@@ -3561,9 +3533,9 @@ def test_parse_endpoint_path():
 
 
 def test_model_path():
-    project = "squid"
-    location = "clam"
-    model = "whelk"
+    project = "cuttlefish"
+    location = "mussel"
+    model = "winkle"
     expected = "projects/{project}/locations/{location}/models/{model}".format(
         project=project,
         location=location,
@@ -3575,9 +3547,9 @@ def test_model_path():
 
 def test_parse_model_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "model": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "model": "abalone",
     }
     path = EndpointServiceClient.model_path(**expected)
 
@@ -3587,9 +3559,9 @@ def test_parse_model_path():
 
 
 def test_model_deployment_monitoring_job_path():
-    project = "cuttlefish"
-    location = "mussel"
-    model_deployment_monitoring_job = "winkle"
+    project = "squid"
+    location = "clam"
+    model_deployment_monitoring_job = "whelk"
     expected = "projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}".format(
         project=project,
         location=location,
@@ -3603,9 +3575,9 @@ def test_model_deployment_monitoring_job_path():
 
 def test_parse_model_deployment_monitoring_job_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "model_deployment_monitoring_job": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "model_deployment_monitoring_job": "nudibranch",
     }
     path = EndpointServiceClient.model_deployment_monitoring_job_path(**expected)
 
@@ -3615,8 +3587,8 @@ def test_parse_model_deployment_monitoring_job_path():
 
 
 def test_network_path():
-    project = "squid"
-    network = "clam"
+    project = "cuttlefish"
+    network = "mussel"
     expected = "projects/{project}/global/networks/{network}".format(
         project=project,
         network=network,
@@ -3627,8 +3599,8 @@ def test_network_path():
 
 def test_parse_network_path():
     expected = {
-        "project": "whelk",
-        "network": "octopus",
+        "project": "winkle",
+        "network": "nautilus",
     }
     path = EndpointServiceClient.network_path(**expected)
 
@@ -3638,7 +3610,7 @@ def test_parse_network_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "oyster"
+    billing_account = "scallop"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -3648,7 +3620,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nudibranch",
+        "billing_account": "abalone",
     }
     path = EndpointServiceClient.common_billing_account_path(**expected)
 
@@ -3658,7 +3630,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "cuttlefish"
+    folder = "squid"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -3668,7 +3640,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "mussel",
+        "folder": "clam",
     }
     path = EndpointServiceClient.common_folder_path(**expected)
 
@@ -3678,7 +3650,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "winkle"
+    organization = "whelk"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -3688,7 +3660,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nautilus",
+        "organization": "octopus",
     }
     path = EndpointServiceClient.common_organization_path(**expected)
 
@@ -3698,7 +3670,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "scallop"
+    project = "oyster"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -3708,7 +3680,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "abalone",
+        "project": "nudibranch",
     }
     path = EndpointServiceClient.common_project_path(**expected)
 
@@ -3718,8 +3690,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "squid"
-    location = "clam"
+    project = "cuttlefish"
+    location = "mussel"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -3730,8 +3702,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
+        "project": "winkle",
+        "location": "nautilus",
     }
     path = EndpointServiceClient.common_location_path(**expected)
 

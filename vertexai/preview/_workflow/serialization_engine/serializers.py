@@ -90,7 +90,6 @@ _TFIO_VERSION_DICT = {
     "2.12": "0.32.0",
     "2.13": "0.34.0",  # TODO(b/295580335): Support TF 2.13
 }
-DEFAULT_TENSORFLOW_BATCHSIZE = 32
 
 
 def get_uri_prefix(gcs_uri: str) -> str:
@@ -1175,9 +1174,7 @@ class BigframeSerializer(serializers_base.Serializer):
         # Convert bigframes.dataframe.DataFrame to Parquet (GCS)
         parquet_gcs_path = gcs_path + "/*"  # path is required to contain '*'
         to_serialize.to_parquet(parquet_gcs_path, index=True)
-
-        # Return original gcs_path to retrieve the metadata for later
-        return gcs_path
+        return parquet_gcs_path
 
     def _get_tfio_verison(self):
         major, minor, _ = version.Version(tf.__version__).release
@@ -1193,15 +1190,15 @@ class BigframeSerializer(serializers_base.Serializer):
     def deserialize(
         self, serialized_gcs_path: str, **kwargs
     ) -> Union["pandas.DataFrame", "bigframes.dataframe.DataFrame"]:  # noqa: F821
+        del kwargs
+
         detected_framework = BigframeSerializer._metadata.framework
         if detected_framework == "sklearn":
             return self._deserialize_sklearn(serialized_gcs_path)
         elif detected_framework == "torch":
             return self._deserialize_torch(serialized_gcs_path)
         elif detected_framework == "tensorflow":
-            return self._deserialize_tensorflow(
-                serialized_gcs_path, kwargs.get("batch_size")
-            )
+            return self._deserialize_tensorflow(serialized_gcs_path)
         else:
             raise ValueError(f"Unsupported framework: {detected_framework}")
 
@@ -1272,16 +1269,11 @@ class BigframeSerializer(serializers_base.Serializer):
 
         return functools.reduce(reduce_tensors, list(parquet_df_dp))
 
-    def _deserialize_tensorflow(
-        self, serialized_gcs_path: str, batch_size: Optional[int] = None
-    ) -> TFDataset:
+    def _deserialize_tensorflow(self, serialized_gcs_path: str) -> TFDataset:
         """Tensorflow deserializes parquet (GCS) --> tf.data.Dataset
 
         serialized_gcs_path is a folder containing one or more parquet files.
         """
-        # Set default batch_size
-        batch_size = batch_size or DEFAULT_TENSORFLOW_BATCHSIZE
-
         # Deserialization at remote environment
         try:
             import tensorflow_io as tfio
@@ -1315,7 +1307,8 @@ class BigframeSerializer(serializers_base.Serializer):
 
             return functools.reduce(reduce_fn, row.values()), target
 
-        return ds.map(map_fn).batch(batch_size)
+        # TODO(b/295535730): Remove hardcoded batch_size of 32
+        return ds.map(map_fn).batch(32)
 
 
 class CloudPickleSerializer(serializers_base.Serializer):

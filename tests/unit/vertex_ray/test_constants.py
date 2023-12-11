@@ -39,13 +39,6 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourceRuntimeSpec,
 )
 
-import pytest
-import sys
-
-rovminversion = pytest.mark.skipif(
-    sys.version_info > (3, 10), reason="Requires python3.10 or lower"
-)
-
 
 @dataclasses.dataclass(frozen=True)
 class ProjectConstants:

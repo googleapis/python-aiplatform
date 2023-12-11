@@ -494,31 +494,6 @@ def index_endpoint_match_queries_mock():
 
 
 @pytest.fixture
-def index_endpoint_batch_get_embeddings_mock():
-    with patch.object(
-        grpc._channel._UnaryUnaryMultiCallable,
-        "__call__",
-    ) as index_endpoint_batch_get_embeddings_mock:
-        index_endpoint_batch_get_embeddings_mock.return_value = (
-            match_service_pb2.BatchGetEmbeddingsResponse(
-                embeddings=[
-                    match_service_pb2.Embedding(
-                        id="1",
-                        float_val=[0.1, 0.2, 0.3],
-                        crowding_attribute=1,
-                    ),
-                    match_service_pb2.Embedding(
-                        id="2",
-                        float_val=[0.5, 0.2, 0.3],
-                        crowding_attribute=1,
-                    ),
-                ]
-            )
-        )
-        yield index_endpoint_batch_get_embeddings_mock
-
-
-@pytest.fixture
 def index_public_endpoint_match_queries_mock():
     with patch.object(
         match_service_client_v1beta1.MatchServiceClient, "find_neighbors"
@@ -1229,23 +1204,3 @@ class TestMatchingEngineIndexEndpoint:
         index_public_endpoint_read_index_datapoints_mock.assert_called_with(
             read_index_datapoints_request
         )
-
-    @pytest.mark.usefixtures("get_index_endpoint_mock")
-    def test_index_endpoint_batch_get_embeddings(
-        self, index_endpoint_batch_get_embeddings_mock
-    ):
-        aiplatform.init(project=_TEST_PROJECT)
-
-        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
-            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
-        )
-
-        my_index_endpoint._batch_get_embeddings(
-            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, ids=["1", "2"]
-        )
-
-        batch_request = match_service_pb2.BatchGetEmbeddingsRequest(
-            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
-        )
-
-        index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)

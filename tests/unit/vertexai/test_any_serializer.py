@@ -1105,7 +1105,6 @@ class TestAnySerializer:
         mock_bigframe_deserialize_tensorflow.assert_called_once_with(
             any_serializer_instance._instances[serializers.BigframeSerializer],
             serialized_gcs_path=fake_gcs_path,
-            batch_size=None,
         )
 
     def test_any_serializer_deserialize_tf_dataset(

@@ -383,8 +383,8 @@ class BatchPredictionJob(proto.Message):
                 [excluded_fields][google.cloud.aiplatform.v1.BatchPredictionJob.InstanceConfig.excluded_fields]
                 must be empty.
 
-                The input must be JSONL with objects at each line, BigQuery
-                or TfRecord.
+                The input must be JSONL with objects at each line, CSV,
+                BigQuery or TfRecord.
             excluded_fields (MutableSequence[str]):
                 Fields that will be excluded in the prediction instance that
                 is sent to the Model.
@@ -397,8 +397,8 @@ class BatchPredictionJob(proto.Message):
                 [included_fields][google.cloud.aiplatform.v1.BatchPredictionJob.InstanceConfig.included_fields]
                 must be empty.
 
-                The input must be JSONL with objects at each line, BigQuery
-                or TfRecord.
+                The input must be JSONL with objects at each line, CSV,
+                BigQuery or TfRecord.
         """
 
         instance_type: str = proto.Field(

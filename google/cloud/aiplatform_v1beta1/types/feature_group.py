@@ -45,7 +45,7 @@ class FeatureGroup(proto.Message):
 
             This field is a member of `oneof`_ ``source``.
         name (str):
-            Identifier. Name of the FeatureGroup. Format:
+            Output only. Name of the FeatureGroup. Format:
             ``projects/{project}/locations/{location}/featureGroups/{featureGroup}``
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this FeatureGroup

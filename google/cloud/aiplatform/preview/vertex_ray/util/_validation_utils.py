@@ -18,7 +18,6 @@
 import google.auth
 import google.auth.transport.requests
 import logging
-import ray
 import re
 
 from google.cloud.aiplatform import initializer
@@ -67,13 +66,6 @@ def maybe_reconstruct_resource_name(address) -> str:
         )
 
     return address
-
-
-def get_local_ray_version():
-    ray_version = ray.__version__.split(".")
-    if len(ray_version) == 3:
-        ray_version = ray_version[:2]
-    return "_".join(ray_version)
 
 
 def get_image_uri(ray_version, python_version, enable_cuda):

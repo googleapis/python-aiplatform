@@ -216,7 +216,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(resource_name=index_endpoint_name)
 
-        self._public_match_client = None
         if self.public_endpoint_domain_name:
             self._public_match_client = self._instantiate_public_match_client()
 
@@ -518,36 +517,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             location_override=self.location,
             api_path_override=self.public_endpoint_domain_name,
         )
-
-    def _instantiate_private_match_service_stub(
-        self,
-        deployed_index_id: str,
-    ) -> match_service_pb2_grpc.MatchServiceStub:
-        """Helper method to instantiate private match service stub.
-        Args:
-            deployed_index_id (str):
-                Required. The user specified ID of the
-                DeployedIndex.
-        Returns:
-            stub (match_service_pb2_grpc.MatchServiceStub):
-                Initialized match service stub.
-        """
-        # Find the deployed index by id
-        deployed_indexes = [
-            deployed_index
-            for deployed_index in self.deployed_indexes
-            if deployed_index.id == deployed_index_id
-        ]
-
-        if not deployed_indexes:
-            raise RuntimeError(f"No deployed index with id '{deployed_index_id}' found")
-
-        # Retrieve server ip from deployed index
-        server_ip = deployed_indexes[0].private_endpoints.match_grpc_address
-
-        # Set up channel and stub
-        channel = grpc.insecure_channel("{}:10000".format(server_ip))
-        return match_service_pb2_grpc.MatchServiceStub(channel)
 
     @property
     def public_endpoint_domain_name(self) -> Optional[str]:
@@ -1264,8 +1233,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deployed_index_id: str,
         ids: List[str] = [],
     ) -> List[gca_index_v1beta1.IndexDatapoint]:
-        """Reads the datapoints/vectors of the given IDs on the specified
-        deployed index which is deployed to public or private endpoint.
+        """Reads the datapoints/vectors of the given IDs on the specified deployed index which is deployed to public endpoint.
 
         ```
         Example Usage:
@@ -1284,25 +1252,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             List[gca_index_v1beta1.IndexDatapoint] - A list of datapoints/vectors of the given IDs.
         """
         if not self._public_match_client:
-            # Call private match service stub with BatchGetEmbeddings request
-            response = self._batch_get_embeddings(
-                deployed_index_id=deployed_index_id, ids=ids
+            raise ValueError(
+                "Please make sure index has been deployed to public endpoint, and follow the example usage to call this method."
             )
-            return [
-                gca_index_v1beta1.IndexDatapoint(
-                    datapoint_id=embedding.id,
-                    feature_vector=embedding.float_val,
-                    restricts=gca_index_v1beta1.IndexDatapoint.Restriction(
-                        namespace=embedding.restricts.name,
-                        allow_list=embedding.restricts.allow_tokens,
-                    ),
-                    deny_list=embedding.restricts.deny_tokens,
-                    crowding_attributes=gca_index_v1beta1.CrowdingEmbedding(
-                        str(embedding.crowding_tag)
-                    ),
-                )
-                for embedding in response.embeddings
-            ]
 
         # Create the ReadIndexDatapoints request
         read_index_datapoints_request = (
@@ -1320,38 +1272,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         # Wrap the results and return
         return response.datapoints
-
-    def _batch_get_embeddings(
-        self,
-        *,
-        deployed_index_id: str,
-        ids: List[str] = [],
-    ) -> List[List[match_service_pb2.Embedding]]:
-        """
-        Reads the datapoints/vectors of the given IDs on the specified index
-        which is deployed to private endpoint.
-
-        Args:
-            deployed_index_id (str):
-                Required. The ID of the DeployedIndex to match the queries against.
-            ids (List[str]):
-                Required. IDs of the datapoints to be searched for.
-        Returns:
-            List[match_service_pb2.Embedding] - A list of datapoints/vectors of the given IDs.
-        """
-        stub = self._instantiate_private_match_service_stub(
-            deployed_index_id=deployed_index_id
-        )
-
-        # Create the batch get embeddings request
-        batch_request = match_service_pb2.BatchGetEmbeddingsRequest()
-        batch_request.deployed_index_id = deployed_index_id
-
-        for id in ids:
-            batch_request.id.append(id)
-        response = stub.BatchGetEmbeddings(batch_request)
-
-        return response.embeddings
 
     def match(
         self,
@@ -1390,9 +1310,23 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
         """
-        stub = self._instantiate_private_match_service_stub(
-            deployed_index_id=deployed_index_id
-        )
+
+        # Find the deployed index by id
+        deployed_indexes = [
+            deployed_index
+            for deployed_index in self.deployed_indexes
+            if deployed_index.id == deployed_index_id
+        ]
+
+        if not deployed_indexes:
+            raise RuntimeError(f"No deployed index with id '{deployed_index_id}' found")
+
+        # Retrieve server ip from deployed index
+        server_ip = deployed_indexes[0].private_endpoints.match_grpc_address
+
+        # Set up channel and stub
+        channel = grpc.insecure_channel("{}:10000".format(server_ip))
+        stub = match_service_pb2_grpc.MatchServiceStub(channel)
 
         # Create the batch match request
         batch_request = match_service_pb2.BatchMatchRequest()

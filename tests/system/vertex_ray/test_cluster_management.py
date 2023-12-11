@@ -49,17 +49,9 @@ class TestClusterManagement(e2e_base.TestEndToEnd):
         assert cluster_details.ray_version == CLUSTER_RAY_VERSION
         assert cluster_details.state == "RUNNING"
 
-        found_cluster = False
-        for cluster in vertex_ray.list_ray_clusters():
-            if cluster.cluster_resource_name == cluster_resource_name:
-                assert cluster.ray_version == CLUSTER_RAY_VERSION
-                assert cluster.state == "RUNNING"
-                found_cluster = True
-
-        if not found_cluster:
-            raise ValueError(
-                f"Cluster {cluster_resource_name} not found in list_ray_clusters"
-            )
+        clusters = vertex_ray.list_ray_clusters()
+        assert clusters[0].ray_version == CLUSTER_RAY_VERSION
+        assert clusters[0].state == "RUNNING"
 
         vertex_ray.delete_ray_cluster(cluster_resource_name)
         # Ensure cluster was deleted

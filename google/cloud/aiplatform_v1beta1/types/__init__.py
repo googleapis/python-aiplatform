@@ -28,20 +28,6 @@ from .batch_prediction_job import (
 from .completion_stats import (
     CompletionStats,
 )
-from .content import (
-    Blob,
-    Candidate,
-    Citation,
-    CitationMetadata,
-    Content,
-    FileData,
-    GenerationConfig,
-    Part,
-    SafetyRating,
-    SafetySetting,
-    VideoMetadata,
-    HarmCategory,
-)
 from .context import (
     Context,
 )
@@ -597,10 +583,6 @@ from .nas_job import (
     NasTrial,
     NasTrialDetail,
 )
-from .openapi import (
-    Schema,
-    Type,
-)
 from .operation import (
     DeleteOperationMetadata,
     GenericOperationMetadata,
@@ -655,8 +637,6 @@ from .prediction_service import (
     DirectRawPredictResponse,
     ExplainRequest,
     ExplainResponse,
-    GenerateContentRequest,
-    GenerateContentResponse,
     PredictRequest,
     PredictResponse,
     RawPredictRequest,
@@ -776,12 +756,6 @@ from .tensorboard_service import (
 from .tensorboard_time_series import (
     TensorboardTimeSeries,
 )
-from .tool import (
-    FunctionCall,
-    FunctionDeclaration,
-    FunctionResponse,
-    Tool,
-)
 from .training_pipeline import (
     FilterSplit,
     FractionSplit,
@@ -839,18 +813,6 @@ __all__ = (
     "Artifact",
     "BatchPredictionJob",
     "CompletionStats",
-    "Blob",
-    "Candidate",
-    "Citation",
-    "CitationMetadata",
-    "Content",
-    "FileData",
-    "GenerationConfig",
-    "Part",
-    "SafetyRating",
-    "SafetySetting",
-    "VideoMetadata",
-    "HarmCategory",
     "Context",
     "ContainerSpec",
     "CustomJob",
@@ -1287,8 +1249,6 @@ __all__ = (
     "NasJobSpec",
     "NasTrial",
     "NasTrialDetail",
-    "Schema",
-    "Type",
     "DeleteOperationMetadata",
     "GenericOperationMetadata",
     "PersistentResource",
@@ -1334,8 +1294,6 @@ __all__ = (
     "DirectRawPredictResponse",
     "ExplainRequest",
     "ExplainResponse",
-    "GenerateContentRequest",
-    "GenerateContentResponse",
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
@@ -1426,10 +1384,6 @@ __all__ = (
     "WriteTensorboardRunDataRequest",
     "WriteTensorboardRunDataResponse",
     "TensorboardTimeSeries",
-    "FunctionCall",
-    "FunctionDeclaration",
-    "FunctionResponse",
-    "Tool",
     "FilterSplit",
     "FractionSplit",
     "InputDataConfig",

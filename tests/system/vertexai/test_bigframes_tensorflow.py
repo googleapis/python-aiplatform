@@ -62,6 +62,7 @@ keras.Sequential = vertexai.preview.remote(keras.Sequential)
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
 )
 class TestRemoteExecutionBigframesTensorflow(e2e_base.TestEndToEnd):
+
     _temp_prefix = "temp-vertexai-remote-execution"
 
     def test_remote_execution_keras(self, shared_state):
@@ -96,7 +97,6 @@ class TestRemoteExecutionBigframesTensorflow(e2e_base.TestEndToEnd):
             enable_cuda=True,
             display_name=self._make_display_name("bigframes-keras-training"),
         )
-        model.fit.vertex.remote_config.serializer_args[train] = {"batch_size": 10}
 
         # Train model on Vertex
         model.fit(train, epochs=10)

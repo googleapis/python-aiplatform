@@ -2341,11 +2341,6 @@
                 "server_streaming_predict"
               ]
             },
-            "StreamGenerateContent": {
-              "methods": [
-                "stream_generate_content"
-              ]
-            },
             "StreamingPredict": {
               "methods": [
                 "streaming_predict"
@@ -2394,11 +2389,6 @@
             "ServerStreamingPredict": {
               "methods": [
                 "server_streaming_predict"
-              ]
-            },
-            "StreamGenerateContent": {
-              "methods": [
-                "stream_generate_content"
               ]
             },
             "StreamingPredict": {

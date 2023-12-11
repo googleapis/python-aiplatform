@@ -55,7 +55,7 @@ class FeatureView(proto.Message):
 
             This field is a member of `oneof`_ ``source``.
         name (str):
-            Identifier. Name of the FeatureView. Format:
+            Output only. Name of the FeatureView. Format:
             ``projects/{project}/locations/{location}/featureOnlineStores/{feature_online_store}/featureViews/{feature_view}``
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this FeatureView
@@ -113,7 +113,7 @@ class FeatureView(proto.Message):
         )
 
     class SyncConfig(proto.Message):
-        r"""Configuration for Sync. Only one option is set.
+        r"""
 
         Attributes:
             cron (str):

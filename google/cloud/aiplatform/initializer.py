@@ -274,10 +274,9 @@ class _Config:
         project_not_found_exception_str = (
             "Unable to find your project. Please provide a project ID by:"
             "\n- Passing a constructor argument"
-            "\n- Using vertexai.init()"
+            "\n- Using aiplatform.init()"
             "\n- Setting project using 'gcloud config set project my-project'"
             "\n- Setting a GCP environment variable"
-            "\n- To create a Google Cloud project, please follow guidance at https://developers.google.com/workspace/guides/create-project"
         )
 
         try:
