@@ -618,3 +618,146 @@ class TestExperiments(e2e_base.TestEndToEnd):
             )
             == tensorboard.resource_name
         )
+
+    def test_get_backing_tensorboard_resource_returns_tensorboard(self, shared_state):
+        tensorboard = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=self._make_display_name("")[:64],
+        )
+        shared_state["resources"] = [tensorboard]
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+            experiment_tensorboard=tensorboard,
+        )
+        experiment = aiplatform.Experiment(
+            self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+
+        assert (
+            experiment.get_backing_tensorboard_resource().resource_name
+            == tensorboard.resource_name
+        )
+
+    def test_get_backing_tensorboard_resource_returns_none(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+            experiment_tensorboard=False,
+        )
+        experiment = aiplatform.Experiment(
+            self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+
+        assert (
+            experiment.get_backing_tensorboard_resource() is None
+        )
+
+    def test_reset_experiment_tensorboard_init_success(self, shared_state):
+        tensorboard_1 = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=self._make_display_name("tensorboard_1"),
+        )
+        shared_state["resources"] = [tensorboard_1]
+        tensorboard_2 = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=self._make_display_name("tensorboard_2"),
+        )
+        shared_state["resources"] = [tensorboard_2]
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+            experiment_tensorboard=tensorboard_1,
+        )
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+            experiment_tensorboard=tensorboard_2,
+        )
+        experiment = aiplatform.Experiment(
+            self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+
+        assert (
+            experiment.get_backing_tensorboard_resource().resource_name
+            == tensorboard_2.resource_name
+        )
+
+    def test_assign_new_experiment_tensorboard_success(self, shared_state):
+        tensorboard_1 = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=self._make_display_name("tensorboard_1"),
+        )
+        shared_state["resources"] = [tensorboard_1]
+        tensorboard_2 = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=self._make_display_name("tensorboard_2"),
+        )
+        shared_state["resources"] = [tensorboard_2]
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+            experiment_tensorboard=tensorboard_1,
+        )
+        experiment = aiplatform.Experiment(
+            self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        experiment.assign_backing_tensorboard(tensorboard_2)
+
+        assert (
+            experiment.get_backing_tensorboard_resource().resource_name
+            == tensorboard_2.resource_name
+        )
+
+    def test_assign_experiment_tensorboard_to_none_success(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        experiment = aiplatform.Experiment(
+            self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        experiment.assign_backing_tensorboard(None)
+
+        assert experiment.get_backing_tensorboard_resource() is None
+
+    def test_delete_backing_tensorboard_experiment_run_success(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        experiment = aiplatform.Experiment(
+            self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        experiment.get_backing_tensorboard_resource().delete()
+        run = aiplatform.start_run(_RUN)
+        aiplatform.end_run()
+
+        assert experiment.get_backing_tensorboard_resource() is None
+        assert run.name == _RUN

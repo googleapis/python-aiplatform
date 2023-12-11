@@ -427,6 +427,15 @@ def get_or_create_default_tb_none_mock():
 
 
 @pytest.fixture
+def get_or_create_default_tb_mock():
+    with patch.object(
+        metadata, "_get_or_create_default_tensorboard"
+    ) as get_or_create_default_tb_mock:
+        get_or_create_default_tb_mock.return_value = _TEST_DEFAULT_TENSORBOARD_GCA
+        yield get_or_create_default_tb_mock
+
+
+@pytest.fixture
 def get_tensorboard_experiment_not_found_mock():
     with patch.object(
         TensorboardServiceClient, "get_tensorboard_experiment"
@@ -1290,7 +1299,7 @@ class TestExperiments:
     @pytest.mark.usefixtures(
         "get_metadata_store_mock",
         "get_experiment_run_run_mock",
-        "get_or_create_default_tb_none_mock",
+        "get_or_create_default_tb_mock",
     )
     def test_init_experiment_without_existing_description(
         self,
