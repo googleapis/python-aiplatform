@@ -250,14 +250,14 @@ class BigQueryDatasource(Datasource):
         client = bigquery.Client(project=project_id, client_info=bq_info)
         dataset_id = dataset.split(".", 1)[0]
         try:
-            client.create_dataset(f"{project_id}.{dataset_id}", timeout=30)
-            print("[Ray on Vertex AI]: Created dataset", dataset_id)
-        except exceptions.Conflict:
+            client.get_dataset(dataset_id)
             print(
-                "[Ray on Vertex AI]: Dataset",
-                dataset_id,
-                "already exists. The table will be overwritten if it already exists.",
+                f"[Ray on Vertex AI]: Dataset {dataset_id} already exists."
+                + "The table will be overwritten if it already exists."
             )
+        except exceptions.NotFound:
+            client.create_dataset(f"{project_id}.{dataset_id}", timeout=30)
+            print(f"[Ray on Vertex AI]: Created dataset {dataset_id}")
 
         # Delete table if it already exists
         client.delete_table(f"{project_id}.{dataset}", not_found_ok=True)
