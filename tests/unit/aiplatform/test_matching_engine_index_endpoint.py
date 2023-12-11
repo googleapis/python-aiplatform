@@ -246,6 +246,26 @@ _TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE = 0.8
 _TEST_RETURN_FULL_DATAPOINT = True
 _TEST_ENCRYPTION_SPEC_KEY_NAME = "kms_key_name"
 _TEST_PROJECT_ALLOWLIST = ["project-1", "project-2"]
+_TEST_READ_INDEX_DATAPOINTS_RESPONSE = [
+    gca_index_v1beta1.IndexDatapoint(
+        datapoint_id="1",
+        feature_vector=[0.1, 0.2, 0.3],
+        restricts=[
+            gca_index_v1beta1.IndexDatapoint.Restriction(
+                namespace="class",
+                allow_list=["token_1"],
+                deny_list=["token_2"],
+            )
+        ],
+    ),
+    gca_index_v1beta1.IndexDatapoint(
+        datapoint_id="2",
+        feature_vector=[0.5, 0.2, 0.3],
+        crowding_tag=gca_index_v1beta1.IndexDatapoint.CrowdingTag(
+            crowding_attribute="1"
+        ),
+    ),
+]
 
 
 def uuid_mock():
@@ -505,7 +525,13 @@ def index_endpoint_batch_get_embeddings_mock():
                     match_service_pb2.Embedding(
                         id="1",
                         float_val=[0.1, 0.2, 0.3],
-                        crowding_attribute=1,
+                        restricts=[
+                            match_service_pb2.Namespace(
+                                name="class",
+                                allow_tokens=["token_1"],
+                                deny_tokens=["token_2"],
+                            )
+                        ],
                     ),
                     match_service_pb2.Embedding(
                         id="2",
@@ -1249,3 +1275,25 @@ class TestMatchingEngineIndexEndpoint:
         )
 
         index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_index_endpoint_find_neighbors_for_private(
+        self, index_endpoint_batch_get_embeddings_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        response = my_index_endpoint.read_index_datapoints(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, ids=["1", "2"]
+        )
+
+        batch_request = match_service_pb2.BatchGetEmbeddingsRequest(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
+        )
+
+        index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
+
+        assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
