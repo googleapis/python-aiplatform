@@ -46,6 +46,11 @@ _TEST_RESPONSE_RUNNING_2_POOLS_RESIZE = copy.deepcopy(
 )
 _TEST_RESPONSE_RUNNING_2_POOLS_RESIZE.resource_pools[1].replica_count = 1
 
+_TEST_RESPONSE_RUNNING_1_POOL_RESIZE_0_WORKER = copy.deepcopy(
+    tc.ClusterConstants._TEST_RESPONSE_RUNNING_1_POOL
+)
+_TEST_RESPONSE_RUNNING_1_POOL_RESIZE_0_WORKER.resource_pools[0].replica_count = 1
+
 
 @pytest.fixture
 def create_persistent_resource_1_pool_mock():
@@ -161,6 +166,22 @@ def update_persistent_resource_1_pool_mock():
             update_persistent_resource_lro_mock
         )
         yield update_persistent_resource_1_pool_mock
+
+
+@pytest.fixture
+def update_persistent_resource_1_pool_0_worker_mock():
+    with mock.patch.object(
+        PersistentResourceServiceClient,
+        "update_persistent_resource",
+    ) as update_persistent_resource_1_pool_0_worker_mock:
+        update_persistent_resource_lro_mock = mock.Mock(ga_operation.Operation)
+        update_persistent_resource_lro_mock.result.return_value = (
+            _TEST_RESPONSE_RUNNING_1_POOL_RESIZE_0_WORKER
+        )
+        update_persistent_resource_1_pool_0_worker_mock.return_value = (
+            update_persistent_resource_lro_mock
+        )
+        yield update_persistent_resource_1_pool_0_worker_mock
 
 
 @pytest.fixture
@@ -472,6 +493,30 @@ class TestClusterManagement:
 
         assert returned_name == tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS
 
+    @pytest.mark.usefixtures("get_persistent_resource_1_pool_mock")
+    def test_update_ray_cluster_1_pool_to_0_worker(
+        self, update_persistent_resource_1_pool_mock
+    ):
+
+        new_worker_node_types = []
+        for worker_node_type in tc.ClusterConstants._TEST_CLUSTER.worker_node_types:
+            # resize worker node to node_count = 0
+            worker_node_type.node_count = 0
+            new_worker_node_types.append(worker_node_type)
+
+        returned_name = vertex_ray.update_ray_cluster(
+            cluster_resource_name=tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS,
+            worker_node_types=new_worker_node_types,
+        )
+
+        request = persistent_resource_service.UpdatePersistentResourceRequest(
+            persistent_resource=_TEST_RESPONSE_RUNNING_1_POOL_RESIZE_0_WORKER,
+            update_mask=_EXPECTED_MASK,
+        )
+        update_persistent_resource_1_pool_mock.assert_called_once_with(request)
+
+        assert returned_name == tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS
+
     @pytest.mark.usefixtures("get_persistent_resource_2_pools_mock")
     def test_update_ray_cluster_2_pools(self, update_persistent_resource_2_pools_mock):
 
@@ -493,3 +538,49 @@ class TestClusterManagement:
         update_persistent_resource_2_pools_mock.assert_called_once_with(request)
 
         assert returned_name == tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS
+
+    @pytest.mark.usefixtures("get_persistent_resource_2_pools_mock")
+    def test_update_ray_cluster_2_pools_0_worker_fail(self):
+
+        new_worker_node_types = []
+        for worker_node_type in tc.ClusterConstants._TEST_CLUSTER_2.worker_node_types:
+            # resize worker node to node_count = 0
+            worker_node_type.node_count = 0
+            new_worker_node_types.append(worker_node_type)
+
+        with pytest.raises(ValueError) as e:
+            vertex_ray.update_ray_cluster(
+                cluster_resource_name=tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS,
+                worker_node_types=new_worker_node_types,
+            )
+
+            e.match(regexp=r"must update to >= 1 nodes.")
+
+    @pytest.mark.usefixtures("get_persistent_resource_1_pool_mock")
+    def test_update_ray_cluster_duplicate_worker_node_types_error(self):
+        new_worker_node_types = (
+            tc.ClusterConstants._TEST_CLUSTER_2.worker_node_types
+            + tc.ClusterConstants._TEST_CLUSTER_2.worker_node_types
+        )
+        with pytest.raises(ValueError) as e:
+            vertex_ray.update_ray_cluster(
+                cluster_resource_name=tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS,
+                worker_node_types=new_worker_node_types,
+            )
+
+            e.match(regexp=r"Worker_node_types have duplicate machine specs")
+
+    @pytest.mark.usefixtures("get_persistent_resource_1_pool_mock")
+    def test_update_ray_cluster_mismatch_worker_node_types_count_error(self):
+        with pytest.raises(ValueError) as e:
+            new_worker_node_types = (
+                tc.ClusterConstants._TEST_CLUSTER_2.worker_node_types
+            )
+            vertex_ray.update_ray_cluster(
+                cluster_resource_name=tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS,
+                worker_node_types=new_worker_node_types,
+            )
+
+            e.match(
+                regexp=r"does not match the number of the existing worker_node_type"
+            )
