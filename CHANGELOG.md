@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.38.0](https://github.com/googleapis/python-aiplatform/compare/v1.37.0...v1.38.0) (2023-12-11)
+
+
+### Features
+
+* Add explicit constraints for update_ray_cluster ([979a4f3](https://github.com/googleapis/python-aiplatform/commit/979a4f3280cf79c672bd90b57049b1d9f20635fc))
+* Check if dataset exists before creation for Ray on Vertex BigQuery Write ([544d6fe](https://github.com/googleapis/python-aiplatform/commit/544d6fe7925d673bc0fa5236a3ae2608fce10d8e))
+* LLM - Added support for the `logprobs`, `presence_penalty`, `frequency_penalty`, and `logit_bias` generation parameters ([1449344](https://github.com/googleapis/python-aiplatform/commit/1449344490bbfd2ea9eddf0a7dfa651d89db7bc9))
+* Support `read_index_datapoints` for private network. ([c9f7119](https://github.com/googleapis/python-aiplatform/commit/c9f7119f7c13a4f2a0ef3613ef03c0247ec263da))
+* Support custom batch size for Bigframes Tensorflow ([7dc8771](https://github.com/googleapis/python-aiplatform/commit/7dc8771715387e4fb4536aa7080b795bfba8039c))
+* Update the v1 service definition to add numeric_restricts. ([d0c2ffa](https://github.com/googleapis/python-aiplatform/commit/d0c2ffa8d8d070f9ef247c3c742a67b12d1bc16d))
+* Verify client and cluster Ray versions match ([10c6ad2](https://github.com/googleapis/python-aiplatform/commit/10c6ad292f0eb79f4010ea22115b2f70abdea661))
+
+
+### Bug Fixes
+
+* `read_index_endpoint` private endpoint support. ([3d8835e](https://github.com/googleapis/python-aiplatform/commit/3d8835e1dbc48502246fc5ae141f465e0ac7ae90))
+* Fix exception message to use vertexai when project is not provided. ([0cb1a7b](https://github.com/googleapis/python-aiplatform/commit/0cb1a7b16ef49813d5c59e2b9646dc7861291b42))
+* Update test assumption for streaming endpoint of chat-bison@001 ([f9a5b69](https://github.com/googleapis/python-aiplatform/commit/f9a5b692a7b4ed7046ba5035cb1b592aa0cd9f0b))
+* When user is not logged in, throw more intuitive message ([a8b24ad](https://github.com/googleapis/python-aiplatform/commit/a8b24adaf0485f41ea6fc0d65d17d3d9500821aa))
+
+
+### Documentation
+
+* Add default value to optional field parameter_values ([0a4d772](https://github.com/googleapis/python-aiplatform/commit/0a4d772aacc8b100aac6b0c7810296dd0a3e6692))
+
 ## [1.37.0](https://github.com/googleapis/python-aiplatform/compare/v1.36.4...v1.37.0) (2023-12-05)
 
 
