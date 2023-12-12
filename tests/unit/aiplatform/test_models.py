@@ -113,6 +113,7 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
     "loss_fn": "mse",
 }
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
+_TEST_SERVING_CONTAINER_GRPC_PORTS = [7777, 7000]
 _TEST_SERVING_CONTAINER_DEPLOYMENT_TIMEOUT = 100
 _TEST_SERVING_CONTAINER_SHARED_MEMORY_SIZE_MB = 1000
 _TEST_SERVING_CONTAINER_STARTUP_PROBE_EXEC = ["a", "b"]
@@ -1606,6 +1607,7 @@ class TestModel:
             serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
             serving_container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
+            serving_container_grpc_ports=_TEST_SERVING_CONTAINER_GRPC_PORTS,
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
@@ -1632,6 +1634,11 @@ class TestModel:
         ports = [
             gca_model.Port(container_port=port)
             for port in _TEST_SERVING_CONTAINER_PORTS
+        ]
+
+        grpc_ports = [
+            gca_model.Port(container_port=port)
+            for port in _TEST_SERVING_CONTAINER_GRPC_PORTS
         ]
 
         deployment_timeout = duration_pb2.Duration(
@@ -1662,6 +1669,7 @@ class TestModel:
             args=_TEST_SERVING_CONTAINER_ARGS,
             env=env,
             ports=ports,
+            grpc_ports=grpc_ports,
             deployment_timeout=deployment_timeout,
             shared_memory_size_mb=_TEST_SERVING_CONTAINER_SHARED_MEMORY_SIZE_MB,
             startup_probe=startup_probe,
