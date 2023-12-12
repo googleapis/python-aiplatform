@@ -5,6 +5,7 @@
 
 ### Features
 
+* Release GenerativeModel support for Gemini ([cd233ef](https://github.com/googleapis/python-aiplatform/commit/cd233ef81d1359f3ac89fca809e337ac866d2108))
 * Add explicit constraints for update_ray_cluster ([979a4f3](https://github.com/googleapis/python-aiplatform/commit/979a4f3280cf79c672bd90b57049b1d9f20635fc))
 * Check if dataset exists before creation for Ray on Vertex BigQuery Write ([544d6fe](https://github.com/googleapis/python-aiplatform/commit/544d6fe7925d673bc0fa5236a3ae2608fce10d8e))
 * LLM - Added support for the `logprobs`, `presence_penalty`, `frequency_penalty`, and `logit_bias` generation parameters ([1449344](https://github.com/googleapis/python-aiplatform/commit/1449344490bbfd2ea9eddf0a7dfa651d89db7bc9))
