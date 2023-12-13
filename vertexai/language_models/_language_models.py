@@ -1436,6 +1436,7 @@ class _ModelWithBatchPredict(_LanguageModel):
         dataset: Union[str, List[str]],
         destination_uri_prefix: str,
         model_parameters: Optional[Dict] = None,
+        sync: bool = True,
     ) -> aiplatform.BatchPredictionJob:
         """Starts a batch prediction job with the model.
 
@@ -1445,6 +1446,10 @@ class _ModelWithBatchPredict(_LanguageModel):
             destination_uri_prefix: The URI prefix for the prediction.
                 `gs://` and `bq://` URIs are supported.
             model_parameters: Model-specific parameters to send to the model.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
 
         Returns:
             A `BatchPredictionJob` object
@@ -1483,6 +1488,7 @@ class _ModelWithBatchPredict(_LanguageModel):
             job_display_name=None,
             **arguments,
             model_parameters=model_parameters,
+            sync=sync,
         )
         return job
 
@@ -1496,6 +1502,7 @@ class _PreviewModelWithBatchPredict(_ModelWithBatchPredict):
         destination_uri_prefix: str,
         dataset: Optional[Union[str, List[str]]] = None,
         model_parameters: Optional[Dict] = None,
+        sync: bool = True,
         **_kwargs: Optional[Dict[str, Any]],
     ) -> aiplatform.BatchPredictionJob:
         """Starts a batch prediction job with the model.
@@ -1506,6 +1513,10 @@ class _PreviewModelWithBatchPredict(_ModelWithBatchPredict):
             destination_uri_prefix: The URI prefix for the prediction.
                 `gs://` and `bq://` URIs are supported.
             model_parameters: Model-specific parameters to send to the model.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
             **_kwargs: Deprecated.
 
         Returns:
@@ -1524,6 +1535,7 @@ class _PreviewModelWithBatchPredict(_ModelWithBatchPredict):
             dataset=dataset,
             destination_uri_prefix=destination_uri_prefix,
             model_parameters=model_parameters,
+            sync=sync,
         )
 
 
