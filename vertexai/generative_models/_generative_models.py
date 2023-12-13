@@ -1306,7 +1306,7 @@ class GenerationResponse:
     def text(self) -> str:
         if len(self.candidates) > 1:
             raise ValueError("Multiple candidates are not supported")
-        return self.candidates[0].content.parts[0].text
+        return self.candidates[0].text
 
 
 class Candidate:
