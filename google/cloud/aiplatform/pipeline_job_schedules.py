@@ -106,6 +106,10 @@ class PipelineJobSchedule(
             create_pipeline_job_request["pipeline_job"][
                 "labels"
             ] = pipeline_job._gca_resource.labels
+        if "encryption_spec" in pipeline_job._gca_resource:
+            create_pipeline_job_request["pipeline_job"][
+                "encryption_spec"
+            ] = pipeline_job._gca_resource.encryption_spec
         pipeline_job_schedule_args = {
             "display_name": display_name,
             "create_pipeline_job_request": create_pipeline_job_request,
