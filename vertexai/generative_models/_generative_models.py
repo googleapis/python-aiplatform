@@ -655,6 +655,10 @@ class ChatSession:
         history: Optional[List["Content"]] = None,
         raise_on_blocked: bool = True,
     ):
+        if history:
+            if not all(isinstance(item, Content) for item in history):
+                raise ValueError("history must be a list of Content objects.")
+
         self._model = model
         self._history = history or []
         self._raise_on_blocked = raise_on_blocked
