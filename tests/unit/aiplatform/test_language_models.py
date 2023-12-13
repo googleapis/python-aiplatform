@@ -758,6 +758,124 @@ _TEST_EVAL_PIPELINE_JOB = json.dumps(
         "pipelineSpec": json.loads(_TEST_EVAL_PIPELINE_SPEC_JSON),
     }
 )
+_TEST_DISTILLATION_PIPELINE_SPEC = {
+    "components": {},
+    "pipelineInfo": {
+        "description": "Vertex kfp pipeline for distillation.",
+        "name": "distillation",
+    },
+    "root": {
+        "dag": {"tasks": {}},
+        "inputDefinitions": {
+            "parameters": {
+                "accelerator_type": {
+                    "defaultValue": "GPU",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "api_endpoint": {
+                    "defaultValue": "aiplatform.googleapis.com/ui",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "dataset_uri": {"parameterType": "STRING"},
+                "enable_checkpoint_selection": {
+                    "defaultValue": "default",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "enable_early_stopping": {
+                    "defaultValue": True,
+                    "isOptional": True,
+                    "parameterType": "BOOLEAN",
+                },
+                "encryption_spec_key_name": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "evaluation_data_uri": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "evaluation_interval": {
+                    "defaultValue": 100,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "evaluation_output_root_dir": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "learning_rate_multiplier": {
+                    "defaultValue": 1,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_DOUBLE",
+                },
+                "location": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "max_context_length": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "model_display_name": {
+                    "defaultValue": "distilled-student-model",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "project": {"parameterType": "STRING"},
+                "student_model_reference": {
+                    "defaultValue": "text-bison@002",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "teacher_model_reference": {
+                    "defaultValue": "text-unicorn@001",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "temperature": {
+                    "defaultValue": 0,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_DOUBLE",
+                },
+                "tensorboard_resource_id": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "tpu_training_skip_cmek": {
+                    "defaultValue": False,
+                    "isOptional": True,
+                    "parameterType": "BOOLEAN",
+                },
+                "train_steps": {
+                    "defaultValue": 300,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "version": {
+                    "defaultValue": "latest",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+            }
+        },
+    },
+    "schemaVersion": "2.1.0",
+    "sdkVersion": "kfp-2.4.0",
+}
+
+_TEST_DISTILLATION_PIPELINE_SPEC_JSON = json.dumps(
+    _TEST_DISTILLATION_PIPELINE_SPEC,
+)
+
 
 # Eval classification spec
 
@@ -874,6 +992,10 @@ _TEST_EVAL_CLASSIFICATION_PIPELINE_JOB = json.dumps(
         "pipelineSpec": json.loads(_TEST_EVAL_PIPELINE_SPEC_JSON),
     }
 )
+
+_URL_DATA = {
+    "https://us-kfp.pkg.dev/ml-pipeline/research/distillation/v1.0.0": _TEST_DISTILLATION_PIPELINE_SPEC_JSON,
+}
 
 
 @pytest.fixture
@@ -1223,6 +1345,19 @@ def mock_request_urlopen_eval_classification(
         mock_read_response.return_value.decode = mock_decode_response
         mock_urlopen.return_value.read = mock_read_response
         yield request.param, mock_urlopen
+
+
+@pytest.fixture
+def mock_urllib_request_urlopen(request: str) -> Tuple[str, mock.MagicMock]:
+    url = request.param
+    data = _URL_DATA[url]
+    with mock.patch.object(urllib_request, "urlopen") as mock_urlopen:
+        mock_read_response = mock.MagicMock()
+        mock_decode_response = mock.MagicMock()
+        mock_decode_response.return_value = data
+        mock_read_response.return_value.decode = mock_decode_response
+        mock_urlopen.return_value.read = mock_read_response
+        yield url, mock_urlopen
 
 
 @pytest.fixture
@@ -4251,3 +4386,102 @@ class TestLanguageModelEvaluation:
             )
             assert eval_metrics.confidenceMetrics is None
             assert eval_metrics.auPrc == _TEST_TEXT_CLASSIFICATION_METRICS["auPrc"]
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [
+            _TEST_DISTILLATION_PIPELINE_SPEC_JSON,
+        ],
+    )
+    @pytest.mark.parametrize(
+        "mock_urllib_request_urlopen",
+        ["https://us-kfp.pkg.dev/ml-pipeline/research/distillation/v1.0.0"],
+        indirect=True,
+    )
+    def test_text_generation_model_distill_from(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_job_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_gcs_from_string,
+        mock_gcs_upload,
+        mock_urllib_request_urlopen,
+        mock_get_tuned_model,
+    ):
+        """Tests distilling the text generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+            dataset_uri = "gs://bucket/distillation.training_data.jsonl"
+            evaluation_data_uri = "gs://bucket/eval.jsonl"
+            evaluation_interval = 37
+            enable_early_stopping = True
+            enable_checkpoint_selection = True
+            tensorboard_name = (
+                f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/tensorboards/123"
+            )
+
+            tuning_job = model.distill_from(
+                dataset=dataset_uri,
+                teacher_model="text-unicorn@001",
+                learning_rate_multiplier=2.0,
+                train_steps=10,
+                evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                    evaluation_data=evaluation_data_uri,
+                    evaluation_interval=evaluation_interval,
+                    enable_early_stopping=enable_early_stopping,
+                    enable_checkpoint_selection=enable_checkpoint_selection,
+                    tensorboard=tensorboard_name,
+                ),
+                accelerator_type="TPU",
+            )
+            call_kwargs = mock_pipeline_service_create.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["teacher_model_reference"] == "text-unicorn@001"
+            assert pipeline_arguments["student_model_reference"] == "text-bison@001"
+            assert pipeline_arguments["dataset_uri"] == dataset_uri
+            assert pipeline_arguments["project"] == _TEST_PROJECT
+            assert pipeline_arguments["location"] == _TEST_LOCATION
+            assert pipeline_arguments["train_steps"] == 10
+            assert pipeline_arguments["learning_rate_multiplier"] == 2.0
+            assert pipeline_arguments["evaluation_data_uri"] == evaluation_data_uri
+            assert pipeline_arguments["evaluation_interval"] == evaluation_interval
+            assert pipeline_arguments["enable_early_stopping"] == enable_early_stopping
+            assert (
+                pipeline_arguments["enable_checkpoint_selection"]
+                == enable_checkpoint_selection
+            )
+            assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
+            assert pipeline_arguments["accelerator_type"] == "TPU"
+            assert (
+                pipeline_arguments["encryption_spec_key_name"]
+                == _TEST_ENCRYPTION_KEY_NAME
+            )
+            assert (
+                call_kwargs["pipeline_job"].encryption_spec.kms_key_name
+                == _TEST_ENCRYPTION_KEY_NAME
+            )
+
+            # Testing the tuned model
+            tuned_model = tuning_job.get_tuned_model()
+            assert (
+                tuned_model._endpoint_name
+                == test_constants.EndpointConstants._TEST_ENDPOINT_NAME
+            )

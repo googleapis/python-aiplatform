@@ -1533,20 +1533,6 @@ class TextGenerationModel(
     __module__ = "vertexai.language_models"
 
 
-class _PreviewTextGenerationModel(
-    _TextGenerationModel,
-    _PreviewTunableTextModelMixin,
-    _PreviewModelWithBatchPredict,
-    _evaluatable_language_models._EvaluatableLanguageModel,
-    _CountTokensMixin,
-):
-    # Do not add docstring so that it's inherited from the base class.
-    __name__ = "TextGenerationModel"
-    __module__ = "vertexai.preview.language_models"
-
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
-
-
 class _ChatModel(_TextGenerationModel):
     """ChatModel represents a language model that is capable of chat.
 
@@ -3143,19 +3129,33 @@ class _LanguageModelTuningJob:
         if self._model:
             return self._model
         self._job.wait()
-        root_pipeline_tasks = [
-            task_detail
-            for task_detail in self._job.gca_resource.job_detail.task_details
-            if task_detail.execution.schema_title == "system.Run"
+
+        # Getting tuned model from the pipeline.
+        model_task = None
+        # Searching for the model uploading task first.
+        # Note: Distillation does not have pipeline outputs yet.
+        upload_model_tasks = [
+            task_info
+            for task_info in self._job.gca_resource.job_detail.task_details
+            if task_info.task_name == "upload-llm-model"
         ]
-        if len(root_pipeline_tasks) != 1:
+        if len(upload_model_tasks) == 1:
+            model_task = upload_model_tasks[0]
+        if not model_task:
+            root_pipeline_tasks = [
+                task_detail
+                for task_detail in self._job.gca_resource.job_detail.task_details
+                if task_detail.execution.schema_title == "system.Run"
+            ]
+            if len(root_pipeline_tasks) == 1:
+                model_task = root_pipeline_tasks[0]
+        if not model_task:
             raise RuntimeError(
                 f"Failed to get the model name from the tuning pipeline: {self._job.name}"
             )
-        root_pipeline_task = root_pipeline_tasks[0]
 
         # Trying to get model name from output parameter
-        vertex_model_name = root_pipeline_task.execution.metadata[
+        vertex_model_name = model_task.execution.metadata[
             "output:model_resource_name"
         ].strip()
         _LOGGER.info(f"Tuning has completed. Created Vertex Model: {vertex_model_name}")
@@ -3292,3 +3292,23 @@ def _uri_join(uri: str, path_fragment: str) -> str:
     """
 
     return uri.rstrip("/") + "/" + path_fragment.lstrip("/")
+
+
+# Importing here to prevent issues caused by circular references
+# pylint: disable=g-import-not-at-top,g-bad-import-order
+from vertexai.language_models import _distillation
+
+
+class _PreviewTextGenerationModel(
+    _TextGenerationModel,
+    _PreviewTunableTextModelMixin,
+    _PreviewModelWithBatchPredict,
+    _evaluatable_language_models._EvaluatableLanguageModel,
+    _CountTokensMixin,
+    _distillation.DistillationMixin,
+):
+    # Do not add docstring so that it's inherited from the base class.
+    __name__ = "TextGenerationModel"
+    __module__ = "vertexai.preview.language_models"
+
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
