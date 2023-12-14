@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.38.1](https://github.com/googleapis/python-aiplatform/compare/v1.38.0...v1.38.1) (2023-12-13)
+
+
+### Features
+
+* Adding `serving_container_grpc_ports` parameter to Model.upload() method ([6a00ed7](https://github.com/googleapis/python-aiplatform/commit/6a00ed79252c97f3e5f5eef5492d5d7ef12c969c))
+* LLM - Added support for model distillation ([28925e9](https://github.com/googleapis/python-aiplatform/commit/28925e9464254e9768ceab845001aa0e3d46bbbf))
+* Support CMEK for scheduled pipeline jobs. ([406595d](https://github.com/googleapis/python-aiplatform/commit/406595dd78896d3c3fcec8975baccdabef468849))
+
+
+### Miscellaneous Chores
+
+* Release 1.38.1 ([537d00e](https://github.com/googleapis/python-aiplatform/commit/537d00e185df593f6c718859cbc92f8dfef67512))
+
 ## [1.38.0](https://github.com/googleapis/python-aiplatform/compare/v1.37.0...v1.38.0) (2023-12-11)
 
 
