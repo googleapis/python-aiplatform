@@ -421,7 +421,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
-        model = TextEmbeddingModel.from_pretrained("textembedding-gecko")
+        model = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
         job = model.batch_predict(
             dataset=source_uri,
             destination_uri_prefix=destination_uri_prefix,
