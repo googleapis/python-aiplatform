@@ -697,7 +697,7 @@ class ExperimentRun(
                 Optional. The name or instance of the experiment to create this run under.
                 If not provided, will default to the experiment set in `aiplatform.init`.
             tensorboard (Union[aiplatform.Tensorboard, str]):
-                Optional. The resource name or instance of Vertex Tensorbaord to use as the backing
+                Optional. The resource name or instance of Vertex Tensorboard to use as the backing
                 Tensorboard for time series metric logging. If not provided, will default to the
                 the backing tensorboard of parent experiment if set. Must be in same project and location
                 as this experiment run.
