@@ -395,7 +395,12 @@ class Experiment:
             experiment_run.delete(
                 delete_backing_tensorboard_run=delete_backing_tensorboard_runs
             )
-        self._metadata_context.delete()
+        try:
+            self._metadata_context.delete()
+        except exceptions.NotFound:
+            _LOGGER.warning(
+                f"Experiment {self.name} metadata node not found. Skipping deletion."
+            )
 
     def get_data_frame(self) -> "pd.DataFrame":  # noqa: F821
         """Get parameters, metrics, and time series metrics of all runs in this experiment as Dataframe.

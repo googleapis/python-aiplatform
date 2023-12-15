@@ -444,7 +444,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
             key=lambda d: d["run_name"],
         ) == sorted(df.fillna(0.0).to_dict("records"), key=lambda d: d["run_name"])
 
-    def test_delete_run(self):
+    def test_delete_run_does_not_exist_raises_exception(self):
         run = aiplatform.ExperimentRun(
             run_name=_RUN,
             experiment=self._experiment_name,
@@ -456,7 +456,113 @@ class TestExperiments(e2e_base.TestEndToEnd):
         with pytest.raises(exceptions.NotFound):
             aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
 
-    def test_delete_experiment(self):
+    def test_delete_run_success(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN)
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        aiplatform.end_run()
+
+        run.delete(delete_backing_tensorboard_run=True)
+
+        with pytest.raises(exceptions.NotFound):
+            aiplatform.ExperimentRun(
+                run_name=_RUN,
+                experiment=self._experiment_name,
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+            )
+
+    def test_reuse_run_success(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN)
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        aiplatform.end_run()
+        run.delete(delete_backing_tensorboard_run=True)
+
+        aiplatform.start_run(_RUN)
+        aiplatform.end_run()
+
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        assert run.name == _RUN
+
+    def test_delete_run_then_tensorboard_success(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        aiplatform.end_run()
+        run.delete()
+        tensorboard_run_artifact = aiplatform.metadata.artifact.Artifact(
+            artifact_name=f"{self._experiment_name}-{_RUN}-tb-run"
+        )
+        tensorboard_run_resource = aiplatform.TensorboardRun(
+            tensorboard_run_artifact.metadata["resourceName"]
+        )
+        tensorboard_run_resource.delete()
+        tensorboard_run_artifact.delete()
+
+        aiplatform.start_run(_RUN)
+        aiplatform.end_run()
+
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        assert run.name == _RUN
+
+    def test_delete_wout_backing_tensorboard_reuse_run_raises_exception(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        aiplatform.end_run()
+        run.delete()
+
+        with pytest.raises(ValueError):
+            aiplatform.start_run(_RUN)
+
+    def test_delete_experiment_does_not_exist_raises_exception(self):
         experiment = aiplatform.Experiment(
             experiment_name=self._experiment_name,
             project=e2e_base._PROJECT,
