@@ -1105,6 +1105,7 @@ class Endpoint(aiplatform.Endpoint):
         """
         self.wait()
         request = gca_prediction_service_compat.ExplainRequest()
+        request.endpoint = self.resource_name
 
         if instances is not None:
             request.instances.extend(instances)
@@ -1199,14 +1200,21 @@ class Endpoint(aiplatform.Endpoint):
         """
         self.wait()
 
-        request = gca_prediction_service_compat.ExplainRequest(
-            endpoint=self.resource_name,
-            instances=instances,
-            parameters=parameters,
-            deployed_model_id=deployed_model_id,
-            explanation_spec_override=explanation_spec_override,
-            concurrent_explanation_spec_override=concurrent_explanation_spec_override,
-        )
+        request = gca_prediction_service_compat.ExplainRequest()
+        request.endpoint = self.resource_name
+
+        if instances is not None:
+            request.instances.extend(instances)
+        if parameters is not None:
+            request.parameters = parameters
+        if deployed_model_id is not None:
+            request.deployed_model_id = deployed_model_id
+        if explanation_spec_override is not None:
+            request.explanation_spec_override = explanation_spec_override
+        if concurrent_explanation_spec_override is not None:
+            request.concurrent_explanation_spec_override = (
+                concurrent_explanation_spec_override
+            )
 
         explain_response = await self._prediction_async_client.select_version(
             "v1beta1"
