@@ -294,6 +294,7 @@ class PipelineJob(
         self,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        reserved_ip_ranges: Optional[List[str]] = None,
         sync: Optional[bool] = True,
         create_request_timeout: Optional[float] = None,
     ) -> None:
@@ -309,6 +310,9 @@ class PipelineJob(
                 Private services access must already be configured for the network.
                 If left unspecified, the network set in aiplatform.init will be used.
                 Otherwise, the job is not peered with any network.
+            reserved_ip_ranges (List[str]):
+                Optional. A list of names for the reserved IP ranges under the VPC network that can be used for this PipelineJob's workload.
+                For example: ['vertex-ai-ip-range'].
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
@@ -319,6 +323,7 @@ class PipelineJob(
         self._run(
             service_account=service_account,
             network=network,
+            reserved_ip_ranges=reserved_ip_ranges,
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
@@ -328,6 +333,7 @@ class PipelineJob(
         self,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        reserved_ip_ranges: Optional[List[str]] = None,
         sync: Optional[bool] = True,
         create_request_timeout: Optional[float] = None,
     ) -> None:
@@ -342,6 +348,9 @@ class PipelineJob(
                 Optional. The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
+            reserved_ip_ranges (List[str]):
+                Optional. A list of names for the reserved IP ranges under the VPC network that can be used for this PipelineJob's workload.
+                For example: ['vertex-ai-ip-range'].
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
@@ -350,6 +359,7 @@ class PipelineJob(
         self.submit(
             service_account=service_account,
             network=network,
+            reserved_ip_ranges=reserved_ip_ranges,
             create_request_timeout=create_request_timeout,
         )
 
@@ -359,6 +369,7 @@ class PipelineJob(
         self,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        reserved_ip_ranges: Optional[List[str]] = None,
         create_request_timeout: Optional[float] = None,
         *,
         experiment: Optional[Union[str, experiment_resources.Experiment]] = None,
@@ -376,6 +387,12 @@ class PipelineJob(
                 Private services access must already be configured for the network.
                 If left unspecified, the network set in aiplatform.init will be used.
                 Otherwise, the job is not peered with any network.
+            reserved_ip_ranges (List[str]):
+                Optional. A list of names for the reserved IP ranges under the VPC
+                network that can be used for this PipelineJob's workload. For example: ['vertex-ai-ip-range'].
+
+                If left unspecified, the job will be deployed to any IP ranges under
+                the provided VPC network.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
             experiment (Union[str, experiments_resource.Experiment]):
@@ -395,6 +412,9 @@ class PipelineJob(
 
         if network:
             self._gca_resource.network = network
+
+        if reserved_ip_ranges:
+            self._gca_resource.reserved_ip_ranges = reserved_ip_ranges
 
         try:
             output_artifacts_gcs_dir = (
