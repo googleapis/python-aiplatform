@@ -32,7 +32,11 @@ from google.cloud.aiplatform.compat.services import (
     index_service_client,
 )
 
-from google.cloud.aiplatform.compat.types import index as gca_index
+from google.cloud.aiplatform.compat.types import (
+    index as gca_index,
+    encryption_spec as gca_encryption_spec,
+    index_service as gca_index_service,
+)
 import constants as test_constants
 
 # project
@@ -91,6 +95,58 @@ _TEST_INDEX_LIST = [
         description=_TEST_INDEX_DESCRIPTION,
     ),
 ]
+
+# Index update method
+_TEST_INDEX_BATCH_UPDATE_METHOD = "BATCH_UPDATE"
+_TEST_INDEX_STREAM_UPDATE_METHOD = "STREAM_UPDATE"
+_TEST_INDEX_EMPTY_UPDATE_METHOD = None
+_TEST_INDEX_INVALID_UPDATE_METHOD = "INVALID_UPDATE_METHOD"
+_TEST_INDEX_UPDATE_METHOD_EXPECTED_RESULT_MAP = {
+    _TEST_INDEX_BATCH_UPDATE_METHOD: gca_index.Index.IndexUpdateMethod.BATCH_UPDATE,
+    _TEST_INDEX_STREAM_UPDATE_METHOD: gca_index.Index.IndexUpdateMethod.STREAM_UPDATE,
+    _TEST_INDEX_EMPTY_UPDATE_METHOD: None,
+    _TEST_INDEX_INVALID_UPDATE_METHOD: None,
+}
+
+# Encryption spec
+_TEST_ENCRYPTION_SPEC_KEY_NAME = "TEST_ENCRYPTION_SPEC"
+
+_TEST_DATAPOINT_IDS = ("1", "2")
+_TEST_DATAPOINT_1 = gca_index.IndexDatapoint(
+    datapoint_id="0",
+    feature_vector=[0.00526886899, -0.0198396724],
+    restricts=[
+        gca_index.IndexDatapoint.Restriction(namespace="Color", allow_list=["red"])
+    ],
+    numeric_restricts=[
+        gca_index.IndexDatapoint.NumericRestriction(
+            namespace="cost",
+            value_int=1,
+        )
+    ],
+)
+_TEST_DATAPOINT_2 = gca_index.IndexDatapoint(
+    datapoint_id="1",
+    feature_vector=[0.00526886899, -0.0198396724],
+    numeric_restricts=[
+        gca_index.IndexDatapoint.NumericRestriction(
+            namespace="cost",
+            value_double=0.1,
+        )
+    ],
+    crowding_tag=gca_index.IndexDatapoint.CrowdingTag(crowding_attribute="crowding"),
+)
+_TEST_DATAPOINT_3 = gca_index.IndexDatapoint(
+    datapoint_id="2",
+    feature_vector=[0.00526886899, -0.0198396724],
+    numeric_restricts=[
+        gca_index.IndexDatapoint.NumericRestriction(
+            namespace="cost",
+            value_float=1.1,
+        )
+    ],
+)
+_TEST_DATAPOINTS = (_TEST_DATAPOINT_1, _TEST_DATAPOINT_2, _TEST_DATAPOINT_3)
 
 
 def uuid_mock():
@@ -172,6 +228,22 @@ def create_index_mock():
         )
         create_index_mock.return_value = create_index_lro_mock
         yield create_index_mock
+
+
+@pytest.fixture
+def upsert_datapoints_mock():
+    with patch.object(
+        index_service_client.IndexServiceClient, "upsert_datapoints"
+    ) as upsert_datapoints_mock:
+        yield upsert_datapoints_mock
+
+
+@pytest.fixture
+def remove_datapoints_mock():
+    with patch.object(
+        index_service_client.IndexServiceClient, "remove_datapoints"
+    ) as remove_datapoints_mock:
+        yield remove_datapoints_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -256,7 +328,7 @@ class TestMatchingEngineIndex:
         list_indexes_mock.assert_called_once_with(request={"parent": _TEST_PARENT})
         assert len(my_indexes_list) == len(_TEST_INDEX_LIST)
         for my_index in my_indexes_list:
-            assert type(my_index) == aiplatform.MatchingEngineIndex
+            assert isinstance(my_index, aiplatform.MatchingEngineIndex)
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_index_mock")
@@ -273,7 +345,16 @@ class TestMatchingEngineIndex:
 
     @pytest.mark.usefixtures("get_index_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_create_tree_ah_index(self, create_index_mock, sync):
+    @pytest.mark.parametrize(
+        "index_update_method",
+        [
+            _TEST_INDEX_STREAM_UPDATE_METHOD,
+            _TEST_INDEX_BATCH_UPDATE_METHOD,
+            _TEST_INDEX_EMPTY_UPDATE_METHOD,
+            _TEST_INDEX_INVALID_UPDATE_METHOD,
+        ],
+    )
+    def test_create_tree_ah_index(self, create_index_mock, sync, index_update_method):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
@@ -287,10 +368,62 @@ class TestMatchingEngineIndex:
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
             sync=sync,
+            index_update_method=index_update_method,
+            encryption_spec_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
         )
 
         if not sync:
             my_index.wait()
+
+        config = {
+            "treeAhConfig": {
+                "leafNodeEmbeddingCount": _TEST_LEAF_NODE_EMBEDDING_COUNT,
+                "leafNodesToSearchPercent": _TEST_LEAF_NODES_TO_SEARCH_PERCENT,
+            }
+        }
+
+        expected = gca_index.Index(
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            metadata={
+                "config": {
+                    "algorithmConfig": config,
+                    "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
+                    "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+                    "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                },
+                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
+            },
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+            index_update_method=_TEST_INDEX_UPDATE_METHOD_EXPECTED_RESULT_MAP[
+                index_update_method
+            ],
+            encryption_spec=gca_encryption_spec.EncryptionSpec(
+                kms_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME
+            ),
+        )
+
+        create_index_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            index=expected,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_index_mock")
+    def test_create_tree_ah_index_backward_compatibility(self, create_index_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.MatchingEngineIndex.create_tree_ah_index(
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
+            approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
+            leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
 
         config = {
             "treeAhConfig": {
@@ -322,7 +455,18 @@ class TestMatchingEngineIndex:
 
     @pytest.mark.usefixtures("get_index_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_create_brute_force_index(self, create_index_mock, sync):
+    @pytest.mark.parametrize(
+        "index_update_method",
+        [
+            _TEST_INDEX_STREAM_UPDATE_METHOD,
+            _TEST_INDEX_BATCH_UPDATE_METHOD,
+            _TEST_INDEX_EMPTY_UPDATE_METHOD,
+            _TEST_INDEX_INVALID_UPDATE_METHOD,
+        ],
+    )
+    def test_create_brute_force_index(
+        self, create_index_mock, sync, index_update_method
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index = aiplatform.MatchingEngineIndex.create_brute_force_index(
@@ -333,10 +477,54 @@ class TestMatchingEngineIndex:
             description=_TEST_INDEX_DESCRIPTION,
             labels=_TEST_LABELS,
             sync=sync,
+            index_update_method=index_update_method,
+            encryption_spec_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
         )
 
         if not sync:
             my_index.wait()
+
+        config = {"bruteForceConfig": {}}
+
+        expected = gca_index.Index(
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            metadata={
+                "config": {
+                    "algorithmConfig": config,
+                    "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
+                    "approximateNeighborsCount": None,
+                    "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                },
+                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
+            },
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+            index_update_method=_TEST_INDEX_UPDATE_METHOD_EXPECTED_RESULT_MAP[
+                index_update_method
+            ],
+            encryption_spec=gca_encryption_spec.EncryptionSpec(
+                kms_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
+            ),
+        )
+
+        create_index_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            index=expected,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_index_mock")
+    def test_create_brute_force_index_backward_compatibility(self, create_index_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.MatchingEngineIndex.create_brute_force_index(
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
+            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
 
         config = {"bruteForceConfig": {}}
 
@@ -360,3 +548,35 @@ class TestMatchingEngineIndex:
             index=expected,
             metadata=_TEST_REQUEST_METADATA,
         )
+
+    @pytest.mark.usefixtures("get_index_mock")
+    def test_upsert_datapoints(self, upsert_datapoints_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
+        my_index.upsert_datapoints(
+            datapoints=_TEST_DATAPOINTS,
+        )
+
+        upsert_datapoints_request = gca_index_service.UpsertDatapointsRequest(
+            index=_TEST_INDEX_NAME,
+            datapoints=_TEST_DATAPOINTS,
+        )
+
+        upsert_datapoints_mock.assert_called_once_with(upsert_datapoints_request)
+
+    @pytest.mark.usefixtures("get_index_mock")
+    def test_remove_datapoints(self, remove_datapoints_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
+        my_index.remove_datapoints(
+            datapoint_ids=_TEST_DATAPOINT_IDS,
+        )
+
+        remove_datapoints_request = gca_index_service.RemoveDatapointsRequest(
+            index=_TEST_INDEX_NAME,
+            datapoint_ids=_TEST_DATAPOINT_IDS,
+        )
+
+        remove_datapoints_mock.assert_called_once_with(remove_datapoints_request)

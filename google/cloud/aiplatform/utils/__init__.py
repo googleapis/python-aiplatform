@@ -49,10 +49,12 @@ from google.cloud.aiplatform.compat.services import (
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
+    prediction_service_async_client_v1beta1,
     schedule_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
     vizier_service_client_v1beta1,
     model_garden_service_client_v1beta1,
+    persistent_resource_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -63,9 +65,12 @@ from google.cloud.aiplatform.compat.services import (
     index_endpoint_service_client_v1,
     job_service_client_v1,
     metadata_service_client_v1,
+    model_garden_service_client_v1,
     model_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
+    prediction_service_async_client_v1,
+    schedule_service_client_v1,
     tensorboard_service_client_v1,
     vizier_service_client_v1,
 )
@@ -86,6 +91,7 @@ VertexAiServiceClient = TypeVar(
     index_endpoint_service_client_v1beta1.IndexEndpointServiceClient,
     model_service_client_v1beta1.ModelServiceClient,
     prediction_service_client_v1beta1.PredictionServiceClient,
+    prediction_service_async_client_v1beta1.PredictionServiceAsyncClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
     job_service_client_v1beta1.JobServiceClient,
     match_service_client_v1beta1.MatchServiceClient,
@@ -101,8 +107,10 @@ VertexAiServiceClient = TypeVar(
     metadata_service_client_v1.MetadataServiceClient,
     model_service_client_v1.ModelServiceClient,
     prediction_service_client_v1.PredictionServiceClient,
+    prediction_service_async_client_v1.PredictionServiceAsyncClient,
     pipeline_service_client_v1.PipelineServiceClient,
     job_service_client_v1.JobServiceClient,
+    schedule_service_client_v1.ScheduleServiceClient,
     tensorboard_service_client_v1.TensorboardServiceClient,
     vizier_service_client_v1.VizierServiceClient,
 )
@@ -596,8 +604,9 @@ class PipelineJobClientWithOverride(ClientWithOverride):
 
 class ScheduleClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (compat.V1, schedule_service_client_v1.ScheduleServiceClient),
         (compat.V1BETA1, schedule_service_client_v1beta1.ScheduleServiceClient),
     )
 
@@ -608,6 +617,18 @@ class PredictionClientWithOverride(ClientWithOverride):
     _version_map = (
         (compat.V1, prediction_service_client_v1.PredictionServiceClient),
         (compat.V1BETA1, prediction_service_client_v1beta1.PredictionServiceClient),
+    )
+
+
+class PredictionAsyncClientWithOverride(ClientWithOverride):
+    _is_temporary = False
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, prediction_service_async_client_v1.PredictionServiceAsyncClient),
+        (
+            compat.V1BETA1,
+            prediction_service_async_client_v1beta1.PredictionServiceAsyncClient,
+        ),
     )
 
 
@@ -646,9 +667,21 @@ class VizierClientWithOverride(ClientWithOverride):
 
 class ModelGardenClientWithOverride(ClientWithOverride):
     _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, model_garden_service_client_v1.ModelGardenServiceClient),
+        (compat.V1BETA1, model_garden_service_client_v1beta1.ModelGardenServiceClient),
+    )
+
+
+class PersistentResourceClientWithOverride(ClientWithOverride):
+    _is_temporary = True
     _default_version = compat.V1BETA1
     _version_map = (
-        (compat.V1BETA1, model_garden_service_client_v1beta1.ModelGardenServiceClient),
+        (
+            compat.V1BETA1,
+            persistent_resource_service_client_v1beta1.PersistentResourceServiceClient,
+        ),
     )
 
 
@@ -668,6 +701,7 @@ VertexAiServiceClientWithOverride = TypeVar(
     TensorboardClientWithOverride,
     VizierClientWithOverride,
     ModelGardenClientWithOverride,
+    PersistentResourceClientWithOverride,
 )
 
 

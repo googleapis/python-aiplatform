@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,11 +39,7 @@ def sample_update_feature():
     client = aiplatform_v1.FeaturestoreServiceClient()
 
     # Initialize request argument(s)
-    feature = aiplatform_v1.Feature()
-    feature.value_type = "BYTES"
-
     request = aiplatform_v1.UpdateFeatureRequest(
-        feature=feature,
     )
 
     # Make the request

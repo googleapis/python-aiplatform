@@ -21,8 +21,10 @@ from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
+    index_service as gca_index_service,
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
     matching_engine_index as gca_matching_engine_index,
+    encryption_spec as gca_encryption_spec,
 )
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.matching_engine import (
@@ -108,6 +110,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        index_update_method: Optional[str] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource.
 
@@ -123,7 +127,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 Index field can be  also updated as part of the same call.
                 The expected structure and format of the files this URI points to is
                 described at
-                https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
+                https://cloud.google.com/vertex-ai/docs/vector-search/setup/format-structure
             config (matching_engine_index_config.MatchingEngineIndexConfig):
                 Required. The configuration with regard to the algorithms used for efficient search.
             description (str):
@@ -153,20 +157,37 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-            encryption_spec (str):
-                Optional. Customer-managed encryption key
-                spec for data storage. If set, both of the
-                online and offline data storage will be secured
-                by this key.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            index_update_method (str):
+                Optional. The update method to use with this index. Choose
+                stream_update or batch_update. If not set, batch update will be
+                used by default.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the index. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this index and all sub-resources of this index will be
+                secured by this key.
+                The key needs to be in the same region as where the index is
+                created.
 
         Returns:
             MatchingEngineIndex - Index resource object
 
         """
+        index_update_method_enum = None
+        if index_update_method in _INDEX_UPDATE_METHOD_TO_ENUM_VALUE:
+            index_update_method_enum = _INDEX_UPDATE_METHOD_TO_ENUM_VALUE[
+                index_update_method
+            ]
+
         gapic_index = gca_matching_engine_index.Index(
             display_name=display_name,
             description=description,
@@ -174,7 +195,14 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 "config": config.as_dict(),
                 "contentsDeltaUri": contents_delta_uri,
             },
+            index_update_method=index_update_method_enum,
         )
+
+        if encryption_spec_key_name:
+            encryption_spec = gca_encryption_spec.EncryptionSpec(
+                kms_key_name=encryption_spec_key_name
+            )
+            gapic_index.encryption_spec = encryption_spec
 
         if labels:
             utils.validate_labels(labels)
@@ -303,7 +331,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 Index field can be  also updated as part of the same call.
                 The expected structure and format of the files this URI points to is
                 described at
-                https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
+                https://cloud.google.com/vertex-ai/docs/vector-search/setup/format-structure
             is_complete_overwrite (bool):
                 Optional. If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex,
                 then existing content of the Index will be replaced by the data from the contentsDeltaUri.
@@ -386,6 +414,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        index_update_method: Optional[str] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource that uses the tree-AH algorithm.
 
@@ -415,7 +445,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 Index field can be  also updated as part of the same call.
                 The expected structure and format of the files this URI points to is
                 described at
-                https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
+                https://cloud.google.com/vertex-ai/docs/vector-search/setup/format-structure
             dimensions (int):
                 Required. The number of dimensions of the input vectors.
             approximate_neighbors_count (int):
@@ -456,15 +486,26 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-            encryption_spec (str):
-                Optional. Customer-managed encryption key
-                spec for data storage. If set, both of the
-                online and offline data storage will be secured
-                by this key.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            index_update_method (str):
+                Optional. The update method to use with this index. Choose
+                STREAM_UPDATE or BATCH_UPDATE. If not set, batch update will be
+                used by default.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the index. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this index and all sub-resources of this index will be
+                secured by this key.
+                The key needs to be in the same region as where the index is
+                created.
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -494,6 +535,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             request_metadata=request_metadata,
             sync=sync,
+            index_update_method=index_update_method,
+            encryption_spec_key_name=encryption_spec_key_name,
         )
 
     @classmethod
@@ -512,6 +555,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        index_update_method: Optional[str] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource that uses the brute force algorithm.
 
@@ -539,7 +584,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 Index field can be  also updated as part of the same call.
                 The expected structure and format of the files this URI points to is
                 described at
-                https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
+                https://cloud.google.com/vertex-ai/docs/vector-search/setup/format-structure
             dimensions (int):
                 Required. The number of dimensions of the input vectors.
             distance_measure_type (matching_engine_index_config.DistanceMeasureType):
@@ -571,15 +616,26 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-            encryption_spec (str):
-                Optional. Customer-managed encryption key
-                spec for data storage. If set, both of the
-                online and offline data storage will be secured
-                by this key.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            index_update_method (str):
+                Optional. The update method to use with this index. Choose
+                stream_update or batch_update. If not set, batch update will be
+                used by default.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the index. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this index and all sub-resources of this index will be
+                secured by this key.
+                The key needs to be in the same region as where the index is
+                created.
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -605,4 +661,83 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             request_metadata=request_metadata,
             sync=sync,
+            index_update_method=index_update_method,
+            encryption_spec_key_name=encryption_spec_key_name,
         )
+
+    def upsert_datapoints(
+        self,
+        datapoints: Sequence[gca_matching_engine_index.IndexDatapoint],
+    ) -> "MatchingEngineIndex":
+        """Upsert datapoints to this index.
+
+        Args:
+            datapoints (Sequence[gca_matching_engine_index.IndexDatapoint]):
+                Required. Datapoints to be upserted to this index.
+
+        Returns:
+            MatchingEngineIndex - Index resource object
+
+        """
+
+        self.wait()
+
+        _LOGGER.log_action_start_against_resource(
+            "Upserting datapoints",
+            "index",
+            self,
+        )
+
+        self.api_client.upsert_datapoints(
+            gca_index_service.UpsertDatapointsRequest(
+                index=self.resource_name,
+                datapoints=datapoints,
+            )
+        )
+
+        _LOGGER.log_action_completed_against_resource(
+            "index", "Upserted datapoints", self
+        )
+
+        return self
+
+    def remove_datapoints(
+        self,
+        datapoint_ids: Sequence[str],
+    ) -> "MatchingEngineIndex":
+        """Remove datapoints for this index.
+
+        Args:
+            datapoints_ids (Sequence[str]):
+                Required. The list of datapoints ids to be deleted.
+
+        Returns:
+            MatchingEngineIndex - Index resource object
+        """
+
+        self.wait()
+
+        _LOGGER.log_action_start_against_resource(
+            "Removing datapoints",
+            "index",
+            self,
+        )
+
+        self.api_client.remove_datapoints(
+            gca_index_service.RemoveDatapointsRequest(
+                index=self.resource_name,
+                datapoint_ids=datapoint_ids,
+            )
+        )
+
+        _LOGGER.log_action_completed_against_resource(
+            "index", "Removed datapoints", self
+        )
+
+        return self
+
+
+_INDEX_UPDATE_METHOD_TO_ENUM_VALUE = {
+    "STREAM_UPDATE": gca_matching_engine_index.Index.IndexUpdateMethod.STREAM_UPDATE,
+    "BATCH_UPDATE": gca_matching_engine_index.Index.IndexUpdateMethod.BATCH_UPDATE,
+}

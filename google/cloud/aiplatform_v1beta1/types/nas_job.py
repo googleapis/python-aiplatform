@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ class NasJob(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
@@ -157,7 +158,7 @@ class NasJob(proto.Message):
 
 
 class NasTrialDetail(proto.Message):
-    r"""Represents a NasTrial details along with it's parameters. If
+    r"""Represents a NasTrial details along with its parameters. If
     there is a corresponding train NasTrial, the train NasTrial is
     also returned.
 

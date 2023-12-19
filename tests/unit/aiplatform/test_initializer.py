@@ -17,19 +17,19 @@
 
 import importlib
 import os
-import pytest
+from typing import Optional
 from unittest import mock
 from unittest.mock import patch
 
+import pytest
+
 import google.auth
 from google.auth import credentials
-
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata.metadata import _experiment_tracker
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
-
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
 )
@@ -44,6 +44,7 @@ _TEST_EXPERIMENT = "test-experiment"
 _TEST_DESCRIPTION = "test-description"
 _TEST_STAGING_BUCKET = "test-bucket"
 _TEST_NETWORK = "projects/12345/global/networks/myVPC"
+_TEST_SERVICE_ACCOUNT = "test-service-account@test-project.iam.gserviceaccount.com"
 
 # tensorboard
 _TEST_TENSORBOARD_ID = "1028944691210842416"
@@ -105,11 +106,17 @@ class TestInit:
         initializer.global_config.init(network=_TEST_NETWORK)
         assert initializer.global_config.network == _TEST_NETWORK
 
+    def test_init_service_account_sets_service_account(self):
+        initializer.global_config.init(service_account=_TEST_SERVICE_ACCOUNT)
+        assert initializer.global_config.service_account == _TEST_SERVICE_ACCOUNT
+
     @patch.object(_experiment_tracker, "set_experiment")
     def test_init_experiment_sets_experiment(self, set_experiment_mock):
         initializer.global_config.init(experiment=_TEST_EXPERIMENT)
         set_experiment_mock.assert_called_once_with(
-            experiment=_TEST_EXPERIMENT, description=None, backing_tensorboard=None
+            experiment=_TEST_EXPERIMENT,
+            description=None,
+            backing_tensorboard=None,
         )
 
     @patch.object(_experiment_tracker, "set_experiment")
@@ -157,25 +164,44 @@ class TestInit:
             credentials=None,
         )
 
-    @patch.object(_experiment_tracker, "set_tensorboard")
     @patch.object(_experiment_tracker, "set_experiment")
     def test_init_experiment_without_tensorboard_uses_global_tensorboard(
-        self,
-        set_tensorboard_mock,
-        set_experiment_mock,
+        self, set_experiment_mock
     ):
 
-        initializer.global_config.init(experiment_tensorboard=_TEST_TENSORBOARD_NAME)
+        initializer.global_config.tensorboard = _TEST_TENSORBOARD_NAME
 
         initializer.global_config.init(
             experiment=_TEST_EXPERIMENT,
         )
 
         set_experiment_mock.assert_called_once_with(
-            tensorboard=_TEST_TENSORBOARD_NAME,
-            project=None,
-            location=None,
-            credentials=None,
+            experiment=_TEST_EXPERIMENT,
+            description=None,
+            backing_tensorboard=None,
+        )
+
+        assert initializer.global_config.tensorboard == _TEST_TENSORBOARD_NAME
+
+    @patch.object(_experiment_tracker, "set_tensorboard")
+    @patch.object(_experiment_tracker, "set_experiment")
+    def test_init_experiment_tensorboard_false_does_not_set_tensorboard(
+        self, set_experiment_mock, set_tensorboard_mock
+    ):
+
+        initializer.global_config.tensorboard = _TEST_TENSORBOARD_NAME
+
+        initializer.global_config.init(
+            experiment=_TEST_EXPERIMENT,
+            experiment_tensorboard=False,
+        )
+
+        set_tensorboard_mock.assert_not_called()
+
+        set_experiment_mock.assert_called_once_with(
+            experiment=_TEST_EXPERIMENT,
+            description=None,
+            backing_tensorboard=False,
         )
 
     def test_init_experiment_description_fail_without_experiment(self):
@@ -242,7 +268,29 @@ class TestInit:
             # wrapped_method._metadata looks like:
             # [('x-goog-api-client', 'model-builder/0.3.1 gl-python/3.7.6 grpc/1.30.0 gax/1.22.2 gapic/0.3.1')]
             user_agent = wrapped_method._metadata[0][1]
-            assert user_agent.startswith("model-builder/")
+            assert "model-builder/" in user_agent
+            assert "google.cloud.aiplatform" in user_agent
+
+    def test_create_client_user_agent_top_level_method(self):
+        initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        class SomeClass:
+            # Overriding the module since the top level method code skips test namespaces.
+            __module__ = "vertexai"
+
+            def __init__(self):
+                self._client = initializer.global_config.create_client(
+                    client_class=utils.ModelClientWithOverride
+                )
+
+        for wrapped_method in SomeClass()._client._transport._wrapped_methods.values():
+            # wrapped_method._metadata looks like:
+            # [('x-goog-api-client', 'model-builder/0.3.1 gl-python/3.7.6 grpc/1.30.0 gax/1.22.2 gapic/0.3.1')]
+            user_agent = wrapped_method._metadata[0][1]
+            assert (
+                f"+{initializer._TOP_GOOGLE_CONSTRUCTOR_METHOD_TAG}+vertexai.SomeClass.__init__"
+                in user_agent
+            )
 
     def test_create_client_appended_user_agent(self):
         appended_user_agent = ["fake_user_agent", "another_fake_user_agent"]
@@ -259,30 +307,64 @@ class TestInit:
             assert " " + appended_user_agent[0] in user_agent
             assert " " + appended_user_agent[1] in user_agent
 
+    def test_set_api_endpoint(self):
+        initializer.global_config.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_endpoint="test.googleapis.com",
+        )
+
+        assert initializer.global_config.api_endpoint == "test.googleapis.com"
+
+    def test_not_set_api_endpoint(self):
+        initializer.global_config.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        assert initializer.global_config.api_endpoint is None
+
     @pytest.mark.parametrize(
-        "init_location, location_override, expected_endpoint",
+        "init_location, location_override, api_endpoint, expected_endpoint",
         [
-            ("us-central1", None, "us-central1-aiplatform.googleapis.com"),
+            ("us-central1", None, None, "us-central1-aiplatform.googleapis.com"),
             (
                 "us-central1",
                 "europe-west4",
+                None,
                 "europe-west4-aiplatform.googleapis.com",
             ),
-            ("asia-east1", None, "asia-east1-aiplatform.googleapis.com"),
+            ("asia-east1", None, None, "asia-east1-aiplatform.googleapis.com"),
             (
                 "asia-southeast1",
                 "australia-southeast1",
+                None,
                 "australia-southeast1-aiplatform.googleapis.com",
+            ),
+            (
+                "asia-east1",
+                None,
+                "us-central1-aiplatform.googleapis.com",
+                "us-central1-aiplatform.googleapis.com",
+            ),
+            (
+                "us-central1",
+                None,
+                "test.aiplatform.googleapis.com",
+                "test.aiplatform.googleapis.com",
             ),
         ],
     )
     def test_get_client_options(
         self,
         init_location: str,
-        location_override: str,
+        location_override: Optional[str],
+        api_endpoint: Optional[str],
         expected_endpoint: str,
     ):
-        initializer.global_config.init(location=init_location)
+        initializer.global_config.init(
+            location=init_location, api_endpoint=api_endpoint
+        )
 
         assert (
             initializer.global_config.get_client_options(

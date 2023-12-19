@@ -557,6 +557,23 @@ def get_artifact_mock():
 
 
 @pytest.fixture
+def get_artifact_mock_with_metadata():
+    with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
+        get_artifact_mock.return_value = GapicArtifact(
+            name=_TEST_ARTIFACT_NAME,
+            display_name=_TEST_ARTIFACT_ID,
+            schema_title=constants.SYSTEM_METRICS,
+            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
+            metadata={
+                google.cloud.aiplatform.metadata.constants._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
+                constants.GCP_ARTIFACT_RESOURCE_NAME_KEY: test_constants.TensorboardConstants._TEST_TENSORBOARD_RUN_NAME,
+                constants._STATE_KEY: gca_execution.Execution.State.RUNNING,
+            },
+        )
+        yield get_artifact_mock
+
+
+@pytest.fixture
 def get_artifact_not_found_mock():
     with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
         get_artifact_mock.side_effect = exceptions.NotFound("")
@@ -994,7 +1011,15 @@ _TEST_PIPELINE_SYSTEM_RUN_EXECUTION = GapicExecution(
     name=_TEST_EXECUTION_NAME,
     schema_title=constants.SYSTEM_RUN,
     state=gca_execution.Execution.State.RUNNING,
-    metadata={f"input:{key}": value + 1 for key, value in _TEST_PARAMS.items()},
+    metadata={
+        f"input:{_TEST_PARAM_KEY_1}": _TEST_PARAMS[_TEST_PARAM_KEY_1] + 1,
+        f"input:{_TEST_PARAM_KEY_2}": _TEST_PARAMS[_TEST_PARAM_KEY_2] + 1,
+        # This is automatically logged by the pipeline run but will not be
+        # shown in experiment
+        "vertex-ai-pipelines-artifact-argument-binding": {
+            "output:trainer-metrics": ["artifact-path"]
+        },
+    },
 )
 
 _TEST_LEGACY_SYSTEM_RUN_EXECUTION = GapicExecution(
@@ -1122,6 +1147,57 @@ class TestExperiments:
             }
         )
         assign_backing_tensorboard_mock.assert_called_once()
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_tensorboard_false_doesNotSet_backing_tensorboard(
+        self, list_default_tensorboard_mock, assign_backing_tensorboard_mock
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            experiment_tensorboard=False,
+        )
+
+        list_default_tensorboard_mock.assert_not_called()
+        assign_backing_tensorboard_mock.assert_not_called()
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_tensorboard_true_sets_backing_tensorboard(
+        self, list_default_tensorboard_mock, assign_backing_tensorboard_mock
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            experiment_tensorboard=True,
+        )
+
+        list_default_tensorboard_mock.assert_called()
+        assign_backing_tensorboard_mock.assert_called()
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_tensorboard_none_sets_backing_tensorboard(
+        self, list_default_tensorboard_mock, assign_backing_tensorboard_mock
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            experiment_tensorboard=None,
+        )
+
+        list_default_tensorboard_mock.assert_called()
+        assign_backing_tensorboard_mock.assert_called()
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
     def test_create_experiment(self, create_experiment_context_mock):
@@ -2025,6 +2101,27 @@ class TestExperiments:
             name=_TEST_CUSTOM_JOB_NAME,
             retry=base._DEFAULT_RETRY,
         )
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "get_experiment_run_mock",
+        "get_context_mock",
+        "list_contexts_mock",
+        "list_executions_mock",
+        "get_artifact_mock_with_metadata",
+        "update_context_mock",
+    )
+    def test_update_experiment_run_after_list(
+        self,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        experiment_run_list = aiplatform.ExperimentRun.list(experiment=_TEST_EXPERIMENT)
+        experiment_run_list[0].update_state(gca_execution.Execution.State.FAILED)
 
 
 class TestTensorboard:

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -84,6 +84,7 @@ class CustomJob(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
@@ -238,6 +239,13 @@ class CustomJobSpec(proto.Message):
                ``<base_output_directory>/<trial_id>/checkpoints/``
             -  AIP_TENSORBOARD_LOG_DIR =
                ``<base_output_directory>/<trial_id>/logs/``
+        protected_artifact_location_id (str):
+            The ID of the location to store protected
+            artifacts. e.g. us-central1. Populate only when
+            the location is different than CustomJob
+            location. List of supported locations:
+
+            https://cloud.google.com/vertex-ai/docs/general/locations
         tensorboard (str):
             Optional. The name of a Vertex AI
             [Tensorboard][google.cloud.aiplatform.v1.Tensorboard]
@@ -303,6 +311,10 @@ class CustomJobSpec(proto.Message):
         proto.MESSAGE,
         number=6,
         message=io.GcsDestination,
+    )
+    protected_artifact_location_id: str = proto.Field(
+        proto.STRING,
+        number=19,
     )
     tensorboard: str = proto.Field(
         proto.STRING,
@@ -493,6 +505,10 @@ class Scheduling(proto.Message):
             gets restarted. This feature can be used by
             distributed training jobs that are not resilient
             to workers leaving and joining a job.
+        disable_retries (bool):
+            Optional. Indicates if the job should retry for internal
+            errors after the job starts running. If true, overrides
+            ``Scheduling.restart_job_on_worker_restart`` to false.
     """
 
     timeout: duration_pb2.Duration = proto.Field(
@@ -503,6 +519,10 @@ class Scheduling(proto.Message):
     restart_job_on_worker_restart: bool = proto.Field(
         proto.BOOL,
         number=3,
+    )
+    disable_retries: bool = proto.Field(
+        proto.BOOL,
+        number=5,
     )
 
 

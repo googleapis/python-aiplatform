@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ class CreateFeaturestoreRequest(proto.Message):
         parent (str):
             Required. The resource name of the Location to create
             Featurestores. Format:
-            ``projects/{project}/locations/{location}'``
+            ``projects/{project}/locations/{location}``
         featurestore (google.cloud.aiplatform_v1.types.Featurestore):
             Required. The Featurestore to create.
         featurestore_id (str):
@@ -347,7 +347,7 @@ class ImportFeatureValuesRequest(proto.Message):
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``
         entity_id_field (str):
             Source column that holds entity IDs. If not provided, entity
-            IDs are extracted from the column named ``entity_id``.
+            IDs are extracted from the column named entity_id.
         feature_specs (MutableSequence[google.cloud.aiplatform_v1.types.ImportFeatureValuesRequest.FeatureSpec]):
             Required. Specifications defining which Feature values to
             import from the entity. The request fails if no
@@ -1116,12 +1116,17 @@ class DeleteEntityTypeRequest(proto.Message):
 class CreateFeatureRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.CreateFeature][google.cloud.aiplatform.v1.FeaturestoreService.CreateFeature].
+    Request message for
+    [FeatureRegistryService.CreateFeature][google.cloud.aiplatform.v1.FeatureRegistryService.CreateFeature].
 
     Attributes:
         parent (str):
-            Required. The resource name of the EntityType to create a
-            Feature. Format:
+            Required. The resource name of the EntityType or
+            FeatureGroup to create a Feature. Format for entity_type as
+            parent:
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+            Format for feature_group as parent:
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
         feature (google.cloud.aiplatform_v1.types.Feature):
             Required. The Feature to create.
         feature_id (str):
@@ -1131,7 +1136,7 @@ class CreateFeatureRequest(proto.Message):
             This value may be up to 128 characters, and valid characters
             are ``[a-z0-9_]``. The first character cannot be a number.
 
-            The value must be unique within an EntityType.
+            The value must be unique within an EntityType/FeatureGroup.
     """
 
     parent: str = proto.Field(
@@ -1197,11 +1202,16 @@ class BatchCreateFeaturesResponse(proto.Message):
 class GetFeatureRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.GetFeature][google.cloud.aiplatform.v1.FeaturestoreService.GetFeature].
+    Request message for
+    [FeatureRegistryService.GetFeature][google.cloud.aiplatform.v1.FeatureRegistryService.GetFeature].
 
     Attributes:
         name (str):
-            Required. The name of the Feature resource. Format:
+            Required. The name of the Feature resource. Format for
+            entity_type as parent:
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+            Format for feature_group as parent:
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
     """
 
     name: str = proto.Field(
@@ -1213,12 +1223,16 @@ class GetFeatureRequest(proto.Message):
 class ListFeaturesRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1.FeaturestoreService.ListFeatures].
+    Request message for
+    [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1.FeatureRegistryService.ListFeatures].
 
     Attributes:
         parent (str):
             Required. The resource name of the Location to list
-            Features. Format:
+            Features. Format for entity_type as parent:
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+            Format for feature_group as parent:
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
         filter (str):
             Lists the Features that match the filter expression. The
             following filters are supported:
@@ -1252,10 +1266,14 @@ class ListFeaturesRequest(proto.Message):
         page_token (str):
             A page token, received from a previous
             [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1.FeaturestoreService.ListFeatures]
+            call or
+            [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1.FeatureRegistryService.ListFeatures]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
             [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1.FeaturestoreService.ListFeatures]
+            or
+            [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1.FeatureRegistryService.ListFeatures]
             must match the call that provided the page token.
         order_by (str):
             A comma-separated list of fields to order by, sorted in
@@ -1263,13 +1281,15 @@ class ListFeaturesRequest(proto.Message):
             descending. Supported fields:
 
             -  ``feature_id``
-            -  ``value_type``
+            -  ``value_type`` (Not supported for FeatureRegistry
+               Feature)
             -  ``create_time``
             -  ``update_time``
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
         latest_stats_count (int):
-            If set, return the most recent
+            Only applicable for Vertex AI Feature Store (Legacy). If
+            set, return the most recent
             [ListFeaturesRequest.latest_stats_count][google.cloud.aiplatform.v1.ListFeaturesRequest.latest_stats_count]
             of stats for each Feature in response. Valid value is [0,
             10]. If number of stats exists <
@@ -1311,6 +1331,8 @@ class ListFeaturesRequest(proto.Message):
 class ListFeaturesResponse(proto.Message):
     r"""Response message for
     [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1.FeaturestoreService.ListFeatures].
+    Response message for
+    [FeatureRegistryService.ListFeatures][google.cloud.aiplatform.v1.FeatureRegistryService.ListFeatures].
 
     Attributes:
         features (MutableSequence[google.cloud.aiplatform_v1.types.Feature]):
@@ -1490,12 +1512,15 @@ class SearchFeaturesResponse(proto.Message):
 class UpdateFeatureRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.UpdateFeature][google.cloud.aiplatform.v1.FeaturestoreService.UpdateFeature].
+    Request message for
+    [FeatureRegistryService.UpdateFeature][google.cloud.aiplatform.v1.FeatureRegistryService.UpdateFeature].
 
     Attributes:
         feature (google.cloud.aiplatform_v1.types.Feature):
             Required. The Feature's ``name`` field is used to identify
             the Feature to be updated. Format:
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}``
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}``
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Field mask is used to specify the fields to be overwritten
             in the Features resource by the update. The fields specified
@@ -1509,7 +1534,8 @@ class UpdateFeatureRequest(proto.Message):
 
             -  ``description``
             -  ``labels``
-            -  ``disable_monitoring``
+            -  ``disable_monitoring`` (Not supported for FeatureRegistry
+               Feature)
     """
 
     feature: gca_feature.Feature = proto.Field(
@@ -1527,11 +1553,14 @@ class UpdateFeatureRequest(proto.Message):
 class DeleteFeatureRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.DeleteFeature][google.cloud.aiplatform.v1.FeaturestoreService.DeleteFeature].
+    Request message for
+    [FeatureRegistryService.DeleteFeature][google.cloud.aiplatform.v1.FeatureRegistryService.DeleteFeature].
 
     Attributes:
         name (str):
             Required. The name of the Features to be deleted. Format:
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}``
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}``
     """
 
     name: str = proto.Field(
@@ -1598,6 +1627,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
             The number rows that weren't ingested due to
             having timestamps outside the retention
             boundary.
+        blocking_operation_ids (MutableSequence[int]):
+            List of ImportFeatureValues operations
+            running under a single EntityType that are
+            blocking this operation.
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(
@@ -1624,6 +1657,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
     timestamp_outside_retention_rows_count: int = proto.Field(
         proto.INT64,
         number=7,
+    )
+    blocking_operation_ids: MutableSequence[int] = proto.RepeatedField(
+        proto.INT64,
+        number=8,
     )
 
 
@@ -1936,7 +1973,7 @@ class EntityIdSelector(proto.Message):
             This field is a member of `oneof`_ ``EntityIdsSource``.
         entity_id_field (str):
             Source column that holds entity IDs. If not provided, entity
-            IDs are extracted from the column named ``entity_id``.
+            IDs are extracted from the column named entity_id.
     """
 
     csv_source: io.CsvSource = proto.Field(

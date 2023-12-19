@@ -233,6 +233,7 @@ _TEST_RESTART_JOB_ON_WORKER_RESTART = (
     test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
 )
 
+_TEST_DISABLE_RETRIES = test_constants.TrainingJobConstants._TEST_DISABLE_RETRIES
 _TEST_ENABLE_WEB_ACCESS = test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS
 _TEST_ENABLE_DASHBOARD_ACCESS = True
 _TEST_WEB_ACCESS_URIS = test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS
@@ -278,6 +279,7 @@ def _get_custom_job_proto_with_scheduling(state=None, name=None, version="v1"):
     custom_job_proto.job_spec.scheduling.restart_job_on_worker_restart = (
         _TEST_RESTART_JOB_ON_WORKER_RESTART
     )
+    custom_job_proto.job_spec.scheduling.disable_retries = _TEST_DISABLE_RETRIES
 
     return custom_job_proto
 
@@ -730,6 +732,7 @@ def make_training_pipeline_with_scheduling(state):
         training_task_inputs={
             "timeout": f"{_TEST_TIMEOUT}s",
             "restart_job_on_worker_restart": _TEST_RESTART_JOB_ON_WORKER_RESTART,
+            "disable_retries": _TEST_DISABLE_RETRIES,
         },
     )
     if state == gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING:
@@ -1053,6 +1056,7 @@ class TestCustomTrainingJob:
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
             credentials=_TEST_CREDENTIALS,
+            service_account=_TEST_SERVICE_ACCOUNT,
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
@@ -1079,7 +1083,6 @@ class TestCustomTrainingJob:
         model_from_job = job.run(
             dataset=mock_tabular_dataset,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
-            service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
             args=_TEST_RUN_ARGS,
             environment_variables=_TEST_ENVIRONMENT_VARIABLES,
@@ -2251,6 +2254,7 @@ class TestCustomTrainingJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         if not sync:
@@ -2268,6 +2272,10 @@ class TestCustomTrainingJob:
         assert (
             job._gca_resource.training_task_inputs["restart_job_on_worker_restart"]
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
+        )
+        assert (
+            job._gca_resource.training_task_inputs["disable_retries"]
+            == _TEST_DISABLE_RETRIES
         )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
@@ -3173,6 +3181,7 @@ class TestCustomContainerTrainingJob:
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
+            service_account=_TEST_SERVICE_ACCOUNT,
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
@@ -3207,7 +3216,6 @@ class TestCustomContainerTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             model_labels=_TEST_MODEL_LABELS,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
-            service_account=_TEST_SERVICE_ACCOUNT,
             tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
             sync=sync,
             create_request_timeout=None,
@@ -4250,6 +4258,7 @@ class TestCustomContainerTrainingJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         if not sync:
@@ -4267,6 +4276,10 @@ class TestCustomContainerTrainingJob:
         assert (
             job._gca_resource.training_task_inputs["restart_job_on_worker_restart"]
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
+        )
+        assert (
+            job._gca_resource.training_task_inputs["disable_retries"]
+            == _TEST_DISABLE_RETRIES
         )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
@@ -5229,6 +5242,7 @@ class TestCustomPythonPackageTrainingJob:
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
+            service_account=_TEST_SERVICE_ACCOUNT,
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
@@ -5258,7 +5272,6 @@ class TestCustomPythonPackageTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             model_labels=_TEST_MODEL_LABELS,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
-            service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
             args=_TEST_RUN_ARGS,
             environment_variables=_TEST_ENVIRONMENT_VARIABLES,
@@ -6525,6 +6538,7 @@ class TestCustomPythonPackageTrainingJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
             create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
         )
 
         if not sync:
@@ -6542,6 +6556,10 @@ class TestCustomPythonPackageTrainingJob:
         assert (
             job._gca_resource.training_task_inputs["restart_job_on_worker_restart"]
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
+        )
+        assert (
+            job._gca_resource.training_task_inputs["disable_retries"]
+            == _TEST_DISABLE_RETRIES
         )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
@@ -7209,6 +7227,8 @@ class TestVersionedTrainingJobs:
             training_jobs.CustomPythonPackageTrainingJob,
         ],
     )
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     def test_run_pipeline_for_versioned_model(
         self,
         mock_pipeline_service_create_with_version,

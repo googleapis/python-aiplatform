@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import explanation
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -36,6 +37,7 @@ __protobuf__ = proto.module(
         "ModelContainerSpec",
         "Port",
         "ModelSourceInfo",
+        "Probe",
     },
 )
 
@@ -278,6 +280,7 @@ class Model(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
@@ -548,9 +551,9 @@ class LargeModelReference(proto.Message):
         name (str):
             Required. The unique name of the large
             Foundation or pre-built model. Like
-            "chat-panda", "text-panda". Or model name with
-            version ID, like "chat-panda-001",
-            "text-panda-005", etc.
+            "chat-bison", "text-bison". Or model name with
+            version ID, like "chat-bison@001",
+            "text-bison@005", etc.
     """
 
     name: str = proto.Field(
@@ -864,6 +867,31 @@ class ModelContainerSpec(proto.Message):
                available to your container code as the
                ```AIP_DEPLOYED_MODEL_ID`` environment
                variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
+        grpc_ports (MutableSequence[google.cloud.aiplatform_v1beta1.types.Port]):
+            Immutable. List of ports to expose from the container.
+            Vertex AI sends gRPC prediction requests that it receives to
+            the first port on this list. Vertex AI also sends liveness
+            and health checks to this port.
+
+            If you do not specify this field, gRPC requests to the
+            container will be disabled.
+
+            Vertex AI does not use ports other than the first one
+            listed. This field corresponds to the ``ports`` field of the
+            Kubernetes Containers v1 core API.
+        deployment_timeout (google.protobuf.duration_pb2.Duration):
+            Immutable. Deployment timeout.
+            Limit for deployment timeout is 2 hours.
+        shared_memory_size_mb (int):
+            Immutable. The amount of the VM memory to
+            reserve as the shared memory for the model in
+            megabytes.
+        startup_probe (google.cloud.aiplatform_v1beta1.types.Probe):
+            Immutable. Specification for Kubernetes
+            startup probe.
+        health_probe (google.cloud.aiplatform_v1beta1.types.Probe):
+            Immutable. Specification for Kubernetes
+            readiness probe.
     """
 
     image_uri: str = proto.Field(
@@ -895,6 +923,30 @@ class ModelContainerSpec(proto.Message):
     health_route: str = proto.Field(
         proto.STRING,
         number=7,
+    )
+    grpc_ports: MutableSequence["Port"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message="Port",
+    )
+    deployment_timeout: duration_pb2.Duration = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=duration_pb2.Duration,
+    )
+    shared_memory_size_mb: int = proto.Field(
+        proto.INT64,
+        number=11,
+    )
+    startup_probe: "Probe" = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message="Probe",
+    )
+    health_probe: "Probe" = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message="Probe",
     )
 
 
@@ -946,6 +998,9 @@ class ModelSourceInfo(proto.Message):
                 Garden.
             GENIE (5):
                 The Model is saved or tuned from Genie.
+            CUSTOM_TEXT_EMBEDDING (6):
+                The Model is uploaded by text embedding
+                finetuning pipeline.
         """
         MODEL_SOURCE_TYPE_UNSPECIFIED = 0
         AUTOML = 1
@@ -953,6 +1008,7 @@ class ModelSourceInfo(proto.Message):
         BQML = 3
         MODEL_GARDEN = 4
         GENIE = 5
+        CUSTOM_TEXT_EMBEDDING = 6
 
     source_type: ModelSourceType = proto.Field(
         proto.ENUM,
@@ -962,6 +1018,68 @@ class ModelSourceInfo(proto.Message):
     copy: bool = proto.Field(
         proto.BOOL,
         number=2,
+    )
+
+
+class Probe(proto.Message):
+    r"""Probe describes a health check to be performed against a
+    container to determine whether it is alive or ready to receive
+    traffic.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        exec_ (google.cloud.aiplatform_v1beta1.types.Probe.ExecAction):
+            Exec specifies the action to take.
+
+            This field is a member of `oneof`_ ``probe_type``.
+        period_seconds (int):
+            How often (in seconds) to perform the probe. Default to 10
+            seconds. Minimum value is 1. Must be less than
+            timeout_seconds.
+
+            Maps to Kubernetes probe argument 'periodSeconds'.
+        timeout_seconds (int):
+            Number of seconds after which the probe times out. Defaults
+            to 1 second. Minimum value is 1. Must be greater or equal to
+            period_seconds.
+
+            Maps to Kubernetes probe argument 'timeoutSeconds'.
+    """
+
+    class ExecAction(proto.Message):
+        r"""ExecAction specifies a command to execute.
+
+        Attributes:
+            command (MutableSequence[str]):
+                Command is the command line to execute inside the container,
+                the working directory for the command is root ('/') in the
+                container's filesystem. The command is simply exec'd, it is
+                not run inside a shell, so traditional shell instructions
+                ('|', etc) won't work. To use a shell, you need to
+                explicitly call out to that shell. Exit status of 0 is
+                treated as live/healthy and non-zero is unhealthy.
+        """
+
+        command: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=1,
+        )
+
+    exec_: ExecAction = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="probe_type",
+        message=ExecAction,
+    )
+    period_seconds: int = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    timeout_seconds: int = proto.Field(
+        proto.INT32,
+        number=3,
     )
 
 

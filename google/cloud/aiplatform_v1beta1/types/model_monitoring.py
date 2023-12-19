@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ class ModelMonitoringConfig(proto.Message):
             describing the format of a single instance that
             you want Tensorflow Data Validation (TFDV) to
             analyze.
+
             If there are any data type differences between
             predict instance and TFDV instance, this field
             can be used to override the schema. For models
@@ -445,12 +446,14 @@ class ThresholdConfig(proto.Message):
         value (float):
             Specify a threshold value that can trigger
             the alert. If this threshold config is for
-            feature distribution distance:   1. For
-            categorical feature, the distribution distance
-            is calculated by      L-inifinity norm.
+            feature distribution distance:
+
+              1. For categorical feature, the distribution
+                distance is calculated by      L-inifinity
+                norm.
               2. For numerical feature, the distribution
-            distance is calculated by      Jensen–Shannon
-            divergence.
+                distance is calculated by
+                Jensen–Shannon divergence.
             Each feature must have a non-zero threshold if
             they need to be monitored. Otherwise no alert
             will be triggered for that feature.

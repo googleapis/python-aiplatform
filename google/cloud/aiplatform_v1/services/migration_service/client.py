@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ from google.cloud.aiplatform_v1.types import migration_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import MigrationServiceGrpcTransport
 from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
@@ -208,6 +208,23 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     @staticmethod
     def dataset_path(
         project: str,
+        dataset: str,
+    ) -> str:
+        """Returns a fully-qualified dataset string."""
+        return "projects/{project}/datasets/{dataset}".format(
+            project=project,
+            dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parses a dataset path into its component segments."""
+        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def dataset_path(
+        project: str,
         location: str,
         dataset: str,
     ) -> str:
@@ -225,23 +242,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
             path,
         )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/datasets/{dataset}".format(
-            project=project,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod

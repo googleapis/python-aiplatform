@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
@@ -91,6 +91,7 @@ from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.protobuf import wrappers_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 from google.type import money_pb2  # type: ignore
 import google.auth
@@ -1626,9 +1627,11 @@ async def test_list_custom_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_custom_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -3110,9 +3113,11 @@ async def test_list_data_labeling_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_data_labeling_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -4591,9 +4596,11 @@ async def test_list_hyperparameter_tuning_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_hyperparameter_tuning_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -5977,9 +5984,11 @@ async def test_list_nas_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_nas_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -7115,9 +7124,11 @@ async def test_list_nas_trial_details_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_nas_trial_details(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -8130,9 +8141,11 @@ async def test_list_batch_prediction_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_batch_prediction_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -9426,9 +9439,11 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.search_model_deployment_monitoring_stats_anomalies(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -10166,9 +10181,11 @@ async def test_list_model_deployment_monitoring_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_model_deployment_monitoring_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -12040,10 +12057,33 @@ def test_parse_network_path():
     assert expected == actual
 
 
-def test_tensorboard_path():
+def test_notification_channel_path():
     project = "whelk"
-    location = "octopus"
-    tensorboard = "oyster"
+    notification_channel = "octopus"
+    expected = "projects/{project}/notificationChannels/{notification_channel}".format(
+        project=project,
+        notification_channel=notification_channel,
+    )
+    actual = JobServiceClient.notification_channel_path(project, notification_channel)
+    assert expected == actual
+
+
+def test_parse_notification_channel_path():
+    expected = {
+        "project": "oyster",
+        "notification_channel": "nudibranch",
+    }
+    path = JobServiceClient.notification_channel_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = JobServiceClient.parse_notification_channel_path(path)
+    assert expected == actual
+
+
+def test_tensorboard_path():
+    project = "cuttlefish"
+    location = "mussel"
+    tensorboard = "winkle"
     expected = (
         "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
             project=project,
@@ -12057,9 +12097,9 @@ def test_tensorboard_path():
 
 def test_parse_tensorboard_path():
     expected = {
-        "project": "nudibranch",
-        "location": "cuttlefish",
-        "tensorboard": "mussel",
+        "project": "nautilus",
+        "location": "scallop",
+        "tensorboard": "abalone",
     }
     path = JobServiceClient.tensorboard_path(**expected)
 
@@ -12069,10 +12109,10 @@ def test_parse_tensorboard_path():
 
 
 def test_trial_path():
-    project = "winkle"
-    location = "nautilus"
-    study = "scallop"
-    trial = "abalone"
+    project = "squid"
+    location = "clam"
+    study = "whelk"
+    trial = "octopus"
     expected = (
         "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
             project=project,
@@ -12087,10 +12127,10 @@ def test_trial_path():
 
 def test_parse_trial_path():
     expected = {
-        "project": "squid",
-        "location": "clam",
-        "study": "whelk",
-        "trial": "octopus",
+        "project": "oyster",
+        "location": "nudibranch",
+        "study": "cuttlefish",
+        "trial": "mussel",
     }
     path = JobServiceClient.trial_path(**expected)
 
@@ -12100,7 +12140,7 @@ def test_parse_trial_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "oyster"
+    billing_account = "winkle"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -12110,7 +12150,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nudibranch",
+        "billing_account": "nautilus",
     }
     path = JobServiceClient.common_billing_account_path(**expected)
 
@@ -12120,7 +12160,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "cuttlefish"
+    folder = "scallop"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -12130,7 +12170,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "mussel",
+        "folder": "abalone",
     }
     path = JobServiceClient.common_folder_path(**expected)
 
@@ -12140,7 +12180,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "winkle"
+    organization = "squid"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -12150,7 +12190,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nautilus",
+        "organization": "clam",
     }
     path = JobServiceClient.common_organization_path(**expected)
 
@@ -12160,7 +12200,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "scallop"
+    project = "whelk"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -12170,7 +12210,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "abalone",
+        "project": "octopus",
     }
     path = JobServiceClient.common_project_path(**expected)
 
@@ -12180,8 +12220,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "squid"
-    location = "clam"
+    project = "oyster"
+    location = "nudibranch"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -12192,8 +12232,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
+        "project": "cuttlefish",
+        "location": "mussel",
     }
     path = JobServiceClient.common_location_path(**expected)
 
@@ -12264,7 +12304,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_delete_operation_async(transport: str = "grpc"):
+async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -12403,7 +12443,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_cancel_operation_async(transport: str = "grpc"):
+async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -12542,7 +12582,7 @@ def test_wait_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_wait_operation(transport: str = "grpc"):
+async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -12687,7 +12727,7 @@ def test_get_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_get_operation_async(transport: str = "grpc"):
+async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -12832,7 +12872,7 @@ def test_list_operations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_operations_async(transport: str = "grpc"):
+async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -12977,7 +13017,7 @@ def test_list_locations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_locations_async(transport: str = "grpc"):
+async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,

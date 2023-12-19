@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,14 +33,14 @@ from google.cloud.aiplatform_v1 import gapic_version as package_version
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
-from google.api_core import retry as retries
+from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
+    OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault]
 except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object]  # type: ignore
+    OptionalRetry = Union[retries.AsyncRetry, object]  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -51,13 +51,15 @@ from google.cloud.aiplatform_v1.types import data_item
 from google.cloud.aiplatform_v1.types import dataset
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import dataset_service
+from google.cloud.aiplatform_v1.types import dataset_version
+from google.cloud.aiplatform_v1.types import dataset_version as gca_dataset_version
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import saved_query
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
@@ -68,8 +70,8 @@ from .client import DatasetServiceClient
 
 
 class DatasetServiceAsyncClient:
-    """The service that handles the CRUD of Vertex AI Dataset and
-    its child resources.
+    """The service that manages Vertex AI Dataset and its child
+    resources.
     """
 
     _client: DatasetServiceClient
@@ -87,6 +89,10 @@ class DatasetServiceAsyncClient:
     parse_data_item_path = staticmethod(DatasetServiceClient.parse_data_item_path)
     dataset_path = staticmethod(DatasetServiceClient.dataset_path)
     parse_dataset_path = staticmethod(DatasetServiceClient.parse_dataset_path)
+    dataset_version_path = staticmethod(DatasetServiceClient.dataset_version_path)
+    parse_dataset_version_path = staticmethod(
+        DatasetServiceClient.parse_dataset_version_path
+    )
     saved_query_path = staticmethod(DatasetServiceClient.saved_query_path)
     parse_saved_query_path = staticmethod(DatasetServiceClient.parse_saved_query_path)
     common_billing_account_path = staticmethod(
@@ -308,7 +314,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``dataset`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -423,7 +429,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -544,7 +550,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -651,7 +657,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -770,7 +776,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -908,7 +914,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``import_configs`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1038,7 +1044,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``export_config`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1104,6 +1110,604 @@ class DatasetServiceAsyncClient:
         # Done; return the response.
         return response
 
+    async def create_dataset_version(
+        self,
+        request: Optional[
+            Union[dataset_service.CreateDatasetVersionRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        dataset_version: Optional[gca_dataset_version.DatasetVersion] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Create a version from a Dataset.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_create_dataset_version():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CreateDatasetVersionRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                operation = client.create_dataset_version(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateDatasetVersionRequest, dict]]):
+                The request object. Request message for
+                [DatasetService.CreateDatasetVersion][google.cloud.aiplatform.v1.DatasetService.CreateDatasetVersion].
+            parent (:class:`str`):
+                Required. The name of the Dataset resource. Format:
+                ``projects/{project}/locations/{location}/datasets/{dataset}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            dataset_version (:class:`google.cloud.aiplatform_v1.types.DatasetVersion`):
+                Required. The version to be created.
+                The same CMEK policies with the original
+                Dataset will be applied the dataset
+                version. So here we don't need to
+                specify the EncryptionSpecType here.
+
+                This corresponds to the ``dataset_version`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1.types.DatasetVersion`
+                Describes the dataset version.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, dataset_version])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = dataset_service.CreateDatasetVersionRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+        if dataset_version is not None:
+            request.dataset_version = dataset_version
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_dataset_version,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            gca_dataset_version.DatasetVersion,
+            metadata_type=dataset_service.CreateDatasetVersionOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def delete_dataset_version(
+        self,
+        request: Optional[
+            Union[dataset_service.DeleteDatasetVersionRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Deletes a Dataset version.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_delete_dataset_version():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteDatasetVersionRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_dataset_version(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteDatasetVersionRequest, dict]]):
+                The request object. Request message for
+                [DatasetService.DeleteDatasetVersion][google.cloud.aiplatform.v1.DatasetService.DeleteDatasetVersion].
+            name (:class:`str`):
+                Required. The resource name of the Dataset version to
+                delete. Format:
+                ``projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = dataset_service.DeleteDatasetVersionRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_dataset_version,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_dataset_version(
+        self,
+        request: Optional[Union[dataset_service.GetDatasetVersionRequest, dict]] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> dataset_version.DatasetVersion:
+        r"""Gets a Dataset version.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_get_dataset_version():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetDatasetVersionRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = await client.get_dataset_version(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetDatasetVersionRequest, dict]]):
+                The request object. Request message for
+                [DatasetService.GetDatasetVersion][google.cloud.aiplatform.v1.DatasetService.GetDatasetVersion].
+            name (:class:`str`):
+                Required. The resource name of the Dataset version to
+                delete. Format:
+                ``projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.DatasetVersion:
+                Describes the dataset version.
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = dataset_service.GetDatasetVersionRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_dataset_version,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def list_dataset_versions(
+        self,
+        request: Optional[
+            Union[dataset_service.ListDatasetVersionsRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListDatasetVersionsAsyncPager:
+        r"""Lists DatasetVersions in a Dataset.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_list_dataset_versions():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListDatasetVersionsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_dataset_versions(request=request)
+
+                # Handle the response
+                async for response in page_result:
+                    print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListDatasetVersionsRequest, dict]]):
+                The request object. Request message for
+                [DatasetService.ListDatasetVersions][google.cloud.aiplatform.v1.DatasetService.ListDatasetVersions].
+            parent (:class:`str`):
+                Required. The resource name of the Dataset to list
+                DatasetVersions from. Format:
+                ``projects/{project}/locations/{location}/datasets/{dataset}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.services.dataset_service.pagers.ListDatasetVersionsAsyncPager:
+                Response message for
+                   [DatasetService.ListDatasetVersions][google.cloud.aiplatform.v1.DatasetService.ListDatasetVersions].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = dataset_service.ListDatasetVersionsRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_dataset_versions,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__aiter__` convenience method.
+        response = pagers.ListDatasetVersionsAsyncPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def restore_dataset_version(
+        self,
+        request: Optional[
+            Union[dataset_service.RestoreDatasetVersionRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Restores a dataset version.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_restore_dataset_version():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.RestoreDatasetVersionRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.restore_dataset_version(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.RestoreDatasetVersionRequest, dict]]):
+                The request object. Request message for
+                [DatasetService.RestoreDatasetVersion][google.cloud.aiplatform.v1.DatasetService.RestoreDatasetVersion].
+            name (:class:`str`):
+                Required. The name of the DatasetVersion resource.
+                Format:
+                ``projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1.types.DatasetVersion`
+                Describes the dataset version.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = dataset_service.RestoreDatasetVersionRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.restore_dataset_version,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            dataset_version.DatasetVersion,
+            metadata_type=dataset_service.RestoreDatasetVersionOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
     async def list_data_items(
         self,
         request: Optional[Union[dataset_service.ListDataItemsRequest, dict]] = None,
@@ -1154,7 +1758,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1262,7 +1866,7 @@ class DatasetServiceAsyncClient:
             request (Optional[Union[google.cloud.aiplatform_v1.types.SearchDataItemsRequest, dict]]):
                 The request object. Request message for
                 [DatasetService.SearchDataItems][google.cloud.aiplatform.v1.DatasetService.SearchDataItems].
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1364,7 +1968,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1430,6 +2034,131 @@ class DatasetServiceAsyncClient:
         # Done; return the response.
         return response
 
+    async def delete_saved_query(
+        self,
+        request: Optional[Union[dataset_service.DeleteSavedQueryRequest, dict]] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Deletes a SavedQuery.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_delete_saved_query():
+                # Create a client
+                client = aiplatform_v1.DatasetServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteSavedQueryRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_saved_query(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteSavedQueryRequest, dict]]):
+                The request object. Request message for
+                [DatasetService.DeleteSavedQuery][google.cloud.aiplatform.v1.DatasetService.DeleteSavedQuery].
+            name (:class:`str`):
+                Required. The resource name of the SavedQuery to delete.
+                Format:
+                ``projects/{project}/locations/{location}/datasets/{dataset}/savedQueries/{saved_query}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = dataset_service.DeleteSavedQueryRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_saved_query,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
     async def get_annotation_spec(
         self,
         request: Optional[Union[dataset_service.GetAnnotationSpecRequest, dict]] = None,
@@ -1479,7 +2208,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1583,7 +2312,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1663,7 +2392,7 @@ class DatasetServiceAsyncClient:
             request (:class:`~.operations_pb2.ListOperationsRequest`):
                 The request object. Request message for
                 `ListOperations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1680,7 +2409,7 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_operations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1717,7 +2446,7 @@ class DatasetServiceAsyncClient:
             request (:class:`~.operations_pb2.GetOperationRequest`):
                 The request object. Request message for
                 `GetOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1734,7 +2463,7 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1776,7 +2505,7 @@ class DatasetServiceAsyncClient:
             request (:class:`~.operations_pb2.DeleteOperationRequest`):
                 The request object. Request message for
                 `DeleteOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1792,7 +2521,7 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1830,7 +2559,7 @@ class DatasetServiceAsyncClient:
             request (:class:`~.operations_pb2.CancelOperationRequest`):
                 The request object. Request message for
                 `CancelOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1846,7 +2575,7 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.cancel_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1886,7 +2615,7 @@ class DatasetServiceAsyncClient:
             request (:class:`~.operations_pb2.WaitOperationRequest`):
                 The request object. Request message for
                 `WaitOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -1903,7 +2632,7 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.wait_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -1942,7 +2671,7 @@ class DatasetServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.SetIamPolicyRequest`):
                 The request object. Request message for `SetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2023,7 +2752,7 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.set_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -2063,7 +2792,7 @@ class DatasetServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.GetIamPolicyRequest`):
                 The request object. Request message for `GetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if
                 any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2144,7 +2873,7 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -2185,7 +2914,7 @@ class DatasetServiceAsyncClient:
             request (:class:`~.iam_policy_pb2.TestIamPermissionsRequest`):
                 The request object. Request message for
                 `TestIamPermissions` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2203,7 +2932,7 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.test_iam_permissions,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -2240,7 +2969,7 @@ class DatasetServiceAsyncClient:
             request (:class:`~.location_pb2.GetLocationRequest`):
                 The request object. Request message for
                 `GetLocation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2257,7 +2986,7 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_location,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -2294,7 +3023,7 @@ class DatasetServiceAsyncClient:
             request (:class:`~.location_pb2.ListLocationsRequest`):
                 The request object. Request message for
                 `ListLocations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
@@ -2311,7 +3040,7 @@ class DatasetServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = gapic_v1.method.wrap_method(
+        rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_locations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
@@ -2334,7 +3063,7 @@ class DatasetServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "DatasetServiceAsyncClient":
         return self
 
     async def __aexit__(self, exc_type, exc, tb):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -65,6 +66,7 @@ class IndexEndpoint(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -119,6 +121,11 @@ class IndexEndpoint(proto.Message):
             [public_endpoint_enabled][google.cloud.aiplatform.v1.IndexEndpoint.public_endpoint_enabled]
             is true, this field will be populated with the domain name
             to use for this index endpoint.
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Immutable. Customer-managed encryption key
+            spec for an IndexEndpoint. If set, this
+            IndexEndpoint and all sub-resources of this
+            IndexEndpoint will be secured by this key.
     """
 
     name: str = proto.Field(
@@ -180,6 +187,11 @@ class IndexEndpoint(proto.Message):
         proto.STRING,
         number=14,
     )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        message=gca_encryption_spec.EncryptionSpec,
+    )
 
 
 class DeployedIndex(proto.Message):
@@ -215,18 +227,17 @@ class DeployedIndex(proto.Message):
             its original Index. Additionally when certain changes to the
             original Index are being done (e.g. when what the Index
             contains is being changed) the DeployedIndex may be
-            asynchronously updated in the background to reflect this
+            asynchronously updated in the background to reflect these
             changes. If this timestamp's value is at least the
             [Index.update_time][google.cloud.aiplatform.v1.Index.update_time]
             of the original Index, it means that this DeployedIndex and
             the original Index are in sync. If this timestamp is older,
             then to see which updates this DeployedIndex already
-            contains (and which not), one must
-            [list][Operations.ListOperations] [Operations][Operation]
-            [working][Operation.name] on the original Index. Only the
+            contains (and which it does not), one must
+            [list][google.longrunning.Operations.ListOperations] the
+            operations that are running on the original Index. Only the
             successfully completed Operations with
-            [Operations.metadata.generic_metadata.update_time]
-            [google.cloud.aiplatform.v1.GenericOperationMetadata.update_time]
+            [update_time][google.cloud.aiplatform.v1.GenericOperationMetadata.update_time]
             equal or before this sync time are contained in this
             DeployedIndex.
         automatic_resources (google.cloud.aiplatform_v1.types.AutomaticResources):
@@ -240,9 +251,10 @@ class DeployedIndex(proto.Message):
         dedicated_resources (google.cloud.aiplatform_v1.types.DedicatedResources):
             Optional. A description of resources that are dedicated to
             the DeployedIndex, and that need a higher degree of manual
-            configuration. If min_replica_count is not set, the default
-            value is 2 (we don't provide SLA when min_replica_count=1).
-            If max_replica_count is not set, the default value is
+            configuration. The field min_replica_count must be set to a
+            value strictly greater than 0, or else validation will fail.
+            We don't provide SLA when min_replica_count=1. If
+            max_replica_count is not set, the default value is
             min_replica_count. The max allowed replica count is 1000.
 
             Available machine types for SMALL shard: e2-standard-2 and
@@ -264,6 +276,7 @@ class DeployedIndex(proto.Message):
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each MatchRequest.
+
             Note that logs may incur a cost, especially if
             the deployed index receives a high queries per
             second rate (QPS). Estimate your costs before
@@ -272,17 +285,20 @@ class DeployedIndex(proto.Message):
             Optional. If set, the authentication is
             enabled for the private endpoint.
         reserved_ip_ranges (MutableSequence[str]):
-            Optional. A list of reserved ip ranges under
-            the VPC network that can be used for this
-            DeployedIndex.
-            If set, we will deploy the index within the
-            provided ip ranges. Otherwise, the index might
-            be deployed to any ip ranges under the provided
-            VPC network.
+            Optional. A list of reserved ip ranges under the VPC network
+            that can be used for this DeployedIndex.
+
+            If set, we will deploy the index within the provided ip
+            ranges. Otherwise, the index might be deployed to any ip
+            ranges under the provided VPC network.
 
             The value should be the name of the address
             (https://cloud.google.com/compute/docs/reference/rest/v1/addresses)
-            Example: 'vertex-ai-ip-range'.
+            Example: ['vertex-ai-ip-range'].
+
+            For more information about subnets and network IP ranges,
+            please see
+            https://cloud.google.com/vpc/docs/subnets#manually_created_subnet_ip_ranges.
         deployment_group (str):
             Optional. The deployment group can be no longer than 64
             characters (eg: 'test', 'prod'). If not set, we will use the

@@ -57,7 +57,7 @@ from google.protobuf import json_format
 _DEFAULT_RETRY = retry.Retry()
 
 
-class Logger:
+class VertexLogger(logging.getLoggerClass()):
     """Logging wrapper class with high level helper methods."""
 
     def __init__(self, name: str):
@@ -66,17 +66,8 @@ class Logger:
         Args:
             name (str): Name to associate with logger.
         """
-        self._logger = logging.getLogger(name)
-        self._logger.setLevel(logging.INFO)
-
-        if self._logger.handlers:
-            # Avoid writing duplicate logs if the logger is created twice.
-            return
-
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.INFO)
-
-        self._logger.addHandler(handler)
+        super().__init__(name)
+        self.setLevel(logging.INFO)
 
     def log_create_with_lro(
         self,
@@ -91,12 +82,10 @@ class Logger:
             lro (operation.Operation):
                 Optional. Backing LRO for creation.
         """
-        self._logger.info(f"Creating {cls.__name__}")
+        self.info(f"Creating {cls.__name__}")
 
         if lro:
-            self._logger.info(
-                f"Create {cls.__name__} backing LRO: {lro.operation.name}"
-            )
+            self.info(f"Create {cls.__name__} backing LRO: {lro.operation.name}")
 
     def log_create_complete(
         self,
@@ -115,11 +104,9 @@ class Logger:
                 Vertex AI Resource proto.Message
             variable_name (str): Name of variable to use for code snippet
         """
-        self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
-        self._logger.info(f"To use this {cls.__name__} in another session:")
-        self._logger.info(
-            f"{variable_name} = aiplatform.{cls.__name__}('{resource.name}')"
-        )
+        self.info(f"{cls.__name__} created. Resource name: {resource.name}")
+        self.info(f"To use this {cls.__name__} in another session:")
+        self.info(f"{variable_name} = aiplatform.{cls.__name__}('{resource.name}')")
 
     def log_create_complete_with_getter(
         self,
@@ -138,11 +125,9 @@ class Logger:
                 Vertex AI Resource proto.Message
             variable_name (str): Name of variable to use for code snippet
         """
-        self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
-        self._logger.info(f"To use this {cls.__name__} in another session:")
-        self._logger.info(
-            f"{variable_name} = aiplatform.{cls.__name__}.get('{resource.name}')"
-        )
+        self.info(f"{cls.__name__} created. Resource name: {resource.name}")
+        self.info(f"To use this {cls.__name__} in another session:")
+        self.info(f"{variable_name} = aiplatform.{cls.__name__}.get('{resource.name}')")
 
     def log_action_start_against_resource(
         self, action: str, noun: str, resource_noun_obj: "VertexAiResourceNoun"
@@ -155,7 +140,7 @@ class Logger:
             resource_noun_obj (VertexAiResourceNoun):
                 Resource noun object the action is acting against.
         """
-        self._logger.info(
+        self.info(
             f"{action} {resource_noun_obj.__class__.__name__} {noun}: {resource_noun_obj.resource_name}"
         )
 
@@ -175,9 +160,7 @@ class Logger:
                 Resource noun object the action is acting against.
             lro (operation.Operation): Backing LRO for action.
         """
-        self._logger.info(
-            f"{action} {cls.__name__} {noun} backing LRO: {lro.operation.name}"
-        )
+        self.info(f"{action} {cls.__name__} {noun} backing LRO: {lro.operation.name}")
 
     def log_action_completed_against_resource(
         self, noun: str, action: str, resource_noun_obj: "VertexAiResourceNoun"
@@ -190,13 +173,33 @@ class Logger:
             resource_noun_obj (VertexAiResourceNoun):
                 Resource noun object the action is acting against
         """
-        self._logger.info(
+        self.info(
             f"{resource_noun_obj.__class__.__name__} {noun} {action}. Resource name: {resource_noun_obj.resource_name}"
         )
 
-    def __getattr__(self, attr: str):
-        """Forward remainder of logging to underlying logger."""
-        return getattr(self._logger, attr)
+
+def Logger(name: str) -> VertexLogger:  # pylint: disable=invalid-name
+    old_class = logging.getLoggerClass()
+    try:
+        logging.setLoggerClass(VertexLogger)
+        logger = logging.getLogger(name)
+
+        # To avoid writing duplicate logs, skip adding the new handler if
+        # StreamHandler already exists in logger hierarchy.
+        parent_logger = logger
+        while parent_logger:
+            for handler in parent_logger.handlers:
+                if isinstance(handler, logging.StreamHandler):
+                    return logger
+            parent_logger = parent_logger.parent
+
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.INFO)
+        logger.addHandler(handler)
+
+        return logger
+    finally:
+        logging.setLoggerClass(old_class)
 
 
 _LOGGER = Logger(__name__)
@@ -983,7 +986,6 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             "credentials",
         ]
         optional_sync_attributes = [
-            "_prediction_client",
             "_authorized_session",
             "_raw_predict_request_url",
         ]
@@ -1024,8 +1026,13 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             VertexAiResourceNoun:
                 An initialized SDK object that represents GAPIC type.
         """
+        resource_name_parts = utils.extract_project_and_location_from_parent(
+            gapic_resource.name
+        )
         sdk_resource = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
+            project=resource_name_parts.get("project") or project,
+            location=resource_name_parts.get("location") or location,
+            credentials=credentials,
         )
         sdk_resource._gca_resource = gapic_resource
         return sdk_resource
@@ -1138,6 +1145,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        parent: Optional[str] = None,
     ) -> List[VertexAiResourceNoun]:
         """Private method to list all instances of this Vertex AI Resource,
         takes a `cls_filter` arg to filter to a particular SDK resource
@@ -1174,6 +1182,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
+            parent (str):
+                Optional. The parent resource name if any to retrieve resource list from.
 
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
@@ -1187,6 +1197,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             project=project,
             location=location,
             credentials=credentials,
+            parent=parent,
         )
 
         if order_by:

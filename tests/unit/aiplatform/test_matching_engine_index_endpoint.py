@@ -27,6 +27,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
 from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
     Namespace,
+    NumericNamespace,
 )
 from google.cloud.aiplatform.compat.types import (
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
@@ -34,6 +35,8 @@ from google.cloud.aiplatform.compat.types import (
     index as gca_index,
     match_service_v1beta1 as gca_match_service_v1beta1,
     index_v1beta1 as gca_index_v1beta1,
+    service_networking as gca_service_networking,
+    encryption_spec as gca_encryption_spec,
 )
 from google.cloud.aiplatform.compat.services import (
     index_endpoint_service_client,
@@ -231,7 +234,38 @@ _TEST_NUM_NEIGHBOURS = 1
 _TEST_FILTER = [
     Namespace(name="class", allow_tokens=["token_1"], deny_tokens=["token_2"])
 ]
+_TEST_NUMERIC_FILTER = [
+    NumericNamespace(name="cost", value_double=0.3, op="EQUAL"),
+    NumericNamespace(name="size", value_int=10, op="GREATER"),
+    NumericNamespace(name="seconds", value_float=20.5, op="LESS_EQUAL"),
+]
 _TEST_IDS = ["123", "456", "789"]
+_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS = 3
+_TEST_APPROX_NUM_NEIGHBORS = 2
+_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE = 0.8
+_TEST_RETURN_FULL_DATAPOINT = True
+_TEST_ENCRYPTION_SPEC_KEY_NAME = "kms_key_name"
+_TEST_PROJECT_ALLOWLIST = ["project-1", "project-2"]
+_TEST_READ_INDEX_DATAPOINTS_RESPONSE = [
+    gca_index_v1beta1.IndexDatapoint(
+        datapoint_id="1",
+        feature_vector=[0.1, 0.2, 0.3],
+        restricts=[
+            gca_index_v1beta1.IndexDatapoint.Restriction(
+                namespace="class",
+                allow_list=["token_1"],
+                deny_list=["token_2"],
+            )
+        ],
+    ),
+    gca_index_v1beta1.IndexDatapoint(
+        datapoint_id="2",
+        feature_vector=[0.5, 0.2, 0.3],
+        crowding_tag=gca_index_v1beta1.IndexDatapoint.CrowdingTag(
+            crowding_attribute="1"
+        ),
+    ),
+]
 
 
 def uuid_mock():
@@ -480,6 +514,37 @@ def index_endpoint_match_queries_mock():
 
 
 @pytest.fixture
+def index_endpoint_batch_get_embeddings_mock():
+    with patch.object(
+        grpc._channel._UnaryUnaryMultiCallable,
+        "__call__",
+    ) as index_endpoint_batch_get_embeddings_mock:
+        index_endpoint_batch_get_embeddings_mock.return_value = (
+            match_service_pb2.BatchGetEmbeddingsResponse(
+                embeddings=[
+                    match_service_pb2.Embedding(
+                        id="1",
+                        float_val=[0.1, 0.2, 0.3],
+                        restricts=[
+                            match_service_pb2.Namespace(
+                                name="class",
+                                allow_tokens=["token_1"],
+                                deny_tokens=["token_2"],
+                            )
+                        ],
+                    ),
+                    match_service_pb2.Embedding(
+                        id="2",
+                        float_val=[0.5, 0.2, 0.3],
+                        crowding_attribute=1,
+                    ),
+                ]
+            )
+        )
+        yield index_endpoint_batch_get_embeddings_mock
+
+
+@pytest.fixture
 def index_public_endpoint_match_queries_mock():
     with patch.object(
         match_service_client_v1beta1.MatchServiceClient, "find_neighbors"
@@ -586,7 +651,7 @@ class TestMatchingEngineIndexEndpoint:
         )
         assert len(my_index_endpoints_list) == len(_TEST_INDEX_ENDPOINT_LIST)
         for my_index_endpoint in my_index_endpoints_list:
-            assert type(my_index_endpoint) == aiplatform.MatchingEngineIndexEndpoint
+            assert isinstance(my_index_endpoint, aiplatform.MatchingEngineIndexEndpoint)
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_index_endpoint_mock")
@@ -633,6 +698,39 @@ class TestMatchingEngineIndexEndpoint:
         )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_create_index_endpoint_with_private_service_connect(
+        self, create_index_endpoint_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.MatchingEngineIndexEndpoint.create(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            labels=_TEST_LABELS,
+            enable_private_service_connect=True,
+            project_allowlist=_TEST_PROJECT_ALLOWLIST,
+            encryption_spec_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
+        )
+
+        expected = gca_index_endpoint.IndexEndpoint(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            labels=_TEST_LABELS,
+            private_service_connect_config=gca_service_networking.PrivateServiceConnectConfig(
+                project_allowlist=_TEST_PROJECT_ALLOWLIST,
+                enable_private_service_connect=True,
+            ),
+            encryption_spec=gca_encryption_spec.EncryptionSpec(
+                kms_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME
+            ),
+        )
+        create_index_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            index_endpoint=expected,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_create_index_endpoint_with_network_init(self, create_index_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, network=_TEST_INDEX_ENDPOINT_VPC_NETWORK)
 
@@ -640,6 +738,7 @@ class TestMatchingEngineIndexEndpoint:
             display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
+            encryption_spec_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
         )
 
         expected = gca_index_endpoint.IndexEndpoint(
@@ -648,6 +747,9 @@ class TestMatchingEngineIndexEndpoint:
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
             public_endpoint_enabled=False,
+            encryption_spec=gca_encryption_spec.EncryptionSpec(
+                kms_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME
+            ),
         )
 
         create_index_endpoint_mock.assert_called_once_with(
@@ -667,6 +769,7 @@ class TestMatchingEngineIndexEndpoint:
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             public_endpoint_enabled=True,
             labels=_TEST_LABELS,
+            encryption_spec_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
         )
 
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
@@ -678,6 +781,9 @@ class TestMatchingEngineIndexEndpoint:
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             public_endpoint_enabled=True,
             labels=_TEST_LABELS,
+            encryption_spec=gca_encryption_spec.EncryptionSpec(
+                kms_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME
+            ),
         )
 
         create_index_endpoint_mock.assert_called_once_with(
@@ -696,7 +802,12 @@ class TestMatchingEngineIndexEndpoint:
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        expected_message = "Please provide `network` argument for private endpoint or provide `public_endpoint_enabled` to deploy this index to a public endpoint"
+        expected_message = (
+            "Please provide `network` argument for Private Service Access endpoint,"
+            "or provide `enable_private_service_connect` for Private Service"
+            "Connect endpoint, or provide `public_endpoint_enabled` to"
+            "deploy to a public endpoint"
+        )
 
         with pytest.raises(ValueError) as exception:
             _ = aiplatform.MatchingEngineIndexEndpoint.create(
@@ -707,12 +818,12 @@ class TestMatchingEngineIndexEndpoint:
 
         assert str(exception.value) == expected_message
 
-    def test_create_index_endpoint_set_both_throw_error(
+    def test_create_index_endpoint_set_both_psa_and_public_throw_error(
         self, create_index_endpoint_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        expected_message = "`network` and `public_endpoint_enabled` argument should not be set at the same time"
+        expected_message = "One and only one among network, public_endpoint_enabled and enable_private_service_connect should be set."
 
         with pytest.raises(ValueError) as exception:
             _ = aiplatform.MatchingEngineIndexEndpoint.create(
@@ -721,6 +832,42 @@ class TestMatchingEngineIndexEndpoint:
                 public_endpoint_enabled=True,
                 network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
                 labels=_TEST_LABELS,
+            )
+
+        assert str(exception.value) == expected_message
+
+    def test_create_index_endpoint_set_both_psa_and_psc_throw_error(
+        self, create_index_endpoint_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        expected_message = "One and only one among network, public_endpoint_enabled and enable_private_service_connect should be set."
+
+        with pytest.raises(ValueError) as exception:
+            _ = aiplatform.MatchingEngineIndexEndpoint.create(
+                display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+                description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+                network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
+                labels=_TEST_LABELS,
+                enable_private_service_connect=True,
+            )
+
+        assert str(exception.value) == expected_message
+
+    def test_create_index_endpoint_set_both_psc_and_public_throw_error(
+        self, create_index_endpoint_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        expected_message = "One and only one among network, public_endpoint_enabled and enable_private_service_connect should be set."
+
+        with pytest.raises(ValueError) as exception:
+            _ = aiplatform.MatchingEngineIndexEndpoint.create(
+                display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+                description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+                public_endpoint_enabled=True,
+                labels=_TEST_LABELS,
+                enable_private_service_connect=True,
             )
 
         assert str(exception.value) == expected_message
@@ -854,7 +1001,9 @@ class TestMatchingEngineIndexEndpoint:
         )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
-    def test_index_endpoint_match_queries(self, index_endpoint_match_queries_mock):
+    def test_index_endpoint_match_queries_backward_compatibility(
+        self, index_endpoint_match_queries_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
@@ -862,10 +1011,10 @@ class TestMatchingEngineIndexEndpoint:
         )
 
         my_index_endpoint.match(
-            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
-            queries=_TEST_QUERIES,
-            num_neighbors=_TEST_NUM_NEIGHBOURS,
-            filter=_TEST_FILTER,
+            _TEST_DEPLOYED_INDEX_ID,
+            _TEST_QUERIES,
+            _TEST_NUM_NEIGHBOURS,
+            _TEST_FILTER,
         )
 
         batch_request = match_service_pb2.BatchMatchRequest(
@@ -892,6 +1041,49 @@ class TestMatchingEngineIndexEndpoint:
 
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
 
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_index_endpoint_match_queries(self, index_endpoint_match_queries_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_index_endpoint.match(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+        )
+
+        batch_request = match_service_pb2.BatchMatchRequest(
+            requests=[
+                match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
+                    deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    requests=[
+                        match_service_pb2.MatchRequest(
+                            num_neighbors=_TEST_NUM_NEIGHBOURS,
+                            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                            float_val=_TEST_QUERIES[0],
+                            restricts=[
+                                match_service_pb2.Namespace(
+                                    name="class",
+                                    allow_tokens=["token_1"],
+                                    deny_tokens=["token_2"],
+                                )
+                            ],
+                            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                        )
+                    ],
+                )
+            ]
+        )
+
+        index_endpoint_match_queries_mock.assert_called_with(batch_request)
+
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
     def test_index_public_endpoint_match_queries(
         self, index_public_endpoint_match_queries_mock
@@ -907,6 +1099,10 @@ class TestMatchingEngineIndexEndpoint:
             queries=_TEST_QUERIES,
             num_neighbors=_TEST_NUM_NEIGHBOURS,
             filter=_TEST_FILTER,
+            per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
         )
 
         find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest(
@@ -925,13 +1121,113 @@ class TestMatchingEngineIndexEndpoint:
                             )
                         ],
                     ),
+                    per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                    approximate_neighbor_count=_TEST_APPROX_NUM_NEIGHBORS,
+                    fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
                 )
             ],
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
         )
 
         index_public_endpoint_match_queries_mock.assert_called_with(
             find_neighbors_request
         )
+
+    @pytest.mark.usefixtures("get_index_public_endpoint_mock")
+    def test_index_public_endpoint_match_queries_with_numeric_filtering(
+        self, index_public_endpoint_match_queries_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_pubic_index_endpoint.find_neighbors(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+            numeric_filter=_TEST_NUMERIC_FILTER,
+        )
+
+        find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest(
+            index_endpoint=my_pubic_index_endpoint.resource_name,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=[
+                gca_match_service_v1beta1.FindNeighborsRequest.Query(
+                    neighbor_count=_TEST_NUM_NEIGHBOURS,
+                    datapoint=gca_index_v1beta1.IndexDatapoint(
+                        feature_vector=_TEST_QUERIES[0],
+                        restricts=[
+                            gca_index_v1beta1.IndexDatapoint.Restriction(
+                                namespace="class",
+                                allow_list=["token_1"],
+                                deny_list=["token_2"],
+                            )
+                        ],
+                        numeric_restricts=[
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace="cost", value_double=0.3, op="EQUAL"
+                            ),
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace="size", value_int=10, op="GREATER"
+                            ),
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace="seconds", value_float=20.5, op="LESS_EQUAL"
+                            ),
+                        ],
+                    ),
+                    per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                    approximate_neighbor_count=_TEST_APPROX_NUM_NEIGHBORS,
+                    fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                )
+            ],
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+        )
+
+        index_public_endpoint_match_queries_mock.assert_called_with(
+            find_neighbors_request
+        )
+
+    def test_post_init_numeric_filter_invalid_operator_throws_exception(
+        self,
+    ):
+        expected_message = (
+            "Invalid operator 'NOT_EQ', must be one of the valid operators."
+        )
+        with pytest.raises(ValueError) as exception:
+            NumericNamespace(name="cost", value_int=3, op="NOT_EQ")
+
+        assert str(exception.value) == expected_message
+
+    def test_post_init_numeric_namespace_missing_value_throws_exception(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        expected_message = (
+            "Must choose one among `value_int`,"
+            "`value_float` and `value_double` for "
+            "intended precision."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            NumericNamespace(name="cost", op="EQUAL")
+
+        assert str(exception.value) == expected_message
+
+    def test_index_public_endpoint_match_queries_with_numeric_filtering_value_type_mismatch_throws_exception(
+        self,
+    ):
+        expected_message = "value_int must be of type int, got <class 'float'>."
+
+        with pytest.raises(ValueError) as exception:
+            NumericNamespace(name="cost", value_int=0.3, op="EQUAL")
+
+        assert str(exception.value) == expected_message
 
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
     def test_index_public_endpoint_read_index_datapoints(
@@ -959,3 +1255,45 @@ class TestMatchingEngineIndexEndpoint:
         index_public_endpoint_read_index_datapoints_mock.assert_called_with(
             read_index_datapoints_request
         )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_index_endpoint_batch_get_embeddings(
+        self, index_endpoint_batch_get_embeddings_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_index_endpoint._batch_get_embeddings(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, ids=["1", "2"]
+        )
+
+        batch_request = match_service_pb2.BatchGetEmbeddingsRequest(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
+        )
+
+        index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_index_endpoint_find_neighbors_for_private(
+        self, index_endpoint_batch_get_embeddings_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        response = my_index_endpoint.read_index_datapoints(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, ids=["1", "2"]
+        )
+
+        batch_request = match_service_pb2.BatchGetEmbeddingsRequest(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
+        )
+
+        index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
+
+        assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE

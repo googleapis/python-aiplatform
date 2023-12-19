@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -147,9 +147,10 @@ class ModelDeploymentMonitoringJob(proto.Message):
             the job under customer project. Customer could
             do their own query & analysis. There could be 4
             log tables in maximum:
+
             1. Training data logging predict
-            request/response 2. Serving data logging predict
-            request/response
+                request/response
+            2. Serving data logging predict request/response
         log_ttl (google.protobuf.duration_pb2.Duration):
             The TTL of BigQuery tables in user projects
             which stores logs. A day is the basic unit of
@@ -165,6 +166,7 @@ class ModelDeploymentMonitoringJob(proto.Message):
             contain lowercase letters, numeric characters,
             underscores and dashes. International characters
             are allowed.
+
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
         create_time (google.protobuf.timestamp_pb2.Timestamp):

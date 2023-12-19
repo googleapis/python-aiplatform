@@ -1,10 +1,13 @@
 """Converters for OSS Vizier's protos from/to PyVizier's classes."""
-import datetime
 import logging
+from datetime import timezone
 from typing import List, Optional, Sequence, Tuple, Union
 
 from google.protobuf import duration_pb2
+from google.protobuf import struct_pb2
+from google.protobuf import timestamp_pb2
 from google.cloud.aiplatform.compat.types import study as study_pb2
+from google.cloud.aiplatform.vizier.pyvizier import ExternalType
 from google.cloud.aiplatform.vizier.pyvizier import ScaleType
 from google.cloud.aiplatform.vizier.pyvizier import ParameterType
 from google.cloud.aiplatform.vizier.pyvizier import ParameterValue
@@ -80,8 +83,8 @@ class ParameterConfigConverter:
         default_value: Union[float, int, str],
     ):
         """Sets the protos' default_value field."""
-        which_pv_spec = proto.WhichOneof("parameter_value_spec")
-        getattr(proto, which_pv_spec).default_value.value = default_value
+        which_pv_spec = proto._pb.WhichOneof("parameter_value_spec")
+        getattr(proto, which_pv_spec).default_value = default_value
 
     @classmethod
     def _matching_parent_values(
@@ -120,12 +123,14 @@ class ParameterConfigConverter:
           ValueError: See the "strict_validtion" arg documentation.
         """
         feasible_values = []
+        external_type = ExternalType.INTERNAL
         oneof_name = proto._pb.WhichOneof("parameter_value_spec")
         if oneof_name == "integer_value_spec":
             bounds = (
                 int(proto.integer_value_spec.min_value),
                 int(proto.integer_value_spec.max_value),
             )
+            external_type = ExternalType.INTEGER
         elif oneof_name == "double_value_spec":
             bounds = (
                 proto.double_value_spec.min_value,
@@ -137,10 +142,17 @@ class ParameterConfigConverter:
         elif oneof_name == "categorical_value_spec":
             bounds = None
             feasible_values = proto.categorical_value_spec.values
+            # Boolean values are encoded as categoricals, check for the special
+            # hard-coded values.
+            boolean_values = ["False", "True"]
+            if sorted(list(feasible_values)) == boolean_values:
+                external_type = ExternalType.BOOLEAN
 
         default_value = None
         if getattr(proto, oneof_name).default_value:
             default_value = getattr(proto, oneof_name).default_value
+            if external_type == ExternalType.INTEGER:
+                default_value = int(default_value)
 
         if proto.conditional_parameter_specs:
             children = []
@@ -164,6 +176,7 @@ class ParameterConfigConverter:
                 children=children,
                 scale_type=scale_type,
                 default_value=default_value,
+                external_type=external_type,
             )
         except ValueError as e:
             raise ValueError(
@@ -220,15 +233,15 @@ class ParameterConfigConverter:
                 )
             )
 
-            if parent_proto.HasField("discrete_value_spec"):
+            if "discrete_value_spec" in parent_proto:
                 conditional_parameter_spec.parent_discrete_values.values[
                     :
                 ] = parent_values
-            elif parent_proto.HasField("categorical_value_spec"):
+            elif "categorical_value_spec" in parent_proto:
                 conditional_parameter_spec.parent_categorical_values.values[
                     :
                 ] = parent_values
-            elif parent_proto.HasField("integer_value_spec"):
+            elif "integer_value_spec" in parent_proto:
                 conditional_parameter_spec.parent_int_values.values[:] = parent_values
             else:
                 raise ValueError("DOUBLE type cannot have child parameters")
@@ -280,17 +293,16 @@ class ParameterValueConverter:
         cls, parameter_value: ParameterValue, name: str
     ) -> study_pb2.Trial.Parameter:
         """Returns Parameter Proto."""
-        proto = study_pb2.Trial.Parameter(parameter_id=name)
-
         if isinstance(parameter_value.value, int):
-            proto.value.number_value = parameter_value.value
+            value = struct_pb2.Value(number_value=parameter_value.value)
         elif isinstance(parameter_value.value, bool):
-            proto.value.bool_value = parameter_value.value
+            value = struct_pb2.Value(bool_value=parameter_value.value)
         elif isinstance(parameter_value.value, float):
-            proto.value.number_value = parameter_value.value
+            value = struct_pb2.Value(number_value=parameter_value.value)
         elif isinstance(parameter_value.value, str):
-            proto.value.string_value = parameter_value.value
+            value = struct_pb2.Value(string_value=parameter_value.value)
 
+        proto = study_pb2.Trial.Parameter(parameter_id=name, value=value)
         return proto
 
 
@@ -340,18 +352,19 @@ class MeasurementConverter:
     @classmethod
     def to_proto(cls, measurement: Measurement) -> study_pb2.Measurement:
         """Converts to Measurement proto."""
-        proto = study_pb2.Measurement()
+        int_seconds = int(measurement.elapsed_secs)
+        proto = study_pb2.Measurement(
+            elapsed_duration=duration_pb2.Duration(
+                seconds=int_seconds,
+                nanos=int(1e9 * (measurement.elapsed_secs - int_seconds)),
+            )
+        )
         for name, metric in measurement.metrics.items():
             proto.metrics.append(
                 study_pb2.Measurement.Metric(metric_id=name, value=metric.value)
             )
 
         proto.step_count = measurement.steps
-        int_seconds = int(measurement.elapsed_secs)
-        proto.elapsed_duration = duration_pb2.Duration(
-            seconds=int_seconds,
-            nanos=int(1e9 * (measurement.elapsed_secs - int_seconds)),
-        )
         return proto
 
 
@@ -426,8 +439,11 @@ class TrialConverter:
         infeasibility_reason = None
         if proto.state == study_pb2.Trial.State.SUCCEEDED:
             if proto.end_time:
-                completion_ts = proto.end_time.nanosecond / 1e9
-                completion_time = datetime.datetime.fromtimestamp(completion_ts)
+                completion_time = (
+                    proto.end_time.timestamp_pb()
+                    .ToDatetime()
+                    .replace(tzinfo=timezone.utc)
+                )
         elif proto.state == study_pb2.Trial.State.INFEASIBLE:
             infeasibility_reason = proto.infeasible_reason
 
@@ -437,8 +453,11 @@ class TrialConverter:
 
         creation_time = None
         if proto.start_time:
-            creation_ts = proto.start_time.nanosecond / 1e9
-            creation_time = datetime.datetime.fromtimestamp(creation_ts)
+            creation_time = (
+                proto.start_time.timestamp_pb()
+                .ToDatetime()
+                .replace(tzinfo=timezone.utc)
+            )
         return Trial(
             id=int(proto.name.split("/")[-1]),
             description=proto.name,
@@ -481,22 +500,26 @@ class TrialConverter:
 
         # pytrial always adds an empty metric. Ideally, we should remove it if the
         # metric does not exist in the study config.
+        # setattr() is required here as `proto.final_measurement.CopyFrom`
+        # raises AttributeErrors when setting the field on the pb2 compat types.
         if pytrial.final_measurement is not None:
-            proto.final_measurement.CopyFrom(
-                MeasurementConverter.to_proto(pytrial.final_measurement)
+            setattr(
+                proto,
+                "final_measurement",
+                MeasurementConverter.to_proto(pytrial.final_measurement),
             )
 
         for measurement in pytrial.measurements:
             proto.measurements.append(MeasurementConverter.to_proto(measurement))
 
         if pytrial.creation_time is not None:
-            creation_secs = datetime.datetime.timestamp(pytrial.creation_time)
-            proto.start_time.seconds = int(creation_secs)
-            proto.start_time.nanos = int(1e9 * (creation_secs - int(creation_secs)))
+            start_time = timestamp_pb2.Timestamp()
+            start_time.FromDatetime(pytrial.creation_time)
+            setattr(proto, "start_time", start_time)
         if pytrial.completion_time is not None:
-            completion_secs = datetime.datetime.timestamp(pytrial.completion_time)
-            proto.end_time.seconds = int(completion_secs)
-            proto.end_time.nanos = int(1e9 * (completion_secs - int(completion_secs)))
+            end_time = timestamp_pb2.Timestamp()
+            end_time.FromDatetime(pytrial.completion_time)
+            setattr(proto, "end_time", end_time)
         if pytrial.infeasibility_reason is not None:
             proto.infeasible_reason = pytrial.infeasibility_reason
         return proto

@@ -13,9 +13,11 @@ Services for Google Cloud Aiplatform v1 API
     match_service
     metadata_service
     migration_service
+    model_garden_service
     model_service
     pipeline_service
     prediction_service
+    schedule_service
     specialist_pool_service
     tensorboard_service
     vizier_service

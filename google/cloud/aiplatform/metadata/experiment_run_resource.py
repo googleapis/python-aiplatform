@@ -697,7 +697,7 @@ class ExperimentRun(
                 Optional. The name or instance of the experiment to create this run under.
                 If not provided, will default to the experiment set in `aiplatform.init`.
             tensorboard (Union[aiplatform.Tensorboard, str]):
-                Optional. The resource name or instance of Vertex Tensorbaord to use as the backing
+                Optional. The resource name or instance of Vertex Tensorboard to use as the backing
                 Tensorboard for time series metric logging. If not provided, will default to the
                 the backing tensorboard of parent experiment if set. Must be in same project and location
                 as this experiment run.
@@ -757,12 +757,16 @@ class ExperimentRun(
         experiment_run._backing_tensorboard_run = None
         experiment_run._largest_step = None
 
-        if tensorboard:
-            cls._assign_backing_tensorboard(
-                self=experiment_run, tensorboard=tensorboard
-            )
-        else:
-            cls._assign_to_experiment_backing_tensorboard(self=experiment_run)
+        try:
+            if tensorboard:
+                cls._assign_backing_tensorboard(
+                    self=experiment_run, tensorboard=tensorboard
+                )
+            else:
+                cls._assign_to_experiment_backing_tensorboard(self=experiment_run)
+        except Exception as e:
+            metadata_context.delete()
+            raise e
 
         experiment_run._associate_to_experiment(experiment)
         return experiment_run
@@ -899,7 +903,12 @@ class ExperimentRun(
         backing_tensorboard = self._lookup_tensorboard_run_artifact()
         if backing_tensorboard:
             raise ValueError(
-                f"Experiment run {self._run_name} already associated to tensorboard resource {backing_tensorboard.resource.resource_name}"
+                f"Experiment run {self._run_name} already associated to tensorboard resource {backing_tensorboard.resource.resource_name}.\n"
+                f"To delete backing tensorboard run, execute the following:\n"
+                f'tensorboard_run_artifact = aiplatform.metadata.artifact.Artifact(artifact_name=f"{self._tensorboard_run_id(self._metadata_node.name)}")\n'
+                f'tensorboard_run_resource = aiplatform.TensorboardRun(tensorboard_run_artifact.metadata["resourceName"])\n'
+                f"tensorboard_run_resource.delete()\n"
+                f"tensorboard_run_artifact.delete()"
             )
 
         self._assign_backing_tensorboard(tensorboard=tensorboard)
@@ -1370,20 +1379,41 @@ class ExperimentRun(
                     self._backing_tensorboard_run.resource.delete()
                     self._backing_tensorboard_run.metadata.delete()
                 else:
-                    _LOGGER.warn(
+                    _LOGGER.warning(
                         f"Experiment run {self.name} does not have a backing tensorboard run."
                         " Skipping deletion."
                     )
             else:
-                _LOGGER.warn(
+                _LOGGER.warning(
                     f"Experiment run {self.name} does not have a backing tensorboard run."
                     " Skipping deletion."
                 )
+        else:
+            _LOGGER.warning(
+                f"Experiment run {self.name} skipped backing tensorboard run deletion.\n"
+                f"To delete backing tensorboard run, execute the following:\n"
+                f'tensorboard_run_artifact = aiplatform.metadata.artifact.Artifact(artifact_name=f"{self._tensorboard_run_id(self._metadata_node.name)}")\n'
+                f'tensorboard_run_resource = aiplatform.TensorboardRun(tensorboard_run_artifact.metadata["resourceName"])\n'
+                f"tensorboard_run_resource.delete()\n"
+                f"tensorboard_run_artifact.delete()"
+            )
 
-        self._metadata_node.delete()
+        try:
+            self._metadata_node.delete()
+        except exceptions.NotFound:
+            _LOGGER.warning(
+                f"Experiment run {self.name} metadata node not found."
+                " Skipping deletion."
+            )
 
         if self._is_legacy_experiment_run():
-            self._metadata_metric_artifact.delete()
+            try:
+                self._metadata_metric_artifact.delete()
+            except exceptions.NotFound:
+                _LOGGER.warning(
+                    f"Experiment run {self.name} metadata node not found."
+                    " Skipping deletion."
+                )
 
     @_v1_not_supported
     def get_artifacts(self) -> List[artifact.Artifact]:

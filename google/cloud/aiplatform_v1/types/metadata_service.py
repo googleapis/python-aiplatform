@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -357,7 +357,10 @@ class ListArtifactsRequest(proto.Message):
             -  **Metadata field**: To filter on metadata fields use
                traversal operation as follows:
                ``metadata.<field_name>.<type_value>``. For example:
-               ``metadata.field_1.number_value = 10.0``
+               ``metadata.field_1.number_value = 10.0`` In case the
+               field name contains special characters (such as colon),
+               one can embed it inside double quote. For example:
+               ``metadata."field:1".number_value = 10.0``
             -  **Context based filtering**: To filter Artifacts based on
                the contexts to which they belong, use the function
                operator with the full resource name
@@ -445,8 +448,7 @@ class UpdateArtifactRequest(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}``
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Optional. A FieldMask indicating which fields
-            should be updated. Functionality of this field
-            is not yet supported.
+            should be updated.
         allow_missing (bool):
             If set to true, and the
             [Artifact][google.cloud.aiplatform.v1.Artifact] is not
@@ -660,7 +662,10 @@ class ListContextsRequest(proto.Message):
             -  **Metadata field**: To filter on metadata fields use
                traversal operation as follows:
                ``metadata.<field_name>.<type_value>``. For example:
-               ``metadata.field_1.number_value = 10.0``.
+               ``metadata.field_1.number_value = 10.0``. In case the
+               field name contains special characters (such as colon),
+               one can embed it inside double quote. For example:
+               ``metadata."field:1".number_value = 10.0``
 
             -  **Parent Child filtering**: To filter Contexts based on
                parent-child relationship use the HAS operator as
@@ -753,8 +758,7 @@ class UpdateContextRequest(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Optional. A FieldMask indicating which fields
-            should be updated. Functionality of this field
-            is not yet supported.
+            should be updated.
         allow_missing (bool):
             If set to true, and the
             [Context][google.cloud.aiplatform.v1.Context] is not found,
@@ -1103,7 +1107,10 @@ class ListExecutionsRequest(proto.Message):
             -  **Metadata field**: To filter on metadata fields use
                traversal operation as follows:
                ``metadata.<field_name>.<type_value>`` For example:
-               ``metadata.field_1.number_value = 10.0``
+               ``metadata.field_1.number_value = 10.0`` In case the
+               field name contains special characters (such as colon),
+               one can embed it inside double quote. For example:
+               ``metadata."field:1".number_value = 10.0``
             -  **Context based filtering**: To filter Executions based
                on the contexts to which they belong use the function
                operator with the full resource name:
@@ -1191,8 +1198,7 @@ class UpdateExecutionRequest(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Optional. A FieldMask indicating which fields
-            should be updated. Functionality of this field
-            is not yet supported.
+            should be updated.
         allow_missing (bool):
             If set to true, and the
             [Execution][google.cloud.aiplatform.v1.Execution] is not
@@ -1533,7 +1539,10 @@ class QueryArtifactLineageSubgraphRequest(proto.Message):
             -  **Metadata field**: To filter on metadata fields use
                traversal operation as follows:
                ``metadata.<field_name>.<type_value>``. For example:
-               ``metadata.field_1.number_value = 10.0``
+               ``metadata.field_1.number_value = 10.0`` In case the
+               field name contains special characters (such as colon),
+               one can embed it inside double quote. For example:
+               ``metadata."field:1".number_value = 10.0``
 
             Each of the above supported filter types can be combined
             together using logical operators (``AND`` & ``OR``). Maximum

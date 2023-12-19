@@ -63,6 +63,7 @@ _TEST_AR_TEMPLATE_PATH = "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"
 _TEST_HTTPS_TEMPLATE_PATH = "https://raw.githubusercontent.com/repo/pipeline.json"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_ID}"
+_TEST_RESERVED_IP_RANGES = ["vertex-ai-ip-range"]
 
 _TEST_PIPELINE_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
 _TEST_PIPELINE_JOB_LIST_READ_MASK = field_mask.FieldMask(
@@ -231,6 +232,7 @@ def mock_pipeline_service_create():
             create_time=_TEST_PIPELINE_CREATE_TIME,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
+            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
         )
         yield mock_create_pipeline_job
 
@@ -267,6 +269,7 @@ def make_pipeline_job(state):
         create_time=_TEST_PIPELINE_CREATE_TIME,
         service_account=_TEST_SERVICE_ACCOUNT,
         network=_TEST_NETWORK,
+        reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
         job_detail=gca_pipeline_job.PipelineJobDetail(
             pipeline_run_context=gca_context.Context(
                 name=_TEST_PIPELINE_JOB_NAME,
@@ -469,6 +472,8 @@ class TestPipelineJob:
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 1)
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
@@ -485,6 +490,8 @@ class TestPipelineJob:
             staging_bucket=_TEST_GCS_BUCKET_NAME,
             location=_TEST_LOCATION,
             credentials=_TEST_CREDENTIALS,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
         )
 
         job = pipeline_jobs.PipelineJob(
@@ -497,8 +504,6 @@ class TestPipelineJob:
         )
 
         job.run(
-            service_account=_TEST_SERVICE_ACCOUNT,
-            network=_TEST_NETWORK,
             sync=sync,
             create_request_timeout=None,
         )
@@ -529,6 +534,90 @@ class TestPipelineJob:
             runtime_config=runtime_config,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=_TEST_PIPELINE_JOB_ID,
+            timeout=None,
+        )
+
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert job._gca_resource == make_pipeline_job(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_run_with_reserved_ip_ranges(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        sync,
+    ):
+        import yaml
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+        )
+
+        job.run(
+            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            job.wait()
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+            "inputArtifacts": {"vertex_model": {"artifactId": "456"}},
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+                "schemaVersion": "2.1.0",
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -887,6 +976,8 @@ class TestPipelineJob:
         ],
     )
     @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 1)
     def test_run_call_pipeline_service_create_with_failure_policy(
         self,
         mock_pipeline_service_create,
@@ -1541,6 +1632,8 @@ class TestPipelineJob:
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 1)
     def test_pipeline_failure_raises(self, mock_load_yaml_and_json, sync):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1566,6 +1659,61 @@ class TestPipelineJob:
 
             if not sync:
                 job.wait()
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get_with_fail",
+        "mock_pipeline_bucket_exists",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_pipeline_job_has_failed_property(self, mock_load_yaml_and_json):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        job.submit(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING
+        assert job.has_failed
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_pipeline_job_has_failed_property_with_no_submit(
+        self, mock_load_yaml_and_json
+    ):
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        with pytest.raises(
+            RuntimeError,
+            match=r"PipelineJob resource has not been created\.",
+        ):
+            assert job.has_failed
 
     @pytest.mark.parametrize(
         "job_spec",

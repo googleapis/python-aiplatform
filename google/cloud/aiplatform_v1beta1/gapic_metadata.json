@@ -15,9 +15,24 @@
                 "create_dataset"
               ]
             },
+            "CreateDatasetVersion": {
+              "methods": [
+                "create_dataset_version"
+              ]
+            },
             "DeleteDataset": {
               "methods": [
                 "delete_dataset"
+              ]
+            },
+            "DeleteDatasetVersion": {
+              "methods": [
+                "delete_dataset_version"
+              ]
+            },
+            "DeleteSavedQuery": {
+              "methods": [
+                "delete_saved_query"
               ]
             },
             "ExportData": {
@@ -35,6 +50,11 @@
                 "get_dataset"
               ]
             },
+            "GetDatasetVersion": {
+              "methods": [
+                "get_dataset_version"
+              ]
+            },
             "ImportData": {
               "methods": [
                 "import_data"
@@ -50,6 +70,11 @@
                 "list_data_items"
               ]
             },
+            "ListDatasetVersions": {
+              "methods": [
+                "list_dataset_versions"
+              ]
+            },
             "ListDatasets": {
               "methods": [
                 "list_datasets"
@@ -58,6 +83,11 @@
             "ListSavedQueries": {
               "methods": [
                 "list_saved_queries"
+              ]
+            },
+            "RestoreDatasetVersion": {
+              "methods": [
+                "restore_dataset_version"
               ]
             },
             "SearchDataItems": {
@@ -80,9 +110,24 @@
                 "create_dataset"
               ]
             },
+            "CreateDatasetVersion": {
+              "methods": [
+                "create_dataset_version"
+              ]
+            },
             "DeleteDataset": {
               "methods": [
                 "delete_dataset"
+              ]
+            },
+            "DeleteDatasetVersion": {
+              "methods": [
+                "delete_dataset_version"
+              ]
+            },
+            "DeleteSavedQuery": {
+              "methods": [
+                "delete_saved_query"
               ]
             },
             "ExportData": {
@@ -100,6 +145,11 @@
                 "get_dataset"
               ]
             },
+            "GetDatasetVersion": {
+              "methods": [
+                "get_dataset_version"
+              ]
+            },
             "ImportData": {
               "methods": [
                 "import_data"
@@ -115,6 +165,11 @@
                 "list_data_items"
               ]
             },
+            "ListDatasetVersions": {
+              "methods": [
+                "list_dataset_versions"
+              ]
+            },
             "ListDatasets": {
               "methods": [
                 "list_datasets"
@@ -123,6 +178,11 @@
             "ListSavedQueries": {
               "methods": [
                 "list_saved_queries"
+              ]
+            },
+            "RestoreDatasetVersion": {
+              "methods": [
+                "restore_dataset_version"
               ]
             },
             "SearchDataItems": {
@@ -291,6 +351,298 @@
             "UpdateEndpoint": {
               "methods": [
                 "update_endpoint"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "FeatureOnlineStoreAdminService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "FeatureOnlineStoreAdminServiceClient",
+          "rpcs": {
+            "CreateFeatureOnlineStore": {
+              "methods": [
+                "create_feature_online_store"
+              ]
+            },
+            "CreateFeatureView": {
+              "methods": [
+                "create_feature_view"
+              ]
+            },
+            "DeleteFeatureOnlineStore": {
+              "methods": [
+                "delete_feature_online_store"
+              ]
+            },
+            "DeleteFeatureView": {
+              "methods": [
+                "delete_feature_view"
+              ]
+            },
+            "GetFeatureOnlineStore": {
+              "methods": [
+                "get_feature_online_store"
+              ]
+            },
+            "GetFeatureView": {
+              "methods": [
+                "get_feature_view"
+              ]
+            },
+            "GetFeatureViewSync": {
+              "methods": [
+                "get_feature_view_sync"
+              ]
+            },
+            "ListFeatureOnlineStores": {
+              "methods": [
+                "list_feature_online_stores"
+              ]
+            },
+            "ListFeatureViewSyncs": {
+              "methods": [
+                "list_feature_view_syncs"
+              ]
+            },
+            "ListFeatureViews": {
+              "methods": [
+                "list_feature_views"
+              ]
+            },
+            "SyncFeatureView": {
+              "methods": [
+                "sync_feature_view"
+              ]
+            },
+            "UpdateFeatureOnlineStore": {
+              "methods": [
+                "update_feature_online_store"
+              ]
+            },
+            "UpdateFeatureView": {
+              "methods": [
+                "update_feature_view"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "FeatureOnlineStoreAdminServiceAsyncClient",
+          "rpcs": {
+            "CreateFeatureOnlineStore": {
+              "methods": [
+                "create_feature_online_store"
+              ]
+            },
+            "CreateFeatureView": {
+              "methods": [
+                "create_feature_view"
+              ]
+            },
+            "DeleteFeatureOnlineStore": {
+              "methods": [
+                "delete_feature_online_store"
+              ]
+            },
+            "DeleteFeatureView": {
+              "methods": [
+                "delete_feature_view"
+              ]
+            },
+            "GetFeatureOnlineStore": {
+              "methods": [
+                "get_feature_online_store"
+              ]
+            },
+            "GetFeatureView": {
+              "methods": [
+                "get_feature_view"
+              ]
+            },
+            "GetFeatureViewSync": {
+              "methods": [
+                "get_feature_view_sync"
+              ]
+            },
+            "ListFeatureOnlineStores": {
+              "methods": [
+                "list_feature_online_stores"
+              ]
+            },
+            "ListFeatureViewSyncs": {
+              "methods": [
+                "list_feature_view_syncs"
+              ]
+            },
+            "ListFeatureViews": {
+              "methods": [
+                "list_feature_views"
+              ]
+            },
+            "SyncFeatureView": {
+              "methods": [
+                "sync_feature_view"
+              ]
+            },
+            "UpdateFeatureOnlineStore": {
+              "methods": [
+                "update_feature_online_store"
+              ]
+            },
+            "UpdateFeatureView": {
+              "methods": [
+                "update_feature_view"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "FeatureOnlineStoreService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "FeatureOnlineStoreServiceClient",
+          "rpcs": {
+            "FetchFeatureValues": {
+              "methods": [
+                "fetch_feature_values"
+              ]
+            },
+            "SearchNearestEntities": {
+              "methods": [
+                "search_nearest_entities"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "FeatureOnlineStoreServiceAsyncClient",
+          "rpcs": {
+            "FetchFeatureValues": {
+              "methods": [
+                "fetch_feature_values"
+              ]
+            },
+            "SearchNearestEntities": {
+              "methods": [
+                "search_nearest_entities"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "FeatureRegistryService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "FeatureRegistryServiceClient",
+          "rpcs": {
+            "CreateFeature": {
+              "methods": [
+                "create_feature"
+              ]
+            },
+            "CreateFeatureGroup": {
+              "methods": [
+                "create_feature_group"
+              ]
+            },
+            "DeleteFeature": {
+              "methods": [
+                "delete_feature"
+              ]
+            },
+            "DeleteFeatureGroup": {
+              "methods": [
+                "delete_feature_group"
+              ]
+            },
+            "GetFeature": {
+              "methods": [
+                "get_feature"
+              ]
+            },
+            "GetFeatureGroup": {
+              "methods": [
+                "get_feature_group"
+              ]
+            },
+            "ListFeatureGroups": {
+              "methods": [
+                "list_feature_groups"
+              ]
+            },
+            "ListFeatures": {
+              "methods": [
+                "list_features"
+              ]
+            },
+            "UpdateFeature": {
+              "methods": [
+                "update_feature"
+              ]
+            },
+            "UpdateFeatureGroup": {
+              "methods": [
+                "update_feature_group"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "FeatureRegistryServiceAsyncClient",
+          "rpcs": {
+            "CreateFeature": {
+              "methods": [
+                "create_feature"
+              ]
+            },
+            "CreateFeatureGroup": {
+              "methods": [
+                "create_feature_group"
+              ]
+            },
+            "DeleteFeature": {
+              "methods": [
+                "delete_feature"
+              ]
+            },
+            "DeleteFeatureGroup": {
+              "methods": [
+                "delete_feature_group"
+              ]
+            },
+            "GetFeature": {
+              "methods": [
+                "get_feature"
+              ]
+            },
+            "GetFeatureGroup": {
+              "methods": [
+                "get_feature_group"
+              ]
+            },
+            "ListFeatureGroups": {
+              "methods": [
+                "list_feature_groups"
+              ]
+            },
+            "ListFeatures": {
+              "methods": [
+                "list_features"
+              ]
+            },
+            "UpdateFeature": {
+              "methods": [
+                "update_feature"
+              ]
+            },
+            "UpdateFeatureGroup": {
+              "methods": [
+                "update_feature_group"
               ]
             }
           }
@@ -1107,6 +1459,30 @@
         }
       }
     },
+    "LlmUtilityService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "LlmUtilityServiceClient",
+          "rpcs": {
+            "ComputeTokens": {
+              "methods": [
+                "compute_tokens"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "LlmUtilityServiceAsyncClient",
+          "rpcs": {
+            "ComputeTokens": {
+              "methods": [
+                "compute_tokens"
+              ]
+            }
+          }
+        }
+      }
+    },
     "MatchService": {
       "clients": {
         "grpc": {
@@ -1518,6 +1894,11 @@
               "methods": [
                 "get_publisher_model"
               ]
+            },
+            "ListPublisherModels": {
+              "methods": [
+                "list_publisher_models"
+              ]
             }
           }
         },
@@ -1527,6 +1908,11 @@
             "GetPublisherModel": {
               "methods": [
                 "get_publisher_model"
+              ]
+            },
+            "ListPublisherModels": {
+              "methods": [
+                "list_publisher_models"
               ]
             }
           }
@@ -1727,11 +2113,80 @@
         }
       }
     },
+    "PersistentResourceService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "PersistentResourceServiceClient",
+          "rpcs": {
+            "CreatePersistentResource": {
+              "methods": [
+                "create_persistent_resource"
+              ]
+            },
+            "DeletePersistentResource": {
+              "methods": [
+                "delete_persistent_resource"
+              ]
+            },
+            "GetPersistentResource": {
+              "methods": [
+                "get_persistent_resource"
+              ]
+            },
+            "ListPersistentResources": {
+              "methods": [
+                "list_persistent_resources"
+              ]
+            },
+            "UpdatePersistentResource": {
+              "methods": [
+                "update_persistent_resource"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "PersistentResourceServiceAsyncClient",
+          "rpcs": {
+            "CreatePersistentResource": {
+              "methods": [
+                "create_persistent_resource"
+              ]
+            },
+            "DeletePersistentResource": {
+              "methods": [
+                "delete_persistent_resource"
+              ]
+            },
+            "GetPersistentResource": {
+              "methods": [
+                "get_persistent_resource"
+              ]
+            },
+            "ListPersistentResources": {
+              "methods": [
+                "list_persistent_resources"
+              ]
+            },
+            "UpdatePersistentResource": {
+              "methods": [
+                "update_persistent_resource"
+              ]
+            }
+          }
+        }
+      }
+    },
     "PipelineService": {
       "clients": {
         "grpc": {
           "libraryClient": "PipelineServiceClient",
           "rpcs": {
+            "BatchDeletePipelineJobs": {
+              "methods": [
+                "batch_delete_pipeline_jobs"
+              ]
+            },
             "CancelPipelineJob": {
               "methods": [
                 "cancel_pipeline_job"
@@ -1787,6 +2242,11 @@
         "grpc-async": {
           "libraryClient": "PipelineServiceAsyncClient",
           "rpcs": {
+            "BatchDeletePipelineJobs": {
+              "methods": [
+                "batch_delete_pipeline_jobs"
+              ]
+            },
             "CancelPipelineJob": {
               "methods": [
                 "cancel_pipeline_job"
@@ -1846,6 +2306,21 @@
         "grpc": {
           "libraryClient": "PredictionServiceClient",
           "rpcs": {
+            "CountTokens": {
+              "methods": [
+                "count_tokens"
+              ]
+            },
+            "DirectPredict": {
+              "methods": [
+                "direct_predict"
+              ]
+            },
+            "DirectRawPredict": {
+              "methods": [
+                "direct_raw_predict"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
@@ -1859,6 +2334,26 @@
             "RawPredict": {
               "methods": [
                 "raw_predict"
+              ]
+            },
+            "ServerStreamingPredict": {
+              "methods": [
+                "server_streaming_predict"
+              ]
+            },
+            "StreamGenerateContent": {
+              "methods": [
+                "stream_generate_content"
+              ]
+            },
+            "StreamingPredict": {
+              "methods": [
+                "streaming_predict"
+              ]
+            },
+            "StreamingRawPredict": {
+              "methods": [
+                "streaming_raw_predict"
               ]
             }
           }
@@ -1866,6 +2361,21 @@
         "grpc-async": {
           "libraryClient": "PredictionServiceAsyncClient",
           "rpcs": {
+            "CountTokens": {
+              "methods": [
+                "count_tokens"
+              ]
+            },
+            "DirectPredict": {
+              "methods": [
+                "direct_predict"
+              ]
+            },
+            "DirectRawPredict": {
+              "methods": [
+                "direct_raw_predict"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
@@ -1879,6 +2389,26 @@
             "RawPredict": {
               "methods": [
                 "raw_predict"
+              ]
+            },
+            "ServerStreamingPredict": {
+              "methods": [
+                "server_streaming_predict"
+              ]
+            },
+            "StreamGenerateContent": {
+              "methods": [
+                "stream_generate_content"
+              ]
+            },
+            "StreamingPredict": {
+              "methods": [
+                "streaming_predict"
+              ]
+            },
+            "StreamingRawPredict": {
+              "methods": [
+                "streaming_raw_predict"
               ]
             }
           }
@@ -2143,6 +2673,11 @@
                 "read_tensorboard_blob_data"
               ]
             },
+            "ReadTensorboardSize": {
+              "methods": [
+                "read_tensorboard_size"
+              ]
+            },
             "ReadTensorboardTimeSeriesData": {
               "methods": [
                 "read_tensorboard_time_series_data"
@@ -2291,6 +2826,11 @@
             "ReadTensorboardBlobData": {
               "methods": [
                 "read_tensorboard_blob_data"
+              ]
+            },
+            "ReadTensorboardSize": {
+              "methods": [
+                "read_tensorboard_size"
               ]
             },
             "ReadTensorboardTimeSeriesData": {

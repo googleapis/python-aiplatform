@@ -79,12 +79,14 @@ MOBILE_TF_MODEL_TYPES = {
 
 MODEL_GARDEN_ICN_MODEL_TYPES = {
     "EFFICIENTNET",
+    "MAXVIT",
     "VIT",
     "COCA",
 }
 
 MODEL_GARDEN_IOD_MODEL_TYPES = {
     "SPINENET",
+    "YOLO",
 }
 
 # TODO(b/177079208): Use EPCL Enums for validating Model Types

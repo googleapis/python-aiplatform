@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -70,9 +70,10 @@ from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
@@ -1708,9 +1709,11 @@ async def test_list_training_pipelines_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_training_pipelines(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -2220,7 +2223,9 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
             state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
             service_account="service_account_value",
             network="network_value",
+            reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
+            schedule_name="schedule_name_value",
         )
         response = client.create_pipeline_job(request)
 
@@ -2236,7 +2241,9 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
+    assert response.schedule_name == "schedule_name_value"
 
 
 def test_create_pipeline_job_empty_call():
@@ -2283,7 +2290,9 @@ async def test_create_pipeline_job_async(
                 state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
                 service_account="service_account_value",
                 network="network_value",
+                reserved_ip_ranges=["reserved_ip_ranges_value"],
                 template_uri="template_uri_value",
+                schedule_name="schedule_name_value",
             )
         )
         response = await client.create_pipeline_job(request)
@@ -2300,7 +2309,9 @@ async def test_create_pipeline_job_async(
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
+    assert response.schedule_name == "schedule_name_value"
 
 
 @pytest.mark.asyncio
@@ -2505,7 +2516,9 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
             state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
             service_account="service_account_value",
             network="network_value",
+            reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
+            schedule_name="schedule_name_value",
         )
         response = client.get_pipeline_job(request)
 
@@ -2521,7 +2534,9 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
+    assert response.schedule_name == "schedule_name_value"
 
 
 def test_get_pipeline_job_empty_call():
@@ -2563,7 +2578,9 @@ async def test_get_pipeline_job_async(
                 state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
                 service_account="service_account_value",
                 network="network_value",
+                reserved_ip_ranges=["reserved_ip_ranges_value"],
                 template_uri="template_uri_value",
+                schedule_name="schedule_name_value",
             )
         )
         response = await client.get_pipeline_job(request)
@@ -2580,7 +2597,9 @@ async def test_get_pipeline_job_async(
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
+    assert response.schedule_name == "schedule_name_value"
 
 
 @pytest.mark.asyncio
@@ -3166,9 +3185,11 @@ async def test_list_pipeline_jobs_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_pipeline_jobs(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -4606,7 +4627,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_delete_operation_async(transport: str = "grpc"):
+async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = PipelineServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4745,7 +4766,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_cancel_operation_async(transport: str = "grpc"):
+async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = PipelineServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4884,7 +4905,7 @@ def test_wait_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_wait_operation(transport: str = "grpc"):
+async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = PipelineServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -5029,7 +5050,7 @@ def test_get_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_get_operation_async(transport: str = "grpc"):
+async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = PipelineServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -5174,7 +5195,7 @@ def test_list_operations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_operations_async(transport: str = "grpc"):
+async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = PipelineServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -5319,7 +5340,7 @@ def test_list_locations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_locations_async(transport: str = "grpc"):
+async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = PipelineServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,

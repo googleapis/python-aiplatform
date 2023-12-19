@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,11 +47,22 @@ class PublisherModel(proto.Message):
         open_source_category (google.cloud.aiplatform_v1beta1.types.PublisherModel.OpenSourceCategory):
             Required. Indicates the open source category
             of the publisher model.
+        parent (google.cloud.aiplatform_v1beta1.types.PublisherModel.Parent):
+            Optional. The parent that this model was
+            customized from. E.g., Vision API, Natural
+            Language API, LaMDA, T5, etc. Foundation models
+            don't have parents.
         supported_actions (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction):
             Optional. Supported call-to-action options.
         frameworks (MutableSequence[str]):
             Optional. Additional information about the
             model's Frameworks.
+        launch_stage (google.cloud.aiplatform_v1beta1.types.PublisherModel.LaunchStage):
+            Optional. Indicates the launch stage of the
+            model.
+        version_state (google.cloud.aiplatform_v1beta1.types.PublisherModel.VersionState):
+            Optional. Indicates the state of the model
+            version.
         publisher_model_template (str):
             Optional. Output only. Immutable. Used to
             indicate this model has a publisher model and
@@ -96,6 +107,46 @@ class PublisherModel(proto.Message):
         GOOGLE_OWNED_OSS = 4
         THIRD_PARTY_OWNED_OSS = 5
 
+    class LaunchStage(proto.Enum):
+        r"""An enum representing the launch stage of a PublisherModel.
+
+        Values:
+            LAUNCH_STAGE_UNSPECIFIED (0):
+                The model launch stage is unspecified.
+            EXPERIMENTAL (1):
+                Used to indicate the PublisherModel is at
+                Experimental launch stage.
+            PRIVATE_PREVIEW (2):
+                Used to indicate the PublisherModel is at
+                Private Preview launch stage.
+            PUBLIC_PREVIEW (3):
+                Used to indicate the PublisherModel is at
+                Public Preview launch stage.
+            GA (4):
+                Used to indicate the PublisherModel is at GA
+                launch stage.
+        """
+        LAUNCH_STAGE_UNSPECIFIED = 0
+        EXPERIMENTAL = 1
+        PRIVATE_PREVIEW = 2
+        PUBLIC_PREVIEW = 3
+        GA = 4
+
+    class VersionState(proto.Enum):
+        r"""An enum representing the state of the PublicModelVersion.
+
+        Values:
+            VERSION_STATE_UNSPECIFIED (0):
+                The version state is unspecified.
+            VERSION_STATE_STABLE (1):
+                Used to indicate the version is stable.
+            VERSION_STATE_UNSTABLE (2):
+                Used to indicate the version is unstable.
+        """
+        VERSION_STATE_UNSPECIFIED = 0
+        VERSION_STATE_STABLE = 1
+        VERSION_STATE_UNSTABLE = 2
+
     class ResourceReference(proto.Message):
         r"""Reference to a resource.
 
@@ -112,7 +163,16 @@ class PublisherModel(proto.Message):
 
                 This field is a member of `oneof`_ ``reference``.
             resource_name (str):
-                The resource name of the GCP resource.
+                The resource name of the Google Cloud
+                resource.
+
+                This field is a member of `oneof`_ ``reference``.
+            use_case (str):
+                Use case (CUJ) of the resource.
+
+                This field is a member of `oneof`_ ``reference``.
+            description (str):
+                Description of the resource.
 
                 This field is a member of `oneof`_ ``reference``.
         """
@@ -126,6 +186,39 @@ class PublisherModel(proto.Message):
             proto.STRING,
             number=2,
             oneof="reference",
+        )
+        use_case: str = proto.Field(
+            proto.STRING,
+            number=3,
+            oneof="reference",
+        )
+        description: str = proto.Field(
+            proto.STRING,
+            number=4,
+            oneof="reference",
+        )
+
+    class Parent(proto.Message):
+        r"""The information about the parent of a model.
+
+        Attributes:
+            display_name (str):
+                Required. The display name of the parent.
+                E.g., LaMDA, T5, Vision API, Natural Language
+                API.
+            reference (google.cloud.aiplatform_v1beta1.types.PublisherModel.ResourceReference):
+                Optional. The Google Cloud resource name or
+                the URI reference.
+        """
+
+        display_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        reference: "PublisherModel.ResourceReference" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message="PublisherModel.ResourceReference",
         )
 
     class Documentation(proto.Message):
@@ -175,6 +268,11 @@ class PublisherModel(proto.Message):
                 Endpoint.
             open_generation_ai_studio (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Open in Generation AI Studio.
+            request_access (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+                Optional. Request for access.
+            open_evaluation_pipeline (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.RegionalResourceReferences):
+                Optional. Open evaluation pipeline of the
+                PublisherModel.
         """
 
         class RegionalResourceReferences(proto.Message):
@@ -270,6 +368,9 @@ class PublisherModel(proto.Message):
                 title (str):
                     Required. The title of the regional resource
                     reference.
+                public_artifact_uri (str):
+                    Optional. The signed URI for ephemeral Cloud
+                    Storage access to model artifact.
             """
 
             dedicated_resources: machine_resources.DedicatedResources = proto.Field(
@@ -310,6 +411,10 @@ class PublisherModel(proto.Message):
             title: str = proto.Field(
                 proto.STRING,
                 number=8,
+            )
+            public_artifact_uri: str = proto.Field(
+                proto.STRING,
+                number=9,
             )
 
         view_rest_api: "PublisherModel.CallToAction.ViewRestApi" = proto.Field(
@@ -358,6 +463,18 @@ class PublisherModel(proto.Message):
             number=8,
             message="PublisherModel.CallToAction.RegionalResourceReferences",
         )
+        request_access: "PublisherModel.CallToAction.RegionalResourceReferences" = (
+            proto.Field(
+                proto.MESSAGE,
+                number=9,
+                message="PublisherModel.CallToAction.RegionalResourceReferences",
+            )
+        )
+        open_evaluation_pipeline: "PublisherModel.CallToAction.RegionalResourceReferences" = proto.Field(
+            proto.MESSAGE,
+            number=11,
+            message="PublisherModel.CallToAction.RegionalResourceReferences",
+        )
 
     name: str = proto.Field(
         proto.STRING,
@@ -372,6 +489,11 @@ class PublisherModel(proto.Message):
         number=7,
         enum=OpenSourceCategory,
     )
+    parent: Parent = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        message=Parent,
+    )
     supported_actions: CallToAction = proto.Field(
         proto.MESSAGE,
         number=19,
@@ -380,6 +502,16 @@ class PublisherModel(proto.Message):
     frameworks: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=23,
+    )
+    launch_stage: LaunchStage = proto.Field(
+        proto.ENUM,
+        number=29,
+        enum=LaunchStage,
+    )
+    version_state: VersionState = proto.Field(
+        proto.ENUM,
+        number=37,
+        enum=VersionState,
     )
     publisher_model_template: str = proto.Field(
         proto.STRING,

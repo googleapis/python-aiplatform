@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
@@ -1457,8 +1457,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
                 Optional. A FieldMask indicating
                 which fields should be updated.
-                Functionality of this field is not yet
-                supported.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2160,8 +2158,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
                 Optional. A FieldMask indicating
                 which fields should be updated.
-                Functionality of this field is not yet
-                supported.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -3355,8 +3351,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
                 Optional. A FieldMask indicating
                 which fields should be updated.
-                Functionality of this field is not yet
-                supported.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

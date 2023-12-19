@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2
+from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
@@ -755,9 +755,6 @@ def test_create_schedule(request_type, transport: str = "grpc"):
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
-            create_pipeline_job_request=pipeline_service.CreatePipelineJobRequest(
-                parent="parent_value"
-            ),
         )
         response = client.create_schedule(request)
 
@@ -1255,9 +1252,6 @@ def test_get_schedule(request_type, transport: str = "grpc"):
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
-            create_pipeline_job_request=pipeline_service.CreatePipelineJobRequest(
-                parent="parent_value"
-            ),
         )
         response = client.get_schedule(request)
 
@@ -1897,9 +1891,11 @@ async def test_list_schedules_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
             await client.list_schedules(request={})
-        ).pages:  # pragma: no branch
+        ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -2385,9 +2381,6 @@ def test_update_schedule(request_type, transport: str = "grpc"):
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
-            create_pipeline_job_request=pipeline_service.CreatePipelineJobRequest(
-                parent="parent_value"
-            ),
         )
         response = client.update_schedule(request)
 
@@ -3528,7 +3521,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_delete_operation_async(transport: str = "grpc"):
+async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = ScheduleServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3667,7 +3660,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_cancel_operation_async(transport: str = "grpc"):
+async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = ScheduleServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3806,7 +3799,7 @@ def test_wait_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_wait_operation(transport: str = "grpc"):
+async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = ScheduleServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3951,7 +3944,7 @@ def test_get_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_get_operation_async(transport: str = "grpc"):
+async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = ScheduleServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4096,7 +4089,7 @@ def test_list_operations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_operations_async(transport: str = "grpc"):
+async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = ScheduleServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4241,7 +4234,7 @@ def test_list_locations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_locations_async(transport: str = "grpc"):
+async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = ScheduleServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ class TensorboardExperiment(proto.Message):
             TensorboardExperiment was last updated.
         labels (MutableMapping[str, str]):
             The labels with user-defined metadata to organize your
-            Datasets.
+            TensorboardExperiment.
 
             Label keys and values cannot be longer than 64 characters
             (Unicode codepoints), can only contain lowercase letters,

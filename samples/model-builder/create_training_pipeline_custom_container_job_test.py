@@ -42,6 +42,8 @@ def test_create_training_pipeline_custom_container_job_sample(
         training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
         test_fraction_split=constants.TEST_FRACTION_SPLIT,
+        tensorboard_resource_name=constants.TENSORBOARD_NAME,
+        service_account=constants.SERVICE_ACCOUNT,
     )
 
     mock_sdk_init.assert_called_once_with(
@@ -67,4 +69,6 @@ def test_create_training_pipeline_custom_container_job_sample(
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
         test_fraction_split=constants.TEST_FRACTION_SPLIT,
         sync=True,
+        tensorboard=constants.TENSORBOARD_NAME,
+        service_account=constants.SERVICE_ACCOUNT,
     )

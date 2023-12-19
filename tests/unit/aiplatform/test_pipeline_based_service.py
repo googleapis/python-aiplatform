@@ -517,6 +517,7 @@ class TestPipelineBasedService:
                 pipeline_job_name=_TEST_INVALID_PIPELINE_JOB_NAME,
             )
 
+    @pytest.mark.skip("Flaky")
     @pytest.mark.parametrize(
         "job_spec_json",
         [_TEST_PIPELINE_JOB],

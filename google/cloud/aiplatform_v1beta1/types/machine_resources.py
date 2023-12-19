@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ __protobuf__ = proto.module(
         "BatchDedicatedResources",
         "ResourcesConsumed",
         "DiskSpec",
+        "PersistentDiskSpec",
         "NfsMount",
         "AutoscalingMetricSpec",
     },
@@ -67,6 +68,10 @@ class MachineSpec(proto.Message):
         accelerator_count (int):
             The number of accelerators to attach to the
             machine.
+        tpu_topology (str):
+            Immutable. The topology of the TPUs. Corresponds to the TPU
+            topologies available from GKE. (Example: tpu_topology:
+            "2x2x1").
     """
 
     machine_type: str = proto.Field(
@@ -81,6 +86,10 @@ class MachineSpec(proto.Message):
     accelerator_count: int = proto.Field(
         proto.INT32,
         number=3,
+    )
+    tpu_topology: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 
@@ -288,6 +297,33 @@ class DiskSpec(proto.Message):
     )
     boot_disk_size_gb: int = proto.Field(
         proto.INT32,
+        number=2,
+    )
+
+
+class PersistentDiskSpec(proto.Message):
+    r"""Represents the spec of [persistent
+    disk][https://cloud.google.com/compute/docs/disks/persistent-disks]
+    options.
+
+    Attributes:
+        disk_type (str):
+            Type of the disk (default is "pd-standard").
+            Valid values: "pd-ssd" (Persistent Disk Solid
+            State Drive) "pd-standard" (Persistent Disk Hard
+            Disk Drive) "pd-balanced" (Balanced Persistent
+            Disk)
+            "pd-extreme" (Extreme Persistent Disk)
+        disk_size_gb (int):
+            Size in GB of the disk (default is 100GB).
+    """
+
+    disk_type: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    disk_size_gb: int = proto.Field(
+        proto.INT64,
         number=2,
     )
 

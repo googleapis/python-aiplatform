@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,20 @@ from .batch_prediction_job import (
 from .completion_stats import (
     CompletionStats,
 )
+from .content import (
+    Blob,
+    Candidate,
+    Citation,
+    CitationMetadata,
+    Content,
+    FileData,
+    GenerationConfig,
+    Part,
+    SafetyRating,
+    SafetySetting,
+    VideoMetadata,
+    HarmCategory,
+)
 from .context import (
     Context,
 )
@@ -51,19 +65,25 @@ from .data_labeling_job import (
 from .dataset import (
     Dataset,
     ExportDataConfig,
+    ExportFilterSplit,
     ExportFractionSplit,
     ImportDataConfig,
 )
 from .dataset_service import (
     CreateDatasetOperationMetadata,
     CreateDatasetRequest,
+    CreateDatasetVersionOperationMetadata,
+    CreateDatasetVersionRequest,
     DataItemView,
     DeleteDatasetRequest,
+    DeleteDatasetVersionRequest,
+    DeleteSavedQueryRequest,
     ExportDataOperationMetadata,
     ExportDataRequest,
     ExportDataResponse,
     GetAnnotationSpecRequest,
     GetDatasetRequest,
+    GetDatasetVersionRequest,
     ImportDataOperationMetadata,
     ImportDataRequest,
     ImportDataResponse,
@@ -73,17 +93,38 @@ from .dataset_service import (
     ListDataItemsResponse,
     ListDatasetsRequest,
     ListDatasetsResponse,
+    ListDatasetVersionsRequest,
+    ListDatasetVersionsResponse,
     ListSavedQueriesRequest,
     ListSavedQueriesResponse,
+    RestoreDatasetVersionOperationMetadata,
+    RestoreDatasetVersionRequest,
     SearchDataItemsRequest,
     SearchDataItemsResponse,
     UpdateDatasetRequest,
+)
+from .dataset_version import (
+    DatasetVersion,
 )
 from .deployed_index_ref import (
     DeployedIndexRef,
 )
 from .deployed_model_ref import (
     DeployedModelRef,
+)
+from .deployment_resource_pool import (
+    DeploymentResourcePool,
+)
+from .deployment_resource_pool_service import (
+    CreateDeploymentResourcePoolOperationMetadata,
+    CreateDeploymentResourcePoolRequest,
+    DeleteDeploymentResourcePoolRequest,
+    GetDeploymentResourcePoolRequest,
+    ListDeploymentResourcePoolsRequest,
+    ListDeploymentResourcePoolsResponse,
+    QueryDeployedModelsRequest,
+    QueryDeployedModelsResponse,
+    UpdateDeploymentResourcePoolOperationMetadata,
 )
 from .encryption_spec import (
     EncryptionSpec,
@@ -155,12 +196,65 @@ from .explanation_metadata import (
 from .feature import (
     Feature,
 )
+from .feature_group import (
+    FeatureGroup,
+)
 from .feature_monitoring_stats import (
     FeatureStatsAnomaly,
+)
+from .feature_online_store import (
+    FeatureOnlineStore,
+)
+from .feature_online_store_admin_service import (
+    CreateFeatureOnlineStoreOperationMetadata,
+    CreateFeatureOnlineStoreRequest,
+    CreateFeatureViewOperationMetadata,
+    CreateFeatureViewRequest,
+    DeleteFeatureOnlineStoreRequest,
+    DeleteFeatureViewRequest,
+    GetFeatureOnlineStoreRequest,
+    GetFeatureViewRequest,
+    GetFeatureViewSyncRequest,
+    ListFeatureOnlineStoresRequest,
+    ListFeatureOnlineStoresResponse,
+    ListFeatureViewsRequest,
+    ListFeatureViewsResponse,
+    ListFeatureViewSyncsRequest,
+    ListFeatureViewSyncsResponse,
+    SyncFeatureViewRequest,
+    SyncFeatureViewResponse,
+    UpdateFeatureOnlineStoreOperationMetadata,
+    UpdateFeatureOnlineStoreRequest,
+    UpdateFeatureViewOperationMetadata,
+    UpdateFeatureViewRequest,
+)
+from .feature_online_store_service import (
+    FeatureViewDataKey,
+    FetchFeatureValuesRequest,
+    FetchFeatureValuesResponse,
+    FeatureViewDataFormat,
+)
+from .feature_registry_service import (
+    CreateFeatureGroupOperationMetadata,
+    CreateFeatureGroupRequest,
+    CreateRegistryFeatureOperationMetadata,
+    DeleteFeatureGroupRequest,
+    GetFeatureGroupRequest,
+    ListFeatureGroupsRequest,
+    ListFeatureGroupsResponse,
+    UpdateFeatureGroupOperationMetadata,
+    UpdateFeatureGroupRequest,
+    UpdateFeatureOperationMetadata,
 )
 from .feature_selector import (
     FeatureSelector,
     IdMatcher,
+)
+from .feature_view import (
+    FeatureView,
+)
+from .feature_view_sync import (
+    FeatureViewSync,
 )
 from .featurestore import (
     Featurestore,
@@ -329,6 +423,11 @@ from .job_service import (
 from .lineage_subgraph import (
     LineageSubgraph,
 )
+from .llm_utility_service import (
+    ComputeTokensRequest,
+    ComputeTokensResponse,
+    TokensInfo,
+)
 from .machine_resources import (
     AutomaticResources,
     AutoscalingMetricSpec,
@@ -337,6 +436,7 @@ from .machine_resources import (
     DiskSpec,
     MachineSpec,
     NfsMount,
+    PersistentDiskSpec,
     ResourcesConsumed,
 )
 from .manual_batch_tuning_parameters import (
@@ -418,11 +518,13 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
+    LargeModelReference,
     Model,
     ModelContainerSpec,
     ModelSourceInfo,
     Port,
     PredictSchemata,
+    Probe,
 )
 from .model_deployment_monitoring_job import (
     ModelDeploymentMonitoringBigQueryTable,
@@ -437,6 +539,10 @@ from .model_evaluation import (
 )
 from .model_evaluation_slice import (
     ModelEvaluationSlice,
+)
+from .model_garden_service import (
+    GetPublisherModelRequest,
+    PublisherModelView,
 )
 from .model_monitoring import (
     ModelMonitoringAlertConfig,
@@ -470,6 +576,9 @@ from .model_service import (
     ListModelVersionsRequest,
     ListModelVersionsResponse,
     MergeVersionAliasesRequest,
+    UpdateExplanationDatasetOperationMetadata,
+    UpdateExplanationDatasetRequest,
+    UpdateExplanationDatasetResponse,
     UpdateModelRequest,
     UploadModelOperationMetadata,
     UploadModelRequest,
@@ -481,6 +590,10 @@ from .nas_job import (
     NasJobSpec,
     NasTrial,
     NasTrialDetail,
+)
+from .openapi import (
+    Schema,
+    Type,
 )
 from .operation import (
     DeleteOperationMetadata,
@@ -508,14 +621,42 @@ from .pipeline_service import (
     ListTrainingPipelinesResponse,
 )
 from .prediction_service import (
+    CountTokensRequest,
+    CountTokensResponse,
+    DirectPredictRequest,
+    DirectPredictResponse,
+    DirectRawPredictRequest,
+    DirectRawPredictResponse,
     ExplainRequest,
     ExplainResponse,
+    GenerateContentRequest,
+    GenerateContentResponse,
     PredictRequest,
     PredictResponse,
     RawPredictRequest,
+    StreamingPredictRequest,
+    StreamingPredictResponse,
+    StreamingRawPredictRequest,
+    StreamingRawPredictResponse,
+)
+from .publisher_model import (
+    PublisherModel,
 )
 from .saved_query import (
     SavedQuery,
+)
+from .schedule import (
+    Schedule,
+)
+from .schedule_service import (
+    CreateScheduleRequest,
+    DeleteScheduleRequest,
+    GetScheduleRequest,
+    ListSchedulesRequest,
+    ListSchedulesResponse,
+    PauseScheduleRequest,
+    ResumeScheduleRequest,
+    UpdateScheduleRequest,
 )
 from .service_networking import (
     PrivateServiceConnectConfig,
@@ -537,7 +678,9 @@ from .study import (
     Measurement,
     Study,
     StudySpec,
+    StudyTimeConstraint,
     Trial,
+    TrialContext,
 )
 from .tensorboard import (
     Tensorboard,
@@ -588,6 +731,8 @@ from .tensorboard_service import (
     ListTensorboardTimeSeriesResponse,
     ReadTensorboardBlobDataRequest,
     ReadTensorboardBlobDataResponse,
+    ReadTensorboardSizeRequest,
+    ReadTensorboardSizeResponse,
     ReadTensorboardTimeSeriesDataRequest,
     ReadTensorboardTimeSeriesDataResponse,
     ReadTensorboardUsageRequest,
@@ -605,6 +750,12 @@ from .tensorboard_service import (
 from .tensorboard_time_series import (
     TensorboardTimeSeries,
 )
+from .tool import (
+    FunctionCall,
+    FunctionDeclaration,
+    FunctionResponse,
+    Tool,
+)
 from .training_pipeline import (
     FilterSplit,
     FractionSplit,
@@ -619,6 +770,7 @@ from .types import (
     DoubleArray,
     Int64Array,
     StringArray,
+    Tensor,
 )
 from .unmanaged_container_model import (
     UnmanagedContainerModel,
@@ -661,6 +813,18 @@ __all__ = (
     "Artifact",
     "BatchPredictionJob",
     "CompletionStats",
+    "Blob",
+    "Candidate",
+    "Citation",
+    "CitationMetadata",
+    "Content",
+    "FileData",
+    "GenerationConfig",
+    "Part",
+    "SafetyRating",
+    "SafetySetting",
+    "VideoMetadata",
+    "HarmCategory",
     "Context",
     "ContainerSpec",
     "CustomJob",
@@ -675,17 +839,23 @@ __all__ = (
     "TrainingConfig",
     "Dataset",
     "ExportDataConfig",
+    "ExportFilterSplit",
     "ExportFractionSplit",
     "ImportDataConfig",
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
+    "CreateDatasetVersionOperationMetadata",
+    "CreateDatasetVersionRequest",
     "DataItemView",
     "DeleteDatasetRequest",
+    "DeleteDatasetVersionRequest",
+    "DeleteSavedQueryRequest",
     "ExportDataOperationMetadata",
     "ExportDataRequest",
     "ExportDataResponse",
     "GetAnnotationSpecRequest",
     "GetDatasetRequest",
+    "GetDatasetVersionRequest",
     "ImportDataOperationMetadata",
     "ImportDataRequest",
     "ImportDataResponse",
@@ -695,13 +865,28 @@ __all__ = (
     "ListDataItemsResponse",
     "ListDatasetsRequest",
     "ListDatasetsResponse",
+    "ListDatasetVersionsRequest",
+    "ListDatasetVersionsResponse",
     "ListSavedQueriesRequest",
     "ListSavedQueriesResponse",
+    "RestoreDatasetVersionOperationMetadata",
+    "RestoreDatasetVersionRequest",
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
     "UpdateDatasetRequest",
+    "DatasetVersion",
     "DeployedIndexRef",
     "DeployedModelRef",
+    "DeploymentResourcePool",
+    "CreateDeploymentResourcePoolOperationMetadata",
+    "CreateDeploymentResourcePoolRequest",
+    "DeleteDeploymentResourcePoolRequest",
+    "GetDeploymentResourcePoolRequest",
+    "ListDeploymentResourcePoolsRequest",
+    "ListDeploymentResourcePoolsResponse",
+    "QueryDeployedModelsRequest",
+    "QueryDeployedModelsResponse",
+    "UpdateDeploymentResourcePoolOperationMetadata",
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",
@@ -750,9 +935,48 @@ __all__ = (
     "XraiAttribution",
     "ExplanationMetadata",
     "Feature",
+    "FeatureGroup",
     "FeatureStatsAnomaly",
+    "FeatureOnlineStore",
+    "CreateFeatureOnlineStoreOperationMetadata",
+    "CreateFeatureOnlineStoreRequest",
+    "CreateFeatureViewOperationMetadata",
+    "CreateFeatureViewRequest",
+    "DeleteFeatureOnlineStoreRequest",
+    "DeleteFeatureViewRequest",
+    "GetFeatureOnlineStoreRequest",
+    "GetFeatureViewRequest",
+    "GetFeatureViewSyncRequest",
+    "ListFeatureOnlineStoresRequest",
+    "ListFeatureOnlineStoresResponse",
+    "ListFeatureViewsRequest",
+    "ListFeatureViewsResponse",
+    "ListFeatureViewSyncsRequest",
+    "ListFeatureViewSyncsResponse",
+    "SyncFeatureViewRequest",
+    "SyncFeatureViewResponse",
+    "UpdateFeatureOnlineStoreOperationMetadata",
+    "UpdateFeatureOnlineStoreRequest",
+    "UpdateFeatureViewOperationMetadata",
+    "UpdateFeatureViewRequest",
+    "FeatureViewDataKey",
+    "FetchFeatureValuesRequest",
+    "FetchFeatureValuesResponse",
+    "FeatureViewDataFormat",
+    "CreateFeatureGroupOperationMetadata",
+    "CreateFeatureGroupRequest",
+    "CreateRegistryFeatureOperationMetadata",
+    "DeleteFeatureGroupRequest",
+    "GetFeatureGroupRequest",
+    "ListFeatureGroupsRequest",
+    "ListFeatureGroupsResponse",
+    "UpdateFeatureGroupOperationMetadata",
+    "UpdateFeatureGroupRequest",
+    "UpdateFeatureOperationMetadata",
     "FeatureSelector",
     "IdMatcher",
+    "FeatureView",
+    "FeatureViewSync",
     "Featurestore",
     "FeaturestoreMonitoringConfig",
     "FeatureValue",
@@ -897,6 +1121,9 @@ __all__ = (
     "UpdateModelDeploymentMonitoringJobRequest",
     "JobState",
     "LineageSubgraph",
+    "ComputeTokensRequest",
+    "ComputeTokensResponse",
+    "TokensInfo",
     "AutomaticResources",
     "AutoscalingMetricSpec",
     "BatchDedicatedResources",
@@ -904,6 +1131,7 @@ __all__ = (
     "DiskSpec",
     "MachineSpec",
     "NfsMount",
+    "PersistentDiskSpec",
     "ResourcesConsumed",
     "ManualBatchTuningParameters",
     "FindNeighborsRequest",
@@ -969,11 +1197,13 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "LargeModelReference",
     "Model",
     "ModelContainerSpec",
     "ModelSourceInfo",
     "Port",
     "PredictSchemata",
+    "Probe",
     "ModelDeploymentMonitoringBigQueryTable",
     "ModelDeploymentMonitoringJob",
     "ModelDeploymentMonitoringObjectiveConfig",
@@ -982,6 +1212,8 @@ __all__ = (
     "ModelDeploymentMonitoringObjectiveType",
     "ModelEvaluation",
     "ModelEvaluationSlice",
+    "GetPublisherModelRequest",
+    "PublisherModelView",
     "ModelMonitoringAlertConfig",
     "ModelMonitoringObjectiveConfig",
     "SamplingStrategy",
@@ -1011,6 +1243,9 @@ __all__ = (
     "ListModelVersionsRequest",
     "ListModelVersionsResponse",
     "MergeVersionAliasesRequest",
+    "UpdateExplanationDatasetOperationMetadata",
+    "UpdateExplanationDatasetRequest",
+    "UpdateExplanationDatasetResponse",
     "UpdateModelRequest",
     "UploadModelOperationMetadata",
     "UploadModelRequest",
@@ -1020,6 +1255,8 @@ __all__ = (
     "NasJobSpec",
     "NasTrial",
     "NasTrialDetail",
+    "Schema",
+    "Type",
     "DeleteOperationMetadata",
     "GenericOperationMetadata",
     "PipelineFailurePolicy",
@@ -1041,12 +1278,34 @@ __all__ = (
     "ListTrainingPipelinesRequest",
     "ListTrainingPipelinesResponse",
     "PipelineState",
+    "CountTokensRequest",
+    "CountTokensResponse",
+    "DirectPredictRequest",
+    "DirectPredictResponse",
+    "DirectRawPredictRequest",
+    "DirectRawPredictResponse",
     "ExplainRequest",
     "ExplainResponse",
+    "GenerateContentRequest",
+    "GenerateContentResponse",
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
+    "StreamingPredictRequest",
+    "StreamingPredictResponse",
+    "StreamingRawPredictRequest",
+    "StreamingRawPredictResponse",
+    "PublisherModel",
     "SavedQuery",
+    "Schedule",
+    "CreateScheduleRequest",
+    "DeleteScheduleRequest",
+    "GetScheduleRequest",
+    "ListSchedulesRequest",
+    "ListSchedulesResponse",
+    "PauseScheduleRequest",
+    "ResumeScheduleRequest",
+    "UpdateScheduleRequest",
     "PrivateServiceConnectConfig",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
@@ -1060,7 +1319,9 @@ __all__ = (
     "Measurement",
     "Study",
     "StudySpec",
+    "StudyTimeConstraint",
     "Trial",
+    "TrialContext",
     "Tensorboard",
     "Scalar",
     "TensorboardBlob",
@@ -1101,6 +1362,8 @@ __all__ = (
     "ListTensorboardTimeSeriesResponse",
     "ReadTensorboardBlobDataRequest",
     "ReadTensorboardBlobDataResponse",
+    "ReadTensorboardSizeRequest",
+    "ReadTensorboardSizeResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
     "ReadTensorboardUsageRequest",
@@ -1115,6 +1378,10 @@ __all__ = (
     "WriteTensorboardRunDataRequest",
     "WriteTensorboardRunDataResponse",
     "TensorboardTimeSeries",
+    "FunctionCall",
+    "FunctionDeclaration",
+    "FunctionResponse",
+    "Tool",
     "FilterSplit",
     "FractionSplit",
     "InputDataConfig",
@@ -1126,6 +1393,7 @@ __all__ = (
     "DoubleArray",
     "Int64Array",
     "StringArray",
+    "Tensor",
     "UnmanagedContainerModel",
     "UserActionReference",
     "Value",
