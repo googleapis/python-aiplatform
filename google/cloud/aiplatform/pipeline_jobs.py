@@ -823,10 +823,12 @@ class PipelineJob(
         )
 
         if system_run_executions:
-            row.params = {
-                key[len(metadata_constants.PIPELINE_PARAM_PREFIX) :]: value
-                for key, value in system_run_executions[0].metadata.items()
-            }
+            row.params = {}
+            for key, value in system_run_executions[0].metadata.items():
+                if key.startswith(metadata_constants.PIPELINE_PARAM_PREFIX):
+                    row.params[
+                        key[len(metadata_constants.PIPELINE_PARAM_PREFIX) :]
+                    ] = value
             row.state = system_run_executions[0].state.name
 
         for metric_artifact in metric_artifacts:
