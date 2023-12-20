@@ -225,7 +225,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         cls,
         display_name: str,
         network: Optional[str] = None,
-        public_endpoint_enabled: Optional[bool] = False,
+        public_endpoint_enabled: bool = False,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
@@ -233,7 +233,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
-        enable_private_service_connect: Optional[bool] = False,
+        enable_private_service_connect: bool = False,
         project_allowlist: Optional[Sequence[str]] = None,
         encryption_spec_key_name: Optional[str] = None,
     ) -> "MatchingEngineIndexEndpoint":
@@ -367,7 +367,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         cls,
         display_name: str,
         network: Optional[str] = None,
-        public_endpoint_enabled: Optional[bool] = False,
+        public_endpoint_enabled: bool = False,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
@@ -375,7 +375,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
-        enable_private_service_connect: Optional[bool] = False,
+        enable_private_service_connect: bool = False,
         project_allowlist: Optional[Sequence[str]] = None,
         encryption_spec_key_name: Optional[str] = None,
     ) -> "MatchingEngineIndexEndpoint":
@@ -1139,21 +1139,23 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deployed_index_id: str,
         queries: List[List[float]],
         num_neighbors: int = 10,
-        filter: Optional[List[Namespace]] = [],
+        filter: Optional[List[Namespace]] = None,
         per_crowding_attribute_neighbor_count: Optional[int] = None,
         approx_num_neighbors: Optional[int] = None,
         fraction_leaf_nodes_to_search_override: Optional[float] = None,
         return_full_datapoint: bool = False,
-        numeric_filter: Optional[List[NumericNamespace]] = [],
+        numeric_filter: Optional[List[NumericNamespace]] = None,
     ) -> List[List[MatchNeighbor]]:
-        """Retrieves nearest neighbors for the given embedding queries on the specified deployed index which is deployed to public endpoint.
+        """Retrieves nearest neighbors for the given embedding queries on the
+        specified deployed index which is deployed to either public or private
+        endpoint.
 
         ```
         Example usage:
             my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
-                index_endpoint_name='projects/123/locations/us-central1/index_endpoint/my_index_id'
+                index_endpoint_name='projects/123/locations/us-central1/index_endpoint/my_index_endpoint_id'
             )
-            my_index_endpoint.find_neighbors(deployed_index_id="public_test1", queries= [[1, 1]],)
+            my_index_endpoint.find_neighbors(deployed_index_id="deployed_index_id", queries= [[1, 1]],)
         ```
         Args:
             deployed_index_id (str):
@@ -1203,8 +1205,15 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         """
 
         if not self._public_match_client:
-            raise ValueError(
-                "Please make sure index has been deployed to public endpoint,and follow the example usage to call this method."
+            # Private endpoint
+            return self.match(
+                deployed_index_id=deployed_index_id,
+                queries=queries,
+                num_neighbors=num_neighbors,
+                filter=filter,
+                per_crowding_attribute_num_neighbors=per_crowding_attribute_neighbor_count,
+                approx_num_neighbors=approx_num_neighbors,
+                fraction_leaf_nodes_to_search_override=fraction_leaf_nodes_to_search_override,
             )
 
         # Create the FindNeighbors request
@@ -1227,21 +1236,26 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             )
             datapoint = gca_index_v1beta1.IndexDatapoint(feature_vector=query)
             # Token restricts
-            for namespace in filter:
-                restrict = gca_index_v1beta1.IndexDatapoint.Restriction()
-                restrict.namespace = namespace.name
-                restrict.allow_list.extend(namespace.allow_tokens)
-                restrict.deny_list.extend(namespace.deny_tokens)
-                datapoint.restricts.append(restrict)
+            if filter:
+                for namespace in filter:
+                    restrict = gca_index_v1beta1.IndexDatapoint.Restriction()
+                    restrict.namespace = namespace.name
+                    restrict.allow_list.extend(namespace.allow_tokens)
+                    restrict.deny_list.extend(namespace.deny_tokens)
+                    datapoint.restricts.append(restrict)
             # Numeric restricts
-            for numeric_namespace in numeric_filter:
-                numeric_restrict = gca_index_v1beta1.IndexDatapoint.NumericRestriction()
-                numeric_restrict.namespace = numeric_namespace.name
-                numeric_restrict.op = numeric_namespace.op
-                numeric_restrict.value_int = numeric_namespace.value_int
-                numeric_restrict.value_float = numeric_namespace.value_float
-                numeric_restrict.value_double = numeric_namespace.value_double
-                datapoint.numeric_restricts.append(numeric_restrict)
+            if numeric_filter:
+                for numeric_namespace in numeric_filter:
+                    numeric_restrict = (
+                        gca_index_v1beta1.IndexDatapoint.NumericRestriction()
+                    )
+                    numeric_restrict.namespace = numeric_namespace.name
+                    numeric_restrict.op = numeric_namespace.op
+                    numeric_restrict.value_int = numeric_namespace.value_int
+                    numeric_restrict.value_float = numeric_namespace.value_float
+                    numeric_restrict.value_double = numeric_namespace.value_double
+                    datapoint.numeric_restricts.append(numeric_restrict)
+
             find_neighbors_query.datapoint = datapoint
             find_neighbors_request.queries.append(find_neighbors_query)
 
@@ -1364,19 +1378,21 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
     def match(
         self,
         deployed_index_id: str,
-        queries: List[List[float]],
+        queries: Optional[List[List[float]]] = None,
         num_neighbors: int = 1,
-        filter: Optional[List[Namespace]] = [],
+        filter: Optional[List[Namespace]] = None,
         per_crowding_attribute_num_neighbors: Optional[int] = None,
         approx_num_neighbors: Optional[int] = None,
+        fraction_leaf_nodes_to_search_override: Optional[float] = None,
     ) -> List[List[MatchNeighbor]]:
-        """Retrieves nearest neighbors for the given embedding queries on the specified deployed index.
+        """Retrieves nearest neighbors for the given embedding queries on the
+        specified deployed index for private endpoint only.
 
         Args:
             deployed_index_id (str):
                 Required. The ID of the DeployedIndex to match the queries against.
             queries (List[List[float]]):
-                Required. A list of queries. Each query is a list of floats, representing a single embedding.
+                Optional. A list of queries. Each query is a list of floats, representing a single embedding.
             num_neighbors (int):
                 Required. The number of nearest neighbors to be retrieved from database for
                 each query.
@@ -1394,6 +1410,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             approx_num_neighbors (int):
                 The number of neighbors to find via approximate search before exact reordering is performed.
                 If not set, the default value from scam config is used; if set, this value must be > 0.
+            fraction_leaf_nodes_to_search_override (float):
+                Optional. The fraction of the number of leaves to search, set at
+                query time allows user to tune search performance. This value
+                increase result in both search accuracy and latency increase.
+                The value should be between 0.0 and 1.0.
 
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
@@ -1408,22 +1429,30 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex()
         )
         batch_request_for_index.deployed_index_id = deployed_index_id
-        requests = []
-        for query in queries:
-            request = match_service_pb2.MatchRequest(
-                num_neighbors=num_neighbors,
-                deployed_index_id=deployed_index_id,
-                float_val=query,
-                per_crowding_attribute_num_neighbors=per_crowding_attribute_num_neighbors,
-                approx_num_neighbors=approx_num_neighbors,
-            )
+
+        # Preprocess restricts to be used for each request
+        restricts = []
+        if filter:
             for namespace in filter:
                 restrict = match_service_pb2.Namespace()
                 restrict.name = namespace.name
                 restrict.allow_tokens.extend(namespace.allow_tokens)
                 restrict.deny_tokens.extend(namespace.deny_tokens)
-                request.restricts.append(restrict)
-            requests.append(request)
+                restricts.append(restrict)
+
+        requests = []
+        if queries:
+            for query in queries:
+                request = match_service_pb2.MatchRequest(
+                    deployed_index_id=deployed_index_id,
+                    float_val=query,
+                    num_neighbors=num_neighbors,
+                    restricts=restricts,
+                    per_crowding_attribute_num_neighbors=per_crowding_attribute_num_neighbors,
+                    approx_num_neighbors=approx_num_neighbors,
+                    fraction_leaf_nodes_to_search_override=fraction_leaf_nodes_to_search_override,
+                )
+                requests.append(request)
 
         batch_request_for_index.requests.extend(requests)
         batch_request.requests.append(batch_request_for_index)

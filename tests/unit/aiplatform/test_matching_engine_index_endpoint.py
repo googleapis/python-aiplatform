@@ -1042,7 +1042,9 @@ class TestMatchingEngineIndexEndpoint:
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
-    def test_index_endpoint_match_queries(self, index_endpoint_match_queries_mock):
+    def test_private_index_endpoint_match_queries(
+        self, index_endpoint_match_queries_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
@@ -1051,11 +1053,12 @@ class TestMatchingEngineIndexEndpoint:
 
         my_index_endpoint.match(
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
-            queries=_TEST_QUERIES,
             num_neighbors=_TEST_NUM_NEIGHBOURS,
             filter=_TEST_FILTER,
+            queries=_TEST_QUERIES,
             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
         )
 
         batch_request = match_service_pb2.BatchMatchRequest(
@@ -1066,7 +1069,7 @@ class TestMatchingEngineIndexEndpoint:
                         match_service_pb2.MatchRequest(
                             num_neighbors=_TEST_NUM_NEIGHBOURS,
                             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
-                            float_val=_TEST_QUERIES[0],
+                            float_val=_TEST_QUERIES[i],
                             restricts=[
                                 match_service_pb2.Namespace(
                                     name="class",
@@ -1076,13 +1079,63 @@ class TestMatchingEngineIndexEndpoint:
                             ],
                             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
                             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
                         )
+                        for i in range(len(_TEST_QUERIES))
                     ],
                 )
             ]
         )
 
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_private_index_endpoint_find_neighbor_queries(
+        self, index_endpoint_match_queries_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_pubic_index_endpoint.find_neighbors(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+        )
+
+        batch_match_request = match_service_pb2.BatchMatchRequest(
+            requests=[
+                match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
+                    deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    requests=[
+                        match_service_pb2.MatchRequest(
+                            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                            num_neighbors=_TEST_NUM_NEIGHBOURS,
+                            float_val=test_query,
+                            restricts=[
+                                match_service_pb2.Namespace(
+                                    name="class",
+                                    allow_tokens=["token_1"],
+                                    deny_tokens=["token_2"],
+                                )
+                            ],
+                            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                        )
+                        for test_query in _TEST_QUERIES
+                    ],
+                )
+            ]
+        )
+        index_endpoint_match_queries_mock.assert_called_with(batch_match_request)
 
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
     def test_index_public_endpoint_match_queries(
@@ -1277,7 +1330,7 @@ class TestMatchingEngineIndexEndpoint:
         index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
-    def test_index_endpoint_find_neighbors_for_private(
+    def test_index_private_endpoint_read_index_datapoints(
         self, index_endpoint_batch_get_embeddings_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
