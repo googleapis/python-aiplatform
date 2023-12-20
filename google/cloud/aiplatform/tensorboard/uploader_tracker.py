@@ -32,7 +32,7 @@ TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient
 
 
 class _TensorBoardTracker:
-    "Tracks TensorBoard uploader and uploader thread"
+    """Tracks TensorBoard uploader and uploader thread."""
 
     def __init__(self):
         self._tensorboard_uploader = None
@@ -50,7 +50,7 @@ class _TensorBoardTracker:
         verbosity: Optional[int] = 1,
         allowed_plugins: Optional[FrozenSet[str]] = None,
     ):
-        """upload only the existing data in the logdir and then return immediately
+        """Upload existing data in the logdir and then return immediately.
 
         ```
         Sample usage:
@@ -62,10 +62,14 @@ class _TensorBoardTracker:
           tensorboard_experiment_name (str): Required. Name of this tensorboard
             experiment. Unique to the given
             projects/{project}/locations/{location}/tensorboards/{tensorboard_id}
-          logdir (str): Required. The location of the TensorBoard logs that resides either in the local file system or Cloud Storage
-          tensorboard_id (str): Optional. TensorBoard ID. If not set, tensorboard_id in aiplatform.init will be used.
-          project (str): Optional. Project the TensorBoard is in. If not set, project set in aiplatform.init will be used.
-          location (str): Optional. Location the TensorBoard is in. If not set, location set in aiplatform.init will be used.
+          logdir (str): Required. The location of the TensorBoard logs that
+            resides either in the local file system or Cloud Storage.
+          tensorboard_id (str): Optional. TensorBoard ID. If not set,
+            tensorboard_id in aiplatform.init will be used.
+          project (str): Optional. Project the TensorBoard is in. If not set,
+            project set in aiplatform.init will be used.
+          location (str): Optional. Location the TensorBoard is in. If not set,
+            location set in aiplatform.init will be used.
           experiment_display_name (str): Optional. The display name of the
             experiment.
           run_name_prefix (str): Optional. If present, all runs created by this
@@ -73,9 +77,10 @@ class _TensorBoardTracker:
           description (str): Optional. String description to assign to the
             experiment.
           verbosity (str): Optional. Level of verbosity, an integer. Supported
-            value: 0 - No upload statistics is printed. 1 - Print upload statistics
-              while uploading data (default).
-          allowed_plugins (FrozenSet[str]): Optional. List of additional allowed plugin names.
+            values: 0 - No upload statistics is printed. 1 - Print upload statistics
+            while uploading data (default).
+          allowed_plugins (FrozenSet[str]): Optional. List of additional allowed
+            plugin names.
         """
         self._create_uploader(
             tensorboard_id=tensorboard_id,
@@ -104,7 +109,7 @@ class _TensorBoardTracker:
         description: Optional[str] = None,
         allowed_plugins: Optional[FrozenSet[str]] = None,
     ):
-        """continues to listen for new data in the logdir and uploads when it appears.
+        """Continuously listens for new data in the logdir and uploads when it appears.
 
         ```
         Sample usage:
@@ -117,21 +122,26 @@ class _TensorBoardTracker:
             experiment. Unique to the given
             projects/{project}/locations/{location}/tensorboards/{tensorboard_id}.
           logdir (str): Required. path of the log directory to upload
-          tensorboard_id (str): Optional. TensorBoard ID. If not set, tensorboard_id in aiplatform.init will be used.
-          project (str): Optional. Project the TensorBoard is in. If not set, project set in aiplatform.init will be used.
-          location (str): Optional. Location the TensorBoard is in. If not set, location set in aiplatform.init will be used.
+          tensorboard_id (str): Optional. TensorBoard ID. If not set,
+            tensorboard_id in aiplatform.init will be used.
+          project (str): Optional. Project the TensorBoard is in. If not set,
+            project set in aiplatform.init will be used.
+          location (str): Optional. Location the TensorBoard is in. If not set,
+            location set in aiplatform.init will be used.
           experiment_display_name (str): Optional. The display name of the
             experiment.
           run_name_prefix (str): Optional. If present, all runs created by this
             invocation will have their name prefixed by this value.
           description (str): Optional. String description to assign to the
             experiment.
-          allowed_plugins (FrozenSet[str]): Optional. List of additional allowed plugin names.
+          allowed_plugins (FrozenSet[str]): Optional. List of additional allowed
+            plugin names.
         """
         if self._tensorboard_uploader:
             _LOGGER.info(
                 "Continuous upload running for {}. To start a new"
-                " uploading process, please call end_upload_tb_log() to end the current one".format(
+                " uploading process, please call end_upload_tb_log() to end the"
+                " current one".format(
                     self._tensorboard_uploader.get_experiment_resource_name()
                 )
             )
@@ -152,7 +162,7 @@ class _TensorBoardTracker:
         threading.Thread(target=self._tensorboard_uploader.start_uploading).start()
 
     def end_upload_tb_log(self):
-        """Ends the current TensorBoard uploader
+        """Ends the current TensorBoard uploader.
 
         ```
         aiplatform.start_upload_tb_log(...)
@@ -183,27 +193,38 @@ class _TensorBoardTracker:
         verbosity: Optional[int] = 1,
         allowed_plugins: Optional[FrozenSet[str]] = None,
     ) -> "TensorBoardUploader":  # noqa: F821
-        """Create a TensorBoardUploader and a TensorBoard Experiment
+        """Create a TensorBoardUploader and a TensorBoard Experiment.
 
         Args:
           tensorboard_id (str): Required. TensorBoard ID.
-          tensorboard_experiment_name (str): Required. Name of this tensorboard experiment. Unique to the given projects/{project}/locations/{location}/tensorboards/{tensorboard_id}
+          tensorboard_experiment_name (str): Required. Name of this tensorboard
+            experiment. Unique to the given
+            projects/{project}/locations/{location}/tensorboards/{tensorboard_id}
           logdir (str): Required. path of the log directory to upload
-          one_shot (bool): Required. True: upload only the existing data in the logdir and then return immediately. False: continue to listen for new data in the logdir and upload them when it appears.
-          project (str): Optional. Project the TensorBoard is in. If not set, project set in aiplatform.init will be used.
-          location (str): Optional. Location the TensorBoard is in. If not set, location set in aiplatform.init will be used.
+          one_shot (bool): Required. True: upload only the existing data in the
+            logdir and then return immediately. False: continue to listen for
+            new data in the logdir and upload them when it appears.
+          project (str): Optional. Project the TensorBoard is in. If not set,
+            project set in aiplatform.init will be used.
+          location (str): Optional. Location the TensorBoard is in. If not set,
+            location set in aiplatform.init will be used.
           experiment_display_name (str): Optional. The display name of the experiment.
-          run_name_prefix (str): Optional. If present, all runs created by this invocation will have their name prefixed by this value.
+          run_name_prefix (str): Optional. If present, all runs created by this
+            invocation will have their name prefixed by this value.
           description (str): Optional. String description to assign to the experiment.
-          verbosity (int)): Optional. Level of verbosity. Supported value: 0 - No upload statistics is printed. 1 - Print upload statistics while uploading data (default).
-          allowed_plugins (FrozenSet[str]): Optional. List of additional allowed plugin names.
+          verbosity (int)): Optional. Level of verbosity. Supported value: 0 -
+            No upload statistics is printed. 1 - Print upload statistics while
+            uploading data (default).
+          allowed_plugins (FrozenSet[str]): Optional. List of additional allowed
+            plugin names.
 
         Returns:
             An instance of TensorBoardUploader.
 
         Raise:
             ImportError if TensorBoard package is not installed.
-            ValueError if TensorBoard ID is not specified in argument nor set with an Experiment
+            ValueError if TensorBoard ID is not specified in argument nor set
+              with an Experiment
         """
         try:
             from google.cloud.aiplatform.tensorboard.uploader import (
@@ -215,7 +236,9 @@ class _TensorBoardTracker:
             )
         except ImportError:
             raise ImportError(
-                "TensorBoard is not installed. Please install TensorBoard using pip install google-cloud-aiplatform[tensorboard] to use it in the Vertex SDK."
+                "TensorBoard is not installed. Please install TensorBoard using"
+                " pip install google-cloud-aiplatform[tensorboard] to use it in"
+                " the Vertex SDK."
             )
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
@@ -236,11 +259,14 @@ class _TensorBoardTracker:
                         )
                     else:
                         raise ValueError(
-                            f"No TensorBoard associated with experiment {initializer.global_config.experiment_name}. Please provide tensorboard_id in the argument."
+                            "No TensorBoard associated with experiment"
+                            f" {initializer.global_config.experiment_name}."
+                            " Please provide tensorboard_id in the argument."
                         )
                 else:
                     raise ValueError(
-                        "No TensorBoard found. Please provide tensorboard_id in the argument."
+                        "No TensorBoard found. Please provide tensorboard_id"
+                        " in the argument."
                     )
 
         api_client = initializer.global_config.create_client(

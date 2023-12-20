@@ -104,13 +104,14 @@ start_execution = metadata.metadata._experiment_tracker.start_execution
 log = metadata.metadata._experiment_tracker.log
 log_time_series_metrics = metadata.metadata._experiment_tracker.log_time_series_metrics
 end_run = metadata.metadata._experiment_tracker.end_run
-
 upload_tb_log = uploader_tracker._tensorboard_tracker.upload_tb_log
 start_upload_tb_log = uploader_tracker._tensorboard_tracker.start_upload_tb_log
 end_upload_tb_log = uploader_tracker._tensorboard_tracker.end_upload_tb_log
 
 save_model = metadata._models.save_model
-get_experiment_model = metadata.schema.google.artifact_schema.ExperimentModel.get
+get_experiment_model = (
+    metadata.schema.google.artifact_schema.ExperimentModel.get
+)
 
 Experiment = metadata.experiment_resources.Experiment
 ExperimentRun = metadata.experiment_run_resource.ExperimentRun
@@ -135,9 +136,13 @@ __all__ = (
     "get_experiment_df",
     "get_pipeline_df",
     "start_run",
+    "autolog",
     "start_execution",
     "save_model",
     "get_experiment_model",
+    "upload_tb_log",
+    "start_upload_tb_log",
+    "end_upload_tb_log",
     "Artifact",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
@@ -149,12 +154,7 @@ __all__ = (
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",
-    "EmailAlertConfig",
     "Endpoint",
-    "DriftDetectionConfig",
-    "ExplanationConfig",
-    "ObjectiveConfig",
-    "SkewDetectionConfig",
     "EntityType",
     "Execution",
     "Experiment",
@@ -172,9 +172,7 @@ __all__ = (
     "PipelineJob",
     "PipelineJobSchedule",
     "PrivateEndpoint",
-    "RandomSampleConfig",
     "SequenceToSequencePlusForecastingTrainingJob",
-    "ScheduleConfig",
     "TabularDataset",
     "Tensorboard",
     "TensorboardExperiment",

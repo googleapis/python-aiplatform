@@ -54,7 +54,7 @@ class _MLFlowLogFilter(logging.Filter):
 
 
 def _get_experiment_schema_version() -> str:
-    """Helper method to get experiment schema version
+    """Helper method to get experiment schema version.
 
     Returns:
         str: schema version of the currently set experiment tracking version
@@ -121,7 +121,8 @@ class _LegacyExperimentService:
             source (str):
                 Identify whether the this is an Experiment or a Pipeline.
             expected_schema (str):
-                expected_schema identifies the expected schema used for Experiment or Pipeline.
+                expected_schema identifies the expected schema used for Experiment
+                or Pipeline.
 
         Returns:
             The full resource name of the Experiment or Pipeline Context.
@@ -148,7 +149,8 @@ class _LegacyExperimentService:
             context_id (str):
                 Name of the Experiment or Pipeline.
             context_resource_name (str):
-                Full resource name of the Context associated with an Experiment or Pipeline.
+                Full resource name of the Context associated with an Experiment
+                or Pipeline.
             source (str):
                 Identify whether the this is an Experiment or a Pipeline.
 
@@ -160,8 +162,9 @@ class _LegacyExperimentService:
             import pandas as pd
         except ImportError:
             raise ImportError(
-                "Pandas is not installed and is required to get dataframe as the return format. "
-                'Please install the SDK using "pip install google-cloud-aiplatform[metadata]"'
+                "Pandas is not installed and is required to get dataframe as the"
+                " return format. Please install the SDK using"
+                ' "pip install "google-cloud-aiplatform[metadata]"'
             )
 
         filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{context_resource_name}")'
@@ -216,7 +219,7 @@ class _LegacyExperimentService:
 
 
 class _ExperimentTracker:
-    """Tracks Experiments and Experiment Runs wil high level APIs"""
+    """Tracks Experiments and Experiment Runs wil high level APIs."""
 
     def __init__(self):
         self._experiment: Optional[experiment_resources.Experiment] = None
@@ -231,7 +234,7 @@ class _ExperimentTracker:
 
     @property
     def experiment_name(self) -> Optional[str]:
-        """Return the currently set experiment name, if experiment is not set, return None"""
+        """Returns the currently set experiment name, if not set returns None."""
         if self.experiment:
             return self.experiment.name
         return None
@@ -270,7 +273,7 @@ class _ExperimentTracker:
             Union[str, tensorboard_resource.Tensorboard, bool]
         ] = None,
     ):
-        """Set the experiment. Will retrieve the Experiment if it exists or create one with the provided name.
+        """Sets the experiment. Retrieves Experiment if it exists or creates one.
 
         Args:
             experiment (str):
@@ -278,14 +281,17 @@ class _ExperimentTracker:
             description (str):
                 Optional. Description of an experiment.
             backing_tensorboard Union[str, aiplatform.Tensorboard, bool]:
-                Optional. If provided, assigns tensorboard as backing tensorboard to support time series metrics
-                logging.
+                Optional. If provided, assigns tensorboard as backing tensorboard
+                to support time series metrics logging.
 
                 If ommitted, or set to `True` or `None`, the global tensorboard is used.
-                If no global tensorboard is set, the default tensorboard will be used, and created if it does not exist.
+                If no global tensorboard is set, the default tensorboard will be
+                used, and created if it does not exist.
 
-                To disable using a backign tensorboard, set `backing_tensorboard` to `False`.
-                To maintain this behavior, set `experiment_tensorboard` to `False` in subsequent calls to aiplatform.init().
+                To disable using a backign tensorboard, set `backing_tensorboard`
+                to `False`.
+                To maintain this behavior, set `experiment_tensorboard` to `False`
+                in subsequent calls to aiplatform.init().
         """
         self.reset()
 
@@ -409,23 +415,25 @@ class _ExperimentTracker:
             run(str):
                 Required. Name of the run to assign current session with.
             tensorboard Union[str, tensorboard_resource.Tensorboard]:
-                Optional. Backing Tensorboard Resource to enable and store time series metrics
-                logged to this Experiment Run using `log_time_series_metrics`.
+                Optional. Backing Tensorboard Resource to enable and store time
+                series metrics logged to this Experiment Run using
+                `log_time_series_metrics`.
 
-                If not provided will the the default backing tensorboard of the currently
-                set experiment.
+                If not provided will the the default backing tensorboard of the
+                currently set experiment.
             resume (bool):
                 Whether to resume this run. If False a new run will be created.
         Raises:
             ValueError:
-                if experiment is not set. Or if run execution or metrics artifact is already created
-                but with a different schema.
+                if experiment is not set. Or if run execution or metrics artifact
+                is already created but with a different schema.
         """
 
         if not self.experiment:
             raise ValueError(
-                "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
-                "before invoking start_run. "
+                "No experiment set for this run. Make sure to call"
+                " aiplatform.init(experiment='my-experiment') before invoking"
+                " start_run."
             )
 
         if self.experiment_run:
@@ -501,13 +509,16 @@ class _ExperimentTracker:
             import mlflow
         except ImportError:
             raise ImportError(
-                "MLFlow is not installed. Please install MLFlow using pip install google-cloud-aiplatform[autologging] to use autologging in the Vertex SDK."
+                "MLFlow is not installed. Please install MLFlow using pip install"
+                " google-cloud-aiplatform[autologging] to use autologging in the"
+                " Vertex SDK."
             )
 
         if disable:
             if not autologging_utils._is_autologging_enabled():
                 raise ValueError(
-                    "Autologging is not enabled. Enable autologging by calling aiplatform.autolog()."
+                    "Autologging is not enabled. Enable autologging by calling"
+                    " aiplatform.autolog()."
                 )
             if self._existing_tracking_uri:
                 mlflow.set_tracking_uri(self._existing_tracking_uri)
@@ -521,8 +532,9 @@ class _ExperimentTracker:
             )
         elif not self.experiment:
             raise ValueError(
-                "No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
-                "before calling aiplatform.autolog()."
+                "No experiment set. Make sure to call"
+                " aiplatform.init(experiment='my-experiment') before calling"
+                " aiplatform.autolog()."
             )
         elif not self.experiment._metadata_context.metadata.get(
             constants._BACKING_TENSORBOARD_RESOURCE_KEY
@@ -585,7 +597,9 @@ class _ExperimentTracker:
         threshold: Optional[List[float]] = None,
         display_name: Optional[str] = None,
     ) -> google_artifact_schema.ClassificationMetrics:
-        """Create an artifact for classification metrics and log to ExperimentRun. Currently support confusion matrix and ROC curve.
+        """Create an artifact for classification metrics and log to ExperimentRun.
+
+        Currently support confusion matrix and ROC curve.
 
         ```
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
@@ -601,15 +615,20 @@ class _ExperimentTracker:
 
         Args:
             labels (List[str]):
-                Optional. List of label names for the confusion matrix. Must be set if 'matrix' is set.
+                Optional. List of label names for the confusion matrix. Must be
+                set if 'matrix' is set.
             matrix (List[List[int]):
-                Optional. Values for the confusion matrix. Must be set if 'labels' is set.
+                Optional. Values for the confusion matrix. Must be set if
+                'labels' is set.
             fpr (List[float]):
-                Optional. List of false positive rates for the ROC curve. Must be set if 'tpr' or 'thresholds' is set.
+                Optional. List of false positive rates for the ROC curve. Must
+                be set if 'tpr' or 'thresholds' is set.
             tpr (List[float]):
-                Optional. List of true positive rates for the ROC curve. Must be set if 'fpr' or 'thresholds' is set.
+                Optional. List of true positive rates for the ROC curve. Must be
+                set if 'fpr' or 'thresholds' is set.
             threshold (List[float]):
-                Optional. List of thresholds for the ROC curve. Must be set if 'fpr' or 'tpr' is set.
+                Optional. List of thresholds for the ROC curve. Must be set if
+                'fpr' or 'tpr' is set.
             display_name (str):
                 Optional. The user-defined name for the classification metric artifact.
 
@@ -668,16 +687,17 @@ class _ExperimentTracker:
             model (Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]):
                 Required. A machine learning model.
             artifact_id (str):
-                Optional. The resource id of the artifact. This id must be globally unique
-                in a metadataStore. It may be up to 63 characters, and valid characters
-                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+                Optional. The resource id of the artifact. This id must be globally
+                unique in a metadataStore. It may be up to 63 characters, and valid
+                characters are `[a-z0-9_-]`. The first character cannot be a number
+                or hyphen.
             uri (str):
                 Optional. A gcs directory to save the model file. If not provided,
                 `gs://default-bucket/timestamp-uuid-frameworkName-model` will be used.
                 If default staging bucket is not set, a new bucket will be created.
             input_example (Union[list, dict, pd.DataFrame, np.ndarray]):
-                Optional. An example of a valid model input. Will be stored as a yaml file
-                in the gcs uri. Accepts list, dict, pd.DataFrame, and np.ndarray
+                Optional. An example of a valid model input. Will be stored as a yaml
+                file in the gcs uri. Accepts list, dict, pd.DataFrame, and np.ndarray
                 The value inside a list must be a scalar or list. The value inside
                 a dict must be a scalar, list, or np.ndarray.
             display_name (str):
@@ -691,8 +711,8 @@ class _ExperimentTracker:
                 Optional. Project used to create this Artifact. Overrides project set in
                 aiplatform.init.
             location (str):
-                Optional. Location used to create this Artifact. Overrides location set in
-                aiplatform.init.
+                Optional. Location used to create this Artifact. Overrides location
+                set in aiplatform.init.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Artifact. Overrides
                 credentials set in aiplatform.init.
@@ -728,12 +748,14 @@ class _ExperimentTracker:
 
         if not self.experiment:
             raise ValueError(
-                f"No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
+                f"No experiment set. Make sure to call"
+                " aiplatform.init(experiment='my-experiment') "
                 f"before trying to {method_name}. "
             )
         if not self.experiment_run:
             raise ValueError(
-                f"No run set. Make sure to call aiplatform.start_run('my-run') before trying to {method_name}. "
+                "No run set. Make sure to call aiplatform.start_run('my-run')"
+                f" before trying to {method_name}. "
             )
 
     def get_experiment_df(
@@ -742,29 +764,33 @@ class _ExperimentTracker:
         """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
 
         Example:
+        ```
+            aiplatform.init(experiment='exp-1')
+            aiplatform.start_run(run='run-1')
+            aiplatform.log_params({'learning_rate': 0.1})
+            aiplatform.log_metrics({'accuracy': 0.9})
 
-        aiplatform.init(experiment='exp-1')
-        aiplatform.start_run(run='run-1')
-        aiplatform.log_params({'learning_rate': 0.1})
-        aiplatform.log_metrics({'accuracy': 0.9})
+            aiplatform.start_run(run='run-2')
+            aiplatform.log_params({'learning_rate': 0.2})
+            aiplatform.log_metrics({'accuracy': 0.95})
 
-        aiplatform.start_run(run='run-2')
-        aiplatform.log_params({'learning_rate': 0.2})
-        aiplatform.log_metrics({'accuracy': 0.95})
+            aiplatform.get_experiments_df()
+        ```
 
-        aiplatform.get_experiments_df()
-
-        Will result in the following DataFrame
+        Will result in the following DataFrame:
+        ```
         ___________________________________________________________________________
         | experiment_name | run_name      | param.learning_rate | metric.accuracy |
         ---------------------------------------------------------------------------
         | exp-1           | run-1         | 0.1                 | 0.9             |
         | exp-1           | run-2         | 0.2                 | 0.95            |
         ---------------------------------------------------------------------------
+        ```
 
         Args:
             experiment (str):
-            Name of the Experiment to filter results. If not set, return results of current active experiment.
+                Name of the Experiment to filter results. If not set, return results
+                of current active experiment.
 
         Returns:
             Pandas Dataframe of Experiment with metrics and parameters.
@@ -810,11 +836,15 @@ class _ExperimentTracker:
     ):
         """Logs time series metrics to to this Experiment Run.
 
-        Requires the experiment or experiment run has a backing Vertex Tensorboard resource.
+        Requires the experiment or experiment run has a backing Vertex Tensorboard
+        resource.
 
         ```
         my_tensorboard = aiplatform.Tensorboard(...)
-        aiplatform.init(experiment='my-experiment', experiment_tensorboard=my_tensorboard)
+        aiplatform.init(
+            experiment='my-experiment',
+            experiment_tensorboard=my_tensorboard
+        )
         aiplatform.start_run('my-run')
 
         # increments steps as logged
@@ -828,7 +858,8 @@ class _ExperimentTracker:
 
         Args:
             metrics (Dict[str, Union[str, float]]):
-                Required. Dictionary of where keys are metric names and values are metric values.
+                Required. Dictionary of where keys are metric names and values are
+                metric values.
             step (int):
                 Optional. Step index of this data point within the run.
 
@@ -838,10 +869,12 @@ class _ExperimentTracker:
                 Optional. Wall clock timestamp when this data point is
                 generated by the end user.
 
-                If not provided, this will be generated based on the value from time.time()
+                If not provided, this will be generated based on the value from
+                time.time()
 
         Raises:
-            RuntimeError: If current experiment run doesn't have a backing Tensorboard resource.
+            RuntimeError: If current experiment run doesn't have a backing
+                Tensorboard resource.
         """
         self._validate_experiment_and_run(method_name="log_time_series_metrics")
         self.experiment_run.log_time_series_metrics(
@@ -862,16 +895,20 @@ class _ExperimentTracker:
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> execution.Execution:
-        """
-        Create and starts a new Metadata Execution or resumes a previously created Execution.
+        """Create and starts a new Metadata Execution or resumes a previously created Execution.
 
         To start a new execution:
 
         ```
-        with aiplatform.start_execution(schema_title='system.ContainerExecution', display_name='trainer) as exc:
-          exc.assign_input_artifacts([my_artifact])
-          model = aiplatform.Artifact.create(uri='gs://my-uri', schema_title='system.Model')
-          exc.assign_output_artifacts([model])
+        with aiplatform.start_execution(
+            schema_title='system.ContainerExecution',
+            display_name='trainer
+        ) as exc:
+            exc.assign_input_artifacts([my_artifact])
+            model = aiplatform.Artifact.create(
+                uri='gs://my-uri', schema_title='system.Model'
+            )
+            exc.assign_output_artifacts([model])
         ```
 
         To continue a previously created execution:
@@ -881,8 +918,8 @@ class _ExperimentTracker:
         ```
         Args:
             schema_title (str):
-                Optional. schema_title identifies the schema title used by the Execution. Required if starting
-                a new Execution.
+                Optional. schema_title identifies the schema title used by the
+                Execution. Required if starting a new Execution.
             resource_id (str):
                 Optional. The <resource_id> portion of the Execution name with
                 the format. This is globally unique in a metadataStore:
@@ -893,7 +930,8 @@ class _ExperimentTracker:
                 Optional. schema_version specifies the version used by the Execution.
                 If not set, defaults to use the latest version.
             metadata (Dict):
-                Optional. Contains the metadata information that will be stored in the Execution.
+                Optional. Contains the metadata information that will be stored
+                in the Execution.
             description (str):
                 Optional. Describes the purpose of the Execution to be created.
             metadata_store_id (str):
@@ -902,11 +940,11 @@ class _ExperimentTracker:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
                 If not provided, the MetadataStore's ID will be set to "default".
             project (str):
-                Optional. Project used to create this Execution. Overrides project set in
-                aiplatform.init.
+                Optional. Project used to create this Execution. Overrides
+                project set in aiplatform.init.
             location (str):
-                Optional. Location used to create this Execution. Overrides location set in
-                aiplatform.init.
+                Optional. Location used to create this Execution. Overrides
+                location set in aiplatform.init.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Execution. Overrides
                 credentials set in aiplatform.init.
@@ -915,7 +953,8 @@ class _ExperimentTracker:
             Execution: Instantiated representation of the managed Metadata Execution.
 
         Raises:
-            ValueError: If experiment run is set and project or location do not match experiment run.
+            ValueError: If experiment run is set and project or location do not
+                match experiment run.
             ValueError: If resume set to `True` and resource_id is not provided.
             ValueError: If creating a new executin and schema_title is not provided.
         """
@@ -923,13 +962,15 @@ class _ExperimentTracker:
         if self.experiment_run and not self.experiment_run._is_legacy_experiment_run():
             if project and project != self.experiment_run.project:
                 raise ValueError(
-                    f"Currently set Experiment run project {self.experiment_run.project} must"
-                    f"match provided project {project}"
+                    "Currently set Experiment run project"
+                    f" {self.experiment_run.project}"
+                    f" must match provided project {project}"
                 )
             if location and location != self.experiment_run.location:
                 raise ValueError(
-                    f"Currently set Experiment run location {self.experiment_run.location} must"
-                    f"match provided location {project}"
+                    "Currently set Experiment run location"
+                    f" {self.experiment_run.location}"
+                    f" must match provided location {project}"
                 )
 
         if resume:
@@ -967,9 +1008,10 @@ class _ExperimentTracker:
         if self.experiment_run:
             if self.experiment_run._is_legacy_experiment_run():
                 _LOGGER.warning(
-                    f"{self.experiment_run._run_name} is an Experiment run created in Vertex Experiment Preview",
-                    " and does not support tracking Executions."
-                    " Please create a new Experiment run to track executions against an Experiment run.",
+                    f"{self.experiment_run._run_name} is an Experiment run created"
+                    " in Vertex Experiment Preview and does not support tracking"
+                    " Executions. Please create a new Experiment run to track"
+                    " executions against an Experiment run.",
                 )
             else:
                 self.experiment_run.associate_execution(run_execution)
