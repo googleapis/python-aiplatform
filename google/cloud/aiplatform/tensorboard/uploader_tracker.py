@@ -149,7 +149,7 @@ class _TensorBoardTracker:
             verbosity=0,
             allowed_plugins=allowed_plugins,
         )
-        threading.Thread(target=self._tensorboard_uploader.start_uploading).start()
+        threading.Thread(target=self._tensorboard_uploader.start_uploading, daemon=True).start()
 
     def end_upload_tb_log(self):
         """Ends the current TensorBoard uploader
@@ -160,6 +160,7 @@ class _TensorBoardTracker:
         aiplatform.end_upload_tb_log()
         ```
         """
+        _LOGGER.warning("Ending TensorBoard log upload.")
         if not self._tensorboard_uploader:
             _LOGGER.info(
                 "No uploader is running. To start a new uploader, call"
