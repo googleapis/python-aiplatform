@@ -106,6 +106,18 @@ class _TensorBoardTracker:
     ):
         """continues to listen for new data in the logdir and uploads when it appears.
 
+        Note that after calling `start_upload_tb_log()` your thread will kept alive even if
+        an exception is thrown. To ensure the thread gets shut down, put any code after
+        `start_upload_tb_log()` and before `end_upload_tb_log()` in a `try` statement, and call
+        `end_upload_tb_log()` in `finally`. For example:
+
+        aiplatform.start_upload_tb_log(...)
+
+        try:
+          # your code here
+        finally:
+          aiplatform.end_upload_tb_log()
+
         ```
         Sample usage:
         aiplatform.init(location='us-central1', project='my-project')
