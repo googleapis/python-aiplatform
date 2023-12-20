@@ -34,10 +34,7 @@ from vertexai.preview._workflow.serialization_engine import (
     serializers,
 )
 
-try:
-    import tensorflow as tf
-except ImportError:
-    pass
+
 try:
     import torch
 except ImportError:
@@ -763,6 +760,8 @@ def _get_keras_distributed_strategy(enable_distributed: bool, accelerator_count:
     Returns:
        A tf.distribute.Strategy.
     """
+    import tensorflow as tf
+
     if enable_distributed:
         cluster_spec = _get_cluster_spec()
         # Multiple workers, use tf.distribute.MultiWorkerMirroredStrategy().
@@ -792,6 +791,8 @@ def _set_keras_distributed_strategy(model: Any, strategy: Any):
     Returns:
         A tf.distribute.Strategy.
     """
+    import tensorflow as tf
+
     # Clone and compile model within scope of chosen strategy.
     with strategy.scope():
         cloned_model = tf.keras.models.clone_model(model)
