@@ -152,6 +152,8 @@ class _GenerativeModel:
         """
         if "/" not in model_name:
             model_name = "publishers/google/models/" + model_name
+        if model_name.startswith("models/"):
+            model_name = "publishers/google/" + model_name
 
         project = aiplatform_initializer.global_config.project
         location = aiplatform_initializer.global_config.location
