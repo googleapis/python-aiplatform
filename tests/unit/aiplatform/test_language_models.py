@@ -994,7 +994,7 @@ _TEST_EVAL_CLASSIFICATION_PIPELINE_JOB = json.dumps(
 )
 
 _URL_DATA = {
-    "https://us-kfp.pkg.dev/ml-pipeline/research/distillation/v1.0.0": _TEST_DISTILLATION_PIPELINE_SPEC_JSON,
+    "https://us-kfp.pkg.dev/ml-pipeline/distillation/distillation/v1.0.0": _TEST_DISTILLATION_PIPELINE_SPEC_JSON,
 }
 
 
@@ -4395,7 +4395,7 @@ class TestLanguageModelEvaluation:
     )
     @pytest.mark.parametrize(
         "mock_urllib_request_urlopen",
-        ["https://us-kfp.pkg.dev/ml-pipeline/research/distillation/v1.0.0"],
+        ["https://us-kfp.pkg.dev/ml-pipeline/distillation/distillation/v1.0.0"],
         indirect=True,
     )
     def test_text_generation_model_distill_from(

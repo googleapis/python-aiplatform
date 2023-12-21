@@ -8,7 +8,7 @@ from vertexai.language_models import _language_models as tuning
 
 class DistillationMixin:
     _DISTILLATION_PIPELINE_URI = (
-        "https://us-kfp.pkg.dev/ml-pipeline/research/distillation/v1.0.0"
+        "https://us-kfp.pkg.dev/ml-pipeline/distillation/distillation/v1.0.0"
     )
 
     def distill_from(
