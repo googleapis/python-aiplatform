@@ -27,7 +27,7 @@ import tempfile
 
 RAY_VERSION = "2.4.0"
 CLUSTER_RAY_VERSION = "2_4"
-SDK_VERSION = "1.36.4"
+SDK_VERSION = aiplatform.__version__
 PROJECT_ID = "ucaip-sample-tests"
 
 
