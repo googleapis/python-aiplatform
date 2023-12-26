@@ -15,17 +15,23 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.model_monitoring.alert import EmailAlertConfig
+from google.cloud.aiplatform.model_monitoring.alert import (
+    AlertConfig,
+    EmailAlertConfig,
+)
 from google.cloud.aiplatform.model_monitoring.objective import (
     SkewDetectionConfig,
     DriftDetectionConfig,
     ExplanationConfig,
     ObjectiveConfig,
 )
-from google.cloud.aiplatform.model_monitoring.sampling import RandomSampleConfig
+from google.cloud.aiplatform.model_monitoring.sampling import (
+    RandomSampleConfig,
+)
 from google.cloud.aiplatform.model_monitoring.schedule import ScheduleConfig
 
 __all__ = (
+    "AlertConfig",
     "EmailAlertConfig",
     "SkewDetectionConfig",
     "DriftDetectionConfig",

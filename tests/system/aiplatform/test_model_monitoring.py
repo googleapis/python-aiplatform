@@ -31,6 +31,7 @@ from google.cloud.aiplatform_v1.types import (
 
 # constants used for testing
 USER_EMAIL = "rosiezou@cloudadvocacyorg.joonix.net"
+NOTIFICATION_CHANNEL = "projects/123/notificationChannels/456"
 PERMANENT_CHURN_MODEL_ID = "5295507484113371136"
 CHURN_MODEL_PATH = "gs://mco-mm/churn"
 DEFAULT_INPUT = {
@@ -90,8 +91,14 @@ ATTRIB_DRIFT_THRESHOLDS = {
 # global test constants
 sampling_strategy = model_monitoring.RandomSampleConfig(sample_rate=LOG_SAMPLE_RATE)
 
-alert_config = model_monitoring.EmailAlertConfig(
+email_alert_config = model_monitoring.EmailAlertConfig(
     user_emails=[USER_EMAIL], enable_logging=True
+)
+
+alert_config = model_monitoring.AlertConfig(
+    user_emails=[USER_EMAIL],
+    enable_logging=True,
+    notification_channels=[NOTIFICATION_CHANNEL],
 )
 
 schedule_config = model_monitoring.ScheduleConfig(monitor_interval=MONITOR_INTERVAL)
@@ -149,7 +156,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
             schedule_config=schedule_config,
-            alert_config=alert_config,
+            alert_config=email_alert_config,
             objective_configs=objective_config,
             create_request_timeout=3600,
             project=e2e_base._PROJECT,
@@ -211,7 +218,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
             schedule_config=schedule_config,
-            alert_config=alert_config,
+            alert_config=email_alert_config,
             objective_configs=model_monitoring.ObjectiveConfig(
                 drift_detection_config=drift_config
             ),
@@ -284,7 +291,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
             schedule_config=schedule_config,
-            alert_config=alert_config,
+            alert_config=email_alert_config,
             objective_configs=all_configs,
             create_request_timeout=3600,
             project=e2e_base._PROJECT,
@@ -338,7 +345,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
-                alert_config=alert_config,
+                alert_config=email_alert_config,
                 objective_configs=objective_config,
                 create_request_timeout=3600,
                 project=e2e_base._PROJECT,
@@ -358,7 +365,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
-                alert_config=alert_config,
+                alert_config=email_alert_config,
                 objective_configs=objective_config,
                 create_request_timeout=3600,
                 project=e2e_base._PROJECT,
@@ -388,7 +395,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
-                alert_config=alert_config,
+                alert_config=email_alert_config,
                 objective_configs=all_configs,
                 create_request_timeout=3600,
                 project=e2e_base._PROJECT,
@@ -399,3 +406,31 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             "`explanation_config` should only be enabled if the model has `explanation_spec populated"
             in str(e.value)
         )
+
+    def test_mdm_notification_channel_alert_config(self, shared_state):
+        self.endpoint = shared_state["resources"][0]
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+        # test model monitoring configurations
+        job = aiplatform.ModelDeploymentMonitoringJob.create(
+            display_name=self._make_display_name(key=JOB_NAME),
+            logging_sampling_strategy=sampling_strategy,
+            schedule_config=schedule_config,
+            alert_config=alert_config,
+            objective_configs=objective_config,
+            create_request_timeout=3600,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            endpoint=self.endpoint,
+        )
+
+        gapic_job = job._gca_resource
+        assert (
+            gapic_job.model_monitoring_alert_config.email_alert_config.user_emails
+            == [USER_EMAIL]
+        )
+        assert gapic_job.model_monitoring_alert_config.enable_logging
+        assert gapic_job.model_monitoring_alert_config.notification_channels == [
+            NOTIFICATION_CHANNEL
+        ]
+
+        job.delete()
