@@ -72,11 +72,11 @@ Windows
 
 Supported Python Versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-Python >= 3.7
+Python >= 3.8
 
 Deprecated Python Versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Python == 3.6.
+Python <= 3.7.
 
 The last version of this library compatible with Python 3.6 is google-cloud-aiplatform==1.12.1.
 
