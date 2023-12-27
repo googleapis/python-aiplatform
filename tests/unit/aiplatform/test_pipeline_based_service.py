@@ -28,6 +28,8 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.utils import gcs_utils
+import constants as test_constants
+
 
 from google.cloud.aiplatform_v1.services.pipeline_service import (
     client as pipeline_service_client_v1,
@@ -517,7 +519,6 @@ class TestPipelineBasedService:
                 pipeline_job_name=_TEST_INVALID_PIPELINE_JOB_NAME,
             )
 
-    @pytest.mark.skip("Flaky")
     @pytest.mark.parametrize(
         "job_spec_json",
         [_TEST_PIPELINE_JOB],
@@ -538,6 +539,7 @@ class TestPipelineBasedService:
             location=_TEST_LOCATION,
             credentials=_TEST_CREDENTIALS,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
+            encryption_spec_key_name=test_constants.ProjectConstants._TEST_ENCRYPTION_KEY_NAME,
         )
 
         self.FakePipelineBasedService._template_name_identifier = None
@@ -577,6 +579,7 @@ class TestPipelineBasedService:
             runtime_config=runtime_config,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
+            encryption_spec=test_constants.ProjectConstants._TEST_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
