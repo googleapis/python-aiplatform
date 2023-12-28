@@ -19,7 +19,7 @@
 
 import pytest
 
-
+from google import auth
 from google.cloud import aiplatform
 from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state,
@@ -309,7 +309,14 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
     def test_tuning(self, shared_state):
         """Test tuning, listing and loading models."""
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+        credentials, _ = auth.default(
+            scopes=["https://www.googleapis.com/auth/cloud-platform"]
+        )
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            credentials=credentials,
+        )
 
         model = language_models.TextGenerationModel.from_pretrained("text-bison@001")
 
