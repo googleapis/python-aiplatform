@@ -33,6 +33,7 @@ from typing import (
 )
 
 from google.api_core import operation
+from google.api_core import retry
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 from google.auth.transport import requests as google_auth_requests
@@ -1581,6 +1582,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 instances=instances,
                 parameters=parameters,
                 timeout=timeout,
+                retry=retry.Retry(),
             )
 
             return Prediction(
