@@ -110,15 +110,16 @@ class Tensorboard(_TensorboardServiceResource):
         """Creates a new tensorboard.
 
         Example Usage:
-
-            tb = aiplatform.Tensorboard.create(
-                display_name='my display name',
-                description='my description',
-                labels={
-                    'key1': 'value1',
-                    'key2': 'value2'
-                }
-            )
+        ```py
+        tb = aiplatform.Tensorboard.create(
+            display_name='my display name',
+            description='my description',
+            labels={
+                'key1': 'value1',
+                'key2': 'value2'
+            }
+        )
+        ```
 
         Args:
             display_name (str):
@@ -225,12 +226,13 @@ class Tensorboard(_TensorboardServiceResource):
         """Updates an existing tensorboard.
 
         Example Usage:
-
-            tb = aiplatform.Tensorboard(tensorboard_name='123456')
-            tb.update(
-                display_name='update my display name',
-                description='update my description',
-            )
+        ```py
+        tb = aiplatform.Tensorboard(tensorboard_name='123456')
+        tb.update(
+            display_name='update my display name',
+            description='update my description',
+        )
+        ```
 
         Args:
             display_name (str):
@@ -349,15 +351,16 @@ class TensorboardExperiment(_TensorboardServiceResource):
         """Retrieves an existing tensorboard experiment given a tensorboard experiment name or ID.
 
         Example Usage:
+        ```py
+        tb_exp = aiplatform.TensorboardExperiment(
+            tensorboard_experiment_name= "projects/123/locations/us-central1/tensorboards/456/experiments/678"
+        )
 
-            tb_exp = aiplatform.TensorboardExperiment(
-                tensorboard_experiment_name= "projects/123/locations/us-central1/tensorboards/456/experiments/678"
-            )
-
-            tb_exp = aiplatform.TensorboardExperiment(
-                tensorboard_experiment_name= "678"
-                tensorboard_id = "456"
-            )
+        tb_exp = aiplatform.TensorboardExperiment(
+            tensorboard_experiment_name= "678"
+            tensorboard_id = "456"
+        )
+        ```
 
         Args:
             tensorboard_experiment_name (str):
@@ -407,17 +410,18 @@ class TensorboardExperiment(_TensorboardServiceResource):
         """Creates a new TensorboardExperiment.
 
         Example Usage:
-
-            tb_exp = aiplatform.TensorboardExperiment.create(
-                tensorboard_experiment_id='my-experiment'
-                tensorboard_id='456'
-                display_name='my display name',
-                description='my description',
-                labels={
-                    'key1': 'value1',
-                    'key2': 'value2'
-                }
-            )
+        ```py
+        tb_exp = aiplatform.TensorboardExperiment.create(
+            tensorboard_experiment_id='my-experiment'
+            tensorboard_id='456'
+            display_name='my display name',
+            description='my description',
+            labels={
+                'key1': 'value1',
+                'key2': 'value2'
+            }
+        )
+        ```
 
         Args:
             tensorboard_experiment_id (str):
@@ -520,11 +524,12 @@ class TensorboardExperiment(_TensorboardServiceResource):
     ) -> List["TensorboardExperiment"]:
         """List TensorboardExperiemnts in a Tensorboard resource.
 
+        ```py
         Example Usage:
-
             aiplatform.TensorboardExperiment.list(
                 tensorboard_name='projects/my-project/locations/us-central1/tensorboards/123'
             )
+        ```
 
         Args:
             tensorboard_name(str):
@@ -592,8 +597,8 @@ class TensorboardRun(_TensorboardServiceResource):
     ):
         """Retrieves an existing tensorboard run given a tensorboard run name or ID.
 
+        ```py
         Example Usage:
-
             tb_run = aiplatform.TensorboardRun(
                 tensorboard_run_name= "projects/123/locations/us-central1/tensorboards/456/experiments/678/run/8910"
             )
@@ -603,6 +608,7 @@ class TensorboardRun(_TensorboardServiceResource):
                 tensorboard_id = "456",
                 tensorboard_experiment_id = "678"
             )
+        ```
 
         Args:
             tensorboard_run_name (str):
@@ -669,18 +675,19 @@ class TensorboardRun(_TensorboardServiceResource):
         """Creates a new tensorboard run.
 
         Example Usage:
-
-            tb_run = aiplatform.TensorboardRun.create(
-                tensorboard_run_id='my-run'
-                tensorboard_experiment_name='my-experiment'
-                tensorboard_id='456'
-                display_name='my display name',
-                description='my description',
-                labels={
-                    'key1': 'value1',
-                    'key2': 'value2'
-                }
-            )
+        ```py
+        tb_run = aiplatform.TensorboardRun.create(
+            tensorboard_run_id='my-run'
+            tensorboard_experiment_name='my-experiment'
+            tensorboard_id='456'
+            display_name='my display name',
+            description='my description',
+            labels={
+                'key1': 'value1',
+                'key2': 'value2'
+            }
+        )
+        ```
 
         Args:
             tensorboard_run_id (str):
@@ -789,10 +796,11 @@ class TensorboardRun(_TensorboardServiceResource):
         """List all instances of TensorboardRun in TensorboardExperiment.
 
         Example Usage:
-
-            aiplatform.TensorboardRun.list(
-                tensorboard_experiment_name='projects/my-project/locations/us-central1/tensorboards/123/experiments/456'
-            )
+        ```py
+        aiplatform.TensorboardRun.list(
+            tensorboard_experiment_name='projects/my-project/locations/us-central1/tensorboards/123/experiments/456'
+        )
+        ```
 
         Args:
             tensorboard_experiment_name (str):
@@ -939,18 +947,19 @@ class TensorboardRun(_TensorboardServiceResource):
         """Creates a new tensorboard time series.
 
         Example Usage:
-
-            tb_ts = tensorboard_run.create_tensorboard_time_series(
-                display_name='my display name',
-                tensorboard_run_name='my-run'
-                tensorboard_id='456'
-                tensorboard_experiment_id='my-experiment'
-                description='my description',
-                labels={
-                    'key1': 'value1',
-                    'key2': 'value2'
-                }
-            )
+        ```py
+        tb_ts = tensorboard_run.create_tensorboard_time_series(
+            display_name='my display name',
+            tensorboard_run_name='my-run'
+            tensorboard_id='456'
+            tensorboard_experiment_id='my-experiment'
+            description='my description',
+            labels={
+                'key1': 'value1',
+                'key2': 'value2'
+            }
+        )
+        ```
 
         Args:
             display_name (str):
@@ -990,7 +999,7 @@ class TensorboardRun(_TensorboardServiceResource):
     def read_time_series_data(self) -> Dict[str, gca_tensorboard_data.TimeSeriesData]:
         """Read the time series data of this run.
 
-        ```
+        ```py
         time_series_data = tensorboard_run.read_time_series_data()
 
         print(time_series_data['loss'].values[-1].scalar.value)
@@ -1057,17 +1066,18 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
         """Retrieves an existing tensorboard time series given a tensorboard time series name or ID.
 
         Example Usage:
+        ```py
+        tb_ts = aiplatform.TensorboardTimeSeries(
+            tensorboard_time_series_name="projects/123/locations/us-central1/tensorboards/456/experiments/789/run/1011/timeSeries/mse"
+        )
 
-            tb_ts = aiplatform.TensorboardTimeSeries(
-                tensorboard_time_series_name="projects/123/locations/us-central1/tensorboards/456/experiments/789/run/1011/timeSeries/mse"
-            )
-
-            tb_ts = aiplatform.TensorboardTimeSeries(
-                tensorboard_time_series_name= "mse",
-                tensorboard_id = "456",
-                tensorboard_experiment_id = "789"
-                tensorboard_run_id = "1011"
-            )
+        tb_ts = aiplatform.TensorboardTimeSeries(
+            tensorboard_time_series_name= "mse",
+            tensorboard_id = "456",
+            tensorboard_experiment_id = "789"
+            tensorboard_run_id = "1011"
+        )
+        ```
 
         Args:
             tensorboard_time_series_name (str):
@@ -1139,18 +1149,19 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
         """Creates a new tensorboard time series.
 
         Example Usage:
-
-            tb_ts = aiplatform.TensorboardTimeSeries.create(
-                display_name='my display name',
-                tensorboard_run_name='my-run'
-                tensorboard_id='456'
-                tensorboard_experiment_id='my-experiment'
-                description='my description',
-                labels={
-                    'key1': 'value1',
-                    'key2': 'value2'
-                }
-            )
+        ```py
+        tb_ts = aiplatform.TensorboardTimeSeries.create(
+            display_name='my display name',
+            tensorboard_run_name='my-run'
+            tensorboard_id='456'
+            tensorboard_experiment_id='my-experiment'
+            description='my description',
+            labels={
+                'key1': 'value1',
+                'key2': 'value2'
+            }
+        )
+        ```
 
         Args:
             display_name (str):
@@ -1250,10 +1261,11 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
         """List all instances of TensorboardTimeSeries in TensorboardRun.
 
         Example Usage:
-
-            aiplatform.TensorboardTimeSeries.list(
-                tensorboard_run_name='projects/my-project/locations/us-central1/tensorboards/123/experiments/my-experiment/runs/my-run'
-            )
+        ```py
+        aiplatform.TensorboardTimeSeries.list(
+            tensorboard_run_name='projects/my-project/locations/us-central1/tensorboards/123/experiments/my-experiment/runs/my-run'
+        )
+        ```
 
         Args:
             tensorboard_run_name (str):

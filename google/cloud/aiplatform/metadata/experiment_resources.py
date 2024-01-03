@@ -93,7 +93,7 @@ class Experiment:
     ):
         """
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         ```
 
@@ -170,7 +170,7 @@ class Experiment:
     ) -> "Experiment":
         """Creates a new experiment in Vertex AI Experiments.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment.create('my-experiment', description='my description')
         ```
 
@@ -263,7 +263,7 @@ class Experiment:
 
         Otherwise creates this experiment.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment.get_or_create('my-experiment', description='my description')
         ```
 
@@ -320,7 +320,7 @@ class Experiment:
     ) -> List["Experiment"]:
         """List all Vertex AI Experiments in the given project.
 
-        ```
+        ```py
         my_experiments = aiplatform.Experiment.list()
         ```
 
@@ -377,7 +377,7 @@ class Experiment:
         Does not delete Pipeline runs, Artifacts, or Executions associated to this experiment
         or experiment runs in this experiment.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         my_experiment.delete(delete_backing_tensorboard_runs=True)
         ```
@@ -405,7 +405,7 @@ class Experiment:
     def get_data_frame(self) -> "pd.DataFrame":  # noqa: F821
         """Get parameters, metrics, and time series metrics of all runs in this experiment as Dataframe.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         df = my_experiment.get_data_frame()
         ```
@@ -526,7 +526,7 @@ class Experiment:
     ) -> Optional[tensorboard_resource.Tensorboard]:
         """Get the backing tensorboard for this experiment if one exists.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         tb = my_experiment.get_backing_tensorboard_resource()
         ```
@@ -541,7 +541,7 @@ class Experiment:
     ):
         """Assigns tensorboard as backing tensorboard to support time series metrics logging.
 
-        ```
+        ```py
         tb = aiplatform.Tensorboard('tensorboard-resource-id')
         my_experiment = aiplatform.Experiment('my-experiment')
         my_experiment.assign_backing_tensorboard(tb)

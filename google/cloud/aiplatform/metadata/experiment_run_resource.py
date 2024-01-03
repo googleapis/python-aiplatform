@@ -108,7 +108,7 @@ class ExperimentRun(
     ):
         """
 
-        ```
+        ```py
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         ```
 
@@ -343,7 +343,7 @@ class ExperimentRun(
     def update_state(self, state: gca_execution.Execution.State):
         """Update the state of this experiment run.
 
-        ```
+        ```py
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         my_run.update_state(state=aiplatform.gapic.Execution.State.COMPLETE)
         ```
@@ -448,7 +448,7 @@ class ExperimentRun(
     ) -> List["ExperimentRun"]:
         """List the experiment runs for a given aiplatform.Experiment.
 
-        ```
+        ```py
         my_runs = aiplatform.ExperimentRun.list(experiment='my-experiment')
         ```
 
@@ -644,7 +644,7 @@ class ExperimentRun(
     ):
         """Log a Vertex Resource to this experiment run.
 
-        ```
+        ```py
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         my_job = aiplatform.PipelineJob(...)
         my_job.submit()
@@ -687,7 +687,7 @@ class ExperimentRun(
     ) -> "ExperimentRun":
         """Creates a new experiment run in Vertex AI Experiments.
 
-        ```
+        ```py
         my_run = aiplatform.ExperimentRun.create('my-run', experiment='my-experiment')
         ```
 
@@ -931,7 +931,7 @@ class ExperimentRun(
     ):
         """Logs time series metrics to backing TensorboardRun of this Experiment Run.
 
-        ```
+        ```py
         run.log_time_series_metrics({'accuracy': 0.9}, step=10)
         ```
 
@@ -999,7 +999,7 @@ class ExperimentRun(
 
         Parameters with the same key will be overwritten.
 
-        ```
+        ```py
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         my_run.log_params({'learning_rate': 0.1, 'dropout_rate': 0.2})
         ```
@@ -1032,7 +1032,7 @@ class ExperimentRun(
 
         Metrics with the same key will be overwritten.
 
-        ```
+        ```py
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         my_run.log_metrics({'accuracy': 0.9, 'recall': 0.8})
         ```
@@ -1072,7 +1072,7 @@ class ExperimentRun(
     ) -> google_artifact_schema.ClassificationMetrics:
         """Create an artifact for classification metrics and log to ExperimentRun. Currently supports confusion matrix and ROC curve.
 
-        ```
+        ```py
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         classification_metrics = my_run.log_classification_metrics(
             display_name='my-classification-metrics',
@@ -1459,7 +1459,7 @@ class ExperimentRun(
     def get_classification_metrics(self) -> List[Dict[str, Union[str, List]]]:
         """Get all the classification metrics logged to this run.
 
-        ```
+        ```py
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         metric = my_run.get_classification_metrics()[0]
         print(metric)

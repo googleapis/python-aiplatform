@@ -384,21 +384,21 @@ class _ExperimentTracker:
     ) -> experiment_run_resource.ExperimentRun:
         """Start a run to current session.
 
-        ```
+        ```py
         aiplatform.init(experiment='my-experiment')
         aiplatform.start_run('my-run')
         aiplatform.log_params({'learning_rate':0.1})
         ```
 
         Use as context manager. Run will be ended on context exit:
-        ```
+        ```py
         aiplatform.init(experiment='my-experiment')
         with aiplatform.start_run('my-run') as my_run:
             my_run.log_params({'learning_rate':0.1})
         ```
 
         Resume a previously started run:
-        ```
+        ```py
         aiplatform.init(experiment='my-experiment')
         with aiplatform.start_run('my-run', resume=True) as my_run:
             my_run.log_params({'learning_rate':0.1})
@@ -455,7 +455,7 @@ class _ExperimentTracker:
     ):
         """Ends the the current experiment run.
 
-        ```
+        ```py
         aiplatform.start_run('my-run')
         ...
         aiplatform.end_run()
@@ -542,7 +542,7 @@ class _ExperimentTracker:
 
         Parameters with the same key will be overwritten.
 
-        ```
+        ```py
         aiplatform.start_run('my-run')
         aiplatform.log_params({'learning_rate': 0.1, 'dropout_rate': 0.2})
         ```
@@ -561,7 +561,7 @@ class _ExperimentTracker:
 
         Metrics with the same key will be overwritten.
 
-        ```
+        ```py
         aiplatform.start_run('my-run', experiment='my-experiment')
         aiplatform.log_metrics({'accuracy': 0.9, 'recall': 0.8})
         ```
@@ -587,7 +587,7 @@ class _ExperimentTracker:
     ) -> google_artifact_schema.ClassificationMetrics:
         """Create an artifact for classification metrics and log to ExperimentRun. Currently support confusion matrix and ROC curve.
 
-        ```
+        ```py
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         classification_metrics = my_run.log_classification_metrics(
             display_name='my-classification-metrics',
@@ -653,6 +653,7 @@ class _ExperimentTracker:
         Supported model frameworks: sklearn, xgboost, tensorflow.
 
         Example usage:
+        ```py
             model = LinearRegression()
             model.fit(X, y)
             aiplatform.init(
@@ -663,6 +664,7 @@ class _ExperimentTracker:
             )
             with aiplatform.start_run("my-run"):
                 aiplatform.log_model(model, "my-sklearn-model")
+        ```
 
         Args:
             model (Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]):
@@ -743,6 +745,7 @@ class _ExperimentTracker:
 
         Example:
 
+        ```py
         aiplatform.init(experiment='exp-1')
         aiplatform.start_run(run='run-1')
         aiplatform.log_params({'learning_rate': 0.1})
@@ -753,18 +756,20 @@ class _ExperimentTracker:
         aiplatform.log_metrics({'accuracy': 0.95})
 
         aiplatform.get_experiments_df()
+        ```
 
-        Will result in the following DataFrame
-        ___________________________________________________________________________
-        | experiment_name | run_name      | param.learning_rate | metric.accuracy |
-        ---------------------------------------------------------------------------
-        | exp-1           | run-1         | 0.1                 | 0.9             |
-        | exp-1           | run-2         | 0.2                 | 0.95            |
-        ---------------------------------------------------------------------------
+        Will result in the following DataFrame:
+
+        ```
+        experiment_name | run_name      | param.learning_rate | metric.accuracy
+        exp-1           | run-1         | 0.1                 | 0.9
+        exp-1           | run-2         | 0.2                 | 0.95
+        ```
 
         Args:
             experiment (str):
-            Name of the Experiment to filter results. If not set, return results of current active experiment.
+                Name of the Experiment to filter results. If not set, return results
+                of current active experiment.
 
         Returns:
             Pandas Dataframe of Experiment with metrics and parameters.
@@ -788,7 +793,7 @@ class _ExperimentTracker:
     ):
         """Log Vertex AI Resources to the current experiment run.
 
-        ```
+        ```py
         aiplatform.start_run('my-run')
         my_job = aiplatform.PipelineJob(...)
         my_job.submit()
@@ -812,7 +817,7 @@ class _ExperimentTracker:
 
         Requires the experiment or experiment run has a backing Vertex Tensorboard resource.
 
-        ```
+        ```py
         my_tensorboard = aiplatform.Tensorboard(...)
         aiplatform.init(experiment='my-experiment', experiment_tensorboard=my_tensorboard)
         aiplatform.start_run('my-run')
@@ -867,7 +872,7 @@ class _ExperimentTracker:
 
         To start a new execution:
 
-        ```
+        ```py
         with aiplatform.start_execution(schema_title='system.ContainerExecution', display_name='trainer) as exc:
           exc.assign_input_artifacts([my_artifact])
           model = aiplatform.Artifact.create(uri='gs://my-uri', schema_title='system.Model')
@@ -875,7 +880,7 @@ class _ExperimentTracker:
         ```
 
         To continue a previously created execution:
-        ```
+        ```py
         with aiplatform.start_execution(resource_id='my-exc', resume=True) as exc:
             ...
         ```
