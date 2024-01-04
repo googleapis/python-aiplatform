@@ -390,7 +390,7 @@ class TestDataset(e2e_base.TestEndToEnd):
         # Custom training data export should be generic, hence using the base
         # _Dataset class here in test. In practice, users shuold be able to
         # use this function in any inhericted classes of _Dataset.
-        dataset = aiplatform._Dataset(dataset_name=_TEST_TEXT_DATASET_ID)
+        dataset = aiplatform.datasets._Dataset(dataset_name=_TEST_TEXT_DATASET_ID)
 
         split = {
             "training_fraction": 0.6,
