@@ -356,18 +356,19 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
                 enable_early_stopping=True,
             ),
         )
+        tuned_model1 = tuning_job.get_tuned_model()
+
         # According to the Pipelines design, external resources created by a pipeline
         # must not be modified or deleted. Otherwise caching will break next pipeline runs.
         shared_state.setdefault("resources", [])
-        shared_state["resources"].append(model._endpoint)
+        shared_state["resources"].append(tuned_model1._endpoint)
         shared_state["resources"].extend(
             aiplatform.Model(model_name=deployed_model.model)
-            for deployed_model in model._endpoint.list_models()
+            for deployed_model in tuned_model1._endpoint.list_models()
         )
         # Deleting the Endpoint is a little less bad since the LLM SDK will recreate it, but it's not advised for the same reason.
 
         # Testing the new model returned by the `tuning_job.get_tuned_model` method
-        tuned_model1 = tuning_job.get_tuned_model()
         response1 = tuned_model1.predict(
             "What is the best recipe for banana bread? Recipe:",
             max_output_tokens=128,
@@ -377,16 +378,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         )
         assert response1.text
 
-        # Testing the model updated in-place (Deprecated. Preview only)
-        response = model.predict(
-            "What is the best recipe for banana bread? Recipe:",
-            max_output_tokens=128,
-            temperature=0.0,
-            top_p=1.0,
-            top_k=5,
-        )
-        assert response.text
-
+        # Testing listing and getting tuned models
         tuned_model_names = model.list_tuned_model_names()
         assert tuned_model_names
         tuned_model_name = tuned_model_names[0]
