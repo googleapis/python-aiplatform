@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.39.0](https://github.com/googleapis/python-aiplatform/compare/v1.38.1...v1.39.0) (2024-01-05)
+
+
+### Features
+
+* Add `fraction_leaf_nodes_to_search_override`. Add support for private endpoint in `find_neighbors`. ([cd31c13](https://github.com/googleapis/python-aiplatform/commit/cd31c1306a9a00a01fbc1dda56fe99ed567a4cfb))
+* Add `numeric_filter` to `MatchingEngineIndexEndpoint` `match()` and `find_neighbor()` private endpoint queries. ([506c91b](https://github.com/googleapis/python-aiplatform/commit/506c91b4edaf677a33ff39e1174670800d389fa3))
+* Add `numeric_filter` to `MatchingEngineIndexEndpoint` `match()` and `find_neighbor()` private endpoint queries. ([4d98c55](https://github.com/googleapis/python-aiplatform/commit/4d98c55807996eac39604ab85568c380ebcc18a1))
+* Add notification_channels field to model monitoring alert config. ([bb228ce](https://github.com/googleapis/python-aiplatform/commit/bb228ced16862a1f452352f8941d3a24d1a77090))
+* Add support of newly added fields of ExportData API to SDK ([ec3ea30](https://github.com/googleapis/python-aiplatform/commit/ec3ea305cd8a858fb770794c35481cdbc1520990))
+* Allow reuse of deleted experiment run id. ([5f6ad8d](https://github.com/googleapis/python-aiplatform/commit/5f6ad8df5a08e78a121a72a21e21d95abb072e58))
+* Fix dataset export system test ([9156640](https://github.com/googleapis/python-aiplatform/commit/915664047db9e1b39159205f88841aac946480e8))
+* GenAI - Added support for "models/&lt;model ID&gt;" model name format ([ab21feb](https://github.com/googleapis/python-aiplatform/commit/ab21feb3528babbc619c0ea5bf4aa89e651340b3))
+* Support "reservedIpRanges" parameter in PipelineJob run() and submit() methods. ([ab99e00](https://github.com/googleapis/python-aiplatform/commit/ab99e00a42868ec09796709a5d5fb6e4f276bfb7))
+* Support custom target y column name for Bigframes Tensorflow ([1634940](https://github.com/googleapis/python-aiplatform/commit/1634940c91182fbd080556949d6c2557288216fb))
+* Verify client and cluster Ray versions match in create_ray_cluster ([17dc9b7](https://github.com/googleapis/python-aiplatform/commit/17dc9b7663c484fe6250cafd4209ef8279acdb5b))
+
+
+### Bug Fixes
+
+* Missing request parameter for v1beta explain. ([443fa9d](https://github.com/googleapis/python-aiplatform/commit/443fa9d456294c4a6aa49368cc4b5e6f01ec3d0d))
+* Pin google-cloud-aiplatform[tensorboard] dependency on tensorflow &lt; 2.15.0 due to breaking change introduced in tensorboard 2.15.1 ([4e891f7](https://github.com/googleapis/python-aiplatform/commit/4e891f7f0c83dabde429ffaa38166af5a44eab5a))
+
+
+### Documentation
+
+* GenAI - Added GenAI to docs ([92fd7f0](https://github.com/googleapis/python-aiplatform/commit/92fd7f0a10ae35b448ac4981c072fdc5d8b05c3b))
+* Update docstring for start_upload_tb_log() ([c033c59](https://github.com/googleapis/python-aiplatform/commit/c033c5971c7692f84d0a5b58946c49348a4c4448))
+* Update tensorboard continuous uploader sample ([1220746](https://github.com/googleapis/python-aiplatform/commit/122074659871daa72aec4a6d3330a82eec77a1c5))
+
 ## [1.38.1](https://github.com/googleapis/python-aiplatform/compare/v1.38.0...v1.38.1) (2023-12-13)
 
 
