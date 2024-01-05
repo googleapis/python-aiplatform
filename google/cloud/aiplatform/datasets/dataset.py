@@ -595,9 +595,9 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             if (
                 "validation_filter" in split
                 and "test_filter" in split
-                and split["training_filter"] is str
-                and split["validation_filter"] is str
-                and split["test_filter"] is str
+                and isinstance(split["training_filter"], str)
+                and isinstance(split["validation_filter"], str)
+                and isinstance(split["test_filter"], str)
             ):
                 return gca_dataset.ExportFilterSplit(
                     training_filter=split["training_filter"],
@@ -614,9 +614,9 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             if (
                 "validation_fraction" in split
                 and "test_fraction" in split
-                and split["training_fraction"] is float
-                and split["validation_fraction"] is float
-                and split["test_fraction"] is float
+                and isinstance(split["training_fraction"], float)
+                and isinstance(split["validation_fraction"], float)
+                and isinstance(split["test_fraction"], float)
             ):
                 return gca_dataset.ExportFractionSplit(
                     training_fraction=split["training_fraction"],
