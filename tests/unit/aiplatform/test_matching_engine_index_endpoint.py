@@ -246,6 +246,7 @@ _TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE = 0.8
 _TEST_RETURN_FULL_DATAPOINT = True
 _TEST_ENCRYPTION_SPEC_KEY_NAME = "kms_key_name"
 _TEST_PROJECT_ALLOWLIST = ["project-1", "project-2"]
+_TEST_PRIVATE_SERVICE_CONNECT_IP_ADDRESS = "10.128.0.5"
 _TEST_READ_INDEX_DATAPOINTS_RESPONSE = [
     gca_index_v1beta1.IndexDatapoint(
         datapoint_id="1",
@@ -1137,6 +1138,54 @@ class TestMatchingEngineIndexEndpoint:
         )
         index_endpoint_match_queries_mock.assert_called_with(batch_match_request)
 
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_index_private_service_connect_endpoint_match_queries(
+        self, index_endpoint_match_queries_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_index_endpoint.private_service_connect_ip_address = (
+            _TEST_PRIVATE_SERVICE_CONNECT_IP_ADDRESS
+        )
+        my_index_endpoint.match(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+        )
+
+        batch_request = match_service_pb2.BatchMatchRequest(
+            requests=[
+                match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
+                    deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    requests=[
+                        match_service_pb2.MatchRequest(
+                            num_neighbors=_TEST_NUM_NEIGHBOURS,
+                            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                            float_val=_TEST_QUERIES[0],
+                            restricts=[
+                                match_service_pb2.Namespace(
+                                    name="class",
+                                    allow_tokens=["token_1"],
+                                    deny_tokens=["token_2"],
+                                )
+                            ],
+                            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                        )
+                    ],
+                )
+            ]
+        )
+
+        index_endpoint_match_queries_mock.assert_called_with(batch_request)
+
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
     def test_index_public_endpoint_match_queries(
         self, index_public_endpoint_match_queries_mock
@@ -1330,7 +1379,7 @@ class TestMatchingEngineIndexEndpoint:
         index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
-    def test_index_private_endpoint_read_index_datapoints(
+    def test_index_endpoint_find_neighbors_for_private_service_access(
         self, index_endpoint_batch_get_embeddings_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
@@ -1341,6 +1390,32 @@ class TestMatchingEngineIndexEndpoint:
 
         response = my_index_endpoint.read_index_datapoints(
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID, ids=["1", "2"]
+        )
+
+        batch_request = match_service_pb2.BatchGetEmbeddingsRequest(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
+        )
+
+        index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
+
+        assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_index_endpoint_find_neighbors_for_private_service_connect(
+        self, index_endpoint_batch_get_embeddings_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_index_endpoint.private_service_connect_ip = (
+            _TEST_PRIVATE_SERVICE_CONNECT_IP_ADDRESS
+        )
+        response = my_index_endpoint.read_index_datapoints(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            ids=["1", "2"],
         )
 
         batch_request = match_service_pb2.BatchGetEmbeddingsRequest(

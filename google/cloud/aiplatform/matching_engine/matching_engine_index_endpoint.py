@@ -220,6 +220,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         if self.public_endpoint_domain_name:
             self._public_match_client = self._instantiate_public_match_client()
 
+        self._match_grpc_stub_cache = {}
+        self._private_service_connect_ip_address = None
+
     @classmethod
     def create(
         cls,
@@ -521,39 +524,84 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
     def _instantiate_private_match_service_stub(
         self,
-        deployed_index_id: str,
+        deployed_index_id: Optional[str] = None,
+        ip_address: Optional[str] = None,
     ) -> match_service_pb2_grpc.MatchServiceStub:
         """Helper method to instantiate private match service stub.
         Args:
             deployed_index_id (str):
-                Required. The user specified ID of the
-                DeployedIndex.
+                Optional. Required for private service access endpoint.
+                The user specified ID of the DeployedIndex.
+            ip_address (str):
+                Optional. Required for private service connect. The ip address
+                the forwarding rule makes use of.
         Returns:
             stub (match_service_pb2_grpc.MatchServiceStub):
                 Initialized match service stub.
+        Raises:
+            RuntimeError: No deployed index with id deployed_index_id found
+            ValueError: Should not set ip address for networks other than
+                        private service connect.
         """
-        # Find the deployed index by id
-        deployed_indexes = [
-            deployed_index
-            for deployed_index in self.deployed_indexes
-            if deployed_index.id == deployed_index_id
-        ]
+        if ip_address:
+            # Should only set for Private Service Connect
+            if self.public_endpoint_domain_name:
+                raise ValueError(
+                    "MatchingEngineIndexEndpoint is set to use ",
+                    "public network. Could not establish connection using "
+                    "provided ip address",
+                )
+            elif self.private_service_access_network:
+                raise ValueError(
+                    "MatchingEngineIndexEndpoint is set to use ",
+                    "private service access network. Could not establish "
+                    "connection using provided ip address",
+                )
+        else:
+            # Private Service Access, find server ip for deployed index
+            deployed_indexes = [
+                deployed_index
+                for deployed_index in self.deployed_indexes
+                if deployed_index.id == deployed_index_id
+            ]
 
-        if not deployed_indexes:
-            raise RuntimeError(f"No deployed index with id '{deployed_index_id}' found")
+            if not deployed_indexes:
+                raise RuntimeError(
+                    f"No deployed index with id '{deployed_index_id}' found"
+                )
 
-        # Retrieve server ip from deployed index
-        server_ip = deployed_indexes[0].private_endpoints.match_grpc_address
+            # Retrieve server ip from deployed index
+            ip_address = deployed_indexes[0].private_endpoints.match_grpc_address
 
-        # Set up channel and stub
-        channel = grpc.insecure_channel("{}:10000".format(server_ip))
-        return match_service_pb2_grpc.MatchServiceStub(channel)
+        if ip_address not in self._match_grpc_stub_cache:
+            # Set up channel and stub
+            channel = grpc.insecure_channel("{}:10000".format(ip_address))
+            self._match_grpc_stub_cache[
+                ip_address
+            ] = match_service_pb2_grpc.MatchServiceStub(channel)
+        return self._match_grpc_stub_cache[ip_address]
 
     @property
     def public_endpoint_domain_name(self) -> Optional[str]:
         """Public endpoint DNS name."""
         self._assert_gca_resource_is_available()
         return self._gca_resource.public_endpoint_domain_name
+
+    @property
+    def private_service_access_network(self) -> Optional[str]:
+        """ "Private service access network."""
+        self._assert_gca_resource_is_available()
+        return self._gca_resource.network
+
+    @property
+    def private_service_connect_ip_address(self) -> Optional[str]:
+        """ "Private service connect ip address."""
+        return self._private_service_connect_ip_address
+
+    @private_service_connect_ip_address.setter
+    def private_service_connect_ip_address(self, ip_address: str) -> Optional[str]:
+        """ "Setter for private service connect ip address."""
+        self._private_service_connect_ip_address = ip_address
 
     def update(
         self,
@@ -1300,7 +1348,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         if not self._public_match_client:
             # Call private match service stub with BatchGetEmbeddings request
             embeddings = self._batch_get_embeddings(
-                deployed_index_id=deployed_index_id, ids=ids
+                deployed_index_id=deployed_index_id,
+                ids=ids,
             )
 
             response = []
@@ -1362,7 +1411,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             List[match_service_pb2.Embedding] - A list of datapoints/vectors of the given IDs.
         """
         stub = self._instantiate_private_match_service_stub(
-            deployed_index_id=deployed_index_id
+            deployed_index_id=deployed_index_id,
+            ip_address=self._private_service_connect_ip_address,
         )
 
         # Create the batch get embeddings request
@@ -1420,7 +1470,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
         """
         stub = self._instantiate_private_match_service_stub(
-            deployed_index_id=deployed_index_id
+            deployed_index_id=deployed_index_id,
+            ip_address=self._private_service_connect_ip_address,
         )
 
         # Create the batch match request
