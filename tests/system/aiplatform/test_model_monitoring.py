@@ -410,6 +410,8 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
     def test_mdm_notification_channel_alert_config(self, shared_state):
         self.endpoint = shared_state["resources"][0]
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+        # Reset objective_config.explanation_config
+        objective_config.explanation_config = None
         # test model monitoring configurations
         job = aiplatform.ModelDeploymentMonitoringJob.create(
             display_name=self._make_display_name(key=JOB_NAME),
