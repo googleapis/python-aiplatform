@@ -621,7 +621,7 @@ class _GenerativeModel:
     def start_chat(
         self,
         *,
-        history: Optional[List[gapic_content_types.Content]] = None,
+        history: Optional[List["Content"]] = None,
     ) -> "ChatSession":
         """Creates a stateful chat session.
 
