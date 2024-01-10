@@ -1060,6 +1060,7 @@ class TestMatchingEngineIndexEndpoint:
             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
             fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
         )
 
         batch_request = match_service_pb2.BatchMatchRequest(
@@ -1081,6 +1082,7 @@ class TestMatchingEngineIndexEndpoint:
                             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
                             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
                             fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                            embedding_enabled=_TEST_RETURN_FULL_DATAPOINT,
                         )
                         for i in range(len(_TEST_QUERIES))
                     ],
@@ -1096,11 +1098,11 @@ class TestMatchingEngineIndexEndpoint:
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+        my_private_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
-        my_pubic_index_endpoint.find_neighbors(
+        my_private_index_endpoint.find_neighbors(
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             queries=_TEST_QUERIES,
             num_neighbors=_TEST_NUM_NEIGHBOURS,
@@ -1130,6 +1132,7 @@ class TestMatchingEngineIndexEndpoint:
                             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
                             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
                             fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                            embedding_enabled=_TEST_RETURN_FULL_DATAPOINT,
                         )
                         for test_query in _TEST_QUERIES
                     ],
@@ -1187,16 +1190,16 @@ class TestMatchingEngineIndexEndpoint:
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
 
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
-    def test_index_public_endpoint_match_queries(
+    def test_index_public_endpoint_find_neighbors_queries(
         self, index_public_endpoint_match_queries_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+        my_public_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
-        my_pubic_index_endpoint.find_neighbors(
+        my_public_index_endpoint.find_neighbors(
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             queries=_TEST_QUERIES,
             num_neighbors=_TEST_NUM_NEIGHBOURS,
@@ -1208,7 +1211,7 @@ class TestMatchingEngineIndexEndpoint:
         )
 
         find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest(
-            index_endpoint=my_pubic_index_endpoint.resource_name,
+            index_endpoint=my_public_index_endpoint.resource_name,
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             queries=[
                 gca_match_service_v1beta1.FindNeighborsRequest.Query(
@@ -1241,11 +1244,11 @@ class TestMatchingEngineIndexEndpoint:
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+        my_public_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
-        my_pubic_index_endpoint.find_neighbors(
+        my_public_index_endpoint.find_neighbors(
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             queries=_TEST_QUERIES,
             num_neighbors=_TEST_NUM_NEIGHBOURS,
@@ -1258,7 +1261,7 @@ class TestMatchingEngineIndexEndpoint:
         )
 
         find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest(
-            index_endpoint=my_pubic_index_endpoint.resource_name,
+            index_endpoint=my_public_index_endpoint.resource_name,
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             queries=[
                 gca_match_service_v1beta1.FindNeighborsRequest.Query(
@@ -1337,18 +1340,18 @@ class TestMatchingEngineIndexEndpoint:
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+        my_public_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
-        my_pubic_index_endpoint.read_index_datapoints(
+        my_public_index_endpoint.read_index_datapoints(
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             ids=_TEST_IDS,
         )
 
         read_index_datapoints_request = (
             gca_match_service_v1beta1.ReadIndexDatapointsRequest(
-                index_endpoint=my_pubic_index_endpoint.resource_name,
+                index_endpoint=my_public_index_endpoint.resource_name,
                 deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
                 ids=_TEST_IDS,
             )

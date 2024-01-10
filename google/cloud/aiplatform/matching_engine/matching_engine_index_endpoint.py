@@ -1262,6 +1262,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 per_crowding_attribute_num_neighbors=per_crowding_attribute_neighbor_count,
                 approx_num_neighbors=approx_num_neighbors,
                 fraction_leaf_nodes_to_search_override=fraction_leaf_nodes_to_search_override,
+                return_full_datapoint=return_full_datapoint,
             )
 
         # Create the FindNeighbors request
@@ -1434,6 +1435,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         per_crowding_attribute_num_neighbors: Optional[int] = None,
         approx_num_neighbors: Optional[int] = None,
         fraction_leaf_nodes_to_search_override: Optional[float] = None,
+        return_full_datapoint: bool = False,
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the
         specified deployed index for private endpoint only.
@@ -1465,6 +1467,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 query time allows user to tune search performance. This value
                 increase result in both search accuracy and latency increase.
                 The value should be between 0.0 and 1.0.
+            return_full_datapoint (bool):
+                Optional. If set to true, the full datapoints (including all
+                vector values and of the nearest neighbors are returned.
+                Note that returning full datapoint will significantly increase the
+                latency and cost of the query.
 
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
@@ -1502,6 +1509,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                     per_crowding_attribute_num_neighbors=per_crowding_attribute_num_neighbors,
                     approx_num_neighbors=approx_num_neighbors,
                     fraction_leaf_nodes_to_search_override=fraction_leaf_nodes_to_search_override,
+                    embedding_enabled=return_full_datapoint,
                 )
                 requests.append(request)
 
