@@ -599,6 +599,21 @@ from .operation import (
     DeleteOperationMetadata,
     GenericOperationMetadata,
 )
+from .persistent_resource import (
+    PersistentResource,
+    ResourcePool,
+    ResourceRuntimeSpec,
+    ResourceRuntime,
+    ServiceAccountSpec,
+)
+from .persistent_resource_service import (
+    CreatePersistentResourceRequest,
+    CreatePersistentResourceOperationMetadata,
+    GetPersistentResourceRequest,
+    ListPersistentResourceRequest,
+    ListPersistentResourceResponse,
+    DeletePersistentResourceRequest,
+)
 from .pipeline_job import (
     PipelineJob,
     PipelineJobDetail,
