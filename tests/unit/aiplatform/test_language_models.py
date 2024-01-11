@@ -1775,6 +1775,8 @@ class TestLanguageModels:
                 presence_penalty=1.0,
                 frequency_penalty=1.0,
                 logit_bias={1: 100.0, 2: -100.0},
+                seed=42,
+                echo=True,
             )
 
         expected_errors = (100,)
@@ -1788,6 +1790,8 @@ class TestLanguageModels:
         assert prediction_parameters["presencePenalty"] == 1.0
         assert prediction_parameters["frequencyPenalty"] == 1.0
         assert prediction_parameters["logitBias"] == {1: 100.0, 2: -100.0}
+        assert prediction_parameters["seed"] == 42
+        assert prediction_parameters["echo"] is True
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
         assert response.errors == expected_errors
 
