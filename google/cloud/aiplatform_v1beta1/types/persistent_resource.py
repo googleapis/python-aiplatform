@@ -133,12 +133,12 @@ class PersistentResource(proto.Message):
                 persistent resources is being created.
             RUNNING (3):
                 The RUNNING state indicates the persistent
-                resources is healthy and fully usable.
+                resource is healthy and fully usable.
             STOPPING (4):
                 The STOPPING state indicates the persistent
-                resources is being deleted.
+                resource is being deleted.
             ERROR (5):
-                The ERROR state indicates the persistent resources may be
+                The ERROR state indicates the persistent resource may be
                 unusable. Details can be found in the ``error`` field.
         """
         STATE_UNSPECIFIED = 0
