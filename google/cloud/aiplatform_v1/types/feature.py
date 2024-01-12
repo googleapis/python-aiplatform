@@ -94,8 +94,8 @@ class Feature(proto.Message):
             stats and anomalies with specified objectives.
         version_column_name (str):
             Only applicable for Vertex AI Feature Store. The name of the
-            BigQuery Table/View columnn hosting data for this version.
-            If no value is provided, will use feature_id.
+            BigQuery Table/View column hosting data for this version. If
+            no value is provided, will use feature_id.
     """
 
     class ValueType(proto.Enum):

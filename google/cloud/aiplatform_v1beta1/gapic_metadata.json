@@ -1468,6 +1468,11 @@
               "methods": [
                 "compute_tokens"
               ]
+            },
+            "CountTokens": {
+              "methods": [
+                "count_tokens"
+              ]
             }
           }
         },
@@ -1477,6 +1482,11 @@
             "ComputeTokens": {
               "methods": [
                 "compute_tokens"
+              ]
+            },
+            "CountTokens": {
+              "methods": [
+                "count_tokens"
               ]
             }
           }
