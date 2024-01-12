@@ -1502,6 +1502,15 @@ class Part:
             )
         )
 
+    @staticmethod
+    def from_function_call(function_name: str, arguments: Dict):
+        return Part._from_gapic(
+            raw_part=gapic_tool_types.FunctionCall(
+                name=function_name,
+                argumnts=arguments
+            )
+        )
+
     def to_dict(self) -> Dict[str, Any]:
         return self._raw_part.to_dict()
 
