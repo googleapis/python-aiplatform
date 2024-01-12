@@ -51,7 +51,7 @@ TEST_BUCKET = os.environ.get(
 
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_API_ENDPOINT = f"{_TEST_LOCATION}-aiplatform.googleapis.com"
-_TEST_IMAGE_DATASET_ID = "1084241610289446912"  # permanent_50_flowers_dataset
+_TEST_IMAGE_DATASET_ID = "1997950066622464000"  # permanent_50_flowers_dataset
 _TEST_TEXT_DATASET_ID = (
     "6203215905493614592"  # permanent_text_entity_extraction_dataset
 )
@@ -390,24 +390,24 @@ class TestDataset(e2e_base.TestEndToEnd):
         # Custom training data export should be generic, hence using the base
         # _Dataset class here in test. In practice, users shuold be able to
         # use this function in any inhericted classes of _Dataset.
-        dataset = aiplatform.datasets._Dataset(dataset_name=_TEST_TEXT_DATASET_ID)
+        dataset = aiplatform.datasets._Dataset(dataset_name=_TEST_IMAGE_DATASET_ID)
 
         split = {
-            "training_fraction": 0.6,
-            "validation_fraction": 0.2,
-            "test_fraction": 0.2,
+            "training_filter": "labels.aiplatform.googleapis.com/ml_use=training",
+            "validation_filter": "labels.aiplatform.googleapis.com/ml_use=validation",
+            "test_filter": "labels.aiplatform.googleapis.com/ml_use=test",
         }
 
         export_data_response = dataset.export_data_for_custom_training(
             output_dir=f"gs://{staging_bucket.name}",
-            annotation_schema_uri="gs://google-cloud-aiplatform/schema/dataset/annotation/text_classification_1.0.0.yaml",
+            annotation_schema_uri="gs://google-cloud-aiplatform/schema/dataset/annotation/image_classification_1.0.0.yaml",
             split=split,
         )
 
         # Ensure three output paths (training, validation and test) are provided
         assert len(export_data_response["exported_files"]) == 3
-        # Ensure data stats are calculated and present
-        assert export_data_response["data_stats"]["training_data_items_count"] > 0
+        # Ensure data stats are calculated and correct
+        assert export_data_response["data_stats"]["training_data_items_count"] == 40
 
     def test_update_dataset(self):
         """Create a new dataset and use update() method to change its display_name, labels, and description.
