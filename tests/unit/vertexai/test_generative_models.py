@@ -259,3 +259,50 @@ class TestGenerativeModels:
             ),
         )
         assert response2.text == "The weather in Boston is super nice!"
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="stream_generate_content",
+        new=mock_stream_generate_content,
+    )
+    def test_generate_with_function_calling(self):
+        get_current_weather_func = generative_models.FunctionDeclaration(
+            name="get_current_weather",
+            description="Get the current weather in a given location",
+            parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+        )
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+
+        model = generative_models.GenerativeModel(
+            "gemini-pro",
+            # Specifying the tools once to avoid specifying them in every request
+            tools=[weather_tool],
+        )
+
+        messages = [
+            generative_models.Content(
+                role="user",
+                parts=[generative_models.Part.from_text("What is the weather like in Boston?")]
+            ),
+            generative_models.Content(
+                role="model",
+                parts=[generative_models.Part.from_function_call(
+                    function_name="get_current_weather",
+                    arguments={
+                        "location": "Boston"
+                    }
+                )]
+            ),
+            generative_models.Part.from_function_response(
+                name="get_current_weather",
+                response={
+                    "content": {"weather_there": "super nice"},
+                },
+            )
+        ]
+
+        response = model.generate_content(contents=messages)
+
+        assert response.text == "The weather in Boston is super nice!"
