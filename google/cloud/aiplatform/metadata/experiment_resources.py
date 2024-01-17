@@ -502,7 +502,7 @@ class Experiment:
         """Returns backing tensorboard if one is set.
 
         Returns:
-            Tensorboard resource if one exists.
+            Tensorboard resource if one exists, otherwise returns None.
         """
         tensorboard_resource_name = self._metadata_context.metadata.get(
             constants._BACKING_TENSORBOARD_RESOURCE_KEY
@@ -516,10 +516,16 @@ class Experiment:
             )
 
         if tensorboard_resource_name:
-            return tensorboard_resource.Tensorboard(
-                tensorboard_resource_name,
-                credentials=self._metadata_context.credentials,
-            )
+            try:
+                return tensorboard_resource.Tensorboard(
+                    tensorboard_resource_name,
+                    credentials=self._metadata_context.credentials,
+                )
+            except exceptions.NotFound:
+                self._metadata_context.update(
+                    metadata={constants._BACKING_TENSORBOARD_RESOURCE_KEY: None}
+                )
+        return None
 
     def get_backing_tensorboard_resource(
         self,
@@ -555,20 +561,6 @@ class Experiment:
             ValueError: If this experiment already has a previously set backing tensorboard resource.
             ValueError: If Tensorboard is not in same project and location as this experiment.
         """
-
-        backing_tensorboard = self._lookup_backing_tensorboard()
-        if backing_tensorboard:
-            tensorboard_resource_name = (
-                tensorboard
-                if isinstance(tensorboard, str)
-                else tensorboard.resource_name
-            )
-            if tensorboard_resource_name != backing_tensorboard.resource_name:
-                raise ValueError(
-                    f"Experiment {self._metadata_context.name} already associated '"
-                    f"to tensorboard resource {backing_tensorboard.resource_name}"
-                )
-
         if isinstance(tensorboard, str):
             tensorboard = tensorboard_resource.Tensorboard(
                 tensorboard,
@@ -577,18 +569,22 @@ class Experiment:
                 credentials=self._metadata_context.credentials,
             )
 
-        if tensorboard.project not in self._metadata_context._project_tuple:
+        if (
+            tensorboard
+            and tensorboard.project not in self._metadata_context._project_tuple
+            ):
             raise ValueError(
                 f"Tensorboard is in project {tensorboard.project} but must be in project {self._metadata_context.project}"
             )
-        if tensorboard.location != self._metadata_context.location:
+        if tensorboard and tensorboard.location != self._metadata_context.location:
             raise ValueError(
                 f"Tensorboard is in location {tensorboard.location} but must be in location {self._metadata_context.location}"
             )
 
+        tensorboard_resource_name = tensorboard.resource_name if tensorboard else None
         self._metadata_context.update(
             metadata={
-                constants._BACKING_TENSORBOARD_RESOURCE_KEY: tensorboard.resource_name
+                constants._BACKING_TENSORBOARD_RESOURCE_KEY: tensorboard_resource_name
             }
         )
 
