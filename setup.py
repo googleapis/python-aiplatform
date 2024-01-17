@@ -74,10 +74,7 @@ datasets_extra_require = [
 ]
 
 vizier_extra_require = [
-    "google-vizier==0.0.4; python_version=='3.8'",
-    "google-vizier==0.0.11; python_version=='3.9'",
-    "google-vizier>=0.0.14; python_version=='3.10'",
-    "google-vizier>=0.1.6; python_version>='3.11'",
+    "google-vizier>=0.1.6",
 ]
 
 prediction_extra_require = [
@@ -138,7 +135,7 @@ testing_extra_require = (
         "bigframes; python_version>='3.10'",
         "grpcio-testing",
         "ipython",
-        "kfp",
+        "kfp >= 2.6.0, < 3.0.0",
         "pyfakefs",
         "pytest-asyncio",
         "pytest-xdist",
