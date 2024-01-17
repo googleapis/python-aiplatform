@@ -283,7 +283,7 @@ def docs(session):
 
     session.install("-e", ".")
     session.install(
-        "sphinx==4.0.1",
+        "sphinx==5.0.2",
         "alabaster",
         "google-cloud-aiplatform[prediction]",
         "recommonmark",
