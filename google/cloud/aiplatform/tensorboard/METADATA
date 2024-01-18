@@ -1,0 +1,12 @@
+# go/google3metadata
+# proto-file: devtools/metadata/metadata.proto
+# proto-message: MetaData
+
+tricorder: {
+  options: {
+    common_typos: {
+      suppression_source_regex: "(?i)tensorboard"  # NOTYPO
+      suppression_source_regex: "(?i)Tensorboard"  # NOTYPO
+    }
+  }
+}
