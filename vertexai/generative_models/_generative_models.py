@@ -22,6 +22,7 @@ from typing import (
     Any,
     AsyncIterable,
     Awaitable,
+    Callable,
     Dict,
     Iterable,
     List,
@@ -622,6 +623,7 @@ class _GenerativeModel:
         self,
         *,
         history: Optional[List["Content"]] = None,
+        response_validator: Callable = _validate_response,
     ) -> "ChatSession":
         """Creates a stateful chat session.
 
@@ -634,6 +636,7 @@ class _GenerativeModel:
         return ChatSession(
             model=self,
             history=history,
+            response_validator=response_validator,
         )
 
 
@@ -642,6 +645,29 @@ _SUCCESSFUL_FINISH_REASONS = [
     # Many responses have this finish reason
     gapic_content_types.Candidate.FinishReason.FINISH_REASON_UNSPECIFIED,
 ]
+
+
+def _validate_response(
+    response: "GenerationResponse",
+    request_contents: Optional[List["Content"]] = None,
+    response_chunks: Optional[List["GenerationResponse"]] = None,
+) -> None:
+    candidate = response.candidates[0]
+    if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
+        message = (
+            "The model response did not completed successfully.\n"
+            f"Finish reason: {candidate.finish_reason}.\n"
+            f"Finish message: {candidate.finish_message}.\n"
+            f"Safety ratings: {candidate.safety_ratings}.\n"
+            "To protect the integrity of the chat session, the request and response were not added to chat history.\n"
+            "To skip the response validation, specify `model.start_chat(validate_response=False)`.\n"
+            "Note that letting blocked or otherwise incomplete responses into chat history might lead to future interactions being blocked by the service."
+        )
+        raise ResponseBlockedError(
+            message=message,
+            request_contents=request_contents,
+            responses=response_chunks,
+        )
 
 
 class ChatSession:
@@ -656,6 +682,7 @@ class ChatSession:
         *,
         history: Optional[List["Content"]] = None,
         raise_on_blocked: bool = True,
+        response_validator: Callable = _validate_response,
     ):
         if history:
             if not all(isinstance(item, Content) for item in history):
@@ -663,7 +690,12 @@ class ChatSession:
 
         self._model = model
         self._history = history or []
-        self._raise_on_blocked = raise_on_blocked
+        if not raise_on_blocked:
+            if response_validator is not _validate_response:
+                raise ValueError(
+                    "Cannot provide custom response_validator when raise_on_blocked=False."
+                )
+        self._response_validator = response_validator
 
     @property
     def history(self) -> List["Content"]:
@@ -800,13 +832,12 @@ class ChatSession:
             tools=tools,
         )
         # By default we're not adding incomplete interactions to history.
-        if self._raise_on_blocked:
-            if response.candidates[0].finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-                raise ResponseBlockedError(
-                    message="The response was blocked.",
-                    request_contents=request_history,
-                    responses=[response],
-                )
+        if self._response_validator:
+            self._response_validator(
+                response=response,
+                request_contents=request_history,
+                response_chunks=[response],
+            )
 
         # Adding the request and the first response candidate to history
         response_message = response.candidates[0].content
@@ -857,13 +888,13 @@ class ChatSession:
             tools=tools,
         )
         # By default we're not adding incomplete interactions to history.
-        if self._raise_on_blocked:
-            if response.candidates[0].finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-                raise ResponseBlockedError(
-                    message="The response was blocked.",
-                    request_contents=request_history,
-                    responses=[response],
-                )
+        if self._response_validator:
+            self._response_validator(
+                response=response,
+                request_contents=request_history,
+                response_chunks=[response],
+            )
+
         # Adding the request and the first response candidate to history
         response_message = response.candidates[0].content
         # Response role is NOT set by the model.
@@ -921,13 +952,12 @@ class ChatSession:
             else:
                 full_response = chunk
             # By default we're not adding incomplete interactions to history.
-            if self._raise_on_blocked:
-                if chunk.candidates[0].finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-                    raise ResponseBlockedError(
-                        message="The response was blocked.",
-                        request_contents=request_history,
-                        responses=chunks,
-                    )
+            if self._response_validator:
+                self._response_validator(
+                    response=chunk,
+                    request_contents=request_history,
+                    response_chunks=chunks,
+                )
             yield chunk
         if not full_response:
             return
@@ -989,16 +1019,13 @@ class ChatSession:
                 else:
                     full_response = chunk
                 # By default we're not adding incomplete interactions to history.
-                if self._raise_on_blocked:
-                    if (
-                        chunk.candidates[0].finish_reason
-                        not in _SUCCESSFUL_FINISH_REASONS
-                    ):
-                        raise ResponseBlockedError(
-                            message="The response was blocked.",
-                            request_contents=request_history,
-                            responses=chunks,
-                        )
+                if self._response_validator:
+                    self._response_validator(
+                        response=chunk,
+                        request_contents=request_history,
+                        response_chunks=chunks,
+                    )
+
                 yield chunk
             if not full_response:
                 return
