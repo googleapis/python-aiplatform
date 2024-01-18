@@ -244,6 +244,7 @@ _TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS = 3
 _TEST_APPROX_NUM_NEIGHBORS = 2
 _TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE = 0.8
 _TEST_RETURN_FULL_DATAPOINT = True
+_TEST_LOW_LEVEL_BATCH_SIZE = 3
 _TEST_ENCRYPTION_SPEC_KEY_NAME = "kms_key_name"
 _TEST_PROJECT_ALLOWLIST = ["project-1", "project-2"]
 _TEST_PRIVATE_SERVICE_CONNECT_IP_ADDRESS = "10.128.0.5"
@@ -1061,12 +1062,14 @@ class TestMatchingEngineIndexEndpoint:
             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
             fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
             return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+            low_level_batch_size=_TEST_LOW_LEVEL_BATCH_SIZE,
         )
 
         batch_request = match_service_pb2.BatchMatchRequest(
             requests=[
                 match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
                     deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    low_level_batch_size=_TEST_LOW_LEVEL_BATCH_SIZE,
                     requests=[
                         match_service_pb2.MatchRequest(
                             num_neighbors=_TEST_NUM_NEIGHBOURS,

@@ -1436,6 +1436,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         approx_num_neighbors: Optional[int] = None,
         fraction_leaf_nodes_to_search_override: Optional[float] = None,
         return_full_datapoint: bool = False,
+        low_level_batch_size: int = 0,
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the
         specified deployed index for private endpoint only.
@@ -1472,6 +1473,13 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 vector values and of the nearest neighbors are returned.
                 Note that returning full datapoint will significantly increase the
                 latency and cost of the query.
+            low_level_batch_size (int):
+                Optional. Selects the optimal batch size to use for low-level
+                batching. Queries within each low level batch are executed
+                sequentially while low level batches are executed in parallel.
+                This field is optional, defaults to 0 if not set. A non-positive
+                number disables low level batching, i.e. all queries are
+                executed sequentially.
 
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
@@ -1487,6 +1495,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex()
         )
         batch_request_for_index.deployed_index_id = deployed_index_id
+        batch_request_for_index.low_level_batch_size = low_level_batch_size
 
         # Preprocess restricts to be used for each request
         restricts = []
