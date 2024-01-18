@@ -97,6 +97,9 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         assert response.text
 
+    @pytest.mark.skip(
+        reason="Breaking change in the gemini-pro-vision model. See b/315803556#comment3"
+    )
     def test_generate_content_from_remote_image(self):
         vision_model = generative_models.GenerativeModel("gemini-pro-vision")
         image_part = generative_models.Part.from_uri(
