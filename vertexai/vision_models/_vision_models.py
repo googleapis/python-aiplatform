@@ -142,7 +142,7 @@ class ImageGenerationModel(
         seed: Optional[int] = None,
         base_image: Optional["Image"] = None,
         mask: Optional["Image"] = None,
-        language:Optional[str] = None,
+        language: Optional[str] = None,
     ) -> "ImageGenerationResponse":
         """Generates images from text prompt.
 
@@ -641,19 +641,27 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
     )
 
     def get_embeddings(
-        self, image: Optional[Image] = None, contextual_text: Optional[str] = None
+        self,
+        image: Optional[Image] = None,
+        contextual_text: Optional[str] = None,
+        dimension: Optional[int] = None,
     ) -> "MultiModalEmbeddingResponse":
         """Gets embedding vectors from the provided image.
 
         Args:
-            image (Image):
-                Optional. The image to generate embeddings for. One of `image` or `contextual_text` is required.
-            contextual_text (str):
-                Optional. Contextual text for your input image. If provided, the model will also
-                generate an embedding vector for the provided contextual text. The returned image
-                and text embedding vectors are in the same semantic space with the same dimensionality,
-                and the vectors can be used interchangeably for use cases like searching image by text
-                or searching text by image. One of `image` or `contextual_text` is required.
+            image (Image): Optional. The image to generate embeddings for. One of
+              `image` or `contextual_text` is required.
+            contextual_text (str): Optional. Contextual text for your input image.
+              If provided, the model will also generate an embedding vector for the
+              provided contextual text. The returned image and text embedding
+              vectors are in the same semantic space with the same dimensionality,
+              and the vectors can be used interchangeably for use cases like
+              searching image by text or searching text by image. One of `image` or
+              `contextual_text` is required.
+            dimension (int): Optional. The number of embedding dimensions. Lower
+              values offer decreased latency when using these embeddings for
+              subsequent tasks, while higher values offer better accuracy. Available
+              values: `128`, `256`, `512`, and `1408` (default).
 
         Returns:
             ImageEmbeddingResponse:
@@ -671,7 +679,14 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
         if contextual_text:
             instance["text"] = contextual_text
 
-        response = self._endpoint.predict(instances=[instance])
+        parameters = {}
+        if dimension:
+            parameters["dimension"] = dimension
+
+        response = self._endpoint.predict(
+            instances=[instance],
+            parameters=parameters,
+        )
         image_embedding = response.predictions[0].get("imageEmbedding")
         text_embedding = (
             response.predictions[0].get("textEmbedding")
