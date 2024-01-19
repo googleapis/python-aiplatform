@@ -21,6 +21,7 @@ import os
 from typing import Dict, Union, Optional, Any, List
 
 from google.api_core import exceptions
+import google.auth
 from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
@@ -216,7 +217,7 @@ class _LegacyExperimentService:
 
 
 class _ExperimentTracker:
-    """Tracks Experiments and Experiment Runs wil high level APIs"""
+    """Tracks Experiments and Experiment Runs with high level APIs."""
 
     def __init__(self):
         self._experiment: Optional[experiment_resources.Experiment] = None
@@ -228,6 +229,27 @@ class _ExperimentTracker:
         """Resets this experiment tracker, clearing the current experiment and run."""
         self._experiment = None
         self._experiment_run = None
+
+    def _get_global_tensorboard(self) -> Optional[tensorboard_resource.Tensorboard]:
+        """Helper method to get the global TensorBoard instance.
+
+        Returns:
+            tensorboard_resource.Tensorboard: the global TensorBoard instance.
+        """
+        if self._global_tensorboard:
+            credentials, _ = google.auth.default()
+            if self.experiment and self.experiment._metadata_context.credentials:
+                credentials = self.experiment._metadata_context.credentials
+            try:
+                return tensorboard_resource.Tensorboard(
+                    self._global_tensorboard.resource_name,
+                    project=self._global_tensorboard.project,
+                    location=self._global_tensorboard.location,
+                    credentials=credentials,
+                )
+            except exceptions.NotFound:
+                self._global_tensorboard = None
+        return None
 
     @property
     def experiment_name(self) -> Optional[str]:
@@ -284,7 +306,7 @@ class _ExperimentTracker:
                 If ommitted, or set to `True` or `None`, the global tensorboard is used.
                 If no global tensorboard is set, the default tensorboard will be used, and created if it does not exist.
 
-                To disable using a backign tensorboard, set `backing_tensorboard` to `False`.
+                To disable using a backing tensorboard, set `backing_tensorboard` to `False`.
                 To maintain this behavior, set `experiment_tensorboard` to `False` in subsequent calls to aiplatform.init().
         """
         self.reset()
@@ -299,7 +321,7 @@ class _ExperimentTracker:
             backing_tb = None
         else:
             backing_tb = (
-                self._global_tensorboard or _get_or_create_default_tensorboard()
+                self._get_global_tensorboard() or _get_or_create_default_tensorboard()
             )
 
         current_backing_tb = experiment.backing_tensorboard_resource_name
