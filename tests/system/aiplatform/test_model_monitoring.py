@@ -31,7 +31,9 @@ from google.cloud.aiplatform_v1.types import (
 
 # constants used for testing
 USER_EMAIL = "rosiezou@cloudadvocacyorg.joonix.net"
-NOTIFICATION_CHANNEL = "projects/123/notificationChannels/456"
+NOTIFICATION_CHANNEL = (
+    "projects/ucaip-sample-tests/notificationChannels/11578134490450491958"
+)
 PERMANENT_CHURN_MODEL_ID = "5295507484113371136"
 CHURN_MODEL_PATH = "gs://mco-mm/churn"
 DEFAULT_INPUT = {
