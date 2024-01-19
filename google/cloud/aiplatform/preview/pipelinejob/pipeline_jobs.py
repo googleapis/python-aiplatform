@@ -128,11 +128,11 @@ class _PipelineJob(
     ) -> aiplatform_v1beta1.BatchDeletePipelineJobsResponse:
         """
         Example Usage:
-          pipeline_job = aiplatform.PipelineJob(
-            display_name='job_display_name',
-            template_path='your_pipeline.yaml',
-        )
-          pipeline_job.batch_delete(
+          aiplatform.init(
+            project='your_project_name',
+            location='your_location',
+          )
+          aiplatform.PipelineJob.batch_delete(
             names=['pipeline_job_name', 'pipeline_job_name2']
           )
 
