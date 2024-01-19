@@ -15,12 +15,18 @@
 # limitations under the License.
 #
 
-from typing import Optional
+from typing import List, Optional
 
 from google.cloud.aiplatform.pipeline_jobs import (
     PipelineJob as PipelineJobGa,
 )
-from google.cloud.aiplatform import pipeline_job_schedules
+from google.cloud.aiplatform_v1.services.pipeline_service import (
+    PipelineServiceClient as PipelineServiceClientGa,
+)
+from google.cloud import aiplatform_v1beta1
+from google.cloud.aiplatform import compat, pipeline_job_schedules
+from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.metadata import experiment_resources
@@ -112,3 +118,65 @@ class _PipelineJob(
             network=network,
             create_request_timeout=create_request_timeout,
         )
+
+    @classmethod
+    def batch_delete(
+        cls,
+        names: List[str],
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+    ) -> aiplatform_v1beta1.BatchDeletePipelineJobsResponse:
+        """
+        Example Usage:
+          pipeline_job = aiplatform.PipelineJob(
+            display_name='job_display_name',
+            template_path='your_pipeline.yaml',
+        )
+          pipeline_job.batch_delete(
+            names=['pipeline_job_name', 'pipeline_job_name2']
+          )
+
+        Args:
+            names (List[str]):
+                Required. The fully-qualified resource name or ID of the
+                Pipeline Jobs to batch delete. Example:
+                "projects/123/locations/us-central1/pipelineJobs/456"
+                or "456" when project and location are initialized or passed.
+            project (str):
+                Optional. Project containing the Pipeline Jobs to
+                batch delete. If not set, the project given to `aiplatform.init`
+                will be used.
+            location (str):
+                Optional. Location containing the Pipeline Jobs to
+                batch delete. If not set, the location given to `aiplatform.init`
+                will be used.
+
+        Returns:
+          BatchDeletePipelineJobsResponse contains PipelineJobs deleted.
+        """
+        user_project = project or initializer.global_config.project
+        user_location = location or initializer.global_config.location
+        parent = initializer.global_config.common_location_path(
+            project=user_project, location=user_location
+        )
+        pipeline_jobs_names = [
+            utils.full_resource_name(
+                resource_name=name,
+                resource_noun="pipelineJobs",
+                parse_resource_name_method=PipelineServiceClientGa.parse_pipeline_job_path,
+                format_resource_name_method=PipelineServiceClientGa.pipeline_job_path,
+                project=user_project,
+                location=user_location,
+            )
+            for name in names
+        ]
+        request = aiplatform_v1beta1.BatchDeletePipelineJobsRequest(
+            parent=parent, names=pipeline_jobs_names
+        )
+        client = cls._instantiate_client(
+            location=user_location,
+            appended_user_agent=["preview-pipeline-jobs-batch-delete"],
+        )
+        v1beta1_client = client.select_version(compat.V1BETA1)
+        operation = v1beta1_client.batch_delete_pipeline_jobs(request)
+        return operation.result()
