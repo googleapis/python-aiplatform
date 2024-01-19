@@ -294,7 +294,7 @@ class _GenerativeModel:
                 elif isinstance(tool, Tool):
                     gapic_tools.append(tool._raw_tool)
                 else:
-                    raise TypeError("Unexpected tool type: {tool}.")
+                    raise TypeError(f"Unexpected tool type: {tool}.")
 
         return gapic_prediction_service_types.GenerateContentRequest(
             # The `model` parameter now needs to be set for the vision models.
