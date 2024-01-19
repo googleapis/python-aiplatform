@@ -351,10 +351,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Strings which should be sent along with the request as
                 metadata.
             project (str):
-                Required. Project to retrieve endpoint from. If not set, project
+                Optional. Project to retrieve endpoint from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Required. Location to retrieve endpoint from. If not set, location
+                Optional. Location to retrieve endpoint from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
@@ -472,11 +472,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             project (str):
-                Required. Project to retrieve endpoint from. If not set, project
-                set in aiplatform.init will be used.
+                Required. Project to retrieve endpoint from.
             location (str):
-                Required. Location to retrieve endpoint from. If not set, location
-                set in aiplatform.init will be used.
+                Required. Location to retrieve endpoint from.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict[str, str]):
