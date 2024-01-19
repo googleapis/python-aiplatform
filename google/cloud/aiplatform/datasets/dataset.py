@@ -805,7 +805,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 saved_query_id,
                 annotation_schema_uri,
                 split,
-            )
+            )._pb
         )
 
     def update(

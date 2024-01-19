@@ -405,9 +405,14 @@ class TestDataset(e2e_base.TestEndToEnd):
         )
 
         # Ensure three output paths (training, validation and test) are provided
-        assert len(export_data_response["exported_files"]) == 3
+        assert len(export_data_response["exportedFiles"]) == 3
         # Ensure data stats are calculated and correct
-        assert export_data_response["data_stats"]["training_data_items_count"] == 40
+        assert int(export_data_response["dataStats"]["trainingDataItemsCount"]) == 40
+        assert int(export_data_response["dataStats"]["validationDataItemsCount"]) == 5
+        assert int(export_data_response["dataStats"]["testDataItemsCount"]) == 5
+        assert int(export_data_response["dataStats"]["trainingAnnotationsCount"]) == 40
+        assert int(export_data_response["dataStats"]["validationAnnotationsCount"]) == 5
+        assert int(export_data_response["dataStats"]["testAnnotationsCount"]) == 5
 
     def test_update_dataset(self):
         """Create a new dataset and use update() method to change its display_name, labels, and description.
