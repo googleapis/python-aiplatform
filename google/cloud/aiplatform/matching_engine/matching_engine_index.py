@@ -101,8 +101,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     def _create(
         cls,
         display_name: str,
-        contents_delta_uri: str,
-        config: matching_engine_index_config.MatchingEngineIndexConfig,
+        contents_delta_uri: Optional[str] = None,
+        config: matching_engine_index_config.MatchingEngineIndexConfig = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
@@ -121,7 +121,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
             contents_delta_uri (str):
-                Required. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
+                Optional. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
                 The string must be a valid Google Cloud Storage directory path. If this
                 field is set when calling IndexService.UpdateIndex, then no other
                 Index field can be  also updated as part of the same call.
@@ -188,13 +188,17 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 index_update_method
             ]
 
+        metadata = {"config": config.as_dict()}
+        if contents_delta_uri:
+            metadata = {
+                "config": config.as_dict(),
+                "contentsDeltaUri": contents_delta_uri,
+            }
+
         gapic_index = gca_matching_engine_index.Index(
             display_name=display_name,
             description=description,
-            metadata={
-                "config": config.as_dict(),
-                "contentsDeltaUri": contents_delta_uri,
-            },
+            metadata=metadata,
             index_update_method=index_update_method_enum,
         )
 
@@ -399,9 +403,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     def create_tree_ah_index(
         cls,
         display_name: str,
-        contents_delta_uri: str,
-        dimensions: int,
-        approximate_neighbors_count: int,
+        contents_delta_uri: Optional[str] = None,
+        dimensions: int = None,
+        approximate_neighbors_count: int = None,
         leaf_node_embedding_count: Optional[int] = None,
         leaf_nodes_to_search_percent: Optional[float] = None,
         distance_measure_type: Optional[
@@ -439,7 +443,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
             contents_delta_uri (str):
-                Required. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
+                Optional. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
                 The string must be a valid Google Cloud Storage directory path. If this
                 field is set when calling IndexService.UpdateIndex, then no other
                 Index field can be  also updated as part of the same call.
@@ -543,8 +547,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     def create_brute_force_index(
         cls,
         display_name: str,
-        contents_delta_uri: str,
-        dimensions: int,
+        contents_delta_uri: Optional[str] = None,
+        dimensions: int = None,
         distance_measure_type: Optional[
             matching_engine_index_config.DistanceMeasureType
         ] = None,
@@ -578,7 +582,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
             contents_delta_uri (str):
-                Required. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
+                Optional. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
                 The string must be a valid Google Cloud Storage directory path. If this
                 field is set when calling IndexService.UpdateIndex, then no other
                 Index field can be  also updated as part of the same call.

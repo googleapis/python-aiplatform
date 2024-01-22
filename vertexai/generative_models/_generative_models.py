@@ -294,7 +294,7 @@ class _GenerativeModel:
                 elif isinstance(tool, Tool):
                     gapic_tools.append(tool._raw_tool)
                 else:
-                    raise TypeError("Unexpected tool type: {tool}.")
+                    raise TypeError(f"Unexpected tool type: {tool}.")
 
         return gapic_prediction_service_types.GenerateContentRequest(
             # The `model` parameter now needs to be set for the vision models.
@@ -1116,14 +1116,14 @@ class Tool:
         ```
         Use tool in chat:
         ```
-        fc_model = GenerativeModel(
+        model = GenerativeModel(
             "gemini-pro",
             # You can specify tools when creating a model to avoid having to send them with every request.
             tools=[weather_tool],
         )
-        fc_chat = fc_model.start_chat()
-        print(fc_chat.send_message("What is the weather like in Boston?"))
-        print(fc_chat.send_message(
+        chat = model.start_chat()
+        print(chat.send_message("What is the weather like in Boston?"))
+        print(chat.send_message(
             Part.from_function_response(
                 name="get_current_weather",
                 response={
@@ -1216,14 +1216,14 @@ class FunctionDeclaration:
         ```
         Use tool in chat:
         ```
-        fc_model = GenerativeModel(
+        model = GenerativeModel(
             "gemini-pro",
             # You can specify tools when creating a model to avoid having to send them with every request.
             tools=[weather_tool],
         )
-        fc_chat = model.start_chat()
-        print(fc_chat.send_message("What is the weather like in Boston?"))
-        print(fc_chat.send_message(
+        chat = model.start_chat()
+        print(chat.send_message("What is the weather like in Boston?"))
+        print(chat.send_message(
             Part.from_function_response(
                 name="get_current_weather",
                 response={
