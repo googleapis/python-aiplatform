@@ -137,6 +137,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
     # Chat
 
     def test_send_message_from_text(self):
+
         model = generative_models.GenerativeModel("gemini-pro")
         chat = model.start_chat()
         response1 = chat.send_message("I really like fantasy books.")
@@ -146,3 +147,41 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         response2 = chat.send_message("What things do I like?.")
         assert response2.text
         assert len(chat.history) == 4
+
+    def test_send_message_from_list_of_texts(self):
+
+        model = generative_models.GenerativeModel("gemini-pro")
+        chat = model.start_chat()
+        response1 = chat.send_message(["I really like fantasy books.", "Please tell me something related to them."])
+        assert response1.text
+        assert len(chat.history) == 2
+
+    def test_send_message_from_list_of_parts(self):
+
+        model = generative_models.GenerativeModel("gemini-pro-vision")
+        chat = model.start_chat()
+        image_part = generative_models.Part.from_uri(
+            uri="gs://download.tensorflow.org/example_images/320px-Felis_catus-cat_on_snow.jpg",
+            mime_type="image/jpeg",
+        )
+        text_part = generative_models.Part.from_text(
+            "What is shown in this image?"
+        )
+        response1 = chat.send_message([text_part, image_part])
+        assert response1.text
+        assert len(chat.history) == 2
+
+    def test_send_message_from_content(self):
+
+        model = generative_models.GenerativeModel("gemini-pro-vision")
+        chat = model.start_chat()
+        image_part = generative_models.Part.from_uri(
+            uri="gs://download.tensorflow.org/example_images/320px-Felis_catus-cat_on_snow.jpg",
+            mime_type="image/jpeg",
+        )
+        text_part = generative_models.Part.from_text(
+            "What is shown in this image?"
+        )
+        response1 = chat.send_message(generative_models.Content(role="user", parts=[text_part, image_part]))
+        assert response1.text
+        assert len(chat.history) == 2

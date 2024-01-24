@@ -63,12 +63,13 @@ FinishReason = gapic_content_types.Candidate.FinishReason
 SafetyRating = gapic_content_types.SafetyRating
 
 
-# These type defnitions are expanded to help the user see all the types
+# These type definitions are expanded to help the user see all the types
 PartsType = Union[
     str,
     "Image",
     "Part",
     List[Union[str, "Image", "Part"]],
+    "Content",
 ]
 
 ContentDict = Dict[str, Any]
