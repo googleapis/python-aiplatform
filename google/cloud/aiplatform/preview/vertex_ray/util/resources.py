@@ -39,7 +39,7 @@ class Resources:
             be either unspecified or within the range of [100, 64000].
     """
 
-    machine_type: Optional[str] = "n1-standard-8"
+    machine_type: Optional[str] = "e2-standard-8"
     node_count: Optional[int] = 1
     accelerator_type: Optional[str] = None
     accelerator_count: Optional[int] = 0
@@ -64,7 +64,7 @@ class Cluster:
         python_version: Python version for the ray cluster (e.g. "3_10").
         ray_version: Ray version for the ray cluster (e.g. "2_4").
         head_node_type: The head node resource. Resources.node_count must be 1.
-            If not set, by default it is a CPU node with machine_type of n1-standard-8.
+            If not set, by default it is a CPU node with machine_type of e2-standard-8.
         worker_node_types: The list of Resources of the worker nodes. Should not
             duplicate the elements in the list.
         dashboard_address: For Ray Job API (JobSubmissionClient), with this

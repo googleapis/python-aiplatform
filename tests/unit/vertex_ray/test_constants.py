@@ -102,7 +102,7 @@ class ClusterConstants:
     _TEST_RESOURCE_POOL_0 = ResourcePool(
         id="head-node",
         machine_spec=MachineSpec(
-            machine_type="n1-standard-8",
+            machine_type="e2-standard-8",
             accelerator_type="NVIDIA_TESLA_P100",
             accelerator_count=1,
         ),
@@ -156,7 +156,7 @@ class ClusterConstants:
     _TEST_RESOURCE_POOL_1 = ResourcePool(
         id="head-node",
         machine_spec=MachineSpec(
-            machine_type="n1-standard-8",
+            machine_type="e2-standard-8",
         ),
         disk_spec=DiskSpec(
             boot_disk_type="pd-ssd",

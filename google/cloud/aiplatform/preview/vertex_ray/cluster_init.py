@@ -56,14 +56,14 @@ def create_ray_cluster(
     from vertex_ray import Resources
 
     head_node_type = Resources(
-        machine_type="n1-standard-8",
+        machine_type="e2-standard-8",
         node_count=1,
         accelerator_type="NVIDIA_TESLA_K80",
         accelerator_count=1,
     )
 
     worker_node_types = [Resources(
-        machine_type="n1-standard-8",
+        machine_type="e2-standard-8",
         node_count=2,
         accelerator_type="NVIDIA_TESLA_K80",
         accelerator_count=1,
