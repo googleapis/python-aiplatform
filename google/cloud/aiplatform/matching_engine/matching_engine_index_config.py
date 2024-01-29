@@ -35,6 +35,16 @@ class DistanceMeasureType(enum.Enum):
     COSINE_DISTANCE = "COSINE_DISTANCE"
 
 
+# Index data is split into equal parts called shards for processing. When you create an index, you must specify the size of the shards to use.
+class ShardSizeType(enum.Enum):
+    # 2 GiB per shard
+    SHARD_SIZE_SMALL = "SHARD_SIZE_SMALL"
+    # 20 GiB per shard
+    SHARD_SIZE_MEDIUM = "SHARD_SIZE_MEDIUM"
+    # 50 GiB per shard
+    SHARD_SIZE_LARGE = "SHARD_SIZE_LARGE"
+
+
 class FeatureNormType(enum.Enum):
     """Type of normalization to be carried out on each vector."""
 
@@ -112,6 +122,10 @@ class MatchingEngineIndexConfig:
             Required. The number of dimensions of the input vectors.
         algorithm_config (AlgorithmConfig):
             Required. The configuration with regard to the algorithms used for efficient search.
+        shardSize (ShardSizeType):
+            Optional. When you create an index, you must specify the size of the shards to use. The machine types
+            that you can use to deploy your index depends on the shard size of the index. Default value is
+            SHARD_SIZE_MEDIUM.
         approximate_neighbors_count (int):
             Optional. The default number of neighbors to find via approximate search before exact reordering is
             performed. Exact reordering is a procedure where results returned by an
@@ -124,6 +138,7 @@ class MatchingEngineIndexConfig:
 
     dimensions: int
     algorithm_config: AlgorithmConfig
+    shardSize: ShardSizeType = ShardSizeType.SHARD_SIZE_MEDIUM
     approximate_neighbors_count: Optional[int] = None
     distance_measure_type: Optional[DistanceMeasureType] = None
 
@@ -136,6 +151,7 @@ class MatchingEngineIndexConfig:
 
         return {
             "dimensions": self.dimensions,
+            "shardSize": self.shardSize,
             "algorithmConfig": self.algorithm_config.as_dict(),
             "approximateNeighborsCount": self.approximate_neighbors_count,
             "distanceMeasureType": self.distance_measure_type,

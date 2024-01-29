@@ -408,6 +408,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         approximate_neighbors_count: int = None,
         leaf_node_embedding_count: Optional[int] = None,
         leaf_nodes_to_search_percent: Optional[float] = None,
+        shard_type: Optional[matching_engine_index_config.ShardSizeType] = None,
         distance_measure_type: Optional[
             matching_engine_index_config.DistanceMeasureType
         ] = None,
@@ -461,6 +462,10 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             leaf_nodes_to_search_percent (float):
                 Optional. The default percentage of leaf nodes that any query may be searched. Must be in
                 range 1-100, inclusive. The default value is 10 (means 10%) if not set.
+            shard_type (ShardSizeType):
+                Optional. When you create an index, you must specify the size of the shards to use. The machine types
+                that you can use to deploy your index depends on the shard size of the index. Default value is
+                SHARD_SIZE_MEDIUM.
             distance_measure_type (matching_engine_index_config.DistanceMeasureType):
                 Optional. The distance measure used in nearest neighbor search.
             description (str):
@@ -523,6 +528,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         config = matching_engine_index_config.MatchingEngineIndexConfig(
             dimensions=dimensions,
+            shardSize=shard_type,
             algorithm_config=algorithm_config,
             approximate_neighbors_count=approximate_neighbors_count,
             distance_measure_type=distance_measure_type,
