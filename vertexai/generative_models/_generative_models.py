@@ -764,7 +764,7 @@ class ChatSession:
             )
 
     def _deprecate_chat_content_input(self, content):
-        if True or isinstance(content, Content):
+        if isinstance(content, Content):
             logging.getLogger(__name__).warning(
                 "Usage of Content in ChatSession is deprecated. "
                 "Please use a valid PartsType type, such as str, Image, Part or a sequence of them.",
