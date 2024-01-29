@@ -54,7 +54,7 @@ from .client import FeatureOnlineStoreServiceClient
 
 
 class FeatureOnlineStoreServiceAsyncClient:
-    """"""
+    """A service for fetching feature values from the online store."""
 
     _client: FeatureOnlineStoreServiceClient
 

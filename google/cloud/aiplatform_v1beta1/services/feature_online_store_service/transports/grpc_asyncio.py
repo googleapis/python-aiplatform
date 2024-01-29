@@ -36,6 +36,8 @@ from .grpc import FeatureOnlineStoreServiceGrpcTransport
 class FeatureOnlineStoreServiceGrpcAsyncIOTransport(FeatureOnlineStoreServiceTransport):
     """gRPC AsyncIO backend transport for FeatureOnlineStoreService.
 
+    A service for fetching feature values from the online store.
+
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
     and call it.

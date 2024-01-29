@@ -94,7 +94,7 @@ class FeatureOnlineStoreServiceClientMeta(type):
 
 
 class FeatureOnlineStoreServiceClient(metaclass=FeatureOnlineStoreServiceClientMeta):
-    """"""
+    """A service for fetching feature values from the online store."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
