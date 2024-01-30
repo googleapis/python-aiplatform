@@ -35,7 +35,7 @@ class DistanceMeasureType(enum.Enum):
     COSINE_DISTANCE = "COSINE_DISTANCE"
 
 
-# Index data is split into equal parts called shards for processing. When you create an index, you must specify the size of the shards to use.
+# When you create an index, you can specify the size of the shards to use.
 class ShardSizeType(enum.Enum):
     # 2 GiB per shard
     SHARD_SIZE_SMALL = "SHARD_SIZE_SMALL"
