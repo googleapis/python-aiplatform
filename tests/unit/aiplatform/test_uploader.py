@@ -220,7 +220,7 @@ def _create_uploader(
     if max_blob_size is _USE_DEFAULT:
         max_blob_size = 12345
     if max_tensor_point_size is _USE_DEFAULT:
-        max_tensor_point_size = 16000
+        max_tensor_point_size = 2 * (2**30)
     if logdir_poll_rate_limiter is _USE_DEFAULT:
         logdir_poll_rate_limiter = util.RateLimiter(0)
     if rpc_rate_limiter is _USE_DEFAULT:
@@ -266,7 +266,7 @@ def _create_dispatcher(
     upload_limits = server_info_pb2.UploadLimits(
         max_scalar_request_size=128000,
         max_tensor_request_size=128000,
-        max_tensor_point_size=52000,
+        max_tensor_point_size=2 * (2**30),
         max_blob_request_size=128000,
     )
 

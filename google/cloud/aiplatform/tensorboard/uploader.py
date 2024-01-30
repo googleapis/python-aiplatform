@@ -101,7 +101,7 @@ _DEFAULT_MAX_TENSOR_REQUEST_SIZE = 512 * (2**10)  # 512KiB
 _DEFAULT_MAX_BLOB_REQUEST_SIZE = 128 * (2**10)  # 24KiB
 
 # Default maximum tensor point size in bytes.
-_DEFAULT_MAX_TENSOR_POINT_SIZE = 16 * (2**10)  # 16KiB
+_DEFAULT_MAX_TENSOR_POINT_SIZE = 2 * (2**30)  # 2GiB
 
 _DEFAULT_MAX_BLOB_SIZE = 10 * (2**30)  # 10GiB
 
@@ -196,6 +196,7 @@ class TensorBoardUploader(object):
         self._upload_limits = upload_limits
         if not self._upload_limits:
             self._upload_limits = server_info_pb2.UploadLimits()
+            logging.warning(self._upload_limits)
             self._upload_limits.max_scalar_request_size = (
                 _DEFAULT_MAX_SCALAR_REQUEST_SIZE
             )
@@ -214,6 +215,7 @@ class TensorBoardUploader(object):
             )
             self._upload_limits.max_blob_request_size = _DEFAULT_MAX_BLOB_REQUEST_SIZE
             self._upload_limits.max_blob_size = _DEFAULT_MAX_BLOB_SIZE
+            logging.warning(self._upload_limits)
         self._description = description
         self._verbosity = verbosity
         self._one_shot = one_shot
@@ -410,6 +412,8 @@ class TensorBoardUploader(object):
         TensorboardTimeSeries that need to be created, and creates them in batch
         to speed up uploading later on.
         """
+
+        logger.warning("Pre-creating runs and time series")
         self._logdir_loader_pre_create.synchronize_runs()
         run_to_events = self._logdir_loader_pre_create.get_run_events()
         if self._run_name_prefix:
@@ -419,6 +423,7 @@ class TensorBoardUploader(object):
 
         run_names = []
         run_tag_name_to_time_series_proto = {}
+        logger.warning("run_to_events.size()=%d", len(run_to_events.items()))
         for (run_name, events) in run_to_events.items():
             run_names.append(run_name)
             for event in events:
@@ -428,20 +433,22 @@ class TensorBoardUploader(object):
                         run_name, value
                     )
                     if not is_valid:
+                        logger.warning("Skipping invalid value: %s", value)
                         continue
                     if metadata.data_class == summary_pb2.DATA_CLASS_SCALAR:
                         value_type = (
                             tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
                         )
-                    elif metadata.data_class == summary_pb2.DATA_CLASS_TENSOR:
-                        value_type = (
-                            tensorboard_time_series.TensorboardTimeSeries.ValueType.TENSOR
-                        )
-                    elif metadata.data_class == summary_pb2.DATA_CLASS_BLOB_SEQUENCE:
+                    else:
+                    # elif metadata.data_class == summary_pb2.DATA_CLASS_TENSOR:
+                    #     value_type = (
+                    #         tensorboard_time_series.TensorboardTimeSeries.ValueType.TENSOR
+                    #     )
+                    # elif metadata.data_class == summary_pb2.DATA_CLASS_BLOB_SEQUENCE:
                         value_type = (
                             tensorboard_time_series.TensorboardTimeSeries.ValueType.BLOB_SEQUENCE
                         )
-
+                    logger.warning("Creating time series tag %s, value %s", value.tag, value_type)
                     run_tag_name_to_time_series_proto[
                         (run_name, value.tag)
                     ] = tensorboard_time_series.TensorboardTimeSeries(
@@ -601,17 +608,22 @@ class _BatchedRequestSender(object):
           RuntimeError: If no progress can be made because even a single
           point is too large (say, due to a gigabyte-long tag name).
         """
+        logging.warning("send_request: %s", run_name)
         metadata, is_valid = self.get_metadata_and_validate(run_name, value)
         if not is_valid:
+            logging.warning("metadata not valid")
             return
         plugin_name = metadata.plugin_data.plugin_name
         self._tracker.add_plugin_name(plugin_name)
 
+        logging.warning("metadata.data_class: %s", metadata.data_class)
         if metadata.data_class == summary_pb2.DATA_CLASS_SCALAR:
             self._scalar_request_sender.add_event(run_name, event, value, metadata)
-        elif metadata.data_class == summary_pb2.DATA_CLASS_TENSOR:
-            self._tensor_request_sender.add_event(run_name, event, value, metadata)
-        elif metadata.data_class == summary_pb2.DATA_CLASS_BLOB_SEQUENCE:
+        # elif metadata.data_class == summary_pb2.DATA_CLASS_TENSOR:
+        #     self._tensor_request_sender.add_event(run_name, event, value, metadata)
+        # elif metadata.data_class == summary_pb2.DATA_CLASS_BLOB_SEQUENCE:
+        else:
+            metadata.data_class = summary_pb2.DATA_CLASS_BLOB_SEQUENCE
             self._blob_request_sender.add_event(run_name, event, value, metadata)
 
     def flush(self):
@@ -729,12 +741,16 @@ class _Dispatcher(object):
           run_to_events: Mapping from run name to generator of `tf.compat.v1.Event`
             values, as returned by `LogdirLoader.get_run_events`.
         """
+        logger.warning("dispatch_requests: %s", run_to_events)
         for (run_name, events) in run_to_events.items():
             self._dispatch_additional_senders(run_name)
             if events is not None:
+                logger.warning("dispatch events for run: %s", run_name)
                 for event in events:
+                    logger.warning("dispatch event: %s", event)
                     _filter_graph_defs(event)
                     for value in event.summary.value:
+                        logger.warning("dispatch value: %s", value)
                         self._request_sender.send_request(run_name, event, value)
         self._request_sender.flush()
 
@@ -868,6 +884,9 @@ class _BaseBatchedRequestSender(object):
 
         with uploader_utils.request_logger(request):
             with self._get_tracker():
+                logger.warning("Sending request %s", request)
+                logger.warning("Sending request (experiment) %s", request.tensorboard_experiment)
+                logger.warning("Sending request (run_data) %s", request.write_run_data_requests)
                 try:
                     self._api.write_tensorboard_experiment_data(
                         tensorboard_experiment=request.tensorboard_experiment,
@@ -898,6 +917,7 @@ class _BaseBatchedRequestSender(object):
           _OutOfSpaceError: If adding the tag would exceed the remaining
             request budget.
         """
+        logger.warning("Creating time series for %s, type: %s", tag_name, self._value_type)
         time_series_resource_name = (
             self._one_platform_resource_manager.get_time_series_resource_name(
                 run_name,
@@ -910,11 +930,13 @@ class _BaseBatchedRequestSender(object):
                 ),
             )
         )
+        logger.warning("Time series resource name %s", time_series_resource_name)
 
         time_series_data_proto = tensorboard_data.TimeSeriesData(
             tensorboard_time_series_id=time_series_resource_name.split("/")[-1],
             value_type=self._value_type,
         )
+        logger.warning("Time series resource proto %s", time_series_data_proto)
 
         self._byte_budget_manager.add_time_series(time_series_data_proto)
         self._run_to_tag_to_time_series_data[run_name][
@@ -1147,6 +1169,7 @@ class _TensorBatchedRequestSender(_BaseBatchedRequestSender):
         self._num_values += 1
         tensor_size = len(point.tensor.value)
         self._tensor_bytes += tensor_size
+        logger.warning("tensor_size: %d, limit: %d", tensor_size, self._max_tensor_point_size)
         if tensor_size > self._max_tensor_point_size:
             logger.warning(
                 "Tensor too large; skipping. " "Size %d exceeds limit of %d bytes.",
@@ -1313,17 +1336,30 @@ class _BlobRequestSender(_BaseBatchedRequestSender):
         metadata: tf.compat.v1.SummaryMetadata,
     ) -> tensorboard_data.TimeSeriesDataPoint:
         blobs = tensor_util.make_ndarray(value.tensor)
-        if blobs.ndim != 1:
-            logger.warning(
-                "A blob sequence must be represented as a rank-1 Tensor. "
-                "Provided data has rank %d, for run %s, tag %s, step %s ('%s' plugin) .",
-                blobs.ndim,
-                run_name,
-                value.tag,
-                event.step,
-                metadata.plugin_data.plugin_name,
-            )
-            return None
+        logger.warning("blobs.ndim: %d", blobs.ndim)
+        logger.warning("blobs: %s", blobs)
+        logger.warning("type(blobs): %s", type(blobs))
+        if blobs.ndim < 1:
+            blobs = [tensor_util.make_ndarray(value.tensor).item()]
+            logger.warning("blobs: %s", blobs)
+        elif blobs.ndim > 1:
+            # tensor = tensorboard_data.TensorboardTensor(
+            #     value=value.tensor.SerializeToString()
+            # )
+            value.tensor.string_val = value.tensor.tensor_content
+            logger.warning("value.tensor: %s", value.tensor)
+            blobs = [tensor_util.make_ndarray(value.tensor).item()]
+            logger.warning("blobs: %s", blobs)
+        #     logger.warning(
+        #         "A blob sequence must be represented as a rank-1 Tensor. "
+        #         "Provided data has rank %d, for run %s, tag %s, step %s ('%s' plugin) .",
+        #         blobs.ndim,
+        #         run_name,
+        #         value.tag,
+        #         event.step,
+        #         metadata.plugin_data.plugin_name,
+        #     )
+        #     return None
 
         m = re.match(
             ".*/tensorboards/(.*)/experiments/(.*)/runs/(.*)/timeSeries/(.*)",
@@ -1417,6 +1453,7 @@ def _prune_empty_time_series(
         list(enumerate(request.time_series_data))
     ):
         if not time_series_data.values:
+            logger.warning("Skipping empty time_series %s", time_series_data.display_name)
             del request.time_series_data[time_series_idx]
 
 
