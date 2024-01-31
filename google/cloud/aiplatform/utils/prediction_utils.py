@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-import distutils.dir_util
+import shutil.copytree
 import inspect
 import logging
 import os
