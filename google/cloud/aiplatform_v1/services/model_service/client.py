@@ -803,7 +803,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
-
+        print("request is: ")
+        print(request)
         # Send the request.
         response = rpc(
             request,
