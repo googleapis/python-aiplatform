@@ -4287,7 +4287,7 @@ class TestLanguageModels:
 
         with mock.patch.object(
             target=aiplatform.BatchPredictionJob,
-            attribute="create",
+            attribute="submit",
         ) as mock_create:
             model.batch_predict(
                 dataset="gs://test-bucket/test_table.jsonl",
@@ -4309,7 +4309,7 @@ class TestLanguageModels:
         )
         with mock.patch.object(
             target=aiplatform.BatchPredictionJob,
-            attribute="create",
+            attribute="submit",
         ) as mock_create:
             tuned_model.batch_predict(
                 dataset="gs://test-bucket/test_table.jsonl",
@@ -4343,7 +4343,7 @@ class TestLanguageModels:
 
         with mock.patch.object(
             target=aiplatform.BatchPredictionJob,
-            attribute="create",
+            attribute="submit",
         ) as mock_create:
             model.batch_predict(
                 dataset="gs://test-bucket/test_table.jsonl",

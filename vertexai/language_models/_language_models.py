@@ -1772,7 +1772,7 @@ class _ModelWithBatchPredict(_LanguageModel):
 
         model_name = self._model_resource_name
 
-        job = aiplatform.BatchPredictionJob.create(
+        job = aiplatform.BatchPredictionJob.submit(
             model_name=model_name,
             job_display_name=None,
             **arguments,
