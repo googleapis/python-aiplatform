@@ -1589,6 +1589,255 @@ async def test_raw_predict_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
+        prediction_service.StreamRawPredictRequest,
+        dict,
+    ],
+)
+def test_stream_raw_predict(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([httpbody_pb2.HttpBody()])
+        response = client.stream_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamRawPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(message, httpbody_pb2.HttpBody)
+
+
+def test_stream_raw_predict_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        client.stream_raw_predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamRawPredictRequest()
+
+
+@pytest.mark.asyncio
+async def test_stream_raw_predict_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.StreamRawPredictRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(side_effect=[httpbody_pb2.HttpBody()])
+        response = await client.stream_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamRawPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(message, httpbody_pb2.HttpBody)
+
+
+@pytest.mark.asyncio
+async def test_stream_raw_predict_async_from_dict():
+    await test_stream_raw_predict_async(request_type=dict)
+
+
+def test_stream_raw_predict_field_headers():
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.StreamRawPredictRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        call.return_value = iter([httpbody_pb2.HttpBody()])
+        client.stream_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_stream_raw_predict_field_headers_async():
+    client = PredictionServiceAsyncClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.StreamRawPredictRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(side_effect=[httpbody_pb2.HttpBody()])
+        await client.stream_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+def test_stream_raw_predict_flattened():
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([httpbody_pb2.HttpBody()])
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.stream_raw_predict(
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].http_body
+        mock_val = httpbody_pb2.HttpBody(content_type="content_type_value")
+        assert arg == mock_val
+
+
+def test_stream_raw_predict_flattened_error():
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.stream_raw_predict(
+            prediction_service.StreamRawPredictRequest(),
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+
+@pytest.mark.asyncio
+async def test_stream_raw_predict_flattened_async():
+    client = PredictionServiceAsyncClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([httpbody_pb2.HttpBody()])
+
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.stream_raw_predict(
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].http_body
+        mock_val = httpbody_pb2.HttpBody(content_type="content_type_value")
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_stream_raw_predict_flattened_error_async():
+    client = PredictionServiceAsyncClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.stream_raw_predict(
+            prediction_service.StreamRawPredictRequest(),
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         prediction_service.DirectPredictRequest,
         dict,
     ],
@@ -1890,6 +2139,160 @@ async def test_direct_raw_predict_field_headers_async():
         "x-goog-request-params",
         "endpoint=endpoint_value",
     ) in kw["metadata"]
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.StreamDirectPredictRequest,
+        dict,
+    ],
+)
+def test_stream_direct_predict(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_direct_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([prediction_service.StreamDirectPredictResponse()])
+        response = client.stream_direct_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(message, prediction_service.StreamDirectPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_stream_direct_predict_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.StreamDirectPredictRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_direct_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.StreamStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.StreamDirectPredictResponse()]
+        )
+        response = await client.stream_direct_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(message, prediction_service.StreamDirectPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_stream_direct_predict_async_from_dict():
+    await test_stream_direct_predict_async(request_type=dict)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.StreamDirectRawPredictRequest,
+        dict,
+    ],
+)
+def test_stream_direct_raw_predict(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_direct_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([prediction_service.StreamDirectRawPredictResponse()])
+        response = client.stream_direct_raw_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(message, prediction_service.StreamDirectRawPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_stream_direct_raw_predict_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.StreamDirectRawPredictRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_direct_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.StreamStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.StreamDirectRawPredictResponse()]
+        )
+        response = await client.stream_direct_raw_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(message, prediction_service.StreamDirectRawPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_stream_direct_raw_predict_async_from_dict():
+    await test_stream_direct_raw_predict_async(request_type=dict)
 
 
 @pytest.mark.parametrize(
@@ -2397,6 +2800,243 @@ async def test_explain_flattened_error_async():
         dict,
     ],
 )
+def test_generate_content(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.GenerateContentResponse()
+        response = client.generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.GenerateContentResponse)
+
+
+def test_generate_content_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        client.generate_content()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest()
+
+
+@pytest.mark.asyncio
+async def test_generate_content_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.GenerateContentRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.GenerateContentResponse()
+        )
+        response = await client.generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.GenerateContentResponse)
+
+
+@pytest.mark.asyncio
+async def test_generate_content_async_from_dict():
+    await test_generate_content_async(request_type=dict)
+
+
+def test_generate_content_field_headers():
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.GenerateContentRequest()
+
+    request.model = "model_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        call.return_value = prediction_service.GenerateContentResponse()
+        client.generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "model=model_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_generate_content_field_headers_async():
+    client = PredictionServiceAsyncClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.GenerateContentRequest()
+
+    request.model = "model_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.GenerateContentResponse()
+        )
+        await client.generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "model=model_value",
+    ) in kw["metadata"]
+
+
+def test_generate_content_flattened():
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.GenerateContentResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.generate_content(
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].model
+        mock_val = "model_value"
+        assert arg == mock_val
+        arg = args[0].contents
+        mock_val = [content.Content(role="role_value")]
+        assert arg == mock_val
+
+
+def test_generate_content_flattened_error():
+    client = PredictionServiceClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.generate_content(
+            prediction_service.GenerateContentRequest(),
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+
+@pytest.mark.asyncio
+async def test_generate_content_flattened_async():
+    client = PredictionServiceAsyncClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.GenerateContentResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.GenerateContentResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.generate_content(
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].model
+        mock_val = "model_value"
+        assert arg == mock_val
+        arg = args[0].contents
+        mock_val = [content.Content(role="role_value")]
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_generate_content_flattened_error_async():
+    client = PredictionServiceAsyncClient(
+        credentials=_AnonymousCredentialsWithUniverseDomain(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.generate_content(
+            prediction_service.GenerateContentRequest(),
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.GenerateContentRequest,
+        dict,
+    ],
+)
 def test_stream_generate_content(request_type, transport: str = "grpc"):
     client = PredictionServiceClient(
         credentials=_AnonymousCredentialsWithUniverseDomain(),
@@ -2783,12 +3423,16 @@ def test_prediction_service_base_transport():
     methods = (
         "predict",
         "raw_predict",
+        "stream_raw_predict",
         "direct_predict",
         "direct_raw_predict",
+        "stream_direct_predict",
+        "stream_direct_raw_predict",
         "streaming_predict",
         "server_streaming_predict",
         "streaming_raw_predict",
         "explain",
+        "generate_content",
         "stream_generate_content",
         "set_iam_policy",
         "get_iam_policy",
