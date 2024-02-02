@@ -1032,8 +1032,9 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.DirectPredictResponse:
-        r"""Perform an unary online prediction request for Vertex
-        first-party products and frameworks.
+        r"""Perform an unary online prediction request to a gRPC
+        model server for Vertex first-party products and
+        frameworks.
 
         .. code-block:: python
 
@@ -1119,7 +1120,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> prediction_service.DirectRawPredictResponse:
-        r"""Perform an online prediction request through gRPC.
+        r"""Perform an unary online prediction request to a gRPC
+        model server for custom containers.
 
         .. code-block:: python
 
@@ -1187,6 +1189,195 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # Send the request.
         response = rpc(
             request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def stream_direct_predict(
+        self,
+        requests: Optional[
+            Iterator[prediction_service.StreamDirectPredictRequest]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> Iterable[prediction_service.StreamDirectPredictResponse]:
+        r"""Perform a streaming online prediction request to a
+        gRPC model server for Vertex first-party products and
+        frameworks.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_stream_direct_predict():
+                # Create a client
+                client = aiplatform_v1beta1.PredictionServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.StreamDirectPredictRequest(
+                    endpoint="endpoint_value",
+                )
+
+                # This method expects an iterator which contains
+                # 'aiplatform_v1beta1.StreamDirectPredictRequest' objects
+                # Here we create a generator that yields a single `request` for
+                # demonstrative purposes.
+                requests = [request]
+
+                def request_generator():
+                    for request in requests:
+                        yield request
+
+                # Make the request
+                stream = client.stream_direct_predict(requests=request_generator())
+
+                # Handle the response
+                for response in stream:
+                    print(response)
+
+        Args:
+            requests (Iterator[google.cloud.aiplatform_v1beta1.types.StreamDirectPredictRequest]):
+                The request object iterator. Request message for
+                [PredictionService.StreamDirectPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamDirectPredict].
+
+                The first message must contain
+                [endpoint][google.cloud.aiplatform.v1beta1.StreamDirectPredictRequest.endpoint]
+                field and optionally [input][]. The subsequent messages
+                must contain [input][].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            Iterable[google.cloud.aiplatform_v1beta1.types.StreamDirectPredictResponse]:
+                Response message for
+                   [PredictionService.StreamDirectPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamDirectPredict].
+
+        """
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.stream_direct_predict]
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            requests,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def stream_direct_raw_predict(
+        self,
+        requests: Optional[
+            Iterator[prediction_service.StreamDirectRawPredictRequest]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> Iterable[prediction_service.StreamDirectRawPredictResponse]:
+        r"""Perform a streaming online prediction request to a
+        gRPC model server for custom containers.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_stream_direct_raw_predict():
+                # Create a client
+                client = aiplatform_v1beta1.PredictionServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.StreamDirectRawPredictRequest(
+                    endpoint="endpoint_value",
+                )
+
+                # This method expects an iterator which contains
+                # 'aiplatform_v1beta1.StreamDirectRawPredictRequest' objects
+                # Here we create a generator that yields a single `request` for
+                # demonstrative purposes.
+                requests = [request]
+
+                def request_generator():
+                    for request in requests:
+                        yield request
+
+                # Make the request
+                stream = client.stream_direct_raw_predict(requests=request_generator())
+
+                # Handle the response
+                for response in stream:
+                    print(response)
+
+        Args:
+            requests (Iterator[google.cloud.aiplatform_v1beta1.types.StreamDirectRawPredictRequest]):
+                The request object iterator. Request message for
+                [PredictionService.StreamDirectRawPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamDirectRawPredict].
+
+                The first message must contain
+                [endpoint][google.cloud.aiplatform.v1beta1.StreamDirectRawPredictRequest.endpoint]
+                and
+                [method_name][google.cloud.aiplatform.v1beta1.StreamDirectRawPredictRequest.method_name]
+                fields and optionally
+                [input][google.cloud.aiplatform.v1beta1.StreamDirectRawPredictRequest.input].
+                The subsequent messages must contain
+                [input][google.cloud.aiplatform.v1beta1.StreamDirectRawPredictRequest.input].
+                [method_name][google.cloud.aiplatform.v1beta1.StreamDirectRawPredictRequest.method_name]
+                in the subsequent messages have no effect.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            Iterable[google.cloud.aiplatform_v1beta1.types.StreamDirectRawPredictResponse]:
+                Response message for
+                   [PredictionService.StreamDirectRawPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamDirectRawPredict].
+
+        """
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.stream_direct_raw_predict
+        ]
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            requests,
             retry=retry,
             timeout=timeout,
             metadata=metadata,
@@ -1747,6 +1938,131 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # add these here.
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def generate_content(
+        self,
+        request: Optional[
+            Union[prediction_service.GenerateContentRequest, dict]
+        ] = None,
+        *,
+        model: Optional[str] = None,
+        contents: Optional[MutableSequence[content.Content]] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> prediction_service.GenerateContentResponse:
+        r"""Generate content with multimodal inputs.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_generate_content():
+                # Create a client
+                client = aiplatform_v1beta1.PredictionServiceClient()
+
+                # Initialize request argument(s)
+                contents = aiplatform_v1beta1.Content()
+                contents.parts.text = "text_value"
+
+                request = aiplatform_v1beta1.GenerateContentRequest(
+                    model="model_value",
+                    contents=contents,
+                )
+
+                # Make the request
+                response = client.generate_content(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.GenerateContentRequest, dict]):
+                The request object. Request message for [PredictionService.GenerateContent].
+            model (str):
+                Required. The name of the publisher model requested to
+                serve the prediction. Format:
+                ``projects/{project}/locations/{location}/publishers/*/models/*``
+
+                This corresponds to the ``model`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            contents (MutableSequence[google.cloud.aiplatform_v1beta1.types.Content]):
+                Required. The content of the current
+                conversation with the model.
+                For single-turn queries, this is a
+                single instance. For multi-turn queries,
+                this is a repeated field that contains
+                conversation history + latest request.
+
+                This corresponds to the ``contents`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.GenerateContentResponse:
+                Response message for
+                [PredictionService.GenerateContent].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([model, contents])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a prediction_service.GenerateContentRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, prediction_service.GenerateContentRequest):
+            request = prediction_service.GenerateContentRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if model is not None:
+                request.model = model
+            if contents is not None:
+                request.contents = contents
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.generate_content]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("model", request.model),)),
         )
 
         # Validate the universe domain.

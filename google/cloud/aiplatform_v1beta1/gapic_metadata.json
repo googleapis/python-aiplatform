@@ -2336,6 +2336,11 @@
                 "explain"
               ]
             },
+            "GenerateContent": {
+              "methods": [
+                "generate_content"
+              ]
+            },
             "Predict": {
               "methods": [
                 "predict"
@@ -2349,6 +2354,16 @@
             "ServerStreamingPredict": {
               "methods": [
                 "server_streaming_predict"
+              ]
+            },
+            "StreamDirectPredict": {
+              "methods": [
+                "stream_direct_predict"
+              ]
+            },
+            "StreamDirectRawPredict": {
+              "methods": [
+                "stream_direct_raw_predict"
               ]
             },
             "StreamGenerateContent": {
@@ -2391,6 +2406,11 @@
                 "explain"
               ]
             },
+            "GenerateContent": {
+              "methods": [
+                "generate_content"
+              ]
+            },
             "Predict": {
               "methods": [
                 "predict"
@@ -2404,6 +2424,16 @@
             "ServerStreamingPredict": {
               "methods": [
                 "server_streaming_predict"
+              ]
+            },
+            "StreamDirectPredict": {
+              "methods": [
+                "stream_direct_predict"
+              ]
+            },
+            "StreamDirectRawPredict": {
+              "methods": [
+                "stream_direct_raw_predict"
               ]
             },
             "StreamGenerateContent": {
