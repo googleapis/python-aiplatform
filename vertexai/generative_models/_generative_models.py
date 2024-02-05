@@ -431,15 +431,7 @@ class _GenerativeModel:
             safety_settings=safety_settings,
             tools=tools,
         )
-        # generate_content is not available
-        # gapic_response = self._prediction_client.generate_content(request=request)
-        gapic_response = None
-        stream = self._prediction_client.stream_generate_content(request=request)
-        for gapic_chunk in stream:
-            if gapic_response:
-                _append_gapic_response(gapic_response, gapic_chunk)
-            else:
-                gapic_response = gapic_chunk
+        gapic_response = self._prediction_client.generate_content(request=request)
         return self._parse_response(gapic_response)
 
     async def _generate_content_async(
@@ -473,17 +465,9 @@ class _GenerativeModel:
             safety_settings=safety_settings,
             tools=tools,
         )
-        # generate_content is not available
-        # gapic_response = await self._prediction_async_client.generate_content(request=request)
-        gapic_response = None
-        stream = await self._prediction_async_client.stream_generate_content(
+        gapic_response = await self._prediction_async_client.generate_content(
             request=request
         )
-        async for gapic_chunk in stream:
-            if gapic_response:
-                _append_gapic_response(gapic_response, gapic_chunk)
-            else:
-                gapic_response = gapic_chunk
         return self._parse_response(gapic_response)
 
     def _generate_content_streaming(
