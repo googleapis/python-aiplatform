@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.41.0](https://github.com/googleapis/python-aiplatform/compare/v1.40.0...v1.41.0) (2024-02-05)
+
+
+### Features
+
+* Add `numeric_filter` to `MatchingEngineIndexEndpoint` `match()` and `find_neighbor()` private endpoint queries. ([679646a](https://github.com/googleapis/python-aiplatform/commit/679646a352ea3623d752e4685c7224db8934bd9d))
+* Added the `BatchPredictionJob.submit` method - a non-blocking version of  `BatchPredictionJob.create` ([b62ddcd](https://github.com/googleapis/python-aiplatform/commit/b62ddcd751323ae96e248ab8bb90561b44f6f5e0))
+* LLM - Add support for RLHF tuning ([b2458ec](https://github.com/googleapis/python-aiplatform/commit/b2458ec51d7c3bbba787bbefac31c9aad6ffdb10))
+* Remove deletion of model upload staging bucket in system tests ([b9b373b](https://github.com/googleapis/python-aiplatform/commit/b9b373b69eab7dd303816bad94da54cad60a331e))
+* Switch Python generateContent to call Unary API endpoint ([9a19545](https://github.com/googleapis/python-aiplatform/commit/9a19545e864c6d4743156c737dd5bb8c4b86ab6f))
+
+
+### Bug Fixes
+
+* Fix crash when no target_col is specified for Bigframes tensorflow ([512b82d](https://github.com/googleapis/python-aiplatform/commit/512b82debdaf44d1b9c755c2bd06d1d24c080338))
+
+
+### Documentation
+
+* Add missing code block in docs/README.rst ([16d6b58](https://github.com/googleapis/python-aiplatform/commit/16d6b58ab27549a995919d70f78dd793feee7bd3))
+
 ## [1.40.0](https://github.com/googleapis/python-aiplatform/compare/v1.39.0...v1.40.0) (2024-01-24)
 
 
