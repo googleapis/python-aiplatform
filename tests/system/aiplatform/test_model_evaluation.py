@@ -61,7 +61,6 @@ _LOGGER = base.Logger(__name__)
     "tear_down_resources",
 )
 class TestModelEvaluationJob(e2e_base.TestEndToEnd):
-
     _temp_prefix = "temp_vertex_sdk_model_evaluation_test"
 
     def setup_method(self):
@@ -84,12 +83,13 @@ class TestModelEvaluationJob(e2e_base.TestEndToEnd):
         yield bucket
 
     def test_model_evaluate_custom_tabular_model(self, staging_bucket, shared_state):
+        credentials, _ = auth.default(
+            scopes=["https://www.googleapis.com/auth/cloud-platform"]
+        )
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
-            credentials=auth.default(
-                scopes=["https://www.googleapis.com/auth/cloud-platform"]
-            ),
+            credentials=credentials,
         )
 
         custom_model = aiplatform.Model(
@@ -121,7 +121,8 @@ class TestModelEvaluationJob(e2e_base.TestEndToEnd):
 
         model_eval = eval_job.get_model_evaluation()
 
-        shared_state["resources"].append(model_eval)
+        # ModelEvaluation.delete() has not been implemented yet
+        # shared_state["resources"].append(model_eval)
 
         eval_metrics_dict = dict(model_eval.metrics)
 

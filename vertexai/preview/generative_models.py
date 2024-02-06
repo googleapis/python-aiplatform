@@ -33,7 +33,10 @@ from vertexai.generative_models._generative_models import (
     Tool,
 )
 
-GenerativeModel = _PreviewGenerativeModel
+
+class GenerativeModel(_PreviewGenerativeModel):
+    __doc__ = _PreviewGenerativeModel.__doc__
+
 
 __all__ = [
     "GenerationConfig",

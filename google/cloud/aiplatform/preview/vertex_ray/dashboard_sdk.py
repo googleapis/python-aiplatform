@@ -56,6 +56,7 @@ def get_job_submission_client_cluster_info(
             }
         return oss_dashboard_sdk.get_job_submission_client_cluster_info(
             address=address,
+            _use_tls=True,
             *args,
             **kwargs,
         )

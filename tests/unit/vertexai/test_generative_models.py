@@ -163,6 +163,56 @@ def mock_stream_generate_content(
     yield response
 
 
+def mock_generate_content(
+    self,
+    request: gapic_prediction_service_types.GenerateContentRequest,
+    *,
+    model: Optional[str] = None,
+    contents: Optional[MutableSequence[gapic_content_types.Content]] = None,
+) -> Iterable[gapic_prediction_service_types.GenerateContentResponse]:
+    is_continued_chat = len(request.contents) > 1
+    has_tools = bool(request.tools)
+
+    if has_tools:
+        has_function_response = any(
+            "function_response" in content.parts[0] for content in request.contents
+        )
+        needs_function_call = not has_function_response
+        if needs_function_call:
+            response_part_struct = _RESPONSE_FUNCTION_CALL_PART_STRUCT
+        else:
+            response_part_struct = _RESPONSE_AFTER_FUNCTION_CALL_PART_STRUCT
+    elif is_continued_chat:
+        response_part_struct = {"text": "Other planets may have different sky color."}
+    else:
+        response_part_struct = _RESPONSE_TEXT_PART_STRUCT
+
+    return gapic_prediction_service_types.GenerateContentResponse(
+        candidates=[
+            gapic_content_types.Candidate(
+                index=0,
+                content=gapic_content_types.Content(
+                    # Model currently does not identify itself
+                    # role="model",
+                    parts=[
+                        gapic_content_types.Part(response_part_struct),
+                    ],
+                ),
+                finish_reason=gapic_content_types.Candidate.FinishReason.STOP,
+                safety_ratings=[
+                    gapic_content_types.SafetyRating(rating)
+                    for rating in _RESPONSE_SAFETY_RATINGS_STRUCT
+                ],
+                citation_metadata=gapic_content_types.CitationMetadata(
+                    citations=[
+                        gapic_content_types.Citation(_RESPONSE_CITATION_STRUCT),
+                    ]
+                ),
+            ),
+        ],
+    )
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestGenerativeModels:
     """Unit tests for the generative models."""
@@ -178,8 +228,8 @@ class TestGenerativeModels:
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
-        attribute="stream_generate_content",
-        new=mock_stream_generate_content,
+        attribute="generate_content",
+        new=mock_generate_content,
     )
     def test_generate_content(self):
         model = generative_models.GenerativeModel("gemini-pro")
@@ -212,8 +262,8 @@ class TestGenerativeModels:
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
-        attribute="stream_generate_content",
-        new=mock_stream_generate_content,
+        attribute="generate_content",
+        new=mock_generate_content,
     )
     def test_chat_send_message(self):
         model = generative_models.GenerativeModel("gemini-pro")
@@ -225,8 +275,8 @@ class TestGenerativeModels:
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
-        attribute="stream_generate_content",
-        new=mock_stream_generate_content,
+        attribute="generate_content",
+        new=mock_generate_content,
     )
     def test_chat_function_calling(self):
         get_current_weather_func = generative_models.FunctionDeclaration(

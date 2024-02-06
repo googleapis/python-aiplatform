@@ -1011,7 +1011,15 @@ _TEST_PIPELINE_SYSTEM_RUN_EXECUTION = GapicExecution(
     name=_TEST_EXECUTION_NAME,
     schema_title=constants.SYSTEM_RUN,
     state=gca_execution.Execution.State.RUNNING,
-    metadata={f"input:{key}": value + 1 for key, value in _TEST_PARAMS.items()},
+    metadata={
+        f"input:{_TEST_PARAM_KEY_1}": _TEST_PARAMS[_TEST_PARAM_KEY_1] + 1,
+        f"input:{_TEST_PARAM_KEY_2}": _TEST_PARAMS[_TEST_PARAM_KEY_2] + 1,
+        # This is automatically logged by the pipeline run but will not be
+        # shown in experiment
+        "vertex-ai-pipelines-artifact-argument-binding": {
+            "output:trainer-metrics": ["artifact-path"]
+        },
+    },
 )
 
 _TEST_LEGACY_SYSTEM_RUN_EXECUTION = GapicExecution(

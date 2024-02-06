@@ -511,6 +511,23 @@ _TEST_TEXT_BISON_TRAINING_DF = pd.DataFrame(
     },
 )
 
+_TEST_TEXT_BISON_PREFERENCE_TRAINING_DF = pd.DataFrame(
+    {
+        "input_text": [
+            "Create a description for Plantation Palms.",
+        ],
+        "candidate_0": [
+            "Enjoy some fun in the sun at Gulf Shores.",
+        ],
+        "candidate_1": [
+            "A Tranquil Oasis of Natural Beauty.",
+        ],
+        "choice": [
+            0,
+        ],
+    },
+)
+
 _TEST_PIPELINE_SPEC = {
     "components": {},
     "pipelineInfo": {"name": "evaluation-llm-text-generation-pipeline"},
@@ -627,6 +644,99 @@ _TEST_PIPELINE_JOB = json.dumps(
     {
         "runtimeConfig": {"parameterValues": {}},
         "pipelineSpec": json.loads(_TEST_PIPELINE_SPEC_JSON),
+    }
+)
+
+_TEST_RLHF_PIPELINE_SPEC = {
+    "components": {},
+    "pipelineInfo": {"name": "rlhf"},
+    "root": {
+        "dag": {"tasks": {}},
+        "inputDefinitions": {
+            "parameters": {
+                "deploy_model": {
+                    "defaultValue": True,
+                    "isOptional": True,
+                    "parameterType": "BOOLEAN",
+                },
+                "eval_dataset": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "instruction": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "kl_coeff": {
+                    "defaultValue": 0.1,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_DOUBLE",
+                },
+                "large_model_reference": {"parameterType": "STRING"},
+                "location": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "model_display_name": {"isOptional": True, "parameterType": "STRING"},
+                "preference_dataset": {"parameterType": "STRING"},
+                "project": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "prompt_dataset": {"parameterType": "STRING"},
+                "prompt_sequence_length": {
+                    "defaultValue": 512.0,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "reinforcement_learning_rate_multiplier": {
+                    "defaultValue": 1.0,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_DOUBLE",
+                },
+                "reinforcement_learning_train_steps": {
+                    "defaultValue": 100.0,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "reward_model_learning_rate_multiplier": {
+                    "defaultValue": 1.0,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_DOUBLE",
+                },
+                "reward_model_train_steps": {
+                    "defaultValue": 100.0,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "target_sequence_length": {
+                    "defaultValue": 64.0,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "tensorboard_resource_id": {
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+            }
+        },
+    },
+    "schemaVersion": "2.1.0",
+    "sdkVersion": "kfp-2.4.0",
+}
+
+_TEST_RLHF_PIPELINE_SPEC_JSON = json.dumps(
+    _TEST_RLHF_PIPELINE_SPEC,
+)
+
+_TEST_RLHF_PIPELINE_JOB = json.dumps(
+    {
+        "runtimeConfig": {"parameterValues": {}},
+        "pipelineSpec": json.loads(_TEST_RLHF_PIPELINE_SPEC_JSON),
     }
 )
 
@@ -758,6 +868,124 @@ _TEST_EVAL_PIPELINE_JOB = json.dumps(
         "pipelineSpec": json.loads(_TEST_EVAL_PIPELINE_SPEC_JSON),
     }
 )
+_TEST_DISTILLATION_PIPELINE_SPEC = {
+    "components": {},
+    "pipelineInfo": {
+        "description": "Vertex kfp pipeline for distillation.",
+        "name": "distillation",
+    },
+    "root": {
+        "dag": {"tasks": {}},
+        "inputDefinitions": {
+            "parameters": {
+                "accelerator_type": {
+                    "defaultValue": "GPU",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "api_endpoint": {
+                    "defaultValue": "aiplatform.googleapis.com/ui",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "dataset_uri": {"parameterType": "STRING"},
+                "enable_checkpoint_selection": {
+                    "defaultValue": "default",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "enable_early_stopping": {
+                    "defaultValue": True,
+                    "isOptional": True,
+                    "parameterType": "BOOLEAN",
+                },
+                "encryption_spec_key_name": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "evaluation_data_uri": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "evaluation_interval": {
+                    "defaultValue": 100,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "evaluation_output_root_dir": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "learning_rate_multiplier": {
+                    "defaultValue": 1,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_DOUBLE",
+                },
+                "location": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "max_context_length": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "model_display_name": {
+                    "defaultValue": "distilled-student-model",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "project": {"parameterType": "STRING"},
+                "student_model_reference": {
+                    "defaultValue": "text-bison@002",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "teacher_model_reference": {
+                    "defaultValue": "text-unicorn@001",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "temperature": {
+                    "defaultValue": 0,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_DOUBLE",
+                },
+                "tensorboard_resource_id": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+                "tpu_training_skip_cmek": {
+                    "defaultValue": False,
+                    "isOptional": True,
+                    "parameterType": "BOOLEAN",
+                },
+                "train_steps": {
+                    "defaultValue": 300,
+                    "isOptional": True,
+                    "parameterType": "NUMBER_INTEGER",
+                },
+                "version": {
+                    "defaultValue": "latest",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
+            }
+        },
+    },
+    "schemaVersion": "2.1.0",
+    "sdkVersion": "kfp-2.4.0",
+}
+
+_TEST_DISTILLATION_PIPELINE_SPEC_JSON = json.dumps(
+    _TEST_DISTILLATION_PIPELINE_SPEC,
+)
+
 
 # Eval classification spec
 
@@ -874,6 +1102,18 @@ _TEST_EVAL_CLASSIFICATION_PIPELINE_JOB = json.dumps(
         "pipelineSpec": json.loads(_TEST_EVAL_PIPELINE_SPEC_JSON),
     }
 )
+
+_URL_DATA = {
+    "https://us-kfp.pkg.dev/ml-pipeline/distillation/distillation/v1.0.0": _TEST_DISTILLATION_PIPELINE_SPEC_JSON,
+}
+
+
+def _get_test_tensorboard_resource_id(
+    project: str = _TEST_PROJECT,
+    location: str = _TEST_LOCATION,
+) -> str:
+    """ "Returns a tensorboard resource id in the specified project and region."""
+    return f"projects/{project}/locations/{location}/tensorboards/123"
 
 
 @pytest.fixture
@@ -1023,6 +1263,17 @@ def make_eval_classification_pipeline_job(state):
 
 @pytest.fixture
 def mock_pipeline_service_create():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_pipeline_job"
+    ) as mock_create_pipeline_job:
+        mock_create_pipeline_job.return_value = make_pipeline_job(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+        yield mock_create_pipeline_job
+
+
+@pytest.fixture
+def mock_pipeline_service_create_rlhf():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_pipeline_job"
     ) as mock_create_pipeline_job:
@@ -1200,6 +1451,18 @@ def mock_request_urlopen(request: str) -> Tuple[str, mock.MagicMock]:
 
 
 @pytest.fixture
+def mock_request_urlopen_rlhf(request: str) -> Tuple[str, mock.MagicMock]:
+    data = _TEST_RLHF_PIPELINE_SPEC
+    with mock.patch.object(urllib_request, "urlopen") as mock_urlopen:
+        mock_read_response = mock.MagicMock()
+        mock_decode_response = mock.MagicMock()
+        mock_decode_response.return_value = json.dumps(data)
+        mock_read_response.return_value.decode = mock_decode_response
+        mock_urlopen.return_value.read = mock_read_response
+        yield request.param, mock_urlopen
+
+
+@pytest.fixture
 def mock_request_urlopen_eval(request: str) -> Tuple[str, mock.MagicMock]:
     data = _TEST_EVAL_PIPELINE_SPEC
     with mock.patch.object(urllib_request, "urlopen") as mock_urlopen:
@@ -1223,6 +1486,19 @@ def mock_request_urlopen_eval_classification(
         mock_read_response.return_value.decode = mock_decode_response
         mock_urlopen.return_value.read = mock_read_response
         yield request.param, mock_urlopen
+
+
+@pytest.fixture
+def mock_urllib_request_urlopen(request: str) -> Tuple[str, mock.MagicMock]:
+    url = request.param
+    data = _URL_DATA[url]
+    with mock.patch.object(urllib_request, "urlopen") as mock_urlopen:
+        mock_read_response = mock.MagicMock()
+        mock_decode_response = mock.MagicMock()
+        mock_decode_response.return_value = data
+        mock_read_response.return_value.decode = mock_decode_response
+        mock_urlopen.return_value.read = mock_read_response
+        yield url, mock_urlopen
 
 
 @pytest.fixture
@@ -1886,7 +2162,9 @@ class TestLanguageModels:
             evaluation_data_uri = "gs://bucket/eval.jsonl"
             evaluation_interval = 37
             enable_early_stopping = True
-            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+            tensorboard_name = _get_test_tensorboard_resource_id(
+                location=tuning_job_location
+            )
 
             tuning_job = model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
@@ -1971,7 +2249,9 @@ class TestLanguageModels:
             evaluation_interval = 37
             enable_early_stopping = True
             enable_checkpoint_selection = True
-            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+            tensorboard_name = _get_test_tensorboard_resource_id(
+                location=tuning_job_location
+            )
 
             tuning_job = model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
@@ -2050,7 +2330,9 @@ class TestLanguageModels:
             )
 
             tuning_job_location = "europe-west4"
-            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+            tensorboard_name = _get_test_tensorboard_resource_id(
+                location=tuning_job_location
+            )
 
             model.tune_model(
                 training_data=_TEST_TEXT_BISON_TRAINING_DF,
@@ -2146,7 +2428,9 @@ class TestLanguageModels:
             model = language_models.ChatModel.from_pretrained("chat-bison@001")
 
             tuning_job_location = "europe-west4"
-            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+            tensorboard_name = _get_test_tensorboard_resource_id(
+                location=tuning_job_location
+            )
 
             default_context = "Default context"
             tuning_job = model.tune_model(
@@ -2276,7 +2560,9 @@ class TestLanguageModels:
             model = language_models.CodeChatModel.from_pretrained("codechat-bison@001")
 
             tuning_job_location = "europe-west4"
-            tensorboard_name = f"projects/{_TEST_PROJECT}/locations/{tuning_job_location}/tensorboards/123"
+            tensorboard_name = _get_test_tensorboard_resource_id(
+                location=tuning_job_location
+            )
 
             # The tune_model call needs to be inside the PublisherModel mock
             # since it gets a new PublisherModel when tuning completes.
@@ -2359,6 +2645,240 @@ class TestLanguageModels:
             preview_language_models.TextGenerationModel.get_tuned_model(
                 test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
             )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_RLHF_PIPELINE_SPEC_JSON],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen_rlhf",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_tune_text_generation_model_rlhf(
+        self,
+        mock_pipeline_service_create_rlhf,
+        mock_pipeline_job_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_gcs_from_string,
+        mock_gcs_upload,
+        mock_request_urlopen_rlhf,
+        mock_get_tuned_model,
+    ):
+        """Tests tuning a text generation model using RLHF."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        # Define tuning parameters that should get passed to the pipeline job:
+        large_model_reference = "text-bison@001"
+        model_display_name = "rlhf-tuned-model"
+        prompt_sequence_length = 1024
+        target_sequence_length = 128
+        reward_model_learning_rate_multiplier = 2.0
+        reinforcement_learning_rate_multiplier = 0.5
+        reward_model_train_steps = 1
+        reinforcement_learning_train_steps = 2
+        kl_coeff = 0.3
+        tensorboard_resource_id = _get_test_tensorboard_resource_id()
+        eval_dataset = "gs://bucket/eval.jsonl"
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                model_name=large_model_reference,
+            )
+            _ = model.tune_model_rlhf(
+                prompt_data=_TEST_TEXT_BISON_TRAINING_DF,
+                preference_data=_TEST_TEXT_BISON_PREFERENCE_TRAINING_DF,
+                model_display_name=model_display_name,
+                prompt_sequence_length=prompt_sequence_length,
+                target_sequence_length=target_sequence_length,
+                reward_model_learning_rate_multiplier=reward_model_learning_rate_multiplier,
+                reinforcement_learning_rate_multiplier=reinforcement_learning_rate_multiplier,
+                reward_model_train_steps=reward_model_train_steps,
+                reinforcement_learning_train_steps=reinforcement_learning_train_steps,
+                kl_coeff=kl_coeff,
+                tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                    tensorboard=tensorboard_resource_id,
+                    evaluation_data=eval_dataset,
+                ),
+            )
+            call_kwargs = mock_pipeline_service_create_rlhf.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["large_model_reference"] == large_model_reference
+            assert pipeline_arguments["model_display_name"] == model_display_name
+            assert (
+                pipeline_arguments["prompt_sequence_length"] == prompt_sequence_length
+            )
+            assert (
+                pipeline_arguments["target_sequence_length"] == target_sequence_length
+            )
+            assert (
+                pipeline_arguments["reward_model_learning_rate_multiplier"]
+                == reward_model_learning_rate_multiplier
+            )
+            assert (
+                pipeline_arguments["reinforcement_learning_rate_multiplier"]
+                == reinforcement_learning_rate_multiplier
+            )
+            assert (
+                pipeline_arguments["reward_model_train_steps"]
+                == reward_model_train_steps
+            )
+            assert (
+                pipeline_arguments["reinforcement_learning_train_steps"]
+                == reinforcement_learning_train_steps
+            )
+            assert pipeline_arguments["kl_coeff"] == kl_coeff
+            assert (
+                pipeline_arguments["tensorboard_resource_id"] == tensorboard_resource_id
+            )
+            assert pipeline_arguments["eval_dataset"] == eval_dataset
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_RLHF_PIPELINE_SPEC_JSON, _TEST_RLHF_PIPELINE_JOB],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen_rlhf",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_tune_chat_generation_model_rlhf(
+        self,
+        mock_pipeline_service_create_rlhf,
+        mock_pipeline_job_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_gcs_from_string,
+        mock_gcs_upload,
+        mock_request_urlopen_rlhf,
+        mock_get_tuned_model,
+    ):
+        """Tests tuning a chat model using RLHF."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            large_model_reference = "chat-bison@001"
+            model = language_models.TextGenerationModel.from_pretrained(
+                model_name=large_model_reference,
+            )
+            _ = model.tune_model_rlhf(
+                prompt_data="gs://bucket/prompt.jsonl",
+                preference_data="gs://bucket/preference.jsonl",
+            )
+            call_kwargs = mock_pipeline_service_create_rlhf.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["large_model_reference"] == large_model_reference
+
+    def test_tune_model_rlhf_raises_if_called_with_unsupported_region(self):
+        """Tests RLHF tuning raises if called from an unsupported region."""
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+            unsupported_location = "unsupported-location1"
+            with pytest.raises(ValueError) as excinfo:
+                model.tune_model_rlhf(
+                    prompt_data="gs://bucket/prompt.jsonl",
+                    preference_data="gs://bucket/preference.jsonl",
+                    tuning_job_location=unsupported_location,
+                )
+                expected_msg = _language_models._get_invalid_tuning_location_msg(
+                    requested_location=unsupported_location,
+                    valid_locations=_language_models._SUPPORTED_RLHF_LOCATIONS,
+                )
+                assert excinfo.exception.message == expected_msg
+
+    def test_tune_model_rlhf_raises_if_called_with_unsupported_model(self):
+        """Tests RLHF tuning raises if called from an unsupported model."""
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            # Pick a valid model id that is not supported by RLHF:
+            unsupported_model_id = "codechat-bison@001"
+            assert unsupported_model_id not in _language_models._SUPPORTED_RLHF_MODELS
+
+            model = language_models.TextGenerationModel.from_pretrained(
+                unsupported_model_id
+            )
+            with pytest.raises(ValueError) as excinfo:
+                model.tune_model_rlhf(
+                    prompt_data="gs://bucket/prompt.jsonl",
+                    preference_data="gs://bucket/preference.jsonl",
+                )
+                expected_msg = _language_models._get_invalid_rlhf_model_msg(
+                    requested_model=self._model_id,
+                )
+                assert excinfo.exception.message == expected_msg
+
+    @pytest.mark.parametrize("unused_key", _language_models._UNUSED_RLHF_EVAL_SPECS)
+    def test_tune_model_rlhf_raises_if_called_with_unused_evaluation_spec(
+        self,
+        unused_key,
+    ):
+        """Tests RLHF tuning raises if called from an unused evaluation spec."""
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+            eval_spec = _language_models.TuningEvaluationSpec()
+            setattr(eval_spec, unused_key, "invalid")
+            with pytest.raises(AttributeError) as excinfo:
+                model.tune_model_rlhf(
+                    prompt_data="gs://bucket/prompt.jsonl",
+                    preference_data="gs://bucket/preference.jsonl",
+                    tuning_evaluation_spec=eval_spec,
+                )
+                expected_msg = _language_models._get_unused_rlhf_eval_spec_error_msg(
+                    unused_key=unused_key,
+                )
+                assert excinfo.exception.message == expected_msg
 
     def test_chat(self):
         """Tests the chat generation model."""
@@ -4251,3 +4771,100 @@ class TestLanguageModelEvaluation:
             )
             assert eval_metrics.confidenceMetrics is None
             assert eval_metrics.auPrc == _TEST_TEXT_CLASSIFICATION_METRICS["auPrc"]
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [
+            _TEST_DISTILLATION_PIPELINE_SPEC_JSON,
+        ],
+    )
+    @pytest.mark.parametrize(
+        "mock_urllib_request_urlopen",
+        ["https://us-kfp.pkg.dev/ml-pipeline/distillation/distillation/v1.0.0"],
+        indirect=True,
+    )
+    def test_text_generation_model_distill_from(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_job_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_gcs_from_string,
+        mock_gcs_upload,
+        mock_urllib_request_urlopen,
+        mock_get_tuned_model,
+    ):
+        """Tests distilling the text generation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.TextGenerationModel.from_pretrained(
+                "text-bison@001"
+            )
+
+            dataset_uri = "gs://bucket/distillation.training_data.jsonl"
+            evaluation_data_uri = "gs://bucket/eval.jsonl"
+            evaluation_interval = 37
+            enable_early_stopping = True
+            enable_checkpoint_selection = True
+            tensorboard_name = _get_test_tensorboard_resource_id()
+
+            tuning_job = model.distill_from(
+                dataset=dataset_uri,
+                teacher_model="text-unicorn@001",
+                learning_rate_multiplier=2.0,
+                train_steps=10,
+                evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                    evaluation_data=evaluation_data_uri,
+                    evaluation_interval=evaluation_interval,
+                    enable_early_stopping=enable_early_stopping,
+                    enable_checkpoint_selection=enable_checkpoint_selection,
+                    tensorboard=tensorboard_name,
+                ),
+                accelerator_type="TPU",
+            )
+            call_kwargs = mock_pipeline_service_create.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["teacher_model_reference"] == "text-unicorn@001"
+            assert pipeline_arguments["student_model_reference"] == "text-bison@001"
+            assert pipeline_arguments["dataset_uri"] == dataset_uri
+            assert pipeline_arguments["project"] == _TEST_PROJECT
+            assert pipeline_arguments["location"] == _TEST_LOCATION
+            assert pipeline_arguments["train_steps"] == 10
+            assert pipeline_arguments["learning_rate_multiplier"] == 2.0
+            assert pipeline_arguments["evaluation_data_uri"] == evaluation_data_uri
+            assert pipeline_arguments["evaluation_interval"] == evaluation_interval
+            assert pipeline_arguments["enable_early_stopping"] == enable_early_stopping
+            assert (
+                pipeline_arguments["enable_checkpoint_selection"]
+                == enable_checkpoint_selection
+            )
+            assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
+            assert pipeline_arguments["accelerator_type"] == "TPU"
+            assert (
+                pipeline_arguments["encryption_spec_key_name"]
+                == _TEST_ENCRYPTION_KEY_NAME
+            )
+            assert (
+                call_kwargs["pipeline_job"].encryption_spec.kms_key_name
+                == _TEST_ENCRYPTION_KEY_NAME
+            )
+
+            # Testing the tuned model
+            tuned_model = tuning_job.get_tuned_model()
+            assert (
+                tuned_model._endpoint_name
+                == test_constants.EndpointConstants._TEST_ENDPOINT_NAME
+            )

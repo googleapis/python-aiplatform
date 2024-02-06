@@ -283,6 +283,22 @@ class CustomJobSpec(proto.Message):
             Optional. The Experiment Run associated with this job.
             Format:
             ``projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}-{experiment-run-name}``
+        models (MutableSequence[str]):
+            Optional. The name of the Model resources for which to
+            generate a mapping to artifact URIs. Applicable only to some
+            of the Google-provided custom jobs. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+
+            In order to retrieve a specific version of the model, also
+            provide the version ID or version alias. Example:
+            ``projects/{project}/locations/{location}/models/{model}@2``
+            or
+            ``projects/{project}/locations/{location}/models/{model}@golden``
+            If no version ID or alias is specified, the "default"
+            version will be returned. The "default" version alias is
+            created for the first version of the model, and can be moved
+            to other versions later on. There will be exactly one
+            default version.
     """
 
     worker_pool_specs: MutableSequence["WorkerPoolSpec"] = proto.RepeatedField(
@@ -335,6 +351,10 @@ class CustomJobSpec(proto.Message):
     experiment_run: str = proto.Field(
         proto.STRING,
         number=18,
+    )
+    models: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=20,
     )
 
 
@@ -509,6 +529,10 @@ class Scheduling(proto.Message):
             Optional. Indicates if the job should retry for internal
             errors after the job starts running. If true, overrides
             ``Scheduling.restart_job_on_worker_restart`` to false.
+        max_wait_duration (google.protobuf.duration_pb2.Duration):
+            Optional. This is the maximum time a user
+            will wait in the QRM queue for resources.
+            Default is 1 day
     """
 
     timeout: duration_pb2.Duration = proto.Field(
@@ -523,6 +547,11 @@ class Scheduling(proto.Message):
     disable_retries: bool = proto.Field(
         proto.BOOL,
         number=5,
+    )
+    max_wait_duration: duration_pb2.Duration = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=duration_pb2.Duration,
     )
 
 

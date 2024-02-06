@@ -1200,7 +1200,7 @@ class BigframeSerializer(serializers_base.Serializer):
             return self._deserialize_torch(serialized_gcs_path)
         elif detected_framework == "tensorflow":
             return self._deserialize_tensorflow(
-                serialized_gcs_path, kwargs.get("batch_size")
+                serialized_gcs_path, kwargs.get("batch_size"), kwargs.get("target_col")
             )
         else:
             raise ValueError(f"Unsupported framework: {detected_framework}")
@@ -1273,14 +1273,18 @@ class BigframeSerializer(serializers_base.Serializer):
         return functools.reduce(reduce_tensors, list(parquet_df_dp))
 
     def _deserialize_tensorflow(
-        self, serialized_gcs_path: str, batch_size: Optional[int] = None
+        self,
+        serialized_gcs_path: str,
+        batch_size: Optional[int] = None,
+        target_col: Optional[str] = None,
     ) -> TFDataset:
         """Tensorflow deserializes parquet (GCS) --> tf.data.Dataset
 
         serialized_gcs_path is a folder containing one or more parquet files.
         """
-        # Set default batch_size
+        # Set default kwarg values
         batch_size = batch_size or DEFAULT_TENSORFLOW_BATCHSIZE
+        target_col = target_col.encode("ASCII") if target_col else b"target"
 
         # Deserialization at remote environment
         try:
@@ -1301,13 +1305,12 @@ class BigframeSerializer(serializers_base.Serializer):
             ds_shard = tfio.IODataset.from_parquet(file_name)
             ds = ds.concatenate(ds_shard)
 
-        # TODO(b/296474656) Parquet must have "target" column for y
         def map_fn(row):
-            target = row[b"target"]
+            target = row[target_col]
             row = {
                 k: tf.expand_dims(v, -1)
                 for k, v in row.items()
-                if k != b"target" and k != b"index"
+                if k != target_col and k != b"index"
             }
 
             def reduce_fn(a, b):

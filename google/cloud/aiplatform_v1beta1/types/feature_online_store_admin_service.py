@@ -66,7 +66,7 @@ class CreateFeatureOnlineStoreRequest(proto.Message):
         parent (str):
             Required. The resource name of the Location to create
             FeatureOnlineStores. Format:
-            ``projects/{project}/locations/{location}'``
+            ``projects/{project}/locations/{location}``
         feature_online_store (google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore):
             Required. The FeatureOnlineStore to create.
         feature_online_store_id (str):

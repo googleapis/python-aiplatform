@@ -93,7 +93,7 @@ class Experiment:
     ):
         """
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         ```
 
@@ -170,7 +170,7 @@ class Experiment:
     ) -> "Experiment":
         """Creates a new experiment in Vertex AI Experiments.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment.create('my-experiment', description='my description')
         ```
 
@@ -263,7 +263,7 @@ class Experiment:
 
         Otherwise creates this experiment.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment.get_or_create('my-experiment', description='my description')
         ```
 
@@ -320,7 +320,7 @@ class Experiment:
     ) -> List["Experiment"]:
         """List all Vertex AI Experiments in the given project.
 
-        ```
+        ```py
         my_experiments = aiplatform.Experiment.list()
         ```
 
@@ -377,7 +377,7 @@ class Experiment:
         Does not delete Pipeline runs, Artifacts, or Executions associated to this experiment
         or experiment runs in this experiment.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         my_experiment.delete(delete_backing_tensorboard_runs=True)
         ```
@@ -395,12 +395,17 @@ class Experiment:
             experiment_run.delete(
                 delete_backing_tensorboard_run=delete_backing_tensorboard_runs
             )
-        self._metadata_context.delete()
+        try:
+            self._metadata_context.delete()
+        except exceptions.NotFound:
+            _LOGGER.warning(
+                f"Experiment {self.name} metadata node not found. Skipping deletion."
+            )
 
     def get_data_frame(self) -> "pd.DataFrame":  # noqa: F821
         """Get parameters, metrics, and time series metrics of all runs in this experiment as Dataframe.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         df = my_experiment.get_data_frame()
         ```
@@ -497,7 +502,7 @@ class Experiment:
         """Returns backing tensorboard if one is set.
 
         Returns:
-            Tensorboard resource if one exists.
+            Tensorboard resource if one exists, otherwise returns None.
         """
         tensorboard_resource_name = self._metadata_context.metadata.get(
             constants._BACKING_TENSORBOARD_RESOURCE_KEY
@@ -511,17 +516,23 @@ class Experiment:
             )
 
         if tensorboard_resource_name:
-            return tensorboard_resource.Tensorboard(
-                tensorboard_resource_name,
-                credentials=self._metadata_context.credentials,
-            )
+            try:
+                return tensorboard_resource.Tensorboard(
+                    tensorboard_resource_name,
+                    credentials=self._metadata_context.credentials,
+                )
+            except exceptions.NotFound:
+                self._metadata_context.update(
+                    metadata={constants._BACKING_TENSORBOARD_RESOURCE_KEY: None}
+                )
+        return None
 
     def get_backing_tensorboard_resource(
         self,
     ) -> Optional[tensorboard_resource.Tensorboard]:
         """Get the backing tensorboard for this experiment if one exists.
 
-        ```
+        ```py
         my_experiment = aiplatform.Experiment('my-experiment')
         tb = my_experiment.get_backing_tensorboard_resource()
         ```
@@ -536,7 +547,7 @@ class Experiment:
     ):
         """Assigns tensorboard as backing tensorboard to support time series metrics logging.
 
-        ```
+        ```py
         tb = aiplatform.Tensorboard('tensorboard-resource-id')
         my_experiment = aiplatform.Experiment('my-experiment')
         my_experiment.assign_backing_tensorboard(tb)
