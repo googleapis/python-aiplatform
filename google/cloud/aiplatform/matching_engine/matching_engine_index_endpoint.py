@@ -937,6 +937,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         auth_config_audiences: Optional[Sequence[str]] = None,
         auth_config_allowed_issuers: Optional[Sequence[str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        timeout: Optional[float] = None,
     ) -> "MatchingEngineIndexEndpoint":
         """Deploys an existing index resource to this endpoint resource.
 
@@ -1030,6 +1031,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 auth_config_audiences and auth_config_allowed_issuers must be passed together.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            timeout (float):
+                Optional. the maximum duration of time after which the operation
+                must terminate (successfully or with an error).
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
@@ -1066,7 +1070,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             "Deploy index", "index_endpoint", self.__class__, deploy_lro
         )
 
-        deploy_lro.result(timeout=None)
+        deploy_lro.result(timeout=timeout)
 
         _LOGGER.log_action_completed_against_resource(
             "index_endpoint", "Deployed index", self

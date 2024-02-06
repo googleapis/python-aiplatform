@@ -112,6 +112,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
         index_update_method: Optional[str] = None,
         encryption_spec_key_name: Optional[str] = None,
+        timeout: Optional[float] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource.
 
@@ -177,6 +178,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 secured by this key.
                 The key needs to be in the same region as where the index is
                 created.
+            timeout (float):
+                Optional. the maximum duration of time after which the operation
+                must terminate (successfully or with an error).
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -224,7 +228,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_create_with_lro(cls, create_lro)
 
-        created_index = create_lro.result(timeout=None)
+        created_index = create_lro.result(timeout=timeout)
 
         _LOGGER.log_create_complete(cls, created_index, "index")
 
@@ -324,6 +328,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         contents_delta_uri: str,
         is_complete_overwrite: Optional[bool] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        timeout: Optional[float] = None,
     ) -> "MatchingEngineIndex":
         """Updates the embeddings for this index.
 
@@ -341,6 +346,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 then existing content of the Index will be replaced by the data from the contentsDeltaUri.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            timeout (float):
+                Optional. the maximum duration of time after which the operation
+                must terminate (successfully or with an error).
 
         Returns:
             MatchingEngineIndex - The updated index resource object.
@@ -379,7 +387,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             "Update", "index", self.__class__, update_lro
         )
 
-        self._gca_resource = update_lro.result(timeout=None)
+        self._gca_resource = update_lro.result(timeout=timeout)
 
         _LOGGER.log_action_completed_against_resource("index", "Updated", self)
 
@@ -420,6 +428,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
         index_update_method: Optional[str] = None,
         encryption_spec_key_name: Optional[str] = None,
+        timeout: Optional[float] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource that uses the tree-AH algorithm.
 
@@ -510,6 +519,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 secured by this key.
                 The key needs to be in the same region as where the index is
                 created.
+            timeout (float):
+                Optional. the maximum duration of time after which the operation
+                must terminate (successfully or with an error).
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -541,6 +553,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             index_update_method=index_update_method,
             encryption_spec_key_name=encryption_spec_key_name,
+            timeout=timeout,
         )
 
     @classmethod
@@ -561,6 +574,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
         index_update_method: Optional[str] = None,
         encryption_spec_key_name: Optional[str] = None,
+        timeout: Optional[float] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource that uses the brute force algorithm.
 
@@ -640,6 +654,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 secured by this key.
                 The key needs to be in the same region as where the index is
                 created.
+            timeout (float):
+                Optional. the maximum duration of time after which the operation
+                must terminate (successfully or with an error).
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -667,6 +684,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             index_update_method=index_update_method,
             encryption_spec_key_name=encryption_spec_key_name,
+            timeout=timeout,
         )
 
     def upsert_datapoints(
