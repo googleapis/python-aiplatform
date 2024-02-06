@@ -199,6 +199,70 @@
         }
       }
     },
+    "DeploymentResourcePoolService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "DeploymentResourcePoolServiceClient",
+          "rpcs": {
+            "CreateDeploymentResourcePool": {
+              "methods": [
+                "create_deployment_resource_pool"
+              ]
+            },
+            "DeleteDeploymentResourcePool": {
+              "methods": [
+                "delete_deployment_resource_pool"
+              ]
+            },
+            "GetDeploymentResourcePool": {
+              "methods": [
+                "get_deployment_resource_pool"
+              ]
+            },
+            "ListDeploymentResourcePools": {
+              "methods": [
+                "list_deployment_resource_pools"
+              ]
+            },
+            "QueryDeployedModels": {
+              "methods": [
+                "query_deployed_models"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "DeploymentResourcePoolServiceAsyncClient",
+          "rpcs": {
+            "CreateDeploymentResourcePool": {
+              "methods": [
+                "create_deployment_resource_pool"
+              ]
+            },
+            "DeleteDeploymentResourcePool": {
+              "methods": [
+                "delete_deployment_resource_pool"
+              ]
+            },
+            "GetDeploymentResourcePool": {
+              "methods": [
+                "get_deployment_resource_pool"
+              ]
+            },
+            "ListDeploymentResourcePools": {
+              "methods": [
+                "list_deployment_resource_pools"
+              ]
+            },
+            "QueryDeployedModels": {
+              "methods": [
+                "query_deployed_models"
+              ]
+            }
+          }
+        }
+      }
+    },
     "EndpointService": {
       "clients": {
         "grpc": {
@@ -2158,9 +2222,24 @@
         "grpc": {
           "libraryClient": "PredictionServiceClient",
           "rpcs": {
+            "DirectPredict": {
+              "methods": [
+                "direct_predict"
+              ]
+            },
+            "DirectRawPredict": {
+              "methods": [
+                "direct_raw_predict"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
+              ]
+            },
+            "GenerateContent": {
+              "methods": [
+                "generate_content"
               ]
             },
             "Predict": {
@@ -2176,6 +2255,36 @@
             "ServerStreamingPredict": {
               "methods": [
                 "server_streaming_predict"
+              ]
+            },
+            "StreamDirectPredict": {
+              "methods": [
+                "stream_direct_predict"
+              ]
+            },
+            "StreamDirectRawPredict": {
+              "methods": [
+                "stream_direct_raw_predict"
+              ]
+            },
+            "StreamGenerateContent": {
+              "methods": [
+                "stream_generate_content"
+              ]
+            },
+            "StreamRawPredict": {
+              "methods": [
+                "stream_raw_predict"
+              ]
+            },
+            "StreamingPredict": {
+              "methods": [
+                "streaming_predict"
+              ]
+            },
+            "StreamingRawPredict": {
+              "methods": [
+                "streaming_raw_predict"
               ]
             }
           }
@@ -2183,9 +2292,24 @@
         "grpc-async": {
           "libraryClient": "PredictionServiceAsyncClient",
           "rpcs": {
+            "DirectPredict": {
+              "methods": [
+                "direct_predict"
+              ]
+            },
+            "DirectRawPredict": {
+              "methods": [
+                "direct_raw_predict"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
+              ]
+            },
+            "GenerateContent": {
+              "methods": [
+                "generate_content"
               ]
             },
             "Predict": {
@@ -2201,6 +2325,36 @@
             "ServerStreamingPredict": {
               "methods": [
                 "server_streaming_predict"
+              ]
+            },
+            "StreamDirectPredict": {
+              "methods": [
+                "stream_direct_predict"
+              ]
+            },
+            "StreamDirectRawPredict": {
+              "methods": [
+                "stream_direct_raw_predict"
+              ]
+            },
+            "StreamGenerateContent": {
+              "methods": [
+                "stream_generate_content"
+              ]
+            },
+            "StreamRawPredict": {
+              "methods": [
+                "stream_raw_predict"
+              ]
+            },
+            "StreamingPredict": {
+              "methods": [
+                "streaming_predict"
+              ]
+            },
+            "StreamingRawPredict": {
+              "methods": [
+                "streaming_raw_predict"
               ]
             }
           }

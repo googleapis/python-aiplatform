@@ -102,6 +102,18 @@ class PipelineJobSchedule(
             create_pipeline_job_request["pipeline_job"][
                 "template_uri"
             ] = pipeline_job._gca_resource.template_uri
+        if "labels" in pipeline_job._gca_resource:
+            create_pipeline_job_request["pipeline_job"][
+                "labels"
+            ] = pipeline_job._gca_resource.labels
+        if "encryption_spec" in pipeline_job._gca_resource:
+            create_pipeline_job_request["pipeline_job"][
+                "encryption_spec"
+            ] = pipeline_job._gca_resource.encryption_spec
+        if "reserved_ip_ranges" in pipeline_job._gca_resource:
+            create_pipeline_job_request["pipeline_job"][
+                "reserved_ip_ranges"
+            ] = pipeline_job._gca_resource.reserved_ip_ranges
         pipeline_job_schedule_args = {
             "display_name": display_name,
             "create_pipeline_job_request": create_pipeline_job_request,

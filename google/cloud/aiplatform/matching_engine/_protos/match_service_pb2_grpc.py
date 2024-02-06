@@ -49,14 +49,19 @@ class MatchServiceStub(object):
             channel: A grpc.Channel.
         """
         self.Match = channel.unary_unary(
-            "/google.cloud.aiplatform.container.v1beta1.MatchService/Match",
+            "/google.cloud.aiplatform.container.v1.MatchService/Match",
             request_serializer=match_service_pb2.MatchRequest.SerializeToString,
             response_deserializer=match_service_pb2.MatchResponse.FromString,
         )
         self.BatchMatch = channel.unary_unary(
-            "/google.cloud.aiplatform.container.v1beta1.MatchService/BatchMatch",
+            "/google.cloud.aiplatform.container.v1.MatchService/BatchMatch",
             request_serializer=match_service_pb2.BatchMatchRequest.SerializeToString,
             response_deserializer=match_service_pb2.BatchMatchResponse.FromString,
+        )
+        self.BatchGetEmbeddings = channel.unary_unary(
+            "/google.cloud.aiplatform.container.v1.MatchService/BatchGetEmbeddings",
+            request_serializer=match_service_pb2.BatchGetEmbeddingsRequest.SerializeToString,
+            response_deserializer=match_service_pb2.BatchGetEmbeddingsResponse.FromString,
         )
 
 
@@ -81,6 +86,12 @@ class MatchServiceServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
+    def BatchGetEmbeddings(self, request, context):
+        """Looks up the embeddings."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
 
 def add_MatchServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -94,9 +105,14 @@ def add_MatchServiceServicer_to_server(servicer, server):
             request_deserializer=match_service_pb2.BatchMatchRequest.FromString,
             response_serializer=match_service_pb2.BatchMatchResponse.SerializeToString,
         ),
+        "BatchGetEmbeddings": grpc.unary_unary_rpc_method_handler(
+            servicer.BatchGetEmbeddings,
+            request_deserializer=match_service_pb2.BatchGetEmbeddingsRequest.FromString,
+            response_serializer=match_service_pb2.BatchGetEmbeddingsResponse.SerializeToString,
+        ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-        "google.cloud.aiplatform.container.v1beta1.MatchService", rpc_method_handlers
+        "google.cloud.aiplatform.container.v1.MatchService", rpc_method_handlers
     )
     server.add_generic_rpc_handlers((generic_handler,))
 
@@ -123,7 +139,7 @@ class MatchService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/google.cloud.aiplatform.container.v1beta1.MatchService/Match",
+            "/google.cloud.aiplatform.container.v1.MatchService/Match",
             match_service_pb2.MatchRequest.SerializeToString,
             match_service_pb2.MatchResponse.FromString,
             options,
@@ -152,9 +168,38 @@ class MatchService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/google.cloud.aiplatform.container.v1beta1.MatchService/BatchMatch",
+            "/google.cloud.aiplatform.container.v1.MatchService/BatchMatch",
             match_service_pb2.BatchMatchRequest.SerializeToString,
             match_service_pb2.BatchMatchResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+        )
+
+    @staticmethod
+    def BatchGetEmbeddings(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/google.cloud.aiplatform.container.v1.MatchService/BatchGetEmbeddings",
+            match_service_pb2.BatchGetEmbeddingsRequest.SerializeToString,
+            match_service_pb2.BatchGetEmbeddingsResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -62,7 +62,7 @@ class FeatureOnlineStore(proto.Message):
 
             This field is a member of `oneof`_ ``storage_type``.
         name (str):
-            Output only. Name of the FeatureOnlineStore. Format:
+            Identifier. Name of the FeatureOnlineStore. Format:
             ``projects/{project}/locations/{location}/featureOnlineStores/{featureOnlineStore}``
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
@@ -180,9 +180,12 @@ class FeatureOnlineStore(proto.Message):
         r"""Optimized storage type"""
 
     class DedicatedServingEndpoint(proto.Message):
-        r"""The dedicated serving endpoint for this FeatureOnlineStore.
-        Only need to set when you choose Optimized storage type or
-        enable EmbeddingManagement. Will use public endpoint by default.
+        r"""The dedicated serving endpoint for this FeatureOnlineStore. Only
+        need to set when you choose Optimized storage type or enable
+        EmbeddingManagement. Will use public endpoint by default. Note, for
+        EmbeddingManagement use case, only
+        [DedicatedServingEndpoint.public_endpoint_domain_name] is available
+        now.
 
         Attributes:
             public_endpoint_domain_name (str):
@@ -190,7 +193,9 @@ class FeatureOnlineStore(proto.Message):
                 with the domain name to use for this
                 FeatureOnlineStore
             private_service_connect_config (google.cloud.aiplatform_v1beta1.types.PrivateServiceConnectConfig):
-                Optional. Private service connect config. If
+                Optional. Private service connect config. The private
+                service connection is available only for Optimized storage
+                type, not for embedding management now. If
                 [PrivateServiceConnectConfig.enable_private_service_connect][google.cloud.aiplatform.v1beta1.PrivateServiceConnectConfig.enable_private_service_connect]
                 set to true, customers will use private service connection
                 to send request. Otherwise, the connection will set to

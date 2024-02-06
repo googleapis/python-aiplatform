@@ -21,6 +21,7 @@ import os
 from typing import Dict, Union, Optional, Any, List
 
 from google.api_core import exceptions
+import google.auth
 from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
@@ -216,7 +217,7 @@ class _LegacyExperimentService:
 
 
 class _ExperimentTracker:
-    """Tracks Experiments and Experiment Runs wil high level APIs"""
+    """Tracks Experiments and Experiment Runs with high level APIs."""
 
     def __init__(self):
         self._experiment: Optional[experiment_resources.Experiment] = None
@@ -228,6 +229,27 @@ class _ExperimentTracker:
         """Resets this experiment tracker, clearing the current experiment and run."""
         self._experiment = None
         self._experiment_run = None
+
+    def _get_global_tensorboard(self) -> Optional[tensorboard_resource.Tensorboard]:
+        """Helper method to get the global TensorBoard instance.
+
+        Returns:
+            tensorboard_resource.Tensorboard: the global TensorBoard instance.
+        """
+        if self._global_tensorboard:
+            credentials, _ = google.auth.default()
+            if self.experiment and self.experiment._metadata_context.credentials:
+                credentials = self.experiment._metadata_context.credentials
+            try:
+                return tensorboard_resource.Tensorboard(
+                    self._global_tensorboard.resource_name,
+                    project=self._global_tensorboard.project,
+                    location=self._global_tensorboard.location,
+                    credentials=credentials,
+                )
+            except exceptions.NotFound:
+                self._global_tensorboard = None
+        return None
 
     @property
     def experiment_name(self) -> Optional[str]:
@@ -284,7 +306,7 @@ class _ExperimentTracker:
                 If ommitted, or set to `True` or `None`, the global tensorboard is used.
                 If no global tensorboard is set, the default tensorboard will be used, and created if it does not exist.
 
-                To disable using a backign tensorboard, set `backing_tensorboard` to `False`.
+                To disable using a backing tensorboard, set `backing_tensorboard` to `False`.
                 To maintain this behavior, set `experiment_tensorboard` to `False` in subsequent calls to aiplatform.init().
         """
         self.reset()
@@ -299,7 +321,7 @@ class _ExperimentTracker:
             backing_tb = None
         else:
             backing_tb = (
-                self._global_tensorboard or _get_or_create_default_tensorboard()
+                self._get_global_tensorboard() or _get_or_create_default_tensorboard()
             )
 
         current_backing_tb = experiment.backing_tensorboard_resource_name
@@ -384,21 +406,21 @@ class _ExperimentTracker:
     ) -> experiment_run_resource.ExperimentRun:
         """Start a run to current session.
 
-        ```
+        ```py
         aiplatform.init(experiment='my-experiment')
         aiplatform.start_run('my-run')
         aiplatform.log_params({'learning_rate':0.1})
         ```
 
         Use as context manager. Run will be ended on context exit:
-        ```
+        ```py
         aiplatform.init(experiment='my-experiment')
         with aiplatform.start_run('my-run') as my_run:
             my_run.log_params({'learning_rate':0.1})
         ```
 
         Resume a previously started run:
-        ```
+        ```py
         aiplatform.init(experiment='my-experiment')
         with aiplatform.start_run('my-run', resume=True) as my_run:
             my_run.log_params({'learning_rate':0.1})
@@ -455,7 +477,7 @@ class _ExperimentTracker:
     ):
         """Ends the the current experiment run.
 
-        ```
+        ```py
         aiplatform.start_run('my-run')
         ...
         aiplatform.end_run()
@@ -542,7 +564,7 @@ class _ExperimentTracker:
 
         Parameters with the same key will be overwritten.
 
-        ```
+        ```py
         aiplatform.start_run('my-run')
         aiplatform.log_params({'learning_rate': 0.1, 'dropout_rate': 0.2})
         ```
@@ -561,7 +583,7 @@ class _ExperimentTracker:
 
         Metrics with the same key will be overwritten.
 
-        ```
+        ```py
         aiplatform.start_run('my-run', experiment='my-experiment')
         aiplatform.log_metrics({'accuracy': 0.9, 'recall': 0.8})
         ```
@@ -587,7 +609,7 @@ class _ExperimentTracker:
     ) -> google_artifact_schema.ClassificationMetrics:
         """Create an artifact for classification metrics and log to ExperimentRun. Currently support confusion matrix and ROC curve.
 
-        ```
+        ```py
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         classification_metrics = my_run.log_classification_metrics(
             display_name='my-classification-metrics',
@@ -653,6 +675,7 @@ class _ExperimentTracker:
         Supported model frameworks: sklearn, xgboost, tensorflow.
 
         Example usage:
+        ```py
             model = LinearRegression()
             model.fit(X, y)
             aiplatform.init(
@@ -663,6 +686,7 @@ class _ExperimentTracker:
             )
             with aiplatform.start_run("my-run"):
                 aiplatform.log_model(model, "my-sklearn-model")
+        ```
 
         Args:
             model (Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]):
@@ -743,6 +767,7 @@ class _ExperimentTracker:
 
         Example:
 
+        ```py
         aiplatform.init(experiment='exp-1')
         aiplatform.start_run(run='run-1')
         aiplatform.log_params({'learning_rate': 0.1})
@@ -753,18 +778,20 @@ class _ExperimentTracker:
         aiplatform.log_metrics({'accuracy': 0.95})
 
         aiplatform.get_experiments_df()
+        ```
 
-        Will result in the following DataFrame
-        ___________________________________________________________________________
-        | experiment_name | run_name      | param.learning_rate | metric.accuracy |
-        ---------------------------------------------------------------------------
-        | exp-1           | run-1         | 0.1                 | 0.9             |
-        | exp-1           | run-2         | 0.2                 | 0.95            |
-        ---------------------------------------------------------------------------
+        Will result in the following DataFrame:
+
+        ```
+        experiment_name | run_name      | param.learning_rate | metric.accuracy
+        exp-1           | run-1         | 0.1                 | 0.9
+        exp-1           | run-2         | 0.2                 | 0.95
+        ```
 
         Args:
             experiment (str):
-            Name of the Experiment to filter results. If not set, return results of current active experiment.
+                Name of the Experiment to filter results. If not set, return results
+                of current active experiment.
 
         Returns:
             Pandas Dataframe of Experiment with metrics and parameters.
@@ -788,7 +815,7 @@ class _ExperimentTracker:
     ):
         """Log Vertex AI Resources to the current experiment run.
 
-        ```
+        ```py
         aiplatform.start_run('my-run')
         my_job = aiplatform.PipelineJob(...)
         my_job.submit()
@@ -812,7 +839,7 @@ class _ExperimentTracker:
 
         Requires the experiment or experiment run has a backing Vertex Tensorboard resource.
 
-        ```
+        ```py
         my_tensorboard = aiplatform.Tensorboard(...)
         aiplatform.init(experiment='my-experiment', experiment_tensorboard=my_tensorboard)
         aiplatform.start_run('my-run')
@@ -867,7 +894,7 @@ class _ExperimentTracker:
 
         To start a new execution:
 
-        ```
+        ```py
         with aiplatform.start_execution(schema_title='system.ContainerExecution', display_name='trainer) as exc:
           exc.assign_input_artifacts([my_artifact])
           model = aiplatform.Artifact.create(uri='gs://my-uri', schema_title='system.Model')
@@ -875,7 +902,7 @@ class _ExperimentTracker:
         ```
 
         To continue a previously created execution:
-        ```
+        ```py
         with aiplatform.start_execution(resource_id='my-exc', resume=True) as exc:
             ...
         ```

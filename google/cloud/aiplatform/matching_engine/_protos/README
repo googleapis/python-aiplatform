@@ -1,0 +1,35 @@
+Steps to update the pb2 files before bazel generation is supported
+Track bazel progress here: https://github.com/googleapis/python-aiplatform/issues/3037
+
+1 . Ensure that your environment is using python 3.10 or older which is needed
+for step 2. Consider using Anaconda to create envs with older python version.
+
+2. Use pip install `grpcio-tools==1.48.2` because protobuf 3.x is still supported by this library.
+
+3. Copy the file from
+`https://github.com/googleapis/googleapis/blob/master/google/rpc/status.proto`
+into `google/rpc/status.proto`. Make sure that `google/rpc/status.proto`
+exists relative to the root of the python-aiplatform repo.
+
+4. In the root directory python-aiplatform run
+```
+python -m grpc_tools.protoc --proto_path=. --python_out=. --grpc_python_out=. google/cloud/aiplatform/matching_engine/_protos/match_service.proto
+```
+
+5. After running the command, change the import statements manually
+```
+from google.cloud.aiplatform.matching_engine._protos import match_service_pb2 as google_dot_cloud_dot_aiplatform_dot_matching__engine_dot___protos_dot_match__service__pb2
+```
+to
+```
+google.cloud.aiplatform.matching_engine._protos import match_service_pb2
+```
+Also, run a find a replace to change
+`google_dot_cloud_dot_aiplatform_dot_matching__engine_dot___protos_dot_match__service__pb2`
+to `match_service_pb2`
+
+6. Run `black` on both files to reformat the code
+
+7. Remove the status.proto added in step 3
+
+8. Create a Pull Request in GitHub

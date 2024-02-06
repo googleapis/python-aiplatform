@@ -97,7 +97,7 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
             raise ValueError(
                 "[Ray on Vertex AI]: Ray Cluster ",
                 persistent_resource_id,
-                " failed to start Head node properly.",
+                " Head node is not reachable. Please ensure that a valid VPC network has been specified.",
             )
         # Handling service_account
         service_account = (
@@ -106,11 +106,23 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
 
         if service_account:
             raise ValueError(
-                "[Ray on Vertex AI]: Cluster ",
+                "[Ray on Vertex AI]: Ray Cluster ",
                 address,
                 " failed to start Head node properly because custom service account isn't supported.",
             )
         logging.debug("[Ray on Vertex AI]: Resolved head node ip: %s", address)
+        cluster = _gapic_utils.persistent_resource_to_cluster(
+            persistent_resource=self.response
+        )
+        if cluster is None:
+            raise ValueError(
+                "[Ray on Vertex AI]: Please delete and recreate the cluster (The cluster is not a Ray cluster or the cluster image is outdated)."
+            )
+        local_ray_verion = _validation_utils.get_local_ray_version()
+        if cluster.ray_version != local_ray_verion:
+            raise ValueError(
+                f"[Ray on Vertex AI]: Local runtime has Ray version {local_ray_verion}, but the cluster runtime has {cluster.ray_version}. Please ensure that the Ray versions match."
+            )
         super().__init__(address)
 
     def connect(self) -> _VertexRayClientContext:

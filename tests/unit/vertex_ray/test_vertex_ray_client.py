@@ -84,6 +84,7 @@ class TestClientBuilder:
     def teardown_method(self):
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
+    @tc.rovminversion
     @pytest.mark.usefixtures("get_persistent_resource_status_running_mock")
     def test_init_with_full_resource_name(
         self,
@@ -94,6 +95,7 @@ class TestClientBuilder:
             tc.ClusterConstants._TEST_VERTEX_RAY_HEAD_NODE_IP,
         )
 
+    @tc.rovminversion
     @pytest.mark.usefixtures(
         "get_persistent_resource_status_running_mock", "google_auth_mock"
     )
@@ -112,6 +114,7 @@ class TestClientBuilder:
             tc.ClusterConstants._TEST_VERTEX_RAY_HEAD_NODE_IP,
         )
 
+    @tc.rovminversion
     @pytest.mark.usefixtures("get_persistent_resource_status_running_mock")
     def test_connect_running(self, ray_client_connect_mock):
         connect_result = vertex_ray.ClientBuilder(
@@ -124,6 +127,7 @@ class TestClientBuilder:
             == tc.ClusterConstants._TEST_VERTEX_RAY_PR_ID
         )
 
+    @tc.rovminversion
     @pytest.mark.usefixtures("get_persistent_resource_status_running_no_ray_mock")
     def test_connect_running_no_ray(self, ray_client_connect_mock):
         expected_message = (
@@ -139,6 +143,7 @@ class TestClientBuilder:
             ray_client_connect_mock.assert_called_once_with()
             assert str(exception.value) == expected_message
 
+    @tc.rovminversion
     @pytest.mark.parametrize(
         "address",
         [

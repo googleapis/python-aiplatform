@@ -36,6 +36,7 @@ from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 from google.auth.transport import requests as google_auth_requests
+from google.protobuf import duration_pb2
 import proto
 
 from google.cloud import aiplatform
@@ -350,10 +351,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Strings which should be sent along with the request as
                 metadata.
             project (str):
-                Required. Project to retrieve endpoint from. If not set, project
+                Optional. Project to retrieve endpoint from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Required. Location to retrieve endpoint from. If not set, location
+                Optional. Location to retrieve endpoint from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
@@ -471,11 +472,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             project (str):
-                Required. Project to retrieve endpoint from. If not set, project
-                set in aiplatform.init will be used.
+                Required. Project to retrieve endpoint from.
             location (str):
-                Required. Location to retrieve endpoint from. If not set, location
-                set in aiplatform.init will be used.
+                Required. Location to retrieve endpoint from.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict[str, str]):
@@ -781,6 +780,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -863,6 +863,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -898,6 +901,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
         )
 
     @base.optional_sync()
@@ -920,6 +924,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -996,6 +1001,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -1022,6 +1030,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1051,6 +1060,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1134,6 +1144,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is specified.
@@ -1164,6 +1177,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             display_name=deployed_model_display_name,
             service_account=service_account,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
         )
 
         supports_automatic_resources = (
@@ -2419,6 +2433,7 @@ class PrivateEndpoint(Endpoint):
         ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
+        disable_container_logging: bool = False,
     ) -> None:
         """Deploys a Model to the PrivateEndpoint.
 
@@ -2509,6 +2524,7 @@ class PrivateEndpoint(Endpoint):
             explanation_spec=explanation_spec,
             metadata=metadata,
             sync=sync,
+            disable_container_logging=disable_container_logging,
         )
 
     def undeploy(
@@ -2959,6 +2975,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         serving_container_args: Optional[Sequence[str]] = None,
         serving_container_environment_variables: Optional[Dict[str, str]] = None,
         serving_container_ports: Optional[Sequence[int]] = None,
+        serving_container_grpc_ports: Optional[Sequence[int]] = None,
         local_model: Optional["LocalModel"] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
@@ -2974,6 +2991,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         staging_bucket: Optional[str] = None,
         sync=True,
         upload_request_timeout: Optional[float] = None,
+        serving_container_deployment_timeout: Optional[int] = None,
+        serving_container_shared_memory_size_mb: Optional[int] = None,
+        serving_container_startup_probe_exec: Optional[Sequence[str]] = None,
+        serving_container_startup_probe_period_seconds: Optional[int] = None,
+        serving_container_startup_probe_timeout_seconds: Optional[int] = None,
+        serving_container_health_probe_exec: Optional[Sequence[str]] = None,
+        serving_container_health_probe_period_seconds: Optional[int] = None,
+        serving_container_health_probe_timeout_seconds: Optional[int] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -3057,6 +3082,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
                 the network.
+            serving_container_grpc_ports: Optional[Sequence[int]]=None,
+                Declaration of ports that are exposed by the container. Vertex AI sends gRPC
+                prediction requests that it receives to the first port on this list. Vertex
+                AI also sends liveness and health checks to this port.
+                If you do not specify this field, gRPC requests to the container will be
+                disabled.
+                Vertex AI does not use ports other than the first one listed. This field
+                corresponds to the `ports` field of the Kubernetes Containers v1 core API.
             local_model (Optional[LocalModel]):
                 Optional. A LocalModel instance that includes a `serving_container_spec`.
                 If provided, the `serving_container_spec` of the LocalModel instance
@@ -3153,6 +3186,31 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 staging_bucket set in aiplatform.init.
             upload_request_timeout (float):
                 Optional. The timeout for the upload request in seconds.
+            serving_container_deployment_timeout (int):
+                Optional. Deployment timeout in seconds.
+            serving_container_shared_memory_size_mb (int):
+                Optional. The amount of the VM memory to reserve as the shared
+                memory for the model in megabytes.
+            serving_container_startup_probe_exec (Sequence[str]):
+                Optional. Exec specifies the action to take. Used by startup
+                probe. An example of this argument would be
+                ["cat", "/tmp/healthy"]
+            serving_container_startup_probe_period_seconds (int):
+                Optional. How often (in seconds) to perform the startup probe.
+                Default to 10 seconds. Minimum value is 1.
+            serving_container_startup_probe_timeout_seconds (int):
+                Optional. Number of seconds after which the startup probe times
+                out. Defaults to 1 second. Minimum value is 1.
+            serving_container_health_probe_exec (Sequence[str]):
+                Optional. Exec specifies the action to take. Used by health
+                probe. An example of this argument would be
+                ["cat", "/tmp/healthy"]
+            serving_container_health_probe_period_seconds (int):
+                Optional. How often (in seconds) to perform the health probe.
+                Default to 10 seconds. Minimum value is 1.
+            serving_container_health_probe_timeout_seconds (int):
+                Optional. Number of seconds after which the health probe times
+                out. Defaults to 1 second. Minimum value is 1.
 
         Returns:
             model (aiplatform.Model):
@@ -3187,6 +3245,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
             env = None
             ports = None
+            grpc_ports = None
+            deployment_timeout = (
+                duration_pb2.Duration(seconds=serving_container_deployment_timeout)
+                if serving_container_deployment_timeout
+                else None
+            )
+            startup_probe = None
+            health_probe = None
 
             if serving_container_environment_variables:
                 env = [
@@ -3198,6 +3264,41 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     gca_model_compat.Port(container_port=port)
                     for port in serving_container_ports
                 ]
+            if serving_container_grpc_ports:
+                grpc_ports = [
+                    gca_model_compat.Port(container_port=port)
+                    for port in serving_container_grpc_ports
+                ]
+            if (
+                serving_container_startup_probe_exec
+                or serving_container_startup_probe_period_seconds
+                or serving_container_startup_probe_timeout_seconds
+            ):
+                startup_probe_exec = None
+                if serving_container_startup_probe_exec:
+                    startup_probe_exec = gca_model_compat.Probe.ExecAction(
+                        command=serving_container_startup_probe_exec
+                    )
+                startup_probe = gca_model_compat.Probe(
+                    exec=startup_probe_exec,
+                    period_seconds=serving_container_startup_probe_period_seconds,
+                    timeout_seconds=serving_container_startup_probe_timeout_seconds,
+                )
+            if (
+                serving_container_health_probe_exec
+                or serving_container_health_probe_period_seconds
+                or serving_container_health_probe_timeout_seconds
+            ):
+                health_probe_exec = None
+                if serving_container_health_probe_exec:
+                    health_probe_exec = gca_model_compat.Probe.ExecAction(
+                        command=serving_container_health_probe_exec
+                    )
+                health_probe = gca_model_compat.Probe(
+                    exec=health_probe_exec,
+                    period_seconds=serving_container_health_probe_period_seconds,
+                    timeout_seconds=serving_container_health_probe_timeout_seconds,
+                )
 
             container_spec = gca_model_compat.ModelContainerSpec(
                 image_uri=serving_container_image_uri,
@@ -3205,8 +3306,13 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 args=serving_container_args,
                 env=env,
                 ports=ports,
+                grpc_ports=grpc_ports,
                 predict_route=serving_container_predict_route,
                 health_route=serving_container_health_route,
+                deployment_timeout=deployment_timeout,
+                shared_memory_size_mb=serving_container_shared_memory_size_mb,
+                startup_probe=startup_probe,
+                health_probe=health_probe,
             )
 
         model_predict_schemata = None
@@ -3333,6 +3439,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3433,6 +3540,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3486,6 +3596,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -3510,6 +3621,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         enable_access_logging=False,
+        disable_container_logging: bool = False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -3603,6 +3715,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
+            disable_container_logging (bool):
+                If True, container logs from the deployed model will not be
+                written to Cloud Logging. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -3653,6 +3768,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             enable_access_logging=enable_access_logging,
+            disable_container_logging=disable_container_logging,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)

@@ -24,6 +24,7 @@ from unittest.mock import patch
 from urllib import request
 from datetime import datetime
 
+from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -43,6 +44,20 @@ from google.protobuf import field_mask_pb2 as field_mask
 from google.cloud.aiplatform.compat.services import (
     pipeline_service_client,
 )
+from google.cloud.aiplatform_v1beta1.types import (
+    pipeline_service as PipelineServiceV1Beta1,
+)
+from google.cloud.aiplatform_v1beta1.services import (
+    pipeline_service as v1beta1_pipeline_service,
+)
+from google.cloud.aiplatform_v1beta1.types import (
+    pipeline_job as v1beta1_pipeline_job,
+    pipeline_state as v1beta1_pipeline_state,
+    context as v1beta1_context,
+)
+from google.cloud.aiplatform.preview.pipelinejob import (
+    pipeline_jobs as preview_pipeline_jobs,
+)
 from google.cloud.aiplatform.compat.types import (
     pipeline_job as gca_pipeline_job,
     pipeline_state as gca_pipeline_state,
@@ -52,7 +67,9 @@ from google.cloud.aiplatform.compat.types import (
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_PIPELINE_JOB_DISPLAY_NAME = "sample-pipeline-job-display-name"
+_TEST_PIPELINE_JOB_DISPLAY_NAME_2 = "sample-pipeline-job-display-name-2"
 _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
+_TEST_PIPELINE_JOB_ID_2 = "sample-test-pipeline-202111112"
 _TEST_GCS_BUCKET_NAME = "my-bucket"
 _TEST_GCS_OUTPUT_DIRECTORY = f"gs://{_TEST_GCS_BUCKET_NAME}/output_artifacts/"
 _TEST_CREDENTIALS = auth_credentials.AnonymousCredentials()
@@ -63,8 +80,10 @@ _TEST_AR_TEMPLATE_PATH = "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"
 _TEST_HTTPS_TEMPLATE_PATH = "https://raw.githubusercontent.com/repo/pipeline.json"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_ID}"
+_TEST_RESERVED_IP_RANGES = ["vertex-ai-ip-range"]
 
 _TEST_PIPELINE_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
+_TEST_PIPELINE_JOB_NAME_2 = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID_2}"
 _TEST_PIPELINE_JOB_LIST_READ_MASK = field_mask.FieldMask(
     paths=pipeline_constants._READ_MASK_FIELDS
 )
@@ -231,8 +250,55 @@ def mock_pipeline_service_create():
             create_time=_TEST_PIPELINE_CREATE_TIME,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
+            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
         )
         yield mock_create_pipeline_job
+
+
+@pytest.fixture
+def mock_pipeline_v1beta1_service_batch_delete():
+    with mock.patch.object(
+        v1beta1_pipeline_service.PipelineServiceClient, "batch_delete_pipeline_jobs"
+    ) as mock_batch_pipeline_jobs:
+        mock_batch_pipeline_jobs.return_value = (
+            make_batch_delete_pipeline_jobs_response()
+        )
+        mock_lro = mock.Mock(ga_operation.Operation)
+        mock_lro.result.return_value = make_batch_delete_pipeline_jobs_response()
+        mock_batch_pipeline_jobs.return_value = mock_lro
+        yield mock_batch_pipeline_jobs
+
+
+def make_v1beta1_pipeline_job(name: str, state: v1beta1_pipeline_state.PipelineState):
+    return v1beta1_pipeline_job.PipelineJob(
+        name=name,
+        state=state,
+        create_time=_TEST_PIPELINE_CREATE_TIME,
+        service_account=_TEST_SERVICE_ACCOUNT,
+        network=_TEST_NETWORK,
+        job_detail=v1beta1_pipeline_job.PipelineJobDetail(
+            pipeline_run_context=v1beta1_context.Context(
+                name=name,
+            )
+        ),
+    )
+
+
+def make_batch_delete_pipeline_jobs_response():
+    response = PipelineServiceV1Beta1.BatchDeletePipelineJobsResponse()
+    response.pipeline_jobs.append(
+        make_v1beta1_pipeline_job(
+            _TEST_PIPELINE_JOB_NAME,
+            v1beta1_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+        )
+    )
+    response.pipeline_jobs.append(
+        make_v1beta1_pipeline_job(
+            _TEST_PIPELINE_JOB_NAME_2,
+            v1beta1_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+        )
+    )
+    return response
 
 
 @pytest.fixture
@@ -267,6 +333,7 @@ def make_pipeline_job(state):
         create_time=_TEST_PIPELINE_CREATE_TIME,
         service_account=_TEST_SERVICE_ACCOUNT,
         network=_TEST_NETWORK,
+        reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
         job_detail=gca_pipeline_job.PipelineJobDetail(
             pipeline_run_context=gca_context.Context(
                 name=_TEST_PIPELINE_JOB_NAME,
@@ -531,6 +598,90 @@ class TestPipelineJob:
             runtime_config=runtime_config,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=_TEST_PIPELINE_JOB_ID,
+            timeout=None,
+        )
+
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert job._gca_resource == make_pipeline_job(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_run_with_reserved_ip_ranges(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        sync,
+    ):
+        import yaml
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
+            enable_caching=True,
+        )
+
+        job.run(
+            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            job.wait()
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+            "inputArtifacts": {"vertex_model": {"artifactId": "456"}},
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+                "schemaVersion": "2.1.0",
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -1887,3 +2038,44 @@ class TestPipelineJob:
         assert associated_experiment.resource_name == _TEST_CONTEXT_NAME
 
         assert add_context_children_mock.call_count == 1
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_get",
+        "mock_pipeline_v1beta1_service_batch_delete",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [
+            _TEST_PIPELINE_SPEC_JSON,
+            _TEST_PIPELINE_SPEC_YAML,
+            _TEST_PIPELINE_JOB,
+            _TEST_PIPELINE_SPEC_LEGACY_JSON,
+            _TEST_PIPELINE_SPEC_LEGACY_YAML,
+            _TEST_PIPELINE_JOB_LEGACY,
+        ],
+    )
+    def test_create_two_and_batch_delete_pipeline_jobs_returns_response(
+        self,
+        mock_load_yaml_and_json,
+        mock_pipeline_v1beta1_service_batch_delete,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = preview_pipeline_jobs._PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        response = job.batch_delete(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            names=[_TEST_PIPELINE_JOB_ID, _TEST_PIPELINE_JOB_ID_2],
+        )
+
+        assert mock_pipeline_v1beta1_service_batch_delete.call_count == 1
+        assert len(response.pipeline_jobs) == 2

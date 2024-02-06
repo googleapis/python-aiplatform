@@ -62,7 +62,7 @@ class PredictionServiceTransport(abc.ABC):
 
         Args:
             host (Optional[str]):
-                 The hostname to connect to.
+                 The hostname to connect to (default: 'aiplatform.googleapis.com').
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -125,6 +125,10 @@ class PredictionServiceTransport(abc.ABC):
             host += ":443"
         self._host = host
 
+    @property
+    def host(self):
+        return self._host
+
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
@@ -138,8 +142,38 @@ class PredictionServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.direct_predict: gapic_v1.method.wrap_method(
+                self.direct_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.direct_raw_predict: gapic_v1.method.wrap_method(
+                self.direct_raw_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.stream_direct_predict: gapic_v1.method.wrap_method(
+                self.stream_direct_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.stream_direct_raw_predict: gapic_v1.method.wrap_method(
+                self.stream_direct_raw_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.streaming_predict: gapic_v1.method.wrap_method(
+                self.streaming_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.server_streaming_predict: gapic_v1.method.wrap_method(
                 self.server_streaming_predict,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.streaming_raw_predict: gapic_v1.method.wrap_method(
+                self.streaming_raw_predict,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -150,6 +184,16 @@ class PredictionServiceTransport(abc.ABC):
             ),
             self.count_tokens: gapic_v1.method.wrap_method(
                 self.count_tokens,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.generate_content: gapic_v1.method.wrap_method(
+                self.generate_content,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.stream_generate_content: gapic_v1.method.wrap_method(
+                self.stream_generate_content,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -186,6 +230,66 @@ class PredictionServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def direct_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.DirectPredictRequest],
+        Union[
+            prediction_service.DirectPredictResponse,
+            Awaitable[prediction_service.DirectPredictResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def direct_raw_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.DirectRawPredictRequest],
+        Union[
+            prediction_service.DirectRawPredictResponse,
+            Awaitable[prediction_service.DirectRawPredictResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def stream_direct_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamDirectPredictRequest],
+        Union[
+            prediction_service.StreamDirectPredictResponse,
+            Awaitable[prediction_service.StreamDirectPredictResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def stream_direct_raw_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamDirectRawPredictRequest],
+        Union[
+            prediction_service.StreamDirectRawPredictResponse,
+            Awaitable[prediction_service.StreamDirectRawPredictResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def streaming_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamingPredictRequest],
+        Union[
+            prediction_service.StreamingPredictResponse,
+            Awaitable[prediction_service.StreamingPredictResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def server_streaming_predict(
         self,
     ) -> Callable[
@@ -193,6 +297,18 @@ class PredictionServiceTransport(abc.ABC):
         Union[
             prediction_service.StreamingPredictResponse,
             Awaitable[prediction_service.StreamingPredictResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def streaming_raw_predict(
+        self,
+    ) -> Callable[
+        [prediction_service.StreamingRawPredictRequest],
+        Union[
+            prediction_service.StreamingRawPredictResponse,
+            Awaitable[prediction_service.StreamingRawPredictResponse],
         ],
     ]:
         raise NotImplementedError()
@@ -217,6 +333,30 @@ class PredictionServiceTransport(abc.ABC):
         Union[
             prediction_service.CountTokensResponse,
             Awaitable[prediction_service.CountTokensResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def generate_content(
+        self,
+    ) -> Callable[
+        [prediction_service.GenerateContentRequest],
+        Union[
+            prediction_service.GenerateContentResponse,
+            Awaitable[prediction_service.GenerateContentResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def stream_generate_content(
+        self,
+    ) -> Callable[
+        [prediction_service.GenerateContentRequest],
+        Union[
+            prediction_service.GenerateContentResponse,
+            Awaitable[prediction_service.GenerateContentResponse],
         ],
     ]:
         raise NotImplementedError()

@@ -1204,3 +1204,52 @@ def mock_autolog():
     with patch.object(aiplatform, "autolog") as mock_autolog_method:
         mock_autolog_method.return_value = None
         yield mock_autolog_method
+
+
+"""
+----------------------------------------------------------------------------
+Vector Search Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def mock_index():
+    mock = MagicMock(aiplatform.MatchingEngineIndex)
+    yield mock
+
+
+@pytest.fixture
+def mock_index_endpoint():
+    mock = MagicMock(aiplatform.MatchingEngineIndexEndpoint)
+    yield mock
+
+
+@pytest.fixture
+def mock_index_init(mock_index):
+    with patch.object(aiplatform, "MatchingEngineIndex") as mock:
+        mock.return_value = mock_index
+        yield mock
+
+
+@pytest.fixture
+def mock_index_upsert_datapoints(mock_index):
+    with patch.object(mock_index, "upsert_datapoints") as mock_upsert:
+        mock_upsert.return_value = None
+        yield mock_upsert
+
+
+@pytest.fixture
+def mock_index_endpoint_init(mock_index_endpoint):
+    with patch.object(aiplatform, "MatchingEngineIndexEndpoint") as mock:
+        mock.return_value = mock_index_endpoint
+        yield mock
+
+
+@pytest.fixture
+def mock_index_endpoint_find_neighbors(mock_index_endpoint):
+    with patch.object(
+        mock_index_endpoint, "find_neighbors"
+    ) as mock_find_neighbors:
+        mock_find_neighbors.return_value = None
+        yield mock_find_neighbors

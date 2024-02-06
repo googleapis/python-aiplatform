@@ -146,9 +146,9 @@ class _Config:
 
                 If `experiment_tensorboard` is ommitted or set to `True` or `None` the global
                 Tensorboard will be assigned to the `experiment`. If a global Tensorboard is
-                not set, the default Tensorboard instance will be used, and created if it deos not exist.
+                not set, the default Tensorboard instance will be used, and created if it does not exist.
 
-                To disable creating and using Tensorboard with `experiment`, set `experiment_tensorboard` to False.
+                To disable creating and using Tensorboard with `experiment`, set `experiment_tensorboard` to `False`.
                 Any subsequent calls to aiplatform.init() should include this setting as well.
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
@@ -274,9 +274,10 @@ class _Config:
         project_not_found_exception_str = (
             "Unable to find your project. Please provide a project ID by:"
             "\n- Passing a constructor argument"
-            "\n- Using aiplatform.init()"
+            "\n- Using vertexai.init()"
             "\n- Setting project using 'gcloud config set project my-project'"
             "\n- Setting a GCP environment variable"
+            "\n- To create a Google Cloud project, please follow guidance at https://developers.google.com/workspace/guides/create-project"
         )
 
         try:

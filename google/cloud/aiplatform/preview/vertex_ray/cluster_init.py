@@ -56,14 +56,14 @@ def create_ray_cluster(
     from vertex_ray import Resources
 
     head_node_type = Resources(
-        machine_type="n1-standard-4",
+        machine_type="n1-standard-8",
         node_count=1,
         accelerator_type="NVIDIA_TESLA_K80",
         accelerator_count=1,
     )
 
     worker_node_types = [Resources(
-        machine_type="n1-standard-4",
+        machine_type="n1-standard-8",
         node_count=2,
         accelerator_type="NVIDIA_TESLA_K80",
         accelerator_count=1,
@@ -115,6 +115,14 @@ def create_ray_cluster(
             "[Ray on Vertex]: No VPC network configured. It is required for client connection."
         )
 
+    local_ray_verion = _validation_utils.get_local_ray_version()
+    if ray_version != local_ray_verion:
+        logging.info(
+            f"[Ray on Vertex]: Local runtime has Ray version {local_ray_verion}"
+            + f", but the requested cluster runtime has {ray_version}. Please "
+            + "ensure that the Ray versions match for client connectivity."
+        )
+
     if cluster_name is None:
         cluster_name = "ray-cluster-" + utils.timestamped_unique_name()
 
@@ -123,6 +131,14 @@ def create_ray_cluster(
             raise ValueError(
                 "[Ray on Vertex AI]: For head_node_type, "
                 + "Resources.node_count must be 1."
+            )
+        if (
+            head_node_type.accelerator_type is None
+            and head_node_type.accelerator_count > 0
+        ):
+            raise ValueError(
+                "[Ray on Vertex]: accelerator_type must be specified when"
+                + " accelerator_count is set to a value other than 0."
             )
 
     resource_pool_images = {}
@@ -147,6 +163,14 @@ def create_ray_cluster(
     i = 0
     if worker_node_types:
         for worker_node_type in worker_node_types:
+            if (
+                worker_node_type.accelerator_type is None
+                and worker_node_type.accelerator_count > 0
+            ):
+                raise ValueError(
+                    "[Ray on Vertex]: accelerator_type must be specified when"
+                    + " accelerator_count is set to a value other than 0."
+                )
             # Worker and head share the same MachineSpec, merge them into the
             # same ResourcePool
             additional_replica_count = resources._check_machine_spec_identical(
@@ -327,31 +351,66 @@ def update_ray_cluster(
     Returns:
         The cluster_resource_name of the Ray cluster on Vertex.
     """
+    # worker_node_types should not be duplicated.
+    for i in range(len(worker_node_types)):
+        for j in range(len(worker_node_types)):
+            additional_replica_count = resources._check_machine_spec_identical(
+                worker_node_types[i], worker_node_types[j]
+            )
+            if additional_replica_count > 0 and i != j:
+                raise ValueError(
+                    "[Ray on Vertex AI]: Worker_node_types have duplicate "
+                    + f"machine specs: {worker_node_types[i]} "
+                    + f"and {worker_node_types[j]}"
+                )
+
     persistent_resource = _gapic_utils.get_persistent_resource(
         persistent_resource_name=cluster_resource_name
     )
 
     current_persistent_resource = copy.deepcopy(persistent_resource)
-    head_node_type = get_ray_cluster(cluster_resource_name).head_node_type
     current_persistent_resource.resource_pools[0].replica_count = 1
-    # TODO(b/300146407): Raise ValueError for duplicate resource pools
+
+    previous_ray_cluster = get_ray_cluster(cluster_resource_name)
+    head_node_type = previous_ray_cluster.head_node_type
+    previous_worker_node_types = previous_ray_cluster.worker_node_types
+
+    # new worker_node_types and previous_worker_node_types should be the same length.
+    if len(worker_node_types) != len(previous_worker_node_types):
+        raise ValueError(
+            "[Ray on Vertex AI]: Desired number of worker_node_types "
+            + f"({len(worker_node_types)}) does not match the number of the "
+            + f"existing worker_node_type({len(previous_worker_node_types)})."
+        )
+
+    # Merge worker_node_type and head_node_type if they share
+    # the same machine spec.
     not_merged = 1
     for i in range(len(worker_node_types)):
         additional_replica_count = resources._check_machine_spec_identical(
             head_node_type, worker_node_types[i]
         )
-        if additional_replica_count != 0:
-            # merge the 1st duplicated worker with head
+        if additional_replica_count != 0 or (
+            additional_replica_count == 0 and worker_node_types[i].node_count == 0
+        ):
+            # Merge the 1st duplicated worker with head, allow scale down to 0 worker
             current_persistent_resource.resource_pools[0].replica_count = (
                 1 + additional_replica_count
             )
-            # reset not_merged
+            # Reset not_merged
             not_merged = 0
         else:
             # No duplication w/ head node, write the 2nd worker node to the 2nd resource pool.
             current_persistent_resource.resource_pools[
                 i + not_merged
             ].replica_count = worker_node_types[i].node_count
+            # New worker_node_type.node_count should be >=1 unless the worker_node_type
+            # and head_node_type are merged due to the same machine specs.
+            if worker_node_types[i].node_count == 0:
+                raise ValueError(
+                    "[Ray on Vertex AI]: Worker_node_type "
+                    + f"({worker_node_types[i]}) must update to >= 1 nodes",
+                )
 
     request = persistent_resource_service.UpdatePersistentResourceRequest(
         persistent_resource=current_persistent_resource,

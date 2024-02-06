@@ -78,7 +78,12 @@ from google.cloud.aiplatform.prediction import LocalModel
 from google.cloud.aiplatform_v1 import Execution as GapicExecution
 from google.cloud.aiplatform.model_evaluation import model_evaluation_job
 
-from google.protobuf import field_mask_pb2, struct_pb2, timestamp_pb2
+from google.protobuf import (
+    field_mask_pb2,
+    struct_pb2,
+    timestamp_pb2,
+    duration_pb2,
+)
 
 import constants as test_constants
 
@@ -108,6 +113,15 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
     "loss_fn": "mse",
 }
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
+_TEST_SERVING_CONTAINER_GRPC_PORTS = [7777, 7000]
+_TEST_SERVING_CONTAINER_DEPLOYMENT_TIMEOUT = 100
+_TEST_SERVING_CONTAINER_SHARED_MEMORY_SIZE_MB = 1000
+_TEST_SERVING_CONTAINER_STARTUP_PROBE_EXEC = ["a", "b"]
+_TEST_SERVING_CONTAINER_STARTUP_PROBE_PERIOD_SECONDS = 5
+_TEST_SERVING_CONTAINER_STARTUP_PROBE_TIMEOUT_SECONDS = 100
+_TEST_SERVING_CONTAINER_HEALTH_PROBE_EXEC = ["c", "d"]
+_TEST_SERVING_CONTAINER_HEALTH_PROBE_PERIOD_SECONDS = 20
+_TEST_SERVING_CONTAINER_HEALTH_PROBE_TIMEOUT_SECONDS = 200
 _TEST_ID = "1028944691210842416"
 _TEST_LABEL = test_constants.ProjectConstants._TEST_LABELS
 _TEST_APPENDED_USER_AGENT = ["fake_user_agent", "another_fake_user_agent"]
@@ -1593,11 +1607,20 @@ class TestModel:
             serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
             serving_container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
+            serving_container_grpc_ports=_TEST_SERVING_CONTAINER_GRPC_PORTS,
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
             sync=sync,
             upload_request_timeout=None,
+            serving_container_deployment_timeout=_TEST_SERVING_CONTAINER_DEPLOYMENT_TIMEOUT,
+            serving_container_shared_memory_size_mb=_TEST_SERVING_CONTAINER_SHARED_MEMORY_SIZE_MB,
+            serving_container_startup_probe_exec=_TEST_SERVING_CONTAINER_STARTUP_PROBE_EXEC,
+            serving_container_startup_probe_period_seconds=_TEST_SERVING_CONTAINER_STARTUP_PROBE_PERIOD_SECONDS,
+            serving_container_startup_probe_timeout_seconds=_TEST_SERVING_CONTAINER_STARTUP_PROBE_TIMEOUT_SECONDS,
+            serving_container_health_probe_exec=_TEST_SERVING_CONTAINER_HEALTH_PROBE_EXEC,
+            serving_container_health_probe_period_seconds=_TEST_SERVING_CONTAINER_HEALTH_PROBE_PERIOD_SECONDS,
+            serving_container_health_probe_timeout_seconds=_TEST_SERVING_CONTAINER_HEALTH_PROBE_TIMEOUT_SECONDS,
         )
 
         if not sync:
@@ -1613,6 +1636,31 @@ class TestModel:
             for port in _TEST_SERVING_CONTAINER_PORTS
         ]
 
+        grpc_ports = [
+            gca_model.Port(container_port=port)
+            for port in _TEST_SERVING_CONTAINER_GRPC_PORTS
+        ]
+
+        deployment_timeout = duration_pb2.Duration(
+            seconds=_TEST_SERVING_CONTAINER_DEPLOYMENT_TIMEOUT
+        )
+
+        startup_probe = gca_model.Probe(
+            exec=gca_model.Probe.ExecAction(
+                command=_TEST_SERVING_CONTAINER_STARTUP_PROBE_EXEC
+            ),
+            period_seconds=_TEST_SERVING_CONTAINER_STARTUP_PROBE_PERIOD_SECONDS,
+            timeout_seconds=_TEST_SERVING_CONTAINER_STARTUP_PROBE_TIMEOUT_SECONDS,
+        )
+
+        health_probe = gca_model.Probe(
+            exec=gca_model.Probe.ExecAction(
+                command=_TEST_SERVING_CONTAINER_HEALTH_PROBE_EXEC
+            ),
+            period_seconds=_TEST_SERVING_CONTAINER_HEALTH_PROBE_PERIOD_SECONDS,
+            timeout_seconds=_TEST_SERVING_CONTAINER_HEALTH_PROBE_TIMEOUT_SECONDS,
+        )
+
         container_spec = gca_model.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
@@ -1621,6 +1669,11 @@ class TestModel:
             args=_TEST_SERVING_CONTAINER_ARGS,
             env=env,
             ports=ports,
+            grpc_ports=grpc_ports,
+            deployment_timeout=deployment_timeout,
+            shared_memory_size_mb=_TEST_SERVING_CONTAINER_SHARED_MEMORY_SIZE_MB,
+            startup_probe=startup_probe,
+            health_probe=health_probe,
         )
 
         managed_model = gca_model.Model(
@@ -2126,6 +2179,47 @@ class TestModel:
             timeout=None,
         )
 
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_disable_container_logging(self, deploy_model_mock, sync):
+
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        assert (
+            test_model.deploy(
+                test_endpoint,
+                disable_container_logging=True,
+                sync=sync,
+            )
+            == test_endpoint
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            disable_container_logging=True,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures(
         "get_model_mock", "get_drp_mock", "create_endpoint_mock", "get_endpoint_mock"
     )
@@ -2151,6 +2245,7 @@ class TestModel:
             shared_resources=_TEST_DRP_NAME,
             model=test_model.resource_name,
             display_name=None,
+            enable_container_logging=True,
         )
         preview_deploy_model_mock.assert_called_once_with(
             endpoint=test_endpoint.resource_name,

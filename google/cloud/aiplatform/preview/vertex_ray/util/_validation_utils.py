@@ -18,6 +18,7 @@
 import google.auth
 import google.auth.transport.requests
 import logging
+import ray
 import re
 
 from google.cloud.aiplatform import initializer
@@ -68,6 +69,13 @@ def maybe_reconstruct_resource_name(address) -> str:
     return address
 
 
+def get_local_ray_version():
+    ray_version = ray.__version__.split(".")
+    if len(ray_version) == 3:
+        ray_version = ray_version[:2]
+    return "_".join(ray_version)
+
+
 def get_image_uri(ray_version, python_version, enable_cuda):
     """Image uri for a given ray version and python version."""
     if ray_version not in ["2_4"]:
@@ -103,7 +111,9 @@ def valid_dashboard_address(address):
 
 def get_bearer_token():
     """Get bearer token through Application Default Credentials."""
-    creds, _ = google.auth.default()
+    creds, _ = google.auth.default(
+        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+    )
 
     # creds.valid is False, and creds.token is None
     # Need to refresh credentials to populate those

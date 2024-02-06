@@ -39,6 +39,13 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourceRuntimeSpec,
 )
 
+import pytest
+import sys
+
+rovminversion = pytest.mark.skipif(
+    sys.version_info > (3, 10), reason="Requires python3.10 or lower"
+)
+
 
 @dataclasses.dataclass(frozen=True)
 class ProjectConstants:
@@ -95,7 +102,7 @@ class ClusterConstants:
     _TEST_RESOURCE_POOL_0 = ResourcePool(
         id="head-node",
         machine_spec=MachineSpec(
-            machine_type="n1-standard-4",
+            machine_type="n1-standard-8",
             accelerator_type="NVIDIA_TESLA_P100",
             accelerator_count=1,
         ),
@@ -149,7 +156,7 @@ class ClusterConstants:
     _TEST_RESOURCE_POOL_1 = ResourcePool(
         id="head-node",
         machine_spec=MachineSpec(
-            machine_type="n1-standard-4",
+            machine_type="n1-standard-8",
         ),
         disk_spec=DiskSpec(
             boot_disk_type="pd-ssd",

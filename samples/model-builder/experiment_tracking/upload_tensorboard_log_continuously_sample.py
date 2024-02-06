@@ -40,7 +40,11 @@ def upload_tensorboard_log_continuously_sample(
         run_name_prefix=run_name_prefix,
         description=description,
     )
-    aiplatform.end_upload_tb_log()
+
+    try:
+        print("Insert your code here")
+    finally:
+        aiplatform.end_upload_tb_log()
 
 
 #  [END aiplatform_sdk_upload_tensorboard_log_sample]

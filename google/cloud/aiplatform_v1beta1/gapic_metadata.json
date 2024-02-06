@@ -1468,6 +1468,11 @@
               "methods": [
                 "compute_tokens"
               ]
+            },
+            "CountTokens": {
+              "methods": [
+                "count_tokens"
+              ]
             }
           }
         },
@@ -1477,6 +1482,11 @@
             "ComputeTokens": {
               "methods": [
                 "compute_tokens"
+              ]
+            },
+            "CountTokens": {
+              "methods": [
+                "count_tokens"
               ]
             }
           }
@@ -2311,9 +2321,24 @@
                 "count_tokens"
               ]
             },
+            "DirectPredict": {
+              "methods": [
+                "direct_predict"
+              ]
+            },
+            "DirectRawPredict": {
+              "methods": [
+                "direct_raw_predict"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
+              ]
+            },
+            "GenerateContent": {
+              "methods": [
+                "generate_content"
               ]
             },
             "Predict": {
@@ -2329,6 +2354,31 @@
             "ServerStreamingPredict": {
               "methods": [
                 "server_streaming_predict"
+              ]
+            },
+            "StreamDirectPredict": {
+              "methods": [
+                "stream_direct_predict"
+              ]
+            },
+            "StreamDirectRawPredict": {
+              "methods": [
+                "stream_direct_raw_predict"
+              ]
+            },
+            "StreamGenerateContent": {
+              "methods": [
+                "stream_generate_content"
+              ]
+            },
+            "StreamingPredict": {
+              "methods": [
+                "streaming_predict"
+              ]
+            },
+            "StreamingRawPredict": {
+              "methods": [
+                "streaming_raw_predict"
               ]
             }
           }
@@ -2341,9 +2391,24 @@
                 "count_tokens"
               ]
             },
+            "DirectPredict": {
+              "methods": [
+                "direct_predict"
+              ]
+            },
+            "DirectRawPredict": {
+              "methods": [
+                "direct_raw_predict"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
+              ]
+            },
+            "GenerateContent": {
+              "methods": [
+                "generate_content"
               ]
             },
             "Predict": {
@@ -2359,6 +2424,31 @@
             "ServerStreamingPredict": {
               "methods": [
                 "server_streaming_predict"
+              ]
+            },
+            "StreamDirectPredict": {
+              "methods": [
+                "stream_direct_predict"
+              ]
+            },
+            "StreamDirectRawPredict": {
+              "methods": [
+                "stream_direct_raw_predict"
+              ]
+            },
+            "StreamGenerateContent": {
+              "methods": [
+                "stream_generate_content"
+              ]
+            },
+            "StreamingPredict": {
+              "methods": [
+                "streaming_predict"
+              ]
+            },
+            "StreamingRawPredict": {
+              "methods": [
+                "streaming_raw_predict"
               ]
             }
           }

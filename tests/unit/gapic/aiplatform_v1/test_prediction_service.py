@@ -26,6 +26,7 @@ import grpc
 from grpc.experimental import aio
 import math
 import pytest
+from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
 
@@ -45,9 +46,12 @@ from google.cloud.aiplatform_v1.services.prediction_service import (
     PredictionServiceClient,
 )
 from google.cloud.aiplatform_v1.services.prediction_service import transports
+from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import io
+from google.cloud.aiplatform_v1.types import openapi
 from google.cloud.aiplatform_v1.types import prediction_service
+from google.cloud.aiplatform_v1.types import tool
 from google.cloud.aiplatform_v1.types import types
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -56,6 +60,7 @@ from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 import google.auth
 
@@ -72,6 +77,17 @@ def modify_default_endpoint(client):
         "foo.googleapis.com"
         if ("localhost" in client.DEFAULT_ENDPOINT)
         else client.DEFAULT_ENDPOINT
+    )
+
+
+# If default endpoint template is localhost, then default mtls endpoint will be the same.
+# This method modifies the default endpoint template so the client can produce a different
+# mtls endpoint for endpoint testing purposes.
+def modify_default_endpoint_template(client):
+    return (
+        "test.{UNIVERSE_DOMAIN}"
+        if ("localhost" in client._DEFAULT_ENDPOINT_TEMPLATE)
+        else client._DEFAULT_ENDPOINT_TEMPLATE
     )
 
 
@@ -103,6 +119,281 @@ def test__get_default_mtls_endpoint():
         PredictionServiceClient._get_default_mtls_endpoint(non_googleapi)
         == non_googleapi
     )
+
+
+def test__read_environment_variables():
+    assert PredictionServiceClient._read_environment_variables() == (
+        False,
+        "auto",
+        None,
+    )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        assert PredictionServiceClient._read_environment_variables() == (
+            True,
+            "auto",
+            None,
+        )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
+        assert PredictionServiceClient._read_environment_variables() == (
+            False,
+            "auto",
+            None,
+        )
+
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
+    ):
+        with pytest.raises(ValueError) as excinfo:
+            PredictionServiceClient._read_environment_variables()
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+    )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        assert PredictionServiceClient._read_environment_variables() == (
+            False,
+            "never",
+            None,
+        )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
+        assert PredictionServiceClient._read_environment_variables() == (
+            False,
+            "always",
+            None,
+        )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"}):
+        assert PredictionServiceClient._read_environment_variables() == (
+            False,
+            "auto",
+            None,
+        )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
+        with pytest.raises(MutualTLSChannelError) as excinfo:
+            PredictionServiceClient._read_environment_variables()
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+    )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_CLOUD_UNIVERSE_DOMAIN": "foo.com"}):
+        assert PredictionServiceClient._read_environment_variables() == (
+            False,
+            "auto",
+            "foo.com",
+        )
+
+
+def test__get_client_cert_source():
+    mock_provided_cert_source = mock.Mock()
+    mock_default_cert_source = mock.Mock()
+
+    assert PredictionServiceClient._get_client_cert_source(None, False) is None
+    assert (
+        PredictionServiceClient._get_client_cert_source(
+            mock_provided_cert_source, False
+        )
+        is None
+    )
+    assert (
+        PredictionServiceClient._get_client_cert_source(mock_provided_cert_source, True)
+        == mock_provided_cert_source
+    )
+
+    with mock.patch(
+        "google.auth.transport.mtls.has_default_client_cert_source", return_value=True
+    ):
+        with mock.patch(
+            "google.auth.transport.mtls.default_client_cert_source",
+            return_value=mock_default_cert_source,
+        ):
+            assert (
+                PredictionServiceClient._get_client_cert_source(None, True)
+                is mock_default_cert_source
+            )
+            assert (
+                PredictionServiceClient._get_client_cert_source(
+                    mock_provided_cert_source, "true"
+                )
+                is mock_provided_cert_source
+            )
+
+
+@mock.patch.object(
+    PredictionServiceClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(PredictionServiceClient),
+)
+@mock.patch.object(
+    PredictionServiceAsyncClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(PredictionServiceAsyncClient),
+)
+def test__get_api_endpoint():
+    api_override = "foo.com"
+    mock_client_cert_source = mock.Mock()
+    default_universe = PredictionServiceClient._DEFAULT_UNIVERSE
+    default_endpoint = PredictionServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+        UNIVERSE_DOMAIN=default_universe
+    )
+    mock_universe = "bar.com"
+    mock_endpoint = PredictionServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+        UNIVERSE_DOMAIN=mock_universe
+    )
+
+    assert (
+        PredictionServiceClient._get_api_endpoint(
+            api_override, mock_client_cert_source, default_universe, "always"
+        )
+        == api_override
+    )
+    assert (
+        PredictionServiceClient._get_api_endpoint(
+            None, mock_client_cert_source, default_universe, "auto"
+        )
+        == PredictionServiceClient.DEFAULT_MTLS_ENDPOINT
+    )
+    assert (
+        PredictionServiceClient._get_api_endpoint(None, None, default_universe, "auto")
+        == default_endpoint
+    )
+    assert (
+        PredictionServiceClient._get_api_endpoint(
+            None, None, default_universe, "always"
+        )
+        == PredictionServiceClient.DEFAULT_MTLS_ENDPOINT
+    )
+    assert (
+        PredictionServiceClient._get_api_endpoint(
+            None, mock_client_cert_source, default_universe, "always"
+        )
+        == PredictionServiceClient.DEFAULT_MTLS_ENDPOINT
+    )
+    assert (
+        PredictionServiceClient._get_api_endpoint(None, None, mock_universe, "never")
+        == mock_endpoint
+    )
+    assert (
+        PredictionServiceClient._get_api_endpoint(None, None, default_universe, "never")
+        == default_endpoint
+    )
+
+    with pytest.raises(MutualTLSChannelError) as excinfo:
+        PredictionServiceClient._get_api_endpoint(
+            None, mock_client_cert_source, mock_universe, "auto"
+        )
+    assert (
+        str(excinfo.value)
+        == "mTLS is not supported in any universe other than googleapis.com."
+    )
+
+
+def test__get_universe_domain():
+    client_universe_domain = "foo.com"
+    universe_domain_env = "bar.com"
+
+    assert (
+        PredictionServiceClient._get_universe_domain(
+            client_universe_domain, universe_domain_env
+        )
+        == client_universe_domain
+    )
+    assert (
+        PredictionServiceClient._get_universe_domain(None, universe_domain_env)
+        == universe_domain_env
+    )
+    assert (
+        PredictionServiceClient._get_universe_domain(None, None)
+        == PredictionServiceClient._DEFAULT_UNIVERSE
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        PredictionServiceClient._get_universe_domain("", None)
+    assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "client_class,transport_class,transport_name",
+    [
+        (PredictionServiceClient, transports.PredictionServiceGrpcTransport, "grpc"),
+    ],
+)
+def test__validate_universe_domain(client_class, transport_class, transport_name):
+    client = client_class(
+        transport=transport_class(credentials=ga_credentials.AnonymousCredentials())
+    )
+    assert client._validate_universe_domain() == True
+
+    # Test the case when universe is already validated.
+    assert client._validate_universe_domain() == True
+
+    if transport_name == "grpc":
+        # Test the case where credentials are provided by the
+        # `local_channel_credentials`. The default universes in both match.
+        channel = grpc.secure_channel(
+            "http://localhost/", grpc.local_channel_credentials()
+        )
+        client = client_class(transport=transport_class(channel=channel))
+        assert client._validate_universe_domain() == True
+
+        # Test the case where credentials do not exist: e.g. a transport is provided
+        # with no credentials. Validation should still succeed because there is no
+        # mismatch with non-existent credentials.
+        channel = grpc.secure_channel(
+            "http://localhost/", grpc.local_channel_credentials()
+        )
+        transport = transport_class(channel=channel)
+        transport._credentials = None
+        client = client_class(transport=transport)
+        assert client._validate_universe_domain() == True
+
+    # TODO: This is needed to cater for older versions of google-auth
+    # Make this test unconditional once the minimum supported version of
+    # google-auth becomes 2.23.0 or higher.
+    google_auth_major, google_auth_minor, _ = [
+        int(part) for part in google.auth.__version__.split(".")
+    ]
+    if google_auth_major > 2 or (google_auth_major == 2 and google_auth_minor >= 23):
+        credentials = ga_credentials.AnonymousCredentials()
+        credentials._universe_domain = "foo.com"
+        # Test the case when there is a universe mismatch from the credentials.
+        client = client_class(transport=transport_class(credentials=credentials))
+        with pytest.raises(ValueError) as excinfo:
+            client._validate_universe_domain()
+        assert (
+            str(excinfo.value)
+            == "The configured universe domain (googleapis.com) does not match the universe domain found in the credentials (foo.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
+        )
+
+        # Test the case when there is a universe mismatch from the client.
+        #
+        # TODO: Make this test unconditional once the minimum supported version of
+        # google-api-core becomes 2.15.0 or higher.
+        api_core_major, api_core_minor, _ = [
+            int(part) for part in api_core_version.__version__.split(".")
+        ]
+        if api_core_major > 2 or (api_core_major == 2 and api_core_minor >= 15):
+            client = client_class(
+                client_options={"universe_domain": "bar.com"},
+                transport=transport_class(
+                    credentials=ga_credentials.AnonymousCredentials(),
+                ),
+            )
+            with pytest.raises(ValueError) as excinfo:
+                client._validate_universe_domain()
+            assert (
+                str(excinfo.value)
+                == "The configured universe domain (bar.com) does not match the universe domain found in the credentials (googleapis.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
+            )
+
+    # Test that ValueError is raised if universe_domain is provided via client options and credentials is None
+    with pytest.raises(ValueError):
+        client._compare_universes("foo.bar", None)
 
 
 @pytest.mark.parametrize(
@@ -207,13 +498,13 @@ def test_prediction_service_client_get_transport_class():
 )
 @mock.patch.object(
     PredictionServiceClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(PredictionServiceClient),
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(PredictionServiceClient),
 )
 @mock.patch.object(
     PredictionServiceAsyncClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(PredictionServiceAsyncClient),
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(PredictionServiceAsyncClient),
 )
 def test_prediction_service_client_client_options(
     client_class, transport_class, transport_name
@@ -255,7 +546,9 @@ def test_prediction_service_client_client_options(
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
-                host=client.DEFAULT_ENDPOINT,
+                host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                ),
                 scopes=None,
                 client_cert_source_for_mtls=None,
                 quota_project_id=None,
@@ -285,15 +578,23 @@ def test_prediction_service_client_client_options(
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
     # unsupported value.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
-        with pytest.raises(MutualTLSChannelError):
+        with pytest.raises(MutualTLSChannelError) as excinfo:
             client = client_class(transport=transport_name)
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+    )
 
     # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as excinfo:
             client = client_class(transport=transport_name)
+    assert (
+        str(excinfo.value)
+        == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+    )
 
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
@@ -303,7 +604,9 @@ def test_prediction_service_client_client_options(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id="octopus",
@@ -321,7 +624,9 @@ def test_prediction_service_client_client_options(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -362,13 +667,13 @@ def test_prediction_service_client_client_options(
 )
 @mock.patch.object(
     PredictionServiceClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(PredictionServiceClient),
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(PredictionServiceClient),
 )
 @mock.patch.object(
     PredictionServiceAsyncClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(PredictionServiceAsyncClient),
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(PredictionServiceAsyncClient),
 )
 @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
 def test_prediction_service_client_mtls_env_auto(
@@ -391,7 +696,9 @@ def test_prediction_service_client_mtls_env_auto(
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
-                expected_host = client.DEFAULT_ENDPOINT
+                expected_host = client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                )
             else:
                 expected_client_cert_source = client_cert_source_callback
                 expected_host = client.DEFAULT_MTLS_ENDPOINT
@@ -423,7 +730,9 @@ def test_prediction_service_client_mtls_env_auto(
                     return_value=client_cert_source_callback,
                 ):
                     if use_client_cert_env == "false":
-                        expected_host = client.DEFAULT_ENDPOINT
+                        expected_host = client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                            UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                        )
                         expected_client_cert_source = None
                     else:
                         expected_host = client.DEFAULT_MTLS_ENDPOINT
@@ -457,7 +766,9 @@ def test_prediction_service_client_mtls_env_auto(
                 patched.assert_called_once_with(
                     credentials=None,
                     credentials_file=None,
-                    host=client.DEFAULT_ENDPOINT,
+                    host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                        UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                    ),
                     scopes=None,
                     client_cert_source_for_mtls=None,
                     quota_project_id=None,
@@ -547,6 +858,115 @@ def test_prediction_service_client_get_mtls_endpoint_and_cert_source(client_clas
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
+    # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
+    # unsupported value.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
+        with pytest.raises(MutualTLSChannelError) as excinfo:
+            client_class.get_mtls_endpoint_and_cert_source()
+
+        assert (
+            str(excinfo.value)
+            == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+        )
+
+    # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
+    ):
+        with pytest.raises(ValueError) as excinfo:
+            client_class.get_mtls_endpoint_and_cert_source()
+
+        assert (
+            str(excinfo.value)
+            == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+        )
+
+
+@pytest.mark.parametrize(
+    "client_class", [PredictionServiceClient, PredictionServiceAsyncClient]
+)
+@mock.patch.object(
+    PredictionServiceClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(PredictionServiceClient),
+)
+@mock.patch.object(
+    PredictionServiceAsyncClient,
+    "_DEFAULT_ENDPOINT_TEMPLATE",
+    modify_default_endpoint_template(PredictionServiceAsyncClient),
+)
+def test_prediction_service_client_client_api_endpoint(client_class):
+    mock_client_cert_source = client_cert_source_callback
+    api_override = "foo.com"
+    default_universe = PredictionServiceClient._DEFAULT_UNIVERSE
+    default_endpoint = PredictionServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+        UNIVERSE_DOMAIN=default_universe
+    )
+    mock_universe = "bar.com"
+    mock_endpoint = PredictionServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+        UNIVERSE_DOMAIN=mock_universe
+    )
+
+    # If ClientOptions.api_endpoint is set and GOOGLE_API_USE_CLIENT_CERTIFICATE="true",
+    # use ClientOptions.api_endpoint as the api endpoint regardless.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        with mock.patch(
+            "google.auth.transport.requests.AuthorizedSession.configure_mtls_channel"
+        ):
+            options = client_options.ClientOptions(
+                client_cert_source=mock_client_cert_source, api_endpoint=api_override
+            )
+            client = client_class(
+                client_options=options,
+                credentials=ga_credentials.AnonymousCredentials(),
+            )
+            assert client.api_endpoint == api_override
+
+    # If ClientOptions.api_endpoint is not set and GOOGLE_API_USE_MTLS_ENDPOINT="never",
+    # use the _DEFAULT_ENDPOINT_TEMPLATE populated with GDU as the api endpoint.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        client = client_class(credentials=ga_credentials.AnonymousCredentials())
+        assert client.api_endpoint == default_endpoint
+
+    # If ClientOptions.api_endpoint is not set and GOOGLE_API_USE_MTLS_ENDPOINT="always",
+    # use the DEFAULT_MTLS_ENDPOINT as the api endpoint.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
+        client = client_class(credentials=ga_credentials.AnonymousCredentials())
+        assert client.api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
+
+    # If ClientOptions.api_endpoint is not set, GOOGLE_API_USE_MTLS_ENDPOINT="auto" (default),
+    # GOOGLE_API_USE_CLIENT_CERTIFICATE="false" (default), default cert source doesn't exist,
+    # and ClientOptions.universe_domain="bar.com",
+    # use the _DEFAULT_ENDPOINT_TEMPLATE populated with universe domain as the api endpoint.
+    options = client_options.ClientOptions()
+    universe_exists = hasattr(options, "universe_domain")
+    if universe_exists:
+        options = client_options.ClientOptions(universe_domain=mock_universe)
+        client = client_class(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+    else:
+        client = client_class(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+    assert client.api_endpoint == (
+        mock_endpoint if universe_exists else default_endpoint
+    )
+    assert client.universe_domain == (
+        mock_universe if universe_exists else default_universe
+    )
+
+    # If ClientOptions does not have a universe domain attribute and GOOGLE_API_USE_MTLS_ENDPOINT="never",
+    # use the _DEFAULT_ENDPOINT_TEMPLATE populated with GDU as the api endpoint.
+    options = client_options.ClientOptions()
+    if hasattr(options, "universe_domain"):
+        delattr(options, "universe_domain")
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        client = client_class(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+        assert client.api_endpoint == default_endpoint
+
 
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
@@ -572,7 +992,9 @@ def test_prediction_service_client_client_options_scopes(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=["1", "2"],
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -611,7 +1033,9 @@ def test_prediction_service_client_client_options_credentials_file(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -671,7 +1095,9 @@ def test_prediction_service_client_create_channel_credentials_file(
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
-            host=client.DEFAULT_ENDPOINT,
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+            ),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -1153,6 +1579,792 @@ async def test_raw_predict_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
+        prediction_service.StreamRawPredictRequest,
+        dict,
+    ],
+)
+def test_stream_raw_predict(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([httpbody_pb2.HttpBody()])
+        response = client.stream_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamRawPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(message, httpbody_pb2.HttpBody)
+
+
+def test_stream_raw_predict_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        client.stream_raw_predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamRawPredictRequest()
+
+
+@pytest.mark.asyncio
+async def test_stream_raw_predict_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.StreamRawPredictRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(side_effect=[httpbody_pb2.HttpBody()])
+        response = await client.stream_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamRawPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(message, httpbody_pb2.HttpBody)
+
+
+@pytest.mark.asyncio
+async def test_stream_raw_predict_async_from_dict():
+    await test_stream_raw_predict_async(request_type=dict)
+
+
+def test_stream_raw_predict_field_headers():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.StreamRawPredictRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        call.return_value = iter([httpbody_pb2.HttpBody()])
+        client.stream_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_stream_raw_predict_field_headers_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.StreamRawPredictRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(side_effect=[httpbody_pb2.HttpBody()])
+        await client.stream_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+def test_stream_raw_predict_flattened():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([httpbody_pb2.HttpBody()])
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.stream_raw_predict(
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].http_body
+        mock_val = httpbody_pb2.HttpBody(content_type="content_type_value")
+        assert arg == mock_val
+
+
+def test_stream_raw_predict_flattened_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.stream_raw_predict(
+            prediction_service.StreamRawPredictRequest(),
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+
+@pytest.mark.asyncio
+async def test_stream_raw_predict_flattened_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([httpbody_pb2.HttpBody()])
+
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.stream_raw_predict(
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].endpoint
+        mock_val = "endpoint_value"
+        assert arg == mock_val
+        arg = args[0].http_body
+        mock_val = httpbody_pb2.HttpBody(content_type="content_type_value")
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_stream_raw_predict_flattened_error_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.stream_raw_predict(
+            prediction_service.StreamRawPredictRequest(),
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.DirectPredictRequest,
+        dict,
+    ],
+)
+def test_direct_predict(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.direct_predict), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.DirectPredictResponse()
+        response = client.direct_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.DirectPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.DirectPredictResponse)
+
+
+def test_direct_predict_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.direct_predict), "__call__") as call:
+        client.direct_predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.DirectPredictRequest()
+
+
+@pytest.mark.asyncio
+async def test_direct_predict_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.DirectPredictRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.direct_predict), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.DirectPredictResponse()
+        )
+        response = await client.direct_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.DirectPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.DirectPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_direct_predict_async_from_dict():
+    await test_direct_predict_async(request_type=dict)
+
+
+def test_direct_predict_field_headers():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.DirectPredictRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.direct_predict), "__call__") as call:
+        call.return_value = prediction_service.DirectPredictResponse()
+        client.direct_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_direct_predict_field_headers_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.DirectPredictRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.direct_predict), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.DirectPredictResponse()
+        )
+        await client.direct_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.DirectRawPredictRequest,
+        dict,
+    ],
+)
+def test_direct_raw_predict(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.direct_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.DirectRawPredictResponse(
+            output=b"output_blob",
+        )
+        response = client.direct_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.DirectRawPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.DirectRawPredictResponse)
+    assert response.output == b"output_blob"
+
+
+def test_direct_raw_predict_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.direct_raw_predict), "__call__"
+    ) as call:
+        client.direct_raw_predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.DirectRawPredictRequest()
+
+
+@pytest.mark.asyncio
+async def test_direct_raw_predict_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.DirectRawPredictRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.direct_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.DirectRawPredictResponse(
+                output=b"output_blob",
+            )
+        )
+        response = await client.direct_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.DirectRawPredictRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.DirectRawPredictResponse)
+    assert response.output == b"output_blob"
+
+
+@pytest.mark.asyncio
+async def test_direct_raw_predict_async_from_dict():
+    await test_direct_raw_predict_async(request_type=dict)
+
+
+def test_direct_raw_predict_field_headers():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.DirectRawPredictRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.direct_raw_predict), "__call__"
+    ) as call:
+        call.return_value = prediction_service.DirectRawPredictResponse()
+        client.direct_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_direct_raw_predict_field_headers_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.DirectRawPredictRequest()
+
+    request.endpoint = "endpoint_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.direct_raw_predict), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.DirectRawPredictResponse()
+        )
+        await client.direct_raw_predict(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "endpoint=endpoint_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.StreamDirectPredictRequest,
+        dict,
+    ],
+)
+def test_stream_direct_predict(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_direct_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([prediction_service.StreamDirectPredictResponse()])
+        response = client.stream_direct_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(message, prediction_service.StreamDirectPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_stream_direct_predict_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.StreamDirectPredictRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_direct_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.StreamStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.StreamDirectPredictResponse()]
+        )
+        response = await client.stream_direct_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(message, prediction_service.StreamDirectPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_stream_direct_predict_async_from_dict():
+    await test_stream_direct_predict_async(request_type=dict)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.StreamDirectRawPredictRequest,
+        dict,
+    ],
+)
+def test_stream_direct_raw_predict(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_direct_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([prediction_service.StreamDirectRawPredictResponse()])
+        response = client.stream_direct_raw_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(message, prediction_service.StreamDirectRawPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_stream_direct_raw_predict_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.StreamDirectRawPredictRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_direct_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.StreamStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.StreamDirectRawPredictResponse()]
+        )
+        response = await client.stream_direct_raw_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(message, prediction_service.StreamDirectRawPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_stream_direct_raw_predict_async_from_dict():
+    await test_stream_direct_raw_predict_async(request_type=dict)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.StreamingPredictRequest,
+        dict,
+    ],
+)
+def test_streaming_predict(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.streaming_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([prediction_service.StreamingPredictResponse()])
+        response = client.streaming_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(message, prediction_service.StreamingPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_streaming_predict_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.StreamingPredictRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.streaming_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.StreamStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.StreamingPredictResponse()]
+        )
+        response = await client.streaming_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(message, prediction_service.StreamingPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_streaming_predict_async_from_dict():
+    await test_streaming_predict_async(request_type=dict)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         prediction_service.StreamingPredictRequest,
         dict,
     ],
@@ -1307,6 +2519,83 @@ async def test_server_streaming_predict_field_headers_async():
         "x-goog-request-params",
         "endpoint=endpoint_value",
     ) in kw["metadata"]
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.StreamingRawPredictRequest,
+        dict,
+    ],
+)
+def test_streaming_raw_predict(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.streaming_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([prediction_service.StreamingRawPredictResponse()])
+        response = client.streaming_raw_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(message, prediction_service.StreamingRawPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_streaming_raw_predict_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.StreamingRawPredictRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.streaming_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.StreamStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.StreamingRawPredictResponse()]
+        )
+        response = await client.streaming_raw_predict(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(message, prediction_service.StreamingRawPredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_streaming_raw_predict_async_from_dict():
+    await test_streaming_raw_predict_async(request_type=dict)
 
 
 @pytest.mark.parametrize(
@@ -1494,6 +2783,496 @@ async def test_explain_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.GenerateContentRequest,
+        dict,
+    ],
+)
+def test_generate_content(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.GenerateContentResponse()
+        response = client.generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.GenerateContentResponse)
+
+
+def test_generate_content_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        client.generate_content()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest()
+
+
+@pytest.mark.asyncio
+async def test_generate_content_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.GenerateContentRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.GenerateContentResponse()
+        )
+        response = await client.generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.GenerateContentResponse)
+
+
+@pytest.mark.asyncio
+async def test_generate_content_async_from_dict():
+    await test_generate_content_async(request_type=dict)
+
+
+def test_generate_content_field_headers():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.GenerateContentRequest()
+
+    request.model = "model_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        call.return_value = prediction_service.GenerateContentResponse()
+        client.generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "model=model_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_generate_content_field_headers_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.GenerateContentRequest()
+
+    request.model = "model_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.GenerateContentResponse()
+        )
+        await client.generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "model=model_value",
+    ) in kw["metadata"]
+
+
+def test_generate_content_flattened():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.GenerateContentResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.generate_content(
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].model
+        mock_val = "model_value"
+        assert arg == mock_val
+        arg = args[0].contents
+        mock_val = [content.Content(role="role_value")]
+        assert arg == mock_val
+
+
+def test_generate_content_flattened_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.generate_content(
+            prediction_service.GenerateContentRequest(),
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+
+@pytest.mark.asyncio
+async def test_generate_content_flattened_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.GenerateContentResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.GenerateContentResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.generate_content(
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].model
+        mock_val = "model_value"
+        assert arg == mock_val
+        arg = args[0].contents
+        mock_val = [content.Content(role="role_value")]
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_generate_content_flattened_error_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.generate_content(
+            prediction_service.GenerateContentRequest(),
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.GenerateContentRequest,
+        dict,
+    ],
+)
+def test_stream_generate_content(request_type, transport: str = "grpc"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_generate_content), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([prediction_service.GenerateContentResponse()])
+        response = client.stream_generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest()
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(message, prediction_service.GenerateContentResponse)
+
+
+def test_stream_generate_content_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_generate_content), "__call__"
+    ) as call:
+        client.stream_generate_content()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest()
+
+
+@pytest.mark.asyncio
+async def test_stream_generate_content_async(
+    transport: str = "grpc_asyncio",
+    request_type=prediction_service.GenerateContentRequest,
+):
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_generate_content), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.GenerateContentResponse()]
+        )
+        response = await client.stream_generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest()
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(message, prediction_service.GenerateContentResponse)
+
+
+@pytest.mark.asyncio
+async def test_stream_generate_content_async_from_dict():
+    await test_stream_generate_content_async(request_type=dict)
+
+
+def test_stream_generate_content_field_headers():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.GenerateContentRequest()
+
+    request.model = "model_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_generate_content), "__call__"
+    ) as call:
+        call.return_value = iter([prediction_service.GenerateContentResponse()])
+        client.stream_generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "model=model_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_stream_generate_content_field_headers_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = prediction_service.GenerateContentRequest()
+
+    request.model = "model_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_generate_content), "__call__"
+    ) as call:
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.GenerateContentResponse()]
+        )
+        await client.stream_generate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "model=model_value",
+    ) in kw["metadata"]
+
+
+def test_stream_generate_content_flattened():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_generate_content), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([prediction_service.GenerateContentResponse()])
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.stream_generate_content(
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].model
+        mock_val = "model_value"
+        assert arg == mock_val
+        arg = args[0].contents
+        mock_val = [content.Content(role="role_value")]
+        assert arg == mock_val
+
+
+def test_stream_generate_content_flattened_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.stream_generate_content(
+            prediction_service.GenerateContentRequest(),
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+
+@pytest.mark.asyncio
+async def test_stream_generate_content_flattened_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_generate_content), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter([prediction_service.GenerateContentResponse()])
+
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.stream_generate_content(
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].model
+        mock_val = "model_value"
+        assert arg == mock_val
+        arg = args[0].contents
+        mock_val = [content.Content(role="role_value")]
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_stream_generate_content_flattened_error_async():
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.stream_generate_content(
+            prediction_service.GenerateContentRequest(),
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.PredictionServiceGrpcTransport(
@@ -1528,7 +3307,7 @@ def test_credentials_transport_error():
         )
 
     # It is an error to provide an api_key and a credential.
-    options = mock.Mock()
+    options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
         client = PredictionServiceClient(
@@ -1633,8 +3412,17 @@ def test_prediction_service_base_transport():
     methods = (
         "predict",
         "raw_predict",
+        "stream_raw_predict",
+        "direct_predict",
+        "direct_raw_predict",
+        "stream_direct_predict",
+        "stream_direct_raw_predict",
+        "streaming_predict",
         "server_streaming_predict",
+        "streaming_raw_predict",
         "explain",
+        "generate_content",
+        "stream_generate_content",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -2207,7 +3995,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_delete_operation_async(transport: str = "grpc"):
+async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = PredictionServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -2346,7 +4134,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_cancel_operation_async(transport: str = "grpc"):
+async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = PredictionServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -2485,7 +4273,7 @@ def test_wait_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_wait_operation(transport: str = "grpc"):
+async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = PredictionServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -2630,7 +4418,7 @@ def test_get_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_get_operation_async(transport: str = "grpc"):
+async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = PredictionServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -2775,7 +4563,7 @@ def test_list_operations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_operations_async(transport: str = "grpc"):
+async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = PredictionServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -2920,7 +4708,7 @@ def test_list_locations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_locations_async(transport: str = "grpc"):
+async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = PredictionServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3748,7 +5536,9 @@ def test_api_key_credentials(client_class, transport_class):
             patched.assert_called_once_with(
                 credentials=mock_cred,
                 credentials_file=None,
-                host=client.DEFAULT_ENDPOINT,
+                host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
+                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
+                ),
                 scopes=None,
                 client_cert_source_for_mtls=None,
                 quota_project_id=None,

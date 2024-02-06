@@ -27,6 +27,7 @@ from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import llm_utility_service
+from google.cloud.aiplatform_v1beta1.types import prediction_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -61,7 +62,7 @@ class LlmUtilityServiceTransport(abc.ABC):
 
         Args:
             host (Optional[str]):
-                 The hostname to connect to.
+                 The hostname to connect to (default: 'aiplatform.googleapis.com').
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -124,9 +125,18 @@ class LlmUtilityServiceTransport(abc.ABC):
             host += ":443"
         self._host = host
 
+    @property
+    def host(self):
+        return self._host
+
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
+            self.count_tokens: gapic_v1.method.wrap_method(
+                self.count_tokens,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.compute_tokens: gapic_v1.method.wrap_method(
                 self.compute_tokens,
                 default_timeout=None,
@@ -141,6 +151,18 @@ class LlmUtilityServiceTransport(abc.ABC):
              Only call this method if the transport is NOT shared
              with other clients - this may cause errors in other clients!
         """
+        raise NotImplementedError()
+
+    @property
+    def count_tokens(
+        self,
+    ) -> Callable[
+        [prediction_service.CountTokensRequest],
+        Union[
+            prediction_service.CountTokensResponse,
+            Awaitable[prediction_service.CountTokensResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property

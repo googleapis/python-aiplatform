@@ -36,6 +36,7 @@ from google.cloud.aiplatform.compat.types import tensorboard_data
 from google.cloud.aiplatform.compat.types import tensorboard_experiment
 from google.cloud.aiplatform.compat.types import tensorboard_service
 from google.cloud.aiplatform.compat.types import tensorboard_time_series
+from google.cloud.aiplatform.tensorboard import uploader_constants
 from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
     profile_uploader,
@@ -69,41 +70,6 @@ from tensorboard.util import tensor_util
 _LOGGER = base.Logger(__name__)
 
 TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient
-
-# Minimum length of a logdir polling cycle in seconds. Shorter cycles will
-# sleep to avoid spinning over the logdir, which isn't great for disks and can
-# be expensive for network file systems.
-_MIN_LOGDIR_POLL_INTERVAL_SECS = 1
-
-# Maximum length of a base-128 varint as used to encode a 64-bit value
-# (without the "msb of last byte is bit 63" optimization, to be
-# compatible with protobuf and golang varints).
-_MAX_VARINT64_LENGTH_BYTES = 10
-
-# Default minimum interval between initiating WriteTensorbordRunData RPCs in
-# milliseconds.
-_DEFAULT_MIN_SCALAR_REQUEST_INTERVAL = 10
-
-# Default maximum WriteTensorbordRunData request size in bytes.
-_DEFAULT_MAX_SCALAR_REQUEST_SIZE = 128 * (2**10)  # 128KiB
-
-# Default minimum interval between initiating WriteTensorbordRunData RPCs in
-# milliseconds.
-_DEFAULT_MIN_TENSOR_REQUEST_INTERVAL = 10
-
-# Default minimum interval between initiating WriteTensorbordRunData RPCs in
-# milliseconds.
-_DEFAULT_MIN_BLOB_REQUEST_INTERVAL = 10
-
-# Default maximum WriteTensorbordRunData request size in bytes.
-_DEFAULT_MAX_TENSOR_REQUEST_SIZE = 512 * (2**10)  # 512KiB
-
-_DEFAULT_MAX_BLOB_REQUEST_SIZE = 128 * (2**10)  # 24KiB
-
-# Default maximum tensor point size in bytes.
-_DEFAULT_MAX_TENSOR_POINT_SIZE = 16 * (2**10)  # 16KiB
-
-_DEFAULT_MAX_BLOB_SIZE = 10 * (2**30)  # 10GiB
 
 logger = tb_logging.get_logger()
 logger.setLevel(logging.WARNING)
@@ -197,23 +163,27 @@ class TensorBoardUploader(object):
         if not self._upload_limits:
             self._upload_limits = server_info_pb2.UploadLimits()
             self._upload_limits.max_scalar_request_size = (
-                _DEFAULT_MAX_SCALAR_REQUEST_SIZE
+                uploader_constants.DEFAULT_MAX_SCALAR_REQUEST_SIZE
             )
             self._upload_limits.min_scalar_request_interval = (
-                _DEFAULT_MIN_SCALAR_REQUEST_INTERVAL
+                uploader_constants.DEFAULT_MIN_SCALAR_REQUEST_INTERVAL
             )
             self._upload_limits.min_tensor_request_interval = (
-                _DEFAULT_MIN_TENSOR_REQUEST_INTERVAL
+                uploader_constants.DEFAULT_MIN_TENSOR_REQUEST_INTERVAL
             )
             self._upload_limits.max_tensor_request_size = (
-                _DEFAULT_MAX_TENSOR_REQUEST_SIZE
+                uploader_constants.DEFAULT_MAX_TENSOR_REQUEST_SIZE
             )
-            self._upload_limits.max_tensor_point_size = _DEFAULT_MAX_TENSOR_POINT_SIZE
+            self._upload_limits.max_tensor_point_size = (
+                uploader_constants.DEFAULT_MAX_TENSOR_POINT_SIZE
+            )
             self._upload_limits.min_blob_request_interval = (
-                _DEFAULT_MIN_BLOB_REQUEST_INTERVAL
+                uploader_constants.DEFAULT_MIN_BLOB_REQUEST_INTERVAL
             )
-            self._upload_limits.max_blob_request_size = _DEFAULT_MAX_BLOB_REQUEST_SIZE
-            self._upload_limits.max_blob_size = _DEFAULT_MAX_BLOB_SIZE
+            self._upload_limits.max_blob_request_size = (
+                uploader_constants.DEFAULT_MAX_BLOB_REQUEST_SIZE
+            )
+            self._upload_limits.max_blob_size = uploader_constants.DEFAULT_MAX_BLOB_SIZE
         self._description = description
         self._verbosity = verbosity
         self._one_shot = one_shot
@@ -221,7 +191,7 @@ class TensorBoardUploader(object):
         self._additional_senders: Dict[str, uploader_utils.RequestSender] = {}
         if logdir_poll_rate_limiter is None:
             self._logdir_poll_rate_limiter = util.RateLimiter(
-                _MIN_LOGDIR_POLL_INTERVAL_SECS
+                uploader_constants.MIN_LOGDIR_POLL_INTERVAL_SECS
             )
         else:
             self._logdir_poll_rate_limiter = logdir_poll_rate_limiter
@@ -1228,7 +1198,7 @@ class _ByteBudgetManager(object):
             # haven't yet set any point values -- so we can't know the final
             # size of this length varint. We conservatively assume it is maximum
             # size.
-            + _MAX_VARINT64_LENGTH_BYTES
+            + uploader_constants.MAX_VARINT64_LENGTH_BYTES
             # The size of the proto key.
             + 1
         )

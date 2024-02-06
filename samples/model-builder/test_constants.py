@@ -337,3 +337,13 @@ TENSORBOARD_NAME = (
     f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard"
 )
 TENSORBOARD_EXPERIMENT_NAME = "my-tensorboard-experiment"
+TENSORBOARD_PLUGIN_PROFILE_NAME = "profile"
+
+# Vector Search
+VECTOR_SEARCH_INDEX = "123"
+VECTOR_SERACH_INDEX_DATAPOINTS = [
+    {"datapoint_id": "datapoint_id_1", "feature_vector": [0.1]}
+]
+VECTOR_SEARCH_INDEX_ENDPOINT = "456"
+VECTOR_SEARCH_DEPLOYED_INDEX_ID = "789"
+VECTOR_SERACH_INDEX_QUERIES = [[0.1]]

@@ -179,6 +179,7 @@ class BigQueryDatasource(Datasource):
         project_id: Optional[str] = None,
         dataset: Optional[str] = None,
         max_retry_cnt: Optional[int] = DEFAULT_MAX_RETRY_CNT,
+        overwrite_table: Optional[bool] = True,
     ) -> List[ObjectRef[WriteResult]]:
         def _write_single_block(
             block: Block, metadata: BlockMetadata, project_id: str, dataset: str
@@ -250,17 +251,23 @@ class BigQueryDatasource(Datasource):
         client = bigquery.Client(project=project_id, client_info=bq_info)
         dataset_id = dataset.split(".", 1)[0]
         try:
+            client.get_dataset(dataset_id)
+        except exceptions.NotFound:
             client.create_dataset(f"{project_id}.{dataset_id}", timeout=30)
-            print("[Ray on Vertex AI]: Created dataset", dataset_id)
-        except exceptions.Conflict:
-            print(
-                "[Ray on Vertex AI]: Dataset",
-                dataset_id,
-                "already exists. The table will be overwritten if it already exists.",
-            )
+            print(f"[Ray on Vertex AI]: Created dataset {dataset_id}")
 
-        # Delete table if it already exists
-        client.delete_table(f"{project_id}.{dataset}", not_found_ok=True)
+        # Delete table if overwrite_table is True
+        if overwrite_table:
+            print(
+                f"[Ray on Vertex AI]: Attempting to delete table {dataset}"
+                + " if it already exists since kwarg overwrite_table = True."
+            )
+            client.delete_table(f"{project_id}.{dataset}", not_found_ok=True)
+        else:
+            print(
+                f"[Ray on Vertex AI]: The write will append to table {dataset}"
+                + " if it already exists since kwarg overwrite_table = False."
+            )
 
         print("[Ray on Vertex AI]: Writing", len(blocks), "blocks")
         for i in range(len(blocks)):

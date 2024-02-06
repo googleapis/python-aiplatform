@@ -19,6 +19,7 @@ from typing import Dict, List, Optional
 from google.cloud.aiplatform_v1beta1.types import PersistentResource
 
 
+@dataclasses.dataclass
 class Resources:
     """Resources for a ray cluster node.
 
@@ -38,28 +39,12 @@ class Resources:
             be either unspecified or within the range of [100, 64000].
     """
 
-    def __init__(
-        self,
-        machine_type: Optional[str] = "n1-standard-4",
-        node_count: Optional[int] = 1,
-        accelerator_type: Optional[str] = None,
-        accelerator_count: Optional[int] = 0,
-        boot_disk_type: Optional[str] = "pd-ssd",
-        boot_disk_size_gb: Optional[int] = 100,
-    ):
-
-        self.machine_type = machine_type
-        self.node_count = node_count
-        self.accelerator_type = accelerator_type
-        self.accelerator_count = accelerator_count
-        self.boot_disk_type = boot_disk_type
-        self.boot_disk_size_gb = boot_disk_size_gb
-
-        if accelerator_type is None and accelerator_count > 0:
-            raise ValueError(
-                "[Ray on Vertex]: accelerator_type must be specified when"
-                + " accelerator_count is set to a value other than 0."
-            )
+    machine_type: Optional[str] = "n1-standard-8"
+    node_count: Optional[int] = 1
+    accelerator_type: Optional[str] = None
+    accelerator_count: Optional[int] = 0
+    boot_disk_type: Optional[str] = "pd-ssd"
+    boot_disk_size_gb: Optional[int] = 100
 
 
 @dataclasses.dataclass
@@ -79,7 +64,7 @@ class Cluster:
         python_version: Python version for the ray cluster (e.g. "3_10").
         ray_version: Ray version for the ray cluster (e.g. "2_4").
         head_node_type: The head node resource. Resources.node_count must be 1.
-            If not set, by default it is a CPU node with machine_type of n1-standard-4.
+            If not set, by default it is a CPU node with machine_type of n1-standard-8.
         worker_node_types: The list of Resources of the worker nodes. Should not
             duplicate the elements in the list.
         dashboard_address: For Ray Job API (JobSubmissionClient), with this

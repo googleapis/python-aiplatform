@@ -684,6 +684,43 @@ class TestMultiModalEmbeddingModels:
         assert not embedding_response.image_embedding
         assert embedding_response.text_embedding == test_embeddings
 
+    def test_image_embedding_model_with_lower_dimensions(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_vision_models.MultiModalEmbeddingModel.from_pretrained(
+                "multimodalembedding@001"
+            )
+
+        dimension = 128
+        test_embeddings = [0] * dimension
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(
+            {"imageEmbedding": test_embeddings, "textEmbedding": test_embeddings}
+        )
+
+        image = generate_image_from_file()
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            embedding_response = model.get_embeddings(
+                image=image, contextual_text="hello world", dimension=dimension
+            )
+
+        assert embedding_response.image_embedding == test_embeddings
+        assert embedding_response.text_embedding == test_embeddings
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class ImageTextModelTests:

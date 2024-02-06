@@ -20,7 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.api import httpbody_pb2  # type: ignore
+from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import explanation
+from google.cloud.aiplatform_v1beta1.types import tool
 from google.cloud.aiplatform_v1beta1.types import types
 from google.protobuf import struct_pb2  # type: ignore
 
@@ -31,12 +33,24 @@ __protobuf__ = proto.module(
         "PredictRequest",
         "PredictResponse",
         "RawPredictRequest",
+        "DirectPredictRequest",
+        "DirectPredictResponse",
+        "DirectRawPredictRequest",
+        "DirectRawPredictResponse",
+        "StreamDirectPredictRequest",
+        "StreamDirectPredictResponse",
+        "StreamDirectRawPredictRequest",
+        "StreamDirectRawPredictResponse",
         "StreamingPredictRequest",
         "StreamingPredictResponse",
+        "StreamingRawPredictRequest",
+        "StreamingRawPredictResponse",
         "ExplainRequest",
         "ExplainResponse",
         "CountTokensRequest",
         "CountTokensResponse",
+        "GenerateContentRequest",
+        "GenerateContentResponse",
     },
 )
 
@@ -192,6 +206,227 @@ class RawPredictRequest(proto.Message):
     )
 
 
+class DirectPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.DirectPredict][google.cloud.aiplatform.v1beta1.PredictionService.DirectPredict].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        inputs (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tensor]):
+            The prediction input.
+        parameters (google.cloud.aiplatform_v1beta1.types.Tensor):
+            The parameters that govern the prediction.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    inputs: MutableSequence[types.Tensor] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=types.Tensor,
+    )
+    parameters: types.Tensor = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=types.Tensor,
+    )
+
+
+class DirectPredictResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.DirectPredict][google.cloud.aiplatform.v1beta1.PredictionService.DirectPredict].
+
+    Attributes:
+        outputs (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tensor]):
+            The prediction output.
+        parameters (google.cloud.aiplatform_v1beta1.types.Tensor):
+            The parameters that govern the prediction.
+    """
+
+    outputs: MutableSequence[types.Tensor] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=types.Tensor,
+    )
+    parameters: types.Tensor = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=types.Tensor,
+    )
+
+
+class DirectRawPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.DirectRawPredict][google.cloud.aiplatform.v1beta1.PredictionService.DirectRawPredict].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        method_name (str):
+            Fully qualified name of the API method being invoked to
+            perform predictions.
+
+            Format: ``/namespace.Service/Method/`` Example:
+            ``/tensorflow.serving.PredictionService/Predict``
+        input (bytes):
+            The prediction input.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    method_name: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    input: bytes = proto.Field(
+        proto.BYTES,
+        number=3,
+    )
+
+
+class DirectRawPredictResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.DirectRawPredict][google.cloud.aiplatform.v1beta1.PredictionService.DirectRawPredict].
+
+    Attributes:
+        output (bytes):
+            The prediction output.
+    """
+
+    output: bytes = proto.Field(
+        proto.BYTES,
+        number=1,
+    )
+
+
+class StreamDirectPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.StreamDirectPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamDirectPredict].
+
+    The first message must contain
+    [endpoint][google.cloud.aiplatform.v1beta1.StreamDirectPredictRequest.endpoint]
+    field and optionally [input][]. The subsequent messages must contain
+    [input][].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        inputs (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tensor]):
+            Optional. The prediction input.
+        parameters (google.cloud.aiplatform_v1beta1.types.Tensor):
+            Optional. The parameters that govern the
+            prediction.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    inputs: MutableSequence[types.Tensor] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=types.Tensor,
+    )
+    parameters: types.Tensor = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=types.Tensor,
+    )
+
+
+class StreamDirectPredictResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.StreamDirectPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamDirectPredict].
+
+    Attributes:
+        outputs (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tensor]):
+            The prediction output.
+        parameters (google.cloud.aiplatform_v1beta1.types.Tensor):
+            The parameters that govern the prediction.
+    """
+
+    outputs: MutableSequence[types.Tensor] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=types.Tensor,
+    )
+    parameters: types.Tensor = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=types.Tensor,
+    )
+
+
+class StreamDirectRawPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.StreamDirectRawPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamDirectRawPredict].
+
+    The first message must contain
+    [endpoint][google.cloud.aiplatform.v1beta1.StreamDirectRawPredictRequest.endpoint]
+    and
+    [method_name][google.cloud.aiplatform.v1beta1.StreamDirectRawPredictRequest.method_name]
+    fields and optionally
+    [input][google.cloud.aiplatform.v1beta1.StreamDirectRawPredictRequest.input].
+    The subsequent messages must contain
+    [input][google.cloud.aiplatform.v1beta1.StreamDirectRawPredictRequest.input].
+    [method_name][google.cloud.aiplatform.v1beta1.StreamDirectRawPredictRequest.method_name]
+    in the subsequent messages have no effect.
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        method_name (str):
+            Optional. Fully qualified name of the API method being
+            invoked to perform predictions.
+
+            Format: ``/namespace.Service/Method/`` Example:
+            ``/tensorflow.serving.PredictionService/Predict``
+        input (bytes):
+            Optional. The prediction input.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    method_name: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    input: bytes = proto.Field(
+        proto.BYTES,
+        number=3,
+    )
+
+
+class StreamDirectRawPredictResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.StreamDirectRawPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamDirectRawPredict].
+
+    Attributes:
+        output (bytes):
+            The prediction output.
+    """
+
+    output: bytes = proto.Field(
+        proto.BYTES,
+        number=1,
+    )
+
+
 class StreamingPredictRequest(proto.Message):
     r"""Request message for
     [PredictionService.StreamingPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamingPredict].
@@ -248,6 +483,65 @@ class StreamingPredictResponse(proto.Message):
         proto.MESSAGE,
         number=2,
         message=types.Tensor,
+    )
+
+
+class StreamingRawPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.StreamingRawPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamingRawPredict].
+
+    The first message must contain
+    [endpoint][google.cloud.aiplatform.v1beta1.StreamingRawPredictRequest.endpoint]
+    and
+    [method_name][google.cloud.aiplatform.v1beta1.StreamingRawPredictRequest.method_name]
+    fields and optionally
+    [input][google.cloud.aiplatform.v1beta1.StreamingRawPredictRequest.input].
+    The subsequent messages must contain
+    [input][google.cloud.aiplatform.v1beta1.StreamingRawPredictRequest.input].
+    [method_name][google.cloud.aiplatform.v1beta1.StreamingRawPredictRequest.method_name]
+    in the subsequent messages have no effect.
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        method_name (str):
+            Fully qualified name of the API method being invoked to
+            perform predictions.
+
+            Format: ``/namespace.Service/Method/`` Example:
+            ``/tensorflow.serving.PredictionService/Predict``
+        input (bytes):
+            The prediction input.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    method_name: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    input: bytes = proto.Field(
+        proto.BYTES,
+        number=3,
+    )
+
+
+class StreamingRawPredictResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.StreamingRawPredict][google.cloud.aiplatform.v1beta1.PredictionService.StreamingRawPredict].
+
+    Attributes:
+        output (bytes):
+            The prediction output.
+    """
+
+    output: bytes = proto.Field(
+        proto.BYTES,
+        number=1,
     )
 
 
@@ -414,20 +708,35 @@ class CountTokensRequest(proto.Message):
             Required. The name of the Endpoint requested to perform
             token counting. Format:
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        model (str):
+            Required. The name of the publisher model requested to serve
+            the prediction. Format:
+            ``projects/{project}/locations/{location}/publishers/*/models/*``
         instances (MutableSequence[google.protobuf.struct_pb2.Value]):
             Required. The instances that are the input to
             token counting call. Schema is identical to the
             prediction schema of the underlying model.
+        contents (MutableSequence[google.cloud.aiplatform_v1beta1.types.Content]):
+            Required. Input content.
     """
 
     endpoint: str = proto.Field(
         proto.STRING,
         number=1,
     )
+    model: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
     instances: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message=struct_pb2.Value,
+    )
+    contents: MutableSequence[content.Content] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=content.Content,
     )
 
 
@@ -451,6 +760,165 @@ class CountTokensResponse(proto.Message):
     total_billable_characters: int = proto.Field(
         proto.INT32,
         number=2,
+    )
+
+
+class GenerateContentRequest(proto.Message):
+    r"""Request message for [PredictionService.GenerateContent].
+
+    Attributes:
+        model (str):
+            Required. The name of the publisher model requested to serve
+            the prediction. Format:
+            ``projects/{project}/locations/{location}/publishers/*/models/*``
+        contents (MutableSequence[google.cloud.aiplatform_v1beta1.types.Content]):
+            Required. The content of the current
+            conversation with the model.
+            For single-turn queries, this is a single
+            instance. For multi-turn queries, this is a
+            repeated field that contains conversation
+            history + latest request.
+        tools (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tool]):
+            Optional. A list of ``Tools`` the model may use to generate
+            the next response.
+
+            A ``Tool`` is a piece of code that enables the system to
+            interact with external systems to perform an action, or set
+            of actions, outside of knowledge and scope of the model. The
+            only supported tool is currently ``Function``
+        safety_settings (MutableSequence[google.cloud.aiplatform_v1beta1.types.SafetySetting]):
+            Optional. Per request settings for blocking
+            unsafe content. Enforced on
+            GenerateContentResponse.candidates.
+        generation_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig):
+            Optional. Generation config.
+    """
+
+    model: str = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    contents: MutableSequence[content.Content] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=content.Content,
+    )
+    tools: MutableSequence[tool.Tool] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=6,
+        message=tool.Tool,
+    )
+    safety_settings: MutableSequence[content.SafetySetting] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message=content.SafetySetting,
+    )
+    generation_config: content.GenerationConfig = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=content.GenerationConfig,
+    )
+
+
+class GenerateContentResponse(proto.Message):
+    r"""Response message for [PredictionService.GenerateContent].
+
+    Attributes:
+        candidates (MutableSequence[google.cloud.aiplatform_v1beta1.types.Candidate]):
+            Output only. Generated candidates.
+        prompt_feedback (google.cloud.aiplatform_v1beta1.types.GenerateContentResponse.PromptFeedback):
+            Output only. Content filter results for a
+            prompt sent in the request. Note: Sent only in
+            the first stream chunk. Only happens when no
+            candidates were generated due to content
+            violations.
+        usage_metadata (google.cloud.aiplatform_v1beta1.types.GenerateContentResponse.UsageMetadata):
+            Usage metadata about the response(s).
+    """
+
+    class PromptFeedback(proto.Message):
+        r"""Content filter results for a prompt sent in the request.
+
+        Attributes:
+            block_reason (google.cloud.aiplatform_v1beta1.types.GenerateContentResponse.PromptFeedback.BlockedReason):
+                Output only. Blocked reason.
+            safety_ratings (MutableSequence[google.cloud.aiplatform_v1beta1.types.SafetyRating]):
+                Output only. Safety ratings.
+            block_reason_message (str):
+                Output only. A readable block reason message.
+        """
+
+        class BlockedReason(proto.Enum):
+            r"""Blocked reason enumeration.
+
+            Values:
+                BLOCKED_REASON_UNSPECIFIED (0):
+                    Unspecified blocked reason.
+                SAFETY (1):
+                    Candidates blocked due to safety.
+                OTHER (2):
+                    Candidates blocked due to other reason.
+            """
+            BLOCKED_REASON_UNSPECIFIED = 0
+            SAFETY = 1
+            OTHER = 2
+
+        block_reason: "GenerateContentResponse.PromptFeedback.BlockedReason" = (
+            proto.Field(
+                proto.ENUM,
+                number=1,
+                enum="GenerateContentResponse.PromptFeedback.BlockedReason",
+            )
+        )
+        safety_ratings: MutableSequence[content.SafetyRating] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message=content.SafetyRating,
+        )
+        block_reason_message: str = proto.Field(
+            proto.STRING,
+            number=3,
+        )
+
+    class UsageMetadata(proto.Message):
+        r"""Usage metadata about response(s).
+
+        Attributes:
+            prompt_token_count (int):
+                Number of tokens in the request.
+            candidates_token_count (int):
+                Number of tokens in the response(s).
+            total_token_count (int):
+
+        """
+
+        prompt_token_count: int = proto.Field(
+            proto.INT32,
+            number=1,
+        )
+        candidates_token_count: int = proto.Field(
+            proto.INT32,
+            number=2,
+        )
+        total_token_count: int = proto.Field(
+            proto.INT32,
+            number=3,
+        )
+
+    candidates: MutableSequence[content.Candidate] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=content.Candidate,
+    )
+    prompt_feedback: PromptFeedback = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=PromptFeedback,
+    )
+    usage_metadata: UsageMetadata = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=UsageMetadata,
     )
 
 

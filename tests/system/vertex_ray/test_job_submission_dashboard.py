@@ -16,8 +16,10 @@
 #
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform.preview import vertex_ray
 from ray.job_submission import JobSubmissionClient
 from tests.system.aiplatform import e2e_base
+import datetime
 import os
 import ray
 import time
@@ -26,9 +28,6 @@ import tempfile
 RAY_VERSION = "2.4.0"
 CLUSTER_RAY_VERSION = "2_4"
 PROJECT_ID = "ucaip-sample-tests"
-DASHBOARD_ADDRESS = (
-    "3bc94b5d968a5971-dot-us-central1.aiplatform-training.googleusercontent.com"
-)
 
 
 class TestJobSubmissionDashboard(e2e_base.TestEndToEnd):
@@ -38,27 +37,45 @@ class TestJobSubmissionDashboard(e2e_base.TestEndToEnd):
         assert ray.__version__ == RAY_VERSION
         aiplatform.init(project=PROJECT_ID, location="us-central1")
 
-        # Connect to cluster
-        client = JobSubmissionClient("vertex_ray://{}".format(DASHBOARD_ADDRESS))
+        head_node_type = vertex_ray.Resources()
+        worker_node_types = [vertex_ray.Resources()]
+
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
+        # Create cluster, get dashboard address
+        cluster_resource_name = vertex_ray.create_ray_cluster(
+            head_node_type=head_node_type,
+            worker_node_types=worker_node_types,
+            cluster_name=f"ray-cluster{timestamp}-test-job-submission-dashboard",
+        )
+
+        cluster_details = vertex_ray.get_ray_cluster(cluster_resource_name)
+
+        # Need to use the full path since the installation is editable, not from a release
+        client = JobSubmissionClient(
+            "google.cloud.aiplatform.preview.vertex_ray://{}".format(
+                cluster_details.dashboard_address
+            )
+        )
 
         my_script = """
-        import ray
-        import time
+import ray
+import time
 
-        @ray.remote
-        def hello_world():
-            return "hello world"
+@ray.remote
+def hello_world():
+    return "hello world"
 
-        @ray.remote
-        def square(x):
-            print(x)
-            time.sleep(100)
-            return x * x
+@ray.remote
+def square(x):
+    print(x)
+    time.sleep(100)
+    return x * x
 
-        ray.init()  # No need to specify address="vertex_ray://...."
-        print(ray.get(hello_world.remote()))
-        print(ray.get([square.remote(i) for i in range(4)]))
-        """
+ray.init()  # No need to specify address="vertex_ray://...."
+print(ray.get(hello_world.remote()))
+print(ray.get([square.remote(i) for i in range(4)]))
+"""
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create my_script.py file
@@ -90,3 +107,8 @@ class TestJobSubmissionDashboard(e2e_base.TestEndToEnd):
                     print(job_id, "job logs:")
                     print(client.get_job_info(job_id).message)
                     raise RuntimeError("The Ray Job encountered an error and failed")
+
+        vertex_ray.delete_ray_cluster(cluster_resource_name)
+        # Ensure cluster was deleted
+        for cluster in vertex_ray.list_ray_clusters():
+            assert cluster.cluster_resource_name != cluster_resource_name

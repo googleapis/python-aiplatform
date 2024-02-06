@@ -54,6 +54,9 @@ _LOGGER = base.Logger(__name__)
 # Endpoint label/metadata key to preserve the base model ID information
 _TUNING_BASE_MODEL_ID_LABEL_KEY = "google-vertex-llm-tuning-base-model-id"
 
+# Default URI for RLHF training template in the Vertex Template Gallery
+_DEFAULT_RLHF_TUNING_PIPELINE_URI = "https://us-kfp.pkg.dev/ml-pipeline/google-cloud-registry/rlhf-train-template/default"
+
 _ACCELERATOR_TYPES = ["TPU", "GPU"]
 _ACCELERATOR_TYPE_TYPE = Literal["TPU", "GPU"]
 
@@ -73,6 +76,47 @@ def _get_model_id_from_tuning_model_id(tuning_model_id: str) -> str:
     model_name, _, version = tuning_model_id.rpartition("-")
     # "publishers/google/models/text-bison@001"
     return f"publishers/google/models/{model_name}@{version}"
+
+
+def _get_tensorboard_resource_id_from_evaluation_spec(
+    eval_spec: "TuningEvaluationSpec",
+    tuning_job_location: str,
+) -> Optional[str]:
+    """Gets the Tensorboard resource ID from an evaluation spec.
+
+    Args:
+        eval_spec: To extract Tensorboard resource ID from.
+        tuning_job_location: Location . Used to check that the tensorboard
+            location is in the same region as tuning.
+
+    Returns:
+        Tensorboard resource ID, if it was set.
+
+    Raises:
+        ValueError: If Tensorboard location is not in the same region as tuning
+        TypeError: If Tensorboard URI is not a string.
+    """
+    if eval_spec.tensorboard is None:
+        return None
+    elif isinstance(eval_spec.tensorboard, aiplatform.Tensorboard):
+        if eval_spec.tensorboard.location != tuning_job_location:
+            raise ValueError(
+                "The Tensorboard must be in the same location as the tuning job."
+            )
+        return eval_spec.tensorboard.resource_name
+    elif isinstance(eval_spec.tensorboard, str):
+        resource_name_parts = aiplatform.Tensorboard._parse_resource_name(
+            eval_spec.tensorboard
+        )
+        if resource_name_parts["location"] != tuning_job_location:
+            raise ValueError(
+                "The Tensorboard must be in the same location as the tuning job. "
+                f"Tensorboard location: {resource_name_parts['location']}, "
+                f"tuning job location: {tuning_job_location}"
+            )
+        return eval_spec.tensorboard
+    else:
+        raise TypeError("Tensorboard should be a URI string")
 
 
 class _LanguageModel(_model_garden_models._ModelGardenModel):
@@ -120,8 +164,8 @@ class _MultiInstancePredictionRequest:
     parameters: Optional[Dict[str, Any]] = None
 
 
-class _TunableModelMixin(_LanguageModel):
-    """Model that can be tuned."""
+class _GetTunedModelMixin(_model_garden_models._ModelGardenModel):
+    """Mixin that adds methods that list and get tuned language models."""
 
     def list_tuned_model_names(self) -> Sequence[str]:
         """Lists the names of tuned models.
@@ -168,6 +212,10 @@ class _TunableModelMixin(_LanguageModel):
             endpoint_name=endpoint_name,
         )
         return model
+
+
+class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
+    """Model that can be tuned with supervised fine tuning (SFT)."""
 
     def tune_model(
         self,
@@ -250,26 +298,11 @@ class _TunableModelMixin(_LanguageModel):
                 tuning_parameters[
                     "enable_checkpoint_selection"
                 ] = eval_spec.enable_checkpoint_selection
-            if eval_spec.tensorboard is not None:
-                if isinstance(eval_spec.tensorboard, aiplatform.Tensorboard):
-                    if eval_spec.tensorboard.location != tuning_job_location:
-                        raise ValueError(
-                            "The Tensorboard must be in the same location as the tuning job."
-                        )
-                    tuning_parameters[
-                        "tensorboard_resource_id"
-                    ] = eval_spec.tensorboard.resource_name
-                elif isinstance(eval_spec.tensorboard, str):
-                    resource_name_parts = aiplatform.Tensorboard._parse_resource_name(
-                        eval_spec.tensorboard
-                    )
-                    if resource_name_parts["location"] != tuning_job_location:
-                        raise ValueError(
-                            "The Tensorboard must be in the same location as the tuning job."
-                        )
-                    tuning_parameters["tensorboard_resource_id"] = eval_spec.tensorboard
-                else:
-                    raise TypeError("tensorboard should be a URI string")
+            tensorboard_resource_id = _get_tensorboard_resource_id_from_evaluation_spec(
+                eval_spec, tuning_job_location
+            )
+            if tensorboard_resource_id is not None:
+                tuning_parameters["tensorboard_resource_id"] = tensorboard_resource_id
 
         if default_context:
             tuning_parameters["default_context"] = default_context
@@ -323,8 +356,10 @@ class _TunableModelMixin(_LanguageModel):
         """
         if tuning_job_location not in _TUNING_LOCATIONS:
             raise ValueError(
-                "Please specify the tuning job location (`tuning_job_location`)."
-                f"Tuning is supported in the following locations: {_TUNING_LOCATIONS}"
+                _get_invalid_tuning_location_msg(
+                    requested_location=tuning_job_location,
+                    valid_locations=_TUNING_LOCATIONS,
+                )
             )
         if tuned_model_location not in _TUNED_MODEL_LOCATIONS:
             raise ValueError(
@@ -346,6 +381,205 @@ class _TunableModelMixin(_LanguageModel):
             tuning_job_location=tuning_job_location,
             tuned_model_location=tuned_model_location,
         )
+
+        job = _LanguageModelTuningJob(
+            base_model=self,
+            job=pipeline_job,
+        )
+        return job
+
+
+@dataclasses.dataclass(frozen=True)
+class _RlhfTuningParameters:
+    """Configurable parameters for RLHF tuning."""
+
+    prompt_dataset: str
+    preference_dataset: str
+    large_model_reference: str
+    location: str
+    model_display_name: Optional[str] = None
+    prompt_sequence_length: Optional[int] = None
+    target_sequence_length: Optional[int] = None
+    reward_model_learning_rate_multiplier: Optional[float] = None
+    reinforcement_learning_rate_multiplier: Optional[float] = None
+    reward_model_train_steps: Optional[int] = None
+    reinforcement_learning_train_steps: Optional[int] = None
+    kl_coeff: Optional[float] = None
+    instruction: Optional[str] = None
+    deploy_model: Optional[bool] = None
+    eval_dataset: Optional[str] = None
+    project: Optional[str] = None
+    tensorboard_resource_id: Optional[str] = None
+
+    def asdict(self) -> Dict[str, Any]:
+        """Returns a dictionary of tuning parameters with undefined optional keys removed."""
+        data = dataclasses.asdict(self)
+        return {key: value for key, value in data.items() if value is not None}
+
+
+class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
+    """Model that can be tuned with reinforcement learning from human feedback (RLHF)."""
+
+    def tune_model_rlhf(
+        self,
+        *,
+        prompt_data: Union[str, "pandas.core.frame.DataFrame"],
+        preference_data: Union[str, "pandas.core.frame.DataFrame"],
+        model_display_name: Optional[str] = None,
+        prompt_sequence_length: Optional[int] = None,
+        target_sequence_length: Optional[int] = None,
+        reward_model_learning_rate_multiplier: Optional[float] = None,
+        reinforcement_learning_rate_multiplier: Optional[float] = None,
+        reward_model_train_steps: Optional[int] = None,
+        reinforcement_learning_train_steps: Optional[int] = None,
+        kl_coeff: Optional[float] = None,
+        default_context: Optional[str] = None,
+        tuning_job_location: Optional[str] = None,
+        tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
+    ) -> "_LanguageModelTuningJob":
+        """Tunes a model using reinforcement learning from human feedback.
+
+        This method launches and returns an asynchronous model tuning job.
+        Usage:
+        ```
+        tuning_job = model.tune_model_rlhf(...)
+        ... do some other work
+        tuned_model = tuning_job.get_tuned_model()  # Blocks until tuning is complete
+        ```
+
+        Args:
+            prompt_data: A Pandas DataFrame or a URI pointing to data in JSON lines
+                format. The dataset schema is model-specific.
+                See https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-text-models-rlhf#prompt-dataset
+            preference_data: A Pandas DataFrame or a URI pointing to data in JSON lines
+                format. The dataset schema is model-specific.
+                See https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-text-models-rlhf#human-preference-dataset
+            model_display_name: Custom display name for the tuned model.
+                If not provided, a default name will be created.
+            prompt_sequence_length: Maximum tokenized sequence length for input text.
+                Higher values increase memory overhead.
+                This value should be at most 8192. Default value is 512.
+            target_sequence_length: Maximum tokenized sequence length for target text.
+                Higher values increase memory overhead.
+                This value should be at most 1024. Default value is 64.
+            reward_model_learning_rate_multiplier: Constant used to adjust the base
+                learning rate used when training a reward model. Multiply by a
+                number > 1 to increase the magnitude of updates applied at each
+                training step or multiply by a number < 1 to decrease the magnitude
+                of updates. Default value is 1.0.
+            reinforcement_learning_rate_multiplier: Constant used to adjust the base
+                learning rate used during reinforcement learning. Multiply by a
+                number > 1 to increase the magnitude of updates applied at each
+                training step or multiply by a number < 1 to decrease the magnitude
+                of updates. Default value is 1.0.
+            reward_model_train_steps: Number of steps to use when training a reward
+                model. Default value is 1000.
+            reinforcement_learning_train_steps: Number of reinforcement learning steps
+                to perform when tuning a base model. Default value is 1000.
+            kl_coeff: Coefficient for KL penalty. This regularizes the policy model and
+                penalizes if it diverges from its initial distribution. If set to 0,
+                the reference language model is not loaded into memory. Default value
+                is 0.1.
+            default_context: This field lets the model know what task to perform.
+                Base models have been trained over a large set of varied instructions.
+                You can give a simple and intuitive description of the task and the
+                model will follow it, e.g. "Classify this movie review as positive or
+                negative" or "Translate this sentence to Danish". Do not specify this
+                if your dataset already prepends the instruction to the inputs field.
+            tuning_job_location: GCP location where the tuning job should be run.
+            tuning_evaluation_spec: Evaluation settings to use during tuning.
+
+        Returns:
+            A `LanguageModelTuningJob` object that represents the tuning job.
+            Calling `job.result()` blocks until the tuning is complete and returns a `LanguageModel` object.
+
+        Raises:
+            ValueError: If the "tuning_job_location" value is not supported
+            RuntimeError: If the model does not support tuning
+        """
+        tuning_job_location = (
+            tuning_job_location or aiplatform_initializer.global_config.location
+        )
+        eval_dataset = None
+        tensorboard_resource_id = None
+        if tuning_evaluation_spec is not None:
+            _check_unused_rlhf_eval_specs(tuning_evaluation_spec)
+
+            eval_dataset = tuning_evaluation_spec.evaluation_data
+            if eval_dataset is not None and not eval_dataset.startswith("gs://"):
+                raise ValueError(
+                    "evaluation_data must be a GCS URI that starts with gs://"
+                )
+
+            tensorboard_resource_id = _get_tensorboard_resource_id_from_evaluation_spec(
+                tuning_evaluation_spec, tuning_job_location
+            )
+        prompt_dataset_uri = _maybe_upload_training_data(
+            training_data=prompt_data,
+            model_id=self._model_id,
+        )
+        preference_dataset_uri = _maybe_upload_training_data(
+            training_data=preference_data,
+            model_id=self._model_id,
+        )
+
+        tuning_parameters = _RlhfTuningParameters(
+            prompt_dataset=prompt_dataset_uri,
+            preference_dataset=preference_dataset_uri,
+            large_model_reference=self._model_id.rsplit("/", 1)[-1],
+            location=tuning_job_location,
+            model_display_name=model_display_name,
+            prompt_sequence_length=prompt_sequence_length,
+            target_sequence_length=target_sequence_length,
+            reward_model_learning_rate_multiplier=reward_model_learning_rate_multiplier,
+            reinforcement_learning_rate_multiplier=reinforcement_learning_rate_multiplier,
+            reward_model_train_steps=reward_model_train_steps,
+            reinforcement_learning_train_steps=reinforcement_learning_train_steps,
+            kl_coeff=kl_coeff,
+            instruction=default_context,
+            eval_dataset=eval_dataset,
+            tensorboard_resource_id=tensorboard_resource_id,
+        )
+
+        return self._tune_model_rlhf(
+            tuning_parameters=tuning_parameters,
+        )
+
+    def _tune_model_rlhf(
+        self,
+        *,
+        tuning_parameters: _RlhfTuningParameters,
+    ):
+        """Tunes a model using reinforcement learning from human feedback.
+
+        This method launches a tuning job that can take some time.
+
+        Args:
+            tuning_parameters: Tuning pipeline parameter values.
+            tuning_job_location: GCP location where the tuning job should be run.
+
+        Returns:
+            A `LanguageModelTuningJob` object that represents the tuning job.
+            Calling `job.result()` blocks until the tuning is complete and returns a `LanguageModel` object.
+
+        Raises:
+            ValueError: If the tuning location is not supported
+            RuntimeError: If the model does not support tuning
+        """
+        if tuning_parameters.location not in _TUNING_LOCATIONS:
+            raise ValueError(
+                _get_invalid_tuning_location_msg(
+                    requested_location=tuning_parameters.location,
+                    valid_locations=_SUPPORTED_RLHF_LOCATIONS,
+                )
+            )
+        if self._model_id not in _SUPPORTED_RLHF_MODELS:
+            raise ValueError(
+                _get_invalid_rlhf_model_msg(
+                    requested_model=self._model_id,
+                )
+            )
+        pipeline_job = _launch_rlhf_tuning_job(tuning_parameters)
 
         job = _LanguageModelTuningJob(
             base_model=self,
@@ -544,7 +778,7 @@ class _TunableChatModelMixin(_TunableModelMixin):
             }
 
             for att_name, att_value in unsupported_chat_model_tuning_eval_spec.items():
-                if not att_value is None:
+                if att_value is not None:
                     raise AttributeError(
                         (
                             f"ChatModel and CodeChatModel only support tensorboard as attribute for TuningEvaluationSpec"
@@ -718,6 +952,32 @@ class TuningEvaluationSpec:
     enable_checkpoint_selection: Optional[bool] = None
     tensorboard: Optional[Union[aiplatform.Tensorboard, str]] = None
 
+# Evaluation spec fields that are not supported by RLHF tuning
+_UNUSED_RLHF_EVAL_SPECS = (
+    "evaluation_interval",
+    "enable_early_stopping",
+    "enable_checkpoint_selection",
+)
+
+
+def _get_unused_rlhf_eval_spec_error_msg(
+    unused_key: str,
+) -> str:
+    """Returns the user-facing error message if an unused evaluation fields was set."""
+    return (
+        f"{unused_key} is not supported by RLHF tuning. "
+        f"Please leave {unused_key} as None."
+    )
+
+
+def _check_unused_rlhf_eval_specs(tuning_evaluation_spec: TuningEvaluationSpec) -> None:
+    """Raises an error if any unused evaluation fields are specified for RLHF tuning job."""
+    eval_spec_dict = dataclasses.asdict(tuning_evaluation_spec)
+    for unused_key in _UNUSED_RLHF_EVAL_SPECS:
+        unused_value = eval_spec_dict.get(unused_key)
+        if unused_value is not None:
+            raise AttributeError(_get_unused_rlhf_eval_spec_error_msg(unused_key))
+
 
 class _GroundingSourceBase(abc.ABC):
     """Interface of grounding source dataclass for grounding."""
@@ -746,6 +1006,27 @@ class WebSearch(_GroundingSourceBase):
                 }
             ],
             "disableAttribution": self.disable_attribution,
+        }
+
+
+@dataclasses.dataclass
+class InlineContext(_GroundingSourceBase):
+    """InlineContext represents a grounding source using provided inline context.
+    Attributes:
+        inline_context: The content used as inline context.
+    """
+
+    inline_context: str
+    _type: str = dataclasses.field(default="INLINE", init=False, repr=False)
+
+    def _to_grounding_source_dict(self) -> Dict[str, Any]:
+        return {
+            "sources": [
+                {
+                    "type": self._type,
+                }
+            ],
+            "inlineContext": self.inline_context,
         }
 
 
@@ -792,6 +1073,7 @@ class GroundingSource:
 
     WebSearch = WebSearch
     VertexAISearch = VertexAISearch
+    InlineContext = InlineContext
 
 
 @dataclasses.dataclass
@@ -976,8 +1258,16 @@ class _TextGenerationModel(_LanguageModel):
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
         grounding_source: Optional[
-            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+            Union[
+                GroundingSource.WebSearch,
+                GroundingSource.VertexAISearch,
+                GroundingSource.InlineContext,
+            ]
         ] = None,
+        logprobs: Optional[int] = None,
+        presence_penalty: Optional[float] = None,
+        frequency_penalty: Optional[float] = None,
+        logit_bias: Optional[Dict[int, float]] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Gets model response for a single prompt.
 
@@ -990,6 +1280,26 @@ class _TextGenerationModel(_LanguageModel):
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of response candidates to return.
             grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
+            logprobs: Returns the top `logprobs` most likely candidate tokens with their log probabilities
+                at each generation step. The chosen tokens and their log probabilities at each step are always
+                returned. The chosen token may or may not be in the top `logprobs` most likely candidates.
+                The minimum value for `logprobs` is 0, which means only the chosen tokens and their log
+                probabilities are returned.
+                The maximum value for `logprobs` is 5.
+            presence_penalty:
+                Positive values penalize tokens that have appeared in the generated text,
+                thus increasing the possibility of generating more diversed topics.
+                Range: [-2.0, 2.0]
+            frequency_penalty:
+                Positive values penalize tokens that repeatedly appear in the generated
+                text, thus decreasing the possibility of repeating the same content.
+                Range: [-2.0, 2.0]
+            logit_bias:
+                Mapping from token IDs (integers) to their bias values (floats).
+                The bias values are added to the logits before sampling.
+                Larger positive bias increases the probability of choosing the token.
+                Smaller negative bias decreases the probability of choosing the token.
+                Range: [-100.0, 100.0]
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
@@ -1003,6 +1313,10 @@ class _TextGenerationModel(_LanguageModel):
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
             grounding_source=grounding_source,
+            logprobs=logprobs,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
         )
 
         prediction_response = self._endpoint.predict(
@@ -1025,8 +1339,16 @@ class _TextGenerationModel(_LanguageModel):
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
         grounding_source: Optional[
-            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+            Union[
+                GroundingSource.WebSearch,
+                GroundingSource.VertexAISearch,
+                GroundingSource.InlineContext,
+            ]
         ] = None,
+        logprobs: Optional[int] = None,
+        presence_penalty: Optional[float] = None,
+        frequency_penalty: Optional[float] = None,
+        logit_bias: Optional[Dict[int, float]] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously gets model response for a single prompt.
 
@@ -1039,6 +1361,26 @@ class _TextGenerationModel(_LanguageModel):
             stop_sequences: Customized stop sequences to stop the decoding process.
             candidate_count: Number of response candidates to return.
             grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
+            logprobs: Returns the top `logprobs` most likely candidate tokens with their log probabilities
+                at each generation step. The chosen tokens and their log probabilities at each step are always
+                returned. The chosen token may or may not be in the top `logprobs` most likely candidates.
+                The minimum value for `logprobs` is 0, which means only the chosen tokens and their log
+                probabilities are returned.
+                The maximum value for `logprobs` is 5.
+            presence_penalty:
+                Positive values penalize tokens that have appeared in the generated text,
+                thus increasing the possibility of generating more diversed topics.
+                Range: [-2.0, 2.0]
+            frequency_penalty:
+                Positive values penalize tokens that repeatedly appear in the generated
+                text, thus decreasing the possibility of repeating the same content.
+                Range: [-2.0, 2.0]
+            logit_bias:
+                Mapping from token IDs (integers) to their bias values (floats).
+                The bias values are added to the logits before sampling.
+                Larger positive bias increases the probability of choosing the token.
+                Smaller negative bias decreases the probability of choosing the token.
+                Range: [-100.0, 100.0]
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
@@ -1052,6 +1394,10 @@ class _TextGenerationModel(_LanguageModel):
             stop_sequences=stop_sequences,
             candidate_count=candidate_count,
             grounding_source=grounding_source,
+            logprobs=logprobs,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
         )
 
         prediction_response = await self._endpoint.predict_async(
@@ -1072,6 +1418,10 @@ class _TextGenerationModel(_LanguageModel):
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
+        logprobs: Optional[int] = None,
+        presence_penalty: Optional[float] = None,
+        frequency_penalty: Optional[float] = None,
+        logit_bias: Optional[Dict[int, float]] = None,
     ) -> Iterator[TextGenerationResponse]:
         """Gets a streaming model response for a single prompt.
 
@@ -1084,6 +1434,26 @@ class _TextGenerationModel(_LanguageModel):
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            logprobs: Returns the top `logprobs` most likely candidate tokens with their log probabilities
+                at each generation step. The chosen tokens and their log probabilities at each step are always
+                returned. The chosen token may or may not be in the top `logprobs` most likely candidates.
+                The minimum value for `logprobs` is 0, which means only the chosen tokens and their log
+                probabilities are returned.
+                The maximum value for `logprobs` is 5.
+            presence_penalty:
+                Positive values penalize tokens that have appeared in the generated text,
+                thus increasing the possibility of generating more diversed topics.
+                Range: [-2.0, 2.0]
+            frequency_penalty:
+                Positive values penalize tokens that repeatedly appear in the generated
+                text, thus decreasing the possibility of repeating the same content.
+                Range: [-2.0, 2.0]
+            logit_bias:
+                Mapping from token IDs (integers) to their bias values (floats).
+                The bias values are added to the logits before sampling.
+                Larger positive bias increases the probability of choosing the token.
+                Smaller negative bias decreases the probability of choosing the token.
+                Range: [-100.0, 100.0]
 
         Yields:
             A stream of `TextGenerationResponse` objects that contain partial
@@ -1096,6 +1466,10 @@ class _TextGenerationModel(_LanguageModel):
             top_k=top_k,
             top_p=top_p,
             stop_sequences=stop_sequences,
+            logprobs=logprobs,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
         )
 
         prediction_service_client = self._endpoint._prediction_client
@@ -1122,6 +1496,10 @@ class _TextGenerationModel(_LanguageModel):
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         stop_sequences: Optional[List[str]] = None,
+        logprobs: Optional[int] = None,
+        presence_penalty: Optional[float] = None,
+        frequency_penalty: Optional[float] = None,
+        logit_bias: Optional[Dict[int, float]] = None,
     ) -> AsyncIterator[TextGenerationResponse]:
         """Asynchronously gets a streaming model response for a single prompt.
 
@@ -1134,6 +1512,26 @@ class _TextGenerationModel(_LanguageModel):
             top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering. Range: [1, 40]. Default: 40.
             top_p: The cumulative probability of parameter highest probability vocabulary tokens to keep for nucleus sampling. Range: [0, 1]. Default: 0.95.
             stop_sequences: Customized stop sequences to stop the decoding process.
+            logprobs: Returns the top `logprobs` most likely candidate tokens with their log probabilities
+                at each generation step. The chosen tokens and their log probabilities at each step are always
+                returned. The chosen token may or may not be in the top `logprobs` most likely candidates.
+                The minimum value for `logprobs` is 0, which means only the chosen tokens and their log
+                probabilities are returned.
+                The maximum value for `logprobs` is 5.
+            presence_penalty:
+                Positive values penalize tokens that have appeared in the generated text,
+                thus increasing the possibility of generating more diversed topics.
+                Range: [-2.0, 2.0]
+            frequency_penalty:
+                Positive values penalize tokens that repeatedly appear in the generated
+                text, thus decreasing the possibility of repeating the same content.
+                Range: [-2.0, 2.0]
+            logit_bias:
+                Mapping from token IDs (integers) to their bias values (floats).
+                The bias values are added to the logits before sampling.
+                Larger positive bias increases the probability of choosing the token.
+                Smaller negative bias decreases the probability of choosing the token.
+                Range: [-100.0, 100.0]
 
         Yields:
             A stream of `TextGenerationResponse` objects that contain partial
@@ -1146,6 +1544,10 @@ class _TextGenerationModel(_LanguageModel):
             top_k=top_k,
             top_p=top_p,
             stop_sequences=stop_sequences,
+            logprobs=logprobs,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
         )
 
         prediction_service_async_client = self._endpoint._prediction_async_client
@@ -1172,8 +1574,16 @@ def _create_text_generation_prediction_request(
     stop_sequences: Optional[List[str]] = None,
     candidate_count: Optional[int] = None,
     grounding_source: Optional[
-        Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+        Union[
+            GroundingSource.WebSearch,
+            GroundingSource.VertexAISearch,
+            GroundingSource.InlineContext,
+        ]
     ] = None,
+    logprobs: Optional[int] = None,
+    presence_penalty: Optional[float] = None,
+    frequency_penalty: Optional[float] = None,
+    logit_bias: Optional[Dict[int, int]] = None,
 ) -> "_PredictionRequest":
     """Prepares the text generation request for a single prompt.
 
@@ -1186,7 +1596,26 @@ def _create_text_generation_prediction_request(
         stop_sequences: Customized stop sequences to stop the decoding process.
         candidate_count: Number of candidates to return.
         grounding_source: If specified, grounding feature will be enabled using the grounding source. Default: None.
-
+        logprobs: Returns the top `logprobs` most likely candidate tokens with their log probabilities
+            at each generation step. The chosen tokens and their log probabilities at each step are always
+            returned. The chosen token may or may not be in the top `logprobs` most likely candidates.
+            The minimum value for `logprobs` is 0, which means only the chosen tokens and their log
+            probabilities are returned.
+            The maximum value for `logprobs` is 5.
+        presence_penalty:
+            Positive values penalize tokens that have appeared in the generated text,
+            thus increasing the possibility of generating more diversed topics.
+            Range: [-2.0, 2.0]
+        frequency_penalty:
+            Positive values penalize tokens that repeatedly appear in the generated
+            text, thus decreasing the possibility of repeating the same content.
+            Range: [-2.0, 2.0]
+        logit_bias:
+            Mapping from token IDs (integers) to their bias values (floats).
+            The bias values are added to the logits before sampling.
+            Larger positive bias increases the probability of choosing the token.
+            Smaller negative bias decreases the probability of choosing the token.
+            Range: [-100.0, 100.0]
 
     Returns:
         A `_PredictionRequest` object that contains prediction instance and parameters.
@@ -1220,6 +1649,18 @@ def _create_text_generation_prediction_request(
         prediction_parameters[
             "groundingConfig"
         ] = grounding_source._to_grounding_source_dict()
+
+    if logprobs is not None:
+        prediction_parameters["logprobs"] = logprobs
+
+    if presence_penalty is not None:
+        prediction_parameters["presencePenalty"] = presence_penalty
+
+    if frequency_penalty is not None:
+        prediction_parameters["frequencyPenalty"] = frequency_penalty
+
+    if logit_bias is not None:
+        prediction_parameters["logitBias"] = logit_bias
 
     return _PredictionRequest(
         instance=instance,
@@ -1381,23 +1822,12 @@ class _PreviewModelWithBatchPredict(_ModelWithBatchPredict):
 
 
 class TextGenerationModel(
-    _TextGenerationModel, _TunableTextModelMixin, _ModelWithBatchPredict
+    _TextGenerationModel,
+    _TunableTextModelMixin,
+    _ModelWithBatchPredict,
+    _RlhfTunableModelMixin,
 ):
     __module__ = "vertexai.language_models"
-
-
-class _PreviewTextGenerationModel(
-    _TextGenerationModel,
-    _PreviewTunableTextModelMixin,
-    _PreviewModelWithBatchPredict,
-    _evaluatable_language_models._EvaluatableLanguageModel,
-    _CountTokensMixin,
-):
-    # Do not add docstring so that it's inherited from the base class.
-    __name__ = "TextGenerationModel"
-    __module__ = "vertexai.preview.language_models"
-
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
 class _ChatModel(_TextGenerationModel):
@@ -1787,7 +2217,7 @@ class _ChatModelBase(_LanguageModel):
         )
 
 
-class ChatModel(_ChatModelBase, _TunableChatModelMixin):
+class ChatModel(_ChatModelBase, _TunableChatModelMixin, _RlhfTunableModelMixin):
     """ChatModel represents a language model that is capable of chat.
 
     Examples::
@@ -2003,7 +2433,11 @@ class _ChatSessionBase:
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
         grounding_source: Optional[
-            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+            Union[
+                GroundingSource.WebSearch,
+                GroundingSource.VertexAISearch,
+                GroundingSource.InlineContext,
+            ]
         ] = None,
     ) -> _PredictionRequest:
         """Prepares a request for the language model.
@@ -2156,7 +2590,11 @@ class _ChatSessionBase:
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
         grounding_source: Optional[
-            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+            Union[
+                GroundingSource.WebSearch,
+                GroundingSource.VertexAISearch,
+                GroundingSource.InlineContext,
+            ]
         ] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Sends message to the language model and gets a response.
@@ -2219,7 +2657,11 @@ class _ChatSessionBase:
         stop_sequences: Optional[List[str]] = None,
         candidate_count: Optional[int] = None,
         grounding_source: Optional[
-            Union[GroundingSource.WebSearch, GroundingSource.VertexAISearch]
+            Union[
+                GroundingSource.WebSearch,
+                GroundingSource.VertexAISearch,
+                GroundingSource.InlineContext,
+            ]
         ] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously sends message to the language model and gets a response.
@@ -2977,6 +3419,58 @@ _TUNING_LOCATIONS = _SUPPORTED_LOCATIONS
 # Currently, deployment can only work in these locations
 _TUNED_MODEL_LOCATIONS = _SUPPORTED_LOCATIONS
 
+# TODO(b/318874365): Use _SUPPORTED_LOCATIONS defined above once DRZ for RLHF is
+# implemented.
+_SUPPORTED_RLHF_LOCATIONS = {
+    "us-central1",
+    "europe-west4",
+}
+
+# All models supported by RLHF that can also be used for online and batch prediction:
+_SUPPORTED_RLHF_MODELS = {
+    "text-bison@001",
+    "chat-bison@001",
+}
+
+
+def _get_invalid_tuning_location_msg(
+    requested_location: str, valid_locations: Sequence[str]
+) -> str:
+    """Constructs error message when user requests an invalid tuning location.
+
+    Args:
+        requested_location: Invalid location requested by a user.
+        valid_locations: All locations supported by the tuning method.
+
+    Returns:
+        User-facing error message.
+
+    """
+    return (
+        f"Tuning is not supported in `{requested_location}`."
+        "Please specify a valid tuning_job_location from the following "
+        f"supported regions: {valid_locations}"
+    )
+
+
+def _get_invalid_rlhf_model_msg(
+    requested_model: str,
+) -> str:
+    """Constructs error message when user tries to tune an unsupported model.
+
+    Args:
+        requested_model: Invalid model requested by a user.
+        valid_models: All models supported by the tuning method.
+
+    Returns:
+        User-facing error message.
+
+    """
+    return (
+        f"Model {requested_model} does not support tuning with RLHF. "
+        f"Please use one of the supported models: {_SUPPORTED_RLHF_MODELS}."
+    )
+
 
 class _LanguageModelTuningJob:
     """LanguageModelTuningJob represents a fine-tuning job."""
@@ -2996,19 +3490,33 @@ class _LanguageModelTuningJob:
         if self._model:
             return self._model
         self._job.wait()
-        root_pipeline_tasks = [
-            task_detail
-            for task_detail in self._job.gca_resource.job_detail.task_details
-            if task_detail.execution.schema_title == "system.Run"
+
+        # Getting tuned model from the pipeline.
+        model_task = None
+        # Searching for the model uploading task first.
+        # Note: Distillation does not have pipeline outputs yet.
+        upload_model_tasks = [
+            task_info
+            for task_info in self._job.gca_resource.job_detail.task_details
+            if task_info.task_name == "upload-llm-model"
         ]
-        if len(root_pipeline_tasks) != 1:
+        if len(upload_model_tasks) == 1:
+            model_task = upload_model_tasks[0]
+        if not model_task:
+            root_pipeline_tasks = [
+                task_detail
+                for task_detail in self._job.gca_resource.job_detail.task_details
+                if task_detail.execution.schema_title == "system.Run"
+            ]
+            if len(root_pipeline_tasks) == 1:
+                model_task = root_pipeline_tasks[0]
+        if not model_task:
             raise RuntimeError(
                 f"Failed to get the model name from the tuning pipeline: {self._job.name}"
             )
-        root_pipeline_task = root_pipeline_tasks[0]
 
         # Trying to get model name from output parameter
-        vertex_model_name = root_pipeline_task.execution.metadata[
+        vertex_model_name = model_task.execution.metadata[
             "output:model_resource_name"
         ].strip()
         _LOGGER.info(f"Tuning has completed. Created Vertex Model: {vertex_model_name}")
@@ -3060,6 +3568,39 @@ def _generate_tuned_model_dir_uri(model_id: str) -> str:
     return tuned_model_dir_uri
 
 
+def _maybe_upload_training_data(
+    training_data: Union[str, "pandas.core.frame.DataFrame"],
+    model_id: str,
+) -> str:
+    """Uploads training DataFrame to GCS (if necessary) and returns its location.
+
+    Args:
+        training_data: Dataframe to upload, or GCS path if already uploaded.
+        model_id: Model ID used to generate upload URI.
+
+    Returns:
+        GCS dataset URI or name if dataset name was provided.
+
+    Raises:
+        TypeError: If training data is not a string or DataFrame.
+    """
+    if isinstance(training_data, str):
+        return training_data
+    elif pandas and isinstance(training_data, pandas.DataFrame):
+        output_dir_uri = _generate_tuned_model_dir_uri(model_id=model_id)
+        dataset_uri = _uri_join(output_dir_uri, "training_data.jsonl")
+
+        gcs_utils._upload_pandas_df_to_gcs(
+            df=training_data, upload_gcs_path=dataset_uri
+        )
+        return dataset_uri
+    else:
+        raise TypeError(
+            f"Unsupported training_data type: {type(training_data)}. "
+            "Must be a string or pandas DataFrame."
+        )
+
+
 def _launch_tuning_job(
     training_data: Union[str, "pandas.core.frame.DataFrame"],
     model_id: str,
@@ -3069,18 +3610,9 @@ def _launch_tuning_job(
     tuned_model_location: str,
     model_display_name: Optional[str] = None,
 ) -> aiplatform.PipelineJob:
-    output_dir_uri = _generate_tuned_model_dir_uri(model_id=model_id)
-    if isinstance(training_data, str):
-        dataset_name_or_uri = training_data
-    elif pandas and isinstance(training_data, pandas.DataFrame):
-        dataset_uri = _uri_join(output_dir_uri, "training_data.jsonl")
-
-        gcs_utils._upload_pandas_df_to_gcs(
-            df=training_data, upload_gcs_path=dataset_uri
-        )
-        dataset_name_or_uri = dataset_uri
-    else:
-        raise TypeError(f"Unsupported training_data type: {type(training_data)}")
+    dataset_name_or_uri = _maybe_upload_training_data(
+        training_data=training_data, model_id=model_id
+    )
 
     if not model_display_name:
         # Creating a human-readable model display name
@@ -3138,6 +3670,21 @@ def _launch_tuning_job(
     return job
 
 
+def _launch_rlhf_tuning_job(
+    tuning_parameters: _RlhfTuningParameters,
+    tuning_pipeline_uri: str = _DEFAULT_RLHF_TUNING_PIPELINE_URI,
+) -> aiplatform.PipelineJob:
+    job = aiplatform.PipelineJob(
+        template_path=tuning_pipeline_uri,
+        display_name=None,
+        parameter_values=tuning_parameters.asdict(),
+        # TODO(b/275444101): Remove the explicit location once model can be deployed in all regions
+        location=tuning_parameters.location,
+    )
+    job.submit()
+    return job
+
+
 def _uri_join(uri: str, path_fragment: str) -> str:
     """Appends path fragment to URI.
 
@@ -3145,3 +3692,23 @@ def _uri_join(uri: str, path_fragment: str) -> str:
     """
 
     return uri.rstrip("/") + "/" + path_fragment.lstrip("/")
+
+
+# Importing here to prevent issues caused by circular references
+# pylint: disable=g-import-not-at-top,g-bad-import-order
+from vertexai.language_models import _distillation
+
+
+class _PreviewTextGenerationModel(
+    _TextGenerationModel,
+    _PreviewTunableTextModelMixin,
+    _PreviewModelWithBatchPredict,
+    _evaluatable_language_models._EvaluatableLanguageModel,
+    _CountTokensMixin,
+    _distillation.DistillationMixin,
+):
+    # Do not add docstring so that it's inherited from the base class.
+    __name__ = "TextGenerationModel"
+    __module__ = "vertexai.preview.language_models"
+
+    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE

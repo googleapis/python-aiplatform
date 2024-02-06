@@ -52,7 +52,7 @@ class _TensorBoardTracker:
     ):
         """upload only the existing data in the logdir and then return immediately
 
-        ```
+        ```py
         Sample usage:
         aiplatform.init(location='us-central1', project='my-project')
         aiplatform.upload_tb_log(tensorboard_id='123',tensorboard_experiment_name='my-experiment',logdir='my-logdir')
@@ -104,12 +104,22 @@ class _TensorBoardTracker:
         description: Optional[str] = None,
         allowed_plugins: Optional[FrozenSet[str]] = None,
     ):
-        """continues to listen for new data in the logdir and uploads when it appears.
+        """Continues to listen for new data in the logdir and uploads when it appears.
 
-        ```
+        Note that after calling `start_upload_tb_log()` your thread will kept alive even if
+        an exception is thrown. To ensure the thread gets shut down, put any code after
+        `start_upload_tb_log()` and before `end_upload_tb_log()` in a `try` statement, and call
+        `end_upload_tb_log()` in `finally`.
+
+        ```py
         Sample usage:
         aiplatform.init(location='us-central1', project='my-project')
         aiplatform.start_upload_tb_log(tensorboard_id='123',tensorboard_experiment_name='my-experiment',logdir='my-logdir')
+
+        try:
+          # your code here
+        finally:
+          aiplatform.end_upload_tb_log()
         ```
 
         Args:
@@ -154,7 +164,7 @@ class _TensorBoardTracker:
     def end_upload_tb_log(self):
         """Ends the current TensorBoard uploader
 
-        ```
+        ```py
         aiplatform.start_upload_tb_log(...)
         ...
         aiplatform.end_upload_tb_log()
@@ -224,24 +234,23 @@ class _TensorBoardTracker:
                 project, location, tensorboard_id
             )
         else:
-            if _experiment_tracker._global_tensorboard:
+            if _experiment_tracker._get_global_tensorboard():
                 tensorboard_resource_name = (
-                    _experiment_tracker._global_tensorboard.resource_name
+                    _experiment_tracker._get_global_tensorboard().resource_name
                 )
-            else:
-                if _experiment_tracker._experiment:
-                    if _experiment_tracker._experiment._lookup_backing_tensorboard():
-                        tensorboard_resource_name = (
-                            _experiment_tracker._experiment._lookup_backing_tensorboard().resource_name
-                        )
-                    else:
-                        raise ValueError(
-                            f"No TensorBoard associated with experiment {initializer.global_config.experiment_name}. Please provide tensorboard_id in the argument."
-                        )
+            elif _experiment_tracker._experiment:
+                if _experiment_tracker._experiment._lookup_backing_tensorboard():
+                    tensorboard_resource_name = (
+                        _experiment_tracker._experiment._lookup_backing_tensorboard().resource_name
+                    )
                 else:
                     raise ValueError(
-                        "No TensorBoard found. Please provide tensorboard_id in the argument."
+                        f"No TensorBoard associated with experiment {initializer.global_config.experiment_name}. Please provide tensorboard_id in the argument."
                     )
+            else:
+                raise ValueError(
+                    "No TensorBoard found. Please provide tensorboard_id in the argument."
+                )
 
         api_client = initializer.global_config.create_client(
             client_class=TensorboardClientWithOverride,
@@ -255,11 +264,12 @@ class _TensorBoardTracker:
         )
 
         plugins = uploader_constants.ALLOWED_PLUGINS
-        plugins += [
-            plugin
-            for plugin in allowed_plugins
-            if plugin not in uploader_constants.ALLOWED_PLUGINS
-        ]
+        if allowed_plugins:
+            plugins += [
+                plugin
+                for plugin in allowed_plugins
+                if plugin not in uploader_constants.ALLOWED_PLUGINS
+            ]
 
         tensorboard_uploader = TensorBoardUploader(
             experiment_name=tensorboard_experiment_name,

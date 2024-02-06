@@ -349,8 +349,10 @@ class ExportDataResponse(proto.Message):
 
     Attributes:
         exported_files (MutableSequence[str]):
-            All of the files that are exported in this
-            export operation.
+            All of the files that are exported in this export operation.
+            For custom code training export, only three (training,
+            validation and test) Cloud Storage paths in wildcard format
+            are populated (for example, gs://.../training-*).
     """
 
     exported_files: MutableSequence[str] = proto.RepeatedField(
