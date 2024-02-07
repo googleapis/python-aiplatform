@@ -37,7 +37,7 @@ MAX_VARINT64_LENGTH_BYTES = 10
 DEFAULT_MIN_SCALAR_REQUEST_INTERVAL = 10
 
 # Default maximum WriteTensorbordRunData request size in bytes.
-DEFAULT_MAX_SCALAR_REQUEST_SIZE = 128 * (2**10)  # 128KiB
+DEFAULT_MAX_SCALAR_REQUEST_SIZE = 32 * (2**10)  # 128KiB
 
 # Default minimum interval between initiating WriteTensorbordRunData RPCs in
 # milliseconds.
