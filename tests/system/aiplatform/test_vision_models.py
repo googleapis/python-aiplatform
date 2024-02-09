@@ -38,6 +38,12 @@ def _create_blank_image(
         return vision_models.Image.load_from_file(image_path)
 
 
+def _load_image_from_gcs(
+    gcs_uri: str = "gs://cloud-samples-data/vertex-ai/llm/prompts/landmark1.png",
+) -> vision_models.Image:
+    return vision_models.Image.load_from_file(gcs_uri)
+
+
 class VisionModelTestSuite(e2e_base.TestEndToEnd):
     """System tests for vision models."""
 
@@ -76,6 +82,22 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             "multimodalembedding@001"
         )
         image = _create_blank_image()
+        embeddings = model.get_embeddings(
+            image=image,
+            # Optional:
+            contextual_text="this is a car",
+        )
+        # The service is expected to return the embeddings of size 1408
+        assert len(embeddings.image_embedding) == 1408
+        assert len(embeddings.text_embedding) == 1408
+
+    def test_multi_modal_embedding_model_with_gcs_uri(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = ga_vision_models.MultiModalEmbeddingModel.from_pretrained(
+            "multimodalembedding@001"
+        )
+        image = _load_image_from_gcs()
         embeddings = model.get_embeddings(
             image=image,
             # Optional:
