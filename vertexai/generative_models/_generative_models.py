@@ -1896,6 +1896,10 @@ class _TunableGenerativeModelMixin:
         return job
 
 
+class GenerativeModel(_GenerativeModel):
+    __module__ = "vertexai.generative_models"
+
+
 class _PreviewGenerativeModel(_GenerativeModel, _TunableGenerativeModelMixin):
     __name__ = "GenerativeModel"
     __module__ = "vertexai.preview.generative_models"
