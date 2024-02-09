@@ -30,6 +30,7 @@ from typing import (
     Type,
     Union,
 )
+import warnings
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer as aiplatform_initializer
@@ -320,93 +321,6 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
-        stream: bool = False,
-    ) -> Union["GenerationResponse", Iterable["GenerationResponse"],]:
-        """Generates content.
-
-        Args:
-            contents: Contents to send to the model.
-                Supports either a list of Content objects (passing a multi-turn conversation)
-                or a value that can be converted to a single Content object (passing a single message).
-                Supports
-                * str, Image, Part,
-                * List[Union[str, Image, Part]],
-                * List[Content]
-            generation_config: Parameters for the generation.
-            safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
-            tools: A list of tools (functions) that the model can try calling.
-            stream: Whether to stream the response.
-
-        Returns:
-            A single GenerationResponse object if stream == False
-            A stream of GenerationResponse objects if stream == True
-        """
-        if stream:
-            # TODO(b/315810992): Surface prompt_feedback on the returned stream object
-            return self._generate_content_streaming(
-                contents=contents,
-                generation_config=generation_config,
-                safety_settings=safety_settings,
-                tools=tools,
-            )
-        else:
-            return self._generate_content(
-                contents=contents,
-                generation_config=generation_config,
-                safety_settings=safety_settings,
-                tools=tools,
-            )
-
-    async def generate_content_async(
-        self,
-        contents: ContentsType,
-        *,
-        generation_config: Optional[GenerationConfigType] = None,
-        safety_settings: Optional[SafetySettingsType] = None,
-        tools: Optional[List["Tool"]] = None,
-        stream: bool = False,
-    ) -> Union["GenerationResponse", AsyncIterable["GenerationResponse"],]:
-        """Generates content asynchronously.
-
-        Args:
-            contents: Contents to send to the model.
-                Supports either a list of Content objects (passing a multi-turn conversation)
-                or a value that can be converted to a single Content object (passing a single message).
-                Supports
-                * str, Image, Part,
-                * List[Union[str, Image, Part]],
-                * List[Content]
-            generation_config: Parameters for the generation.
-            safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
-            tools: A list of tools (functions) that the model can try calling.
-            stream: Whether to stream the response.
-
-        Returns:
-            An awaitable for a single GenerationResponse object if stream == False
-            An awaitable for a stream of GenerationResponse objects if stream == True
-        """
-        if stream:
-            return await self._generate_content_streaming_async(
-                contents=contents,
-                generation_config=generation_config,
-                safety_settings=safety_settings,
-                tools=tools,
-            )
-        else:
-            return await self._generate_content_async(
-                contents=contents,
-                generation_config=generation_config,
-                safety_settings=safety_settings,
-                tools=tools,
-            )
-
-    def _generate_content(
-        self,
-        contents: ContentsType,
-        *,
-        generation_config: Optional[GenerationConfigType] = None,
-        safety_settings: Optional[SafetySettingsType] = None,
-        tools: Optional[List["Tool"]] = None,
     ) -> "GenerationResponse":
         """Generates content.
 
@@ -434,7 +348,7 @@ class _GenerativeModel:
         gapic_response = self._prediction_client.generate_content(request=request)
         return self._parse_response(gapic_response)
 
-    async def _generate_content_async(
+    async def generate_content_async(
         self,
         contents: ContentsType,
         *,
@@ -470,7 +384,7 @@ class _GenerativeModel:
         )
         return self._parse_response(gapic_response)
 
-    def _generate_content_streaming(
+    def generate_content_stream(
         self,
         contents: ContentsType,
         *,
@@ -507,7 +421,7 @@ class _GenerativeModel:
         for chunk in response_stream:
             yield self._parse_response(chunk)
 
-    async def _generate_content_streaming_async(
+    async def generate_content_stream_async(
         self,
         contents: ContentsType,
         *,
@@ -660,97 +574,6 @@ class ChatSession:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
-        stream: bool = False,
-    ) -> Union["GenerationResponse", Iterable["GenerationResponse"]]:
-        """Generates content.
-
-        Args:
-            content: Content to send to the model.
-                Supports a value that can be converted to a Part or a list of such values.
-                Supports
-                * str, Image, Part,
-                * List[Union[str, Image, Part]],
-            generation_config: Parameters for the generation.
-            safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
-            tools: A list of tools (functions) that the model can try calling.
-            stream: Whether to stream the response.
-
-        Returns:
-            A single GenerationResponse object if stream == False
-            A stream of GenerationResponse objects if stream == True
-
-        Raises:
-            ResponseBlockedError: If the response was blocked.
-        """
-        if stream:
-            return self._send_message_streaming(
-                content=content,
-                generation_config=generation_config,
-                safety_settings=safety_settings,
-                tools=tools,
-            )
-        else:
-            return self._send_message(
-                content=content,
-                generation_config=generation_config,
-                safety_settings=safety_settings,
-                tools=tools,
-            )
-
-    def send_message_async(
-        self,
-        content: PartsType,
-        *,
-        generation_config: Optional[GenerationConfigType] = None,
-        safety_settings: Optional[SafetySettingsType] = None,
-        tools: Optional[List["Tool"]] = None,
-        stream: bool = False,
-    ) -> Union[
-        Awaitable["GenerationResponse"],
-        Awaitable[AsyncIterable["GenerationResponse"]],
-    ]:
-        """Generates content asynchronously.
-
-        Args:
-            content: Content to send to the model.
-                Supports a value that can be converted to a Part or a list of such values.
-                Supports
-                * str, Image, Part,
-                * List[Union[str, Image, Part]],
-            generation_config: Parameters for the generation.
-            safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
-            tools: A list of tools (functions) that the model can try calling.
-            stream: Whether to stream the response.
-
-        Returns:
-            An awaitable for a single GenerationResponse object if stream == False
-            An awaitable for a stream of GenerationResponse objects if stream == True
-
-        Raises:
-            ResponseBlockedError: If the response was blocked.
-        """
-        if stream:
-            return self._send_message_streaming_async(
-                content=content,
-                generation_config=generation_config,
-                safety_settings=safety_settings,
-                tools=tools,
-            )
-        else:
-            return self._send_message_async(
-                content=content,
-                generation_config=generation_config,
-                safety_settings=safety_settings,
-                tools=tools,
-            )
-
-    def _send_message(
-        self,
-        content: PartsType,
-        *,
-        generation_config: Optional[GenerationConfigType] = None,
-        safety_settings: Optional[SafetySettingsType] = None,
-        tools: Optional[List["Tool"]] = None,
     ) -> "GenerationResponse":
         """Generates content.
 
@@ -777,7 +600,7 @@ class ChatSession:
         request_history = list(self._history)
         request_history.append(request_message)
 
-        response = self._model._generate_content(
+        response = self._model.generate_content(
             contents=request_history,
             generation_config=generation_config,
             safety_settings=safety_settings,
@@ -800,7 +623,7 @@ class ChatSession:
         self._history.append(response_message)
         return response
 
-    async def _send_message_async(
+    async def send_message_async(
         self,
         content: PartsType,
         *,
@@ -834,7 +657,7 @@ class ChatSession:
         request_history = list(self._history)
         request_history.append(request_message)
 
-        response = await self._model._generate_content_async(
+        response = await self._model.generate_content_async(
             contents=request_history,
             generation_config=generation_config,
             safety_settings=safety_settings,
@@ -856,7 +679,7 @@ class ChatSession:
         self._history.append(response_message)
         return response
 
-    def _send_message_streaming(
+    def send_message_stream(
         self,
         content: PartsType,
         *,
@@ -890,7 +713,7 @@ class ChatSession:
         request_history = list(self._history)
         request_history.append(request_message)
 
-        stream = self._model._generate_content_streaming(
+        stream = self._model.generate_content_stream(
             contents=request_history,
             generation_config=generation_config,
             safety_settings=safety_settings,
@@ -923,7 +746,7 @@ class ChatSession:
         self._history.append(request_message)
         self._history.append(response_message)
 
-    async def _send_message_streaming_async(
+    async def send_message_stream_async(
         self,
         content: PartsType,
         *,
@@ -956,7 +779,7 @@ class ChatSession:
         request_history = list(self._history)
         request_history.append(request_message)
 
-        stream = await self._model._generate_content_streaming_async(
+        stream = await self._model.generate_content_stream_async(
             contents=request_history,
             generation_config=generation_config,
             safety_settings=safety_settings,
@@ -1900,6 +1723,230 @@ class GenerativeModel(_GenerativeModel):
     __module__ = "vertexai.generative_models"
 
 
-class _PreviewGenerativeModel(_GenerativeModel, _TunableGenerativeModelMixin):
+class _PreviewGenerativeModelBase(_GenerativeModel):
+    __doc__ = _GenerativeModel.__doc__
+
+    def generate_content(
+        self,
+        contents: ContentsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: bool = False,
+    ) -> Union["GenerationResponse", Iterable["GenerationResponse"],]:
+        """Generates content.
+
+        Args:
+            contents: Contents to send to the model.
+                Supports either a list of Content objects (passing a multi-turn conversation)
+                or a value that can be converted to a single Content object (passing a single message).
+                Supports
+                * str, Image, Part,
+                * List[Union[str, Image, Part]],
+                * List[Content]
+            generation_config: Parameters for the generation.
+            safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
+            tools: A list of tools (functions) that the model can try calling.
+            stream: Whether to stream the response.
+
+        Returns:
+            A single GenerationResponse object if stream == False
+            A stream of GenerationResponse objects if stream == True
+        """
+        if stream:
+            warnings.warn(
+                "Please use `generate_content_stream` instead of `stream=True`",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            # TODO(b/315810992): Surface prompt_feedback on the returned stream object
+            return super().generate_content_stream(
+                contents=contents,
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+                tools=tools,
+            )
+        else:
+            return super().generate_content(
+                contents=contents,
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+                tools=tools,
+            )
+
+    async def generate_content_async(
+        self,
+        contents: ContentsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: bool = False,
+    ) -> Union["GenerationResponse", AsyncIterable["GenerationResponse"],]:
+        """Generates content asynchronously.
+
+        Args:
+            contents: Contents to send to the model.
+                Supports either a list of Content objects (passing a multi-turn conversation)
+                or a value that can be converted to a single Content object (passing a single message).
+                Supports
+                * str, Image, Part,
+                * List[Union[str, Image, Part]],
+                * List[Content]
+            generation_config: Parameters for the generation.
+            safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
+            tools: A list of tools (functions) that the model can try calling.
+            stream: Whether to stream the response.
+
+        Returns:
+            An awaitable for a single GenerationResponse object if stream == False
+            An awaitable for a stream of GenerationResponse objects if stream == True
+        """
+        if stream:
+            warnings.warn(
+                "Please use `generate_content_stream_async` instead of `stream=True`",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            return await super().generate_content_stream_async(
+                contents=contents,
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+                tools=tools,
+            )
+        else:
+            return await super().generate_content_async(
+                contents=contents,
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+                tools=tools,
+            )
+
+    def start_chat(
+        self,
+        *,
+        history: Optional[List["Content"]] = None,
+    ) -> "_PreviewChatSession":
+        """Creates a stateful chat session.
+
+        Args:
+            history: Previous history to initialize the chat session.
+
+        Returns:
+            A ChatSession object.
+        """
+        return _PreviewChatSession(
+            model=self,
+            history=history,
+        )
+
+
+class _PreviewChatSession(ChatSession):
+    __doc__ = ChatSession.__doc__
+
+    def send_message(
+        self,
+        content: PartsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: bool = False,
+    ) -> Union["GenerationResponse", Iterable["GenerationResponse"]]:
+        """Generates content.
+
+        Args:
+            content: Content to send to the model.
+                Supports a value that can be converted to a Part or a list of such values.
+                Supports
+                * str, Image, Part,
+                * List[Union[str, Image, Part]],
+            generation_config: Parameters for the generation.
+            safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
+            tools: A list of tools (functions) that the model can try calling.
+            stream: Whether to stream the response.
+
+        Returns:
+            A single GenerationResponse object if stream == False
+            A stream of GenerationResponse objects if stream == True
+
+        Raises:
+            ResponseBlockedError: If the response was blocked.
+        """
+        if stream:
+            warnings.warn(
+                "Please use `send_message_stream` instead of `stream=True`",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            return super().send_message_stream(
+                content=content,
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+                tools=tools,
+            )
+        else:
+            return super().send_message(
+                content=content,
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+                tools=tools,
+            )
+
+    def send_message_async(
+        self,
+        content: PartsType,
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+        tools: Optional[List["Tool"]] = None,
+        stream: bool = False,
+    ) -> Union[
+        Awaitable["GenerationResponse"],
+        Awaitable[AsyncIterable["GenerationResponse"]],
+    ]:
+        """Generates content asynchronously.
+
+        Args:
+            content: Content to send to the model.
+                Supports a value that can be converted to a Part or a list of such values.
+                Supports
+                * str, Image, Part,
+                * List[Union[str, Image, Part]],
+            generation_config: Parameters for the generation.
+            safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
+            tools: A list of tools (functions) that the model can try calling.
+            stream: Whether to stream the response.
+
+        Returns:
+            An awaitable for a single GenerationResponse object if stream == False
+            An awaitable for a stream of GenerationResponse objects if stream == True
+
+        Raises:
+            ResponseBlockedError: If the response was blocked.
+        """
+        if stream:
+            warnings.warn(
+                "Please use `send_message_stream_async` instead of `stream=True`",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            return super().send_message_stream_async(
+                content=content,
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+                tools=tools,
+            )
+        else:
+            return super().send_message_async(
+                content=content,
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+                tools=tools,
+            )
+
+
+class _PreviewGenerativeModel(_PreviewGenerativeModelBase, _TunableGenerativeModelMixin):
     __name__ = "GenerativeModel"
     __module__ = "vertexai.preview.generative_models"

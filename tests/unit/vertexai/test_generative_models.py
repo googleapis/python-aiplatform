@@ -265,7 +265,28 @@ class TestGenerativeModels:
     )
     def test_generate_content_streaming(self, generative_models: generative_models):
         model = generative_models.GenerativeModel("gemini-pro")
-        stream = model.generate_content("Why is sky blue?", stream=True)
+        stream = model.generate_content_stream("Why is sky blue?")
+        for chunk in stream:
+            assert chunk.text
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="stream_generate_content",
+        new=mock_stream_generate_content,
+    )
+    def test_generate_content_preview_deprecated_stream_parameter(self):
+        model = preview_generative_models.GenerativeModel("gemini-pro")
+
+        response = model.generate_content("Why is sky blue?", stream=False)
+        assert response.text
+
+        with pytest.deprecated_call():
+            stream = model.generate_content("Why is sky blue?", stream=True)
         for chunk in stream:
             assert chunk.text
 
