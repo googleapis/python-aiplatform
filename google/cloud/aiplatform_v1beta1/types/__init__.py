@@ -36,9 +36,12 @@ from .content import (
     Content,
     FileData,
     GenerationConfig,
+    GroundingAttribution,
+    GroundingMetadata,
     Part,
     SafetyRating,
     SafetySetting,
+    Segment,
     VideoMetadata,
     HarmCategory,
 )
@@ -631,6 +634,9 @@ from .pipeline_job import (
     PipelineTemplateMetadata,
 )
 from .pipeline_service import (
+    BatchCancelPipelineJobsOperationMetadata,
+    BatchCancelPipelineJobsRequest,
+    BatchCancelPipelineJobsResponse,
     BatchDeletePipelineJobsRequest,
     BatchDeletePipelineJobsResponse,
     CancelPipelineJobRequest,
@@ -690,6 +696,7 @@ from .schedule_service import (
 )
 from .service_networking import (
     PrivateServiceConnectConfig,
+    PscAutomatedEndpoints,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -784,7 +791,10 @@ from .tool import (
     FunctionCall,
     FunctionDeclaration,
     FunctionResponse,
+    GoogleSearchRetrieval,
+    Retrieval,
     Tool,
+    VertexAISearch,
 )
 from .training_pipeline import (
     FilterSplit,
@@ -850,9 +860,12 @@ __all__ = (
     "Content",
     "FileData",
     "GenerationConfig",
+    "GroundingAttribution",
+    "GroundingMetadata",
     "Part",
     "SafetyRating",
     "SafetySetting",
+    "Segment",
     "VideoMetadata",
     "HarmCategory",
     "Context",
@@ -1315,6 +1328,9 @@ __all__ = (
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
     "PipelineTemplateMetadata",
+    "BatchCancelPipelineJobsOperationMetadata",
+    "BatchCancelPipelineJobsRequest",
+    "BatchCancelPipelineJobsResponse",
     "BatchDeletePipelineJobsRequest",
     "BatchDeletePipelineJobsResponse",
     "CancelPipelineJobRequest",
@@ -1363,6 +1379,7 @@ __all__ = (
     "ResumeScheduleRequest",
     "UpdateScheduleRequest",
     "PrivateServiceConnectConfig",
+    "PscAutomatedEndpoints",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
@@ -1437,7 +1454,10 @@ __all__ = (
     "FunctionCall",
     "FunctionDeclaration",
     "FunctionResponse",
+    "GoogleSearchRetrieval",
+    "Retrieval",
     "Tool",
+    "VertexAISearch",
     "FilterSplit",
     "FractionSplit",
     "InputDataConfig",

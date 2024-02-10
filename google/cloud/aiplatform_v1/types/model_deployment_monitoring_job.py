@@ -373,6 +373,10 @@ class ModelDeploymentMonitoringBigQueryTable(proto.Message):
             The created BigQuery table to store logs. Customer could do
             their own query & analysis. Format:
             ``bq://<project_id>.model_deployment_monitoring_<endpoint_id>.<tolower(log_source)>_<tolower(log_type)>``
+        request_response_logging_schema_version (str):
+            Output only. The schema version of the
+            request/response logging BigQuery table. Default
+            to v1 if unset.
     """
 
     class LogSource(proto.Enum):
@@ -418,6 +422,10 @@ class ModelDeploymentMonitoringBigQueryTable(proto.Message):
     bigquery_table_path: str = proto.Field(
         proto.STRING,
         number=3,
+    )
+    request_response_logging_schema_version: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 

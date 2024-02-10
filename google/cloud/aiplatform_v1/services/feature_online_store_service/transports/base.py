@@ -136,6 +136,11 @@ class FeatureOnlineStoreServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.search_nearest_entities: gapic_v1.method.wrap_method(
+                self.search_nearest_entities,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -155,6 +160,18 @@ class FeatureOnlineStoreServiceTransport(abc.ABC):
         Union[
             feature_online_store_service.FetchFeatureValuesResponse,
             Awaitable[feature_online_store_service.FetchFeatureValuesResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def search_nearest_entities(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.SearchNearestEntitiesRequest],
+        Union[
+            feature_online_store_service.SearchNearestEntitiesResponse,
+            Awaitable[feature_online_store_service.SearchNearestEntitiesResponse],
         ],
     ]:
         raise NotImplementedError()

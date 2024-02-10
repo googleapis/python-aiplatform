@@ -265,6 +265,38 @@ class FeatureOnlineStoreServiceGrpcAsyncIOTransport(FeatureOnlineStoreServiceTra
             )
         return self._stubs["fetch_feature_values"]
 
+    @property
+    def search_nearest_entities(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.SearchNearestEntitiesRequest],
+        Awaitable[feature_online_store_service.SearchNearestEntitiesResponse],
+    ]:
+        r"""Return a callable for the search nearest entities method over gRPC.
+
+        Search the nearest entities under a FeatureView.
+        Search only works for indexable feature view; if a
+        feature view isn't indexable, returns Invalid argument
+        response.
+
+        Returns:
+            Callable[[~.SearchNearestEntitiesRequest],
+                    Awaitable[~.SearchNearestEntitiesResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "search_nearest_entities" not in self._stubs:
+            self._stubs["search_nearest_entities"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.FeatureOnlineStoreService/SearchNearestEntities",
+                request_serializer=feature_online_store_service.SearchNearestEntitiesRequest.serialize,
+                response_deserializer=feature_online_store_service.SearchNearestEntitiesResponse.deserialize,
+            )
+        return self._stubs["search_nearest_entities"]
+
     def close(self):
         return self.grpc_channel.close()
 

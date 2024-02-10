@@ -30,6 +30,10 @@ __protobuf__ = proto.module(
         "FeatureViewDataKey",
         "FetchFeatureValuesRequest",
         "FetchFeatureValuesResponse",
+        "NearestNeighborQuery",
+        "SearchNearestEntitiesRequest",
+        "NearestNeighbors",
+        "SearchNearestEntitiesResponse",
     },
 )
 
@@ -179,6 +183,245 @@ class FetchFeatureValuesResponse(proto.Message):
         number=2,
         oneof="format",
         message=struct_pb2.Struct,
+    )
+
+
+class NearestNeighborQuery(proto.Message):
+    r"""A query to find a number of similar entities.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        entity_id (str):
+            Optional. The entity id whose similar entities should be
+            searched for. If embedding is set, search will use embedding
+            instead of entity_id.
+
+            This field is a member of `oneof`_ ``instance``.
+        embedding (google.cloud.aiplatform_v1.types.NearestNeighborQuery.Embedding):
+            Optional. The embedding vector that be used
+            for similar search.
+
+            This field is a member of `oneof`_ ``instance``.
+        neighbor_count (int):
+            Optional. The number of similar entities to
+            be retrieved from feature view for each query.
+        string_filters (MutableSequence[google.cloud.aiplatform_v1.types.NearestNeighborQuery.StringFilter]):
+            Optional. The list of string filters.
+        per_crowding_attribute_neighbor_count (int):
+            Optional. Crowding is a constraint on a neighbor list
+            produced by nearest neighbor search requiring that no more
+            than sper_crowding_attribute_neighbor_count of the k
+            neighbors returned have the same value of
+            crowding_attribute. It's used for improving result
+            diversity.
+        parameters (google.cloud.aiplatform_v1.types.NearestNeighborQuery.Parameters):
+            Optional. Parameters that can be set to tune
+            query on the fly.
+    """
+
+    class Embedding(proto.Message):
+        r"""The embedding vector.
+
+        Attributes:
+            value (MutableSequence[float]):
+                Optional. Individual value in the embedding.
+        """
+
+        value: MutableSequence[float] = proto.RepeatedField(
+            proto.FLOAT,
+            number=1,
+        )
+
+    class StringFilter(proto.Message):
+        r"""String filter is used to search a subset of the entities by using
+        boolean rules on string columns. For example: if a query specifies
+        string filter with 'name = color, allow_tokens = {red, blue},
+        deny_tokens = {purple}',' then that query will match entities that
+        are red or blue, but if those points are also purple, then they will
+        be excluded even if they are red/blue. Only string filter is
+        supported for now, numeric filter will be supported in the near
+        future.
+
+        Attributes:
+            name (str):
+                Required. Column names in BigQuery that used
+                as filters.
+            allow_tokens (MutableSequence[str]):
+                Optional. The allowed tokens.
+            deny_tokens (MutableSequence[str]):
+                Optional. The denied tokens.
+        """
+
+        name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        allow_tokens: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=2,
+        )
+        deny_tokens: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=3,
+        )
+
+    class Parameters(proto.Message):
+        r"""Parameters that can be overrided in each query to tune query
+        latency and recall.
+
+        Attributes:
+            approximate_neighbor_candidates (int):
+                Optional. The number of neighbors to find via approximate
+                search before exact reordering is performed; if set, this
+                value must be > neighbor_count.
+            leaf_nodes_search_fraction (float):
+                Optional. The fraction of the number of
+                leaves to search, set at query time allows user
+                to tune search performance. This value increase
+                result in both search accuracy and latency
+                increase. The value should be between 0.0 and
+                1.0.
+        """
+
+        approximate_neighbor_candidates: int = proto.Field(
+            proto.INT32,
+            number=1,
+        )
+        leaf_nodes_search_fraction: float = proto.Field(
+            proto.DOUBLE,
+            number=2,
+        )
+
+    entity_id: str = proto.Field(
+        proto.STRING,
+        number=1,
+        oneof="instance",
+    )
+    embedding: Embedding = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="instance",
+        message=Embedding,
+    )
+    neighbor_count: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    string_filters: MutableSequence[StringFilter] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=StringFilter,
+    )
+    per_crowding_attribute_neighbor_count: int = proto.Field(
+        proto.INT32,
+        number=5,
+    )
+    parameters: Parameters = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=Parameters,
+    )
+
+
+class SearchNearestEntitiesRequest(proto.Message):
+    r"""The request message for
+    [FeatureOnlineStoreService.SearchNearestEntities][google.cloud.aiplatform.v1.FeatureOnlineStoreService.SearchNearestEntities].
+
+    Attributes:
+        feature_view (str):
+            Required. FeatureView resource format
+            ``projects/{project}/locations/{location}/featureOnlineStores/{featureOnlineStore}/featureViews/{featureView}``
+        query (google.cloud.aiplatform_v1.types.NearestNeighborQuery):
+            Required. The query.
+        return_full_entity (bool):
+            Optional. If set to true, the full entities
+            (including all vector values and metadata) of
+            the nearest neighbors are returned; otherwise
+            only entity id of the nearest neighbors will be
+            returned. Note that returning full entities will
+            significantly increase the latency and cost of
+            the query.
+    """
+
+    feature_view: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    query: "NearestNeighborQuery" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="NearestNeighborQuery",
+    )
+    return_full_entity: bool = proto.Field(
+        proto.BOOL,
+        number=3,
+    )
+
+
+class NearestNeighbors(proto.Message):
+    r"""Nearest neighbors for one query.
+
+    Attributes:
+        neighbors (MutableSequence[google.cloud.aiplatform_v1.types.NearestNeighbors.Neighbor]):
+            All its neighbors.
+    """
+
+    class Neighbor(proto.Message):
+        r"""A neighbor of the query vector.
+
+        Attributes:
+            entity_id (str):
+                The id of the similar entity.
+            distance (float):
+                The distance between the neighbor and the
+                query vector.
+            entity_key_values (google.cloud.aiplatform_v1.types.FetchFeatureValuesResponse):
+                The attributes of the neighbor, e.g. filters, crowding and
+                metadata Note that full entities are returned only when
+                "return_full_entity" is set to true. Otherwise, only the
+                "entity_id" and "distance" fields are populated.
+        """
+
+        entity_id: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        distance: float = proto.Field(
+            proto.DOUBLE,
+            number=2,
+        )
+        entity_key_values: "FetchFeatureValuesResponse" = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            message="FetchFeatureValuesResponse",
+        )
+
+    neighbors: MutableSequence[Neighbor] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=Neighbor,
+    )
+
+
+class SearchNearestEntitiesResponse(proto.Message):
+    r"""Response message for
+    [FeatureOnlineStoreService.SearchNearestEntities][google.cloud.aiplatform.v1.FeatureOnlineStoreService.SearchNearestEntities]
+
+    Attributes:
+        nearest_neighbors (google.cloud.aiplatform_v1.types.NearestNeighbors):
+            The nearest neighbors of the query entity.
+    """
+
+    nearest_neighbors: "NearestNeighbors" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="NearestNeighbors",
     )
 
 

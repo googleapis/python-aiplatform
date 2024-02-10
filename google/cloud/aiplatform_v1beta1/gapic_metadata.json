@@ -1468,11 +1468,6 @@
               "methods": [
                 "compute_tokens"
               ]
-            },
-            "CountTokens": {
-              "methods": [
-                "count_tokens"
-              ]
             }
           }
         },
@@ -1482,11 +1477,6 @@
             "ComputeTokens": {
               "methods": [
                 "compute_tokens"
-              ]
-            },
-            "CountTokens": {
-              "methods": [
-                "count_tokens"
               ]
             }
           }
@@ -2192,6 +2182,11 @@
         "grpc": {
           "libraryClient": "PipelineServiceClient",
           "rpcs": {
+            "BatchCancelPipelineJobs": {
+              "methods": [
+                "batch_cancel_pipeline_jobs"
+              ]
+            },
             "BatchDeletePipelineJobs": {
               "methods": [
                 "batch_delete_pipeline_jobs"
@@ -2252,6 +2247,11 @@
         "grpc-async": {
           "libraryClient": "PipelineServiceAsyncClient",
           "rpcs": {
+            "BatchCancelPipelineJobs": {
+              "methods": [
+                "batch_cancel_pipeline_jobs"
+              ]
+            },
             "BatchDeletePipelineJobs": {
               "methods": [
                 "batch_delete_pipeline_jobs"

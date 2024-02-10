@@ -362,8 +362,8 @@ def test__validate_universe_domain(client_class, transport_class, transport_name
     # TODO: This is needed to cater for older versions of google-auth
     # Make this test unconditional once the minimum supported version of
     # google-auth becomes 2.23.0 or higher.
-    google_auth_major, google_auth_minor, _ = [
-        int(part) for part in google.auth.__version__.split(".")
+    google_auth_major, google_auth_minor = [
+        int(part) for part in google.auth.__version__.split(".")[0:2]
     ]
     if google_auth_major > 2 or (google_auth_major == 2 and google_auth_minor >= 23):
         credentials = ga_credentials.AnonymousCredentials()
@@ -381,8 +381,8 @@ def test__validate_universe_domain(client_class, transport_class, transport_name
         #
         # TODO: Make this test unconditional once the minimum supported version of
         # google-api-core becomes 2.15.0 or higher.
-        api_core_major, api_core_minor, _ = [
-            int(part) for part in api_core_version.__version__.split(".")
+        api_core_major, api_core_minor = [
+            int(part) for part in api_core_version.__version__.split(".")[0:2]
         ]
         if api_core_major > 2 or (api_core_major == 2 and api_core_minor >= 15):
             client = client_class(
@@ -1411,6 +1411,165 @@ async def test_fetch_feature_values_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_online_store_service.SearchNearestEntitiesRequest,
+        dict,
+    ],
+)
+def test_search_nearest_entities(request_type, transport: str = "grpc"):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_online_store_service.SearchNearestEntitiesResponse()
+        response = client.search_nearest_entities(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_service.SearchNearestEntitiesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, feature_online_store_service.SearchNearestEntitiesResponse
+    )
+
+
+def test_search_nearest_entities_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        client.search_nearest_entities()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_service.SearchNearestEntitiesRequest()
+
+
+@pytest.mark.asyncio
+async def test_search_nearest_entities_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_online_store_service.SearchNearestEntitiesRequest,
+):
+    client = FeatureOnlineStoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_online_store_service.SearchNearestEntitiesResponse()
+        )
+        response = await client.search_nearest_entities(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_service.SearchNearestEntitiesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, feature_online_store_service.SearchNearestEntitiesResponse
+    )
+
+
+@pytest.mark.asyncio
+async def test_search_nearest_entities_async_from_dict():
+    await test_search_nearest_entities_async(request_type=dict)
+
+
+def test_search_nearest_entities_field_headers():
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_online_store_service.SearchNearestEntitiesRequest()
+
+    request.feature_view = "feature_view_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        call.return_value = feature_online_store_service.SearchNearestEntitiesResponse()
+        client.search_nearest_entities(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "feature_view=feature_view_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_search_nearest_entities_field_headers_async():
+    client = FeatureOnlineStoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_online_store_service.SearchNearestEntitiesRequest()
+
+    request.feature_view = "feature_view_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_online_store_service.SearchNearestEntitiesResponse()
+        )
+        await client.search_nearest_entities(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "feature_view=feature_view_value",
+    ) in kw["metadata"]
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.FeatureOnlineStoreServiceGrpcTransport(
@@ -1549,6 +1708,7 @@ def test_feature_online_store_service_base_transport():
     # raise NotImplementedError.
     methods = (
         "fetch_feature_values",
+        "search_nearest_entities",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
