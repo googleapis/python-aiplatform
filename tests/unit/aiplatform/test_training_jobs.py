@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from distutils import core
+
 import copy
 import os
 import functools
