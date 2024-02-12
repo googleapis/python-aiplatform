@@ -18,7 +18,6 @@
 import os
 import uuid
 import pytest
-import sys
 import importlib
 
 import pandas as pd
@@ -29,9 +28,8 @@ from datetime import datetime
 from google.api_core import exceptions
 from google.api_core import client_options
 
-from google.cloud import bigquery
-
 from google.cloud import aiplatform
+from google.cloud import bigquery
 from google.cloud import storage
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
@@ -42,11 +40,6 @@ from google.cloud.aiplatform.compat.services import (
 from test_utils.vpcsc_config import vpcsc_config
 
 from tests.system.aiplatform import e2e_base
-
-if sys.version_info >= (3, 8):
-    from importlib import metadata
-else:
-    import importlib_metadata as metadata
 
 _TEST_PROJECT = e2e_base._PROJECT
 _TEST_LOCATION = e2e_base._LOCATION
@@ -307,7 +300,7 @@ class TestDataset(e2e_base.TestEndToEnd):
                 == bigquery.SchemaField(name="datetime_col", field_type="DATETIME")
                 if re.match(
                     r"3.*",
-                    metadata.version("google-cloud-bigquery"),
+                    bigquery.__version__,
                 )
                 else bigquery.SchemaField(name="datetime_col", field_type="TIMESTAMP")
             )

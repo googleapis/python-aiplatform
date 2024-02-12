@@ -21,7 +21,6 @@ import inspect
 import logging
 import os
 import types
-import sys
 from typing import Iterator, List, Optional, Type, TypeVar, Union
 
 from google.api_core import client_options
@@ -30,6 +29,7 @@ import google.auth
 from google.auth import credentials as auth_credentials
 from google.auth.exceptions import GoogleAuthError
 
+from google.cloud.aiplatform import __version__
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
@@ -42,11 +42,6 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec_v1 as gca_encryption_spec_v1,
     encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
 )
-
-if sys.version_info >= (3, 8):
-    from importlib import metadata as importlib_metadata
-else:
-    import importlib_metadata
 
 _TVertexAiServiceClientWithOverride = TypeVar(
     "_TVertexAiServiceClientWithOverride",
@@ -452,7 +447,7 @@ class _Config:
         Returns:
             client: Instantiated Vertex AI Service client with optional overrides
         """
-        gapic_version = importlib_metadata.version("google-cloud-aiplatform")
+        gapic_version = __version__
 
         if appended_gapic_version:
             gapic_version = f"{gapic_version}+{appended_gapic_version}"
