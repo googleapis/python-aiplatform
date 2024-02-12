@@ -19,7 +19,6 @@
 from concurrent import futures
 import inspect
 import logging
-import pkg_resources  # noqa: F401 # Note this is used after copybara replacement
 import os
 import types
 from typing import Iterator, List, Optional, Type, TypeVar, Union
@@ -30,6 +29,7 @@ import google.auth
 from google.auth import credentials as auth_credentials
 from google.auth.exceptions import GoogleAuthError
 
+from google.cloud.aiplatform import __version__
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
@@ -447,9 +447,7 @@ class _Config:
         Returns:
             client: Instantiated Vertex AI Service client with optional overrides
         """
-        gapic_version = pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version
+        gapic_version = __version__
 
         if appended_gapic_version:
             gapic_version = f"{gapic_version}+{appended_gapic_version}"

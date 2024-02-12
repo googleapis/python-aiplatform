@@ -21,7 +21,6 @@ import pytest
 import importlib
 
 import pandas as pd
-import pkg_resources
 import re
 
 from datetime import datetime
@@ -29,9 +28,8 @@ from datetime import datetime
 from google.api_core import exceptions
 from google.api_core import client_options
 
-from google.cloud import bigquery
-
 from google.cloud import aiplatform
+from google.cloud import bigquery
 from google.cloud import storage
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
@@ -302,7 +300,7 @@ class TestDataset(e2e_base.TestEndToEnd):
                 == bigquery.SchemaField(name="datetime_col", field_type="DATETIME")
                 if re.match(
                     r"3.*",
-                    pkg_resources.get_distribution("google-cloud-bigquery").version,
+                    bigquery.__version__,
                 )
                 else bigquery.SchemaField(name="datetime_col", field_type="TIMESTAMP")
             )
