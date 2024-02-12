@@ -23,7 +23,7 @@ import pytest
 from google import auth
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
-from vertexai.preview import generative_models
+from vertexai import generative_models
 
 
 class TestGenerativeModels(e2e_base.TestEndToEnd):
@@ -97,6 +97,9 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         assert response.text
 
+    @pytest.mark.skip(
+        reason="Breaking change in the gemini-pro-vision model. See b/315803556#comment3"
+    )
     def test_generate_content_from_remote_image(self):
         vision_model = generative_models.GenerativeModel("gemini-pro-vision")
         image_part = generative_models.Part.from_uri(

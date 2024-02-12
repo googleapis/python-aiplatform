@@ -387,7 +387,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
 
 class ModelMonitoringAlertConfig(proto.Message):
-    r"""
+    r"""The alert config for model monitoring.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 

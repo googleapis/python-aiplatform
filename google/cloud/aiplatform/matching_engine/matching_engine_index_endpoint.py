@@ -51,10 +51,13 @@ class MatchNeighbor:
             Required. The id of the neighbor.
         distance (float):
             Required. The distance to the query embedding.
+        feature_vector (List(float)):
+            Optional. The feature vector of the matching datapoint.
     """
 
     id: str
     distance: float
+    feature_vector: Optional[List[float]] = None
 
 
 @dataclass
@@ -1185,7 +1188,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self,
         *,
         deployed_index_id: str,
-        queries: List[List[float]],
+        queries: Optional[List[List[float]]] = None,
         num_neighbors: int = 10,
         filter: Optional[List[Namespace]] = None,
         per_crowding_attribute_neighbor_count: Optional[int] = None,
@@ -1193,6 +1196,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         fraction_leaf_nodes_to_search_override: Optional[float] = None,
         return_full_datapoint: bool = False,
         numeric_filter: Optional[List[NumericNamespace]] = None,
+        embedding_ids: Optional[List[str]] = None,
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the
         specified deployed index which is deployed to either public or private
@@ -1243,11 +1247,18 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Note that returning full datapoint will significantly increase the
                 latency and cost of the query.
 
-            numeric_filter (Optional[list[NumericNamespace]]):
+            numeric_filter (list[NumericNamespace]):
                 Optional. A list of NumericNamespaces for filtering the matching
                 results. For example:
                 [NumericNamespace(name="cost", value_int=5, op="GREATER")]
                 will match datapoints that its cost is greater than 5.
+
+            embedding_ids (str):
+               Optional. If `queries` is set, will use `queries` to do nearest
+               neighbor search. If `queries` isn't set, will first use
+               `embedding_ids` to lookup embedding values from dataset, if embedding
+               with `embedding_ids` exists in the dataset, do nearest neighbor search.
+
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
         """
@@ -1262,7 +1273,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 per_crowding_attribute_num_neighbors=per_crowding_attribute_neighbor_count,
                 approx_num_neighbors=approx_num_neighbors,
                 fraction_leaf_nodes_to_search_override=fraction_leaf_nodes_to_search_override,
-                return_full_datapoint=return_full_datapoint,
+                numeric_filter=numeric_filter,
             )
 
         # Create the FindNeighbors request
@@ -1271,42 +1282,50 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         find_neighbors_request.deployed_index_id = deployed_index_id
         find_neighbors_request.return_full_datapoint = return_full_datapoint
 
-        for query in queries:
-            find_neighbors_query = (
-                gca_match_service_v1beta1.FindNeighborsRequest.Query()
+        # Token restricts
+        restricts = []
+        if filter:
+            for namespace in filter:
+                restrict = gca_index_v1beta1.IndexDatapoint.Restriction()
+                restrict.namespace = namespace.name
+                restrict.allow_list.extend(namespace.allow_tokens)
+                restrict.deny_list.extend(namespace.deny_tokens)
+                restricts.append(restrict)
+        # Numeric restricts
+        numeric_restricts = []
+        if numeric_filter:
+            for numeric_namespace in numeric_filter:
+                numeric_restrict = gca_index_v1beta1.IndexDatapoint.NumericRestriction()
+                numeric_restrict.namespace = numeric_namespace.name
+                numeric_restrict.op = numeric_namespace.op
+                numeric_restrict.value_int = numeric_namespace.value_int
+                numeric_restrict.value_float = numeric_namespace.value_float
+                numeric_restrict.value_double = numeric_namespace.value_double
+                numeric_restricts.append(numeric_restrict)
+        # Queries
+        query_by_id = False if queries else True
+        queries = queries if queries else embedding_ids
+        if queries:
+            for query in queries:
+                find_neighbors_query = gca_match_service_v1beta1.FindNeighborsRequest.Query(
+                    neighbor_count=num_neighbors,
+                    per_crowding_attribute_neighbor_count=per_crowding_attribute_neighbor_count,
+                    approximate_neighbor_count=approx_num_neighbors,
+                    fraction_leaf_nodes_to_search_override=fraction_leaf_nodes_to_search_override,
+                )
+                datapoint = gca_index_v1beta1.IndexDatapoint(
+                    datapoint_id=query if query_by_id else None,
+                    feature_vector=None if query_by_id else query,
+                )
+                datapoint.restricts.extend(restricts)
+                datapoint.numeric_restricts.extend(numeric_restricts)
+                find_neighbors_query.datapoint = datapoint
+                find_neighbors_request.queries.append(find_neighbors_query)
+        else:
+            raise ValueError(
+                "To find neighbors using matching engine,"
+                "please specify `queries` or `embedding_ids`"
             )
-            find_neighbors_query.neighbor_count = num_neighbors
-            find_neighbors_query.per_crowding_attribute_neighbor_count = (
-                per_crowding_attribute_neighbor_count
-            )
-            find_neighbors_query.approximate_neighbor_count = approx_num_neighbors
-            find_neighbors_query.fraction_leaf_nodes_to_search_override = (
-                fraction_leaf_nodes_to_search_override
-            )
-            datapoint = gca_index_v1beta1.IndexDatapoint(feature_vector=query)
-            # Token restricts
-            if filter:
-                for namespace in filter:
-                    restrict = gca_index_v1beta1.IndexDatapoint.Restriction()
-                    restrict.namespace = namespace.name
-                    restrict.allow_list.extend(namespace.allow_tokens)
-                    restrict.deny_list.extend(namespace.deny_tokens)
-                    datapoint.restricts.append(restrict)
-            # Numeric restricts
-            if numeric_filter:
-                for numeric_namespace in numeric_filter:
-                    numeric_restrict = (
-                        gca_index_v1beta1.IndexDatapoint.NumericRestriction()
-                    )
-                    numeric_restrict.namespace = numeric_namespace.name
-                    numeric_restrict.op = numeric_namespace.op
-                    numeric_restrict.value_int = numeric_namespace.value_int
-                    numeric_restrict.value_float = numeric_namespace.value_float
-                    numeric_restrict.value_double = numeric_namespace.value_double
-                    datapoint.numeric_restricts.append(numeric_restrict)
-
-            find_neighbors_query.datapoint = datapoint
-            find_neighbors_request.queries.append(find_neighbors_query)
 
         response = self._public_match_client.find_neighbors(find_neighbors_request)
 
@@ -1314,7 +1333,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         return [
             [
                 MatchNeighbor(
-                    id=neighbor.datapoint.datapoint_id, distance=neighbor.distance
+                    id=neighbor.datapoint.datapoint_id,
+                    distance=neighbor.distance,
+                    feature_vector=neighbor.datapoint.feature_vector,
                 )
                 for neighbor in embedding_neighbors.neighbors
             ]
@@ -1429,13 +1450,14 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
     def match(
         self,
         deployed_index_id: str,
-        queries: Optional[List[List[float]]] = None,
+        queries: List[List[float]] = None,
         num_neighbors: int = 1,
         filter: Optional[List[Namespace]] = None,
         per_crowding_attribute_num_neighbors: Optional[int] = None,
         approx_num_neighbors: Optional[int] = None,
         fraction_leaf_nodes_to_search_override: Optional[float] = None,
-        return_full_datapoint: bool = False,
+        low_level_batch_size: int = 0,
+        numeric_filter: Optional[List[NumericNamespace]] = None,
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the
         specified deployed index for private endpoint only.
@@ -1467,11 +1489,18 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 query time allows user to tune search performance. This value
                 increase result in both search accuracy and latency increase.
                 The value should be between 0.0 and 1.0.
-            return_full_datapoint (bool):
-                Optional. If set to true, the full datapoints (including all
-                vector values and of the nearest neighbors are returned.
-                Note that returning full datapoint will significantly increase the
-                latency and cost of the query.
+            low_level_batch_size (int):
+                Optional. Selects the optimal batch size to use for low-level
+                batching. Queries within each low level batch are executed
+                sequentially while low level batches are executed in parallel.
+                This field is optional, defaults to 0 if not set. A non-positive
+                number disables low level batching, i.e. all queries are
+                executed sequentially.
+            numeric_filter (Optional[list[NumericNamespace]]):
+                Optional. A list of NumericNamespaces for filtering the matching
+                results. For example:
+                [NumericNamespace(name="cost", value_int=5, op="GREATER")]
+                will match datapoints that its cost is greater than 5.
 
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
@@ -1487,9 +1516,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex()
         )
         batch_request_for_index.deployed_index_id = deployed_index_id
+        batch_request_for_index.low_level_batch_size = low_level_batch_size
 
         # Preprocess restricts to be used for each request
         restricts = []
+        # Token restricts
         if filter:
             for namespace in filter:
                 restrict = match_service_pb2.Namespace()
@@ -1497,6 +1528,22 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 restrict.allow_tokens.extend(namespace.allow_tokens)
                 restrict.deny_tokens.extend(namespace.deny_tokens)
                 restricts.append(restrict)
+        numeric_restricts = []
+        # Numeric restricts
+        if numeric_filter:
+            for numeric_namespace in numeric_filter:
+                numeric_restrict = match_service_pb2.NumericNamespace()
+                numeric_restrict.name = numeric_namespace.name
+                numeric_restrict.op = match_service_pb2.NumericNamespace.Operator.Value(
+                    numeric_namespace.op
+                )
+                if numeric_namespace.value_int is not None:
+                    numeric_restrict.value_int = numeric_namespace.value_int
+                if numeric_namespace.value_float is not None:
+                    numeric_restrict.value_float = numeric_namespace.value_float
+                if numeric_namespace.value_double is not None:
+                    numeric_restrict.value_double = numeric_namespace.value_double
+                numeric_restricts.append(numeric_restrict)
 
         requests = []
         if queries:
@@ -1509,9 +1556,14 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                     per_crowding_attribute_num_neighbors=per_crowding_attribute_num_neighbors,
                     approx_num_neighbors=approx_num_neighbors,
                     fraction_leaf_nodes_to_search_override=fraction_leaf_nodes_to_search_override,
-                    embedding_enabled=return_full_datapoint,
+                    numeric_restricts=numeric_restricts,
                 )
                 requests.append(request)
+        else:
+            raise ValueError(
+                "To find neighbors using matching engine,"
+                "please specify `queries` or `embedding_ids`"
+            )
 
         batch_request_for_index.requests.extend(requests)
         batch_request.requests.append(batch_request_for_index)
@@ -1522,8 +1574,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         # Wrap the results in MatchNeighbor objects and return
         return [
             [
-                MatchNeighbor(id=neighbor.id, distance=neighbor.distance)
-                for neighbor in embedding_neighbors.neighbor
+                MatchNeighbor(
+                    id=embedding_neighbors.neighbor[i].id,
+                    distance=embedding_neighbors.neighbor[i].distance,
+                )
+                for i in range(len(embedding_neighbors.neighbor))
             ]
             for embedding_neighbors in response.responses[0].responses
         ]

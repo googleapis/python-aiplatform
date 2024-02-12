@@ -1284,7 +1284,7 @@ class BigframeSerializer(serializers_base.Serializer):
         """
         # Set default kwarg values
         batch_size = batch_size or DEFAULT_TENSORFLOW_BATCHSIZE
-        target_col = target_col.encode("ASCII") or b"target"
+        target_col = target_col.encode("ASCII") if target_col else b"target"
 
         # Deserialization at remote environment
         try:

@@ -577,10 +577,15 @@ from .types.prediction_service import GenerateContentResponse
 from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
+from .types.prediction_service import StreamDirectPredictRequest
+from .types.prediction_service import StreamDirectPredictResponse
+from .types.prediction_service import StreamDirectRawPredictRequest
+from .types.prediction_service import StreamDirectRawPredictResponse
 from .types.prediction_service import StreamingPredictRequest
 from .types.prediction_service import StreamingPredictResponse
 from .types.prediction_service import StreamingRawPredictRequest
 from .types.prediction_service import StreamingRawPredictResponse
+from .types.prediction_service import StreamRawPredictRequest
 from .types.publisher_model import PublisherModel
 from .types.saved_query import SavedQuery
 from .types.schedule import Schedule
@@ -1271,6 +1276,11 @@ __all__ = (
     "SpecialistPoolServiceClient",
     "StopTrialRequest",
     "StratifiedSplit",
+    "StreamDirectPredictRequest",
+    "StreamDirectPredictResponse",
+    "StreamDirectRawPredictRequest",
+    "StreamDirectRawPredictResponse",
+    "StreamRawPredictRequest",
     "StreamingPredictRequest",
     "StreamingPredictResponse",
     "StreamingRawPredictRequest",

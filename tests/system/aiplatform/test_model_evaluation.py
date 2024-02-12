@@ -121,7 +121,8 @@ class TestModelEvaluationJob(e2e_base.TestEndToEnd):
 
         model_eval = eval_job.get_model_evaluation()
 
-        shared_state["resources"].append(model_eval)
+        # ModelEvaluation.delete() has not been implemented yet
+        # shared_state["resources"].append(model_eval)
 
         eval_metrics_dict = dict(model_eval.metrics)
 

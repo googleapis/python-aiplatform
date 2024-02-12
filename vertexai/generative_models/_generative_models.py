@@ -294,7 +294,7 @@ class _GenerativeModel:
                 elif isinstance(tool, Tool):
                     gapic_tools.append(tool._raw_tool)
                 else:
-                    raise TypeError("Unexpected tool type: {tool}.")
+                    raise TypeError(f"Unexpected tool type: {tool}.")
 
         return gapic_prediction_service_types.GenerateContentRequest(
             # The `model` parameter now needs to be set for the vision models.
@@ -431,15 +431,7 @@ class _GenerativeModel:
             safety_settings=safety_settings,
             tools=tools,
         )
-        # generate_content is not available
-        # gapic_response = self._prediction_client.generate_content(request=request)
-        gapic_response = None
-        stream = self._prediction_client.stream_generate_content(request=request)
-        for gapic_chunk in stream:
-            if gapic_response:
-                _append_gapic_response(gapic_response, gapic_chunk)
-            else:
-                gapic_response = gapic_chunk
+        gapic_response = self._prediction_client.generate_content(request=request)
         return self._parse_response(gapic_response)
 
     async def _generate_content_async(
@@ -473,17 +465,9 @@ class _GenerativeModel:
             safety_settings=safety_settings,
             tools=tools,
         )
-        # generate_content is not available
-        # gapic_response = await self._prediction_async_client.generate_content(request=request)
-        gapic_response = None
-        stream = await self._prediction_async_client.stream_generate_content(
+        gapic_response = await self._prediction_async_client.generate_content(
             request=request
         )
-        async for gapic_chunk in stream:
-            if gapic_response:
-                _append_gapic_response(gapic_response, gapic_chunk)
-            else:
-                gapic_response = gapic_chunk
         return self._parse_response(gapic_response)
 
     def _generate_content_streaming(
@@ -1116,14 +1100,14 @@ class Tool:
         ```
         Use tool in chat:
         ```
-        fc_model = GenerativeModel(
+        model = GenerativeModel(
             "gemini-pro",
             # You can specify tools when creating a model to avoid having to send them with every request.
             tools=[weather_tool],
         )
-        fc_chat = fc_model.start_chat()
-        print(fc_chat.send_message("What is the weather like in Boston?"))
-        print(fc_chat.send_message(
+        chat = model.start_chat()
+        print(chat.send_message("What is the weather like in Boston?"))
+        print(chat.send_message(
             Part.from_function_response(
                 name="get_current_weather",
                 response={
@@ -1216,14 +1200,14 @@ class FunctionDeclaration:
         ```
         Use tool in chat:
         ```
-        fc_model = GenerativeModel(
+        model = GenerativeModel(
             "gemini-pro",
             # You can specify tools when creating a model to avoid having to send them with every request.
             tools=[weather_tool],
         )
-        fc_chat = model.start_chat()
-        print(fc_chat.send_message("What is the weather like in Boston?"))
-        print(fc_chat.send_message(
+        chat = model.start_chat()
+        print(chat.send_message("What is the weather like in Boston?"))
+        print(chat.send_message(
             Part.from_function_response(
                 name="get_current_weather",
                 response={
@@ -1910,6 +1894,10 @@ class _TunableGenerativeModelMixin:
             job=pipeline_job,
         )
         return job
+
+
+class GenerativeModel(_GenerativeModel):
+    __module__ = "vertexai.generative_models"
 
 
 class _PreviewGenerativeModel(_GenerativeModel, _TunableGenerativeModelMixin):

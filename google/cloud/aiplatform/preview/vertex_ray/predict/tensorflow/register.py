@@ -18,6 +18,7 @@
 #
 import os
 import logging
+import ray
 from typing import Callable, Optional, Union, TYPE_CHECKING
 
 from google.cloud import aiplatform
@@ -133,4 +134,11 @@ def _get_tensorflow_model_from(
             " Checkpoint to framework specific model does NOT support"
             " preprocessing. The model will be exported without preprocessors."
         )
-    return checkpoint.get_model(model)
+    if ray.__version__ == "2.4.0":
+        return checkpoint.get_model(model)
+
+    # get_model() signature changed in future versions
+    try:
+        return checkpoint.get_model()
+    except AttributeError:
+        raise RuntimeError("Unsupported Ray version.")

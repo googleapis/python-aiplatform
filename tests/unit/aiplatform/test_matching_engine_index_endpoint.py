@@ -230,20 +230,27 @@ _TEST_QUERIES = [
         -0.021106,
     ]
 ]
+_TEST_QUERY_IDS = ["1", "2"]
 _TEST_NUM_NEIGHBOURS = 1
 _TEST_FILTER = [
     Namespace(name="class", allow_tokens=["token_1"], deny_tokens=["token_2"])
 ]
 _TEST_NUMERIC_FILTER = [
     NumericNamespace(name="cost", value_double=0.3, op="EQUAL"),
-    NumericNamespace(name="size", value_int=10, op="GREATER"),
-    NumericNamespace(name="seconds", value_float=20.5, op="LESS_EQUAL"),
+    NumericNamespace(name="size", value_int=0, op="GREATER"),
+    NumericNamespace(name="seconds", value_float=-20.5, op="LESS_EQUAL"),
+]
+_TEST_NUMERIC_NAMESPACE = [
+    match_service_pb2.NumericNamespace(name="cost", value_double=0.3, op=3),
+    match_service_pb2.NumericNamespace(name="size", value_int=0, op=5),
+    match_service_pb2.NumericNamespace(name="seconds", value_float=-20.5, op=2),
 ]
 _TEST_IDS = ["123", "456", "789"]
 _TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS = 3
 _TEST_APPROX_NUM_NEIGHBORS = 2
 _TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE = 0.8
 _TEST_RETURN_FULL_DATAPOINT = True
+_TEST_LOW_LEVEL_BATCH_SIZE = 3
 _TEST_ENCRYPTION_SPEC_KEY_NAME = "kms_key_name"
 _TEST_PROJECT_ALLOWLIST = ["project-1", "project-2"]
 _TEST_PRIVATE_SERVICE_CONNECT_IP_ADDRESS = "10.128.0.5"
@@ -1043,7 +1050,7 @@ class TestMatchingEngineIndexEndpoint:
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
-    def test_private_index_endpoint_match_queries(
+    def test_private_service_access_service_access_index_endpoint_match_queries(
         self, index_endpoint_match_queries_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
@@ -1060,13 +1067,15 @@ class TestMatchingEngineIndexEndpoint:
             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
             fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
-            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+            low_level_batch_size=_TEST_LOW_LEVEL_BATCH_SIZE,
+            numeric_filter=_TEST_NUMERIC_FILTER,
         )
 
         batch_request = match_service_pb2.BatchMatchRequest(
             requests=[
                 match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
                     deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    low_level_batch_size=_TEST_LOW_LEVEL_BATCH_SIZE,
                     requests=[
                         match_service_pb2.MatchRequest(
                             num_neighbors=_TEST_NUM_NEIGHBOURS,
@@ -1082,7 +1091,7 @@ class TestMatchingEngineIndexEndpoint:
                             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
                             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
                             fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
-                            embedding_enabled=_TEST_RETURN_FULL_DATAPOINT,
+                            numeric_restricts=_TEST_NUMERIC_NAMESPACE,
                         )
                         for i in range(len(_TEST_QUERIES))
                     ],
@@ -1093,7 +1102,7 @@ class TestMatchingEngineIndexEndpoint:
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
-    def test_private_index_endpoint_find_neighbor_queries(
+    def test_index_private_service_access_endpoint_find_neighbor_queries(
         self, index_endpoint_match_queries_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
@@ -1111,6 +1120,7 @@ class TestMatchingEngineIndexEndpoint:
             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
             fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
             return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+            numeric_filter=_TEST_NUMERIC_FILTER,
         )
 
         batch_match_request = match_service_pb2.BatchMatchRequest(
@@ -1132,7 +1142,7 @@ class TestMatchingEngineIndexEndpoint:
                             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
                             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
                             fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
-                            embedding_enabled=_TEST_RETURN_FULL_DATAPOINT,
+                            numeric_restricts=_TEST_NUMERIC_NAMESPACE,
                         )
                         for test_query in _TEST_QUERIES
                     ],
@@ -1239,6 +1249,56 @@ class TestMatchingEngineIndexEndpoint:
         )
 
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
+    def test_index_public_endpoint_find_neiggbor_query_by_id(
+        self, index_public_endpoint_match_queries_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_pubic_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_pubic_index_endpoint.find_neighbors(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+            embedding_ids=_TEST_QUERY_IDS,
+        )
+
+        find_neighbors_request = gca_match_service_v1beta1.FindNeighborsRequest(
+            index_endpoint=my_pubic_index_endpoint.resource_name,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=[
+                gca_match_service_v1beta1.FindNeighborsRequest.Query(
+                    neighbor_count=_TEST_NUM_NEIGHBOURS,
+                    datapoint=gca_index_v1beta1.IndexDatapoint(
+                        datapoint_id=_TEST_QUERY_IDS[i],
+                        restricts=[
+                            gca_index_v1beta1.IndexDatapoint.Restriction(
+                                namespace="class",
+                                allow_list=["token_1"],
+                                deny_list=["token_2"],
+                            )
+                        ],
+                    ),
+                    per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                    approximate_neighbor_count=_TEST_APPROX_NUM_NEIGHBORS,
+                    fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                )
+                for i in range(len(_TEST_QUERY_IDS))
+            ],
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+        )
+
+        index_public_endpoint_match_queries_mock.assert_called_with(
+            find_neighbors_request
+        )
+
+    @pytest.mark.usefixtures("get_index_public_endpoint_mock")
     def test_index_public_endpoint_match_queries_with_numeric_filtering(
         self, index_public_endpoint_match_queries_mock
     ):
@@ -1280,10 +1340,10 @@ class TestMatchingEngineIndexEndpoint:
                                 namespace="cost", value_double=0.3, op="EQUAL"
                             ),
                             gca_index_v1beta1.IndexDatapoint.NumericRestriction(
-                                namespace="size", value_int=10, op="GREATER"
+                                namespace="size", value_int=0, op="GREATER"
                             ),
                             gca_index_v1beta1.IndexDatapoint.NumericRestriction(
-                                namespace="seconds", value_float=20.5, op="LESS_EQUAL"
+                                namespace="seconds", value_float=-20.5, op="LESS_EQUAL"
                             ),
                         ],
                     ),

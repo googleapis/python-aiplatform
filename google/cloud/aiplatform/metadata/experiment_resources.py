@@ -502,7 +502,7 @@ class Experiment:
         """Returns backing tensorboard if one is set.
 
         Returns:
-            Tensorboard resource if one exists.
+            Tensorboard resource if one exists, otherwise returns None.
         """
         tensorboard_resource_name = self._metadata_context.metadata.get(
             constants._BACKING_TENSORBOARD_RESOURCE_KEY
@@ -516,10 +516,16 @@ class Experiment:
             )
 
         if tensorboard_resource_name:
-            return tensorboard_resource.Tensorboard(
-                tensorboard_resource_name,
-                credentials=self._metadata_context.credentials,
-            )
+            try:
+                return tensorboard_resource.Tensorboard(
+                    tensorboard_resource_name,
+                    credentials=self._metadata_context.credentials,
+                )
+            except exceptions.NotFound:
+                self._metadata_context.update(
+                    metadata={constants._BACKING_TENSORBOARD_RESOURCE_KEY: None}
+                )
+        return None
 
     def get_backing_tensorboard_resource(
         self,
