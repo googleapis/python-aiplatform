@@ -23,6 +23,9 @@ import pathlib
 import typing
 from typing import Any, Dict, List, Optional, Union
 
+from google.cloud import storage
+
+from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai._model_garden import _model_garden_models
 
 # pylint: disable=g-import-not-at-top
@@ -45,30 +48,59 @@ class Image:
 
     __module__ = "vertexai.vision_models"
 
-    _image_bytes: bytes
+    _loaded_bytes: Optional[bytes] = None
     _loaded_image: Optional["PIL_Image.Image"] = None
+    _gcs_uri: Optional[str] = None
 
-    def __init__(self, image_bytes: bytes):
+    def __init__(
+        self,
+        image_bytes: Optional[bytes] = None,
+        gcs_uri: Optional[str] = None,
+    ):
         """Creates an `Image` object.
 
         Args:
             image_bytes: Image file bytes. Image can be in PNG or JPEG format.
+            gcs_uri: Image URI in Google Cloud Storage.
         """
+        if bool(image_bytes) == bool(gcs_uri):
+            raise ValueError("Either image_bytes or gcs_uri must be provided.")
+
         self._image_bytes = image_bytes
+        self._gcs_uri = gcs_uri
 
     @staticmethod
     def load_from_file(location: str) -> "Image":
-        """Loads image from file.
+        """Loads image from local file or Google Cloud Storage.
 
         Args:
-            location: Local path from where to load the image.
+            location: Local path or Google Cloud Storage uri from where to load
+                the image.
 
         Returns:
             Loaded image as an `Image` object.
         """
+        if location.startswith("gs://"):
+            return Image(gcs_uri=location)
+
         image_bytes = pathlib.Path(location).read_bytes()
         image = Image(image_bytes=image_bytes)
         return image
+
+    @property
+    def _image_bytes(self) -> bytes:
+        if self._loaded_bytes is None:
+            storage_client = storage.Client(
+                credentials=aiplatform_initializer.global_config.credentials
+            )
+            self._loaded_bytes = storage.Blob.from_string(
+                uri=self._gcs_uri, client=storage_client
+            ).download_as_bytes()
+        return self._loaded_bytes
+
+    @_image_bytes.setter
+    def _image_bytes(self, value: bytes):
+        self._loaded_bytes = value
 
     @property
     def _pil_image(self) -> "PIL_Image.Image":
@@ -664,7 +696,7 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
               values: `128`, `256`, `512`, and `1408` (default).
 
         Returns:
-            ImageEmbeddingResponse:
+            MultiModalEmbeddingResponse:
                 The image and text embedding vectors.
         """
 
@@ -674,7 +706,10 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
         instance = {}
 
         if image:
-            instance["image"] = {"bytesBase64Encoded": image._as_base64_string()}
+            if image._gcs_uri:
+                instance["image"] = {"gcsUri": image._gcs_uri}
+            else:
+                instance["image"] = {"bytesBase64Encoded": image._as_base64_string()}
 
         if contextual_text:
             instance["text"] = contextual_text
@@ -702,7 +737,7 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
 
 @dataclasses.dataclass
 class MultiModalEmbeddingResponse:
-    """The image embedding response.
+    """The multimodal embedding response.
 
     Attributes:
         image_embedding (List[float]):

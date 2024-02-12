@@ -22,7 +22,8 @@ from unittest import mock
 
 import vertexai
 from google.cloud.aiplatform import initializer
-from vertexai.preview import generative_models
+from vertexai import generative_models
+from vertexai.preview import generative_models as preview_generative_models
 from vertexai.generative_models._generative_models import (
     prediction_service,
     gapic_prediction_service_types,
@@ -231,7 +232,11 @@ class TestGenerativeModels:
         attribute="generate_content",
         new=mock_generate_content,
     )
-    def test_generate_content(self):
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content(self, generative_models: generative_models):
         model = generative_models.GenerativeModel("gemini-pro")
         response = model.generate_content("Why is sky blue?")
         assert response.text
@@ -254,7 +259,11 @@ class TestGenerativeModels:
         attribute="stream_generate_content",
         new=mock_stream_generate_content,
     )
-    def test_generate_content_streaming(self):
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content_streaming(self, generative_models: generative_models):
         model = generative_models.GenerativeModel("gemini-pro")
         stream = model.generate_content("Why is sky blue?", stream=True)
         for chunk in stream:
@@ -265,7 +274,11 @@ class TestGenerativeModels:
         attribute="generate_content",
         new=mock_generate_content,
     )
-    def test_chat_send_message(self):
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_chat_send_message(self, generative_models: generative_models):
         model = generative_models.GenerativeModel("gemini-pro")
         chat = model.start_chat()
         response1 = chat.send_message("Why is sky blue?")
@@ -278,7 +291,11 @@ class TestGenerativeModels:
         attribute="generate_content",
         new=mock_generate_content,
     )
-    def test_chat_function_calling(self):
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_chat_function_calling(self, generative_models: generative_models):
         get_current_weather_func = generative_models.FunctionDeclaration(
             name="get_current_weather",
             description="Get the current weather in a given location",

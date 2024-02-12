@@ -30,6 +30,12 @@ if DEFAULT_VERSION == V1BETA1:
         services.deployment_resource_pool_service_client_v1beta1
     )
     services.endpoint_service_client = services.endpoint_service_client_v1beta1
+    services.feature_online_store_admin_service_client = (
+        services.feature_online_store_admin_service_client_v1beta1
+    )
+    services.feature_online_store_service_client = (
+        services.feature_online_store_service_client_v1beta1
+    )
     services.featurestore_online_serving_service_client = (
         services.featurestore_online_serving_service_client_v1beta1
     )
@@ -79,8 +85,16 @@ if DEFAULT_VERSION == V1BETA1:
     types.explanation = types.explanation_v1beta1
     types.explanation_metadata = types.explanation_metadata_v1beta1
     types.feature = types.feature_v1beta1
+    types.feature_group = types.feature_group_v1beta1
     types.feature_monitoring_stats = types.feature_monitoring_stats_v1beta1
+    types.feature_online_store = types.feature_online_store_v1beta1
+    types.feature_online_store_admin_service = (
+        types.feature_online_store_admin_service_v1beta1
+    )
+    types.feature_online_store_service = types.feature_online_store_service_v1beta1
     types.feature_selector = types.feature_selector_v1beta1
+    types.feature_view = types.feature_view_v1beta1
+    types.feature_view_sync = types.feature_view_sync_v1beta1
     types.featurestore = types.featurestore_v1beta1
     types.featurestore_monitoring = types.featurestore_monitoring_v1beta1
     types.featurestore_online_service = types.featurestore_online_service_v1beta1
@@ -140,6 +154,12 @@ if DEFAULT_VERSION == V1:
 
     services.dataset_service_client = services.dataset_service_client_v1
     services.endpoint_service_client = services.endpoint_service_client_v1
+    services.feature_online_store_admin_service_client = (
+        services.feature_online_store_admin_service_client_v1
+    )
+    services.feature_online_store_service_client = (
+        services.feature_online_store_service_client_v1
+    )
     services.featurestore_online_serving_service_client = (
         services.featurestore_online_serving_service_client_v1
     )
@@ -182,8 +202,16 @@ if DEFAULT_VERSION == V1:
     types.explanation = types.explanation_v1
     types.explanation_metadata = types.explanation_metadata_v1
     types.feature = types.feature_v1
+    types.feature_group = types.feature_group_v1
     types.feature_monitoring_stats = types.feature_monitoring_stats_v1
+    types.feature_online_store = types.feature_online_store_v1
+    types.feature_online_store_admin_service = (
+        types.feature_online_store_admin_service_v1
+    )
+    types.feature_online_store_service = types.feature_online_store_service_v1
     types.feature_selector = types.feature_selector_v1
+    types.feature_view = types.feature_view_v1
+    types.feature_view_sync = types.feature_view_sync_v1
     types.featurestore = types.featurestore_v1
     types.featurestore_online_service = types.featurestore_online_service_v1
     types.featurestore_service = types.featurestore_service_v1

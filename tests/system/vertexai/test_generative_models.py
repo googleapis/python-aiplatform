@@ -23,7 +23,7 @@ import pytest
 from google import auth
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
-from vertexai.preview import generative_models
+from vertexai import generative_models
 
 
 class TestGenerativeModels(e2e_base.TestEndToEnd):
