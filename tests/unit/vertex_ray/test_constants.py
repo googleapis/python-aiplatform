@@ -20,6 +20,7 @@ import dataclasses
 from google.cloud.aiplatform.preview.vertex_ray.util.resources import Cluster
 from google.cloud.aiplatform.preview.vertex_ray.util.resources import (
     Resources,
+    NodeImages,
 )
 from google.cloud.aiplatform_v1beta1.types.machine_resources import DiskSpec
 from google.cloud.aiplatform_v1beta1.types.machine_resources import (
@@ -82,6 +83,7 @@ class ClusterConstants:
     )
     _TEST_CPU_IMAGE = "us-docker.pkg.dev/vertex-ai/training/ray-cpu.2-4.py310:latest"
     _TEST_GPU_IMAGE = "us-docker.pkg.dev/vertex-ai/training/ray-gpu.2-4.py310:latest"
+    _TEST_CUSTOM_IMAGE = "us-docker.pkg.dev/my-project/ray-custom.2-4.py310:latest"
     # RUNNING Persistent Cluster w/o Ray
     _TEST_RESPONSE_NO_RAY_RUNNING = PersistentResource(
         name=_TEST_VERTEX_RAY_PR_ADDRESS,
@@ -127,12 +129,35 @@ class ClusterConstants:
         network=ProjectConstants._TEST_VPC_NETWORK,
         labels=_TEST_LABELS,
     )
+    _TEST_REQUEST_RUNNING_1_POOL_CUSTOM_IMAGES = PersistentResource(
+        resource_pools=[_TEST_RESOURCE_POOL_0],
+        resource_runtime_spec=ResourceRuntimeSpec(
+            ray_spec=RaySpec(resource_pool_images={"head-node": _TEST_CUSTOM_IMAGE}),
+        ),
+        network=ProjectConstants._TEST_VPC_NETWORK,
+    )
     # Get response has generated name, and URIs
     _TEST_RESPONSE_RUNNING_1_POOL = PersistentResource(
         name=_TEST_VERTEX_RAY_PR_ADDRESS,
         resource_pools=[_TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
             ray_spec=RaySpec(resource_pool_images={"head-node": _TEST_GPU_IMAGE}),
+        ),
+        network=ProjectConstants._TEST_VPC_NETWORK,
+        resource_runtime=ResourceRuntime(
+            access_uris={
+                "RAY_DASHBOARD_URI": _TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+                "RAY_HEAD_NODE_INTERNAL_IP": _TEST_VERTEX_RAY_HEAD_NODE_IP,
+            }
+        ),
+        state="RUNNING",
+    )
+    # Get response has generated name, and URIs
+    _TEST_RESPONSE_RUNNING_1_POOL_CUSTOM_IMAGES = PersistentResource(
+        name=_TEST_VERTEX_RAY_PR_ADDRESS,
+        resource_pools=[_TEST_RESOURCE_POOL_0],
+        resource_runtime_spec=ResourceRuntimeSpec(
+            ray_spec=RaySpec(resource_pool_images={"head-node": _TEST_CUSTOM_IMAGE}),
         ),
         network=ProjectConstants._TEST_VPC_NETWORK,
         resource_runtime=ResourceRuntime(
@@ -213,6 +238,7 @@ class ClusterConstants:
         head_node_type=_TEST_HEAD_NODE_TYPE_1_POOL,
         worker_node_types=_TEST_WORKER_NODE_TYPES_1_POOL,
         dashboard_address=_TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+        node_images=NodeImages(head=_TEST_CPU_IMAGE, worker=_TEST_CPU_IMAGE),
     )
     _TEST_CLUSTER_2 = Cluster(
         cluster_resource_name=_TEST_VERTEX_RAY_PR_ADDRESS,
@@ -223,6 +249,7 @@ class ClusterConstants:
         head_node_type=_TEST_HEAD_NODE_TYPE_2_POOLS,
         worker_node_types=_TEST_WORKER_NODE_TYPES_2_POOLS,
         dashboard_address=_TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+        node_images=NodeImages(head=_TEST_CPU_IMAGE, worker=_TEST_GPU_IMAGE),
     )
     _TEST_BEARER_TOKEN = "test-bearer-token"
     _TEST_HEADERS = {

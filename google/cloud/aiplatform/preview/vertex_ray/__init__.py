@@ -34,6 +34,7 @@ from google.cloud.aiplatform.preview.vertex_ray.cluster_init import (
 )
 from google.cloud.aiplatform.preview.vertex_ray.util.resources import (
     Resources,
+    NodeImages,
 )
 
 from google.cloud.aiplatform.preview.vertex_ray.dashboard_sdk import (
@@ -55,4 +56,5 @@ __all__ = (
     "list_ray_clusters",
     "update_ray_cluster",
     "Resources",
+    "NodeImages",
 )
