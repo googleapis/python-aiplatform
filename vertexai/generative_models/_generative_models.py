@@ -15,6 +15,7 @@
 """Classes for working with generative models."""
 # pylint: disable=bad-continuation, line-too-long, protected-access
 
+from google.api_core.exceptions import InvalidArgument
 import copy
 import io
 import pathlib
@@ -431,8 +432,11 @@ class _GenerativeModel:
             safety_settings=safety_settings,
             tools=tools,
         )
-        gapic_response = self._prediction_client.generate_content(request=request)
-        return self._parse_response(gapic_response)
+        try:
+            gapic_response = self._prediction_client.generate_content(request=request)
+            return self._parse_response(gapic_response)
+        except InvalidArgument as e:
+            _maybe_chain_exception_for_non_vision_model(e)
 
     async def _generate_content_async(
         self,
@@ -465,10 +469,13 @@ class _GenerativeModel:
             safety_settings=safety_settings,
             tools=tools,
         )
-        gapic_response = await self._prediction_async_client.generate_content(
-            request=request
-        )
-        return self._parse_response(gapic_response)
+        try:
+            gapic_response = await self._prediction_async_client.generate_content(
+                request=request
+            )
+            return self._parse_response(gapic_response)
+        except InvalidArgument as e:
+            _maybe_chain_exception_for_non_vision_model(e)
 
     def _generate_content_streaming(
         self,
@@ -501,11 +508,14 @@ class _GenerativeModel:
             safety_settings=safety_settings,
             tools=tools,
         )
-        response_stream = self._prediction_client.stream_generate_content(
-            request=request
-        )
-        for chunk in response_stream:
-            yield self._parse_response(chunk)
+        try:
+            response_stream = self._prediction_client.stream_generate_content(
+                request=request
+            )
+            for chunk in response_stream:
+                yield self._parse_response(chunk)
+        except InvalidArgument as e:
+            _maybe_chain_exception_for_non_vision_model(e)
 
     async def _generate_content_streaming_async(
         self,
@@ -538,15 +548,20 @@ class _GenerativeModel:
             safety_settings=safety_settings,
             tools=tools,
         )
-        response_stream = await self._prediction_async_client.stream_generate_content(
-            request=request
-        )
+        try:
+            response_stream = (
+                await self._prediction_async_client.stream_generate_content(
+                    request=request
+                )
+            )
 
-        async def async_generator():
-            async for chunk in response_stream:
-                yield self._parse_response(chunk)
+            async def async_generator():
+                async for chunk in response_stream:
+                    yield self._parse_response(chunk)
 
-        return async_generator()
+            return async_generator()
+        except InvalidArgument as e:
+            _maybe_chain_exception_for_non_vision_model(e)
 
     def count_tokens(
         self, contents: ContentsType
@@ -1654,6 +1669,18 @@ def _append_gapic_part(
         base_part.text += new_part.text
     else:
         base_part._pb = copy.deepcopy(new_part._pb)
+
+
+def _maybe_chain_exception_for_non_vision_model(exception: InvalidArgument):
+    if (
+        exception.message
+        == "Image or video present in the request of a non-vision model."
+    ):
+        raise InvalidArgument(
+            "Non-vision model does not support images/videos. See documentation(https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models) for supported types."
+        ) from exception
+    else:
+        raise exception
 
 
 _FORMAT_TO_MIME_TYPE = {
