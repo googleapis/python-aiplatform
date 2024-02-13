@@ -144,6 +144,8 @@ class Prediction(NamedTuple):
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
         deployed_model_id:
             ID of the Endpoint's DeployedModel that served this prediction.
+        metadata:
+            The metadata that is the output of the predictions call.
         model_version_id:
             ID of the DeployedModel's version that served this prediction.
         model_resource_name:
@@ -155,13 +157,13 @@ class Prediction(NamedTuple):
 
     predictions: List[Any]
     deployed_model_id: str
+    metadata: Optional[Any] = None
     model_version_id: Optional[str] = None
     model_resource_name: Optional[str] = None
     explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
 
 
 class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
-
     client_class = utils.EndpointClientWithOverride
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
@@ -1215,7 +1217,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             _LOGGER.info(f"Using default machine_type: {machine_type}")
 
         if use_dedicated_resources:
-
             dedicated_resources = gca_machine_resources_compat.DedicatedResources(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
@@ -1563,6 +1564,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             json_response = raw_predict_response.json()
             return Prediction(
                 predictions=json_response["predictions"],
+                metadata=json_response["metadata"],
                 deployed_model_id=raw_predict_response.headers[
                     _RAW_PREDICT_DEPLOYED_MODEL_ID_KEY
                 ],
@@ -1580,12 +1582,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 parameters=parameters,
                 timeout=timeout,
             )
+            metadata = json_format.MessageToDict(prediction_response._pb.metadata)
 
             return Prediction(
                 predictions=[
                     json_format.MessageToDict(item)
                     for item in prediction_response.predictions.pb
                 ],
+                metadata=metadata,
                 deployed_model_id=prediction_response.deployed_model_id,
                 model_version_id=prediction_response.model_version_id,
                 model_resource_name=prediction_response.model,
@@ -1639,12 +1643,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             parameters=parameters,
             timeout=timeout,
         )
+        metadata = json_format.MessageToDict(prediction_response._pb.metadata)
 
         return Prediction(
             predictions=[
                 json_format.MessageToDict(item)
                 for item in prediction_response.predictions.pb
             ],
+            metadata=metadata,
             deployed_model_id=prediction_response.deployed_model_id,
             model_version_id=prediction_response.model_version_id,
             model_resource_name=prediction_response.model,
@@ -2290,6 +2296,7 @@ class PrivateEndpoint(Endpoint):
 
         return Prediction(
             predictions=prediction_response.get("predictions"),
+            metadata=prediction_response.get("metadata"),
             deployed_model_id=self._gca_resource.deployed_models[0].id,
         )
 
@@ -2591,7 +2598,6 @@ class PrivateEndpoint(Endpoint):
 
 
 class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
-
     client_class = utils.ModelClientWithOverride
     _resource_noun = "models"
     _getter_method = "get_model"
@@ -2762,7 +2768,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         projects/{project}/locations/{location}/models/{model_id}@{version_id}).
         The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9] to distinguish from
         version_id. A default version alias will be created for the first version
-        of the model, and there must be exactly one default version alias for a model."""
+        of the model, and there must be exactly one default version alias for a model.
+        """
         self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "version_aliases")
 
@@ -5310,7 +5317,6 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         instances_format = None
 
         if gcs_source_uris:
-
             data_file_path_obj = pathlib.Path(gcs_source_uris[0])
 
             data_file_extension = data_file_path_obj.suffix
