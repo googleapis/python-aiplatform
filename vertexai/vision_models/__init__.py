@@ -21,6 +21,9 @@ from vertexai.vision_models._vision_models import (
     ImageTextModel,
     MultiModalEmbeddingModel,
     MultiModalEmbeddingResponse,
+    Video,
+    VideoEmbedding,
+    VideoSegmentConfig,
 )
 
 __all__ = [
@@ -30,4 +33,7 @@ __all__ = [
     "ImageTextModel",
     "MultiModalEmbeddingModel",
     "MultiModalEmbeddingResponse",
+    "Video",
+    "VideoEmbedding",
+    "VideoSegmentConfig",
 ]

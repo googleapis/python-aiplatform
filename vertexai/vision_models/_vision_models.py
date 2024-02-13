@@ -140,6 +140,136 @@ class Image:
         return base64.b64encode(self._image_bytes).decode("ascii")
 
 
+class Video:
+    """Video."""
+
+    __module__ = "vertexai.vision_models"
+
+    _loaded_bytes: Optional[bytes] = None
+    _gcs_uri: Optional[str] = None
+
+    def __init__(
+        self,
+        video_bytes: Optional[bytes] = None,
+        gcs_uri: Optional[str] = None,
+    ):
+        """Creates an `Image` object.
+
+        Args:
+            video_bytes: Video file bytes. Video can be in AVI, FLV, MKV, MOV,
+                MP4, MPEG, MPG, WEBM, and WMV formats.
+            gcs_uri: Image URI in Google Cloud Storage.
+        """
+        if bool(video_bytes) == bool(gcs_uri):
+            raise ValueError("Either video_bytes or gcs_uri must be provided.")
+
+        self._video_bytes = video_bytes
+        self._gcs_uri = gcs_uri
+
+    @staticmethod
+    def load_from_file(location: str) -> "Video":
+        """Loads video from local file or Google Cloud Storage.
+
+        Args:
+            location: Local path or Google Cloud Storage uri from where to load
+                the video.
+
+        Returns:
+            Loaded video as an `Video` object.
+        """
+        if location.startswith("gs://"):
+            return Video(gcs_uri=location)
+
+        video_bytes = pathlib.Path(location).read_bytes()
+        video = Video(video_bytes=video_bytes)
+        return video
+
+    @property
+    def _video_bytes(self) -> bytes:
+        if self._loaded_bytes is None:
+            storage_client = storage.Client(
+                credentials=aiplatform_initializer.global_config.credentials
+            )
+            self._loaded_bytes = storage.Blob.from_string(
+                uri=self._gcs_uri, client=storage_client
+            ).download_as_bytes()
+        return self._loaded_bytes
+
+    @_video_bytes.setter
+    def _video_bytes(self, value: bytes):
+        self._loaded_bytes = value
+
+    def save(self, location: str):
+        """Saves video to a file.
+
+        Args:
+            location: Local path where to save the video.
+        """
+        pathlib.Path(location).write_bytes(self._video_bytes)
+
+    def _as_base64_string(self) -> str:
+        """Encodes video using the base64 encoding.
+
+        Returns:
+            Base64 encoding of the video as a string.
+        """
+        # ! b64encode returns `bytes` object, not ``str.
+        # We need to convert `bytes` to `str`, otherwise we get service error:
+        # "received initial metadata size exceeds limit"
+        return base64.b64encode(self._video_bytes).decode("ascii")
+
+
+class VideoSegmentConfig:
+    """The specific video segments (in seconds) the embeddings are generated for."""
+
+    __module__ = "vertexai.vision_models"
+
+    start_offset_sec: int
+    end_offset_sec: int
+    interval_sec: int
+
+    def __init__(
+        self,
+        start_offset_sec: int = 0,
+        end_offset_sec: int = 120,
+        interval_sec: int = 16,
+    ):
+        """Creates a `VideoSegmentConfig` object.
+
+        Args:
+            start_offset_sec: Start time offset (in seconds) to generate embeddings for.
+            end_offset_sec: End time offset (in seconds) to generate embeddings for.
+            interval_sec: Interval to divide video for generated embeddings.
+        """
+        self.start_offset_sec = start_offset_sec
+        self.end_offset_sec = end_offset_sec
+        self.interval_sec = interval_sec
+
+
+class VideoEmbedding:
+    """Embeddings generated from video with offset times."""
+
+    __module__ = "vertexai.vision_models"
+
+    start_offset_sec: int
+    end_offset_sec: int
+    embedding: List[float]
+
+    def __init__(
+        self, start_offset_sec: int, end_offset_sec: int, embedding: List[float]
+    ):
+        """Creates a `VideoEmbedding` object.
+
+        Args:
+            start_offset_sec: Start time offset (in seconds) of generated embeddings.
+            end_offset_sec: End time offset (in seconds) of generated embeddings.
+            embedding: Generated embedding for interval.
+        """
+        self.start_offset_sec = start_offset_sec
+        self.end_offset_sec = end_offset_sec
+        self.embedding = embedding
+
+
 class ImageGenerationModel(
     _model_garden_models._ModelGardenModel  # pylint: disable=protected-access
 ):
@@ -704,18 +834,21 @@ class ImageQnAModel(
 
 
 class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
-    """Generates embedding vectors from images.
+    """Generates embedding vectors from images and videos.
 
     Examples::
 
         model = MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
         image = Image.load_from_file("image.png")
+        video = Video.load_from_file("video.mp4")
 
         embeddings = model.get_embeddings(
             image=image,
+            video=video,
             contextual_text="Hello world",
         )
         image_embedding = embeddings.image_embedding
+        video_embeddings = embeddings.video_embeddings
         text_embedding = embeddings.text_embedding
     """
 
@@ -726,33 +859,41 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
     def get_embeddings(
         self,
         image: Optional[Image] = None,
+        video: Optional[Video] = None,
         contextual_text: Optional[str] = None,
         dimension: Optional[int] = None,
+        video_segment_config: Optional[VideoSegmentConfig] = None,
     ) -> "MultiModalEmbeddingResponse":
         """Gets embedding vectors from the provided image.
 
         Args:
             image (Image): Optional. The image to generate embeddings for. One of
-              `image` or `contextual_text` is required.
-            contextual_text (str): Optional. Contextual text for your input image.
+              `image`, `video`, or `contextual_text` is required.
+            video (Video): Optional. The video to generate embeddings for. One of
+              `image`, `video` or `contextual_text` is required.
+            contextual_text (str): Optional. Contextual text for your input image or video.
               If provided, the model will also generate an embedding vector for the
               provided contextual text. The returned image and text embedding
               vectors are in the same semantic space with the same dimensionality,
               and the vectors can be used interchangeably for use cases like
-              searching image by text or searching text by image. One of `image` or
+              searching image by text or searching text by image. One of `image`, `video` or
               `contextual_text` is required.
             dimension (int): Optional. The number of embedding dimensions. Lower
               values offer decreased latency when using these embeddings for
-              subsequent tasks, while higher values offer better accuracy. Available
-              values: `128`, `256`, `512`, and `1408` (default).
+              subsequent tasks, while higher values offer better accuracy.
+              Available values: `128`, `256`, `512`, and `1408` (default).
+            video_segment_config (VideoSegmentConfig): Optional. The specific
+              video segments (in seconds) the embeddings are generated for.
 
         Returns:
             MultiModalEmbeddingResponse:
                 The image and text embedding vectors.
         """
 
-        if not image and not contextual_text:
-            raise ValueError("One of `image` or `contextual_text` is required.")
+        if not image and not video and not contextual_text:
+            raise ValueError(
+                "One of `image`, `video`, or `contextual_text` is required."
+            )
 
         instance = {}
 
@@ -766,6 +907,19 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
                     "bytesBase64Encoded": image._as_base64_string()  # pylint: disable=protected-access
                 }
 
+        if video:
+            if video._gcs_uri:  # pylint: disable=protected-access
+                instance["video"] = {
+                    "gcsUri": video._gcs_uri  # pylint: disable=protected-access
+                }
+            else:
+                instance["video"] = {
+                    "bytesBase64Encoded": video._as_base64_string()  # pylint: disable=protected-access
+                }  # pylint: disable=protected-access
+
+            if video_segment_config:
+                instance["video"]["videoSegmentConfig"] = video_segment_config
+
         if contextual_text:
             instance["text"] = contextual_text
 
@@ -778,6 +932,15 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
             parameters=parameters,
         )
         image_embedding = response.predictions[0].get("imageEmbedding")
+        video_embeddings = []
+        for video_embedding in response.predictions[0].get("videoEmbeddings", []):
+            video_embeddings.append(
+                VideoEmbedding(
+                    embedding=video_embedding["embedding"],
+                    start_offset_sec=video_embedding["startOffsetSec"],
+                    end_offset_sec=video_embedding["endOffsetSec"],
+                )
+            )
         text_embedding = (
             response.predictions[0].get("textEmbedding")
             if "textEmbedding" in response.predictions[0]
@@ -785,6 +948,7 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
         )
         return MultiModalEmbeddingResponse(
             image_embedding=image_embedding,
+            video_embeddings=video_embeddings,
             _prediction_response=response,
             text_embedding=text_embedding,
         )
@@ -797,14 +961,17 @@ class MultiModalEmbeddingResponse:
     Attributes:
         image_embedding (List[float]):
             Optional. The embedding vector generated from your image.
+        video_embeddings (List[VideoEmbedding]):
+            Optional. The embedding vectors generated from your video.
         text_embedding (List[float]):
-            Optional. The embedding vector generated from the contextual text provided for your image.
+            Optional. The embedding vector generated from the contextual text provided for your image or video.
     """
 
     __module__ = "vertexai.vision_models"
 
     _prediction_response: Any
     image_embedding: Optional[List[float]] = None
+    video_embeddings: Optional[List[VideoEmbedding]] = None
     text_embedding: Optional[List[float]] = None
 
 

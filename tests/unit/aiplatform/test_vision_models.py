@@ -158,6 +158,12 @@ def generate_image_from_gcs_uri(
     return ga_vision_models.Image.load_from_file(gcs_uri)
 
 
+def generate_video_from_gcs_uri(
+    gcs_uri: str = "gs://cloud-samples-data/vertex-ai-vision/highway_vehicles.mp4",
+) -> ga_vision_models.Video:
+    return ga_vision_models.Video.load_from_file(gcs_uri)
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestImageGenerationModels:
     """Unit tests for the image generation models."""
@@ -887,6 +893,212 @@ class TestMultiModalEmbeddingModels:
 
         assert embedding_response.image_embedding == test_embeddings
         assert embedding_response.text_embedding == test_embeddings
+
+    def test_video_embedding_model_with_only_video(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = preview_vision_models.MultiModalEmbeddingModel.from_pretrained(
+                "multimodalembedding@001"
+            )
+
+            mock_get_publisher_model.assert_called_once_with(
+                name="publishers/google/models/multimodalembedding@001",
+                retry=base._DEFAULT_RETRY,
+            )
+
+        test_video_embeddings = [
+            ga_vision_models.VideoEmbedding(
+                start_offset_sec=0,
+                end_offset_sec=7,
+                embedding=[0, 7],
+            )
+        ]
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(
+            {
+                "videoEmbeddings": [
+                    {
+                        "startOffsetSec": test_video_embeddings[0].start_offset_sec,
+                        "endOffsetSec": test_video_embeddings[0].end_offset_sec,
+                        "embedding": test_video_embeddings[0].embedding,
+                    }
+                ]
+            }
+        )
+
+        video = generate_video_from_gcs_uri()
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            embedding_response = model.get_embeddings(video=video)
+
+        assert (
+            embedding_response.video_embeddings[0].embedding
+            == test_video_embeddings[0].embedding
+        )
+        assert (
+            embedding_response.video_embeddings[0].start_offset_sec
+            == test_video_embeddings[0].start_offset_sec
+        )
+        assert (
+            embedding_response.video_embeddings[0].end_offset_sec
+            == test_video_embeddings[0].end_offset_sec
+        )
+        assert not embedding_response.text_embedding
+        assert not embedding_response.image_embedding
+
+    def test_video_embedding_model_with_video_and_text(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = preview_vision_models.MultiModalEmbeddingModel.from_pretrained(
+                "multimodalembedding@001"
+            )
+
+            mock_get_publisher_model.assert_called_once_with(
+                name="publishers/google/models/multimodalembedding@001",
+                retry=base._DEFAULT_RETRY,
+            )
+
+        test_text_embedding = [0, 0]
+        test_video_embeddings = [
+            ga_vision_models.VideoEmbedding(
+                start_offset_sec=0,
+                end_offset_sec=7,
+                embedding=test_text_embedding,
+            )
+        ]
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(
+            {
+                "textEmbedding": test_text_embedding,
+                "videoEmbeddings": [
+                    {
+                        "startOffsetSec": test_video_embeddings[0].start_offset_sec,
+                        "endOffsetSec": test_video_embeddings[0].end_offset_sec,
+                        "embedding": test_video_embeddings[0].embedding,
+                    }
+                ],
+            }
+        )
+
+        video = generate_video_from_gcs_uri()
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            embedding_response = model.get_embeddings(
+                video=video, contextual_text="hello world"
+            )
+
+        assert (
+            embedding_response.video_embeddings[0].embedding
+            == test_video_embeddings[0].embedding
+        )
+        assert (
+            embedding_response.video_embeddings[0].start_offset_sec
+            == test_video_embeddings[0].start_offset_sec
+        )
+        assert (
+            embedding_response.video_embeddings[0].end_offset_sec
+            == test_video_embeddings[0].end_offset_sec
+        )
+        assert embedding_response.text_embedding == test_text_embedding
+        assert not embedding_response.image_embedding
+
+    def test_multimodal_embedding_model_with_image_video_and_text(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = preview_vision_models.MultiModalEmbeddingModel.from_pretrained(
+                "multimodalembedding@001"
+            )
+
+            mock_get_publisher_model.assert_called_once_with(
+                name="publishers/google/models/multimodalembedding@001",
+                retry=base._DEFAULT_RETRY,
+            )
+
+        test_embedding = [0, 0]
+        test_video_embeddings = [
+            ga_vision_models.VideoEmbedding(
+                start_offset_sec=0,
+                end_offset_sec=7,
+                embedding=test_embedding,
+            )
+        ]
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(
+            {
+                "textEmbedding": test_embedding,
+                "imageEmbedding": test_embedding,
+                "videoEmbeddings": [
+                    {
+                        "startOffsetSec": test_video_embeddings[0].start_offset_sec,
+                        "endOffsetSec": test_video_embeddings[0].end_offset_sec,
+                        "embedding": test_video_embeddings[0].embedding,
+                    }
+                ],
+            }
+        )
+
+        image = generate_image_from_file()
+        video = generate_video_from_gcs_uri()
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            embedding_response = model.get_embeddings(
+                video=video, image=image, contextual_text="hello world"
+            )
+
+        assert (
+            embedding_response.video_embeddings[0].embedding
+            == test_video_embeddings[0].embedding
+        )
+        assert (
+            embedding_response.video_embeddings[0].start_offset_sec
+            == test_video_embeddings[0].start_offset_sec
+        )
+        assert (
+            embedding_response.video_embeddings[0].end_offset_sec
+            == test_video_embeddings[0].end_offset_sec
+        )
+        assert embedding_response.text_embedding == test_embedding
+        assert embedding_response.image_embedding == test_embedding
 
 
 @pytest.mark.usefixtures("google_auth_mock")
