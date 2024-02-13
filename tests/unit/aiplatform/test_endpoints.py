@@ -94,6 +94,7 @@ _TEST_VERSION_ID = test_constants.EndpointConstants._TEST_VERSION_ID
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
 _TEST_MODEL_ID = test_constants.EndpointConstants._TEST_MODEL_ID
+_TEST_METADATA = {"foo": "bar"}
 _TEST_PREDICTION = test_constants.EndpointConstants._TEST_PREDICTION
 _TEST_INSTANCES = [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
@@ -489,6 +490,7 @@ def predict_client_predict_mock():
     ) as predict_mock:
         predict_mock.return_value = gca_prediction_service.PredictResponse(
             deployed_model_id=_TEST_MODEL_ID,
+            metadata=_TEST_METADATA,
             model_version_id=_TEST_VERSION_ID,
             model=_TEST_MODEL_NAME,
         )
@@ -500,6 +502,7 @@ def predict_client_predict_mock():
 def predict_async_client_predict_mock():
     response = gca_prediction_service.PredictResponse(
         deployed_model_id=_TEST_MODEL_ID,
+        metadata=_TEST_METADATA,
         model_version_id=_TEST_VERSION_ID,
         model=_TEST_MODEL_NAME,
     )
@@ -672,7 +675,13 @@ def get_private_endpoint_with_model_mock():
 def predict_private_endpoint_mock():
     with mock.patch.object(urllib3.PoolManager, "request") as predict_mock:
         predict_mock.return_value = urllib3.response.HTTPResponse(
-            status=200, body=json.dumps({"predictions": _TEST_PREDICTION})
+            status=200,
+            body=json.dumps(
+                {
+                    "predictions": _TEST_PREDICTION,
+                    "metadata": _TEST_METADATA,
+                }
+            ),
         )
         yield predict_mock
 
@@ -1947,7 +1956,6 @@ class TestEndpoint:
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     def test_predict(self, predict_client_predict_mock):
-
         test_endpoint = models.Endpoint(_TEST_ID)
         test_prediction = test_endpoint.predict(
             instances=_TEST_INSTANCES, parameters={"param": 3.0}
@@ -1956,6 +1964,7 @@ class TestEndpoint:
         true_prediction = models.Prediction(
             predictions=_TEST_PREDICTION,
             deployed_model_id=_TEST_ID,
+            metadata=_TEST_METADATA,
             model_version_id=_TEST_VERSION_ID,
             model_resource_name=_TEST_MODEL_NAME,
         )
@@ -1980,6 +1989,7 @@ class TestEndpoint:
         true_prediction = models.Prediction(
             predictions=_TEST_PREDICTION,
             deployed_model_id=_TEST_ID,
+            metadata=_TEST_METADATA,
             model_version_id=_TEST_VERSION_ID,
             model_resource_name=_TEST_MODEL_NAME,
         )
@@ -1994,7 +2004,6 @@ class TestEndpoint:
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     def test_explain(self, predict_client_explain_mock):
-
         test_endpoint = models.Endpoint(_TEST_ID)
         test_prediction = test_endpoint.explain(
             instances=_TEST_INSTANCES,
@@ -2049,7 +2058,6 @@ class TestEndpoint:
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     def test_predict_with_timeout(self, predict_client_predict_mock):
-
         test_endpoint = models.Endpoint(_TEST_ID)
 
         test_endpoint.predict(
@@ -2065,7 +2073,6 @@ class TestEndpoint:
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     def test_predict_with_timeout_not_explicitly_set(self, predict_client_predict_mock):
-
         test_endpoint = models.Endpoint(_TEST_ID)
 
         test_endpoint.predict(
@@ -2082,7 +2089,6 @@ class TestEndpoint:
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     def test_explain_with_timeout(self, predict_client_explain_mock):
-
         test_endpoint = models.Endpoint(_TEST_ID)
 
         test_endpoint.explain(
@@ -2102,7 +2108,6 @@ class TestEndpoint:
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     def test_explain_with_timeout_not_explicitly_set(self, predict_client_explain_mock):
-
         test_endpoint = models.Endpoint(_TEST_ID)
 
         test_endpoint.explain(
@@ -2192,7 +2197,6 @@ class TestEndpoint:
         )
 
     def test_list_models(self, get_endpoint_with_models_mock):
-
         ept = aiplatform.Endpoint(_TEST_ID)
         my_models = ept.list_models()
 
@@ -2201,7 +2205,6 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_with_many_models_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy_all(self, sdk_private_undeploy_mock, sync):
-
         ept = aiplatform.Endpoint(_TEST_ID)
         ept.undeploy_all(sync=sync)
 
@@ -2280,7 +2283,6 @@ class TestEndpoint:
     def test_delete_endpoint_without_force(
         self, sdk_undeploy_all_mock, delete_endpoint_mock, sync
     ):
-
         ept = aiplatform.Endpoint(_TEST_ID)
         ept.delete(sync=sync)
 
@@ -2297,7 +2299,6 @@ class TestEndpoint:
     def test_delete_endpoint_with_force(
         self, sdk_undeploy_all_mock, delete_endpoint_mock, sync
     ):
-
         ept = aiplatform.Endpoint(_TEST_ID)
         ept.delete(force=True, sync=sync)
 
@@ -2352,7 +2353,9 @@ class TestPrivateEndpoint:
         )
 
         true_prediction = models.Prediction(
-            predictions=_TEST_PREDICTION, deployed_model_id=_TEST_ID
+            predictions=_TEST_PREDICTION,
+            deployed_model_id=_TEST_ID,
+            metadata=_TEST_METADATA,
         )
 
         assert true_prediction == test_prediction
@@ -2429,7 +2432,6 @@ class TestPrivateEndpoint:
     @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_delete_without_force(self, sdk_undeploy_mock, delete_endpoint_mock, sync):
-
         test_endpoint = models.PrivateEndpoint(_TEST_ENDPOINT_NAME)
         test_endpoint.delete(sync=sync)
 
@@ -2444,7 +2446,6 @@ class TestPrivateEndpoint:
     @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_delete_with_force(self, sdk_undeploy_mock, delete_endpoint_mock, sync):
-
         test_endpoint = models.PrivateEndpoint(_TEST_ENDPOINT_NAME)
         test_endpoint._gca_resource.deployed_models = [_TEST_DEPLOYED_MODELS[0]]
         test_endpoint.delete(sync=sync)

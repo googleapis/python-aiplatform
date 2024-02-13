@@ -30,6 +30,9 @@ __protobuf__ = proto.module(
         "FunctionDeclaration",
         "FunctionCall",
         "FunctionResponse",
+        "Retrieval",
+        "VertexAISearch",
+        "GoogleSearchRetrieval",
     },
 )
 
@@ -39,7 +42,8 @@ class Tool(proto.Message):
 
     A ``Tool`` is a piece of code that enables the system to interact
     with external systems to perform an action, or set of actions,
-    outside of knowledge and scope of the model.
+    outside of knowledge and scope of the model. A Tool object should
+    contain exactly one type of Tool.
 
     Attributes:
         function_declarations (MutableSequence[google.cloud.aiplatform_v1beta1.types.FunctionDeclaration]):
@@ -52,12 +56,31 @@ class Tool(proto.Message):
             function call in the next turn. Based on the function
             responses, Model will generate the final response back to
             the user. Maximum 64 function declarations can be provided.
+        retrieval (google.cloud.aiplatform_v1beta1.types.Retrieval):
+            Optional. System will always execute the
+            provided retrieval tool(s) to get external
+            knowledge to answer the prompt. Retrieval
+            results are presented to the model for
+            generation.
+        google_search_retrieval (google.cloud.aiplatform_v1beta1.types.GoogleSearchRetrieval):
+            Optional. Specialized retrieval tool that is
+            powered by Google search.
     """
 
     function_declarations: MutableSequence["FunctionDeclaration"] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message="FunctionDeclaration",
+    )
+    retrieval: "Retrieval" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="Retrieval",
+    )
+    google_search_retrieval: "GoogleSearchRetrieval" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="GoogleSearchRetrieval",
     )
 
 
@@ -166,6 +189,73 @@ class FunctionResponse(proto.Message):
         proto.MESSAGE,
         number=2,
         message=struct_pb2.Struct,
+    )
+
+
+class Retrieval(proto.Message):
+    r"""Defines a retrieval tool that model can call to access
+    external knowledge.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        vertex_ai_search (google.cloud.aiplatform_v1beta1.types.VertexAISearch):
+            Set to use data source powered by Vertex AI
+            Search.
+
+            This field is a member of `oneof`_ ``source``.
+        disable_attribution (bool):
+            Optional. Disable using the result from this
+            tool in detecting grounding attribution. This
+            does not affect how the result is given to the
+            model for generation.
+    """
+
+    vertex_ai_search: "VertexAISearch" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="source",
+        message="VertexAISearch",
+    )
+    disable_attribution: bool = proto.Field(
+        proto.BOOL,
+        number=3,
+    )
+
+
+class VertexAISearch(proto.Message):
+    r"""Retrieve from Vertex AI Search datastore for grounding.
+    See https://cloud.google.com/vertex-ai-search-and-conversation
+
+    Attributes:
+        datastore (str):
+            Required. Fully-qualified Vertex AI Search's
+            datastore resource ID.
+            projects/<>/locations/<>/collections/<>/dataStores/<>
+    """
+
+    datastore: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class GoogleSearchRetrieval(proto.Message):
+    r"""Tool to retrieve public web data for grounding, powered by
+    Google.
+
+    Attributes:
+        disable_attribution (bool):
+            Optional. Disable using the result from this
+            tool in detecting grounding attribution. This
+            does not affect how the result is given to the
+            model for generation.
+    """
+
+    disable_attribution: bool = proto.Field(
+        proto.BOOL,
+        number=1,
     )
 
 

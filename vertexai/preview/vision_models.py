@@ -15,7 +15,6 @@
 """Classes for working with vision models."""
 
 from vertexai.vision_models._vision_models import (
-    _PreviewImageTextModel,
     Image,
     ImageGenerationModel,
     ImageGenerationResponse,
@@ -26,8 +25,6 @@ from vertexai.vision_models._vision_models import (
     MultiModalEmbeddingModel,
     MultiModalEmbeddingResponse,
 )
-
-ImageTextModel = _PreviewImageTextModel
 
 __all__ = [
     "Image",

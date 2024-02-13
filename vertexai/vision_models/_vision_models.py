@@ -175,6 +175,7 @@ class ImageGenerationModel(
         base_image: Optional["Image"] = None,
         mask: Optional["Image"] = None,
         language: Optional[str] = None,
+        output_gcs_uri: Optional[str] = None,
     ) -> "ImageGenerationResponse":
         """Generates images from text prompt.
 
@@ -195,7 +196,9 @@ class ImageGenerationModel(
             mask: Mask for the base image.
             language: Language of the text prompt for the image. Default: None.
                 Supported values are `"en"` for English, `"hi"` for Hindi,
-                `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for automatic language detection.
+                `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for
+                automatic language detection.
+            output_gcs_uri: Google Cloud Storage uri to store the generated images.
 
         Returns:
             An `ImageGenerationResponse` object.
@@ -211,24 +214,40 @@ class ImageGenerationModel(
         }
 
         if base_image:
-            base_image_base64 = (
-                base_image._as_base64_string()
-            )  # pylint: disable=protected-access
-            instance["image"] = {"bytesBase64Encoded": base_image_base64}
-            base_image_hash_hex = hashlib.sha1(
-                base_image._image_bytes  # pylint: disable=protected-access
-            ).hexdigest()
-            shared_generation_parameters["base_image_hash"] = base_image_hash_hex
+            if base_image._gcs_uri:  # pylint: disable=protected-access
+                instance["image"] = {
+                    "gcsUri": base_image._gcs_uri  # pylint: disable=protected-access
+                }
+                shared_generation_parameters[
+                    "base_image_uri"
+                ] = base_image._gcs_uri  # pylint: disable=protected-access
+            else:
+                instance["image"] = {
+                    "bytesBase64Encoded": base_image._as_base64_string()  # pylint: disable=protected-access
+                }
+                shared_generation_parameters["base_image_hash"] = hashlib.sha1(
+                    base_image._image_bytes  # pylint: disable=protected-access
+                ).hexdigest()
 
         if mask:
-            mask_image_base64 = (
-                mask._as_base64_string()
-            )  # pylint: disable=protected-access
-            instance["mask"] = {"image": {"bytesBase64Encoded": mask_image_base64}}
-            mask_image_hash_hex = hashlib.sha1(
-                mask._image_bytes  # pylint: disable=protected-access
-            ).hexdigest()
-            shared_generation_parameters["mask_hash"] = mask_image_hash_hex
+            if mask._gcs_uri:  # pylint: disable=protected-access
+                instance["mask"] = {
+                    "image": {
+                        "gcsUri": mask._gcs_uri  # pylint: disable=protected-access
+                    },
+                }
+                shared_generation_parameters[
+                    "mask_uri"
+                ] = mask._gcs_uri  # pylint: disable=protected-access
+            else:
+                instance["mask"] = {
+                    "image": {
+                        "bytesBase64Encoded": mask._as_base64_string()  # pylint: disable=protected-access
+                    },
+                }
+                shared_generation_parameters["mask_hash"] = hashlib.sha1(
+                    mask._image_bytes  # pylint: disable=protected-access
+                ).hexdigest()
 
         parameters = {}
         max_size = max(width or 0, height or 0) or None
@@ -256,6 +275,10 @@ class ImageGenerationModel(
             parameters["language"] = language
             shared_generation_parameters["language"] = language
 
+        if output_gcs_uri is not None:
+            parameters["storageUri"] = output_gcs_uri
+            shared_generation_parameters["storage_uri"] = output_gcs_uri
+
         response = self._endpoint.predict(
             instances=[instance],
             parameters=parameters,
@@ -263,12 +286,13 @@ class ImageGenerationModel(
 
         generated_images: List["GeneratedImage"] = []
         for idx, prediction in enumerate(response.predictions):
-            image_bytes = base64.b64decode(prediction["bytesBase64Encoded"])
             generation_parameters = dict(shared_generation_parameters)
             generation_parameters["index_of_image_in_batch"] = idx
+            encoded_bytes = prediction.get("bytesBase64Encoded")
             generated_image = GeneratedImage(
-                image_bytes=image_bytes,
+                image_bytes=base64.b64decode(encoded_bytes) if encoded_bytes else None,
                 generation_parameters=generation_parameters,
+                gcs_uri=prediction.get("gcsUri"),
             )
             generated_images.append(generated_image)
 
@@ -283,6 +307,7 @@ class ImageGenerationModel(
         guidance_scale: Optional[float] = None,
         language: Optional[str] = None,
         seed: Optional[int] = None,
+        output_gcs_uri: Optional[str] = None,
     ) -> "ImageGenerationResponse":
         """Generates images from text prompt.
 
@@ -300,6 +325,7 @@ class ImageGenerationModel(
                 Supported values are `"en"` for English, `"hi"` for Hindi,
                 `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for automatic language detection.
             seed: Image generation random seed.
+            output_gcs_uri: Google Cloud Storage uri to store the generated images.
 
         Returns:
             An `ImageGenerationResponse` object.
@@ -314,6 +340,7 @@ class ImageGenerationModel(
             guidance_scale=guidance_scale,
             language=language,
             seed=seed,
+            output_gcs_uri=output_gcs_uri,
         )
 
     def edit_image(
@@ -327,6 +354,7 @@ class ImageGenerationModel(
         guidance_scale: Optional[float] = None,
         language: Optional[str] = None,
         seed: Optional[int] = None,
+        output_gcs_uri: Optional[str] = None,
     ) -> "ImageGenerationResponse":
         """Edits an existing image based on text prompt.
 
@@ -346,6 +374,7 @@ class ImageGenerationModel(
                 Supported values are `"en"` for English, `"hi"` for Hindi,
                 `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for automatic language detection.
             seed: Image generation random seed.
+            output_gcs_uri: Google Cloud Storage uri to store the edited images.
 
         Returns:
             An `ImageGenerationResponse` object.
@@ -359,12 +388,14 @@ class ImageGenerationModel(
             base_image=base_image,
             mask=mask,
             language=language,
+            output_gcs_uri=output_gcs_uri,
         )
 
     def upscale_image(
         self,
         image: Union["Image", "GeneratedImage"],
         new_size: Optional[int] = 2048,
+        output_gcs_uri: Optional[str] = None,
     ) -> "Image":
         """Upscales an image.
 
@@ -390,6 +421,7 @@ class ImageGenerationModel(
             new_size (int):
                 The size of the biggest dimension of the upscaled image. Only 2048 and 4096 are currently
                 supported. Results in a 2048x2048 or 4096x4096 image. Defaults to 2048 if not provided.
+            output_gcs_uri: Google Cloud Storage uri to store the upscaled images.
 
         Returns:
             An `Image` object.
@@ -406,16 +438,25 @@ class ImageGenerationModel(
                 f"Only the folowing square upscaling sizes are currently supported: {_SUPPORTED_UPSCALING_SIZES}."
             )
 
-        instance = {
-            "prompt": "",
-            "image": {"bytesBase64Encoded": image._as_base64_string()},
-        }
+        instance = {"prompt": ""}
+
+        if image._gcs_uri:  # pylint: disable=protected-access
+            instance["image"] = {
+                "gcsUri": image._gcs_uri  # pylint: disable=protected-access
+            }
+        else:
+            instance["image"] = {
+                "bytesBase64Encoded": image._as_base64_string()  # pylint: disable=protected-access
+            }
 
         parameters = {
             "sampleImageSize": str(new_size),
             "sampleCount": 1,
             "mode": "upscale",
         }
+
+        if output_gcs_uri is not None:
+            parameters["storageUri"] = output_gcs_uri
 
         response = self._endpoint.predict(
             instances=[instance],
@@ -432,9 +473,11 @@ class ImageGenerationModel(
 
         generation_parameters["upscaled_image_size"] = new_size
 
+        encoded_bytes = upscaled_image.get("bytesBase64Encoded")
         return GeneratedImage(
-            image_bytes=base64.b64decode(upscaled_image["bytesBase64Encoded"]),
+            image_bytes=base64.b64decode(encoded_bytes) if encoded_bytes else None,
             generation_parameters=generation_parameters,
+            gcs_uri=upscaled_image.get("gcsUri"),
         )
 
 
@@ -472,16 +515,18 @@ class GeneratedImage(Image):
 
     def __init__(
         self,
-        image_bytes: bytes,
+        image_bytes: Optional[bytes],
         generation_parameters: Dict[str, Any],
+        gcs_uri: Optional[str] = None,
     ):
         """Creates a `GeneratedImage` object.
 
         Args:
             image_bytes: Image file bytes. Image can be in PNG or JPEG format.
             generation_parameters: Image generation parameter values.
+            gcs_uri: Image file Google Cloud Storage uri.
         """
-        super().__init__(image_bytes=image_bytes)
+        super().__init__(image_bytes=image_bytes, gcs_uri=gcs_uri)
         self._generation_parameters = generation_parameters
 
     @property
@@ -506,6 +551,7 @@ class GeneratedImage(Image):
         return GeneratedImage(
             image_bytes=base_image._image_bytes,  # pylint: disable=protected-access
             generation_parameters=generation_parameters,
+            gcs_uri=base_image._gcs_uri,  # pylint: disable=protected-access
         )
 
     def save(self, location: str, include_generation_parameters: bool = True):
@@ -553,9 +599,6 @@ class ImageCaptioningModel(
     __module__ = "vertexai.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
 
     def get_captions(
         self,
@@ -563,6 +606,7 @@ class ImageCaptioningModel(
         *,
         number_of_results: int = 1,
         language: str = "en",
+        output_gcs_uri: Optional[str] = None,
     ) -> List[str]:
         """Generates captions for a given image.
 
@@ -571,19 +615,28 @@ class ImageCaptioningModel(
             number_of_results: Number of captions to produce. Range: 1-3.
             language: Language to use for captions.
                 Supported languages: "en", "fr", "de", "it", "es"
+            output_gcs_uri: Google Cloud Storage uri to store the captioned images.
 
         Returns:
             A list of image caption strings.
         """
-        instance = {
-            "image": {
+        instance = {}
+
+        if image._gcs_uri:  # pylint: disable=protected-access
+            instance["image"] = {
+                "gcsUri": image._gcs_uri  # pylint: disable=protected-access
+            }
+        else:
+            instance["image"] = {
                 "bytesBase64Encoded": image._as_base64_string()  # pylint: disable=protected-access
             }
-        }
         parameters = {
             "sampleCount": number_of_results,
             "language": language,
         }
+        if output_gcs_uri is not None:
+            parameters["storageUri"] = output_gcs_uri
+
         response = self._endpoint.predict(
             instances=[instance],
             parameters=parameters,
@@ -611,9 +664,6 @@ class ImageQnAModel(
     __module__ = "vertexai.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
 
     def ask_question(
         self,
@@ -632,15 +682,20 @@ class ImageQnAModel(
         Returns:
             A list of answers.
         """
-        instance = {
-            "prompt": question,
-            "image": {
+        instance = {"prompt": question}
+
+        if image._gcs_uri:  # pylint: disable=protected-access
+            instance["image"] = {
+                "gcsUri": image._gcs_uri  # pylint: disable=protected-access
+            }
+        else:
+            instance["image"] = {
                 "bytesBase64Encoded": image._as_base64_string()  # pylint: disable=protected-access
-            },
-        }
+            }
         parameters = {
             "sampleCount": number_of_results,
         }
+
         response = self._endpoint.predict(
             instances=[instance],
             parameters=parameters,
@@ -667,10 +722,6 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
     __module__ = "vertexai.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_embedding_model_1.0.0.yaml"
-
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
 
     def get_embeddings(
         self,
@@ -706,10 +757,14 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
         instance = {}
 
         if image:
-            if image._gcs_uri:
-                instance["image"] = {"gcsUri": image._gcs_uri}
+            if image._gcs_uri:  # pylint: disable=protected-access
+                instance["image"] = {
+                    "gcsUri": image._gcs_uri  # pylint: disable=protected-access
+                }
             else:
-                instance["image"] = {"bytesBase64Encoded": image._as_base64_string()}
+                instance["image"] = {
+                    "bytesBase64Encoded": image._as_base64_string()  # pylint: disable=protected-access
+                }
 
         if contextual_text:
             instance["text"] = contextual_text
@@ -782,13 +837,3 @@ class ImageTextModel(ImageCaptioningModel, ImageQnAModel):
     # since SDK Model Garden classes should follow the design pattern of exactly 1 SDK class to 1 Model Garden schema URI
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
-
-
-class _PreviewImageTextModel(ImageTextModel):
-
-    __module__ = "vertexai.preview.vision_models"
-
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE

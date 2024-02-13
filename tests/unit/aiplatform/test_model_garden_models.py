@@ -54,8 +54,6 @@ class TestModelGardenModels:
 
     class FakeModelGardenModel(_model_garden_models._ModelGardenModel):
 
-        _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
-
         _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
 
     def setup_method(self):
@@ -84,23 +82,3 @@ class TestModelGardenModels:
                 name="publishers/google/models/text-bison@001",
                 retry=base._DEFAULT_RETRY,
             )
-
-    def test_init_preview_model_raises_with_ga_launch_stage_set(self):
-        """Tests the text generation model."""
-        aiplatform.init(
-            project=test_constants.ProjectConstants._TEST_PROJECT,
-            location=test_constants.ProjectConstants._TEST_LOCATION,
-        )
-        with mock.patch.object(
-            target=model_garden_service_client_v1.ModelGardenServiceClient,
-            attribute="get_publisher_model",
-            return_value=gca_publisher_model.PublisherModel(
-                _TEXT_BISON_PUBLISHER_MODEL_DICT
-            ),
-        ):
-            self.FakeModelGardenModel._LAUNCH_STAGE = (
-                _model_garden_models._SDK_GA_LAUNCH_STAGE
-            )
-
-            with pytest.raises(ValueError):
-                self.FakeModelGardenModel.from_pretrained("text-bison@001")
