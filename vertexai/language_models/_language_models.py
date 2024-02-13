@@ -205,8 +205,6 @@ class _GetTunedModelMixin(_model_garden_models._ModelGardenModel):
             model_id=base_model_id,
             schema_to_class_map={cls._INSTANCE_SCHEMA_URI: cls},
         )
-        cls._validate_launch_stage(cls, model_info.publisher_model_resource)
-
         model = model_info.interface_class(
             model_id=base_model_id,
             endpoint_name=endpoint_name,
@@ -1241,8 +1239,6 @@ class _TextGenerationModel(_LanguageModel):
         model.predict("What is life?")
     """
 
-    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
-
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
 
     _DEFAULT_MAX_OUTPUT_TOKENS = 128
@@ -1984,8 +1980,6 @@ class TextEmbeddingModel(_LanguageModel):
 
     __module__ = "vertexai.language_models"
 
-    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
-
     _INSTANCE_SCHEMA_URI = (
         "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
     )
@@ -2121,8 +2115,6 @@ class _PreviewTextEmbeddingModel(
     __name__ = "TextEmbeddingModel"
     __module__ = "vertexai.preview.language_models"
 
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
-
 
 @dataclasses.dataclass
 class TextEmbeddingStatistics:
@@ -2172,8 +2164,6 @@ class ChatMessage:
 
 class _ChatModelBase(_LanguageModel):
     """_ChatModelBase is a base class for chat models."""
-
-    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
     def start_chat(
         self,
@@ -2251,8 +2241,6 @@ class _PreviewChatModel(ChatModel, _PreviewTunableChatModelMixin):
     __name__ = "ChatModel"
     __module__ = "vertexai.preview.language_models"
 
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
-
     def start_chat(
         self,
         *,
@@ -2313,7 +2301,6 @@ class CodeChatModel(_ChatModelBase, _TunableChatModelMixin):
     __module__ = "vertexai.language_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/codechat_generation_1.0.0.yaml"
-    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
     def start_chat(
         self,
@@ -2350,8 +2337,6 @@ class CodeChatModel(_ChatModelBase, _TunableChatModelMixin):
 class _PreviewCodeChatModel(CodeChatModel):
     __name__ = "CodeChatModel"
     __module__ = "vertexai.preview.language_models"
-
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
     def start_chat(
         self,
@@ -3122,7 +3107,6 @@ class _CodeGenerationModel(_LanguageModel):
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/code_generation_1.0.0.yaml"
 
-    _LAUNCH_STAGE = _model_garden_models._SDK_GA_LAUNCH_STAGE
 
     def _create_prediction_request(
         self,
@@ -3389,8 +3373,6 @@ class CodeGenerationModel(_CodeGenerationModel, _TunableTextModelMixin):
 class _PreviewCodeGenerationModel(CodeGenerationModel, _CountTokensCodeGenerationMixin):
     __name__ = "CodeGenerationModel"
     __module__ = "vertexai.preview.language_models"
-
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
 
 
 ###### Model tuning
@@ -3710,5 +3692,3 @@ class _PreviewTextGenerationModel(
     # Do not add docstring so that it's inherited from the base class.
     __name__ = "TextGenerationModel"
     __module__ = "vertexai.preview.language_models"
-
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE

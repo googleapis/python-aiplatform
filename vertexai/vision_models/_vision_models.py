@@ -599,9 +599,6 @@ class ImageCaptioningModel(
     __module__ = "vertexai.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
 
     def get_captions(
         self,
@@ -667,9 +664,6 @@ class ImageQnAModel(
     __module__ = "vertexai.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
 
     def ask_question(
         self,
@@ -728,10 +722,6 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
     __module__ = "vertexai.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_embedding_model_1.0.0.yaml"
-
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
 
     def get_embeddings(
         self,
@@ -847,13 +837,3 @@ class ImageTextModel(ImageCaptioningModel, ImageQnAModel):
     # since SDK Model Garden classes should follow the design pattern of exactly 1 SDK class to 1 Model Garden schema URI
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
-
-
-class _PreviewImageTextModel(ImageTextModel):
-
-    __module__ = "vertexai.preview.vision_models"
-
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE
