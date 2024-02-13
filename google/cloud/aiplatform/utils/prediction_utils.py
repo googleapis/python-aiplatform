@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-import distutils.dir_util
+import shutil
 import inspect
 import logging
 import os
@@ -150,4 +150,4 @@ def download_model_artifacts(artifact_uri: str) -> None:
                 blob.download_to_filename(name_without_prefix)
     else:
         # Copy files to the current working directory.
-        distutils.dir_util.copy_tree(artifact_uri, ".")
+        shutil.copytree(artifact_uri, ".")
