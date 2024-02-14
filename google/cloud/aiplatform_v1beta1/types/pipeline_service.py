@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
@@ -29,6 +30,7 @@ from google.protobuf import field_mask_pb2  # type: ignore
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
+        "BatchCancelPipelineJobsOperationMetadata",
         "CreateTrainingPipelineRequest",
         "GetTrainingPipelineRequest",
         "ListTrainingPipelinesRequest",
@@ -43,8 +45,26 @@ __protobuf__ = proto.module(
         "BatchDeletePipelineJobsRequest",
         "BatchDeletePipelineJobsResponse",
         "CancelPipelineJobRequest",
+        "BatchCancelPipelineJobsRequest",
+        "BatchCancelPipelineJobsResponse",
     },
 )
+
+
+class BatchCancelPipelineJobsOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [PipelineService.BatchCancelPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.BatchCancelPipelineJobs].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
 
 
 class CreateTrainingPipelineRequest(proto.Message):
@@ -238,6 +258,11 @@ class CreatePipelineJobRequest(proto.Message):
 
             This value should be less than 128 characters, and valid
             characters are ``/[a-z][0-9]-/``.
+        preflight_validations (bool):
+            Optional. Whether to do component level
+            validations before job creation. Currently we
+            only support Google First Party
+            Component/Pipelines.
     """
 
     parent: str = proto.Field(
@@ -252,6 +277,10 @@ class CreatePipelineJobRequest(proto.Message):
     pipeline_job_id: str = proto.Field(
         proto.STRING,
         number=3,
+    )
+    preflight_validations: bool = proto.Field(
+        proto.BOOL,
+        number=4,
     )
 
 
@@ -475,6 +504,46 @@ class CancelPipelineJobRequest(proto.Message):
     name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class BatchCancelPipelineJobsRequest(proto.Message):
+    r"""Request message for
+    [PipelineService.BatchCancelPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.BatchCancelPipelineJobs].
+
+    Attributes:
+        parent (str):
+            Required. The name of the PipelineJobs' parent resource.
+            Format: ``projects/{project}/locations/{location}``
+        names (MutableSequence[str]):
+            Required. The names of the PipelineJobs to cancel. A maximum
+            of 32 PipelineJobs can be cancelled in a batch. Format:
+            ``projects/{project}/locations/{location}/pipelineJobs/{pipelineJob}``
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    names: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
+
+
+class BatchCancelPipelineJobsResponse(proto.Message):
+    r"""Response message for
+    [PipelineService.BatchCancelPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.BatchCancelPipelineJobs].
+
+    Attributes:
+        pipeline_jobs (MutableSequence[google.cloud.aiplatform_v1beta1.types.PipelineJob]):
+            PipelineJobs cancelled.
+    """
+
+    pipeline_jobs: MutableSequence[gca_pipeline_job.PipelineJob] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_pipeline_job.PipelineJob,
     )
 
 

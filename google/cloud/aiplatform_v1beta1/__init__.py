@@ -576,6 +576,9 @@ from .types.pipeline_job import PipelineJobDetail
 from .types.pipeline_job import PipelineTaskDetail
 from .types.pipeline_job import PipelineTaskExecutorDetail
 from .types.pipeline_job import PipelineTemplateMetadata
+from .types.pipeline_service import BatchCancelPipelineJobsOperationMetadata
+from .types.pipeline_service import BatchCancelPipelineJobsRequest
+from .types.pipeline_service import BatchCancelPipelineJobsResponse
 from .types.pipeline_service import BatchDeletePipelineJobsRequest
 from .types.pipeline_service import BatchDeletePipelineJobsResponse
 from .types.pipeline_service import CancelPipelineJobRequest
@@ -624,6 +627,7 @@ from .types.schedule_service import PauseScheduleRequest
 from .types.schedule_service import ResumeScheduleRequest
 from .types.schedule_service import UpdateScheduleRequest
 from .types.service_networking import PrivateServiceConnectConfig
+from .types.service_networking import PscAutomatedEndpoints
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -781,6 +785,9 @@ __all__ = (
     "AutomaticResources",
     "AutoscalingMetricSpec",
     "AvroSource",
+    "BatchCancelPipelineJobsOperationMetadata",
+    "BatchCancelPipelineJobsRequest",
+    "BatchCancelPipelineJobsResponse",
     "BatchCreateFeaturesOperationMetadata",
     "BatchCreateFeaturesRequest",
     "BatchCreateFeaturesResponse",
@@ -1260,6 +1267,7 @@ __all__ = (
     "PrivateEndpoints",
     "PrivateServiceConnectConfig",
     "Probe",
+    "PscAutomatedEndpoints",
     "PublisherModel",
     "PublisherModelView",
     "PurgeArtifactsMetadata",

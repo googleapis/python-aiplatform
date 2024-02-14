@@ -1243,6 +1243,7 @@ class FeatureOnlineStoreAdminServiceClient(
                 Updatable fields:
 
                 -  ``big_query_source``
+                -  ``bigtable``
                 -  ``labels``
                 -  ``sync_config``
 
@@ -1949,6 +1950,7 @@ class FeatureOnlineStoreAdminServiceClient(
                 Updatable fields:
 
                 -  ``labels``
+                -  ``serviceAgentType``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
