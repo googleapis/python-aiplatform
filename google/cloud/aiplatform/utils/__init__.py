@@ -39,6 +39,8 @@ from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
     deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
+    feature_online_store_admin_service_client_v1beta1,
+    feature_online_store_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
     index_service_client_v1beta1,
@@ -59,6 +61,8 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
     endpoint_service_client_v1,
+    feature_online_store_admin_service_client_v1,
+    feature_online_store_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
     index_service_client_v1,
@@ -85,6 +89,8 @@ VertexAiServiceClient = TypeVar(
     dataset_service_client_v1beta1.DatasetServiceClient,
     deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
     endpoint_service_client_v1beta1.EndpointServiceClient,
+    feature_online_store_admin_service_client_v1beta1.FeatureOnlineStoreAdminServiceClient,
+    feature_online_store_service_client_v1beta1.FeatureOnlineStoreServiceClient,
     featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1beta1.FeaturestoreServiceClient,
     index_service_client_v1beta1.IndexServiceClient,
@@ -102,6 +108,8 @@ VertexAiServiceClient = TypeVar(
     # v1
     dataset_service_client_v1.DatasetServiceClient,
     endpoint_service_client_v1.EndpointServiceClient,
+    feature_online_store_admin_service_client_v1.FeatureOnlineStoreAdminServiceClient,
+    feature_online_store_service_client_v1.FeatureOnlineStoreServiceClient,
     featurestore_online_serving_service_client_v1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1.FeaturestoreServiceClient,
     metadata_service_client_v1.MetadataServiceClient,
@@ -538,6 +546,36 @@ class IndexEndpointClientWithOverride(ClientWithOverride):
         (
             compat.V1BETA1,
             index_endpoint_service_client_v1beta1.IndexEndpointServiceClient,
+        ),
+    )
+
+
+class FeatureOnlineStoreAdminClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (
+            compat.V1,
+            feature_online_store_admin_service_client_v1.FeatureOnlineStoreAdminServiceClient,
+        ),
+        (
+            compat.V1BETA1,
+            feature_online_store_admin_service_client_v1beta1.FeatureOnlineStoreAdminServiceClient,
+        ),
+    )
+
+
+class FeatureOnlineStoreClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (
+            compat.V1,
+            feature_online_store_service_client_v1.FeatureOnlineStoreServiceClient,
+        ),
+        (
+            compat.V1BETA1,
+            feature_online_store_service_client_v1beta1.FeatureOnlineStoreServiceClient,
         ),
     )
 
