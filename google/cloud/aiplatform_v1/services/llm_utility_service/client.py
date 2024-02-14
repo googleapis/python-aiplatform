@@ -57,6 +57,7 @@ from google.protobuf import struct_pb2  # type: ignore
 from .transports.base import LlmUtilityServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import LlmUtilityServiceGrpcTransport
 from .transports.grpc_asyncio import LlmUtilityServiceGrpcAsyncIOTransport
+from .transports.rest import LlmUtilityServiceRestTransport
 
 
 class LlmUtilityServiceClientMeta(type):
@@ -72,6 +73,7 @@ class LlmUtilityServiceClientMeta(type):
     )  # type: Dict[str, Type[LlmUtilityServiceTransport]]
     _transport_registry["grpc"] = LlmUtilityServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = LlmUtilityServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = LlmUtilityServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -546,6 +548,9 @@ class LlmUtilityServiceClient(metaclass=LlmUtilityServiceClientMeta):
             transport (Union[str, LlmUtilityServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

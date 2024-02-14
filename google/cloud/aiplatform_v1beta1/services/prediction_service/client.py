@@ -63,6 +63,7 @@ from google.protobuf import struct_pb2  # type: ignore
 from .transports.base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import PredictionServiceGrpcTransport
 from .transports.grpc_asyncio import PredictionServiceGrpcAsyncIOTransport
+from .transports.rest import PredictionServiceRestTransport
 
 
 class PredictionServiceClientMeta(type):
@@ -78,6 +79,7 @@ class PredictionServiceClientMeta(type):
     )  # type: Dict[str, Type[PredictionServiceTransport]]
     _transport_registry["grpc"] = PredictionServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = PredictionServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = PredictionServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -574,6 +576,9 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
             transport (Union[str, PredictionServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

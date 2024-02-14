@@ -59,6 +59,7 @@ from google.longrunning import operations_pb2  # type: ignore
 from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import MigrationServiceGrpcTransport
 from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
+from .transports.rest import MigrationServiceRestTransport
 
 
 class MigrationServiceClientMeta(type):
@@ -74,6 +75,7 @@ class MigrationServiceClientMeta(type):
     )  # type: Dict[str, Type[MigrationServiceTransport]]
     _transport_registry["grpc"] = MigrationServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = MigrationServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = MigrationServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -213,6 +215,50 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     @staticmethod
     def dataset_path(
         project: str,
+        location: str,
+        dataset: str,
+    ) -> str:
+        """Returns a fully-qualified dataset string."""
+        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+            project=project,
+            location=location,
+            dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parses a dataset path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def dataset_path(
+        project: str,
+        location: str,
+        dataset: str,
+    ) -> str:
+        """Returns a fully-qualified dataset string."""
+        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+            project=project,
+            location=location,
+            dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parses a dataset path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def dataset_path(
+        project: str,
         dataset: str,
     ) -> str:
         """Returns a fully-qualified dataset string."""
@@ -225,50 +271,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     def parse_dataset_path(path: str) -> Dict[str, str]:
         """Parses a dataset path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
         return m.groupdict() if m else {}
 
     @staticmethod
@@ -677,6 +679,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             transport (Union[str, MigrationServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
