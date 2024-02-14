@@ -77,8 +77,7 @@ for library in s.get_staging_dirs(default_version):
             f"scripts/fixup_prediction_{library.name}_keywords.py",
             "google/cloud/aiplatform/__init__.py",
             f"google/cloud/aiplatform/{library.name}/schema/**/services/",
-            "testing/constraints-3.7.txt",
-            "**/gapic_version.py", # exclude gapic_version.py to avoid reverting the version to 0.1.0
+            "**/gapic_version.py",  # exclude gapic_version.py to avoid reverting the version to 0.1.0
             ".kokoro/samples",
             "noxfile.py",
             "testing",
@@ -91,7 +90,6 @@ s.remove_staging_dirs()
 
 # only run post processor when there are changes to the generated code
 if has_generator_updates:
-
     # ----------------------------------------------------------------------------
     # Add templated files
     # ----------------------------------------------------------------------------
@@ -130,7 +128,7 @@ if has_generator_updates:
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/workflows",  # exclude gh actions as credentials are needed for tests
             "README.rst",
-            ".github/release-please.yml", # use release please manifest
+            ".github/release-please.yml",  # use release please manifest
             "noxfile.py",
             "testing",
             "docs/conf.py",
@@ -148,7 +146,7 @@ if has_generator_updates:
         key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
         value: "python-docs-samples-tests-.*?"
     \}""",
-        """env_vars: {  
+        """env_vars: {
         key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
         value: "ucaip-sample-tests"
     }""",
