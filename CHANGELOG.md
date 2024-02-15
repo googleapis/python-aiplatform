@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.42.0](https://github.com/googleapis/python-aiplatform/compare/v1.41.0...v1.42.0) (2024-02-15)
+
+
+### Features
+
+* Add Candidate.grounding_metadata ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* Add GoogleSearchRetrieval ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* Add metadata in model.predict output for LLMs ([4661e58](https://github.com/googleapis/python-aiplatform/commit/4661e581ea957e71c643afc6bbf3b2e729b38bc8))
+* Add Retrieval ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* Add Tool.google_search_retrieval ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* Add Tool.retrieval ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* Add VertexAiSearch ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* GenAI - Added `to_dict()` methods to response and content classes ([a78748e](https://github.com/googleapis/python-aiplatform/commit/a78748e5cbe7b86ddfb1a36a4c0e5be8f66b27c3))
+* GenAI - Added support for Grounding ([0c3e294](https://github.com/googleapis/python-aiplatform/commit/0c3e29421434fe36d0f583f9860ac2e3f60e0329))
+* GenAI - Added the `GenerativeModel.start_chat(response_validation: bool = True)` parameter ([94f7cd9](https://github.com/googleapis/python-aiplatform/commit/94f7cd9e454d593e2544f8d93771d3093ffc18ae))
+* GenAI - GAPIC - Added support for Grounding ([310ee49](https://github.com/googleapis/python-aiplatform/commit/310ee49a11767c20bed9cc4a929cbb0b8b3e6940))
+* GenAI - Release the GenerativeModel to GA ([c7e3f07](https://github.com/googleapis/python-aiplatform/commit/c7e3f076f91f002ac5a889d8942a153e57e0147c))
+* LLM - Add newly supported model `text-bison@002`, update pipeline template version and prediction row limit for pipeline-based LLM Evaluation SDK ([35e57b3](https://github.com/googleapis/python-aiplatform/commit/35e57b32e70902fc90ee5a39e9001d3fa4150c50))
+* LVM - Add GCS URI support for Imagen Models (`imagetext`, `imagegeneration`) ([4109ea8](https://github.com/googleapis/python-aiplatform/commit/4109ea8d8ad456d90c0ca476e2147e9543e15b43))
+* LVM - Added support for Images from GCS uri for multimodal embeddings ([90d95d7](https://github.com/googleapis/python-aiplatform/commit/90d95d778f94e598a78a6f1c8a38e1911bffd8e2))
+* LVM - Added support for Videos from GCS uri for multimodal embeddings ([f3bd3bf](https://github.com/googleapis/python-aiplatform/commit/f3bd3bf1f74d283d7a95cd9cddf39947fcabc514))
+* Support custom image for Ray cluster creation ([d727189](https://github.com/googleapis/python-aiplatform/commit/d7271899a5383ffef69af1c46ad28d92eb4d5751))
+
+
+### Bug Fixes
+
+* Add google-auth as a direct dependency ([ecc6454](https://github.com/googleapis/python-aiplatform/commit/ecc64544d3cc718957fbe472fef1eaf22818e093))
+* Add restricts and crowding tag to `MatchingEngineIndexEndpoint` query response. ([83cb52d](https://github.com/googleapis/python-aiplatform/commit/83cb52d1ed3ec7587ea9bb877dba113abad569be))
+* Remove usage of distutils ([e35ab64](https://github.com/googleapis/python-aiplatform/commit/e35ab64d7e47f696ef9dd9c071c2d322e705b5ff))
+
+
+### Documentation
+
+* Fix incorrect field in log_time_series_metrics_sample ([f249353](https://github.com/googleapis/python-aiplatform/commit/f249353b918823b35495b295a75a90528ad652c0))
+* Update README ([14b41b5](https://github.com/googleapis/python-aiplatform/commit/14b41b50aff89e15f5f86f814df122c96231841d))
+
 ## [1.41.0](https://github.com/googleapis/python-aiplatform/compare/v1.40.0...v1.41.0) (2024-02-05)
 
 
