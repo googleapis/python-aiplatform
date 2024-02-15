@@ -48,6 +48,24 @@ class Resources:
 
 
 @dataclasses.dataclass
+class NodeImages:
+    """
+    Custom images for a ray cluster. We currently support Ray v2.4 and python v3.10.
+    The custom images must be extended from the following base images:
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-4.py310:latest" or
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-4.py310:latest". In
+    order to use custom images, need to specify both head and worker images.
+
+    Attributes:
+        head: head node image (eg. us-docker.pkg.dev/my-project/ray-cpu.2-4.py310-tf:latest).
+        worker: worker node image (eg. us-docker.pkg.dev/my-project/ray-gpu.2-4.py310-tf:latest).
+    """
+
+    head: str = None
+    worker: str = None
+
+
+@dataclasses.dataclass
 class Cluster:
     """Ray cluster (output only).
 
@@ -69,6 +87,7 @@ class Cluster:
             duplicate the elements in the list.
         dashboard_address: For Ray Job API (JobSubmissionClient), with this
            cluster connection doesn't require VPC peering.
+        node_images: The NodeImages for a ray cluster.
         labels:
             The labels with user-defined metadata to organize Ray cluster.
 
@@ -87,6 +106,7 @@ class Cluster:
     head_node_type: Resources = None
     worker_node_types: List[Resources] = None
     dashboard_address: str = None
+    node_images: NodeImages = None
     labels: Dict[str, str] = None
 
 

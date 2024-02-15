@@ -28,6 +28,7 @@ from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
 from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
     Namespace,
     NumericNamespace,
+    MatchNeighbor,
 )
 from google.cloud.aiplatform.compat.types import (
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
@@ -257,7 +258,7 @@ _TEST_PRIVATE_SERVICE_CONNECT_IP_ADDRESS = "10.128.0.5"
 _TEST_READ_INDEX_DATAPOINTS_RESPONSE = [
     gca_index_v1beta1.IndexDatapoint(
         datapoint_id="1",
-        feature_vector=[0.1, 0.2, 0.3],
+        feature_vector=[1.0, 2.0, 3.0],
         restricts=[
             gca_index_v1beta1.IndexDatapoint.Restriction(
                 namespace="class",
@@ -268,11 +269,41 @@ _TEST_READ_INDEX_DATAPOINTS_RESPONSE = [
     ),
     gca_index_v1beta1.IndexDatapoint(
         datapoint_id="2",
-        feature_vector=[0.5, 0.2, 0.3],
+        feature_vector=[0, -1.0, 2.0],
         crowding_tag=gca_index_v1beta1.IndexDatapoint.CrowdingTag(
             crowding_attribute="1"
         ),
     ),
+]
+_TEST_PRIVATE_MATCH_NEIGHBOR_RESPONSE = [
+    [
+        MatchNeighbor(
+            id="1",
+            distance=0.1,
+            feature_vector=[0.0, -1.0, 2.0],
+            crowding_tag="0",
+            restricts=[
+                Namespace(
+                    name="class",
+                    allow_tokens=["token_1"],
+                    deny_tokens=["token_2"],
+                )
+            ],
+        ),
+        MatchNeighbor(
+            id="2",
+            distance=0.1,
+            feature_vector=[1.0, 2.0, 3.0],
+            crowding_tag="0",
+            restricts=[
+                Namespace(
+                    name="class",
+                    allow_tokens=["token_1"],
+                    deny_tokens=["token_2"],
+                )
+            ],
+        ),
+    ]
 ]
 
 
@@ -510,8 +541,36 @@ def index_endpoint_match_queries_mock():
                                 neighbor=[
                                     match_service_pb2.MatchResponse.Neighbor(
                                         id="1", distance=0.1
-                                    )
-                                ]
+                                    ),
+                                    match_service_pb2.MatchResponse.Neighbor(
+                                        id="2", distance=0.1
+                                    ),
+                                ],
+                                embeddings=[
+                                    match_service_pb2.Embedding(
+                                        id="2",
+                                        float_val=[1.0, 2.0, 3.0],
+                                        restricts=[
+                                            match_service_pb2.Namespace(
+                                                name="class",
+                                                allow_tokens=["token_1"],
+                                                deny_tokens=["token_2"],
+                                            )
+                                        ],
+                                        crowding_attribute=0,
+                                    ),
+                                    match_service_pb2.Embedding(
+                                        id="1",
+                                        float_val=[0, -1.0, 2.0],
+                                        restricts=[
+                                            match_service_pb2.Namespace(
+                                                name="class",
+                                                allow_tokens=["token_1"],
+                                                deny_tokens=["token_2"],
+                                            )
+                                        ],
+                                    ),
+                                ],
                             )
                         ],
                     )
@@ -532,7 +591,7 @@ def index_endpoint_batch_get_embeddings_mock():
                 embeddings=[
                     match_service_pb2.Embedding(
                         id="1",
-                        float_val=[0.1, 0.2, 0.3],
+                        float_val=[1.0, 2.0, 3.0],
                         restricts=[
                             match_service_pb2.Namespace(
                                 name="class",
@@ -543,7 +602,7 @@ def index_endpoint_batch_get_embeddings_mock():
                     ),
                     match_service_pb2.Embedding(
                         id="2",
-                        float_val=[0.5, 0.2, 0.3],
+                        float_val=[0, -1.0, 2.0],
                         crowding_attribute=1,
                     ),
                 ]
@@ -1059,7 +1118,7 @@ class TestMatchingEngineIndexEndpoint:
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
-        my_index_endpoint.match(
+        response = my_index_endpoint.match(
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             num_neighbors=_TEST_NUM_NEIGHBOURS,
             filter=_TEST_FILTER,
@@ -1101,6 +1160,8 @@ class TestMatchingEngineIndexEndpoint:
 
         index_endpoint_match_queries_mock.assert_called_with(batch_request)
 
+        assert response == _TEST_PRIVATE_MATCH_NEIGHBOR_RESPONSE
+
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_index_private_service_access_endpoint_find_neighbor_queries(
         self, index_endpoint_match_queries_mock
@@ -1111,7 +1172,7 @@ class TestMatchingEngineIndexEndpoint:
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
-        my_private_index_endpoint.find_neighbors(
+        response = my_private_index_endpoint.find_neighbors(
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             queries=_TEST_QUERIES,
             num_neighbors=_TEST_NUM_NEIGHBOURS,
@@ -1150,6 +1211,8 @@ class TestMatchingEngineIndexEndpoint:
             ]
         )
         index_endpoint_match_queries_mock.assert_called_with(batch_match_request)
+
+        assert response == _TEST_PRIVATE_MATCH_NEIGHBOR_RESPONSE
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_index_private_service_connect_endpoint_match_queries(
@@ -1442,7 +1505,7 @@ class TestMatchingEngineIndexEndpoint:
         index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
-    def test_index_endpoint_find_neighbors_for_private_service_access(
+    def test_index_endpoint_read_index_datapoints_for_private_service_access(
         self, index_endpoint_batch_get_embeddings_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
@@ -1464,7 +1527,7 @@ class TestMatchingEngineIndexEndpoint:
         assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
-    def test_index_endpoint_find_neighbors_for_private_service_connect(
+    def test_index_endpoint_read_index_datapoints_for_private_service_connect(
         self, index_endpoint_batch_get_embeddings_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
@@ -1488,3 +1551,73 @@ class TestMatchingEngineIndexEndpoint:
         index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
 
         assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
+
+
+class TestMatchNeighbor:
+    def test_from_index_datapoint(self):
+        index_datapoint = gca_index_v1beta1.IndexDatapoint()
+        index_datapoint.datapoint_id = "test_datapoint_id"
+        index_datapoint.feature_vector = [1.0, 2.0, 3.0]
+        index_datapoint.crowding_tag = gca_index_v1beta1.IndexDatapoint.CrowdingTag(
+            crowding_attribute="test_crowding"
+        )
+        index_datapoint.restricts = [
+            gca_index_v1beta1.IndexDatapoint.Restriction(
+                namespace="namespace1", allow_list=["token1"], deny_list=["token2"]
+            ),
+        ]
+        index_datapoint.numeric_restricts = [
+            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                namespace="namespace2",
+                value_int=0,
+            )
+        ]
+
+        result = MatchNeighbor(
+            id="index_datapoint_id", distance=0.3
+        ).from_index_datapoint(index_datapoint)
+
+        assert result.feature_vector == [1.0, 2.0, 3.0]
+        assert result.crowding_tag == "test_crowding"
+        assert len(result.restricts) == 1
+        assert result.restricts[0].name == "namespace1"
+        assert result.restricts[0].allow_tokens == ["token1"]
+        assert result.restricts[0].deny_tokens == ["token2"]
+        assert len(result.numeric_restricts) == 1
+        assert result.numeric_restricts[0].name == "namespace2"
+        assert result.numeric_restricts[0].value_int == 0
+        assert result.numeric_restricts[0].value_float is None
+        assert result.numeric_restricts[0].value_double is None
+
+    def test_from_embedding(self):
+        embedding = match_service_pb2.Embedding(
+            id="test_embedding_id",
+            float_val=[1.0, 2.0, 3.0],
+            crowding_attribute=1,
+            restricts=[
+                match_service_pb2.Namespace(
+                    name="namespace1", allow_tokens=["token1"], deny_tokens=["token2"]
+                ),
+            ],
+            numeric_restricts=[
+                match_service_pb2.NumericNamespace(
+                    name="namespace2", value_int=10, value_float=None, value_double=None
+                )
+            ],
+        )
+
+        result = MatchNeighbor(id="embedding_id", distance=0.3).from_embedding(
+            embedding
+        )
+
+        assert result.feature_vector == [1.0, 2.0, 3.0]
+        assert result.crowding_tag == "1"
+        assert len(result.restricts) == 1
+        assert result.restricts[0].name == "namespace1"
+        assert result.restricts[0].allow_tokens == ["token1"]
+        assert result.restricts[0].deny_tokens == ["token2"]
+        assert len(result.numeric_restricts) == 1
+        assert result.numeric_restricts[0].name == "namespace2"
+        assert result.numeric_restricts[0].value_int == 10
+        assert not result.numeric_restricts[0].value_float
+        assert not result.numeric_restricts[0].value_double

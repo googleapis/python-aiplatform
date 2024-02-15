@@ -17,6 +17,7 @@
 
 import copy
 import logging
+import time
 from typing import Dict, List, Optional
 
 from google.cloud.aiplatform import initializer
@@ -47,6 +48,7 @@ def create_ray_cluster(
     network: Optional[str] = None,
     cluster_name: Optional[str] = None,
     worker_node_types: Optional[List[resources.Resources]] = None,
+    custom_images: Optional[resources.NodeImages] = None,
     labels: Optional[Dict[str, str]] = None,
 ) -> str:
     """Create a ray cluster on the Vertex AI.
@@ -97,6 +99,8 @@ def create_ray_cluster(
             or hyphen.
         worker_node_types: The list of Resources of the worker nodes. The same
             Resources object should not appear multiple times in the list.
+        custom_images: The NodeImages which specifies head node and worker nodes
+            images. Allowlist only.
         labels:
             The labels with user-defined metadata to organize Ray cluster.
 
@@ -157,6 +161,9 @@ def create_ray_cluster(
     image_uri = _validation_utils.get_image_uri(
         ray_version, python_version, enable_cuda
     )
+    if custom_images is not None:
+        if not (custom_images.head is None or custom_images.worker is None):
+            image_uri = custom_images.head
     resource_pool_images[resource_pool_0.id] = image_uri
 
     worker_pools = []
@@ -199,6 +206,9 @@ def create_ray_cluster(
                 image_uri = _validation_utils.get_image_uri(
                     ray_version, python_version, enable_cuda
                 )
+                if custom_images is not None:
+                    if not (custom_images.head is None or custom_images.worker is None):
+                        image_uri = custom_images.worker
                 resource_pool_images[resource_pool.id] = image_uri
 
             i += 1
@@ -425,6 +435,12 @@ def update_ray_cluster(
         ) from e
 
     # block before returning
+    start_time = time.time()
     response = operation_future.result()
-    print("[Ray on Vertex AI]: Successfully updated the cluster.")
+    duration = (time.time() - start_time) // 60
+    print(
+        "[Ray on Vertex AI]: Successfully updated the cluster ({} mininutes elapsed).".format(
+            duration
+        )
+    )
     return response.name

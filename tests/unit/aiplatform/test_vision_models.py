@@ -114,9 +114,29 @@ def make_image_generation_response(
     return {"predictions": predictions}
 
 
+def make_image_generation_response_gcs(count: int = 1) -> Dict[str, Any]:
+    predictions = []
+    for _ in range(count):
+        predictions.append(
+            {
+                "gcsUri": "gs://cloud-samples-data/vertex-ai/llm/prompts/landmark1.png",
+                "mimeType": "image/png",
+            }
+        )
+    return {"predictions": predictions}
+
+
 def make_image_upscale_response(upscale_size: int) -> Dict[str, Any]:
     predictions = {
         "bytesBase64Encoded": make_image_base64(upscale_size, upscale_size),
+        "mimeType": "image/png",
+    }
+    return {"predictions": [predictions]}
+
+
+def make_image_upscale_response_gcs() -> Dict[str, Any]:
+    predictions = {
+        "gcsUri": "gs://cloud-samples-data/vertex-ai/llm/prompts/landmark1.png",
         "mimeType": "image/png",
     }
     return {"predictions": [predictions]}
@@ -136,6 +156,12 @@ def generate_image_from_gcs_uri(
     gcs_uri: str = "gs://cloud-samples-data/vertex-ai/llm/prompts/landmark1.png",
 ) -> ga_vision_models.Image:
     return ga_vision_models.Image.load_from_file(gcs_uri)
+
+
+def generate_video_from_gcs_uri(
+    gcs_uri: str = "gs://cloud-samples-data/vertex-ai-vision/highway_vehicles.mp4",
+) -> ga_vision_models.Video:
+    return ga_vision_models.Video.load_from_file(gcs_uri)
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -331,6 +357,111 @@ class TestImageGenerationModels:
             assert image.generation_parameters["base_image_hash"]
             assert image.generation_parameters["mask_hash"]
             assert image.generation_parameters["language"] == language
+
+    def test_generate_images_gcs(self):
+        """Tests the image generation model."""
+        model = self._get_image_generation_model()
+
+        # TODO(b/295946075) The service stopped supporting image sizes.
+        # height = 768
+        number_of_images = 4
+        seed = 1
+        guidance_scale = 15
+        language = "en"
+        output_gcs_uri = "gs://test-bucket/"
+
+        image_generation_response = make_image_generation_response_gcs(
+            count=number_of_images
+        )
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.extend(
+            image_generation_response["predictions"]
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            prompt1 = "Astronaut riding a horse"
+            negative_prompt1 = "bad quality"
+            image_response = model.generate_images(
+                prompt=prompt1,
+                # Optional:
+                negative_prompt=negative_prompt1,
+                number_of_images=number_of_images,
+                # TODO(b/295946075) The service stopped supporting image sizes.
+                # width=width,
+                # height=height,
+                seed=seed,
+                guidance_scale=guidance_scale,
+                language=language,
+                output_gcs_uri=output_gcs_uri,
+            )
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            actual_instance = predict_kwargs["instances"][0]
+            assert actual_instance["prompt"] == prompt1
+            assert actual_parameters["negativePrompt"] == negative_prompt1
+            # TODO(b/295946075) The service stopped supporting image sizes.
+            # assert actual_parameters["sampleImageSize"] == str(max(width, height))
+            # assert actual_parameters["aspectRatio"] == f"{width}:{height}"
+            assert actual_parameters["seed"] == seed
+            assert actual_parameters["guidanceScale"] == guidance_scale
+            assert actual_parameters["language"] == language
+            assert actual_parameters["storageUri"] == output_gcs_uri
+
+        assert len(image_response.images) == number_of_images
+        for idx, image in enumerate(image_response):
+            assert image.generation_parameters
+            assert image.generation_parameters["prompt"] == prompt1
+            assert image.generation_parameters["negative_prompt"] == negative_prompt1
+            # TODO(b/295946075) The service stopped supporting image sizes.
+            # assert image.generation_parameters["width"] == width
+            # assert image.generation_parameters["height"] == height
+            assert image.generation_parameters["seed"] == seed
+            assert image.generation_parameters["guidance_scale"] == guidance_scale
+            assert image.generation_parameters["language"] == language
+            assert image.generation_parameters["index_of_image_in_batch"] == idx
+            assert image.generation_parameters["storage_uri"] == output_gcs_uri
+
+        image1 = generate_image_from_gcs_uri()
+        mask_image = generate_image_from_gcs_uri()
+
+        # Test generating image from base image
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            prompt2 = "Ancient book style"
+            image_response2 = model.edit_image(
+                prompt=prompt2,
+                # Optional:
+                number_of_images=number_of_images,
+                seed=seed,
+                guidance_scale=guidance_scale,
+                base_image=image1,
+                mask=mask_image,
+                language=language,
+                output_gcs_uri=output_gcs_uri,
+            )
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            actual_instance = predict_kwargs["instances"][0]
+            assert actual_instance["prompt"] == prompt2
+            assert actual_instance["image"]["gcsUri"]
+            assert actual_instance["mask"]["image"]["gcsUri"]
+            assert actual_parameters["language"] == language
+
+        assert len(image_response2.images) == number_of_images
+        for image in image_response2:
+            assert image.generation_parameters
+            assert image.generation_parameters["prompt"] == prompt2
+            assert image.generation_parameters["base_image_uri"]
+            assert image.generation_parameters["mask_uri"]
+            assert image.generation_parameters["language"] == language
+            assert image.generation_parameters["storage_uri"] == output_gcs_uri
 
     @unittest.skip(reason="b/295946075 The service stopped supporting image sizes.")
     def test_generate_images_requests_square_images_by_default(self):
@@ -762,6 +893,212 @@ class TestMultiModalEmbeddingModels:
 
         assert embedding_response.image_embedding == test_embeddings
         assert embedding_response.text_embedding == test_embeddings
+
+    def test_video_embedding_model_with_only_video(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = preview_vision_models.MultiModalEmbeddingModel.from_pretrained(
+                "multimodalembedding@001"
+            )
+
+            mock_get_publisher_model.assert_called_once_with(
+                name="publishers/google/models/multimodalembedding@001",
+                retry=base._DEFAULT_RETRY,
+            )
+
+        test_video_embeddings = [
+            ga_vision_models.VideoEmbedding(
+                start_offset_sec=0,
+                end_offset_sec=7,
+                embedding=[0, 7],
+            )
+        ]
+
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(
+            {
+                "videoEmbeddings": [
+                    {
+                        "startOffsetSec": test_video_embeddings[0].start_offset_sec,
+                        "endOffsetSec": test_video_embeddings[0].end_offset_sec,
+                        "embedding": test_video_embeddings[0].embedding,
+                    }
+                ]
+            }
+        )
+
+        video = generate_video_from_gcs_uri()
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            embedding_response = model.get_embeddings(video=video)
+
+        assert (
+            embedding_response.video_embeddings[0].embedding
+            == test_video_embeddings[0].embedding
+        )
+        assert (
+            embedding_response.video_embeddings[0].start_offset_sec
+            == test_video_embeddings[0].start_offset_sec
+        )
+        assert (
+            embedding_response.video_embeddings[0].end_offset_sec
+            == test_video_embeddings[0].end_offset_sec
+        )
+        assert not embedding_response.text_embedding
+        assert not embedding_response.image_embedding
+
+    def test_video_embedding_model_with_video_and_text(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = preview_vision_models.MultiModalEmbeddingModel.from_pretrained(
+                "multimodalembedding@001"
+            )
+
+            mock_get_publisher_model.assert_called_once_with(
+                name="publishers/google/models/multimodalembedding@001",
+                retry=base._DEFAULT_RETRY,
+            )
+
+        test_text_embedding = [0, 0]
+        test_video_embeddings = [
+            ga_vision_models.VideoEmbedding(
+                start_offset_sec=0,
+                end_offset_sec=7,
+                embedding=test_text_embedding,
+            )
+        ]
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(
+            {
+                "textEmbedding": test_text_embedding,
+                "videoEmbeddings": [
+                    {
+                        "startOffsetSec": test_video_embeddings[0].start_offset_sec,
+                        "endOffsetSec": test_video_embeddings[0].end_offset_sec,
+                        "embedding": test_video_embeddings[0].embedding,
+                    }
+                ],
+            }
+        )
+
+        video = generate_video_from_gcs_uri()
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            embedding_response = model.get_embeddings(
+                video=video, contextual_text="hello world"
+            )
+
+        assert (
+            embedding_response.video_embeddings[0].embedding
+            == test_video_embeddings[0].embedding
+        )
+        assert (
+            embedding_response.video_embeddings[0].start_offset_sec
+            == test_video_embeddings[0].start_offset_sec
+        )
+        assert (
+            embedding_response.video_embeddings[0].end_offset_sec
+            == test_video_embeddings[0].end_offset_sec
+        )
+        assert embedding_response.text_embedding == test_text_embedding
+        assert not embedding_response.image_embedding
+
+    def test_multimodal_embedding_model_with_image_video_and_text(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_EMBEDDING_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = preview_vision_models.MultiModalEmbeddingModel.from_pretrained(
+                "multimodalembedding@001"
+            )
+
+            mock_get_publisher_model.assert_called_once_with(
+                name="publishers/google/models/multimodalembedding@001",
+                retry=base._DEFAULT_RETRY,
+            )
+
+        test_embedding = [0, 0]
+        test_video_embeddings = [
+            ga_vision_models.VideoEmbedding(
+                start_offset_sec=0,
+                end_offset_sec=7,
+                embedding=test_embedding,
+            )
+        ]
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.append(
+            {
+                "textEmbedding": test_embedding,
+                "imageEmbedding": test_embedding,
+                "videoEmbeddings": [
+                    {
+                        "startOffsetSec": test_video_embeddings[0].start_offset_sec,
+                        "endOffsetSec": test_video_embeddings[0].end_offset_sec,
+                        "embedding": test_video_embeddings[0].embedding,
+                    }
+                ],
+            }
+        )
+
+        image = generate_image_from_file()
+        video = generate_video_from_gcs_uri()
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ):
+            embedding_response = model.get_embeddings(
+                video=video, image=image, contextual_text="hello world"
+            )
+
+        assert (
+            embedding_response.video_embeddings[0].embedding
+            == test_video_embeddings[0].embedding
+        )
+        assert (
+            embedding_response.video_embeddings[0].start_offset_sec
+            == test_video_embeddings[0].start_offset_sec
+        )
+        assert (
+            embedding_response.video_embeddings[0].end_offset_sec
+            == test_video_embeddings[0].end_offset_sec
+        )
+        assert embedding_response.text_embedding == test_embedding
+        assert embedding_response.image_embedding == test_embedding
 
 
 @pytest.mark.usefixtures("google_auth_mock")

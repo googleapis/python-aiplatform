@@ -92,9 +92,12 @@ from .types.content import CitationMetadata
 from .types.content import Content
 from .types.content import FileData
 from .types.content import GenerationConfig
+from .types.content import GroundingAttribution
+from .types.content import GroundingMetadata
 from .types.content import Part
 from .types.content import SafetyRating
 from .types.content import SafetySetting
+from .types.content import Segment
 from .types.content import VideoMetadata
 from .types.content import HarmCategory
 from .types.context import Context
@@ -695,7 +698,10 @@ from .types.tensorboard_time_series import TensorboardTimeSeries
 from .types.tool import FunctionCall
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
+from .types.tool import GoogleSearchRetrieval
+from .types.tool import Retrieval
 from .types.tool import Tool
+from .types.tool import VertexAISearch
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
 from .types.training_pipeline import InputDataConfig
@@ -1064,6 +1070,9 @@ __all__ = (
     "GetTensorboardTimeSeriesRequest",
     "GetTrainingPipelineRequest",
     "GetTrialRequest",
+    "GoogleSearchRetrieval",
+    "GroundingAttribution",
+    "GroundingMetadata",
     "HarmCategory",
     "HyperparameterTuningJob",
     "IdMatcher",
@@ -1294,6 +1303,7 @@ __all__ = (
     "RestoreDatasetVersionRequest",
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
+    "Retrieval",
     "SafetyRating",
     "SafetySetting",
     "SampleConfig",
@@ -1315,6 +1325,7 @@ __all__ = (
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
+    "Segment",
     "ServiceAccountSpec",
     "SmoothGradConfig",
     "SpecialistPool",
@@ -1410,6 +1421,7 @@ __all__ = (
     "UpsertDatapointsResponse",
     "UserActionReference",
     "Value",
+    "VertexAISearch",
     "VideoMetadata",
     "VizierServiceClient",
     "WorkerPoolSpec",
