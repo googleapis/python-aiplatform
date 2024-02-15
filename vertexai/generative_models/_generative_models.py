@@ -1133,6 +1133,40 @@ class Tool:
         )
 
     @classmethod
+    def from_function_declarations(
+        cls,
+        function_declarations: List["FunctionDeclaration"],
+    ):
+        gapic_function_declarations = [
+            function_declaration._raw_function_declaration
+            for function_declaration in function_declarations
+        ]
+        raw_tool = gapic_tool_types.Tool(
+            function_declarations=gapic_function_declarations
+        )
+        return cls._from_gapic(raw_tool=raw_tool)
+
+    @classmethod
+    def from_retrieval(
+        cls,
+        retrieval: "Retrieval",
+    ):
+        raw_tool = gapic_tool_types.Tool(
+            retrieval=retrieval._raw_retrieval
+        )
+        return cls._from_gapic(raw_tool=raw_tool)
+
+    @classmethod
+    def from_google_search_retrieval(
+        cls,
+        google_search_retrieval: "GoogleSearchRetrieval",
+    ):
+        raw_tool = gapic_tool_types.Tool(
+            google_search_retrieval=google_search_retrieval._raw_google_search_retrieval
+        )
+        return cls._from_gapic(raw_tool=raw_tool)
+
+    @classmethod
     def _from_gapic(
         cls,
         raw_tool: gapic_tool_types.Tool,
@@ -1518,6 +1552,87 @@ class Part:
     @property
     def _image(self) -> "Image":
         return Image.from_bytes(data=self._raw_part.inline_data.data)
+
+
+class grounding:  # pylint: disable=invalid-name
+    """Grounding namespace."""
+
+    def __init__(self):
+        raise RuntimeError("This class must not be instantiated.")
+
+    class Retrieval:
+        """Defines a retrieval tool that model can call to access external knowledge."""
+
+        def __init__(
+            self,
+            source: Union["grounding.VertexAISearch"],
+            disable_attribution: Optional[bool] = None,
+        ):
+            """Initializes a Retrieval tool.
+
+            Args:
+                source (VertexAISearch):
+                    Set to use data source powered by Vertex AI Search.
+                disable_attribution (bool):
+                    Optional. Disable using the result from this
+                    tool in detecting grounding attribution. This
+                    does not affect how the result is given to the
+                    model for generation.
+            """
+            self._raw_retrieval = gapic_tool_types.Retrieval(
+                vertex_ai_search=source._raw_vertex_ai_search,
+                disable_attribution=disable_attribution,
+            )
+
+    class VertexAISearch:
+        r"""Retrieve from Vertex AI Search datastore for grounding.
+        See https://cloud.google.com/vertex-ai-search-and-conversation
+        """
+
+        def __init__(
+            self,
+            datastore: str,
+        ):
+            """Initializes a Vertex AI Search tool.
+
+            Args:
+                datastore (str):
+                    Required. Fully-qualified Vertex AI Search's
+                    datastore resource ID.
+                    projects/<>/locations/<>/collections/<>/dataStores/<>
+            """
+            self._raw_vertex_ai_search = gapic_tool_types.VertexAISearch(
+                datastore=datastore,
+            )
+
+    class GoogleSearchRetrieval:
+        r"""Tool to retrieve public web data for grounding, powered by
+        Google Search.
+
+        Attributes:
+            disable_attribution (bool):
+                Optional. Disable using the result from this
+                tool in detecting grounding attribution. This
+                does not affect how the result is given to the
+                model for generation.
+        """
+
+        def __init__(
+            self,
+            disable_attribution: Optional[bool] = None,
+        ):
+            """Initializes a Google Search Retrieval tool.
+
+            Args:
+                disable_attribution (bool):
+                    Optional. Disable using the result from this
+                    tool in detecting grounding attribution. This
+                    does not affect how the result is given to the
+                    model for generation.
+            """
+            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval(
+                disable_attribution=disable_attribution,
+            )
 
 
 def _to_content(

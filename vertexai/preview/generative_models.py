@@ -17,6 +17,7 @@
 # We just want to re-export certain classes
 # pylint: disable=g-multiple-import,g-importing-member
 from vertexai.generative_models._generative_models import (
+    grounding,
     _PreviewGenerativeModel,
     GenerationConfig,
     GenerationResponse,
@@ -39,6 +40,7 @@ class GenerativeModel(_PreviewGenerativeModel):
 
 
 __all__ = [
+    "grounding",
     "GenerationConfig",
     "GenerativeModel",
     "GenerationResponse",

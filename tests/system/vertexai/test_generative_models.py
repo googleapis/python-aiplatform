@@ -24,6 +24,7 @@ from google import auth
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
 from vertexai import generative_models
+from vertexai.preview import generative_models as preview_generative_models
 
 
 class TestGenerativeModels(e2e_base.TestEndToEnd):
@@ -133,6 +134,20 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         assert response.text
         assert "Zootopia" in response.text
+
+    def test_grounding_google_search_retriever(self):
+        model = preview_generative_models.GenerativeModel("gemini-pro")
+        google_search_retriever_tool = (
+            preview_generative_models.Tool.from_google_search_retrieval(
+                preview_generative_models.grounding.GoogleSearchRetrieval(
+                    disable_attribution=False
+                )
+            )
+        )
+        response = model.generate_content(
+            "Why is sky blue?", tools=[google_search_retriever_tool]
+        )
+        assert response.text
 
     # Chat
 
