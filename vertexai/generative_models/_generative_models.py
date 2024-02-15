@@ -1137,8 +1137,11 @@ class GenerationConfig:
         )
         return cls._from_gapic(raw_generation_config=raw_generation_config)
 
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_generation_config).to_dict(self._raw_generation_config)
+
     def __repr__(self):
-        return self._raw_tool.__repr__()
+        return self._raw_generation_config.__repr__()
 
 
 class Tool:
@@ -1248,6 +1251,9 @@ class Tool:
             )
         raw_tool = gapic_tool_types.Tool(tool_dict)
         return cls._from_gapic(raw_tool=raw_tool)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_tool).to_dict(self._raw_tool)
 
     def __repr__(self):
         return self._raw_tool.__repr__()
@@ -1378,6 +1384,9 @@ class GenerationResponse:
         )
         return cls._from_gapic(raw_response=raw_response)
 
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_response).to_dict(self._raw_response)
+
     def __repr__(self):
         return self._raw_response.__repr__()
 
@@ -1413,6 +1422,9 @@ class Candidate:
     def from_dict(cls, candidate_dict: Dict[str, Any]) -> "Candidate":
         raw_candidate = gapic_content_types.Candidate(candidate_dict)
         return cls._from_gapic(raw_candidate=raw_candidate)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_candidate).to_dict(self._raw_candidate)
 
     def __repr__(self):
         return self._raw_candidate.__repr__()
@@ -1479,6 +1491,9 @@ class Content:
     def from_dict(cls, content_dict: Dict[str, Any]) -> "Content":
         raw_content = gapic_content_types.Content(content_dict)
         return cls._from_gapic(raw_content=raw_content)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_content).to_dict(self._raw_content)
 
     def __repr__(self):
         return self._raw_content.__repr__()
@@ -1584,7 +1599,7 @@ class Part:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        return self._raw_part.to_dict()
+        return type(self._raw_part).to_dict(self._raw_part)
 
     @property
     def text(self) -> str:

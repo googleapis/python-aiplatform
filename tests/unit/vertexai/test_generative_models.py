@@ -367,6 +367,37 @@ class TestGenerativeModels:
         attribute="generate_content",
         new=mock_generate_content,
     )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_conversion_methods(self, generative_models: generative_models):
+        """Tests the .to_dict, .from_dict and __repr__ methods"""
+        model = generative_models.GenerativeModel("gemini-pro")
+        response = model.generate_content("Why is sky blue?")
+
+        response_new = generative_models.GenerationResponse.from_dict(
+            response.to_dict()
+        )
+        assert repr(response_new) == repr(response)
+
+        for candidate in response.candidates:
+            candidate_new = generative_models.Candidate.from_dict(candidate.to_dict())
+            assert repr(candidate_new) == repr(candidate)
+
+            content = candidate.content
+            content_new = generative_models.Content.from_dict(content.to_dict())
+            assert repr(content_new) == repr(content)
+
+            for part in content.parts:
+                part_new = generative_models.Part.from_dict(part.to_dict())
+                assert repr(part_new) == repr(part)
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
     def test_generate_content_grounding_google_search_retriever(self):
         model = preview_generative_models.GenerativeModel("gemini-pro")
         google_search_retriever_tool = (
