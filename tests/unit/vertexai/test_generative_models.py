@@ -120,6 +120,23 @@ def mock_generate_content(
     model: Optional[str] = None,
     contents: Optional[MutableSequence[gapic_content_types.Content]] = None,
 ) -> Iterable[gapic_prediction_service_types.GenerateContentResponse]:
+    last_message_part = request.contents[-1].parts[0]
+    should_fail = last_message_part.text and "Please fail" in last_message_part.text
+    if should_fail:
+        response = gapic_prediction_service_types.GenerateContentResponse(
+            candidates=[
+                gapic_content_types.Candidate(
+                    finish_reason=gapic_content_types.Candidate.FinishReason.SAFETY,
+                    finish_message="Failed due to: " + last_message_part.text,
+                    safety_ratings=[
+                        gapic_content_types.SafetyRating(rating)
+                        for rating in _RESPONSE_SAFETY_RATINGS_STRUCT
+                    ],
+                ),
+            ],
+        )
+        return response
+
     is_continued_chat = len(request.contents) > 1
     has_retrieval = any(
         tool.retrieval or tool.google_search_retrieval for tool in request.tools
@@ -280,6 +297,29 @@ class TestGenerativeModels:
         assert response1.text
         response2 = chat.send_message("Is sky blue on other planets?")
         assert response2.text
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_chat_send_message_response_validation_errors(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel("gemini-pro")
+        chat = model.start_chat()
+        response1 = chat.send_message("Why is sky blue?")
+        assert response1.text
+        assert len(chat.history) == 2
+
+        with pytest.raises(generative_models.ResponseValidationError):
+            chat.send_message("Please fail!")
+        # Checking that history did not get updated
+        assert len(chat.history) == 2
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,

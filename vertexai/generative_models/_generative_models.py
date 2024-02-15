@@ -45,6 +45,7 @@ from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from vertexai.language_models import (
     _language_models as tunable_models,
 )
+import warnings
 
 try:
     from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
@@ -606,11 +607,20 @@ class _GenerativeModel:
         self,
         *,
         history: Optional[List["Content"]] = None,
+        response_validation: bool = True,
     ) -> "ChatSession":
         """Creates a stateful chat session.
 
         Args:
             history: Previous history to initialize the chat session.
+            response_validation: Whether to validate responses before adding
+                them to chat history. By default, `send_message` will raise
+                error if the request or response is blocked or if the response
+                is incomplete due to going over the max token limit.
+                If set to `False`, the chat session history will always
+                accumulate the request and response messages even if the
+                reponse if blocked or incomplete. This can result in an unusable
+                chat session state.
 
         Returns:
             A ChatSession object.
@@ -618,6 +628,7 @@ class _GenerativeModel:
         return ChatSession(
             model=self,
             history=history,
+            response_validation=response_validation,
         )
 
 
@@ -626,6 +637,29 @@ _SUCCESSFUL_FINISH_REASONS = [
     # Many responses have this finish reason
     gapic_content_types.Candidate.FinishReason.FINISH_REASON_UNSPECIFIED,
 ]
+
+
+def _validate_response(
+    response: "GenerationResponse",
+    request_contents: Optional[List["Content"]] = None,
+    response_chunks: Optional[List["GenerationResponse"]] = None,
+) -> None:
+    candidate = response.candidates[0]
+    if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
+        message = (
+            "The model response did not completed successfully.\n"
+            f"Finish reason: {candidate.finish_reason}.\n"
+            f"Finish message: {candidate.finish_message}.\n"
+            f"Safety ratings: {candidate.safety_ratings}.\n"
+            "To protect the integrity of the chat session, the request and response were not added to chat history.\n"
+            "To skip the response validation, specify `model.start_chat(response_validation=False)`.\n"
+            "Note that letting blocked or otherwise incomplete responses into chat history might lead to future interactions being blocked by the service."
+        )
+        raise ResponseValidationError(
+            message=message,
+            request_contents=request_contents,
+            responses=response_chunks,
+        )
 
 
 class ChatSession:
@@ -639,7 +673,7 @@ class ChatSession:
         model: _GenerativeModel,
         *,
         history: Optional[List["Content"]] = None,
-        raise_on_blocked: bool = True,
+        response_validation: bool = True,
     ):
         if history:
             if not all(isinstance(item, Content) for item in history):
@@ -647,7 +681,7 @@ class ChatSession:
 
         self._model = model
         self._history = history or []
-        self._raise_on_blocked = raise_on_blocked
+        self._response_validator = _validate_response if response_validation else None
 
     @property
     def history(self) -> List["Content"]:
@@ -784,13 +818,12 @@ class ChatSession:
             tools=tools,
         )
         # By default we're not adding incomplete interactions to history.
-        if self._raise_on_blocked:
-            if response.candidates[0].finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-                raise ResponseBlockedError(
-                    message="The response was blocked.",
-                    request_contents=request_history,
-                    responses=[response],
-                )
+        if self._response_validator is not None:
+            self._response_validator(
+                response=response,
+                request_contents=request_history,
+                response_chunks=[response],
+            )
 
         # Adding the request and the first response candidate to history
         response_message = response.candidates[0].content
@@ -841,13 +874,13 @@ class ChatSession:
             tools=tools,
         )
         # By default we're not adding incomplete interactions to history.
-        if self._raise_on_blocked:
-            if response.candidates[0].finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-                raise ResponseBlockedError(
-                    message="The response was blocked.",
-                    request_contents=request_history,
-                    responses=[response],
-                )
+        if self._response_validator is not None:
+            self._response_validator(
+                response=response,
+                request_contents=request_history,
+                response_chunks=[response],
+            )
+
         # Adding the request and the first response candidate to history
         response_message = response.candidates[0].content
         # Response role is NOT set by the model.
@@ -905,13 +938,12 @@ class ChatSession:
             else:
                 full_response = chunk
             # By default we're not adding incomplete interactions to history.
-            if self._raise_on_blocked:
-                if chunk.candidates[0].finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-                    raise ResponseBlockedError(
-                        message="The response was blocked.",
-                        request_contents=request_history,
-                        responses=chunks,
-                    )
+            if self._response_validator is not None:
+                self._response_validator(
+                    response=chunk,
+                    request_contents=request_history,
+                    response_chunks=chunks,
+                )
             yield chunk
         if not full_response:
             return
@@ -973,16 +1005,13 @@ class ChatSession:
                 else:
                     full_response = chunk
                 # By default we're not adding incomplete interactions to history.
-                if self._raise_on_blocked:
-                    if (
-                        chunk.candidates[0].finish_reason
-                        not in _SUCCESSFUL_FINISH_REASONS
-                    ):
-                        raise ResponseBlockedError(
-                            message="The response was blocked.",
-                            request_contents=request_history,
-                            responses=chunks,
-                        )
+                if self._response_validator is not None:
+                    self._response_validator(
+                        response=chunk,
+                        request_contents=request_history,
+                        response_chunks=chunks,
+                    )
+
                 yield chunk
             if not full_response:
                 return
@@ -996,6 +1025,36 @@ class ChatSession:
         return async_generator()
 
 
+class _PreviewChatSession(ChatSession):
+    __doc__ = ChatSession.__doc__
+
+    # This class preserves backwards compatibility with the `raise_on_blocked` parameter.
+
+    def __init__(
+        self,
+        model: _GenerativeModel,
+        *,
+        history: Optional[List["Content"]] = None,
+        response_validation: bool = True,
+        # Deprecated
+        raise_on_blocked: Optional[bool] = None,
+    ):
+        if raise_on_blocked is not None:
+            warnings.warn(
+                message="Use `response_validation` instead of `raise_on_blocked`."
+            )
+            if response_validation is not None:
+                raise ValueError(
+                    "Cannot use `response_validation` when `raise_on_blocked` is set."
+                )
+            response_validation = raise_on_blocked
+        super().__init__(
+            model=model,
+            history=history,
+            response_validation=response_validation,
+        )
+
+
 class ResponseBlockedError(Exception):
     def __init__(
         self,
@@ -1006,6 +1065,10 @@ class ResponseBlockedError(Exception):
         super().__init__(message)
         self.request = request_contents
         self.responses = responses
+
+
+class ResponseValidationError(ResponseBlockedError):
+    pass
 
 
 ### Structures
