@@ -606,11 +606,13 @@ class _GenerativeModel:
         self,
         *,
         history: Optional[List["Content"]] = None,
+        raise_on_blocked: bool = True,
     ) -> "ChatSession":
         """Creates a stateful chat session.
 
         Args:
             history: Previous history to initialize the chat session.
+            raise_on_blocked: Whether to raise an exception if the response was blocked.
 
         Returns:
             A ChatSession object.
@@ -618,6 +620,7 @@ class _GenerativeModel:
         return ChatSession(
             model=self,
             history=history,
+            raise_on_blocked=raise_on_blocked,
         )
 
 
