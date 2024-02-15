@@ -16,12 +16,12 @@ To install the
 Python package, run the following command:
 
 ```shell
-pip3 install --upgrade --user google-cloud-aiplatform
+pip3 install --upgrade --user "google-cloud-aiplatform>=1.38"
 ```
 
 ## Usage
 
-For detailed instructions, see [Introduction to multimodal classes in the Vertex AI SDK](http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/sdk-for-gemini/gemini-sdk-overview-reference).
+For detailed instructions, see [quickstart](http://cloud.google.com/vertex-ai/docs/generative-ai/start/quickstarts/quickstart-multimodal) and [Introduction to multimodal classes in the Vertex AI SDK](http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/sdk-for-gemini/gemini-sdk-overview-reference).
 
 #### Imports:
 ```python
