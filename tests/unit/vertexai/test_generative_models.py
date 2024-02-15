@@ -113,7 +113,7 @@ _REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT = {
 }
 
 
-def mock_stream_generate_content(
+def mock_generate_content(
     self,
     request: gapic_prediction_service_types.GenerateContentRequest,
     *,
@@ -161,56 +161,18 @@ def mock_stream_generate_content(
             ),
         ],
     )
-    yield response
+    return response
 
 
-def mock_generate_content(
+def mock_stream_generate_content(
     self,
     request: gapic_prediction_service_types.GenerateContentRequest,
     *,
     model: Optional[str] = None,
     contents: Optional[MutableSequence[gapic_content_types.Content]] = None,
 ) -> Iterable[gapic_prediction_service_types.GenerateContentResponse]:
-    is_continued_chat = len(request.contents) > 1
-    has_tools = bool(request.tools)
-
-    if has_tools:
-        has_function_response = any(
-            "function_response" in content.parts[0] for content in request.contents
-        )
-        needs_function_call = not has_function_response
-        if needs_function_call:
-            response_part_struct = _RESPONSE_FUNCTION_CALL_PART_STRUCT
-        else:
-            response_part_struct = _RESPONSE_AFTER_FUNCTION_CALL_PART_STRUCT
-    elif is_continued_chat:
-        response_part_struct = {"text": "Other planets may have different sky color."}
-    else:
-        response_part_struct = _RESPONSE_TEXT_PART_STRUCT
-
-    return gapic_prediction_service_types.GenerateContentResponse(
-        candidates=[
-            gapic_content_types.Candidate(
-                index=0,
-                content=gapic_content_types.Content(
-                    # Model currently does not identify itself
-                    # role="model",
-                    parts=[
-                        gapic_content_types.Part(response_part_struct),
-                    ],
-                ),
-                finish_reason=gapic_content_types.Candidate.FinishReason.STOP,
-                safety_ratings=[
-                    gapic_content_types.SafetyRating(rating)
-                    for rating in _RESPONSE_SAFETY_RATINGS_STRUCT
-                ],
-                citation_metadata=gapic_content_types.CitationMetadata(
-                    citations=[
-                        gapic_content_types.Citation(_RESPONSE_CITATION_STRUCT),
-                    ]
-                ),
-            ),
-        ],
+    yield mock_generate_content(
+        self=self, request=request, model=model, contents=contents
     )
 
 
