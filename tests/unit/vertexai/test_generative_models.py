@@ -31,7 +31,9 @@ from vertexai.generative_models._generative_models import (
 )
 
 _TEST_PROJECT = "test-project"
+_TEST_PROJECT2 = "test-project2"
 _TEST_LOCATION = "us-central1"
+_TEST_LOCATION2 = "us-central2"
 
 
 _RESPONSE_TEXT_PART_STRUCT = {
@@ -226,6 +228,39 @@ def mock_stream_generate_content(
     )
 
 
+@pytest.fixture
+def no_initializer_config_mock():
+    with mock.patch.object(
+        initializer,
+        "global_config",
+    ) as no_initializer_config_mock:
+        no_initializer_config_mock.project = None
+        no_initializer_config_mock.location = None
+        yield no_initializer_config_mock
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestGenerativeModelErrors:
+    """Unit tests for errors with generative models."""
+
+    def test_initialization_no_project_errors(self, no_initializer_config_mock):
+        with pytest.raises(ValueError, match=r"Please provide a `project`"):
+            generative_models.GenerativeModel(
+                model_name="gemini-pro",
+                location=_TEST_LOCATION,
+            )
+
+    def test_initialization_no_location_errors(
+        self,
+        no_initializer_config_mock,
+    ):
+        with pytest.raises(ValueError, match=r"Please provide a `location`"):
+            generative_models.GenerativeModel(
+                model_name="gemini-pro",
+                project=_TEST_PROJECT,
+            )
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestGenerativeModels:
     """Unit tests for the generative models."""
@@ -238,6 +273,24 @@ class TestGenerativeModels:
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
+
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_construction(self, generative_models: generative_models):
+        model = generative_models.GenerativeModel("gemini-pro")
+        assert model._prediction_resource_name.startswith(
+            f"projects/{initializer.global_config.project}/locations/{initializer.global_config.location}/"
+        )
+        model = generative_models.GenerativeModel(
+            "gemini-pro",
+            project=_TEST_PROJECT2,
+            location=_TEST_LOCATION2,
+        )
+        assert model._prediction_resource_name.startswith(
+            f"projects/{_TEST_PROJECT2}/locations/{_TEST_LOCATION2}/"
+        )
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,

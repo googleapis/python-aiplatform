@@ -136,6 +136,8 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
     ):
         r"""Initializes GenerativeModel.
 
@@ -150,14 +152,28 @@ class _GenerativeModel:
             generation_config: Default generation config to use in generate_content.
             safety_settings: Default safety settings to use in generate_content.
             tools: Default tools to use in generate_content.
+            project: The GCP project to use for the resource name.
+            location: The GCP location to use for the resource name.
         """
         if "/" not in model_name:
             model_name = "publishers/google/models/" + model_name
         if model_name.startswith("models/"):
             model_name = "publishers/google/" + model_name
 
-        project = aiplatform_initializer.global_config.project
-        location = aiplatform_initializer.global_config.location
+        project = project or aiplatform_initializer.global_config.project
+        if not project:
+            raise ValueError(
+                "Please provide a `project` by either:"
+                "\n- Passing an argument to `GenerativeModel(..., project=)` or"
+                "\n- using `vertexai.init(project=)`"
+            )
+        location = location or aiplatform_initializer.global_config.location
+        if not location:
+            raise ValueError(
+                "Please provide a `location` by either:"
+                "\n- Passing an argument to `GenerativeModel(..., location=)` "
+                "\n- or using `vertexai.init(location=)`"
+            )
 
         self._model_name = model_name
         self._prediction_resource_name = (
