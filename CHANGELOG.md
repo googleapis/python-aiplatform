@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.42.1](https://github.com/googleapis/python-aiplatform/compare/v1.42.0...v1.42.1) (2024-02-15)
+
+
+### Bug Fixes
+
+* Handle case when no metadata is returned from model.predict ([59e2bca](https://github.com/googleapis/python-aiplatform/commit/59e2bca8fc9773f0610662d8bf426578b3015c41))
+* Remove runtime dependency of setuptools ([07c2a25](https://github.com/googleapis/python-aiplatform/commit/07c2a25225cf163584fc38616ddb6c1e560ac288))
+
+
+### Documentation
+
+* GenAI - Docs - Added quickstart link and minimum SDK version ([cf6ab21](https://github.com/googleapis/python-aiplatform/commit/cf6ab218035e4712c0202330014cb3b6c241db5b))
+* GenAI - Updated the README for GA ([cfd96d8](https://github.com/googleapis/python-aiplatform/commit/cfd96d804e66befe84c2eb6d259aa50faca2b5db))
+
 ## [1.42.0](https://github.com/googleapis/python-aiplatform/compare/v1.41.0...v1.42.0) (2024-02-15)
 
 
