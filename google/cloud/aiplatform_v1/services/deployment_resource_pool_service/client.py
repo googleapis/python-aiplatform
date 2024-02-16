@@ -67,6 +67,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import DeploymentResourcePoolServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import DeploymentResourcePoolServiceGrpcTransport
 from .transports.grpc_asyncio import DeploymentResourcePoolServiceGrpcAsyncIOTransport
+from .transports.rest import DeploymentResourcePoolServiceRestTransport
 
 
 class DeploymentResourcePoolServiceClientMeta(type):
@@ -84,6 +85,7 @@ class DeploymentResourcePoolServiceClientMeta(type):
     _transport_registry[
         "grpc_asyncio"
     ] = DeploymentResourcePoolServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = DeploymentResourcePoolServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -606,6 +608,9 @@ class DeploymentResourcePoolServiceClient(
             transport (Union[str, DeploymentResourcePoolServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

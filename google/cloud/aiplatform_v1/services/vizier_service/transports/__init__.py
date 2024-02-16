@@ -19,15 +19,20 @@ from typing import Dict, Type
 from .base import VizierServiceTransport
 from .grpc import VizierServiceGrpcTransport
 from .grpc_asyncio import VizierServiceGrpcAsyncIOTransport
+from .rest import VizierServiceRestTransport
+from .rest import VizierServiceRestInterceptor
 
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[VizierServiceTransport]]
 _transport_registry["grpc"] = VizierServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = VizierServiceGrpcAsyncIOTransport
+_transport_registry["rest"] = VizierServiceRestTransport
 
 __all__ = (
     "VizierServiceTransport",
     "VizierServiceGrpcTransport",
     "VizierServiceGrpcAsyncIOTransport",
+    "VizierServiceRestTransport",
+    "VizierServiceRestInterceptor",
 )

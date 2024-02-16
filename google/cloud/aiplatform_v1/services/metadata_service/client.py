@@ -76,6 +76,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import MetadataServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import MetadataServiceGrpcTransport
 from .transports.grpc_asyncio import MetadataServiceGrpcAsyncIOTransport
+from .transports.rest import MetadataServiceRestTransport
 
 
 class MetadataServiceClientMeta(type):
@@ -91,6 +92,7 @@ class MetadataServiceClientMeta(type):
     )  # type: Dict[str, Type[MetadataServiceTransport]]
     _transport_registry["grpc"] = MetadataServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = MetadataServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = MetadataServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -661,6 +663,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             transport (Union[str, MetadataServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

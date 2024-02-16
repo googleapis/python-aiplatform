@@ -67,6 +67,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import FeatureRegistryServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import FeatureRegistryServiceGrpcTransport
 from .transports.grpc_asyncio import FeatureRegistryServiceGrpcAsyncIOTransport
+from .transports.rest import FeatureRegistryServiceRestTransport
 
 
 class FeatureRegistryServiceClientMeta(type):
@@ -82,6 +83,7 @@ class FeatureRegistryServiceClientMeta(type):
     )  # type: Dict[str, Type[FeatureRegistryServiceTransport]]
     _transport_registry["grpc"] = FeatureRegistryServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = FeatureRegistryServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = FeatureRegistryServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -586,6 +588,9 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
             transport (Union[str, FeatureRegistryServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

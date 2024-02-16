@@ -259,6 +259,9 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
             transport (Union[str, ~.FeatureOnlineStoreAdminServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
@@ -785,6 +788,7 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
                 Updatable fields:
 
                 -  ``big_query_source``
+                -  ``bigtable``
                 -  ``labels``
                 -  ``sync_config``
 
@@ -1469,6 +1473,7 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
                 Updatable fields:
 
                 -  ``labels``
+                -  ``serviceAgentType``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

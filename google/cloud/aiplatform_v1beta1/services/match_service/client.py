@@ -56,6 +56,7 @@ from google.longrunning import operations_pb2  # type: ignore
 from .transports.base import MatchServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import MatchServiceGrpcTransport
 from .transports.grpc_asyncio import MatchServiceGrpcAsyncIOTransport
+from .transports.rest import MatchServiceRestTransport
 
 
 class MatchServiceClientMeta(type):
@@ -69,6 +70,7 @@ class MatchServiceClientMeta(type):
     _transport_registry = OrderedDict()  # type: Dict[str, Type[MatchServiceTransport]]
     _transport_registry["grpc"] = MatchServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = MatchServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = MatchServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -545,6 +547,9 @@ class MatchServiceClient(metaclass=MatchServiceClientMeta):
             transport (Union[str, MatchServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

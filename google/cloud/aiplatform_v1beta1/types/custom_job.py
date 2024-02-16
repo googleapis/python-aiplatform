@@ -543,10 +543,6 @@ class Scheduling(proto.Message):
             Optional. Indicates if the job should retry for internal
             errors after the job starts running. If true, overrides
             ``Scheduling.restart_job_on_worker_restart`` to false.
-        max_wait_duration (google.protobuf.duration_pb2.Duration):
-            Optional. This is the maximum time a user
-            will wait in the QRM queue for resources.
-            Default is 1 day
     """
 
     timeout: duration_pb2.Duration = proto.Field(
@@ -561,11 +557,6 @@ class Scheduling(proto.Message):
     disable_retries: bool = proto.Field(
         proto.BOOL,
         number=5,
-    )
-    max_wait_duration: duration_pb2.Duration = proto.Field(
-        proto.MESSAGE,
-        number=6,
-        message=duration_pb2.Duration,
     )
 
 
