@@ -145,7 +145,7 @@ testing_extra_require = (
         "tensorflow >= 2.3.0, <= 2.12.0; python_version<'3.12'",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
-        "torch >= 2.0.0, < 2.1.0",
+        "torch >= 2.0.0, < 2.1.0; python_version<'3.12'",
         "xgboost",
         "xgboost_ray",
         "requests-toolbelt < 1.0.0",
