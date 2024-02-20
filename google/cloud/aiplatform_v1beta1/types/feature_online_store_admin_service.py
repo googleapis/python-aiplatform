@@ -237,6 +237,7 @@ class UpdateFeatureOnlineStoreRequest(proto.Message):
             Updatable fields:
 
             -  ``big_query_source``
+            -  ``bigtable``
             -  ``labels``
             -  ``sync_config``
     """
@@ -472,6 +473,7 @@ class UpdateFeatureViewRequest(proto.Message):
             Updatable fields:
 
             -  ``labels``
+            -  ``serviceAgentType``
     """
 
     feature_view: gca_feature_view.FeatureView = proto.Field(

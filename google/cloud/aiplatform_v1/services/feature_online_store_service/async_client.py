@@ -223,6 +223,9 @@ class FeatureOnlineStoreServiceAsyncClient:
             transport (Union[str, ~.FeatureOnlineStoreServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
@@ -361,6 +364,100 @@ class FeatureOnlineStoreServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.fetch_feature_values,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("feature_view", request.feature_view),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def search_nearest_entities(
+        self,
+        request: Optional[
+            Union[feature_online_store_service.SearchNearestEntitiesRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> feature_online_store_service.SearchNearestEntitiesResponse:
+        r"""Search the nearest entities under a FeatureView.
+        Search only works for indexable feature view; if a
+        feature view isn't indexable, returns Invalid argument
+        response.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_search_nearest_entities():
+                # Create a client
+                client = aiplatform_v1.FeatureOnlineStoreServiceAsyncClient()
+
+                # Initialize request argument(s)
+                query = aiplatform_v1.NearestNeighborQuery()
+                query.entity_id = "entity_id_value"
+
+                request = aiplatform_v1.SearchNearestEntitiesRequest(
+                    feature_view="feature_view_value",
+                    query=query,
+                )
+
+                # Make the request
+                response = await client.search_nearest_entities(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.SearchNearestEntitiesRequest, dict]]):
+                The request object. The request message for
+                [FeatureOnlineStoreService.SearchNearestEntities][google.cloud.aiplatform.v1.FeatureOnlineStoreService.SearchNearestEntities].
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.SearchNearestEntitiesResponse:
+                Response message for
+                   [FeatureOnlineStoreService.SearchNearestEntities][google.cloud.aiplatform.v1.FeatureOnlineStoreService.SearchNearestEntities]
+
+        """
+        # Create or coerce a protobuf request object.
+        request = feature_online_store_service.SearchNearestEntitiesRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.search_nearest_entities,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )

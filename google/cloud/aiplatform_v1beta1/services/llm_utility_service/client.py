@@ -48,7 +48,6 @@ except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import llm_utility_service
-from google.cloud.aiplatform_v1beta1.types import prediction_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -57,6 +56,7 @@ from google.protobuf import struct_pb2  # type: ignore
 from .transports.base import LlmUtilityServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import LlmUtilityServiceGrpcTransport
 from .transports.grpc_asyncio import LlmUtilityServiceGrpcAsyncIOTransport
+from .transports.rest import LlmUtilityServiceRestTransport
 
 
 class LlmUtilityServiceClientMeta(type):
@@ -72,6 +72,7 @@ class LlmUtilityServiceClientMeta(type):
     )  # type: Dict[str, Type[LlmUtilityServiceTransport]]
     _transport_registry["grpc"] = LlmUtilityServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = LlmUtilityServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = LlmUtilityServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -546,6 +547,9 @@ class LlmUtilityServiceClient(metaclass=LlmUtilityServiceClientMeta):
             transport (Union[str, LlmUtilityServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
@@ -666,133 +670,6 @@ class LlmUtilityServiceClient(metaclass=LlmUtilityServiceClientMeta):
                 always_use_jwt_access=True,
                 api_audience=self._client_options.api_audience,
             )
-
-    def count_tokens(
-        self,
-        request: Optional[Union[prediction_service.CountTokensRequest, dict]] = None,
-        *,
-        endpoint: Optional[str] = None,
-        instances: Optional[MutableSequence[struct_pb2.Value]] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> prediction_service.CountTokensResponse:
-        r"""Perform a token counting.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_count_tokens():
-                # Create a client
-                client = aiplatform_v1beta1.LlmUtilityServiceClient()
-
-                # Initialize request argument(s)
-                instances = aiplatform_v1beta1.Value()
-                instances.null_value = "NULL_VALUE"
-
-                contents = aiplatform_v1beta1.Content()
-                contents.parts.text = "text_value"
-
-                request = aiplatform_v1beta1.CountTokensRequest(
-                    endpoint="endpoint_value",
-                    model="model_value",
-                    instances=instances,
-                    contents=contents,
-                )
-
-                # Make the request
-                response = client.count_tokens(request=request)
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CountTokensRequest, dict]):
-                The request object. Request message for
-                [PredictionService.CountTokens][google.cloud.aiplatform.v1beta1.PredictionService.CountTokens].
-            endpoint (str):
-                Required. The name of the Endpoint requested to perform
-                token counting. Format:
-                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
-
-                This corresponds to the ``endpoint`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            instances (MutableSequence[google.protobuf.struct_pb2.Value]):
-                Required. The instances that are the
-                input to token counting call. Schema is
-                identical to the prediction schema of
-                the underlying model.
-
-                This corresponds to the ``instances`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.types.CountTokensResponse:
-                Response message for
-                   [PredictionService.CountTokens][google.cloud.aiplatform.v1beta1.PredictionService.CountTokens].
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([endpoint, instances])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a prediction_service.CountTokensRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, prediction_service.CountTokensRequest):
-            request = prediction_service.CountTokensRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if endpoint is not None:
-                request.endpoint = endpoint
-            if instances is not None:
-                request.instances.extend(instances)
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.count_tokens]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
-        )
-
-        # Validate the universe domain.
-        self._validate_universe_domain()
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
 
     def compute_tokens(
         self,

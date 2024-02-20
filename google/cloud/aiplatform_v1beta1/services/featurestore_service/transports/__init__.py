@@ -19,6 +19,8 @@ from typing import Dict, Type
 from .base import FeaturestoreServiceTransport
 from .grpc import FeaturestoreServiceGrpcTransport
 from .grpc_asyncio import FeaturestoreServiceGrpcAsyncIOTransport
+from .rest import FeaturestoreServiceRestTransport
+from .rest import FeaturestoreServiceRestInterceptor
 
 
 # Compile a registry of transports.
@@ -27,9 +29,12 @@ _transport_registry = (
 )  # type: Dict[str, Type[FeaturestoreServiceTransport]]
 _transport_registry["grpc"] = FeaturestoreServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = FeaturestoreServiceGrpcAsyncIOTransport
+_transport_registry["rest"] = FeaturestoreServiceRestTransport
 
 __all__ = (
     "FeaturestoreServiceTransport",
     "FeaturestoreServiceGrpcTransport",
     "FeaturestoreServiceGrpcAsyncIOTransport",
+    "FeaturestoreServiceRestTransport",
+    "FeaturestoreServiceRestInterceptor",
 )

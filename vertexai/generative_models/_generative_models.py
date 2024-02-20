@@ -45,6 +45,7 @@ from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from vertexai.language_models import (
     _language_models as tunable_models,
 )
+import warnings
 
 try:
     from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
@@ -606,11 +607,20 @@ class _GenerativeModel:
         self,
         *,
         history: Optional[List["Content"]] = None,
+        response_validation: bool = True,
     ) -> "ChatSession":
         """Creates a stateful chat session.
 
         Args:
             history: Previous history to initialize the chat session.
+            response_validation: Whether to validate responses before adding
+                them to chat history. By default, `send_message` will raise
+                error if the request or response is blocked or if the response
+                is incomplete due to going over the max token limit.
+                If set to `False`, the chat session history will always
+                accumulate the request and response messages even if the
+                reponse if blocked or incomplete. This can result in an unusable
+                chat session state.
 
         Returns:
             A ChatSession object.
@@ -618,6 +628,7 @@ class _GenerativeModel:
         return ChatSession(
             model=self,
             history=history,
+            response_validation=response_validation,
         )
 
 
@@ -626,6 +637,29 @@ _SUCCESSFUL_FINISH_REASONS = [
     # Many responses have this finish reason
     gapic_content_types.Candidate.FinishReason.FINISH_REASON_UNSPECIFIED,
 ]
+
+
+def _validate_response(
+    response: "GenerationResponse",
+    request_contents: Optional[List["Content"]] = None,
+    response_chunks: Optional[List["GenerationResponse"]] = None,
+) -> None:
+    candidate = response.candidates[0]
+    if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
+        message = (
+            "The model response did not completed successfully.\n"
+            f"Finish reason: {candidate.finish_reason}.\n"
+            f"Finish message: {candidate.finish_message}.\n"
+            f"Safety ratings: {candidate.safety_ratings}.\n"
+            "To protect the integrity of the chat session, the request and response were not added to chat history.\n"
+            "To skip the response validation, specify `model.start_chat(response_validation=False)`.\n"
+            "Note that letting blocked or otherwise incomplete responses into chat history might lead to future interactions being blocked by the service."
+        )
+        raise ResponseValidationError(
+            message=message,
+            request_contents=request_contents,
+            responses=response_chunks,
+        )
 
 
 class ChatSession:
@@ -639,7 +673,7 @@ class ChatSession:
         model: _GenerativeModel,
         *,
         history: Optional[List["Content"]] = None,
-        raise_on_blocked: bool = True,
+        response_validation: bool = True,
     ):
         if history:
             if not all(isinstance(item, Content) for item in history):
@@ -647,7 +681,7 @@ class ChatSession:
 
         self._model = model
         self._history = history or []
-        self._raise_on_blocked = raise_on_blocked
+        self._response_validator = _validate_response if response_validation else None
 
     @property
     def history(self) -> List["Content"]:
@@ -784,13 +818,12 @@ class ChatSession:
             tools=tools,
         )
         # By default we're not adding incomplete interactions to history.
-        if self._raise_on_blocked:
-            if response.candidates[0].finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-                raise ResponseBlockedError(
-                    message="The response was blocked.",
-                    request_contents=request_history,
-                    responses=[response],
-                )
+        if self._response_validator is not None:
+            self._response_validator(
+                response=response,
+                request_contents=request_history,
+                response_chunks=[response],
+            )
 
         # Adding the request and the first response candidate to history
         response_message = response.candidates[0].content
@@ -841,13 +874,13 @@ class ChatSession:
             tools=tools,
         )
         # By default we're not adding incomplete interactions to history.
-        if self._raise_on_blocked:
-            if response.candidates[0].finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-                raise ResponseBlockedError(
-                    message="The response was blocked.",
-                    request_contents=request_history,
-                    responses=[response],
-                )
+        if self._response_validator is not None:
+            self._response_validator(
+                response=response,
+                request_contents=request_history,
+                response_chunks=[response],
+            )
+
         # Adding the request and the first response candidate to history
         response_message = response.candidates[0].content
         # Response role is NOT set by the model.
@@ -905,13 +938,12 @@ class ChatSession:
             else:
                 full_response = chunk
             # By default we're not adding incomplete interactions to history.
-            if self._raise_on_blocked:
-                if chunk.candidates[0].finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-                    raise ResponseBlockedError(
-                        message="The response was blocked.",
-                        request_contents=request_history,
-                        responses=chunks,
-                    )
+            if self._response_validator is not None:
+                self._response_validator(
+                    response=chunk,
+                    request_contents=request_history,
+                    response_chunks=chunks,
+                )
             yield chunk
         if not full_response:
             return
@@ -973,16 +1005,13 @@ class ChatSession:
                 else:
                     full_response = chunk
                 # By default we're not adding incomplete interactions to history.
-                if self._raise_on_blocked:
-                    if (
-                        chunk.candidates[0].finish_reason
-                        not in _SUCCESSFUL_FINISH_REASONS
-                    ):
-                        raise ResponseBlockedError(
-                            message="The response was blocked.",
-                            request_contents=request_history,
-                            responses=chunks,
-                        )
+                if self._response_validator is not None:
+                    self._response_validator(
+                        response=chunk,
+                        request_contents=request_history,
+                        response_chunks=chunks,
+                    )
+
                 yield chunk
             if not full_response:
                 return
@@ -996,6 +1025,36 @@ class ChatSession:
         return async_generator()
 
 
+class _PreviewChatSession(ChatSession):
+    __doc__ = ChatSession.__doc__
+
+    # This class preserves backwards compatibility with the `raise_on_blocked` parameter.
+
+    def __init__(
+        self,
+        model: _GenerativeModel,
+        *,
+        history: Optional[List["Content"]] = None,
+        response_validation: bool = True,
+        # Deprecated
+        raise_on_blocked: Optional[bool] = None,
+    ):
+        if raise_on_blocked is not None:
+            warnings.warn(
+                message="Use `response_validation` instead of `raise_on_blocked`."
+            )
+            if response_validation is not None:
+                raise ValueError(
+                    "Cannot use `response_validation` when `raise_on_blocked` is set."
+                )
+            response_validation = raise_on_blocked
+        super().__init__(
+            model=model,
+            history=history,
+            response_validation=response_validation,
+        )
+
+
 class ResponseBlockedError(Exception):
     def __init__(
         self,
@@ -1006,6 +1065,10 @@ class ResponseBlockedError(Exception):
         super().__init__(message)
         self.request = request_contents
         self.responses = responses
+
+
+class ResponseValidationError(ResponseBlockedError):
+    pass
 
 
 ### Structures
@@ -1074,8 +1137,11 @@ class GenerationConfig:
         )
         return cls._from_gapic(raw_generation_config=raw_generation_config)
 
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_generation_config).to_dict(self._raw_generation_config)
+
     def __repr__(self):
-        return self._raw_tool.__repr__()
+        return self._raw_generation_config.__repr__()
 
 
 class Tool:
@@ -1133,6 +1199,40 @@ class Tool:
         )
 
     @classmethod
+    def from_function_declarations(
+        cls,
+        function_declarations: List["FunctionDeclaration"],
+    ):
+        gapic_function_declarations = [
+            function_declaration._raw_function_declaration
+            for function_declaration in function_declarations
+        ]
+        raw_tool = gapic_tool_types.Tool(
+            function_declarations=gapic_function_declarations
+        )
+        return cls._from_gapic(raw_tool=raw_tool)
+
+    @classmethod
+    def from_retrieval(
+        cls,
+        retrieval: "Retrieval",
+    ):
+        raw_tool = gapic_tool_types.Tool(
+            retrieval=retrieval._raw_retrieval
+        )
+        return cls._from_gapic(raw_tool=raw_tool)
+
+    @classmethod
+    def from_google_search_retrieval(
+        cls,
+        google_search_retrieval: "GoogleSearchRetrieval",
+    ):
+        raw_tool = gapic_tool_types.Tool(
+            google_search_retrieval=google_search_retrieval._raw_google_search_retrieval
+        )
+        return cls._from_gapic(raw_tool=raw_tool)
+
+    @classmethod
     def _from_gapic(
         cls,
         raw_tool: gapic_tool_types.Tool,
@@ -1151,6 +1251,9 @@ class Tool:
             )
         raw_tool = gapic_tool_types.Tool(tool_dict)
         return cls._from_gapic(raw_tool=raw_tool)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_tool).to_dict(self._raw_tool)
 
     def __repr__(self):
         return self._raw_tool.__repr__()
@@ -1281,6 +1384,9 @@ class GenerationResponse:
         )
         return cls._from_gapic(raw_response=raw_response)
 
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_response).to_dict(self._raw_response)
+
     def __repr__(self):
         return self._raw_response.__repr__()
 
@@ -1316,6 +1422,9 @@ class Candidate:
     def from_dict(cls, candidate_dict: Dict[str, Any]) -> "Candidate":
         raw_candidate = gapic_content_types.Candidate(candidate_dict)
         return cls._from_gapic(raw_candidate=raw_candidate)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_candidate).to_dict(self._raw_candidate)
 
     def __repr__(self):
         return self._raw_candidate.__repr__()
@@ -1382,6 +1491,9 @@ class Content:
     def from_dict(cls, content_dict: Dict[str, Any]) -> "Content":
         raw_content = gapic_content_types.Content(content_dict)
         return cls._from_gapic(raw_content=raw_content)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_content).to_dict(self._raw_content)
 
     def __repr__(self):
         return self._raw_content.__repr__()
@@ -1487,7 +1599,7 @@ class Part:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        return self._raw_part.to_dict()
+        return type(self._raw_part).to_dict(self._raw_part)
 
     @property
     def text(self) -> str:
@@ -1518,6 +1630,87 @@ class Part:
     @property
     def _image(self) -> "Image":
         return Image.from_bytes(data=self._raw_part.inline_data.data)
+
+
+class grounding:  # pylint: disable=invalid-name
+    """Grounding namespace."""
+
+    def __init__(self):
+        raise RuntimeError("This class must not be instantiated.")
+
+    class Retrieval:
+        """Defines a retrieval tool that model can call to access external knowledge."""
+
+        def __init__(
+            self,
+            source: Union["grounding.VertexAISearch"],
+            disable_attribution: Optional[bool] = None,
+        ):
+            """Initializes a Retrieval tool.
+
+            Args:
+                source (VertexAISearch):
+                    Set to use data source powered by Vertex AI Search.
+                disable_attribution (bool):
+                    Optional. Disable using the result from this
+                    tool in detecting grounding attribution. This
+                    does not affect how the result is given to the
+                    model for generation.
+            """
+            self._raw_retrieval = gapic_tool_types.Retrieval(
+                vertex_ai_search=source._raw_vertex_ai_search,
+                disable_attribution=disable_attribution,
+            )
+
+    class VertexAISearch:
+        r"""Retrieve from Vertex AI Search datastore for grounding.
+        See https://cloud.google.com/vertex-ai-search-and-conversation
+        """
+
+        def __init__(
+            self,
+            datastore: str,
+        ):
+            """Initializes a Vertex AI Search tool.
+
+            Args:
+                datastore (str):
+                    Required. Fully-qualified Vertex AI Search's
+                    datastore resource ID.
+                    projects/<>/locations/<>/collections/<>/dataStores/<>
+            """
+            self._raw_vertex_ai_search = gapic_tool_types.VertexAISearch(
+                datastore=datastore,
+            )
+
+    class GoogleSearchRetrieval:
+        r"""Tool to retrieve public web data for grounding, powered by
+        Google Search.
+
+        Attributes:
+            disable_attribution (bool):
+                Optional. Disable using the result from this
+                tool in detecting grounding attribution. This
+                does not affect how the result is given to the
+                model for generation.
+        """
+
+        def __init__(
+            self,
+            disable_attribution: Optional[bool] = None,
+        ):
+            """Initializes a Google Search Retrieval tool.
+
+            Args:
+                disable_attribution (bool):
+                    Optional. Disable using the result from this
+                    tool in detecting grounding attribution. This
+                    does not affect how the result is given to the
+                    model for generation.
+            """
+            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval(
+                disable_attribution=disable_attribution,
+            )
 
 
 def _to_content(

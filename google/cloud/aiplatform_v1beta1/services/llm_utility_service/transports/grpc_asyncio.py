@@ -25,7 +25,6 @@ import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import llm_utility_service
-from google.cloud.aiplatform_v1beta1.types import prediction_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -236,35 +235,6 @@ class LlmUtilityServiceGrpcAsyncIOTransport(LlmUtilityServiceTransport):
         """
         # Return the channel from cache.
         return self._grpc_channel
-
-    @property
-    def count_tokens(
-        self,
-    ) -> Callable[
-        [prediction_service.CountTokensRequest],
-        Awaitable[prediction_service.CountTokensResponse],
-    ]:
-        r"""Return a callable for the count tokens method over gRPC.
-
-        Perform a token counting.
-
-        Returns:
-            Callable[[~.CountTokensRequest],
-                    Awaitable[~.CountTokensResponse]]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "count_tokens" not in self._stubs:
-            self._stubs["count_tokens"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.LlmUtilityService/CountTokens",
-                request_serializer=prediction_service.CountTokensRequest.serialize,
-                response_deserializer=prediction_service.CountTokensResponse.deserialize,
-            )
-        return self._stubs["count_tokens"]
 
     @property
     def compute_tokens(

@@ -68,6 +68,7 @@ from google.rpc import status_pb2  # type: ignore
 from .transports.base import PersistentResourceServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import PersistentResourceServiceGrpcTransport
 from .transports.grpc_asyncio import PersistentResourceServiceGrpcAsyncIOTransport
+from .transports.rest import PersistentResourceServiceRestTransport
 
 
 class PersistentResourceServiceClientMeta(type):
@@ -83,6 +84,7 @@ class PersistentResourceServiceClientMeta(type):
     )  # type: Dict[str, Type[PersistentResourceServiceTransport]]
     _transport_registry["grpc"] = PersistentResourceServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = PersistentResourceServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = PersistentResourceServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -580,6 +582,9 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             transport (Union[str, PersistentResourceServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

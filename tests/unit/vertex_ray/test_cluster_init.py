@@ -20,6 +20,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform.preview import vertex_ray
 from google.cloud.aiplatform.preview.vertex_ray.util.resources import (
     Resources,
+    NodeImages,
 )
 from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
     PersistentResourceServiceClient,
@@ -78,6 +79,18 @@ def get_persistent_resource_1_pool_mock():
             tc.ClusterConstants._TEST_RESPONSE_RUNNING_1_POOL
         )
         yield get_persistent_resource_1_pool_mock
+
+
+@pytest.fixture
+def get_persistent_resource_1_pool_custom_image_mock():
+    with mock.patch.object(
+        PersistentResourceServiceClient,
+        "get_persistent_resource",
+    ) as get_persistent_resource_1_pool_custom_image_mock:
+        get_persistent_resource_1_pool_custom_image_mock.return_value = (
+            tc.ClusterConstants._TEST_RESPONSE_RUNNING_1_POOL_CUSTOM_IMAGES
+        )
+        yield get_persistent_resource_1_pool_custom_image_mock
 
 
 @pytest.fixture
@@ -227,6 +240,35 @@ class TestClusterManagement:
         request = persistent_resource_service.CreatePersistentResourceRequest(
             parent=tc.ProjectConstants._TEST_PARENT,
             persistent_resource=tc.ClusterConstants._TEST_REQUEST_RUNNING_1_POOL,
+            persistent_resource_id=tc.ClusterConstants._TEST_VERTEX_RAY_PR_ID,
+        )
+
+        create_persistent_resource_1_pool_mock.assert_called_with(
+            request,
+        )
+
+    @pytest.mark.usefixtures("get_persistent_resource_1_pool_custom_image_mock")
+    def test_create_ray_cluster_1_pool_custom_image_success(
+        self, create_persistent_resource_1_pool_mock
+    ):
+        """If head and worker nodes are duplicate, merge to head pool."""
+        custom_images = NodeImages(
+            head=tc.ClusterConstants._TEST_CUSTOM_IMAGE,
+            worker=tc.ClusterConstants._TEST_CUSTOM_IMAGE,
+        )
+        cluster_name = vertex_ray.create_ray_cluster(
+            head_node_type=tc.ClusterConstants._TEST_HEAD_NODE_TYPE_1_POOL,
+            worker_node_types=tc.ClusterConstants._TEST_WORKER_NODE_TYPES_1_POOL,
+            network=tc.ProjectConstants._TEST_VPC_NETWORK,
+            cluster_name=tc.ClusterConstants._TEST_VERTEX_RAY_PR_ID,
+            custom_images=custom_images,
+        )
+
+        assert tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
+
+        request = persistent_resource_service.CreatePersistentResourceRequest(
+            parent=tc.ProjectConstants._TEST_PARENT,
+            persistent_resource=tc.ClusterConstants._TEST_REQUEST_RUNNING_1_POOL_CUSTOM_IMAGES,
             persistent_resource_id=tc.ClusterConstants._TEST_VERTEX_RAY_PR_ID,
         )
 

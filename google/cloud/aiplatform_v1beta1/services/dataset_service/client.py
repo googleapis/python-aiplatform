@@ -72,6 +72,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import DatasetServiceGrpcTransport
 from .transports.grpc_asyncio import DatasetServiceGrpcAsyncIOTransport
+from .transports.rest import DatasetServiceRestTransport
 
 
 class DatasetServiceClientMeta(type):
@@ -87,6 +88,7 @@ class DatasetServiceClientMeta(type):
     )  # type: Dict[str, Type[DatasetServiceTransport]]
     _transport_registry["grpc"] = DatasetServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = DatasetServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = DatasetServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -685,6 +687,9 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             transport (Union[str, DatasetServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

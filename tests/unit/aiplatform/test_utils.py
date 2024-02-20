@@ -139,7 +139,7 @@ def test_invalid_region_does_not_raise_with_valid_region():
 
 @pytest.fixture
 def copy_tree_mock():
-    with mock.patch("distutils.dir_util.copy_tree") as copy_tree_mock:
+    with mock.patch("shutil.copytree") as copy_tree_mock:
         yield copy_tree_mock
 
 

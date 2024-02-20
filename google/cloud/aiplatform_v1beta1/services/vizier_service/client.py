@@ -61,6 +61,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import VizierServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import VizierServiceGrpcTransport
 from .transports.grpc_asyncio import VizierServiceGrpcAsyncIOTransport
+from .transports.rest import VizierServiceRestTransport
 
 
 class VizierServiceClientMeta(type):
@@ -74,6 +75,7 @@ class VizierServiceClientMeta(type):
     _transport_registry = OrderedDict()  # type: Dict[str, Type[VizierServiceTransport]]
     _transport_registry["grpc"] = VizierServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = VizierServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = VizierServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -599,6 +601,9 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
             transport (Union[str, VizierServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

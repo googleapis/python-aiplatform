@@ -44,6 +44,12 @@ def _load_image_from_gcs(
     return vision_models.Image.load_from_file(gcs_uri)
 
 
+def _load_video_from_gcs(
+    gcs_uri: str = "gs://cloud-samples-data/vertex-ai-vision/highway_vehicles.mp4",
+) -> vision_models.Video:
+    return vision_models.Video.load_from_file(gcs_uri)
+
+
 class VisionModelTestSuite(e2e_base.TestEndToEnd):
     """System tests for vision models."""
 
@@ -98,13 +104,18 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             "multimodalembedding@001"
         )
         image = _load_image_from_gcs()
+        video = _load_video_from_gcs()
+        video_segment_config = vision_models.VideoSegmentConfig()
         embeddings = model.get_embeddings(
             image=image,
+            video=video,
             # Optional:
             contextual_text="this is a car",
+            video_segment_config=video_segment_config,
         )
         # The service is expected to return the embeddings of size 1408
         assert len(embeddings.image_embedding) == 1408
+        assert len(embeddings.video_embeddings[0].embedding) == 1408
         assert len(embeddings.text_embedding) == 1408
 
     def test_image_generation_model_generate_images(self):

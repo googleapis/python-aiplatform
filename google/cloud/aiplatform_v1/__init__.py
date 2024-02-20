@@ -240,6 +240,10 @@ from .types.feature_online_store_admin_service import UpdateFeatureViewRequest
 from .types.feature_online_store_service import FeatureViewDataKey
 from .types.feature_online_store_service import FetchFeatureValuesRequest
 from .types.feature_online_store_service import FetchFeatureValuesResponse
+from .types.feature_online_store_service import NearestNeighborQuery
+from .types.feature_online_store_service import NearestNeighbors
+from .types.feature_online_store_service import SearchNearestEntitiesRequest
+from .types.feature_online_store_service import SearchNearestEntitiesResponse
 from .types.feature_online_store_service import FeatureViewDataFormat
 from .types.feature_registry_service import CreateFeatureGroupOperationMetadata
 from .types.feature_registry_service import CreateFeatureGroupRequest
@@ -598,6 +602,7 @@ from .types.schedule_service import PauseScheduleRequest
 from .types.schedule_service import ResumeScheduleRequest
 from .types.schedule_service import UpdateScheduleRequest
 from .types.service_networking import PrivateServiceConnectConfig
+from .types.service_networking import PscAutomatedEndpoints
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -1187,7 +1192,9 @@ __all__ = (
     "NasJobSpec",
     "NasTrial",
     "NasTrialDetail",
+    "NearestNeighborQuery",
     "NearestNeighborSearchOperationMetadata",
+    "NearestNeighbors",
     "Neighbor",
     "NfsMount",
     "Part",
@@ -1213,6 +1220,7 @@ __all__ = (
     "PrivateEndpoints",
     "PrivateServiceConnectConfig",
     "Probe",
+    "PscAutomatedEndpoints",
     "PublisherModel",
     "PublisherModelView",
     "PurgeArtifactsMetadata",
@@ -1271,6 +1279,8 @@ __all__ = (
     "SearchMigratableResourcesResponse",
     "SearchModelDeploymentMonitoringStatsAnomaliesRequest",
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
+    "SearchNearestEntitiesRequest",
+    "SearchNearestEntitiesResponse",
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",

@@ -29,7 +29,7 @@ from vertexai.generative_models._generative_models import (
     HarmBlockThreshold,
     Image,
     Part,
-    ResponseBlockedError,
+    ResponseValidationError,
     Tool,
 )
 
@@ -46,6 +46,6 @@ __all__ = [
     "HarmBlockThreshold",
     "Image",
     "Part",
-    "ResponseBlockedError",
+    "ResponseValidationError",
     "Tool",
 ]

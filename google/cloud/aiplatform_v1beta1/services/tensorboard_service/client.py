@@ -77,6 +77,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import TensorboardServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import TensorboardServiceGrpcTransport
 from .transports.grpc_asyncio import TensorboardServiceGrpcAsyncIOTransport
+from .transports.rest import TensorboardServiceRestTransport
 
 
 class TensorboardServiceClientMeta(type):
@@ -92,6 +93,7 @@ class TensorboardServiceClientMeta(type):
     )  # type: Dict[str, Type[TensorboardServiceTransport]]
     _transport_registry["grpc"] = TensorboardServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = TensorboardServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = TensorboardServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -646,6 +648,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             transport (Union[str, TensorboardServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

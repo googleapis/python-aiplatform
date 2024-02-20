@@ -65,6 +65,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import ScheduleServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import ScheduleServiceGrpcTransport
 from .transports.grpc_asyncio import ScheduleServiceGrpcAsyncIOTransport
+from .transports.rest import ScheduleServiceRestTransport
 
 
 class ScheduleServiceClientMeta(type):
@@ -80,6 +81,7 @@ class ScheduleServiceClientMeta(type):
     )  # type: Dict[str, Type[ScheduleServiceTransport]]
     _transport_registry["grpc"] = ScheduleServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = ScheduleServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = ScheduleServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -692,6 +694,9 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
             transport (Union[str, ScheduleServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

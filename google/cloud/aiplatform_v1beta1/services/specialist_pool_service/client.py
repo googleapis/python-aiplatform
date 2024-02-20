@@ -63,6 +63,7 @@ from google.protobuf import field_mask_pb2  # type: ignore
 from .transports.base import SpecialistPoolServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import SpecialistPoolServiceGrpcTransport
 from .transports.grpc_asyncio import SpecialistPoolServiceGrpcAsyncIOTransport
+from .transports.rest import SpecialistPoolServiceRestTransport
 
 
 class SpecialistPoolServiceClientMeta(type):
@@ -78,6 +79,7 @@ class SpecialistPoolServiceClientMeta(type):
     )  # type: Dict[str, Type[SpecialistPoolServiceTransport]]
     _transport_registry["grpc"] = SpecialistPoolServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = SpecialistPoolServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = SpecialistPoolServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -560,6 +562,9 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
             transport (Union[str, SpecialistPoolServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
