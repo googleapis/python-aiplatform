@@ -100,7 +100,7 @@ ray_extra_require = [
     # Ray's dependency version must be kept in sync with what Cluster supports.
     "ray[default] >= 2.4, < 2.5; python_version<'3.11'",
     # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
-    "ray[default] >= 2.5, < 2.5.1; python_version>='3.11'",
+    "ray[default] >= 2.5, < 2.5.1; python_version=='3.11'",
     "google-cloud-bigquery-storage",
     "google-cloud-bigquery",
     "pandas >= 1.0.0",
