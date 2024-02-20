@@ -48,9 +48,9 @@ packages += [
 
 tensorboard_extra_require = ["tensorflow >=2.3.0, <2.15.0; python_version<'3.12'"]
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
-xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
+xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev; python_version<'3.12'"]
 lit_extra_require = [
-    "tensorflow >= 2.3.0, <3.0.0dev",
+    "tensorflow >= 2.3.0, <3.0.0dev; python_version<'3.12'",
     "pandas >= 1.0.0",
     "lit-nlp == 0.4.0",
     "explainable-ai-sdk >= 1.0.0",
@@ -58,7 +58,7 @@ lit_extra_require = [
 profiler_extra_require = [
     "tensorboard-plugin-profile >= 2.4.0, <3.0.0dev",
     "werkzeug >= 2.0.0, <2.1.0dev",
-    "tensorflow >=2.4.0, <3.0.0dev",
+    "tensorflow >=2.4.0, <3.0.0dev; python_version<'3.12'",
 ]
 featurestore_extra_require = [
     "google-cloud-bigquery-storage",
