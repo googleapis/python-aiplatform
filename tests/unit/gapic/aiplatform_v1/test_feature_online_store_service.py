@@ -24,11 +24,18 @@ except ImportError:  # pragma: NO COVER
 
 import grpc
 from grpc.experimental import aio
+from collections.abc import Iterable
+from google.protobuf import json_format
+import json
 import math
 import pytest
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
+from requests import Response
+from requests import Request, PreparedRequest
+from requests.sessions import Session
+from google.protobuf import json_format
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -328,6 +335,11 @@ def test__get_universe_domain():
             transports.FeatureOnlineStoreServiceGrpcTransport,
             "grpc",
         ),
+        (
+            FeatureOnlineStoreServiceClient,
+            transports.FeatureOnlineStoreServiceRestTransport,
+            "rest",
+        ),
     ],
 )
 def test__validate_universe_domain(client_class, transport_class, transport_name):
@@ -362,8 +374,8 @@ def test__validate_universe_domain(client_class, transport_class, transport_name
     # TODO: This is needed to cater for older versions of google-auth
     # Make this test unconditional once the minimum supported version of
     # google-auth becomes 2.23.0 or higher.
-    google_auth_major, google_auth_minor, _ = [
-        int(part) for part in google.auth.__version__.split(".")
+    google_auth_major, google_auth_minor = [
+        int(part) for part in google.auth.__version__.split(".")[0:2]
     ]
     if google_auth_major > 2 or (google_auth_major == 2 and google_auth_minor >= 23):
         credentials = ga_credentials.AnonymousCredentials()
@@ -381,8 +393,8 @@ def test__validate_universe_domain(client_class, transport_class, transport_name
         #
         # TODO: Make this test unconditional once the minimum supported version of
         # google-api-core becomes 2.15.0 or higher.
-        api_core_major, api_core_minor, _ = [
-            int(part) for part in api_core_version.__version__.split(".")
+        api_core_major, api_core_minor = [
+            int(part) for part in api_core_version.__version__.split(".")[0:2]
         ]
         if api_core_major > 2 or (api_core_major == 2 and api_core_minor >= 15):
             client = client_class(
@@ -408,6 +420,7 @@ def test__validate_universe_domain(client_class, transport_class, transport_name
     [
         (FeatureOnlineStoreServiceClient, "grpc"),
         (FeatureOnlineStoreServiceAsyncClient, "grpc_asyncio"),
+        (FeatureOnlineStoreServiceClient, "rest"),
     ],
 )
 def test_feature_online_store_service_client_from_service_account_info(
@@ -423,7 +436,11 @@ def test_feature_online_store_service_client_from_service_account_info(
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == ("aiplatform.googleapis.com:443")
+        assert client.transport._host == (
+            "aiplatform.googleapis.com:443"
+            if transport_name in ["grpc", "grpc_asyncio"]
+            else "https://aiplatform.googleapis.com"
+        )
 
 
 @pytest.mark.parametrize(
@@ -431,6 +448,7 @@ def test_feature_online_store_service_client_from_service_account_info(
     [
         (transports.FeatureOnlineStoreServiceGrpcTransport, "grpc"),
         (transports.FeatureOnlineStoreServiceGrpcAsyncIOTransport, "grpc_asyncio"),
+        (transports.FeatureOnlineStoreServiceRestTransport, "rest"),
     ],
 )
 def test_feature_online_store_service_client_service_account_always_use_jwt(
@@ -456,6 +474,7 @@ def test_feature_online_store_service_client_service_account_always_use_jwt(
     [
         (FeatureOnlineStoreServiceClient, "grpc"),
         (FeatureOnlineStoreServiceAsyncClient, "grpc_asyncio"),
+        (FeatureOnlineStoreServiceClient, "rest"),
     ],
 )
 def test_feature_online_store_service_client_from_service_account_file(
@@ -478,13 +497,18 @@ def test_feature_online_store_service_client_from_service_account_file(
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == ("aiplatform.googleapis.com:443")
+        assert client.transport._host == (
+            "aiplatform.googleapis.com:443"
+            if transport_name in ["grpc", "grpc_asyncio"]
+            else "https://aiplatform.googleapis.com"
+        )
 
 
 def test_feature_online_store_service_client_get_transport_class():
     transport = FeatureOnlineStoreServiceClient.get_transport_class()
     available_transports = [
         transports.FeatureOnlineStoreServiceGrpcTransport,
+        transports.FeatureOnlineStoreServiceRestTransport,
     ]
     assert transport in available_transports
 
@@ -504,6 +528,11 @@ def test_feature_online_store_service_client_get_transport_class():
             FeatureOnlineStoreServiceAsyncClient,
             transports.FeatureOnlineStoreServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
+        ),
+        (
+            FeatureOnlineStoreServiceClient,
+            transports.FeatureOnlineStoreServiceRestTransport,
+            "rest",
         ),
     ],
 )
@@ -676,6 +705,18 @@ def test_feature_online_store_service_client_client_options(
             FeatureOnlineStoreServiceAsyncClient,
             transports.FeatureOnlineStoreServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
+            "false",
+        ),
+        (
+            FeatureOnlineStoreServiceClient,
+            transports.FeatureOnlineStoreServiceRestTransport,
+            "rest",
+            "true",
+        ),
+        (
+            FeatureOnlineStoreServiceClient,
+            transports.FeatureOnlineStoreServiceRestTransport,
+            "rest",
             "false",
         ),
     ],
@@ -1002,6 +1043,11 @@ def test_feature_online_store_service_client_client_api_endpoint(client_class):
             transports.FeatureOnlineStoreServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
+        (
+            FeatureOnlineStoreServiceClient,
+            transports.FeatureOnlineStoreServiceRestTransport,
+            "rest",
+        ),
     ],
 )
 def test_feature_online_store_service_client_client_options_scopes(
@@ -1043,6 +1089,12 @@ def test_feature_online_store_service_client_client_options_scopes(
             transports.FeatureOnlineStoreServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             grpc_helpers_async,
+        ),
+        (
+            FeatureOnlineStoreServiceClient,
+            transports.FeatureOnlineStoreServiceRestTransport,
+            "rest",
+            None,
         ),
     ],
 )
@@ -1411,6 +1463,680 @@ async def test_fetch_feature_values_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_online_store_service.SearchNearestEntitiesRequest,
+        dict,
+    ],
+)
+def test_search_nearest_entities(request_type, transport: str = "grpc"):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_online_store_service.SearchNearestEntitiesResponse()
+        response = client.search_nearest_entities(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_service.SearchNearestEntitiesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, feature_online_store_service.SearchNearestEntitiesResponse
+    )
+
+
+def test_search_nearest_entities_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        client.search_nearest_entities()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_service.SearchNearestEntitiesRequest()
+
+
+@pytest.mark.asyncio
+async def test_search_nearest_entities_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_online_store_service.SearchNearestEntitiesRequest,
+):
+    client = FeatureOnlineStoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_online_store_service.SearchNearestEntitiesResponse()
+        )
+        response = await client.search_nearest_entities(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_service.SearchNearestEntitiesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, feature_online_store_service.SearchNearestEntitiesResponse
+    )
+
+
+@pytest.mark.asyncio
+async def test_search_nearest_entities_async_from_dict():
+    await test_search_nearest_entities_async(request_type=dict)
+
+
+def test_search_nearest_entities_field_headers():
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_online_store_service.SearchNearestEntitiesRequest()
+
+    request.feature_view = "feature_view_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        call.return_value = feature_online_store_service.SearchNearestEntitiesResponse()
+        client.search_nearest_entities(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "feature_view=feature_view_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_search_nearest_entities_field_headers_async():
+    client = FeatureOnlineStoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_online_store_service.SearchNearestEntitiesRequest()
+
+    request.feature_view = "feature_view_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_online_store_service.SearchNearestEntitiesResponse()
+        )
+        await client.search_nearest_entities(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "feature_view=feature_view_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_online_store_service.FetchFeatureValuesRequest,
+        dict,
+    ],
+)
+def test_fetch_feature_values_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "feature_view": "projects/sample1/locations/sample2/featureOnlineStores/sample3/featureViews/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_online_store_service.FetchFeatureValuesResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = feature_online_store_service.FetchFeatureValuesResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.fetch_feature_values(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, feature_online_store_service.FetchFeatureValuesResponse)
+
+
+def test_fetch_feature_values_rest_required_fields(
+    request_type=feature_online_store_service.FetchFeatureValuesRequest,
+):
+    transport_class = transports.FeatureOnlineStoreServiceRestTransport
+
+    request_init = {}
+    request_init["feature_view"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).fetch_feature_values._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["featureView"] = "feature_view_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).fetch_feature_values._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "featureView" in jsonified_request
+    assert jsonified_request["featureView"] == "feature_view_value"
+
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = feature_online_store_service.FetchFeatureValuesResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = feature_online_store_service.FetchFeatureValuesResponse.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.fetch_feature_values(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_fetch_feature_values_rest_unset_required_fields():
+    transport = transports.FeatureOnlineStoreServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.fetch_feature_values._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("featureView",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_fetch_feature_values_rest_interceptors(null_interceptor):
+    transport = transports.FeatureOnlineStoreServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureOnlineStoreServiceRestInterceptor(),
+    )
+    client = FeatureOnlineStoreServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.FeatureOnlineStoreServiceRestInterceptor, "post_fetch_feature_values"
+    ) as post, mock.patch.object(
+        transports.FeatureOnlineStoreServiceRestInterceptor, "pre_fetch_feature_values"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_online_store_service.FetchFeatureValuesRequest.pb(
+            feature_online_store_service.FetchFeatureValuesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            feature_online_store_service.FetchFeatureValuesResponse.to_json(
+                feature_online_store_service.FetchFeatureValuesResponse()
+            )
+        )
+
+        request = feature_online_store_service.FetchFeatureValuesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = feature_online_store_service.FetchFeatureValuesResponse()
+
+        client.fetch_feature_values(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_fetch_feature_values_rest_bad_request(
+    transport: str = "rest",
+    request_type=feature_online_store_service.FetchFeatureValuesRequest,
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "feature_view": "projects/sample1/locations/sample2/featureOnlineStores/sample3/featureViews/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.fetch_feature_values(request)
+
+
+def test_fetch_feature_values_rest_flattened():
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_online_store_service.FetchFeatureValuesResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "feature_view": "projects/sample1/locations/sample2/featureOnlineStores/sample3/featureViews/sample4"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            feature_view="feature_view_value",
+            data_key=feature_online_store_service.FeatureViewDataKey(key="key_value"),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = feature_online_store_service.FetchFeatureValuesResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.fetch_feature_values(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{feature_view=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:fetchFeatureValues"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_fetch_feature_values_rest_flattened_error(transport: str = "rest"):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.fetch_feature_values(
+            feature_online_store_service.FetchFeatureValuesRequest(),
+            feature_view="feature_view_value",
+            data_key=feature_online_store_service.FeatureViewDataKey(key="key_value"),
+        )
+
+
+def test_fetch_feature_values_rest_error():
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_online_store_service.SearchNearestEntitiesRequest,
+        dict,
+    ],
+)
+def test_search_nearest_entities_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "feature_view": "projects/sample1/locations/sample2/featureOnlineStores/sample3/featureViews/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_online_store_service.SearchNearestEntitiesResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = feature_online_store_service.SearchNearestEntitiesResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.search_nearest_entities(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(
+        response, feature_online_store_service.SearchNearestEntitiesResponse
+    )
+
+
+def test_search_nearest_entities_rest_required_fields(
+    request_type=feature_online_store_service.SearchNearestEntitiesRequest,
+):
+    transport_class = transports.FeatureOnlineStoreServiceRestTransport
+
+    request_init = {}
+    request_init["feature_view"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).search_nearest_entities._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["featureView"] = "feature_view_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).search_nearest_entities._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "featureView" in jsonified_request
+    assert jsonified_request["featureView"] == "feature_view_value"
+
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = feature_online_store_service.SearchNearestEntitiesResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = (
+                feature_online_store_service.SearchNearestEntitiesResponse.pb(
+                    return_value
+                )
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.search_nearest_entities(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_search_nearest_entities_rest_unset_required_fields():
+    transport = transports.FeatureOnlineStoreServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.search_nearest_entities._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "featureView",
+                "query",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_search_nearest_entities_rest_interceptors(null_interceptor):
+    transport = transports.FeatureOnlineStoreServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureOnlineStoreServiceRestInterceptor(),
+    )
+    client = FeatureOnlineStoreServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.FeatureOnlineStoreServiceRestInterceptor,
+        "post_search_nearest_entities",
+    ) as post, mock.patch.object(
+        transports.FeatureOnlineStoreServiceRestInterceptor,
+        "pre_search_nearest_entities",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_online_store_service.SearchNearestEntitiesRequest.pb(
+            feature_online_store_service.SearchNearestEntitiesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            feature_online_store_service.SearchNearestEntitiesResponse.to_json(
+                feature_online_store_service.SearchNearestEntitiesResponse()
+            )
+        )
+
+        request = feature_online_store_service.SearchNearestEntitiesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = feature_online_store_service.SearchNearestEntitiesResponse()
+
+        client.search_nearest_entities(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_search_nearest_entities_rest_bad_request(
+    transport: str = "rest",
+    request_type=feature_online_store_service.SearchNearestEntitiesRequest,
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "feature_view": "projects/sample1/locations/sample2/featureOnlineStores/sample3/featureViews/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.search_nearest_entities(request)
+
+
+def test_search_nearest_entities_rest_error():
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.FeatureOnlineStoreServiceGrpcTransport(
@@ -1492,6 +2218,7 @@ def test_transport_get_channel():
     [
         transports.FeatureOnlineStoreServiceGrpcTransport,
         transports.FeatureOnlineStoreServiceGrpcAsyncIOTransport,
+        transports.FeatureOnlineStoreServiceRestTransport,
     ],
 )
 def test_transport_adc(transport_class):
@@ -1506,6 +2233,7 @@ def test_transport_adc(transport_class):
     "transport_name",
     [
         "grpc",
+        "rest",
     ],
 )
 def test_transport_kind(transport_name):
@@ -1549,6 +2277,7 @@ def test_feature_online_store_service_base_transport():
     # raise NotImplementedError.
     methods = (
         "fetch_feature_values",
+        "search_nearest_entities",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -1645,6 +2374,7 @@ def test_feature_online_store_service_transport_auth_adc(transport_class):
     [
         transports.FeatureOnlineStoreServiceGrpcTransport,
         transports.FeatureOnlineStoreServiceGrpcAsyncIOTransport,
+        transports.FeatureOnlineStoreServiceRestTransport,
     ],
 )
 def test_feature_online_store_service_transport_auth_gdch_credentials(transport_class):
@@ -1746,11 +2476,23 @@ def test_feature_online_store_service_grpc_transport_client_cert_source_for_mtls
             )
 
 
+def test_feature_online_store_service_http_transport_client_cert_source_for_mtls():
+    cred = ga_credentials.AnonymousCredentials()
+    with mock.patch(
+        "google.auth.transport.requests.AuthorizedSession.configure_mtls_channel"
+    ) as mock_configure_mtls_channel:
+        transports.FeatureOnlineStoreServiceRestTransport(
+            credentials=cred, client_cert_source_for_mtls=client_cert_source_callback
+        )
+        mock_configure_mtls_channel.assert_called_once_with(client_cert_source_callback)
+
+
 @pytest.mark.parametrize(
     "transport_name",
     [
         "grpc",
         "grpc_asyncio",
+        "rest",
     ],
 )
 def test_feature_online_store_service_host_no_port(transport_name):
@@ -1761,7 +2503,11 @@ def test_feature_online_store_service_host_no_port(transport_name):
         ),
         transport=transport_name,
     )
-    assert client.transport._host == ("aiplatform.googleapis.com:443")
+    assert client.transport._host == (
+        "aiplatform.googleapis.com:443"
+        if transport_name in ["grpc", "grpc_asyncio"]
+        else "https://aiplatform.googleapis.com"
+    )
 
 
 @pytest.mark.parametrize(
@@ -1769,6 +2515,7 @@ def test_feature_online_store_service_host_no_port(transport_name):
     [
         "grpc",
         "grpc_asyncio",
+        "rest",
     ],
 )
 def test_feature_online_store_service_host_with_port(transport_name):
@@ -1779,7 +2526,38 @@ def test_feature_online_store_service_host_with_port(transport_name):
         ),
         transport=transport_name,
     )
-    assert client.transport._host == ("aiplatform.googleapis.com:8000")
+    assert client.transport._host == (
+        "aiplatform.googleapis.com:8000"
+        if transport_name in ["grpc", "grpc_asyncio"]
+        else "https://aiplatform.googleapis.com:8000"
+    )
+
+
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "rest",
+    ],
+)
+def test_feature_online_store_service_client_transport_session_collision(
+    transport_name,
+):
+    creds1 = ga_credentials.AnonymousCredentials()
+    creds2 = ga_credentials.AnonymousCredentials()
+    client1 = FeatureOnlineStoreServiceClient(
+        credentials=creds1,
+        transport=transport_name,
+    )
+    client2 = FeatureOnlineStoreServiceClient(
+        credentials=creds2,
+        transport=transport_name,
+    )
+    session1 = client1.transport.fetch_feature_values._session
+    session2 = client2.transport.fetch_feature_values._session
+    assert session1 != session2
+    session1 = client1.transport.search_nearest_entities._session
+    session2 = client2.transport.search_nearest_entities._session
+    assert session1 != session2
 
 
 def test_feature_online_store_service_grpc_transport_channel():
@@ -2079,6 +2857,593 @@ async def test_transport_close_async():
         async with client:
             close.assert_not_called()
         close.assert_called_once()
+
+
+def test_get_location_rest_bad_request(
+    transport: str = "rest", request_type=locations_pb2.GetLocationRequest
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_location(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.GetLocationRequest,
+        dict,
+    ],
+)
+def test_get_location_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.Location()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_location(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+def test_list_locations_rest_bad_request(
+    transport: str = "rest", request_type=locations_pb2.ListLocationsRequest
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict({"name": "projects/sample1"}, request)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_locations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.ListLocationsRequest,
+        dict,
+    ],
+)
+def test_list_locations_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.ListLocationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.list_locations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+def test_get_iam_policy_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.GetIamPolicyRequest
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.GetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_get_iam_policy_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_set_iam_policy_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.SetIamPolicyRequest
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.set_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.SetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_set_iam_policy_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.set_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_test_iam_permissions_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.TestIamPermissionsRequest
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.test_iam_permissions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.TestIamPermissionsRequest,
+        dict,
+    ],
+)
+def test_test_iam_permissions_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.test_iam_permissions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+
+def test_cancel_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.CancelOperationRequest
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.CancelOperationRequest,
+        dict,
+    ],
+)
+def test_cancel_operation_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = "{}"
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.cancel_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_delete_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.DeleteOperationRequest
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.DeleteOperationRequest,
+        dict,
+    ],
+)
+def test_delete_operation_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = "{}"
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.delete_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_get_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.GetOperationRequest
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.GetOperationRequest,
+        dict,
+    ],
+)
+def test_get_operation_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_list_operations_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.ListOperationsRequest
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_operations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.ListOperationsRequest,
+        dict,
+    ],
+)
+def test_list_operations_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.ListOperationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.list_operations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+def test_wait_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.WaitOperationRequest
+):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.wait_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.WaitOperationRequest,
+        dict,
+    ],
+)
+def test_wait_operation_rest(request_type):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.wait_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
 
 
 def test_delete_operation(transport: str = "grpc"):
@@ -3594,6 +4959,7 @@ async def test_test_iam_permissions_from_dict_async():
 
 def test_transport_close():
     transports = {
+        "rest": "_session",
         "grpc": "_grpc_channel",
     }
 
@@ -3611,6 +4977,7 @@ def test_transport_close():
 
 def test_client_ctx():
     transports = [
+        "rest",
         "grpc",
     ]
     for transport in transports:

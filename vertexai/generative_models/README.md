@@ -16,28 +16,28 @@ To install the
 Python package, run the following command:
 
 ```shell
-pip3 install --upgrade --user google-cloud-aiplatform
+pip3 install --upgrade --user "google-cloud-aiplatform>=1.38"
 ```
 
 ## Usage
 
-For detailed instructions, see [Introduction to multimodal classes in the Vertex AI SDK](http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/sdk-for-gemini/gemini-sdk-overview-reference).
+For detailed instructions, see [quickstart](http://cloud.google.com/vertex-ai/docs/generative-ai/start/quickstarts/quickstart-multimodal) and [Introduction to multimodal classes in the Vertex AI SDK](http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/sdk-for-gemini/gemini-sdk-overview-reference).
 
 #### Imports:
 ```python
-from vertexai.preview.generative_models import GenerativeModel, Image, Content, Part, Tool, FunctionDeclaration, GenerationConfig
+from vertexai.generative_models import GenerativeModel, Image, Content, Part, Tool, FunctionDeclaration, GenerationConfig
 ```
 
 #### Basic generation:
 ```python
-from vertexai.preview.generative_models import GenerativeModel
+from vertexai.generative_models import GenerativeModel
 model = GenerativeModel("gemini-pro")
 print(model.generate_content("Why is sky blue?"))
 ```
 
 #### Using images and videos
 ```python
-from vertexai.preview.generative_models import GenerativeModel, Image
+from vertexai.generative_models import GenerativeModel, Image
 vision_model = GenerativeModel("gemini-pro-vision")
 
 # Local image
@@ -55,7 +55,7 @@ print(vision_model.generate_content(["What is in the video? ", video_part]))
 
 #### Chat
 ```
-from vertexai.preview.generative_models import GenerativeModel, Image
+from vertexai.generative_models import GenerativeModel, Image
 vision_model = GenerativeModel("gemini-ultra-vision")
 vision_chat = vision_model.start_chat()
 image = Image.load_from_file("image.jpg")

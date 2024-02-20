@@ -252,6 +252,9 @@ class PipelineServiceAsyncClient:
             transport (Union[str, ~.PipelineServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 
@@ -1623,6 +1626,148 @@ class PipelineServiceAsyncClient:
             timeout=timeout,
             metadata=metadata,
         )
+
+    async def batch_cancel_pipeline_jobs(
+        self,
+        request: Optional[
+            Union[pipeline_service.BatchCancelPipelineJobsRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        names: Optional[MutableSequence[str]] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Batch cancel PipelineJobs.
+        Firstly the server will check if all the jobs are in
+        non-terminal states, and skip the jobs that are already
+        terminated.
+        If the operation failed, none of the pipeline jobs are
+        cancelled. The server will poll the states of all the
+        pipeline jobs periodically to check the cancellation
+        status.
+        This operation will return an LRO.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_batch_cancel_pipeline_jobs():
+                # Create a client
+                client = aiplatform_v1beta1.PipelineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.BatchCancelPipelineJobsRequest(
+                    parent="parent_value",
+                    names=['names_value1', 'names_value2'],
+                )
+
+                # Make the request
+                operation = client.batch_cancel_pipeline_jobs(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.BatchCancelPipelineJobsRequest, dict]]):
+                The request object. Request message for
+                [PipelineService.BatchCancelPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.BatchCancelPipelineJobs].
+            parent (:class:`str`):
+                Required. The name of the PipelineJobs' parent resource.
+                Format: ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            names (:class:`MutableSequence[str]`):
+                Required. The names of the PipelineJobs to cancel. A
+                maximum of 32 PipelineJobs can be cancelled in a batch.
+                Format:
+                ``projects/{project}/locations/{location}/pipelineJobs/{pipelineJob}``
+
+                This corresponds to the ``names`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.BatchCancelPipelineJobsResponse` Response message for
+                   [PipelineService.BatchCancelPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.BatchCancelPipelineJobs].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, names])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = pipeline_service.BatchCancelPipelineJobsRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+        if names:
+            request.names.extend(names)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.batch_cancel_pipeline_jobs,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            pipeline_service.BatchCancelPipelineJobsResponse,
+            metadata_type=pipeline_service.BatchCancelPipelineJobsOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
 
     async def list_operations(
         self,

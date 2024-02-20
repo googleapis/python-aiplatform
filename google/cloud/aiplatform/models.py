@@ -1564,7 +1564,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             json_response = raw_predict_response.json()
             return Prediction(
                 predictions=json_response["predictions"],
-                metadata=json_response["metadata"],
+                metadata=json_response.get("metadata"),
                 deployed_model_id=raw_predict_response.headers[
                     _RAW_PREDICT_DEPLOYED_MODEL_ID_KEY
                 ],
@@ -1582,7 +1582,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 parameters=parameters,
                 timeout=timeout,
             )
-            metadata = json_format.MessageToDict(prediction_response._pb.metadata)
+            if prediction_response._pb.metadata:
+                metadata = json_format.MessageToDict(prediction_response._pb.metadata)
+            else:
+                metadata = None
 
             return Prediction(
                 predictions=[
@@ -1643,7 +1646,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             parameters=parameters,
             timeout=timeout,
         )
-        metadata = json_format.MessageToDict(prediction_response._pb.metadata)
+        if prediction_response._pb.metadata:
+            metadata = json_format.MessageToDict(prediction_response._pb.metadata)
+        else:
+            metadata = None
 
         return Prediction(
             predictions=[

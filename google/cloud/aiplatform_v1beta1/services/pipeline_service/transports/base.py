@@ -194,6 +194,11 @@ class PipelineServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.batch_cancel_pipeline_jobs: gapic_v1.method.wrap_method(
+                self.batch_cancel_pipeline_jobs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -318,6 +323,15 @@ class PipelineServiceTransport(abc.ABC):
     ) -> Callable[
         [pipeline_service.CancelPipelineJobRequest],
         Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_cancel_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.BatchCancelPipelineJobsRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

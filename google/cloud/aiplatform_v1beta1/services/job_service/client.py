@@ -96,6 +96,7 @@ from google.type import money_pb2  # type: ignore
 from .transports.base import JobServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import JobServiceGrpcTransport
 from .transports.grpc_asyncio import JobServiceGrpcAsyncIOTransport
+from .transports.rest import JobServiceRestTransport
 
 
 class JobServiceClientMeta(type):
@@ -109,6 +110,7 @@ class JobServiceClientMeta(type):
     _transport_registry = OrderedDict()  # type: Dict[str, Type[JobServiceTransport]]
     _transport_registry["grpc"] = JobServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = JobServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = JobServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -916,6 +918,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             transport (Union[str, JobServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

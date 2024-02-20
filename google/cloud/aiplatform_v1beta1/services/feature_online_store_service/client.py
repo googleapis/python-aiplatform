@@ -56,6 +56,7 @@ from google.protobuf import struct_pb2  # type: ignore
 from .transports.base import FeatureOnlineStoreServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import FeatureOnlineStoreServiceGrpcTransport
 from .transports.grpc_asyncio import FeatureOnlineStoreServiceGrpcAsyncIOTransport
+from .transports.rest import FeatureOnlineStoreServiceRestTransport
 
 
 class FeatureOnlineStoreServiceClientMeta(type):
@@ -71,6 +72,7 @@ class FeatureOnlineStoreServiceClientMeta(type):
     )  # type: Dict[str, Type[FeatureOnlineStoreServiceTransport]]
     _transport_registry["grpc"] = FeatureOnlineStoreServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = FeatureOnlineStoreServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = FeatureOnlineStoreServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -549,6 +551,9 @@ class FeatureOnlineStoreServiceClient(metaclass=FeatureOnlineStoreServiceClientM
             transport (Union[str, FeatureOnlineStoreServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview). We welcome your feedback via an
+                issue in this library's source repository.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
 

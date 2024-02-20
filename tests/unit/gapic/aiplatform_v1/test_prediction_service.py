@@ -24,11 +24,18 @@ except ImportError:  # pragma: NO COVER
 
 import grpc
 from grpc.experimental import aio
+from collections.abc import Iterable
+from google.protobuf import json_format
+import json
 import math
 import pytest
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
+from requests import Response
+from requests import Request, PreparedRequest
+from requests.sessions import Session
+from google.protobuf import json_format
 
 from google.api import httpbody_pb2  # type: ignore
 from google.api_core import client_options
@@ -321,6 +328,7 @@ def test__get_universe_domain():
     "client_class,transport_class,transport_name",
     [
         (PredictionServiceClient, transports.PredictionServiceGrpcTransport, "grpc"),
+        (PredictionServiceClient, transports.PredictionServiceRestTransport, "rest"),
     ],
 )
 def test__validate_universe_domain(client_class, transport_class, transport_name):
@@ -355,8 +363,8 @@ def test__validate_universe_domain(client_class, transport_class, transport_name
     # TODO: This is needed to cater for older versions of google-auth
     # Make this test unconditional once the minimum supported version of
     # google-auth becomes 2.23.0 or higher.
-    google_auth_major, google_auth_minor, _ = [
-        int(part) for part in google.auth.__version__.split(".")
+    google_auth_major, google_auth_minor = [
+        int(part) for part in google.auth.__version__.split(".")[0:2]
     ]
     if google_auth_major > 2 or (google_auth_major == 2 and google_auth_minor >= 23):
         credentials = ga_credentials.AnonymousCredentials()
@@ -374,8 +382,8 @@ def test__validate_universe_domain(client_class, transport_class, transport_name
         #
         # TODO: Make this test unconditional once the minimum supported version of
         # google-api-core becomes 2.15.0 or higher.
-        api_core_major, api_core_minor, _ = [
-            int(part) for part in api_core_version.__version__.split(".")
+        api_core_major, api_core_minor = [
+            int(part) for part in api_core_version.__version__.split(".")[0:2]
         ]
         if api_core_major > 2 or (api_core_major == 2 and api_core_minor >= 15):
             client = client_class(
@@ -401,6 +409,7 @@ def test__validate_universe_domain(client_class, transport_class, transport_name
     [
         (PredictionServiceClient, "grpc"),
         (PredictionServiceAsyncClient, "grpc_asyncio"),
+        (PredictionServiceClient, "rest"),
     ],
 )
 def test_prediction_service_client_from_service_account_info(
@@ -416,7 +425,11 @@ def test_prediction_service_client_from_service_account_info(
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == ("aiplatform.googleapis.com:443")
+        assert client.transport._host == (
+            "aiplatform.googleapis.com:443"
+            if transport_name in ["grpc", "grpc_asyncio"]
+            else "https://aiplatform.googleapis.com"
+        )
 
 
 @pytest.mark.parametrize(
@@ -424,6 +437,7 @@ def test_prediction_service_client_from_service_account_info(
     [
         (transports.PredictionServiceGrpcTransport, "grpc"),
         (transports.PredictionServiceGrpcAsyncIOTransport, "grpc_asyncio"),
+        (transports.PredictionServiceRestTransport, "rest"),
     ],
 )
 def test_prediction_service_client_service_account_always_use_jwt(
@@ -449,6 +463,7 @@ def test_prediction_service_client_service_account_always_use_jwt(
     [
         (PredictionServiceClient, "grpc"),
         (PredictionServiceAsyncClient, "grpc_asyncio"),
+        (PredictionServiceClient, "rest"),
     ],
 )
 def test_prediction_service_client_from_service_account_file(
@@ -471,13 +486,18 @@ def test_prediction_service_client_from_service_account_file(
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == ("aiplatform.googleapis.com:443")
+        assert client.transport._host == (
+            "aiplatform.googleapis.com:443"
+            if transport_name in ["grpc", "grpc_asyncio"]
+            else "https://aiplatform.googleapis.com"
+        )
 
 
 def test_prediction_service_client_get_transport_class():
     transport = PredictionServiceClient.get_transport_class()
     available_transports = [
         transports.PredictionServiceGrpcTransport,
+        transports.PredictionServiceRestTransport,
     ]
     assert transport in available_transports
 
@@ -494,6 +514,7 @@ def test_prediction_service_client_get_transport_class():
             transports.PredictionServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
+        (PredictionServiceClient, transports.PredictionServiceRestTransport, "rest"),
     ],
 )
 @mock.patch.object(
@@ -661,6 +682,18 @@ def test_prediction_service_client_client_options(
             PredictionServiceAsyncClient,
             transports.PredictionServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
+            "false",
+        ),
+        (
+            PredictionServiceClient,
+            transports.PredictionServiceRestTransport,
+            "rest",
+            "true",
+        ),
+        (
+            PredictionServiceClient,
+            transports.PredictionServiceRestTransport,
+            "rest",
             "false",
         ),
     ],
@@ -977,6 +1010,7 @@ def test_prediction_service_client_client_api_endpoint(client_class):
             transports.PredictionServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
+        (PredictionServiceClient, transports.PredictionServiceRestTransport, "rest"),
     ],
 )
 def test_prediction_service_client_client_options_scopes(
@@ -1018,6 +1052,12 @@ def test_prediction_service_client_client_options_scopes(
             transports.PredictionServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             grpc_helpers_async,
+        ),
+        (
+            PredictionServiceClient,
+            transports.PredictionServiceRestTransport,
+            "rest",
+            None,
         ),
     ],
 )
@@ -3273,6 +3313,2422 @@ async def test_stream_generate_content_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.PredictRequest,
+        dict,
+    ],
+)
+def test_predict_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = prediction_service.PredictResponse(
+            deployed_model_id="deployed_model_id_value",
+            model="model_value",
+            model_version_id="model_version_id_value",
+            model_display_name="model_display_name_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = prediction_service.PredictResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.predict(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.PredictResponse)
+    assert response.deployed_model_id == "deployed_model_id_value"
+    assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
+    assert response.model_display_name == "model_display_name_value"
+
+
+def test_predict_rest_required_fields(request_type=prediction_service.PredictRequest):
+    transport_class = transports.PredictionServiceRestTransport
+
+    request_init = {}
+    request_init["endpoint"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["endpoint"] = "endpoint_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "endpoint" in jsonified_request
+    assert jsonified_request["endpoint"] == "endpoint_value"
+
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = prediction_service.PredictResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = prediction_service.PredictResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.predict(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_predict_rest_unset_required_fields():
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.predict._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "endpoint",
+                "instances",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_predict_rest_interceptors(null_interceptor):
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.PredictionServiceRestInterceptor(),
+    )
+    client = PredictionServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_predict"
+    ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "pre_predict"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = prediction_service.PredictRequest.pb(
+            prediction_service.PredictRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = prediction_service.PredictResponse.to_json(
+            prediction_service.PredictResponse()
+        )
+
+        request = prediction_service.PredictRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = prediction_service.PredictResponse()
+
+        client.predict(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_predict_rest_bad_request(
+    transport: str = "rest", request_type=prediction_service.PredictRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.predict(request)
+
+
+def test_predict_rest_flattened():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = prediction_service.PredictResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "endpoint": "projects/sample1/locations/sample2/endpoints/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = prediction_service.PredictResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.predict(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{endpoint=projects/*/locations/*/endpoints/*}:predict"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_predict_rest_flattened_error(transport: str = "rest"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.predict(
+            prediction_service.PredictRequest(),
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
+        )
+
+
+def test_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.RawPredictRequest,
+        dict,
+    ],
+)
+def test_raw_predict_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = httpbody_pb2.HttpBody(
+            content_type="content_type_value",
+            data=b"data_blob",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.raw_predict(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, httpbody_pb2.HttpBody)
+    assert response.content_type == "content_type_value"
+    assert response.data == b"data_blob"
+
+
+def test_raw_predict_rest_required_fields(
+    request_type=prediction_service.RawPredictRequest,
+):
+    transport_class = transports.PredictionServiceRestTransport
+
+    request_init = {}
+    request_init["endpoint"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).raw_predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["endpoint"] = "endpoint_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).raw_predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "endpoint" in jsonified_request
+    assert jsonified_request["endpoint"] == "endpoint_value"
+
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = httpbody_pb2.HttpBody()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.raw_predict(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_raw_predict_rest_unset_required_fields():
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.raw_predict._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("endpoint",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_raw_predict_rest_interceptors(null_interceptor):
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.PredictionServiceRestInterceptor(),
+    )
+    client = PredictionServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_raw_predict"
+    ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "pre_raw_predict"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = prediction_service.RawPredictRequest.pb(
+            prediction_service.RawPredictRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(httpbody_pb2.HttpBody())
+
+        request = prediction_service.RawPredictRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = httpbody_pb2.HttpBody()
+
+        client.raw_predict(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_raw_predict_rest_bad_request(
+    transport: str = "rest", request_type=prediction_service.RawPredictRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.raw_predict(request)
+
+
+def test_raw_predict_rest_flattened():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = httpbody_pb2.HttpBody()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "endpoint": "projects/sample1/locations/sample2/endpoints/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.raw_predict(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{endpoint=projects/*/locations/*/endpoints/*}:rawPredict"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_raw_predict_rest_flattened_error(transport: str = "rest"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.raw_predict(
+            prediction_service.RawPredictRequest(),
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+
+def test_raw_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.StreamRawPredictRequest,
+        dict,
+    ],
+)
+def test_stream_raw_predict_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = httpbody_pb2.HttpBody(
+            content_type="content_type_value",
+            data=b"data_blob",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        json_return_value = "[{}]".format(json_return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        with mock.patch.object(response_value, "iter_content") as iter_content:
+            iter_content.return_value = iter(json_return_value)
+            response = client.stream_raw_predict(request)
+
+    assert isinstance(response, Iterable)
+    response = next(response)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, httpbody_pb2.HttpBody)
+    assert response.content_type == "content_type_value"
+    assert response.data == b"data_blob"
+
+
+def test_stream_raw_predict_rest_required_fields(
+    request_type=prediction_service.StreamRawPredictRequest,
+):
+    transport_class = transports.PredictionServiceRestTransport
+
+    request_init = {}
+    request_init["endpoint"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).stream_raw_predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["endpoint"] = "endpoint_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).stream_raw_predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "endpoint" in jsonified_request
+    assert jsonified_request["endpoint"] == "endpoint_value"
+
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = httpbody_pb2.HttpBody()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            json_return_value = json_format.MessageToJson(return_value)
+            json_return_value = "[{}]".format(json_return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            with mock.patch.object(response_value, "iter_content") as iter_content:
+                iter_content.return_value = iter(json_return_value)
+                response = client.stream_raw_predict(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_stream_raw_predict_rest_unset_required_fields():
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.stream_raw_predict._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("endpoint",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_stream_raw_predict_rest_interceptors(null_interceptor):
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.PredictionServiceRestInterceptor(),
+    )
+    client = PredictionServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_stream_raw_predict"
+    ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "pre_stream_raw_predict"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = prediction_service.StreamRawPredictRequest.pb(
+            prediction_service.StreamRawPredictRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(httpbody_pb2.HttpBody())
+        req.return_value._content = "[{}]".format(req.return_value._content)
+
+        request = prediction_service.StreamRawPredictRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = httpbody_pb2.HttpBody()
+
+        client.stream_raw_predict(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_stream_raw_predict_rest_bad_request(
+    transport: str = "rest", request_type=prediction_service.StreamRawPredictRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.stream_raw_predict(request)
+
+
+def test_stream_raw_predict_rest_flattened():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = httpbody_pb2.HttpBody()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "endpoint": "projects/sample1/locations/sample2/endpoints/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        json_return_value = "[{}]".format(json_return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        with mock.patch.object(response_value, "iter_content") as iter_content:
+            iter_content.return_value = iter(json_return_value)
+            client.stream_raw_predict(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{endpoint=projects/*/locations/*/endpoints/*}:streamRawPredict"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_stream_raw_predict_rest_flattened_error(transport: str = "rest"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.stream_raw_predict(
+            prediction_service.StreamRawPredictRequest(),
+            endpoint="endpoint_value",
+            http_body=httpbody_pb2.HttpBody(content_type="content_type_value"),
+        )
+
+
+def test_stream_raw_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.DirectPredictRequest,
+        dict,
+    ],
+)
+def test_direct_predict_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = prediction_service.DirectPredictResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = prediction_service.DirectPredictResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.direct_predict(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.DirectPredictResponse)
+
+
+def test_direct_predict_rest_required_fields(
+    request_type=prediction_service.DirectPredictRequest,
+):
+    transport_class = transports.PredictionServiceRestTransport
+
+    request_init = {}
+    request_init["endpoint"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).direct_predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["endpoint"] = "endpoint_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).direct_predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "endpoint" in jsonified_request
+    assert jsonified_request["endpoint"] == "endpoint_value"
+
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = prediction_service.DirectPredictResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = prediction_service.DirectPredictResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.direct_predict(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_direct_predict_rest_unset_required_fields():
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.direct_predict._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("endpoint",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_direct_predict_rest_interceptors(null_interceptor):
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.PredictionServiceRestInterceptor(),
+    )
+    client = PredictionServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_direct_predict"
+    ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "pre_direct_predict"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = prediction_service.DirectPredictRequest.pb(
+            prediction_service.DirectPredictRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = prediction_service.DirectPredictResponse.to_json(
+            prediction_service.DirectPredictResponse()
+        )
+
+        request = prediction_service.DirectPredictRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = prediction_service.DirectPredictResponse()
+
+        client.direct_predict(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_direct_predict_rest_bad_request(
+    transport: str = "rest", request_type=prediction_service.DirectPredictRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.direct_predict(request)
+
+
+def test_direct_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.DirectRawPredictRequest,
+        dict,
+    ],
+)
+def test_direct_raw_predict_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = prediction_service.DirectRawPredictResponse(
+            output=b"output_blob",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = prediction_service.DirectRawPredictResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.direct_raw_predict(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.DirectRawPredictResponse)
+    assert response.output == b"output_blob"
+
+
+def test_direct_raw_predict_rest_required_fields(
+    request_type=prediction_service.DirectRawPredictRequest,
+):
+    transport_class = transports.PredictionServiceRestTransport
+
+    request_init = {}
+    request_init["endpoint"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).direct_raw_predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["endpoint"] = "endpoint_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).direct_raw_predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "endpoint" in jsonified_request
+    assert jsonified_request["endpoint"] == "endpoint_value"
+
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = prediction_service.DirectRawPredictResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = prediction_service.DirectRawPredictResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.direct_raw_predict(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_direct_raw_predict_rest_unset_required_fields():
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.direct_raw_predict._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("endpoint",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_direct_raw_predict_rest_interceptors(null_interceptor):
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.PredictionServiceRestInterceptor(),
+    )
+    client = PredictionServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_direct_raw_predict"
+    ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "pre_direct_raw_predict"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = prediction_service.DirectRawPredictRequest.pb(
+            prediction_service.DirectRawPredictRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = prediction_service.DirectRawPredictResponse.to_json(
+            prediction_service.DirectRawPredictResponse()
+        )
+
+        request = prediction_service.DirectRawPredictRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = prediction_service.DirectRawPredictResponse()
+
+        client.direct_raw_predict(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_direct_raw_predict_rest_bad_request(
+    transport: str = "rest", request_type=prediction_service.DirectRawPredictRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.direct_raw_predict(request)
+
+
+def test_direct_raw_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+def test_stream_direct_predict_rest_no_http_options():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = prediction_service.StreamDirectPredictRequest()
+    requests = [request]
+    with pytest.raises(RuntimeError):
+        client.stream_direct_predict(requests)
+
+
+def test_stream_direct_raw_predict_rest_no_http_options():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = prediction_service.StreamDirectRawPredictRequest()
+    requests = [request]
+    with pytest.raises(RuntimeError):
+        client.stream_direct_raw_predict(requests)
+
+
+def test_streaming_predict_rest_no_http_options():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = prediction_service.StreamingPredictRequest()
+    requests = [request]
+    with pytest.raises(RuntimeError):
+        client.streaming_predict(requests)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.StreamingPredictRequest,
+        dict,
+    ],
+)
+def test_server_streaming_predict_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = prediction_service.StreamingPredictResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = prediction_service.StreamingPredictResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        json_return_value = "[{}]".format(json_return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        with mock.patch.object(response_value, "iter_content") as iter_content:
+            iter_content.return_value = iter(json_return_value)
+            response = client.server_streaming_predict(request)
+
+    assert isinstance(response, Iterable)
+    response = next(response)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.StreamingPredictResponse)
+
+
+def test_server_streaming_predict_rest_required_fields(
+    request_type=prediction_service.StreamingPredictRequest,
+):
+    transport_class = transports.PredictionServiceRestTransport
+
+    request_init = {}
+    request_init["endpoint"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).server_streaming_predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["endpoint"] = "endpoint_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).server_streaming_predict._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "endpoint" in jsonified_request
+    assert jsonified_request["endpoint"] == "endpoint_value"
+
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = prediction_service.StreamingPredictResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = prediction_service.StreamingPredictResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+            json_return_value = "[{}]".format(json_return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            with mock.patch.object(response_value, "iter_content") as iter_content:
+                iter_content.return_value = iter(json_return_value)
+                response = client.server_streaming_predict(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_server_streaming_predict_rest_unset_required_fields():
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.server_streaming_predict._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("endpoint",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_server_streaming_predict_rest_interceptors(null_interceptor):
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.PredictionServiceRestInterceptor(),
+    )
+    client = PredictionServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_server_streaming_predict"
+    ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "pre_server_streaming_predict"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = prediction_service.StreamingPredictRequest.pb(
+            prediction_service.StreamingPredictRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = prediction_service.StreamingPredictResponse.to_json(
+            prediction_service.StreamingPredictResponse()
+        )
+        req.return_value._content = "[{}]".format(req.return_value._content)
+
+        request = prediction_service.StreamingPredictRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = prediction_service.StreamingPredictResponse()
+
+        client.server_streaming_predict(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_server_streaming_predict_rest_bad_request(
+    transport: str = "rest", request_type=prediction_service.StreamingPredictRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.server_streaming_predict(request)
+
+
+def test_server_streaming_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+def test_streaming_raw_predict_rest_no_http_options():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = prediction_service.StreamingRawPredictRequest()
+    requests = [request]
+    with pytest.raises(RuntimeError):
+        client.streaming_raw_predict(requests)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.ExplainRequest,
+        dict,
+    ],
+)
+def test_explain_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = prediction_service.ExplainResponse(
+            deployed_model_id="deployed_model_id_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = prediction_service.ExplainResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.explain(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.ExplainResponse)
+    assert response.deployed_model_id == "deployed_model_id_value"
+
+
+def test_explain_rest_required_fields(request_type=prediction_service.ExplainRequest):
+    transport_class = transports.PredictionServiceRestTransport
+
+    request_init = {}
+    request_init["endpoint"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).explain._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["endpoint"] = "endpoint_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).explain._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "endpoint" in jsonified_request
+    assert jsonified_request["endpoint"] == "endpoint_value"
+
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = prediction_service.ExplainResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = prediction_service.ExplainResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.explain(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_explain_rest_unset_required_fields():
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.explain._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "endpoint",
+                "instances",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_explain_rest_interceptors(null_interceptor):
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.PredictionServiceRestInterceptor(),
+    )
+    client = PredictionServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_explain"
+    ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "pre_explain"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = prediction_service.ExplainRequest.pb(
+            prediction_service.ExplainRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = prediction_service.ExplainResponse.to_json(
+            prediction_service.ExplainResponse()
+        )
+
+        request = prediction_service.ExplainRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = prediction_service.ExplainResponse()
+
+        client.explain(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_explain_rest_bad_request(
+    transport: str = "rest", request_type=prediction_service.ExplainRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.explain(request)
+
+
+def test_explain_rest_flattened():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = prediction_service.ExplainResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "endpoint": "projects/sample1/locations/sample2/endpoints/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
+            deployed_model_id="deployed_model_id_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = prediction_service.ExplainResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.explain(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{endpoint=projects/*/locations/*/endpoints/*}:explain"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_explain_rest_flattened_error(transport: str = "rest"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.explain(
+            prediction_service.ExplainRequest(),
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
+            deployed_model_id="deployed_model_id_value",
+        )
+
+
+def test_explain_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.GenerateContentRequest,
+        dict,
+    ],
+)
+def test_generate_content_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"model": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = prediction_service.GenerateContentResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = prediction_service.GenerateContentResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.generate_content(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.GenerateContentResponse)
+
+
+def test_generate_content_rest_required_fields(
+    request_type=prediction_service.GenerateContentRequest,
+):
+    transport_class = transports.PredictionServiceRestTransport
+
+    request_init = {}
+    request_init["model"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).generate_content._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["model"] = "model_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).generate_content._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "model" in jsonified_request
+    assert jsonified_request["model"] == "model_value"
+
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = prediction_service.GenerateContentResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = prediction_service.GenerateContentResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.generate_content(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_generate_content_rest_unset_required_fields():
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.generate_content._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "model",
+                "contents",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_generate_content_rest_interceptors(null_interceptor):
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.PredictionServiceRestInterceptor(),
+    )
+    client = PredictionServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_generate_content"
+    ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "pre_generate_content"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = prediction_service.GenerateContentRequest.pb(
+            prediction_service.GenerateContentRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = prediction_service.GenerateContentResponse.to_json(
+            prediction_service.GenerateContentResponse()
+        )
+
+        request = prediction_service.GenerateContentRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = prediction_service.GenerateContentResponse()
+
+        client.generate_content(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_generate_content_rest_bad_request(
+    transport: str = "rest", request_type=prediction_service.GenerateContentRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"model": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.generate_content(request)
+
+
+def test_generate_content_rest_flattened():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = prediction_service.GenerateContentResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "model": "projects/sample1/locations/sample2/endpoints/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = prediction_service.GenerateContentResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.generate_content(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{model=projects/*/locations/*/endpoints/*}:generateContent"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_generate_content_rest_flattened_error(transport: str = "rest"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.generate_content(
+            prediction_service.GenerateContentRequest(),
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+
+def test_generate_content_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        prediction_service.GenerateContentRequest,
+        dict,
+    ],
+)
+def test_stream_generate_content_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"model": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = prediction_service.GenerateContentResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = prediction_service.GenerateContentResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        json_return_value = "[{}]".format(json_return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        with mock.patch.object(response_value, "iter_content") as iter_content:
+            iter_content.return_value = iter(json_return_value)
+            response = client.stream_generate_content(request)
+
+    assert isinstance(response, Iterable)
+    response = next(response)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.GenerateContentResponse)
+
+
+def test_stream_generate_content_rest_required_fields(
+    request_type=prediction_service.GenerateContentRequest,
+):
+    transport_class = transports.PredictionServiceRestTransport
+
+    request_init = {}
+    request_init["model"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).stream_generate_content._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["model"] = "model_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).stream_generate_content._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "model" in jsonified_request
+    assert jsonified_request["model"] == "model_value"
+
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = prediction_service.GenerateContentResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = prediction_service.GenerateContentResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+            json_return_value = "[{}]".format(json_return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            with mock.patch.object(response_value, "iter_content") as iter_content:
+                iter_content.return_value = iter(json_return_value)
+                response = client.stream_generate_content(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_stream_generate_content_rest_unset_required_fields():
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.stream_generate_content._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "model",
+                "contents",
+            )
+        )
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_stream_generate_content_rest_interceptors(null_interceptor):
+    transport = transports.PredictionServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.PredictionServiceRestInterceptor(),
+    )
+    client = PredictionServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_stream_generate_content"
+    ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "pre_stream_generate_content"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = prediction_service.GenerateContentRequest.pb(
+            prediction_service.GenerateContentRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = prediction_service.GenerateContentResponse.to_json(
+            prediction_service.GenerateContentResponse()
+        )
+        req.return_value._content = "[{}]".format(req.return_value._content)
+
+        request = prediction_service.GenerateContentRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = prediction_service.GenerateContentResponse()
+
+        client.stream_generate_content(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_stream_generate_content_rest_bad_request(
+    transport: str = "rest", request_type=prediction_service.GenerateContentRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"model": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.stream_generate_content(request)
+
+
+def test_stream_generate_content_rest_flattened():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = prediction_service.GenerateContentResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "model": "projects/sample1/locations/sample2/endpoints/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = prediction_service.GenerateContentResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        json_return_value = "[{}]".format(json_return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        with mock.patch.object(response_value, "iter_content") as iter_content:
+            iter_content.return_value = iter(json_return_value)
+            client.stream_generate_content(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{model=projects/*/locations/*/endpoints/*}:streamGenerateContent"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_stream_generate_content_rest_flattened_error(transport: str = "rest"):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.stream_generate_content(
+            prediction_service.GenerateContentRequest(),
+            model="model_value",
+            contents=[content.Content(role="role_value")],
+        )
+
+
+def test_stream_generate_content_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+def test_stream_direct_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # Since a `google.api.http` annotation is required for using a rest transport
+    # method, this should error.
+    with pytest.raises(NotImplementedError) as not_implemented_error:
+        client.stream_direct_predict({})
+    assert "Method StreamDirectPredict is not available over REST transport" in str(
+        not_implemented_error.value
+    )
+
+
+def test_stream_direct_raw_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # Since a `google.api.http` annotation is required for using a rest transport
+    # method, this should error.
+    with pytest.raises(NotImplementedError) as not_implemented_error:
+        client.stream_direct_raw_predict({})
+    assert "Method StreamDirectRawPredict is not available over REST transport" in str(
+        not_implemented_error.value
+    )
+
+
+def test_streaming_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # Since a `google.api.http` annotation is required for using a rest transport
+    # method, this should error.
+    with pytest.raises(NotImplementedError) as not_implemented_error:
+        client.streaming_predict({})
+    assert "Method StreamingPredict is not available over REST transport" in str(
+        not_implemented_error.value
+    )
+
+
+def test_streaming_raw_predict_rest_error():
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # Since a `google.api.http` annotation is required for using a rest transport
+    # method, this should error.
+    with pytest.raises(NotImplementedError) as not_implemented_error:
+        client.streaming_raw_predict({})
+    assert "Method StreamingRawPredict is not available over REST transport" in str(
+        not_implemented_error.value
+    )
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.PredictionServiceGrpcTransport(
@@ -3354,6 +5810,7 @@ def test_transport_get_channel():
     [
         transports.PredictionServiceGrpcTransport,
         transports.PredictionServiceGrpcAsyncIOTransport,
+        transports.PredictionServiceRestTransport,
     ],
 )
 def test_transport_adc(transport_class):
@@ -3368,6 +5825,7 @@ def test_transport_adc(transport_class):
     "transport_name",
     [
         "grpc",
+        "rest",
     ],
 )
 def test_transport_kind(transport_name):
@@ -3519,6 +5977,7 @@ def test_prediction_service_transport_auth_adc(transport_class):
     [
         transports.PredictionServiceGrpcTransport,
         transports.PredictionServiceGrpcAsyncIOTransport,
+        transports.PredictionServiceRestTransport,
     ],
 )
 def test_prediction_service_transport_auth_gdch_credentials(transport_class):
@@ -3616,11 +6075,23 @@ def test_prediction_service_grpc_transport_client_cert_source_for_mtls(transport
             )
 
 
+def test_prediction_service_http_transport_client_cert_source_for_mtls():
+    cred = ga_credentials.AnonymousCredentials()
+    with mock.patch(
+        "google.auth.transport.requests.AuthorizedSession.configure_mtls_channel"
+    ) as mock_configure_mtls_channel:
+        transports.PredictionServiceRestTransport(
+            credentials=cred, client_cert_source_for_mtls=client_cert_source_callback
+        )
+        mock_configure_mtls_channel.assert_called_once_with(client_cert_source_callback)
+
+
 @pytest.mark.parametrize(
     "transport_name",
     [
         "grpc",
         "grpc_asyncio",
+        "rest",
     ],
 )
 def test_prediction_service_host_no_port(transport_name):
@@ -3631,7 +6102,11 @@ def test_prediction_service_host_no_port(transport_name):
         ),
         transport=transport_name,
     )
-    assert client.transport._host == ("aiplatform.googleapis.com:443")
+    assert client.transport._host == (
+        "aiplatform.googleapis.com:443"
+        if transport_name in ["grpc", "grpc_asyncio"]
+        else "https://aiplatform.googleapis.com"
+    )
 
 
 @pytest.mark.parametrize(
@@ -3639,6 +6114,7 @@ def test_prediction_service_host_no_port(transport_name):
     [
         "grpc",
         "grpc_asyncio",
+        "rest",
     ],
 )
 def test_prediction_service_host_with_port(transport_name):
@@ -3649,7 +6125,69 @@ def test_prediction_service_host_with_port(transport_name):
         ),
         transport=transport_name,
     )
-    assert client.transport._host == ("aiplatform.googleapis.com:8000")
+    assert client.transport._host == (
+        "aiplatform.googleapis.com:8000"
+        if transport_name in ["grpc", "grpc_asyncio"]
+        else "https://aiplatform.googleapis.com:8000"
+    )
+
+
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "rest",
+    ],
+)
+def test_prediction_service_client_transport_session_collision(transport_name):
+    creds1 = ga_credentials.AnonymousCredentials()
+    creds2 = ga_credentials.AnonymousCredentials()
+    client1 = PredictionServiceClient(
+        credentials=creds1,
+        transport=transport_name,
+    )
+    client2 = PredictionServiceClient(
+        credentials=creds2,
+        transport=transport_name,
+    )
+    session1 = client1.transport.predict._session
+    session2 = client2.transport.predict._session
+    assert session1 != session2
+    session1 = client1.transport.raw_predict._session
+    session2 = client2.transport.raw_predict._session
+    assert session1 != session2
+    session1 = client1.transport.stream_raw_predict._session
+    session2 = client2.transport.stream_raw_predict._session
+    assert session1 != session2
+    session1 = client1.transport.direct_predict._session
+    session2 = client2.transport.direct_predict._session
+    assert session1 != session2
+    session1 = client1.transport.direct_raw_predict._session
+    session2 = client2.transport.direct_raw_predict._session
+    assert session1 != session2
+    session1 = client1.transport.stream_direct_predict._session
+    session2 = client2.transport.stream_direct_predict._session
+    assert session1 != session2
+    session1 = client1.transport.stream_direct_raw_predict._session
+    session2 = client2.transport.stream_direct_raw_predict._session
+    assert session1 != session2
+    session1 = client1.transport.streaming_predict._session
+    session2 = client2.transport.streaming_predict._session
+    assert session1 != session2
+    session1 = client1.transport.server_streaming_predict._session
+    session2 = client2.transport.server_streaming_predict._session
+    assert session1 != session2
+    session1 = client1.transport.streaming_raw_predict._session
+    session2 = client2.transport.streaming_raw_predict._session
+    assert session1 != session2
+    session1 = client1.transport.explain._session
+    session2 = client2.transport.explain._session
+    assert session1 != session2
+    session1 = client1.transport.generate_content._session
+    session2 = client2.transport.generate_content._session
+    assert session1 != session2
+    session1 = client1.transport.stream_generate_content._session
+    session2 = client2.transport.stream_generate_content._session
+    assert session1 != session2
 
 
 def test_prediction_service_grpc_transport_channel():
@@ -3968,6 +6506,593 @@ async def test_transport_close_async():
         async with client:
             close.assert_not_called()
         close.assert_called_once()
+
+
+def test_get_location_rest_bad_request(
+    transport: str = "rest", request_type=locations_pb2.GetLocationRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_location(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.GetLocationRequest,
+        dict,
+    ],
+)
+def test_get_location_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.Location()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_location(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+def test_list_locations_rest_bad_request(
+    transport: str = "rest", request_type=locations_pb2.ListLocationsRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict({"name": "projects/sample1"}, request)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_locations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.ListLocationsRequest,
+        dict,
+    ],
+)
+def test_list_locations_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.ListLocationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.list_locations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+def test_get_iam_policy_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.GetIamPolicyRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.GetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_get_iam_policy_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_set_iam_policy_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.SetIamPolicyRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.set_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.SetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_set_iam_policy_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.set_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_test_iam_permissions_rest_bad_request(
+    transport: str = "rest", request_type=iam_policy_pb2.TestIamPermissionsRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.test_iam_permissions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.TestIamPermissionsRequest,
+        dict,
+    ],
+)
+def test_test_iam_permissions_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.test_iam_permissions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+
+def test_cancel_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.CancelOperationRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.CancelOperationRequest,
+        dict,
+    ],
+)
+def test_cancel_operation_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = "{}"
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.cancel_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_delete_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.DeleteOperationRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.DeleteOperationRequest,
+        dict,
+    ],
+)
+def test_delete_operation_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = "{}"
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.delete_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_get_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.GetOperationRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.GetOperationRequest,
+        dict,
+    ],
+)
+def test_get_operation_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.get_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_list_operations_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.ListOperationsRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_operations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.ListOperationsRequest,
+        dict,
+    ],
+)
+def test_list_operations_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.ListOperationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.list_operations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+def test_wait_operation_rest_bad_request(
+    transport: str = "rest", request_type=operations_pb2.WaitOperationRequest
+):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.wait_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.WaitOperationRequest,
+        dict,
+    ],
+)
+def test_wait_operation_rest(request_type):
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        response = client.wait_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
 
 
 def test_delete_operation(transport: str = "grpc"):
@@ -5481,6 +8606,7 @@ async def test_test_iam_permissions_from_dict_async():
 
 def test_transport_close():
     transports = {
+        "rest": "_session",
         "grpc": "_grpc_channel",
     }
 
@@ -5498,6 +8624,7 @@ def test_transport_close():
 
 def test_client_ctx():
     transports = [
+        "rest",
         "grpc",
     ]
     for transport in transports:

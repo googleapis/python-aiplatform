@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from .accelerator_type import (
+    AcceleratorType,
+)
 from .annotation import (
     Annotation,
 )
@@ -426,6 +429,9 @@ from .job_service import (
     UpdateModelDeploymentMonitoringJobOperationMetadata,
     UpdateModelDeploymentMonitoringJobRequest,
 )
+from .job_state import (
+    JobState,
+)
 from .lineage_subgraph import (
     LineageSubgraph,
 )
@@ -626,6 +632,9 @@ from .persistent_resource_service import (
     UpdatePersistentResourceOperationMetadata,
     UpdatePersistentResourceRequest,
 )
+from .pipeline_failure_policy import (
+    PipelineFailurePolicy,
+)
 from .pipeline_job import (
     PipelineJob,
     PipelineJobDetail,
@@ -634,6 +643,9 @@ from .pipeline_job import (
     PipelineTemplateMetadata,
 )
 from .pipeline_service import (
+    BatchCancelPipelineJobsOperationMetadata,
+    BatchCancelPipelineJobsRequest,
+    BatchCancelPipelineJobsResponse,
     BatchDeletePipelineJobsRequest,
     BatchDeletePipelineJobsResponse,
     CancelPipelineJobRequest,
@@ -648,6 +660,9 @@ from .pipeline_service import (
     ListPipelineJobsResponse,
     ListTrainingPipelinesRequest,
     ListTrainingPipelinesResponse,
+)
+from .pipeline_state import (
+    PipelineState,
 )
 from .prediction_service import (
     CountTokensRequest,
@@ -693,6 +708,7 @@ from .schedule_service import (
 )
 from .service_networking import (
     PrivateServiceConnectConfig,
+    PscAutomatedEndpoints,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -1324,6 +1340,9 @@ __all__ = (
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
     "PipelineTemplateMetadata",
+    "BatchCancelPipelineJobsOperationMetadata",
+    "BatchCancelPipelineJobsRequest",
+    "BatchCancelPipelineJobsResponse",
     "BatchDeletePipelineJobsRequest",
     "BatchDeletePipelineJobsResponse",
     "CancelPipelineJobRequest",
@@ -1372,6 +1391,7 @@ __all__ = (
     "ResumeScheduleRequest",
     "UpdateScheduleRequest",
     "PrivateServiceConnectConfig",
+    "PscAutomatedEndpoints",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
