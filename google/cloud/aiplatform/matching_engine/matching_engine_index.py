@@ -112,6 +112,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
         index_update_method: Optional[str] = None,
         encryption_spec_key_name: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource.
 
@@ -177,6 +178,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 secured by this key.
                 The key needs to be in the same region as where the index is
                 created.
+            create_request_timeout (float):
+                Optional. The timeout for the request in seconds.
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -220,6 +223,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             ),
             index=gapic_index,
             metadata=request_metadata,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, create_lro)
@@ -243,6 +247,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
     ) -> "MatchingEngineIndex":
         """Updates the metadata for this index.
 
@@ -269,6 +274,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for the request in seconds.
 
         Returns:
             MatchingEngineIndex - The updated index resource object.
@@ -307,6 +314,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             index=gapic_index,
             update_mask=update_mask,
             metadata=request_metadata,
+            timeout=update_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -324,6 +332,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         contents_delta_uri: str,
         is_complete_overwrite: Optional[bool] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
     ) -> "MatchingEngineIndex":
         """Updates the embeddings for this index.
 
@@ -341,6 +350,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 then existing content of the Index will be replaced by the data from the contentsDeltaUri.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for the request in seconds.
 
         Returns:
             MatchingEngineIndex - The updated index resource object.
@@ -373,6 +384,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             index=gapic_index,
             update_mask=update_mask,
             metadata=request_metadata,
+            timeout=update_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -420,6 +432,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
         index_update_method: Optional[str] = None,
         encryption_spec_key_name: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource that uses the tree-AH algorithm.
 
@@ -510,6 +523,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 secured by this key.
                 The key needs to be in the same region as where the index is
                 created.
+            create_request_timeout (float):
+                Optional. The timeout for the request in seconds.
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -541,6 +556,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             index_update_method=index_update_method,
             encryption_spec_key_name=encryption_spec_key_name,
+            create_request_timeout=create_request_timeout,
         )
 
     @classmethod
@@ -561,6 +577,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
         index_update_method: Optional[str] = None,
         encryption_spec_key_name: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource that uses the brute force algorithm.
 
@@ -640,6 +657,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 secured by this key.
                 The key needs to be in the same region as where the index is
                 created.
+            create_request_timeout (float):
+                Optional. The timeout for the request in seconds.
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -667,17 +686,27 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             index_update_method=index_update_method,
             encryption_spec_key_name=encryption_spec_key_name,
+            create_request_timeout=create_request_timeout,
         )
 
     def upsert_datapoints(
         self,
         datapoints: Sequence[gca_matching_engine_index.IndexDatapoint],
+        update_mask: Optional[Sequence[str]] = None,
     ) -> "MatchingEngineIndex":
         """Upsert datapoints to this index.
 
         Args:
             datapoints (Sequence[gca_matching_engine_index.IndexDatapoint]):
                 Required. Datapoints to be upserted to this index.
+            update_mask (Sequence[str]):
+                Optional. Update mask is used to specify the fields to be
+                overwritten in the datapoints by the update. The fields
+                specified in the update_mask are relative to each IndexDatapoint
+                inside datapoints, not the full request.
+                Updatable fields:
+                    Use `all_restricts` to update both `restricts` and
+                    `numeric_restricts`.
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -696,6 +725,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             gca_index_service.UpsertDatapointsRequest(
                 index=self.resource_name,
                 datapoints=datapoints,
+                update_mask=(
+                    field_mask_pb2.FieldMask(paths=update_mask) if update_mask else None
+                ),
             )
         )
 
