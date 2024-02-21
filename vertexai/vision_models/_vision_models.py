@@ -918,7 +918,11 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
                 }  # pylint: disable=protected-access
 
             if video_segment_config:
-                instance["video"]["videoSegmentConfig"] = video_segment_config
+                instance["video"]["videoSegmentConfig"] = {
+                    "startOffsetSec": video_segment_config.start_offset_sec,
+                    "endOffsetSec": video_segment_config.end_offset_sec,
+                    "intervalSec": video_segment_config.interval_sec,
+                }
 
         if contextual_text:
             instance["text"] = contextual_text
