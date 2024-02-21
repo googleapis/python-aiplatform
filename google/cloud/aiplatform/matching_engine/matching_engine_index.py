@@ -692,12 +692,21 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
     def upsert_datapoints(
         self,
         datapoints: Sequence[gca_matching_engine_index.IndexDatapoint],
+        update_mask: Optional[Sequence[str]] = None,
     ) -> "MatchingEngineIndex":
         """Upsert datapoints to this index.
 
         Args:
             datapoints (Sequence[gca_matching_engine_index.IndexDatapoint]):
                 Required. Datapoints to be upserted to this index.
+            update_mask (Sequence[str]):
+                Optional. Update mask is used to specify the fields to be
+                overwritten in the datapoints by the update. The fields
+                specified in the update_mask are relative to each IndexDatapoint
+                inside datapoints, not the full request.
+                Updatable fields:
+                    Use `all_restricts` to update both `restricts` and
+                    `numeric_restricts`.
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -716,6 +725,9 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             gca_index_service.UpsertDatapointsRequest(
                 index=self.resource_name,
                 datapoints=datapoints,
+                update_mask=(
+                    field_mask_pb2.FieldMask(paths=update_mask) if update_mask else None
+                ),
             )
         )
 
