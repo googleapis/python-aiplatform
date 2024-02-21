@@ -528,6 +528,14 @@ _TEST_TEXT_BISON_PREFERENCE_TRAINING_DF = pd.DataFrame(
     },
 )
 
+_TEST_TEXT_BISON_PREFERENCE_PROMPT_TRAINING_DF = pd.DataFrame(
+    {
+        "input_text": [
+            "Create a description for Plantation Palms.",
+        ],
+    },
+)
+
 _TEST_PIPELINE_SPEC = {
     "components": {},
     "pipelineInfo": {"name": "evaluation-llm-text-generation-pipeline"},
@@ -647,9 +655,9 @@ _TEST_PIPELINE_JOB = json.dumps(
     }
 )
 
-_TEST_RLHF_PIPELINE_SPEC = {
+_TEST_RL_PIPELINE_SPEC = {
     "components": {},
-    "pipelineInfo": {"name": "rlhf"},
+    "pipelineInfo": {"name": "rl"},
     "root": {
         "dag": {"tasks": {}},
         "inputDefinitions": {
@@ -681,7 +689,10 @@ _TEST_RLHF_PIPELINE_SPEC = {
                     "parameterType": "STRING",
                 },
                 "model_display_name": {"isOptional": True, "parameterType": "STRING"},
-                "preference_dataset": {"parameterType": "STRING"},
+                "preference_dataset": {
+                        "isOptional": True,
+                        "parameterType": "STRING"
+                },
                 "project": {
                     "defaultValue": "",
                     "isOptional": True,
@@ -722,6 +733,15 @@ _TEST_RLHF_PIPELINE_SPEC = {
                     "isOptional": True,
                     "parameterType": "STRING",
                 },
+                "enable_ai_feedback": {
+                    "defaultValue": False,
+                    "isOptional": False,
+                    "parameterType": "BOOLEAN",
+                },
+                "preference_prompt_dataset": {
+                    "isOptional": True,
+                    "parameterType": "STRING"
+                },
             }
         },
     },
@@ -729,14 +749,14 @@ _TEST_RLHF_PIPELINE_SPEC = {
     "sdkVersion": "kfp-2.4.0",
 }
 
-_TEST_RLHF_PIPELINE_SPEC_JSON = json.dumps(
-    _TEST_RLHF_PIPELINE_SPEC,
+_TEST_RL_PIPELINE_SPEC_JSON = json.dumps(
+    _TEST_RL_PIPELINE_SPEC,
 )
 
 _TEST_RLHF_PIPELINE_JOB = json.dumps(
     {
         "runtimeConfig": {"parameterValues": {}},
-        "pipelineSpec": json.loads(_TEST_RLHF_PIPELINE_SPEC_JSON),
+        "pipelineSpec": json.loads(_TEST_RL_PIPELINE_SPEC_JSON),
     }
 )
 
@@ -1452,7 +1472,7 @@ def mock_request_urlopen(request: str) -> Tuple[str, mock.MagicMock]:
 
 @pytest.fixture
 def mock_request_urlopen_rlhf(request: str) -> Tuple[str, mock.MagicMock]:
-    data = _TEST_RLHF_PIPELINE_SPEC
+    data = _TEST_RL_PIPELINE_SPEC
     with mock.patch.object(urllib_request, "urlopen") as mock_urlopen:
         mock_read_response = mock.MagicMock()
         mock_decode_response = mock.MagicMock()
@@ -2648,7 +2668,7 @@ class TestLanguageModels:
 
     @pytest.mark.parametrize(
         "job_spec",
-        [_TEST_RLHF_PIPELINE_SPEC_JSON],
+        [_TEST_RL_PIPELINE_SPEC_JSON],
     )
     @pytest.mark.parametrize(
         "mock_request_urlopen_rlhf",
@@ -2746,9 +2766,111 @@ class TestLanguageModels:
             )
             assert pipeline_arguments["eval_dataset"] == eval_dataset
 
+
     @pytest.mark.parametrize(
         "job_spec",
-        [_TEST_RLHF_PIPELINE_SPEC_JSON, _TEST_RLHF_PIPELINE_JOB],
+        [_TEST_RL_PIPELINE_SPEC_JSON],
+    )
+    @pytest.mark.parametrize(
+        "mock_request_urlopen_rlhf",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_tune_text_generation_model_rlaif(
+        self,
+        mock_pipeline_service_create_rlhf,
+        mock_pipeline_job_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_gcs_from_string,
+        mock_gcs_upload,
+        mock_request_urlopen_rlhf,
+        mock_get_tuned_model,
+    ):
+        """Tests tuning a text generation model using RLAIF."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        # Define tuning parameters that should get passed to the pipeline job:
+        large_model_reference = "text-bison@001"
+        model_display_name = "rlaif-tuned-model"
+        prompt_sequence_length = 1024
+        target_sequence_length = 128
+        reward_model_learning_rate_multiplier = 2.0
+        reinforcement_learning_rate_multiplier = 0.5
+        reward_model_train_steps = 1
+        reinforcement_learning_train_steps = 2
+        kl_coeff = 0.3
+        tensorboard_resource_id = _get_test_tensorboard_resource_id()
+        eval_dataset = "gs://bucket/eval.jsonl"
+
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _TEXT_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = language_models.TextGenerationModel.from_pretrained(
+                model_name=large_model_reference,
+            )
+            # RLAIF
+            _ = model.tune_model_rlhf(
+                prompt_data=_TEST_TEXT_BISON_TRAINING_DF,
+                preference_prompt_data=_TEST_TEXT_BISON_PREFERENCE_PROMPT_TRAINING_DF,
+                model_display_name=model_display_name,
+                prompt_sequence_length=prompt_sequence_length,
+                target_sequence_length=target_sequence_length,
+                reward_model_learning_rate_multiplier=reward_model_learning_rate_multiplier,
+                reinforcement_learning_rate_multiplier=reinforcement_learning_rate_multiplier,
+                reward_model_train_steps=reward_model_train_steps,
+                reinforcement_learning_train_steps=reinforcement_learning_train_steps,
+                kl_coeff=kl_coeff,
+                tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
+                    tensorboard=tensorboard_resource_id,
+                    evaluation_data=eval_dataset,
+                ),
+            )
+            call_kwargs = mock_pipeline_service_create_rlhf.call_args[1]
+            pipeline_arguments = call_kwargs[
+                "pipeline_job"
+            ].runtime_config.parameter_values
+            assert pipeline_arguments["large_model_reference"] == large_model_reference
+            assert pipeline_arguments["model_display_name"] == model_display_name
+            assert (
+                pipeline_arguments["prompt_sequence_length"] == prompt_sequence_length
+            )
+            assert (
+                pipeline_arguments["target_sequence_length"] == target_sequence_length
+            )
+            assert (
+                pipeline_arguments["reward_model_learning_rate_multiplier"]
+                == reward_model_learning_rate_multiplier
+            )
+            assert (
+                pipeline_arguments["reinforcement_learning_rate_multiplier"]
+                == reinforcement_learning_rate_multiplier
+            )
+            assert (
+                pipeline_arguments["reward_model_train_steps"]
+                == reward_model_train_steps
+            )
+            assert (
+                pipeline_arguments["reinforcement_learning_train_steps"]
+                == reinforcement_learning_train_steps
+            )
+            assert pipeline_arguments["kl_coeff"] == kl_coeff
+            assert (
+                pipeline_arguments["tensorboard_resource_id"] == tensorboard_resource_id
+            )
+            assert pipeline_arguments["eval_dataset"] == eval_dataset
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_RL_PIPELINE_SPEC_JSON, _TEST_RLHF_PIPELINE_JOB],
     )
     @pytest.mark.parametrize(
         "mock_request_urlopen_rlhf",
@@ -2834,7 +2956,7 @@ class TestLanguageModels:
         ):
             # Pick a valid model id that is not supported by RLHF:
             unsupported_model_id = "codechat-bison@001"
-            assert unsupported_model_id not in _language_models._SUPPORTED_RLHF_MODELS
+            assert unsupported_model_id not in _language_models._SUPPORTED_RL_MODELS
 
             model = language_models.TextGenerationModel.from_pretrained(
                 unsupported_model_id
@@ -2844,12 +2966,12 @@ class TestLanguageModels:
                     prompt_data="gs://bucket/prompt.jsonl",
                     preference_data="gs://bucket/preference.jsonl",
                 )
-                expected_msg = _language_models._get_invalid_rlhf_model_msg(
+                expected_msg = _language_models._get_invalid_rl_model_msg(
                     requested_model=self._model_id,
                 )
                 assert excinfo.exception.message == expected_msg
 
-    @pytest.mark.parametrize("unused_key", _language_models._UNUSED_RLHF_EVAL_SPECS)
+    @pytest.mark.parametrize("unused_key", _language_models._UNUSED_RL_EVAL_SPECS)
     def test_tune_model_rlhf_raises_if_called_with_unused_evaluation_spec(
         self,
         unused_key,
@@ -2875,7 +2997,7 @@ class TestLanguageModels:
                     preference_data="gs://bucket/preference.jsonl",
                     tuning_evaluation_spec=eval_spec,
                 )
-                expected_msg = _language_models._get_unused_rlhf_eval_spec_error_msg(
+                expected_msg = _language_models._get_unused_rl_eval_spec_error_msg(
                     unused_key=unused_key,
                 )
                 assert excinfo.exception.message == expected_msg

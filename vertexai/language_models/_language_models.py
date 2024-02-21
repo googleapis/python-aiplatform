@@ -57,6 +57,9 @@ _TUNING_BASE_MODEL_ID_LABEL_KEY = "google-vertex-llm-tuning-base-model-id"
 # Default URI for RLHF training template in the Vertex Template Gallery
 _DEFAULT_RLHF_TUNING_PIPELINE_URI = "https://us-kfp.pkg.dev/ml-pipeline/google-cloud-registry/rlhf-train-template/default"
 
+# Default URI for RLAIF training template in the Vertex Template Gallery
+_DEFAULT_RLAIF_TUNING_PIPELINE_URI = "https://us-kfp.pkg.dev/ml-pipeline/google-cloud-registry/rlaif-train-template/default"
+
 _ACCELERATOR_TYPES = ["TPU", "GPU"]
 _ACCELERATOR_TYPE_TYPE = Literal["TPU", "GPU"]
 
@@ -388,13 +391,13 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
 
 
 @dataclasses.dataclass(frozen=True)
-class _RlhfTuningParameters:
-    """Configurable parameters for RLHF tuning."""
+class _RlTuningParameters:
+    """Configurable parameters for RLHF/RLAIF tuning."""
 
     prompt_dataset: str
-    preference_dataset: str
     large_model_reference: str
     location: str
+    preference_dataset: Optional[str] = None
     model_display_name: Optional[str] = None
     prompt_sequence_length: Optional[int] = None
     target_sequence_length: Optional[int] = None
@@ -408,6 +411,8 @@ class _RlhfTuningParameters:
     eval_dataset: Optional[str] = None
     project: Optional[str] = None
     tensorboard_resource_id: Optional[str] = None
+    enable_ai_feedback: bool = False
+    preference_prompt_dataset: Optional[str] = None
 
     def asdict(self) -> Dict[str, Any]:
         """Returns a dictionary of tuning parameters with undefined optional keys removed."""
@@ -415,14 +420,14 @@ class _RlhfTuningParameters:
         return {key: value for key, value in data.items() if value is not None}
 
 
-class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
-    """Model that can be tuned with reinforcement learning from human feedback (RLHF)."""
+class _RlTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
+    """Model that can be tuned with reinforcement learning from human feedback (RLHF), or AI feedback (RLAIF)."""
 
     def tune_model_rlhf(
         self,
         *,
         prompt_data: Union[str, "pandas.core.frame.DataFrame"],
-        preference_data: Union[str, "pandas.core.frame.DataFrame"],
+        preference_data: Optional[Union[str, "pandas.core.frame.DataFrame"]] = None,
         model_display_name: Optional[str] = None,
         prompt_sequence_length: Optional[int] = None,
         target_sequence_length: Optional[int] = None,
@@ -434,6 +439,7 @@ class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
         default_context: Optional[str] = None,
         tuning_job_location: Optional[str] = None,
         tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
+        preference_prompt_data: Optional[Union[str, "pandas.core.frame.DataFrame"]] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model using reinforcement learning from human feedback.
 
@@ -486,6 +492,9 @@ class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
                 if your dataset already prepends the instruction to the inputs field.
             tuning_job_location: GCP location where the tuning job should be run.
             tuning_evaluation_spec: Evaluation settings to use during tuning.
+            preference_prompt_data: Prompt data for AI feedback. It's a Pandas DataFrame
+                or a URI pointing to data in JSON lines format. The dataset format should
+                be the same as prompt_data.
 
         Returns:
             A `LanguageModelTuningJob` object that represents the tuning job.
@@ -501,7 +510,7 @@ class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
         eval_dataset = None
         tensorboard_resource_id = None
         if tuning_evaluation_spec is not None:
-            _check_unused_rlhf_eval_specs(tuning_evaluation_spec)
+            _check_unused_rl_eval_specs(tuning_evaluation_spec)
 
             eval_dataset = tuning_evaluation_spec.evaluation_data
             if eval_dataset is not None and not eval_dataset.startswith("gs://"):
@@ -516,39 +525,63 @@ class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             training_data=prompt_data,
             model_id=self._model_id,
         )
-        preference_dataset_uri = _maybe_upload_training_data(
-            training_data=preference_data,
-            model_id=self._model_id,
-        )
+        enable_ai_feedback = preference_prompt_data is not None
+        if enable_ai_feedback:
+            preference_prompt_dataset_uri = _maybe_upload_training_data(
+                training_data=preference_prompt_data,
+                model_id=self._model_id,
+            )
+            tuning_parameters = _RlTuningParameters(
+                prompt_dataset=prompt_dataset_uri,
+                enable_ai_feedback=enable_ai_feedback,
+                preference_prompt_dataset=preference_prompt_dataset_uri,
+                large_model_reference=self._model_id.rsplit("/", 1)[-1],
+                location=tuning_job_location,
+                model_display_name=model_display_name,
+                prompt_sequence_length=prompt_sequence_length,
+                target_sequence_length=target_sequence_length,
+                reward_model_learning_rate_multiplier=reward_model_learning_rate_multiplier,
+                reinforcement_learning_rate_multiplier=reinforcement_learning_rate_multiplier,
+                reward_model_train_steps=reward_model_train_steps,
+                reinforcement_learning_train_steps=reinforcement_learning_train_steps,
+                kl_coeff=kl_coeff,
+                instruction=default_context,
+                eval_dataset=eval_dataset,
+                tensorboard_resource_id=tensorboard_resource_id,
+            )
+        else:
+            preference_dataset_uri = _maybe_upload_training_data(
+                training_data=preference_data,
+                model_id=self._model_id,
+            )
+            tuning_parameters = _RlTuningParameters(
+                prompt_dataset=prompt_dataset_uri,
+                preference_dataset=preference_dataset_uri,
+                large_model_reference=self._model_id.rsplit("/", 1)[-1],
+                location=tuning_job_location,
+                model_display_name=model_display_name,
+                prompt_sequence_length=prompt_sequence_length,
+                target_sequence_length=target_sequence_length,
+                reward_model_learning_rate_multiplier=reward_model_learning_rate_multiplier,
+                reinforcement_learning_rate_multiplier=reinforcement_learning_rate_multiplier,
+                reward_model_train_steps=reward_model_train_steps,
+                reinforcement_learning_train_steps=reinforcement_learning_train_steps,
+                kl_coeff=kl_coeff,
+                instruction=default_context,
+                eval_dataset=eval_dataset,
+                tensorboard_resource_id=tensorboard_resource_id,
+            )
 
-        tuning_parameters = _RlhfTuningParameters(
-            prompt_dataset=prompt_dataset_uri,
-            preference_dataset=preference_dataset_uri,
-            large_model_reference=self._model_id.rsplit("/", 1)[-1],
-            location=tuning_job_location,
-            model_display_name=model_display_name,
-            prompt_sequence_length=prompt_sequence_length,
-            target_sequence_length=target_sequence_length,
-            reward_model_learning_rate_multiplier=reward_model_learning_rate_multiplier,
-            reinforcement_learning_rate_multiplier=reinforcement_learning_rate_multiplier,
-            reward_model_train_steps=reward_model_train_steps,
-            reinforcement_learning_train_steps=reinforcement_learning_train_steps,
-            kl_coeff=kl_coeff,
-            instruction=default_context,
-            eval_dataset=eval_dataset,
-            tensorboard_resource_id=tensorboard_resource_id,
-        )
-
-        return self._tune_model_rlhf(
+        return self._tune_model_rl(
             tuning_parameters=tuning_parameters,
         )
 
-    def _tune_model_rlhf(
+    def _tune_model_rl(
         self,
         *,
-        tuning_parameters: _RlhfTuningParameters,
+        tuning_parameters: _RlTuningParameters,
     ):
-        """Tunes a model using reinforcement learning from human feedback.
+        """Tunes a model using reinforcement learning from human feedback or ai feedback.
 
         This method launches a tuning job that can take some time.
 
@@ -568,16 +601,16 @@ class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             raise ValueError(
                 _get_invalid_tuning_location_msg(
                     requested_location=tuning_parameters.location,
-                    valid_locations=_SUPPORTED_RLHF_LOCATIONS,
+                    valid_locations=_SUPPORTED_RL_LOCATIONS,
                 )
             )
-        if self._model_id not in _SUPPORTED_RLHF_MODELS:
+        if self._model_id not in _SUPPORTED_RL_MODELS:
             raise ValueError(
-                _get_invalid_rlhf_model_msg(
+                _get_invalid_rl_model_msg(
                     requested_model=self._model_id,
                 )
             )
-        pipeline_job = _launch_rlhf_tuning_job(tuning_parameters)
+        pipeline_job = _launch_rl_tuning_job(tuning_parameters)
 
         job = _LanguageModelTuningJob(
             base_model=self,
@@ -950,15 +983,15 @@ class TuningEvaluationSpec:
     enable_checkpoint_selection: Optional[bool] = None
     tensorboard: Optional[Union[aiplatform.Tensorboard, str]] = None
 
-# Evaluation spec fields that are not supported by RLHF tuning
-_UNUSED_RLHF_EVAL_SPECS = (
+# Evaluation spec fields that are not supported by RLHF/RLAIF tuning
+_UNUSED_RL_EVAL_SPECS = (
     "evaluation_interval",
     "enable_early_stopping",
     "enable_checkpoint_selection",
 )
 
 
-def _get_unused_rlhf_eval_spec_error_msg(
+def _get_unused_rl_eval_spec_error_msg(
     unused_key: str,
 ) -> str:
     """Returns the user-facing error message if an unused evaluation fields was set."""
@@ -968,13 +1001,13 @@ def _get_unused_rlhf_eval_spec_error_msg(
     )
 
 
-def _check_unused_rlhf_eval_specs(tuning_evaluation_spec: TuningEvaluationSpec) -> None:
-    """Raises an error if any unused evaluation fields are specified for RLHF tuning job."""
+def _check_unused_rl_eval_specs(tuning_evaluation_spec: TuningEvaluationSpec) -> None:
+    """Raises an error if any unused evaluation fields are specified for RLHF/RLAIF tuning job."""
     eval_spec_dict = dataclasses.asdict(tuning_evaluation_spec)
-    for unused_key in _UNUSED_RLHF_EVAL_SPECS:
+    for unused_key in _UNUSED_RL_EVAL_SPECS:
         unused_value = eval_spec_dict.get(unused_key)
         if unused_value is not None:
-            raise AttributeError(_get_unused_rlhf_eval_spec_error_msg(unused_key))
+            raise AttributeError(_get_unused_rl_eval_spec_error_msg(unused_key))
 
 
 class _GroundingSourceBase(abc.ABC):
@@ -1821,7 +1854,7 @@ class TextGenerationModel(
     _TextGenerationModel,
     _TunableTextModelMixin,
     _ModelWithBatchPredict,
-    _RlhfTunableModelMixin,
+    _RlTunableModelMixin,
 ):
     __module__ = "vertexai.language_models"
 
@@ -2207,7 +2240,7 @@ class _ChatModelBase(_LanguageModel):
         )
 
 
-class ChatModel(_ChatModelBase, _TunableChatModelMixin, _RlhfTunableModelMixin):
+class ChatModel(_ChatModelBase, _TunableChatModelMixin, _RlTunableModelMixin):
     """ChatModel represents a language model that is capable of chat.
 
     Examples::
@@ -3401,15 +3434,15 @@ _TUNING_LOCATIONS = _SUPPORTED_LOCATIONS
 # Currently, deployment can only work in these locations
 _TUNED_MODEL_LOCATIONS = _SUPPORTED_LOCATIONS
 
-# TODO(b/318874365): Use _SUPPORTED_LOCATIONS defined above once DRZ for RLHF is
-# implemented.
-_SUPPORTED_RLHF_LOCATIONS = {
+# TODO(b/318874365): Use _SUPPORTED_LOCATIONS defined above once DRZ for
+# RLHF/RLAIF is implemented.
+_SUPPORTED_RL_LOCATIONS = {
     "us-central1",
     "europe-west4",
 }
 
-# All models supported by RLHF that can also be used for online and batch prediction:
-_SUPPORTED_RLHF_MODELS = {
+# All models supported by RLHF/RLAIF that can also be used for online and batch prediction:
+_SUPPORTED_RL_MODELS = {
     "text-bison@001",
     "chat-bison@001",
 }
@@ -3435,7 +3468,7 @@ def _get_invalid_tuning_location_msg(
     )
 
 
-def _get_invalid_rlhf_model_msg(
+def _get_invalid_rl_model_msg(
     requested_model: str,
 ) -> str:
     """Constructs error message when user tries to tune an unsupported model.
@@ -3449,8 +3482,8 @@ def _get_invalid_rlhf_model_msg(
 
     """
     return (
-        f"Model {requested_model} does not support tuning with RLHF. "
-        f"Please use one of the supported models: {_SUPPORTED_RLHF_MODELS}."
+        f"Model {requested_model} does not support tuning with RL. "
+        f"Please use one of the supported models: {_SUPPORTED_RL_MODELS}."
     )
 
 
@@ -3652,17 +3685,27 @@ def _launch_tuning_job(
     return job
 
 
-def _launch_rlhf_tuning_job(
-    tuning_parameters: _RlhfTuningParameters,
+def _launch_rl_tuning_job(
+    tuning_parameters: _RlTuningParameters,
     tuning_pipeline_uri: str = _DEFAULT_RLHF_TUNING_PIPELINE_URI,
 ) -> aiplatform.PipelineJob:
-    job = aiplatform.PipelineJob(
-        template_path=tuning_pipeline_uri,
-        display_name=None,
-        parameter_values=tuning_parameters.asdict(),
-        # TODO(b/275444101): Remove the explicit location once model can be deployed in all regions
-        location=tuning_parameters.location,
-    )
+    enable_ai_feedback = tuning_parameters.asdict()["enable_ai_feedback"]
+    if enable_ai_feedback:
+        job = aiplatform.PipelineJob(
+            template_path=_DEFAULT_RLAIF_TUNING_PIPELINE_URI,
+            display_name=None,
+            parameter_values=tuning_parameters.asdict(),
+            # TODO(b/275444101): Remove the explicit location once model can be deployed in all regions
+            location=tuning_parameters.location,
+        )
+    else:
+        job = aiplatform.PipelineJob(
+            template_path=tuning_pipeline_uri,
+            display_name=None,
+            parameter_values=tuning_parameters.asdict(),
+            # TODO(b/275444101): Remove the explicit location once model can be deployed in all regions
+            location=tuning_parameters.location,
+        )
     job.submit()
     return job
 
