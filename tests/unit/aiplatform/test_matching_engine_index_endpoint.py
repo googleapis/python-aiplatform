@@ -305,6 +305,7 @@ _TEST_PRIVATE_MATCH_NEIGHBOR_RESPONSE = [
         ),
     ]
 ]
+_TEST_TIMEOUT = 1800.0
 
 
 def uuid_mock():
@@ -689,6 +690,7 @@ class TestMatchingEngineIndexEndpoint:
             description=_TEST_DESCRIPTION_UPDATE,
             labels=_TEST_LABELS_UPDATE,
             request_metadata=_TEST_REQUEST_METADATA,
+            update_request_timeout=_TEST_TIMEOUT,
         )
 
         expected = gca_index_endpoint.IndexEndpoint(
@@ -704,6 +706,7 @@ class TestMatchingEngineIndexEndpoint:
                 paths=["labels", "display_name", "description"]
             ),
             metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
         )
 
         assert updated_endpoint.gca_resource == expected
@@ -747,6 +750,7 @@ class TestMatchingEngineIndexEndpoint:
             network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
+            create_request_timeout=_TEST_TIMEOUT,
         )
 
         if not sync:
@@ -762,6 +766,7 @@ class TestMatchingEngineIndexEndpoint:
             parent=_TEST_PARENT,
             index_endpoint=expected,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
         )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
@@ -795,6 +800,7 @@ class TestMatchingEngineIndexEndpoint:
             parent=_TEST_PARENT,
             index_endpoint=expected,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
@@ -823,6 +829,7 @@ class TestMatchingEngineIndexEndpoint:
             parent=_TEST_PARENT,
             index_endpoint=expected,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
@@ -857,6 +864,7 @@ class TestMatchingEngineIndexEndpoint:
             parent=_TEST_PARENT,
             index_endpoint=expected,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         assert (
@@ -962,6 +970,7 @@ class TestMatchingEngineIndexEndpoint:
             auth_config_audiences=_TEST_AUTH_CONFIG_AUDIENCES,
             auth_config_allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
             request_metadata=_TEST_REQUEST_METADATA,
+            deploy_request_timeout=_TEST_TIMEOUT,
         )
 
         deploy_index_mock.assert_called_once_with(
@@ -985,6 +994,7 @@ class TestMatchingEngineIndexEndpoint:
                 ),
             ),
             metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
         )
 
         my_index_endpoint = my_index_endpoint.undeploy_index(
@@ -995,6 +1005,7 @@ class TestMatchingEngineIndexEndpoint:
             index_endpoint=my_index_endpoint.resource_name,
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock", "get_index_mock")
@@ -1010,6 +1021,7 @@ class TestMatchingEngineIndexEndpoint:
             min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
             max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
             request_metadata=_TEST_REQUEST_METADATA,
+            mutate_request_timeout=_TEST_TIMEOUT,
         )
 
         mutate_deployed_index_mock.assert_called_once_with(
@@ -1022,6 +1034,7 @@ class TestMatchingEngineIndexEndpoint:
                 },
             ),
             metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
         )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
