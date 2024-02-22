@@ -96,6 +96,10 @@ class Feature(proto.Message):
             Only applicable for Vertex AI Feature Store. The name of the
             BigQuery Table/View column hosting data for this version. If
             no value is provided, will use feature_id.
+        point_of_contact (str):
+            Entity responsible for maintaining this
+            feature. Can be comma separated list of email
+            addresses or URIs.
     """
 
     class ValueType(proto.Enum):
@@ -231,6 +235,10 @@ class Feature(proto.Message):
     version_column_name: str = proto.Field(
         proto.STRING,
         number=106,
+    )
+    point_of_contact: str = proto.Field(
+        proto.STRING,
+        number=107,
     )
 
 
