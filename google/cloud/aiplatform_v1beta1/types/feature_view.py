@@ -94,7 +94,44 @@ class FeatureView(proto.Message):
             an index from source data, so that approximate
             nearest neighbor (a.k.a ANN) algorithms search
             can be performed during online serving.
+        service_agent_type (google.cloud.aiplatform_v1beta1.types.FeatureView.ServiceAgentType):
+            Optional. Service agent type used during data sync. By
+            default, the Vertex AI Service Agent is used. When using an
+            IAM Policy to isolate this FeatureView within a project
+            (https://cloud.google.com/vertex-ai/docs/featurestore/latest/resource-policy)
+            a separate service account should be provisioned by setting
+            this field to ``SERVICE_AGENT_TYPE_FEATURE_VIEW``. This will
+            generate a separate service account to access the BigQuery
+            source table.
+        service_account_email (str):
+            Output only. A Service Account unique to this
+            FeatureView. The role bigquery.dataViewer should
+            be granted to this service account to allow
+            Vertex AI Feature Store to sync data to the
+            online store.
     """
+
+    class ServiceAgentType(proto.Enum):
+        r"""Service agent type used during data sync.
+
+        Values:
+            SERVICE_AGENT_TYPE_UNSPECIFIED (0):
+                By default, the project-level Vertex AI
+                Service Agent is enabled.
+            SERVICE_AGENT_TYPE_PROJECT (1):
+                Indicates the project-level Vertex AI Service
+                Agent
+                (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
+                will be used during sync jobs.
+            SERVICE_AGENT_TYPE_FEATURE_VIEW (2):
+                Enable a FeatureView service account to be created by Vertex
+                AI and output in the field ``service_account_email``. This
+                service account will be used to read from the source
+                BigQuery table during sync.
+        """
+        SERVICE_AGENT_TYPE_UNSPECIFIED = 0
+        SERVICE_AGENT_TYPE_PROJECT = 1
+        SERVICE_AGENT_TYPE_FEATURE_VIEW = 2
 
     class BigQuerySource(proto.Message):
         r"""
@@ -358,6 +395,15 @@ class FeatureView(proto.Message):
         proto.MESSAGE,
         number=8,
         message=VectorSearchConfig,
+    )
+    service_agent_type: ServiceAgentType = proto.Field(
+        proto.ENUM,
+        number=14,
+        enum=ServiceAgentType,
+    )
+    service_account_email: str = proto.Field(
+        proto.STRING,
+        number=13,
     )
 
 
