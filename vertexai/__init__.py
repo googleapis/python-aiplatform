@@ -14,6 +14,10 @@
 #
 """The vertexai module."""
 
+from google.cloud.aiplatform import version as aiplatform_version
+
+__version__ = aiplatform_version.__version__
+
 from google.cloud.aiplatform import init
 from vertexai import preview
 
