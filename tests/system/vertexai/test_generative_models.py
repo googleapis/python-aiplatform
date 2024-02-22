@@ -24,7 +24,9 @@ from google import auth
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
 from vertexai import generative_models
-from vertexai.preview import generative_models as preview_generative_models
+from vertexai.preview import (
+    generative_models as preview_generative_models,
+)
 
 
 class TestGenerativeModels(e2e_base.TestEndToEnd):
@@ -45,18 +47,28 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
 
     def test_generate_content_from_text(self):
         model = generative_models.GenerativeModel("gemini-pro")
-        response = model.generate_content("Why is sky blue?")
+        response = model.generate_content(
+            "Why is sky blue?",
+            generation_config=generative_models.GenerationConfig(temperature=0),
+        )
         assert response.text
 
     @pytest.mark.asyncio
     async def test_generate_content_async(self):
         model = generative_models.GenerativeModel("gemini-pro")
-        response = await model.generate_content_async("Why is sky blue?")
+        response = await model.generate_content_async(
+            "Why is sky blue?",
+            generation_config=generative_models.GenerationConfig(temperature=0),
+        )
         assert response.text
 
     def test_generate_content_streaming(self):
         model = generative_models.GenerativeModel("gemini-pro")
-        stream = model.generate_content("Why is sky blue?", stream=True)
+        stream = model.generate_content(
+            "Why is sky blue?",
+            stream=True,
+            generation_config=generative_models.GenerationConfig(temperature=0),
+        )
         for chunk in stream:
             assert chunk.text
 
@@ -66,6 +78,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         async_stream = await model.generate_content_async(
             "Why is sky blue?",
             stream=True,
+            generation_config=generative_models.GenerationConfig(temperature=0),
         )
         async for chunk in async_stream:
             assert chunk.text
@@ -75,7 +88,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         response = model.generate_content(
             contents="Why is sky blue?",
             generation_config=generative_models.GenerationConfig(
-                temperature=0.1,
+                temperature=0,
                 top_p=0.95,
                 top_k=20,
                 candidate_count=1,
@@ -94,7 +107,8 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
     def test_generate_content_from_list_of_content_dict(self):
         model = generative_models.GenerativeModel("gemini-pro")
         response = model.generate_content(
-            contents=[{"role": "user", "parts": [{"text": "Why is sky blue?"}]}]
+            contents=[{"role": "user", "parts": [{"text": "Why is sky blue?"}]}],
+            generation_config=generative_models.GenerationConfig(temperature=0),
         )
         assert response.text
 
@@ -107,7 +121,10 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             uri="gs://download.tensorflow.org/example_images/320px-Felis_catus-cat_on_snow.jpg",
             mime_type="image/jpeg",
         )
-        response = vision_model.generate_content(image_part)
+        response = vision_model.generate_content(
+            image_part,
+            generation_config=generative_models.GenerationConfig(temperature=0),
+        )
         assert response.text
         assert "cat" in response.text
 
@@ -119,6 +136,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         response = vision_model.generate_content(
             contents=["What is shown in this image?", image_part],
+            generation_config=generative_models.GenerationConfig(temperature=0),
         )
         assert response.text
         assert "cat" in response.text
@@ -131,6 +149,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         response = vision_model.generate_content(
             contents=["What is in the video?", video_part],
+            generation_config=generative_models.GenerationConfig(temperature=0),
         )
         assert response.text
         assert "Zootopia" in response.text
@@ -145,7 +164,9 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             )
         )
         response = model.generate_content(
-            "Why is sky blue?", tools=[google_search_retriever_tool]
+            "Why is sky blue?",
+            tools=[google_search_retriever_tool],
+            generation_config=generative_models.GenerationConfig(temperature=0),
         )
         assert response.text
 
@@ -154,10 +175,16 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
     def test_send_message_from_text(self):
         model = generative_models.GenerativeModel("gemini-pro")
         chat = model.start_chat()
-        response1 = chat.send_message("I really like fantasy books.")
+        response1 = chat.send_message(
+            "I really like fantasy books.",
+            generation_config=generative_models.GenerationConfig(temperature=0),
+        )
         assert response1.text
         assert len(chat.history) == 2
 
-        response2 = chat.send_message("What things do I like?.")
+        response2 = chat.send_message(
+            "What things do I like?.",
+            generation_config=generative_models.GenerationConfig(temperature=0),
+        )
         assert response2.text
         assert len(chat.history) == 4
