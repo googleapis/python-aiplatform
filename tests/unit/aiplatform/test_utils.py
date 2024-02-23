@@ -965,7 +965,7 @@ class TestPredictionUtils:
         prediction_utils.download_model_artifacts(model_dir_name)
 
         assert not mock_storage_client.called
-        copy_tree_mock.assert_called_once_with(model_dir_name, ".")
+        copy_tree_mock.assert_called_once_with(model_dir_name, ".", dirs_exist_ok=True)
 
 
 @pytest.fixture(scope="function")

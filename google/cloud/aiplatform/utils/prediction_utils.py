@@ -150,4 +150,4 @@ def download_model_artifacts(artifact_uri: str) -> None:
                 blob.download_to_filename(name_without_prefix)
     else:
         # Copy files to the current working directory.
-        shutil.copytree(artifact_uri, ".")
+        shutil.copytree(artifact_uri, ".", dirs_exist_ok=True)
