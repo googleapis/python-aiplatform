@@ -4324,6 +4324,36 @@ class TestLanguageModels:
                 model_parameters={"temperature": 0.1},
             )
 
+    def test_batch_prediction_for_code_generation(self):
+        """Tests batch prediction."""
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _CODE_GENERATION_BISON_PUBLISHER_MODEL_DICT
+            ),
+        ):
+            model = preview_language_models.CodeGenerationModel.from_pretrained(
+                "code-bison@001"
+            )
+
+        with mock.patch.object(
+            target=aiplatform.BatchPredictionJob,
+            attribute="create",
+        ) as mock_create:
+            model.batch_predict(
+                dataset="gs://test-bucket/test_table.jsonl",
+                destination_uri_prefix="gs://test-bucket/results/",
+                model_parameters={},
+            )
+            mock_create.assert_called_once_with(
+                model_name=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/code-bison@001",
+                job_display_name=None,
+                gcs_source="gs://test-bucket/test_table.jsonl",
+                gcs_destination_prefix="gs://test-bucket/results/",
+                model_parameters={},
+            )
+
     def test_batch_prediction_for_text_embedding(self):
         """Tests batch prediction."""
         aiplatform.init(

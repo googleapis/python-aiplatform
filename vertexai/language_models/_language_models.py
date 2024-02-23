@@ -3366,7 +3366,11 @@ class _CountTokensCodeGenerationMixin(_LanguageModel):
         )
 
 
-class CodeGenerationModel(_CodeGenerationModel, _TunableTextModelMixin):
+class CodeGenerationModel(
+    _CodeGenerationModel,
+    _TunableTextModelMixin,
+    _ModelWithBatchPredict,
+):
     pass
 
 
