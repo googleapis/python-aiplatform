@@ -169,17 +169,19 @@ def default(session):
     )
     install_unittest_dependencies(session, "-c", constraints_path)
 
+    version = session.python.replace(".", "_")
+
     # Run py.test against the unit tests.
     session.run(
         "py.test",
         "--quiet",
-        f"--junitxml=unit_{session.python}_sponge_log.xml",
+        f"--junitxml=sponge_log.xml",
         "--cov=google",
         "--cov-append",
         "--cov-config=.coveragerc",
         "--cov-report=",
         "--cov-fail-under=0",
-        os.path.join("tests", "unit"),
+        os.path.join("tests", "unit", "vertexai"),
         *session.posargs,
     )
 
@@ -245,12 +247,14 @@ def system(session):
 
     install_systemtest_dependencies(session, "-c", constraints_path)
 
+    version = session.python.replace(".", "_")
+
     # Run py.test against the system tests.
     if system_test_exists:
         session.run(
             "py.test",
             "--quiet",
-            f"--junitxml=system_{session.python}_sponge_log.xml",
+            f"--junitxml=sponge_log.xml",
             system_test_path,
             *session.posargs,
         )
@@ -258,7 +262,7 @@ def system(session):
         session.run(
             "py.test",
             "-v",
-            f"--junitxml=system_{session.python}_sponge_log.xml",
+            f"--junitxml=sponge_log.xml",
             system_test_folder_path,
             *session.posargs,
         )
@@ -416,12 +420,14 @@ def prerelease_deps(session):
     system_test_path = os.path.join("tests", "system.py")
     system_test_folder_path = os.path.join("tests", "system")
 
+    version = session.python.replace(".", "_")
+
     # Only run system tests if found.
     if os.path.exists(system_test_path):
         session.run(
             "py.test",
             "--verbose",
-            f"--junitxml=system_{session.python}_sponge_log.xml",
+            f"--junitxml=sponge_log.xml",
             system_test_path,
             *session.posargs,
         )
@@ -429,7 +435,7 @@ def prerelease_deps(session):
         session.run(
             "py.test",
             "--verbose",
-            f"--junitxml=system_{session.python}_sponge_log.xml",
+            f"--junitxml=sponge_log.xml",
             system_test_folder_path,
             *session.posargs,
         )
