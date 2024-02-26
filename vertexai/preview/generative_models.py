@@ -30,13 +30,13 @@ from vertexai.generative_models._generative_models import (
     FunctionDeclaration,
     HarmCategory,
     HarmBlockThreshold,
-    Image,
     Part,
     ResponseBlockedError,
     ResponseValidationError,
     SafetySetting,
     Tool,
 )
+from vertexai.vision_models._vision_models import Image
 
 
 class GenerativeModel(_PreviewGenerativeModel):

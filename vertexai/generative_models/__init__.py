@@ -27,12 +27,12 @@ from vertexai.generative_models._generative_models import (
     FunctionDeclaration,
     HarmCategory,
     HarmBlockThreshold,
-    Image,
     Part,
     ResponseValidationError,
     SafetySetting,
     Tool,
 )
+from vertexai.vision_models._vision_models import Image
 
 __all__ = [
     "GenerationConfig",
