@@ -141,6 +141,9 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
                     local_ray_verion,
                 )
         super().__init__(address)
+        print("creds")
+        # print("Saved credentials", self._credentials)
+        # print("Saved metadata", self._metadata)
 
     def connect(self) -> _VertexRayClientContext:
         # Can send any other params to ray cluster here
