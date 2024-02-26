@@ -301,6 +301,15 @@ def docs(session):
         os.path.join("docs", ""),
         os.path.join("docs", "_build", "html", ""),
     )
+    session.run("ls", "-lR", external=True)
+    session.run(
+        "tar",
+        "cvfz",
+        "docs/_build/html.tar.gz",
+        "docs/_build/html",
+        external=True
+    )
+    session.run("ls", "-l", "docs/_build/html.tar.gz", external=True)
 
 
 @nox.session(python="3.10")
