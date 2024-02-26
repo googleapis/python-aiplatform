@@ -15,7 +15,9 @@
 # limitations under the License.
 #
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from dataclasses import field
+import time
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
@@ -24,20 +26,36 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import matching_engine
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
-    machine_resources as gca_machine_resources_compat,
-    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
-    match_service_v1beta1 as gca_match_service_v1beta1,
-    index_v1beta1 as gca_index_v1beta1,
-    service_networking as gca_service_networking,
     encryption_spec as gca_encryption_spec,
+)
+from google.cloud.aiplatform.compat.types import (
+    index_v1beta1 as gca_index_v1beta1,
+)
+from google.cloud.aiplatform.compat.types import (
+    machine_resources as gca_machine_resources_compat,
+)
+from google.cloud.aiplatform.compat.types import (
+    match_service_v1beta1 as gca_match_service_v1beta1,
+)
+from google.cloud.aiplatform.compat.types import (
+    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
+)
+from google.cloud.aiplatform.compat.types import (
+    service_networking as gca_service_networking,
 )
 from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
 from google.cloud.aiplatform.matching_engine._protos import (
     match_service_pb2_grpc,
 )
+from google.cloud import iam_credentials_v1
+import grpc
+
 from google.protobuf import field_mask_pb2
 
-import grpc
+
+# import requests
+# import http
+# import exceptions
 
 _LOGGER = base.Logger(__name__)
 
@@ -326,6 +344,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self._public_match_client = None
         if self.public_endpoint_domain_name:
             self._public_match_client = self._instantiate_public_match_client()
+        self._use_jwt_auth = False
+        self._jwt_issuer_service_account = None
+        self._jwt_audience = None
+        self._json_web_token = JsonWebToken()
 
         self._match_grpc_stub_cache = {}
         self._private_service_connect_ip_address = None
@@ -717,6 +739,26 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
     def private_service_connect_ip_address(self, ip_address: str) -> Optional[str]:
         """ "Setter for private service connect ip address."""
         self._private_service_connect_ip_address = ip_address
+
+    @property
+    def use_jwt_auth(self) -> Optional[str]:
+        """Use JWT auth for private API calls."""
+        return self._use_jwt_auth
+
+    @use_jwt_auth.setter
+    def use_jwt_auth(self, use_jwt_auth: bool) -> None:
+        """Use JWT auth for private API calls."""
+        self._use_jwt_auth = use_jwt_auth
+
+    @property
+    def jwt_issuer_service_account(self) -> Optional[str]:
+        """JWT issuer service account."""
+        return self._jwt_issuer_service_account
+
+    @jwt_issuer_service_account.setter
+    def jwt_issuer_service_account(self, jwt_issuer_service_account: str) -> None:
+        """JWT issuer service account."""
+        self._jwt_issuer_service_account = jwt_issuer_service_account
 
     def update(
         self,
@@ -1571,10 +1613,29 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         # Create the batch get embeddings request
         batch_request = match_service_pb2.BatchGetEmbeddingsRequest()
         batch_request.deployed_index_id = deployed_index_id
-
         for id in ids:
             batch_request.id.append(id)
-        response = stub.BatchGetEmbeddings(batch_request)
+
+        # Check JWT
+        if self.use_jwt_auth:
+            if self.jwt_issuer_service_account is None or self.jwt_audience is None:
+                raise ValueError(
+                    "Need to specify jwt_issuer_service_account and "
+                    "jwt_audience for matching engine to support "
+                    "jwt authentication."
+                )
+            else:
+                jwt = self._json_web_token.generate_json_web_token(
+                    self.jwt_issuer_service_account, self.jwt_audience
+                )
+                token = f"Bearer {jwt}"
+                # Perform the request with jwt authorization
+                response = stub.BatchGetEmbeddings(
+                    batch_request, metadata=("authorization", token)
+                )
+        else:
+            # Perform the request
+            response = stub.BatchGetEmbeddings(batch_request)
 
         return response.embeddings
 
@@ -1699,8 +1760,26 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         batch_request_for_index.requests.extend(requests)
         batch_request.requests.append(batch_request_for_index)
 
-        # Perform the request
-        response = stub.BatchMatch(batch_request)
+        # Check JWT
+        if self.use_jwt_auth:
+            if self.jwt_issuer_service_account is None or self.jwt_audience is None:
+                raise ValueError(
+                    "Need to specify jwt_issuer_service_account and "
+                    "jwt_audience for matching engine to support "
+                    "jwt authentication."
+                )
+            else:
+                jwt = self._json_web_token.generate_json_web_token(
+                    self.jwt_issuer_service_account, self.jwt_audience
+                )
+                token = f"Bearer {jwt}"
+                # Perform the request with jwt authorization
+                response = stub.BatchMatch(
+                    batch_request, metadata=("authorization", token)
+                )
+        else:
+            # Perform the request
+            response = stub.BatchMatch(batch_request)
 
         # Wrap the results in MatchNeighbor objects and return
         match_neighbors_response = []
@@ -1717,3 +1796,61 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                     ].from_embedding(embedding=embedding)
             match_neighbors_response.append(list(match_neighbors_id_map.values()))
         return match_neighbors_response
+
+
+class JsonWebToken:
+    """JsonWebToken to authorize private API calls."""
+
+    def __init__(self, token_lifetime_sec: int = 3600):
+        self._current_epoch_time_sec = None
+        self._expiration_time_sec = None
+        self._token_lifetime_sec = token_lifetime_sec
+        self._token = None
+        self._issuer = ""
+        self._audience = ""
+        self._credentials_client = iam_credentials_v1.IAMCredentialsClient()
+
+    def generate_json_web_token(self, jwt_issuer_service_account, audience) -> str:
+        """Generates a JSON Web Token for the given audience using the service
+        account.
+        Args:
+            jwt_issuer_service_account (str):
+                The service account to issue JSON Web Token.
+            audience (str):
+                The JSON Web Token audience.
+        Returns:
+            token (str):
+                The signed JSON Web Token.
+
+        """
+        self._current_epoch_time_sec = int(time.time())
+        # Generate token when token expired or change of issuer or audience
+        if (
+            self._expiration_time_sec is not None
+            and self._expiration_time_sec < self._current_epoch_time_sec
+            or self._issuer != jwt_issuer_service_account
+            or self._audience != audience
+        ):
+            self._expiration_time = (
+                self._current_epoch_time_sec + self._token_lifetime_sec
+            )
+            sign_jwt_request_payload = {
+                "iss": self._issuer,
+                "aud": audience,
+                "sub": audience,
+                "iat": self._current_epoch_time_sec,
+                "exp": self._expiration_time_sec,
+            }
+
+            # Initialize request arguments
+            request = iam_credentials_v1.SignJwtRequest(
+                name=f"projects/-/serviceAccounts/{jwt_issuer_service_account}",
+                payload=sign_jwt_request_payload,
+            )
+
+            # Make the request
+            response = self._credentials_client.sign_jwt(request=request)
+
+            self._token = response.getSignedJwt()
+
+        return self._token
