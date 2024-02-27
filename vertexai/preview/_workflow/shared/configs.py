@@ -112,7 +112,7 @@ class RemoteConfig(_BaseConfig):
             accelerators for the remote job and train the model on cuda devices.
             You can also specify the image and accelerators by yourself through
             `container_uri`, `accelerator_type`, `accelerator_count`.
-            Supported frameworks: keras, torch.nn.Module
+            Supported frameworks: torch.nn.Module
             Default configs:
             container_uri=(
                 "pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime"
@@ -126,7 +126,7 @@ class RemoteConfig(_BaseConfig):
             When set to True, Vertex will automatically choose a GPU or CPU
             distributed training configuration depending on the value of `enable_cuda`.
             You can also specify a custom configuration by yourself through `worker_pool_specs`.
-            Supported frameworks: keras (requires TensorFlow >= 2.12.0), torch.nn.Module
+            Supported frameworks: torch.nn.Module
             Default configs:
             If `enable_cuda` = True, for both the `chief` and `worker` specs:
                 machine_type="n1-standard-16"
@@ -273,9 +273,9 @@ class VertexConfig:
                 This parameter is specifically for TrainingConfig.
                 You can also specify the image and accelerators by yourself through
                 `container_uri`, `accelerator_type`, `accelerator_count`.
-                Supported frameworks: keras, torch.nn.Module
+                Supported frameworks: torch.nn.Module
                 Default configs:
-                container_uri="pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime" or "tensorflow/tensorflow:2.12.0-gpu"
+                container_uri="pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime"
                 machine_type="n1-standard-16"
                 accelerator_type="NVIDIA_TESLA_P100"
                 accelerator_count=1
@@ -284,7 +284,7 @@ class VertexConfig:
                 distributed training configuration depending on the value of `enable_cuda`.
                 You can also specify a custom configuration by yourself through `worker_pool_specs`.
                 This parameter is specifically for TrainingConfig.
-                Supported frameworks: keras (requires TensorFlow >= 2.12.0), torch.nn.Module
+                Supported frameworks: torch.nn.Module
                 Default configs:
                 If `enable_cuda` = True, for both the `chief` and `worker` specs:
                     machine_type="n1-standard-16"

@@ -42,8 +42,6 @@ import pandas as pd
 from pyfakefs import fake_filesystem_unittest
 import pytest
 from sklearn.linear_model import _logistic
-import tensorflow as tf
-from tensorflow import keras
 import torch
 
 
@@ -75,16 +73,6 @@ def sklearn_estimator_serializer():
 
 
 @pytest.fixture
-def keras_model_serializer():
-    return serializers.KerasModelSerializer()
-
-
-@pytest.fixture
-def keras_history_callback_serializer():
-    return serializers.KerasHistoryCallbackSerializer()
-
-
-@pytest.fixture
 def torch_model_serializer():
     return serializers.TorchModelSerializer()
 
@@ -107,14 +95,6 @@ def bigframe_serializer():
 @pytest.fixture
 def tf_dataset_serializer():
     return serializers.TFDatasetSerializer()
-
-
-@pytest.fixture
-def mock_keras_model_deserialize():
-    with mock.patch.object(
-        serializers.KerasModelSerializer, "deserialize", autospec=True
-    ) as keras_model_deserialize:
-        yield keras_model_deserialize
 
 
 @pytest.fixture
@@ -206,45 +186,6 @@ def mock_download_from_gcs_for_torch_dataloader(tmp_path, torch_dataloader_seria
 
 
 @pytest.fixture
-def mock_download_from_gcs_for_keras_model(tmp_path):
-    def fake_download_from_gcs(serialized_gcs_path, temp_dir):
-        keras_model = keras.models.Sequential(
-            [keras.layers.Dense(8, input_shape=(2,)), keras.layers.Dense(4)]
-        )
-        keras_model.save(tmp_path / temp_dir, save_format="tf")
-
-    with mock.patch.object(
-        gcs_utils, "download_from_gcs", new=fake_download_from_gcs
-    ) as download_from_gcs:
-        yield download_from_gcs
-
-
-@pytest.fixture
-def mock_tf_dataset_serialize(tmp_path):
-    def stateful_serialize(self, to_serialize, gcs_path):
-        del gcs_path
-        serializers.TFDatasetSerializer._metadata.dependencies = ["tensorflow==1.0.0"]
-        try:
-            to_serialize.save(str(tmp_path / "tf_dataset"))
-        except AttributeError:
-            tf.data.experimental.save(to_serialize, str(tmp_path / "tf_dataset"))
-
-    with mock.patch.object(
-        serializers.TFDatasetSerializer, "serialize", new=stateful_serialize
-    ) as tf_dataset_serialize:
-        yield tf_dataset_serialize
-        serializers.TFDatasetSerializer._metadata.dependencies = []
-
-
-@pytest.fixture
-def mock_tf_dataset_deserialize():
-    with mock.patch.object(
-        serializers.TFDatasetSerializer, "deserialize", autospec=True
-    ) as tf_dataset_serializer:
-        yield tf_dataset_serializer
-
-
-@pytest.fixture
 def mock_pandas_data_serialize():
     def stateful_serialize(self, to_serialize, gcs_path):
         del self, to_serialize, gcs_path
@@ -271,18 +212,6 @@ def mock_bigframe_deserialize_sklearn():
         serializers.BigframeSerializer, "_deserialize_sklearn", autospec=True
     ) as bigframe_deserialize_sklearn:
         yield bigframe_deserialize_sklearn
-
-
-@pytest.fixture
-def mock_keras_save_model():
-    with mock.patch.object(keras.models.Sequential, "save") as keras_save_model:
-        yield keras_save_model
-
-
-@pytest.fixture
-def mock_keras_load_model():
-    with mock.patch("tensorflow.keras.models.load_model") as keras_load_model:
-        yield keras_load_model
 
 
 @pytest.fixture
@@ -452,264 +381,6 @@ class TestSklearnEstimatorSerializer:
         # Act
         with pytest.raises(ValueError, match=f"Invalid gcs path: {fake_gcs_uri}"):
             sklearn_estimator_serializer.deserialize(fake_gcs_uri)
-
-
-class TestKerasModelSerializer:
-    @pytest.mark.usefixtures("mock_storage_blob_tmp_dir")
-    def test_serialize_gcs_path_default_save_format(
-        self, keras_model_serializer, tmp_path
-    ):
-        # Arrange
-        fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"
-
-        keras_model = keras.Sequential(
-            [keras.layers.Dense(8, input_shape=(2,)), keras.layers.Dense(4)]
-        )
-
-        # Act
-        keras_model_serializer.serialize(keras_model, fake_gcs_uri)
-
-        # Assert
-        # We mocked the storage blob, which writes the content to a temp path
-        # instead of fake_gcs_uri. The same filename will be used, though.
-        saved_keras_model_path = tmp_path / "fake_gcs_uri.keras"
-        assert os.path.exists(saved_keras_model_path)
-        saved_keras_model = keras.models.load_model(saved_keras_model_path)
-        assert isinstance(saved_keras_model, keras.models.Sequential)
-
-    @pytest.mark.parametrize("save_format", ["keras", "h5"], ids=["keras", "h5"])
-    @pytest.mark.usefixtures("mock_storage_blob_tmp_dir")
-    def test_serialize_gcs_path(self, keras_model_serializer, tmp_path, save_format):
-        # Arrange
-        fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"
-
-        keras_model = keras.Sequential(
-            [keras.layers.Dense(8, input_shape=(2,)), keras.layers.Dense(4)]
-        )
-
-        # Act
-        keras_model_serializer.serialize(
-            keras_model, fake_gcs_uri, save_format=save_format
-        )
-
-        # Assert
-        # We mocked the storage blob, which writes the content to a temp path
-        # instead of fake_gcs_uri. The same filename will be used, though.
-        saved_keras_model_path = tmp_path / ("fake_gcs_uri." + save_format)
-        assert os.path.exists(saved_keras_model_path)
-        saved_keras_model = keras.models.load_model(saved_keras_model_path)
-        assert isinstance(saved_keras_model, keras.models.Sequential)
-
-    @pytest.mark.usefixtures("mock_gcs_upload", "mock_isvalid_gcs_path")
-    def test_serialize_gcs_path_tf_format(self, keras_model_serializer, tmp_path):
-        # Arrange
-        fake_gcs_uri = str(tmp_path / "fake_gcs_uri")
-
-        keras_model = keras.Sequential(
-            [keras.layers.Dense(8, input_shape=(2,)), keras.layers.Dense(4)]
-        )
-
-        # Act
-        keras_model_serializer.serialize(keras_model, fake_gcs_uri, save_format="tf")
-
-        # Assert
-        # We mocked the storage blob, which writes the content to a temp path
-        # instead of fake_gcs_uri. The same filename will be used, though.
-        saved_keras_model_path = tmp_path / ("fake_gcs_uri")
-        assert os.path.exists(saved_keras_model_path)
-        saved_keras_model = keras.models.load_model(saved_keras_model_path)
-        assert isinstance(saved_keras_model, keras.models.Sequential)
-
-    def test_serialize_invalid_gcs_path(self, keras_model_serializer):
-        # Arrange
-        fake_gcs_uri = "fake_gcs_uri"
-
-        keras_model = keras.Sequential(
-            [keras.layers.Dense(8, input_shape=(2,)), keras.layers.Dense(4)]
-        )
-
-        # Act
-        with pytest.raises(ValueError, match=f"Invalid gcs path: {fake_gcs_uri}"):
-            keras_model_serializer.serialize(keras_model, fake_gcs_uri)
-
-    @pytest.mark.parametrize("save_format", ["keras", "h5"], ids=["keras", "h5"])
-    def test_deserialize_gcs_path(
-        self,
-        keras_model_serializer,
-        mock_storage_blob_tmp_dir,
-        mock_keras_load_model,
-        save_format,
-    ):
-        # Arrange
-        fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"
-
-        # This only mocks the metadata loading.
-        def fake_download_file_from_gcs(self, filename):
-            with open(filename, "w") as f:
-                json.dump({"save_format": save_format}, f)
-
-        mock_storage_blob_tmp_dir.download_to_filename = types.MethodType(
-            fake_download_file_from_gcs, mock_storage_blob_tmp_dir
-        )
-
-        # Act
-        _ = keras_model_serializer.deserialize(fake_gcs_uri)
-
-        # Assert
-        # We didn't mock the loading process with concrete data, so we simply
-        # test that it's called.
-        mock_keras_load_model.assert_called_once()
-
-    @pytest.mark.usefixtures("mock_download_from_gcs_for_keras_model")
-    def test_deserialize_tf_format(
-        self,
-        keras_model_serializer,
-        mock_storage_blob_tmp_dir,
-    ):
-        # Arrange
-        fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"
-
-        # This only mocks the metadata loading.
-        def fake_download_file_from_gcs(self, filename):
-            with open(filename, "w") as f:
-                json.dump({"save_format": "tf"}, f)
-
-        mock_storage_blob_tmp_dir.download_to_filename = types.MethodType(
-            fake_download_file_from_gcs, mock_storage_blob_tmp_dir
-        )
-
-        # Act
-        loaded_keras_model = keras_model_serializer.deserialize(fake_gcs_uri)
-
-        # Assert
-        assert isinstance(loaded_keras_model, keras.models.Sequential)
-
-    def test_deserialize_invalid_gcs_path(self, keras_model_serializer):
-        # Arrange
-        fake_gcs_uri = "fake_gcs_uri"
-
-        # Act
-        with pytest.raises(ValueError, match=f"Invalid gcs path: {fake_gcs_uri}"):
-            keras_model_serializer.deserialize(fake_gcs_uri)
-
-
-class TestKerasHistoryCallbackSerializer:
-    @pytest.mark.usefixtures("mock_isvalid_gcs_path")
-    def test_serialize_gcs_path(self, keras_history_callback_serializer, tmp_path):
-        # Arrange
-        fake_gcs_uri = tmp_path / "fake_gcs_uri"
-
-        keras_model = keras.Sequential(
-            [keras.layers.Dense(8, input_shape=(2,)), keras.layers.Dense(4)]
-        )
-        history = keras.callbacks.History()
-        history.history = {"loss": [1.0, 0.5, 0.2]}
-        history.params = {"verbose": 1, "epochs": 3, "steps": 1}
-        history.epoch = [0, 1, 2]
-        history.model = keras_model
-
-        # Act
-        keras_history_callback_serializer.serialize(history, str(fake_gcs_uri))
-
-        with open(tmp_path / "fake_gcs_uri", "rb") as f:
-            deserialized = cloudpickle.load(f)
-
-        assert "model" not in deserialized
-        assert deserialized["history"]["loss"] == history.history["loss"]
-        assert deserialized["params"] == history.params
-        assert deserialized["epoch"] == history.epoch
-
-    def test_serialize_invalid_gcs_path(self, keras_history_callback_serializer):
-        # Arrange
-        fake_gcs_uri = "fake_gcs_uri"
-
-        history = keras.callbacks.History()
-
-        # Act
-        with pytest.raises(ValueError, match=f"Invalid gcs path: {fake_gcs_uri}"):
-            keras_history_callback_serializer.serialize(history, fake_gcs_uri)
-
-    @pytest.mark.usefixtures("google_auth_mock")
-    def test_deserialize_gcs_path(
-        self,
-        keras_history_callback_serializer,
-        mock_storage_blob_tmp_dir,
-        tmp_path,
-    ):
-        # Arrange
-        fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"
-
-        _ = keras.Sequential(
-            [keras.layers.Dense(8, input_shape=(2,)), keras.layers.Dense(4)]
-        )
-        history = keras.callbacks.History()
-        history.history = {"loss": [1.0, 0.5, 0.2]}
-        history.params = {"verbose": 1, "epochs": 3, "steps": 1}
-        history.epoch = [0, 1, 2]
-
-        def fake_download_file_from_gcs(self, filename):
-            with open(tmp_path / filename, "wb") as f:
-                cloudpickle.dump(
-                    history.__dict__,
-                    f,
-                )
-
-        mock_storage_blob_tmp_dir.download_to_filename = types.MethodType(
-            fake_download_file_from_gcs, mock_storage_blob_tmp_dir
-        )
-
-        # Act
-        restored_history = keras_history_callback_serializer.deserialize(fake_gcs_uri)
-
-        # Assert
-        assert isinstance(restored_history, keras.callbacks.History)
-        assert restored_history.model is None
-
-    @pytest.mark.usefixtures("google_auth_mock")
-    def test_deserialize_gcs_path_with_model(
-        self,
-        keras_history_callback_serializer,
-        mock_storage_blob_tmp_dir,
-        tmp_path,
-    ):
-        # Arrange
-        fake_gcs_uri = "gs://staging-bucket/fake_gcs_uri"
-
-        keras_model = keras.Sequential(
-            [keras.layers.Dense(8, input_shape=(2,)), keras.layers.Dense(4)]
-        )
-        history = keras.callbacks.History()
-        history.history = {"loss": [1.0, 0.5, 0.2]}
-        history.params = {"verbose": 1, "epochs": 3, "steps": 1}
-        history.epoch = [0, 1, 2]
-
-        def fake_download_file_from_gcs(self, filename):
-            with open(tmp_path / filename, "wb") as f:
-                cloudpickle.dump(
-                    history.__dict__,
-                    f,
-                )
-
-        mock_storage_blob_tmp_dir.download_to_filename = types.MethodType(
-            fake_download_file_from_gcs, mock_storage_blob_tmp_dir
-        )
-
-        # Act
-        restored_history = keras_history_callback_serializer.deserialize(
-            fake_gcs_uri, model=keras_model
-        )
-
-        # Assert
-        assert isinstance(restored_history, keras.callbacks.History)
-        assert restored_history.model == keras_model
-
-    def test_deserialize_invalid_gcs_path(self, keras_history_callback_serializer):
-        # Arrange
-        fake_gcs_uri = "fake_gcs_uri"
-
-        # Act
-        with pytest.raises(ValueError, match=f"Invalid gcs path: {fake_gcs_uri}"):
-            keras_history_callback_serializer.deserialize(fake_gcs_uri)
 
 
 class TestTorchModelSerializer:
@@ -1112,40 +783,6 @@ class TestCloudPickleSerializer:
 
         # Assert
         assert restored_class().test_method() == "return_str"
-
-
-class TestTFDatasetSerializer:
-    @pytest.mark.usefixtures("mock_tf_dataset_serialize")
-    def test_serialize_tf_dataset(self, tf_dataset_serializer, tmp_path):
-        # Arrange
-        fake_gcs_uri = "gs://staging-bucket/tf_dataset"
-        tf_dataset = tf.data.Dataset.from_tensor_slices(np.array([1, 2, 3]))
-
-        # Act
-        tf_dataset_serializer.serialize(tf_dataset, fake_gcs_uri)
-
-        # Assert
-        try:
-            loaded_dataset = tf.data.Dataset.load(str(tmp_path / "tf_dataset"))
-        except AttributeError:
-            loaded_dataset = tf.data.experimental.load(str(tmp_path / "tf_dataset"))
-        for original_ele, loaded_ele in zip(tf_dataset, loaded_dataset):
-            assert original_ele == loaded_ele
-
-    def test_deserialize_tf_dataset(self, tf_dataset_serializer, tmp_path):
-        # Arrange
-        tf_dataset = tf.data.Dataset.from_tensor_slices(np.array([1, 2, 3]))
-        try:
-            tf_dataset.save(str(tmp_path / "tf_dataset"))
-        except AttributeError:
-            tf.data.experimental.save(tf_dataset, str(tmp_path / "tf_dataset"))
-
-        # Act
-        loaded_dataset = tf_dataset_serializer.deserialize(str(tmp_path / "tf_dataset"))
-
-        # Assert
-        for original_ele, loaded_ele in zip(tf_dataset, loaded_dataset):
-            assert original_ele == loaded_ele
 
 
 class TestPandasDataSerializer:

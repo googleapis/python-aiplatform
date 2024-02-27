@@ -23,7 +23,6 @@ import json
 import os
 from typing import Any
 
-import vertexai
 from vertexai.preview import developer
 from vertexai.preview._workflow.serialization_engine import (
     any_serializer,
@@ -35,8 +34,6 @@ from vertexai.preview._workflow.shared import constants
 import pandas as pd
 import sklearn
 from sklearn.linear_model import LogisticRegression
-import tensorflow as tf
-from tensorflow import keras
 import torch
 
 try:
@@ -55,9 +52,6 @@ except ImportError:
 _TEST_SERIALIZATION_SCHEME = {
     object: serializers.CloudPickleSerializer,
     sklearn.base.BaseEstimator: serializers.SklearnEstimatorSerializer,
-    keras.models.Model: serializers.KerasModelSerializer,
-    keras.callbacks.History: serializers.KerasHistoryCallbackSerializer,
-    tf.data.Dataset: serializers.TFDatasetSerializer,
     torch.nn.Module: serializers.TorchModelSerializer,
     torch.utils.data.DataLoader: serializers.TorchDataLoaderSerializer,
     pd.DataFrame: serializers.PandasDataSerializer,
@@ -77,33 +71,6 @@ def torch_dataloader_serializer():
 @pytest.fixture
 def bigframe_serializer():
     return serializers.BigframeSerializer()
-
-
-@pytest.fixture
-def tf_dataset_serializer():
-    return serializers.TFDatasetSerializer()
-
-
-@pytest.fixture
-def mock_keras_model_serialize():
-    def stateful_serialize(self, to_serialize, gcs_path):
-        del self, to_serialize
-        serializers.KerasModelSerializer._metadata.dependencies = ["keras==1.0.0"]
-        return gcs_path
-
-    with mock.patch.object(
-        serializers.KerasModelSerializer, "serialize", new=stateful_serialize
-    ) as keras_model_serialize:
-        yield keras_model_serialize
-        serializers.KerasModelSerializer._metadata.dependencies = []
-
-
-@pytest.fixture
-def mock_keras_model_deserialize():
-    with mock.patch.object(
-        serializers.KerasModelSerializer, "deserialize", autospec=True
-    ) as keras_model_deserialize:
-        yield keras_model_deserialize
 
 
 @pytest.fixture
@@ -177,23 +144,6 @@ def mock_torch_dataloader_deserialize():
 
 
 @pytest.fixture
-def mock_tf_dataset_serialize(tmp_path):
-    def stateful_serialize(self, to_serialize, gcs_path):
-        serializers.TFDatasetSerializer._metadata.dependencies = ["tensorflow==1.0.0"]
-        try:
-            to_serialize.save(str(tmp_path / "tf_dataset"))
-        except AttributeError:
-            tf.data.experimental.save(to_serialize, str(tmp_path / "tf_dataset"))
-        return gcs_path
-
-    with mock.patch.object(
-        serializers.TFDatasetSerializer, "serialize", new=stateful_serialize
-    ) as tf_dataset_serialize:
-        yield tf_dataset_serialize
-        serializers.TFDatasetSerializer._metadata.dependencies = []
-
-
-@pytest.fixture
 def mock_tf_dataset_deserialize():
     with mock.patch.object(
         serializers.TFDatasetSerializer, "deserialize", autospec=True
@@ -239,15 +189,6 @@ def mock_bigframe_deserialize_torch():
         serializers.BigframeSerializer, "_deserialize_torch", autospec=True
     ) as bigframe_deserialize_torch:
         yield bigframe_deserialize_torch
-
-
-# TODO(b/295338623): Test correctness of Bigframes serialize/deserialize
-@pytest.fixture
-def mock_bigframe_deserialize_tensorflow():
-    with mock.patch.object(
-        serializers.BigframeSerializer, "_deserialize_tensorflow", autospec=True
-    ) as bigframe_deserialize_tensorflow:
-        yield bigframe_deserialize_tensorflow
 
 
 @pytest.fixture
@@ -323,29 +264,6 @@ class TestAnySerializer:
             assert (
                 serializer_instance._serialization_scheme == _TEST_SERIALIZATION_SCHEME
             )
-
-    def test_any_serializer_with_wrapped_class(self):
-        # Reset the serializer instances
-        serializers_base.Serializer._instances = {}
-
-        # Wrap a ML class that we have predefined serializer
-        unwrapped_keras_class = keras.models.Model
-        keras.models.Model = vertexai.preview.remote(keras.models.Model)
-
-        try:
-            # Assert that AnySerializer still registered the original class
-            serializer_instance = any_serializer.AnySerializer()
-            assert keras.models.Model not in serializer_instance._serialization_scheme
-            assert unwrapped_keras_class in serializer_instance._serialization_scheme
-            assert (
-                serializer_instance._serialization_scheme[unwrapped_keras_class]
-                == serializers.KerasModelSerializer
-            )
-        except Exception as e:
-            raise e
-        finally:
-            # Revert the class after testing
-            keras.models.Model = unwrapped_keras_class
 
     def test_any_serializer_global_metadata_created(
         self, mock_cloudpickle_serialize, any_serializer_instance, tmp_path
@@ -535,37 +453,6 @@ class TestAnySerializer:
         ]
 
     @pytest.mark.usefixtures("mock_gcs_upload")
-    def test_any_serializer_serialize_keras_model(
-        self, any_serializer_instance, tmp_path, mock_keras_model_serialize
-    ):
-        # Arrange
-        fake_gcs_path = os.fspath(tmp_path / "job_id/input/input_estimator")
-        os.makedirs(tmp_path / "job_id/input")
-        keras_model = keras.Sequential(
-            [keras.layers.Dense(5, input_shape=(4,)), keras.layers.Softmax()]
-        )
-
-        # Act
-        any_serializer_instance.serialize(keras_model, fake_gcs_path)
-
-        # Assert
-        metadata_path = (
-            tmp_path
-            / f"job_id/input/{serializers_base.SERIALIZATION_METADATA_FILENAME}_input_estimator.json"
-        )
-
-        # Metadata should have the correct serializer information
-        with open(metadata_path, "rb") as f:
-            metadata = json.load(f)
-        assert (
-            metadata[serializers_base.SERIALIZATION_METADATA_SERIALIZER_KEY]
-            == "KerasModelSerializer"
-        )
-        assert metadata[serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY] == [
-            "keras==1.0.0"
-        ]
-
-    @pytest.mark.usefixtures("mock_gcs_upload")
     def test_any_serializer_serialize_torch_model(
         self, any_serializer_instance, tmp_path, mock_torch_model_serialize
     ):
@@ -689,69 +576,6 @@ class TestAnySerializer:
         )
         assert metadata[serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY] == [
             "torch==1.0.0"
-        ]
-
-    @pytest.mark.usefixtures("mock_tf_dataset_serialize")
-    def test_any_serializer_serialize_tf_dataset(
-        self, any_serializer_instance, tmp_path, tf_dataset_serializer
-    ):
-        # Arrange
-        fake_gcs_path = os.fspath(tmp_path / "tf_dataset")
-
-        tf_dataset = tf.data.Dataset.from_tensor_slices([1, 2, 3])
-
-        # Act
-        any_serializer_instance.serialize(tf_dataset, fake_gcs_path)
-
-        # Assert
-        metadata_path = (
-            tmp_path
-            / f"{serializers_base.SERIALIZATION_METADATA_FILENAME}_tf_dataset.json"
-        )
-        with open(metadata_path, "rb") as f:
-            metadata = json.load(f)
-
-        assert (
-            metadata[serializers_base.SERIALIZATION_METADATA_SERIALIZER_KEY]
-            == "TFDatasetSerializer"
-        )
-        assert metadata[serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY] == [
-            "tensorflow==1.0.0"
-        ]
-
-    @pytest.mark.usefixtures("mock_gcs_upload")
-    def test_any_serializer_typed_serializer_failed_falling_back_to_cloudpickle(
-        self, any_serializer_instance, tmp_path, mock_cloudpickle_serialize
-    ):
-        # Arrange
-        fake_gcs_path = os.fspath(tmp_path / "job_id/input/input_estimator")
-        os.makedirs(tmp_path / "job_id/input")
-        keras_model = keras.Sequential(
-            [keras.layers.Dense(5, input_shape=(4,)), keras.layers.Softmax()]
-        )
-
-        with mock.patch.object(
-            serializers.KerasModelSerializer, "serialize", autospec=True
-        ) as mock_keras_model_serializer_serialize:
-            mock_keras_model_serializer_serialize.side_effect = Exception
-            # Act
-            any_serializer_instance.serialize(keras_model, fake_gcs_path)
-
-        # Assert
-        metadata_path = (
-            tmp_path
-            / f"job_id/input/{serializers_base.SERIALIZATION_METADATA_FILENAME}_input_estimator.json"
-        )
-
-        # Metadata should have the correct serializer information
-        with open(metadata_path, "rb") as f:
-            metadata = json.load(f)
-        assert (
-            metadata[serializers_base.SERIALIZATION_METADATA_SERIALIZER_KEY]
-            == "CloudPickleSerializer"
-        )
-        assert metadata[serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY] == [
-            "cloudpickle==1.0.0"
         ]
 
     def test_any_serializer_cloudpickle_serializer_failed_raise_serialization_error(
@@ -891,36 +715,6 @@ class TestAnySerializer:
         # Assert
         mock_sklearn_estimator_deserialize.assert_called_once_with(
             any_serializer_instance._instances[serializers.SklearnEstimatorSerializer],
-            serialized_gcs_path=fake_gcs_path,
-        )
-
-    @pytest.mark.usefixtures("mock_gcs_upload")
-    def test_any_serializer_deserialize_keras_model(
-        self, any_serializer_instance, tmp_path, mock_keras_model_deserialize
-    ):
-        # Arrange
-        fake_gcs_path = os.fspath(tmp_path / "job_id/input/input_estimator")
-        os.makedirs(tmp_path / "job_id/input")
-        metadata_path = (
-            tmp_path
-            / f"job_id/input/{serializers_base.SERIALIZATION_METADATA_FILENAME}_input_estimator.json"
-        )
-        with open(metadata_path, "wb") as f:
-            f.write(
-                json.dumps(
-                    {
-                        serializers_base.SERIALIZATION_METADATA_SERIALIZER_KEY: "KerasModelSerializer",
-                        serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [],
-                    }
-                ).encode("utf-8")
-            )
-
-        # Act
-        _ = any_serializer_instance.deserialize(fake_gcs_path)
-
-        # Assert
-        mock_keras_model_deserialize.assert_called_once_with(
-            any_serializer_instance._instances[serializers.KerasModelSerializer],
             serialized_gcs_path=fake_gcs_path,
         )
 
@@ -1073,70 +867,6 @@ class TestAnySerializer:
         # Assert
         mock_bigframe_deserialize_torch.assert_called_once_with(
             any_serializer_instance._instances[serializers.BigframeSerializer],
-            serialized_gcs_path=fake_gcs_path,
-        )
-
-    @pytest.mark.usefixtures("mock_gcs_upload")
-    def test_any_serializer_deserialize_bigframe_tensorflow(
-        self, any_serializer_instance, tmp_path, mock_bigframe_deserialize_tensorflow
-    ):
-        # Arrange
-        fake_gcs_path = os.fspath(tmp_path / "job_id/input/X")
-        os.makedirs(tmp_path / "job_id/input")
-        metadata_path = (
-            tmp_path
-            / f"job_id/input/{serializers_base.SERIALIZATION_METADATA_FILENAME}_X.json"
-        )
-        with open(metadata_path, "wb") as f:
-            f.write(
-                json.dumps(
-                    {
-                        serializers_base.SERIALIZATION_METADATA_SERIALIZER_KEY: "BigframeSerializer",
-                        serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [],
-                        serializers.SERIALIZATION_METADATA_FRAMEWORK_KEY: "tensorflow",
-                    }
-                ).encode("utf-8")
-            )
-
-        # Act (step 2)
-        _ = any_serializer_instance.deserialize(fake_gcs_path)
-
-        # Assert
-        mock_bigframe_deserialize_tensorflow.assert_called_once_with(
-            any_serializer_instance._instances[serializers.BigframeSerializer],
-            serialized_gcs_path=fake_gcs_path,
-            batch_size=None,
-            target_col=None,
-        )
-
-    def test_any_serializer_deserialize_tf_dataset(
-        self, any_serializer_instance, tmp_path, mock_tf_dataset_deserialize
-    ):
-        # Arrange
-        fake_gcs_path = os.fspath(tmp_path / "job_id/input/X")
-        os.makedirs(tmp_path / "job_id/input")
-        metadata_path = (
-            tmp_path
-            / f"job_id/input/{serializers_base.SERIALIZATION_METADATA_FILENAME}_X.json"
-        )
-        with open(metadata_path, "wb") as f:
-            f.write(
-                json.dumps(
-                    {
-                        serializers_base.SERIALIZATION_METADATA_SERIALIZER_KEY: "TFDatasetSerializer",
-                        serializers_base.SERIALIZATION_METADATA_DEPENDENCIES_KEY: [
-                            "tensorflow==1.0.0"
-                        ],
-                    }
-                ).encode("utf-8")
-            )
-
-        # Act
-        any_serializer_instance.deserialize(fake_gcs_path)
-
-        # Assert
-        mock_tf_dataset_deserialize.assert_called_once_with(
-            any_serializer_instance._instances[serializers.TFDatasetSerializer],
             serialized_gcs_path=fake_gcs_path,
         )
 

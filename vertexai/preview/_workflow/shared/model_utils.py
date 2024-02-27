@@ -39,10 +39,10 @@ from vertexai.preview._workflow.serialization_engine import (
 # These need to be imported to be included in _ModelGardenModel.__init_subclass__
 from vertexai.language_models import (
     _language_models,
-)  # pylint:disable=unused-import
-from vertexai.vision_models import (
+)
+from vertexai.vision_models import (  # noqa: F401
     _vision_models,
-)  # pylint:disable=unused-import
+)
 from vertexai._model_garden import _model_garden_models
 from google.cloud.aiplatform import _publisher_models
 from vertexai.preview._workflow.executor import training
@@ -86,7 +86,7 @@ def _get_model_file_from_image_uri(container_image_uri: str) -> str:
         # Assume the pretrained model will be pulled for uptraining.
         return _PYTORCH_FILE_NAME
     else:
-        raise ValueError("Support loading PyTorch, scikit-learn and TensorFlow only.")
+        raise ValueError("Support loading PyTorchand scikit-learn only.")
 
 
 def _verify_custom_job(job: aiplatform.CustomJob) -> None:
@@ -121,7 +121,7 @@ def _generate_remote_job_output_path(base_gcs_dir: str) -> str:
 
 def _get_model_from_successful_custom_job(
     job_dir: str,
-) -> Union["sklearn.base.BaseEstimator", "tf.Module", "torch.nn.Module"]:
+) -> Union["sklearn.base.BaseEstimator", "torch.nn.Module"]:  # noqa: F821
 
     serializer = any_serializer.AnySerializer()
 
@@ -161,46 +161,6 @@ def _register_sklearn_model(
     vertex_model = aiplatform.Model.upload(
         display_name=unique_model_name,
         artifact_uri=gcs_dir,
-        serving_container_image_uri=container_image_uri,
-        labels={"registered_by_vertex_ai": "true"},
-        sync=True,
-    )
-
-    return vertex_model
-
-
-def _register_tf_model(
-    model: "tensorflow.Module",  # noqa: F821
-    serializer: serializers_base.Serializer,
-    staging_bucket: str,
-    rewrapper: Any,
-    use_gpu: bool = False,
-) -> aiplatform.Model:
-    """Register TensorFlow model."""
-    unique_model_name = (
-        f"vertex-ai-registered-tensorflow-model-{utils.timestamped_unique_name()}"
-    )
-    gcs_dir = os.path.join(staging_bucket, unique_model_name)
-    # serialize rewrapper
-    file_path = os.path.join(gcs_dir, _TF_DIR_NAME + "/" + _REWRAPPER_NAME)
-    serializer.serialize(rewrapper, file_path)
-    # serialize model
-    file_path = os.path.join(gcs_dir, _TF_DIR_NAME)
-    # The default serialization format for keras models is "keras", but this
-    # format is not yet supported by the model upload (eventually prediction
-    # services). See the code here:
-    # https://source.corp.google.com/piper///depot/google3/third_party/py/google/cloud/aiplatform/aiplatform/models.py;rcl=561677645;l=3141
-    serializer.serialize(model, file_path, save_format="tf")
-
-    container_image_uri = aiplatform.helpers.get_prebuilt_prediction_container_uri(
-        framework="tensorflow",
-        framework_version="2.11",
-        accelerator="gpu" if use_gpu else "cpu",
-    )
-
-    vertex_model = aiplatform.Model.upload(
-        display_name=unique_model_name,
-        artifact_uri=file_path,
         serving_container_image_uri=container_image_uri,
         labels={"registered_by_vertex_ai": "true"},
         sync=True,
@@ -303,16 +263,14 @@ def _check_from_pretrained_passed_exactly_one_arg(fn_args: Dict[str, Any]) -> No
 
 
 def register(
-    model: Union[
-        "sklearn.base.BaseEstimator", "tf.Module", "torch.nn.Module"  # noqa: F821
-    ],
+    model: Union["sklearn.base.BaseEstimator", "torch.nn.Module"],  # noqa: F821
     use_gpu: bool = False,
 ) -> aiplatform.Model:
     """Registers a model and returns a Model representing the registered Model resource.
 
     Args:
-        model (Union["sklearn.base.BaseEstimator", "tensorflow.Module", "torch.nn.Module"]):
-            Required. An OSS model. Supported frameworks: sklearn, tensorflow, pytorch.
+        model (Union["sklearn.base.BaseEstimator", "torch.nn.Module"]):
+            Required. An OSS model. Supported frameworks: sklearn, pytorch.
         use_gpu (bool):
             Optional. Whether to use GPU for model serving. Default to False.
 
@@ -339,22 +297,13 @@ def register(
         if model.__module__.startswith("sklearn"):
             return _register_sklearn_model(model, serializer, staging_bucket, rewrapper)
 
-        elif model.__module__.startswith("keras") or (
-            hasattr(model, "_tracking_metadata")
-        ):  # pylint: disable=protected-access
-            return _register_tf_model(
-                model, serializer, staging_bucket, rewrapper, use_gpu
-            )
-
         elif "torch" in model.__module__ or (hasattr(model, "state_dict")):
             return _register_pytorch_model(
                 model, serializer, staging_bucket, rewrapper, use_gpu
             )
 
         else:
-            raise ValueError(
-                "Support uploading PyTorch, scikit-learn and TensorFlow only."
-            )
+            raise ValueError("Support uploading PyTorch and scikit-learn only.")
     except Exception as e:
         raise e
     finally:
@@ -366,7 +315,7 @@ def from_pretrained(
     model_name: Optional[str] = None,
     custom_job_name: Optional[str] = None,
     foundation_model_name: Optional[str] = None,
-) -> Union["sklearn.base.BaseEstimator", "tf.Module", "torch.nn.Module"]:  # noqa: F821
+) -> Union["sklearn.base.BaseEstimator", "torch.nn.Module"]:  # noqa: F821
     """Pulls a model from Model Registry or from a CustomJob ID for retraining.
 
     The returned model is wrapped with a Vertex wrapper for running remote jobs on Vertex,

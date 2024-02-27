@@ -45,7 +45,6 @@ import pandas as pd
 import pytest
 from sklearn.linear_model import _logistic
 import sklearn.metrics
-import tensorflow as tf
 
 
 _TEST_PARAMETER_SPEC = {
@@ -1781,41 +1780,6 @@ class TestVizierHyperparameterTuner:
             _TEST_Y_TEST_CLASSIFICATION_BINARY,
             _TEST_Y_PRED_CLASSIFICATION_BINARY,
         )
-
-    @pytest.mark.usefixtures("google_auth_mock", "mock_create_study")
-    def test_get_keras_train_method_and_params(self):
-        vertexai.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        vertexai.preview.init(remote=True)
-
-        def get_model_func():
-            tf.keras.Sequential = vertexai.preview.remote(tf.keras.Sequential)
-            model = tf.keras.Sequential(
-                [tf.keras.layers.Dense(5, input_shape=(4,)), tf.keras.layers.Softmax()]
-            )
-            model.compile(optimizer="adam", loss="mean_squared_error")
-            model.fit.vertex.remote_config.staging_bucket = _TEST_STAGING_BUCKET
-            return model
-
-        test_tuner = VizierHyperparameterTuner(
-            get_model_func=get_model_func,
-            max_trial_count=16,
-            parallel_trial_count=4,
-            hparam_space=[],
-        )
-        test_model = get_model_func()
-        test_train_method, data_params = test_tuner._get_train_method_and_params(
-            test_model,
-            _TEST_X_TRAIN,
-            _TEST_Y_TRAIN,
-            _TEST_TRIAL_NAME,
-            params=["x", "y"],
-        )
-        assert test_train_method._remote_executor == training.remote_training
-        assert (
-            test_train_method.vertex.remote_config.staging_bucket
-            == _TEST_TRIAL_STAGING_BUCKET
-        )
-        assert data_params == {"x": _TEST_X_TRAIN, "y": _TEST_Y_TRAIN}
 
     @pytest.mark.usefixtures("google_auth_mock", "mock_create_study")
     def test_get_sklearn_train_method_and_params(self):

@@ -34,9 +34,8 @@ With the remote training feature in Vertex AI SDK, you can write your machine le
 
 ### Supported frameworks
 1. scikit-learn
-2. tensorflow
-3. pytorch
-4. lightning
+2. pytorch
+3. lightning
 
 ### User journey
 ```py
@@ -76,32 +75,28 @@ model.fit(X, y)
 This is an extra feature on top of remote training. It allows you to remotely train supported models on GPU, even though you don't have any GPU resources in your local device. Please check [here](https://github.com/googleapis/python-aiplatform/blob/main/vertexai/preview/_workflow/shared/configs.py#L63-L73) for more information.
 
 ### Supported frameworks
-1. tensorflow
-2. pytorch
+1. pytorch
 
 ### User journey
 ```py
 import vertexai
-from tensorflow import keras
+from sklearn.linear_model import LogisticRegression
 
 # Wrap classes to enable Vertex remote execution
-keras.Sequential = vertexai.preview.remote(keras.Sequential)
+LogisticRegression = vertexai.preview.remote(LogisticRegression)
 
 # Init vertexai and switch to remote mode for training
 vertexai.init(project="my-project", location="my-location")
 vertexai.preview.init(remote=True)
 
 # Instantiate model
-model = keras.Sequential(
-    [keras.layers.Dense(5, input_shape=(4,)), keras.layers.Softmax()]
-)
-model.compile(optimizer="adam", loss="mean_squared_error")
+model = LogisticRegression(warm_start=True)
 
-# Set `enable_cuda` to True in remote config
-model.fit.vertex.remote_config.enable_cuda = True
+# (Optional) Customize the display name of the remote job
+model.fit.vertex.remote_config.display_name = REMOTE_JOB_NAME + "-sklearn-model"
 
-# Model will be trained on Vertex with GPU
-model.fit(dataset, epochs=10)
+# Train model on Vertex
+model = model.fit(X_train, y_train)
 ```
 
 
@@ -109,8 +104,7 @@ model.fit(dataset, epochs=10)
 This feature extends remote training by enabling you to remotely train supported models on multi-worker CPU or GPU machines, regardless of the resources available in your local device. Please check [here](https://github.com/googleapis/python-aiplatform/blob/main/vertexai/preview/_workflow/shared/configs.py#L74-L86) for more information.
 
 ### Supported frameworks
-1. tensorflow
-2. pytorch
+1. pytorch
 
 ### User journey
 ```py
@@ -190,8 +184,7 @@ Once you finish training a model, you may register your trained model to the [Ve
 
 ### Supported frameworks
 1. scikit-learn
-2. tensorflow
-3. pytorch
+2. pytorch
 
 ### User journey
 
@@ -260,9 +253,8 @@ Vertex AI SDK supports local and remote hyperparameter tuning using [Vertex AI V
 
 ### Supported frameworks
 1. scikit-learn
-2. tensorflow
-3. pytorch
-4. lightning
+2. pytorch
+3. lightning
 
 ### User journey
 ```py
@@ -310,8 +302,7 @@ Remote training supports [BigFrames](https://cloud.google.com/python/docs/refere
 
 ### Supported frameworks
 1. scikit-learn
-2. tensorflow
-3. pytorch
+2. pytorch
 
 ### User journey
 ```py
@@ -352,12 +343,6 @@ The notebooks below showcase the different usage of Vertex AI SDK.
     - Remote GPU training
     - Uptraining
 
-- [remote_training_tensorflow_with_autologging.ipynb](https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/vertex_ai_sdk/remote_training_tensorflow_with_autologging.ipynb)
-    - Remote training
-    - Remote GPU training
-    - Remote training with Autologging
-    - Uptraining
-
 - [remote_training_lightning.ipynb](https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/vertex_ai_sdk/remote_training_lightning.ipynb)
     - Remote training
 
@@ -374,8 +359,3 @@ The notebooks below showcase the different usage of Vertex AI SDK.
     - Remote training
     - Remote prediction
 
-- [remote_training_bigframes_tensorflow.ipynb](https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/vertex_ai_sdk/remote_training_bigframes_tensorflow.ipynb)
-    - BigFrames data ingestion
-    - Remote training
-    - Remote GPU training
-    - Remote prediction

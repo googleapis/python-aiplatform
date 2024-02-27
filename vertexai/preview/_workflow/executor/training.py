@@ -266,22 +266,6 @@ def _update_lightning_trainer_inplace(old_estimator, new_estimator):
     _common_update_model_inplace(old_estimator, new_estimator)
 
 
-def _update_keras_model_inplace(old_estimator, new_estimator):
-    import tensorflow as tf
-
-    @tf.__internal__.tracking.no_automatic_dependency_tracking
-    def _no_tracking_setattr(instance, name, value):
-        setattr(instance, name, value)
-
-    for attr_name, attr_value in new_estimator.__dict__.items():
-        if not attr_name.startswith("__") and not inspect.ismethod(
-            getattr(old_estimator, attr_name, None)
-        ):
-            # for Keras model, we update self's attributes with a decorated
-            # setattr. See b/277939758 for the details.
-            _no_tracking_setattr(old_estimator, attr_name, attr_value)
-
-
 def _get_service_account(
     config: shared.configs.RemoteConfig,
     autolog: bool,
@@ -564,19 +548,7 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
     detected_framework = None
     if supported_frameworks._is_sklearn(self):
         detected_framework = "sklearn"
-    elif supported_frameworks._is_keras(self):
-        detected_framework = "tensorflow"
-        # TODO(b/295580335): Investigate Tensorflow 2.13 GPU Hanging
-        import tensorflow as tf
 
-        accelerator_count = config.accelerator_count if config.accelerator_count else 0
-        if (
-            version.Version(tf.__version__).base_version >= "2.13.0"
-            and accelerator_count > 1
-        ):
-            raise ValueError(
-                f"Currently Tensorflow {tf.__version__} doesn't support multi-gpu training."
-            )
     elif supported_frameworks._is_torch(self):
         detected_framework = "torch"
         # TODO(b/296944997): Support remote training on torch<2
@@ -696,9 +668,6 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
         + f"--arg_names={','.join(list(serialized_args.keys()))} "
         + f"--enable_cuda={enable_cuda} "
         + f"--enable_distributed={config.enable_distributed} "
-        # For distributed training. Use this to infer tf.distribute strategy for Keras training.
-        # Keras single worker, multi-gpu needs to be compiled with tf.distribute.MirroredStrategy.
-        # Keras multi-worker needs to be compiled with tf.distribute.MultiWorkerMirroredStrategy.
         + f"--accelerator_count={0 if not config.accelerator_count else config.accelerator_count}"
         + autolog_command
     )
@@ -787,10 +756,6 @@ def remote_training(invokable: shared._Invokable, rewrapper: Any):
 
         if supported_frameworks._is_sklearn(self):
             _update_sklearn_model_inplace(self, estimator)
-
-        elif supported_frameworks._is_keras(self):
-            add_model_to_history_obj = True
-            _update_keras_model_inplace(self, estimator)
 
         elif supported_frameworks._is_torch(self):
             _update_torch_model_inplace(self, estimator)

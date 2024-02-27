@@ -33,7 +33,7 @@ from packaging import version
 _LOGGER = base.Logger(__name__)
 
 # This most likely needs to be map
-REMOTE_FRAMEWORKS = frozenset(["sklearn", "keras", "lightning"])
+REMOTE_FRAMEWORKS = frozenset(["sklearn", "lightning"])
 
 REMOTE_TRAINING_MODEL_UPDATE_ONLY_OVERRIDE_LIST = frozenset(["fit", "train"])
 
@@ -146,16 +146,6 @@ def _is_torch_dataloader(cls_or_ins: Any) -> bool:
         return False
 
 
-def _is_tensorflow(cls_or_ins: Any) -> bool:
-    try:
-        global tf
-        import tensorflow as tf
-
-        return tf.Module in _get_mro(cls_or_ins)
-    except ImportError:
-        return False
-
-
 def _is_pandas_dataframe(possible_dataframe: Any) -> bool:
     try:
         global pd
@@ -178,9 +168,7 @@ def _is_bigframe(possible_dataframe: Any) -> bool:
 
 # pylint: enable=g-import-not-at-top
 def _is_oss(cls_or_ins: Any) -> bool:
-    return any(
-        [_is_sklearn(cls_or_ins), _is_keras(cls_or_ins), _is_lightning(cls_or_ins)]
-    )
+    return any([_is_sklearn(cls_or_ins), _is_lightning(cls_or_ins)])
 
 
 # pylint: disable=undefined-variable
@@ -189,14 +177,6 @@ def _get_deps_if_sklearn_model(model: Any) -> List[str]:
     if _is_sklearn(model):
         dep_version = version.Version(sklearn.__version__).base_version
         deps.append(f"scikit-learn=={dep_version}")
-    return deps
-
-
-def _get_deps_if_tensorflow_model(model: Any) -> List[str]:
-    deps = []
-    if _is_tensorflow(model):
-        dep_version = version.Version(tf.__version__).base_version
-        deps.append(f"tensorflow=={dep_version}")
     return deps
 
 
@@ -325,7 +305,6 @@ def _get_estimator_requirement(estimator: Any) -> List[str]:
     deps.extend(_get_pandas_deps())
     deps.extend(_get_cloudpickle_deps())
     deps.extend(_get_deps_if_sklearn_model(estimator))
-    deps.extend(_get_deps_if_tensorflow_model(estimator))
     deps.extend(_get_deps_if_torch_model(estimator))
     deps.extend(_get_deps_if_lightning_model(estimator))
     # dedupe the dependencies by casting it to a dict first (dict perserves the
@@ -346,15 +325,7 @@ def _get_cpu_container_uri() -> str:
 def _get_gpu_container_uri(estimator: Any) -> str:
     """Returns the container uri used for gpu training given an estimator."""
     local_python_version = _get_python_minor_version()
-    if _is_tensorflow(estimator):
-        if local_python_version != "3.10":
-            warnings.warn(
-                f"Your local runtime has python{local_python_version}, but your "
-                "remote GPU training will be executed in python3.10"
-            )
-        return "us-docker.pkg.dev/vertex-ai/training/tf-gpu.2-11.py310:latest"
-
-    elif _is_torch(estimator) or _is_lightning(estimator):
+    if _is_torch(estimator) or _is_lightning(estimator):
         if local_python_version != "3.10":
             warnings.warn(
                 f"Your local runtime has python{local_python_version}, but your "

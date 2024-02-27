@@ -38,7 +38,6 @@ from vertexai.preview._workflow.serialization_engine import (
     serializers_base,
 )
 
-from packaging import version
 
 try:
     # pylint: disable=g-import-not-at-top
@@ -47,18 +46,6 @@ except ImportError:
     cloudpickle = None
 
 SERIALIZATION_METADATA_FRAMEWORK_KEY = "framework"
-
-try:
-    from tensorflow import keras
-    import tensorflow as tf
-
-    KerasModel = keras.models.Model
-    TFDataset = tf.data.Dataset
-except ImportError:
-    keras = None
-    tf = None
-    KerasModel = Any
-    TFDataset = Any
 
 try:
     import torch
@@ -76,22 +63,6 @@ except ImportError:
 _LIGHTNING_ROOT_DIR = "/vertex_lightning_root_dir/"
 SERIALIZATION_METADATA_FILENAME = "serialization_metadata"
 
-# Map tf major.minor version to tfio version from https://pypi.org/project/tensorflow-io/
-_TFIO_VERSION_DICT = {
-    "2.3": "0.16.0",  # Align with testing_extra_require: tensorflow >= 2.3.0
-    "2.4": "0.17.1",
-    "2.5": "0.19.1",
-    "2.6": "0.21.0",
-    "2.7": "0.23.1",
-    "2.8": "0.25.0",
-    "2.9": "0.26.0",
-    "2.10": "0.27.0",
-    "2.11": "0.31.0",
-    "2.12": "0.32.0",
-    "2.13": "0.34.0",  # TODO(b/295580335): Support TF 2.13
-}
-DEFAULT_TENSORFLOW_BATCHSIZE = 32
-
 
 def get_uri_prefix(gcs_uri: str) -> str:
     """Gets the directory of the gcs_uri.
@@ -108,7 +79,6 @@ def get_uri_prefix(gcs_uri: str) -> str:
     Returns:
         The parent gcs directory in string format.
     """
-    # For tensorflow, the uri may be "gs://my-bucket/saved_model/"
     if gcs_uri.endswith("/"):
         gcs_uri = gcs_uri[:-1]
     gcs_pathlibpath = pathlib.Path(gcs_uri)
@@ -159,208 +129,12 @@ def _load_torch_model(path: str, map_location: "torch.device") -> TorchModel:
         return torch.load(path, map_location=torch.device("cpu"))
 
 
-class KerasModelSerializationMetadata(serializers_base.SerializationMetadata):
-    save_format: str = "keras"
-
-    def to_dict(self):
-        dct = super().to_dict()
-        dct.update({"save_format": self.save_format})
-        return dct
-
-
 def _get_temp_file_or_dir(is_file: bool = True, file_suffix: Optional[str] = None):
     return (
         tempfile.NamedTemporaryFile(suffix=file_suffix)
         if is_file
         else tempfile.TemporaryDirectory()
     )
-
-
-class KerasModelSerializer(serializers_base.Serializer):
-    """A serializer for tensorflow.keras.models.Model objects."""
-
-    _metadata: KerasModelSerializationMetadata = KerasModelSerializationMetadata(
-        serializer="KerasModelSerializer"
-    )
-
-    def serialize(
-        self, to_serialize: KerasModel, gcs_path: str, **kwargs
-    ) -> str:  # pytype: disable=invalid-annotation
-        """Serializes a tensorflow.keras.models.Model to a gcs path.
-
-        Args:
-            to_serialize (keras.models.Model):
-                Required. A Keras Model object.
-            gcs_path (str):
-                Required. A GCS uri that the model will be saved to.
-
-        Returns:
-            The GCS uri.
-
-        Raises:
-            ValueError: if `gcs_path` is not a valid GCS uri.
-        """
-        save_format = kwargs.get("save_format", "keras")
-        if not _is_valid_gcs_path(gcs_path):
-            raise ValueError(f"Invalid gcs path: {gcs_path}")
-
-        KerasModelSerializer._metadata.dependencies = (
-            supported_frameworks._get_deps_if_tensorflow_model(to_serialize)
-        )
-        KerasModelSerializer._metadata.save_format = save_format
-
-        if not gcs_path.endswith(".keras") and save_format == "keras":
-            gcs_path = gcs_path + ".keras"
-        if not gcs_path.endswith(".h5") and save_format == "h5":
-            gcs_path = gcs_path + ".h5"
-
-        is_file = save_format != "tf"
-        if gcs_path.startswith("gs://"):
-            # For tf (saved_model) format, the serialized data is a directory,
-            # while for keras and h5 formats, the serialized data is a file.
-            with _get_temp_file_or_dir(
-                is_file=is_file, file_suffix=f".{save_format}"
-            ) as temp_file_or_dir:
-                to_serialize.save(
-                    temp_file_or_dir.name if is_file else temp_file_or_dir,
-                    save_format=save_format,
-                )
-                gcs_utils.upload_to_gcs(
-                    temp_file_or_dir.name if is_file else temp_file_or_dir, gcs_path
-                )
-        else:
-            to_serialize.save(gcs_path, save_format=save_format)
-        return gcs_path
-
-    def deserialize(self, serialized_gcs_path: str, **kwargs) -> KerasModel:
-        """Deserialize a tensorflow.keras.models.Model given the gcs file name.
-
-        Args:
-            serialized_gcs_path (str):
-                Required. A GCS path to the serialized file.
-
-        Returns:
-            A Keras Model.
-
-        Raises:
-            ValueError: if `serialized_gcs_path` is not a valid GCS uri.
-            ImportError: if tensorflow is not installed.
-        """
-        del kwargs
-        if not _is_valid_gcs_path(serialized_gcs_path):
-            raise ValueError(f"Invalid gcs path: {serialized_gcs_path}")
-
-        metadata = _get_metadata(serialized_gcs_path)
-        # For backward compatibility, if the metadata doesn't contain
-        # save_format, we assume the model was saved as saved_model format.
-        save_format = metadata.get("save_format", "tf")
-
-        try:
-            from tensorflow import keras
-
-            if save_format == "keras" and not serialized_gcs_path.endswith(".keras"):
-                serialized_gcs_path = serialized_gcs_path + ".keras"
-            if save_format == "h5" and not serialized_gcs_path.endswith(".h5"):
-                serialized_gcs_path = serialized_gcs_path + ".h5"
-            # For tf (saved_model) format, the serialized data is a directory,
-            # while for keras and h5 formats, the serialized data is a file.
-            is_file = save_format != "tf"
-            if serialized_gcs_path.startswith("gs://"):
-                with _get_temp_file_or_dir(
-                    is_file=is_file, file_suffix=f".{save_format}"
-                ) as temp_file_or_dir:
-                    if is_file:
-                        gcs_utils.download_file_from_gcs(
-                            serialized_gcs_path, temp_file_or_dir.name
-                        )
-                        return keras.models.load_model(temp_file_or_dir.name)
-                    else:
-                        gcs_utils.download_from_gcs(
-                            serialized_gcs_path, temp_file_or_dir
-                        )
-                        return keras.models.load_model(temp_file_or_dir)
-            else:
-                return keras.models.load_model(serialized_gcs_path)
-        except ImportError as e:
-            raise ImportError("tensorflow is not installed.") from e
-
-
-class KerasHistoryCallbackSerializer(serializers_base.Serializer):
-    """A serializer for tensorflow.keras.callbacks.History objects."""
-
-    _metadata: serializers_base.SerializationMetadata = (
-        serializers_base.SerializationMetadata(
-            serializer="KerasHistoryCallbackSerializer"
-        )
-    )
-
-    def serialize(self, to_serialize, gcs_path: str, **kwargs):
-        """Serializes a keras History callback to a gcs path.
-
-        Args:
-            to_serialize (keras.callbacks.History):
-                Required. A History object.
-            gcs_path (str):
-                Required. A GCS uri that History object will be saved to.
-
-        Returns:
-            The GCS uri.
-
-        Raises:
-            ValueError: if `gcs_path` is not a valid GCS uri.
-        """
-        del kwargs
-        if not _is_valid_gcs_path(gcs_path):
-            raise ValueError(f"Invalid gcs path: {gcs_path}")
-
-        KerasHistoryCallbackSerializer._metadata.dependencies = ["cloudpickle"]
-
-        to_serialize_dict = to_serialize.__dict__
-        del to_serialize_dict["model"]
-        with open(gcs_path, "wb") as f:
-            cloudpickle.dump(to_serialize_dict, f)
-
-        return gcs_path
-
-    def deserialize(self, serialized_gcs_path: str, **kwargs):
-        """Deserialize a keras.callbacks.History given the gcs file name.
-
-        Args:
-            serialized_gcs_path (str):
-                Required. A GCS path to the serialized file.
-
-        Returns:
-            A keras.callbacks.History object.
-
-        Raises:
-            ValueError: if `serialized_gcs_path` is not a valid GCS uri.
-        """
-
-        if not _is_valid_gcs_path(serialized_gcs_path):
-            raise ValueError(f"Invalid gcs path: {serialized_gcs_path}")
-        model = kwargs.get("model", None)
-        # Only "model" is needed.
-        del kwargs
-
-        history_dict = {}
-        if serialized_gcs_path.startswith("gs://"):
-            with tempfile.NamedTemporaryFile() as temp_file:
-                gcs_utils.download_file_from_gcs(serialized_gcs_path, temp_file.name)
-                with open(temp_file.name, mode="rb") as f:
-                    history_dict = cloudpickle.load(f)
-        else:
-            with open(serialized_gcs_path, mode="rb") as f:
-                history_dict = cloudpickle.load(f)
-
-        history_obj = keras.callbacks.History()
-
-        for attr_name, attr_value in history_dict.items():
-            setattr(history_obj, attr_name, attr_value)
-
-        if model:
-            history_obj.set_model(model)
-
-        return history_obj
 
 
 class SklearnEstimatorSerializer(serializers_base.Serializer):
@@ -915,36 +689,6 @@ class TorchDataLoaderSerializer(serializers_base.Serializer):
         return dataloader
 
 
-class TFDatasetSerializer(serializers_base.Serializer):
-    """Serializer responsible for serializing/deserializing a tf.data.Dataset."""
-
-    _metadata: serializers_base.SerializationMetadata = (
-        serializers_base.SerializationMetadata(serializer="TFDatasetSerializer")
-    )
-
-    def serialize(self, to_serialize: TFDataset, gcs_path: str, **kwargs) -> str:
-        del kwargs
-        if not _is_valid_gcs_path(gcs_path):
-            raise ValueError(f"Invalid gcs path: {gcs_path}")
-        TFDatasetSerializer._metadata.dependencies = (
-            supported_frameworks._get_deps_if_tensorflow_model(to_serialize)
-        )
-
-        try:
-            to_serialize.save(gcs_path)
-        except AttributeError:
-            tf.data.experimental.save(to_serialize, gcs_path)
-        return gcs_path
-
-    def deserialize(self, serialized_gcs_path: str, **kwargs) -> TFDataset:
-        del kwargs
-        try:
-            deserialized = tf.data.Dataset.load(serialized_gcs_path)
-        except AttributeError:
-            deserialized = tf.data.experimental.load(serialized_gcs_path)
-        return deserialized
-
-
 class PandasDataSerializer(serializers_base.Serializer):
     """Serializer for pandas DataFrames."""
 
@@ -1158,13 +902,6 @@ class BigframeSerializer(serializers_base.Serializer):
             BigframeSerializer._metadata.custom_commands.append(
                 "pip install torcharrow"
             )
-        elif detected_framework == "tensorflow":
-            tensorflow_io_dep = "tensorflow-io==" + self._get_tfio_verison()
-            tensorflow_io_gcs_fs_dep = (
-                "tensorflow-io-gcs-filesystem==" + self._get_tfio_verison()
-            )
-            BigframeSerializer._metadata.dependencies.append(tensorflow_io_dep)
-            BigframeSerializer._metadata.dependencies.append(tensorflow_io_gcs_fs_dep)
 
         # Check if index.name is default and set index.name if not
         if to_serialize.index.name and to_serialize.index.name != "index":
@@ -1179,17 +916,6 @@ class BigframeSerializer(serializers_base.Serializer):
         # Return original gcs_path to retrieve the metadata for later
         return gcs_path
 
-    def _get_tfio_verison(self):
-        major, minor, _ = version.Version(tf.__version__).release
-        tf_version = f"{major}.{minor}"
-
-        if tf_version not in _TFIO_VERSION_DICT:
-            raise ValueError(
-                f"Tensorflow version {tf_version} is not supported for Bigframes."
-                + " Supported versions: tensorflow >= 2.3.0, <= 2.12.0."
-            )
-        return _TFIO_VERSION_DICT[tf_version]
-
     def deserialize(
         self, serialized_gcs_path: str, **kwargs
     ) -> Union["pandas.DataFrame", "bigframes.dataframe.DataFrame"]:  # noqa: F821
@@ -1198,10 +924,6 @@ class BigframeSerializer(serializers_base.Serializer):
             return self._deserialize_sklearn(serialized_gcs_path)
         elif detected_framework == "torch":
             return self._deserialize_torch(serialized_gcs_path)
-        elif detected_framework == "tensorflow":
-            return self._deserialize_tensorflow(
-                serialized_gcs_path, kwargs.get("batch_size"), kwargs.get("target_col")
-            )
         else:
             raise ValueError(f"Unsupported framework: {detected_framework}")
 
@@ -1271,54 +993,6 @@ class BigframeSerializer(serializers_base.Serializer):
             return torch.concat((a, b), axis=0)
 
         return functools.reduce(reduce_tensors, list(parquet_df_dp))
-
-    def _deserialize_tensorflow(
-        self,
-        serialized_gcs_path: str,
-        batch_size: Optional[int] = None,
-        target_col: Optional[str] = None,
-    ) -> TFDataset:
-        """Tensorflow deserializes parquet (GCS) --> tf.data.Dataset
-
-        serialized_gcs_path is a folder containing one or more parquet files.
-        """
-        # Set default kwarg values
-        batch_size = batch_size or DEFAULT_TENSORFLOW_BATCHSIZE
-        target_col = target_col.encode("ASCII") if target_col else b"target"
-
-        # Deserialization at remote environment
-        try:
-            import tensorflow_io as tfio
-        except ImportError as e:
-            raise ImportError(
-                f"tensorflow_io is not installed and required to deserialize the file from {serialized_gcs_path}."
-            ) from e
-
-        # Deserialization always happens at remote, so gcs filesystem is mounted to /gcs/
-        files = os.listdir(serialized_gcs_path + "/")
-        files = list(
-            map(lambda file_name: serialized_gcs_path + "/" + file_name, files)
-        )
-        ds = tfio.IODataset.from_parquet(files[0])
-
-        for file_name in files[1:]:
-            ds_shard = tfio.IODataset.from_parquet(file_name)
-            ds = ds.concatenate(ds_shard)
-
-        def map_fn(row):
-            target = row[target_col]
-            row = {
-                k: tf.expand_dims(v, -1)
-                for k, v in row.items()
-                if k != target_col and k != b"index"
-            }
-
-            def reduce_fn(a, b):
-                return tf.concat((a, b), axis=0)
-
-            return functools.reduce(reduce_fn, row.values()), target
-
-        return ds.map(map_fn).batch(batch_size)
 
 
 class CloudPickleSerializer(serializers_base.Serializer):
