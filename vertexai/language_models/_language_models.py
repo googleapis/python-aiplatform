@@ -2000,7 +2000,7 @@ class TextEmbeddingModel(_LanguageModel):
     Examples::
 
         # Getting embedding:
-        model = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
+        model = TextEmbeddingModel.from_pretrained("textembedding-gecko@003")
         embeddings = model.get_embeddings(["What is life?"])
         for embedding in embeddings:
             vector = embedding.values
@@ -2012,6 +2012,44 @@ class TextEmbeddingModel(_LanguageModel):
     _INSTANCE_SCHEMA_URI = (
         "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
     )
+
+    def __init__(self, model_id: str, endpoint_name: Optional[str] = None):
+        """Creates a TextEmbeddingModel.
+
+        This constructor should not be called directly.
+        Use `TextEmbeddingModel.from_pretrained(model_name=...)` instead.
+
+        Args:
+            model_id: Identifier of a Vertex embedding model. Example: "textembedding-gecko@003"
+            endpoint_name: Vertex Endpoint resource name for the model
+        """
+        action_message = (
+            "Prefer using stable versions, for example textembedding-gecko@003."
+            " Learn more:"
+            " https://cloud.google.com/vertex-ai/docs/generative-ai/learn/model-versioning#palm-latest-version"
+        )
+        simple_model_id = model_id.split("/")[-1]
+        if simple_model_id in (
+            "textembedding-gecko",
+            "textembedding-gecko-multilingual"
+        ):
+            _LOGGER.warning(
+                f"{simple_model_id} models with no version number are "
+                "subject to change at any time and may not be suitable "
+                "for production use cases. "
+                + action_message
+            )
+        elif "@latest" in simple_model_id:
+            _LOGGER.warning(
+                "Embedding models with the @latest suffix are "
+                "subject to change at any time and may not be suitable "
+                "for production use cases. "
+                + action_message
+            )
+        super().__init__(
+            model_id=model_id,
+            endpoint_name=endpoint_name,
+        )
 
     def _prepare_text_embedding_request(
         self,
