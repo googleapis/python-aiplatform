@@ -33,6 +33,7 @@ from vertexai.preview import (
 )
 from vertexai.preview.language_models import (
     ChatModel,
+    CodeGenerationModel,
     InputOutputTextPair,
     TextGenerationModel,
     TextGenerationResponse,
@@ -425,6 +426,26 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             dataset=source_uri,
             destination_uri_prefix=destination_uri_prefix,
             model_parameters={},
+        )
+
+        job.wait_for_resource_creation()
+        job.wait()
+        gapic_job = job._gca_resource
+        job.delete()
+
+        assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
+
+    def test_batch_prediction_for_code_generation(self):
+        source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/code-bison.batch_prediction_prompts.1.jsonl"
+        destination_uri_prefix = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/predictions/code-bison@001_"
+
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+
+        model = CodeGenerationModel.from_pretrained("code-bison@001")
+        job = model.batch_predict(
+            dataset=source_uri,
+            destination_uri_prefix=destination_uri_prefix,
+            model_parameters={"temperature": 0},
         )
 
         job.wait_for_resource_creation()

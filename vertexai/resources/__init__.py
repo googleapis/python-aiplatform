@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-
-from google.cloud.aiplatform import version as aiplatform_version
-
-__version__ = aiplatform_version.__version__
-
+"""The vertexai resources module."""
 
 from google.cloud.aiplatform import initializer
 
@@ -83,9 +78,9 @@ from google.cloud.aiplatform import helpers
 
 """
 Usage:
-from google.cloud import aiplatform
+import vertexai
 
-aiplatform.init(project='my_project')
+vertexai.init(project='my_project')
 """
 init = initializer.global_config.init
 
