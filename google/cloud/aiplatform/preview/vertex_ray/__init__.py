@@ -32,6 +32,9 @@ from google.cloud.aiplatform.preview.vertex_ray.cluster_init import (
     list_ray_clusters,
     update_ray_cluster,
 )
+
+from google.cloud.aiplatform.preview.vertex_ray import data
+
 from google.cloud.aiplatform.preview.vertex_ray.util.resources import (
     Resources,
     NodeImages,
@@ -48,6 +51,7 @@ if sys.version_info[1] != 10:
 
 __all__ = (
     "BigQueryDatasource",
+    "data",
     "ClientBuilder",
     "get_job_submission_client_cluster_info",
     "create_ray_cluster",
