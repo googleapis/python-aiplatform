@@ -182,7 +182,9 @@ class _Config:
                 Optional. The desired API endpoint,
                 e.g., us-central1-aiplatform.googleapis.com
             api_transport (str):
-                Optional. The transport method which is either 'grpc' or 'rest'
+                Optional. The transport method which is either 'grpc' or 'rest'.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview).
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.

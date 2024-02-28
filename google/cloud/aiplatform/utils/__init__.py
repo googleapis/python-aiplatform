@@ -403,6 +403,8 @@ class ClientWithOverride:
                     Optional. Client credentials to pass to client.
                 transport (str):
                     Optional. Transport type to pass to client.
+                    NOTE: "rest" transport functionality is currently in a
+                    beta state (preview).
             """
 
             self._client_class = client_class
@@ -472,6 +474,8 @@ class ClientWithOverride:
                 Optional. Client credentials to pass to client.
             transport (str):
                 Optional. Transport type to pass to client.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview).
         """
         kwargs = dict(
             credentials=credentials,
