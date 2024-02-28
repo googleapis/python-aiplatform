@@ -557,6 +557,7 @@ from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
 from .types.persistent_resource import PersistentResource
+from .types.persistent_resource import RayMetricSpec
 from .types.persistent_resource import RaySpec
 from .types.persistent_resource import ResourcePool
 from .types.persistent_resource import ResourceRuntime
@@ -1286,6 +1287,7 @@ __all__ = (
     "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
     "RawPredictRequest",
+    "RayMetricSpec",
     "RaySpec",
     "ReadFeatureValuesRequest",
     "ReadFeatureValuesResponse",

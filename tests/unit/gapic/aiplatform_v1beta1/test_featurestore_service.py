@@ -4666,6 +4666,7 @@ def test_get_feature(request_type, transport: str = "grpc"):
             etag="etag_value",
             disable_monitoring=True,
             version_column_name="version_column_name_value",
+            point_of_contact="point_of_contact_value",
         )
         response = client.get_feature(request)
 
@@ -4682,6 +4683,7 @@ def test_get_feature(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.disable_monitoring is True
     assert response.version_column_name == "version_column_name_value"
+    assert response.point_of_contact == "point_of_contact_value"
 
 
 def test_get_feature_empty_call():
@@ -4724,6 +4726,7 @@ async def test_get_feature_async(
                 etag="etag_value",
                 disable_monitoring=True,
                 version_column_name="version_column_name_value",
+                point_of_contact="point_of_contact_value",
             )
         )
         response = await client.get_feature(request)
@@ -4741,6 +4744,7 @@ async def test_get_feature_async(
     assert response.etag == "etag_value"
     assert response.disable_monitoring is True
     assert response.version_column_name == "version_column_name_value"
+    assert response.point_of_contact == "point_of_contact_value"
 
 
 @pytest.mark.asyncio
@@ -5337,6 +5341,7 @@ def test_update_feature(request_type, transport: str = "grpc"):
             etag="etag_value",
             disable_monitoring=True,
             version_column_name="version_column_name_value",
+            point_of_contact="point_of_contact_value",
         )
         response = client.update_feature(request)
 
@@ -5353,6 +5358,7 @@ def test_update_feature(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.disable_monitoring is True
     assert response.version_column_name == "version_column_name_value"
+    assert response.point_of_contact == "point_of_contact_value"
 
 
 def test_update_feature_empty_call():
@@ -5396,6 +5402,7 @@ async def test_update_feature_async(
                 etag="etag_value",
                 disable_monitoring=True,
                 version_column_name="version_column_name_value",
+                point_of_contact="point_of_contact_value",
             )
         )
         response = await client.update_feature(request)
@@ -5413,6 +5420,7 @@ async def test_update_feature_async(
     assert response.etag == "etag_value"
     assert response.disable_monitoring is True
     assert response.version_column_name == "version_column_name_value"
+    assert response.point_of_contact == "point_of_contact_value"
 
 
 @pytest.mark.asyncio
@@ -10518,6 +10526,7 @@ def test_create_feature_rest(request_type):
         ],
         "monitoring_stats_anomalies": [{"objective": 1, "feature_stats_anomaly": {}}],
         "version_column_name": "version_column_name_value",
+        "point_of_contact": "point_of_contact_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11168,6 +11177,7 @@ def test_get_feature_rest(request_type):
             etag="etag_value",
             disable_monitoring=True,
             version_column_name="version_column_name_value",
+            point_of_contact="point_of_contact_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -11189,6 +11199,7 @@ def test_get_feature_rest(request_type):
     assert response.etag == "etag_value"
     assert response.disable_monitoring is True
     assert response.version_column_name == "version_column_name_value"
+    assert response.point_of_contact == "point_of_contact_value"
 
 
 def test_get_feature_rest_required_fields(
@@ -11827,6 +11838,7 @@ def test_update_feature_rest(request_type):
         ],
         "monitoring_stats_anomalies": [{"objective": 1, "feature_stats_anomaly": {}}],
         "version_column_name": "version_column_name_value",
+        "point_of_contact": "point_of_contact_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11907,6 +11919,7 @@ def test_update_feature_rest(request_type):
             etag="etag_value",
             disable_monitoring=True,
             version_column_name="version_column_name_value",
+            point_of_contact="point_of_contact_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -11928,6 +11941,7 @@ def test_update_feature_rest(request_type):
     assert response.etag == "etag_value"
     assert response.disable_monitoring is True
     assert response.version_column_name == "version_column_name_value"
+    assert response.point_of_contact == "point_of_contact_value"
 
 
 def test_update_feature_rest_required_fields(

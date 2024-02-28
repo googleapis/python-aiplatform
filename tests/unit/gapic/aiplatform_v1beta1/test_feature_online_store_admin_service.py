@@ -3144,6 +3144,8 @@ def test_get_feature_view(request_type, transport: str = "grpc"):
         call.return_value = feature_view.FeatureView(
             name="name_value",
             etag="etag_value",
+            service_agent_type=feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+            service_account_email="service_account_email_value",
         )
         response = client.get_feature_view(request)
 
@@ -3156,6 +3158,11 @@ def test_get_feature_view(request_type, transport: str = "grpc"):
     assert isinstance(response, feature_view.FeatureView)
     assert response.name == "name_value"
     assert response.etag == "etag_value"
+    assert (
+        response.service_agent_type
+        == feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
+    )
+    assert response.service_account_email == "service_account_email_value"
 
 
 def test_get_feature_view_empty_call():
@@ -3195,6 +3202,8 @@ async def test_get_feature_view_async(
             feature_view.FeatureView(
                 name="name_value",
                 etag="etag_value",
+                service_agent_type=feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+                service_account_email="service_account_email_value",
             )
         )
         response = await client.get_feature_view(request)
@@ -3208,6 +3217,11 @@ async def test_get_feature_view_async(
     assert isinstance(response, feature_view.FeatureView)
     assert response.name == "name_value"
     assert response.etag == "etag_value"
+    assert (
+        response.service_agent_type
+        == feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
+    )
+    assert response.service_account_email == "service_account_email_value"
 
 
 @pytest.mark.asyncio
@@ -7054,6 +7068,8 @@ def test_create_feature_view_rest(request_type):
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
         },
+        "service_agent_type": 1,
+        "service_account_email": "service_account_email_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7448,6 +7464,8 @@ def test_get_feature_view_rest(request_type):
         return_value = feature_view.FeatureView(
             name="name_value",
             etag="etag_value",
+            service_agent_type=feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+            service_account_email="service_account_email_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -7465,6 +7483,11 @@ def test_get_feature_view_rest(request_type):
     assert isinstance(response, feature_view.FeatureView)
     assert response.name == "name_value"
     assert response.etag == "etag_value"
+    assert (
+        response.service_agent_type
+        == feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
+    )
+    assert response.service_account_email == "service_account_email_value"
 
 
 def test_get_feature_view_rest_required_fields(
@@ -8117,6 +8140,8 @@ def test_update_feature_view_rest(request_type):
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
         },
+        "service_agent_type": 1,
+        "service_account_email": "service_account_email_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
