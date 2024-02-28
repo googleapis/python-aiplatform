@@ -1629,11 +1629,13 @@ class TestLanguageModels:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_text_generation(self):
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_text_generation(self, api_transport):
         """Tests the text generation model."""
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
+            api_transport=api_transport,
         )
         with mock.patch.object(
             target=model_garden_service_client.ModelGardenServiceClient,
@@ -1912,12 +1914,14 @@ class TestLanguageModels:
                 == _EXPECTED_PARSED_GROUNDING_METADATA
             )
 
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     @pytest.mark.asyncio
-    async def test_text_generation_async(self):
+    async def test_text_generation_async(self, api_transport):
         """Tests the text generation model."""
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
+            api_transport=api_transport,
         )
         with mock.patch.object(
             target=model_garden_service_client.ModelGardenServiceClient,
@@ -4502,7 +4506,6 @@ class TestLanguageModelEvaluation:
         mock_load_yaml_and_json,
         mock_request_urlopen_eval,
     ):
-
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         with mock.patch.object(
@@ -4512,7 +4515,6 @@ class TestLanguageModelEvaluation:
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-
             my_model = preview_language_models.TextGenerationModel.get_tuned_model(
                 test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
             )
@@ -4544,7 +4546,6 @@ class TestLanguageModelEvaluation:
         mock_pipeline_bucket_exists,
         mock_load_yaml_and_json,
     ):
-
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         with mock.patch.object(
@@ -4554,7 +4555,6 @@ class TestLanguageModelEvaluation:
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-
             my_model = preview_language_models.TextGenerationModel.get_tuned_model(
                 test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
             )
@@ -4597,7 +4597,6 @@ class TestLanguageModelEvaluation:
         mock_pipeline_bucket_exists,
         mock_load_yaml_and_json,
     ):
-
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         with mock.patch.object(
@@ -4607,7 +4606,6 @@ class TestLanguageModelEvaluation:
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-
             my_model = preview_language_models.TextGenerationModel.get_tuned_model(
                 test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
             )
@@ -4645,7 +4643,6 @@ class TestLanguageModelEvaluation:
         mock_pipeline_bucket_exists,
         mock_load_yaml_and_json,
     ):
-
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         with mock.patch.object(
@@ -4655,7 +4652,6 @@ class TestLanguageModelEvaluation:
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-
             my_model = preview_language_models.TextGenerationModel.get_tuned_model(
                 test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
             )
@@ -4686,7 +4682,6 @@ class TestLanguageModelEvaluation:
     def test_evaluate_raises_on_ga_language_model(
         self,
     ):
-
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         with mock.patch.object(
@@ -4725,7 +4720,6 @@ class TestLanguageModelEvaluation:
         mock_load_yaml_and_json,
         mock_request_urlopen_eval,
     ):
-
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         with mock.patch.object(
@@ -4735,7 +4729,6 @@ class TestLanguageModelEvaluation:
                 _TEXT_BISON_PUBLISHER_MODEL_DICT
             ),
         ):
-
             my_model = preview_language_models.TextGenerationModel.from_pretrained(
                 "text-bison@001"
             )
@@ -4773,7 +4766,6 @@ class TestLanguageModelEvaluation:
         mock_load_yaml_and_json,
         mock_request_urlopen_eval_classification,
     ):
-
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         with mock.patch.object(

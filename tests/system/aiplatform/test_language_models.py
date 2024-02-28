@@ -48,8 +48,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_language_models_test_"
 
-    def test_text_generation(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_text_generation(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
         grounding_source = language_models.GroundingSource.WebSearch()
@@ -63,8 +68,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             grounding_source=grounding_source,
         ).text
 
-    def test_text_generation_preview_count_tokens(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_text_generation_preview_count_tokens(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         model = preview_language_models.TextGenerationModel.from_pretrained(
             "google/text-bison@001"
@@ -76,8 +86,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert response.total_billable_characters
 
     @pytest.mark.asyncio
-    async def test_text_generation_model_predict_async(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    async def test_text_generation_model_predict_async(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
         grounding_source = language_models.GroundingSource.WebSearch()
@@ -92,8 +107,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         )
         assert response.text
 
-    def test_text_generation_streaming(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_text_generation_streaming(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
 
@@ -106,8 +126,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         ):
             assert response.text
 
-    def test_preview_text_embedding_top_level_from_pretrained(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_preview_text_embedding_top_level_from_pretrained(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         model = vertexai.preview.from_pretrained(
             foundation_model_name="google/text-bison@001"
@@ -124,8 +149,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         assert isinstance(model, preview_language_models.TextGenerationModel)
 
-    def test_chat_on_chat_model(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_chat_on_chat_model(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
         chat_model = ChatModel.from_pretrained("google/chat-bison@001")
         grounding_source = language_models.GroundingSource.WebSearch()
         chat = chat_model.start_chat(
@@ -167,8 +197,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert chat.message_history[2].content == message2
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
-    def test_chat_model_preview_count_tokens(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_chat_model_preview_count_tokens(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         chat_model = ChatModel.from_pretrained("google/chat-bison@001")
 
@@ -191,8 +226,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         )
 
     @pytest.mark.asyncio
-    async def test_chat_model_async(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    async def test_chat_model_async(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         chat_model = ChatModel.from_pretrained("google/chat-bison@001")
         grounding_source = language_models.GroundingSource.WebSearch()
@@ -237,8 +277,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert chat.message_history[2].content == message2
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
-    def test_chat_model_send_message_streaming(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_chat_model_send_message_streaming(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         chat_model = ChatModel.from_pretrained("google/chat-bison@001")
         chat = chat_model.start_chat(
@@ -275,8 +320,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert chat.message_history[2].content == message2
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
-    def test_text_embedding(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_text_embedding(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         model = TextEmbeddingModel.from_pretrained("google/textembedding-gecko@001")
         # One short text, one llong text (to check truncation)
@@ -292,8 +342,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert embeddings[1].statistics.truncated
 
     @pytest.mark.asyncio
-    async def test_text_embedding_async(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    async def test_text_embedding_async(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         model = TextEmbeddingModel.from_pretrained("google/textembedding-gecko@001")
         # One short text, one llong text (to check truncation)
@@ -308,7 +363,8 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert embeddings[1].statistics.token_count > 1000
         assert embeddings[1].statistics.truncated
 
-    def test_tuning(self, shared_state):
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_tuning(self, shared_state, api_transport):
         """Test tuning, listing and loading models."""
         credentials, _ = auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]
@@ -317,6 +373,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             credentials=credentials,
+            api_transport=api_transport,
         )
 
         model = language_models.TextGenerationModel.from_pretrained("text-bison@001")
@@ -395,11 +452,16 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         )
         assert tuned_model_response.text
 
-    def test_batch_prediction_for_text_generation(self):
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_batch_prediction_for_text_generation(self, api_transport):
         source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/batch_prediction_prompts1.jsonl"
         destination_uri_prefix = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/predictions/text-bison@001_"
 
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         model = TextGenerationModel.from_pretrained("text-bison@001")
         job = model.batch_predict(
@@ -415,11 +477,16 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
-    def test_batch_prediction_for_textembedding(self):
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_batch_prediction_for_textembedding(self, api_transport):
         source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/batch_prediction_prompts_textembedding_dummy1.jsonl"
         destination_uri_prefix = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/predictions/textembedding-gecko@001_"
 
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         model = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
         job = model.batch_predict(
@@ -435,11 +502,16 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
-    def test_batch_prediction_for_code_generation(self):
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_batch_prediction_for_code_generation(self, api_transport):
         source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/code-bison.batch_prediction_prompts.1.jsonl"
         destination_uri_prefix = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/predictions/code-bison@001_"
 
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         model = CodeGenerationModel.from_pretrained("code-bison@001")
         job = model.batch_predict(
@@ -455,8 +527,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
-    def test_code_generation_streaming(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_code_generation_streaming(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         model = language_models.CodeGenerationModel.from_pretrained("code-bison@001")
 
@@ -469,8 +546,13 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         ):
             assert response.text
 
-    def test_code_chat_model_send_message_streaming(self):
-        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_code_chat_model_send_message_streaming(self, api_transport):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport=api_transport,
+        )
 
         chat_model = language_models.CodeChatModel.from_pretrained("codechat-bison@001")
         chat = chat_model.start_chat()
