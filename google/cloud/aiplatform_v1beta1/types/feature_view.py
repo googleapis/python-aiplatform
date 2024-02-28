@@ -97,9 +97,8 @@ class FeatureView(proto.Message):
         service_agent_type (google.cloud.aiplatform_v1beta1.types.FeatureView.ServiceAgentType):
             Optional. Service agent type used during data sync. By
             default, the Vertex AI Service Agent is used. When using an
-            IAM Policy to isolate this FeatureView within a project
-            (https://cloud.google.com/vertex-ai/docs/featurestore/latest/resource-policy)
-            a separate service account should be provisioned by setting
+            IAM Policy to isolate this FeatureView within a project, a
+            separate service account should be provisioned by setting
             this field to ``SERVICE_AGENT_TYPE_FEATURE_VIEW``. This will
             generate a separate service account to access the BigQuery
             source table.
