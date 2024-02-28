@@ -129,6 +129,39 @@ class VertexLogger(logging.getLoggerClass()):
         self.info(f"To use this {cls.__name__} in another session:")
         self.info(f"{variable_name} = aiplatform.{cls.__name__}.get('{resource.name}')")
 
+    def log_delete_with_lro(
+        self,
+        resource: Type["VertexAiResourceNoun"],
+        lro: Optional[operation.Operation] = None,
+    ):
+        """Logs delete event with LRO.
+
+        Args:
+            resource: Vertex AI resource that will be deleted.
+            lro: Backing LRO for creation.
+        """
+        self.info(
+            f"Deleting {resource.__class__.__name__} resource: {resource.resource_name}"
+        )
+
+        if lro:
+            self.info(
+                f"Delete {resource.__class__.__name__} backing LRO: {lro.operation.name}"
+            )
+
+    def log_delete_complete(
+        self,
+        resource: Type["VertexAiResourceNoun"],
+    ):
+        """Logs delete event is complete.
+
+        Args:
+            resource: Vertex AI resource that was deleted.
+        """
+        self.info(
+            f"{resource.__class__.__name__} resource {resource.resource_name} deleted."
+        )
+
     def log_action_start_against_resource(
         self, action: str, noun: str, resource_noun_obj: "VertexAiResourceNoun"
     ):
