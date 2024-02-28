@@ -20,15 +20,7 @@ import inspect
 from typing import Any, Callable, Dict, Optional, Type
 
 from vertexai.preview._workflow import driver
-from vertexai.preview._workflow.executor import (
-    training,
-)
-from vertexai.preview._workflow.serialization_engine import (
-    any_serializer,
-)
-from vertexai.preview._workflow.shared import (
-    supported_frameworks,
-)
+
 from vertexai.preview.developer import remote_specs
 
 
@@ -43,6 +35,9 @@ def remote_method_decorator(
 
 def remote_class_decorator(cls: Type) -> Type:
     """Add Vertex attributes to a class object."""
+    from vertexai.preview._workflow.shared import (
+        supported_frameworks,
+    )
 
     if not supported_frameworks._is_oss(cls):
         raise ValueError(
@@ -75,6 +70,10 @@ def remote(cls_or_method: Any) -> Any:
     Returns:
         A class or method that can be executed remotely.
     """
+    from vertexai.preview._workflow.serialization_engine import (
+        any_serializer,
+    )
+
     # Make sure AnySerializer has been instantiated before wrapping any classes.
     if any_serializer.AnySerializer not in any_serializer.AnySerializer._instances:
         any_serializer.AnySerializer()
@@ -82,6 +81,8 @@ def remote(cls_or_method: Any) -> Any:
     if inspect.isclass(cls_or_method):
         return remote_class_decorator(cls_or_method)
     else:
+        from vertexai.preview._workflow.executor import training
+
         return remote_method_decorator(cls_or_method, training.remote_training)
 
 
