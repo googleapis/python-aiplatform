@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.43.0](https://github.com/googleapis/python-aiplatform/compare/v1.42.1...v1.43.0) (2024-02-29)
+
+
+### Features
+
+* Add `update_mask` to `MatchingEngineIndex` `upsert_datapoints()` to support dynamic metadata update. ([81f6a25](https://github.com/googleapis/python-aiplatform/commit/81f6a25ab6600b325ff4e7b0f19332f13080bee9))
+* Add Ray on Vertex BigQuery read/write support for Ray 2.9 ([e048e3a](https://github.com/googleapis/python-aiplatform/commit/e048e3a77834ce21a221dab75c890b651b9f3ce0))
+* Add read_bigquery and write_bigquery wrappers for Ray on Vertex ([4739118](https://github.com/googleapis/python-aiplatform/commit/47391182a2b7edf0c8cb2cb470e649bf5486faf4))
+* Add transport override to enable the use of REST instead of GRPC ([6ab4084](https://github.com/googleapis/python-aiplatform/commit/6ab4084aa549b1a28a4990f8b59dead510d7b296))
+* Enable Ray cluster creation and registering TensorFlow checkpoint to Vertex with Ray version 2.9 ([ff148cd](https://github.com/googleapis/python-aiplatform/commit/ff148cd1f836e599c99f2c177abb085d08827375))
+* LLM - Add support for batch prediction to `CodeGenerationModel` (`code-bison`) ([fbf2f7c](https://github.com/googleapis/python-aiplatform/commit/fbf2f7c3bf5b462e498a165017217d057a5f5bae))
+* Support custom `timeout` for `MatchingEngineIndex` and `MatchingEngineIndexEndpoint` APIs. ([09d1946](https://github.com/googleapis/python-aiplatform/commit/09d1946711fb022bf584137299ed187bf885cb23))
+* Update ray extras installation in setup.py for Ray 2.9.3 ([d947304](https://github.com/googleapis/python-aiplatform/commit/d947304314db5f683b154656551a8fd5b6e4c033))
+
+
+### Bug Fixes
+
+* Allow destination directory to exist before we copy. ([0b55762](https://github.com/googleapis/python-aiplatform/commit/0b55762a8f762b1b46a8d0dcd93381d7870e5200))
+* LVM - Fixed `VideoSegmentConfig` in Multimodal Embeddings API call ([665e78c](https://github.com/googleapis/python-aiplatform/commit/665e78c1d037fcae4c17205ffc280c4b88aea627))
+
+
+### Documentation
+
+* Update transport docstrings to include that REST is in preview ([a442866](https://github.com/googleapis/python-aiplatform/commit/a442866d2df30ea534d06da10afd496b48114f4c))
+
 ## [1.42.1](https://github.com/googleapis/python-aiplatform/compare/v1.42.0...v1.42.1) (2024-02-15)
 
 
