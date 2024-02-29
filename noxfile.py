@@ -310,6 +310,11 @@ def docfx(session):
     session.install("-e", ".")
     session.install(
         "gcp-sphinx-docfx-yaml",
+        "sphinxcontrib-applehelp==1.0.4",
+        "sphinxcontrib-devhelp==1.0.2",
+        "sphinxcontrib-htmlhelp==2.0.1",
+        "sphinxcontrib-qthelp==1.0.3",
+        "sphinxcontrib-serializinghtml==1.1.5",
         "alabaster",
         "google-cloud-aiplatform[prediction]",
         "recommonmark",
