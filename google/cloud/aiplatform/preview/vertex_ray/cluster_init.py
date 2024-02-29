@@ -121,10 +121,13 @@ def create_ray_cluster(
 
     local_ray_verion = _validation_utils.get_local_ray_version()
     if ray_version != local_ray_verion:
+        install_ray_version = ".".join(ray_version.split("_"))
         logging.info(
             f"[Ray on Vertex]: Local runtime has Ray version {local_ray_verion}"
             + f", but the requested cluster runtime has {ray_version}. Please "
-            + "ensure that the Ray versions match for client connectivity."
+            + "ensure that the Ray versions match for client connectivity. You may "
+            + f'"pip install --user --force-reinstall ray[default]=={install_ray_version}"'
+            + " and restart runtime before cluster connection."
         )
 
     if cluster_name is None:
@@ -162,8 +165,12 @@ def create_ray_cluster(
         ray_version, python_version, enable_cuda
     )
     if custom_images is not None:
-        if not (custom_images.head is None or custom_images.worker is None):
-            image_uri = custom_images.head
+        if custom_images.head is None or custom_images.worker is None:
+            raise ValueError(
+                "[Ray on Vertex AI]: custom_images.head and custom_images.worker must be specified when custom_images is set."
+            )
+        image_uri = custom_images.head
+
     resource_pool_images[resource_pool_0.id] = image_uri
 
     worker_pools = []
@@ -207,8 +214,7 @@ def create_ray_cluster(
                     ray_version, python_version, enable_cuda
                 )
                 if custom_images is not None:
-                    if not (custom_images.head is None or custom_images.worker is None):
-                        image_uri = custom_images.worker
+                    image_uri = custom_images.worker
                 resource_pool_images[resource_pool.id] = image_uri
 
             i += 1
