@@ -97,13 +97,13 @@ preview_extra_require = [
 ]
 
 ray_extra_require = [
-    # Ray's dependency version must be kept in sync with what Cluster supports.
-    "ray[default] >= 2.4, < 2.5; python_version<'3.11'",
+    # Cluster only supports 2.4.0 and 2.9.3
+    "ray[default] >= 2.4, <= 2.9.3,!= 2.5.*,!= 2.6.*,!= 2.7.*,!= 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2; python_version<'3.11'",
     # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
-    "ray[default] >= 2.5, < 2.5.1; python_version>='3.11'",
+    "ray[default] >= 2.5, <= 2.9.3; python_version>='3.11'",
     "google-cloud-bigquery-storage",
     "google-cloud-bigquery",
-    "pandas >= 1.0.0",
+    "pandas >= 1.0.0, < 2.2.0",
     "pyarrow >= 6.0.1",
     # Workaround for https://github.com/ray-project/ray/issues/36990.
     # TODO(b/295406381): Remove this pin when we drop support of ray<=2.5.
