@@ -1964,7 +1964,7 @@ class _TunableGenerativeModelMixin:
             )
 
         tuned_model_deployments = tuned_vertex_model.gca_resource.deployed_models
-        if tuned_model_deployments:
+        if not tuned_model_deployments:
             # Deploying the model
             endpoint_name = tuned_vertex_model.deploy().resource_name
         else:
