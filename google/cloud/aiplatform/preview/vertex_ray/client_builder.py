@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 import logging
+from typing import Any
 from typing import Dict
 from typing import Optional
 from google.cloud import aiplatform
@@ -23,6 +24,12 @@ from .render import VertexRayTemplate
 from .util import _validation_utils
 from .util import _gapic_utils
 
+try:
+    from ray.widgets.util import repr_with_fallback
+    from ray.widgets import Template
+except ImportError:
+    repr_with_fallback = None
+    Template = None
 
 VERTEX_SDK_VERSION = aiplatform.__version__
 
@@ -57,14 +64,14 @@ class _VertexRayClientContext(client_builder.ClientContext):
         self.vertex_sdk_version = str(VERTEX_SDK_VERSION)
         self.shell_uri = ray_head_uris.get("RAY_HEAD_NODE_INTERACTIVE_SHELL_URI")
 
-    def _repr_html_(self):
+    def _context_table_template(self):
         shell_uri_row = None
         if self.shell_uri is not None:
             shell_uri_row = VertexRayTemplate("context_shellurirow.html.j2").render(
                 shell_uri=self.shell_uri
             )
 
-        return VertexRayTemplate("context.html.j2").render(
+        return VertexRayTemplate("context_table.html.j2").render(
             python_version=self.python_version,
             ray_version=self.ray_version,
             vertex_sdk_version=self.vertex_sdk_version,
@@ -72,6 +79,61 @@ class _VertexRayClientContext(client_builder.ClientContext):
             persistent_resource_id=self.persistent_resource_id,
             shell_uri_row=shell_uri_row,
         )
+
+    def _repr_html_(self):
+        return VertexRayTemplate("context.html.j2").render(
+            context_logo=Template("context_logo.html.j2").render(),
+            context_table=self._context_table_template(),
+        )
+
+    @repr_with_fallback(["ipywidgets", "8"])
+    def _get_widget_bundle(self, **kwargs) -> Dict[str, Any]:
+        """Get the mimebundle for the widget representation of the context.
+        Args:
+            **kwargs: Passed to the _repr_mimebundle_() function for the widget
+        Returns:
+            Dictionary ("mimebundle") of the widget representation of the context.
+        """
+        import ipywidgets
+
+        disconnect_button = ipywidgets.Button(
+            description="Disconnect",
+            disabled=False,
+            button_style="",
+            tooltip="Disconnect from the Ray on Vertex cluster",
+            layout=ipywidgets.Layout(margin="auto 0px 0px 0px"),
+        )
+
+        def disconnect_callback(button):
+            button.disabled = True
+            button.description = "Disconnecting..."
+            self.disconnect()
+            button.description = "Disconnected"
+
+        disconnect_button.on_click(disconnect_callback)
+        center_vbox = ipywidgets.VBox(
+            [ipywidgets.HTML(Template("context_logo.html.j2").render())],
+            layout=ipywidgets.Layout(display="flex", flex_flow='column', align_items="center"),
+        )
+        left_content = ipywidgets.VBox(
+            [
+                center_vbox,
+                disconnect_button,
+            ],
+            layout=ipywidgets.Layout(),
+        )
+        right_content = ipywidgets.HTML(self._context_table_template())
+        widget = ipywidgets.HBox(
+            [left_content, right_content], layout=ipywidgets.Layout(width="100%")
+        )
+        return widget._repr_mimebundle_(**kwargs)
+
+    def _repr_mimebundle_(self, **kwargs):
+        bundle = self._get_widget_bundle(**kwargs)
+
+        # Overwrite the widget html repr and default repr with those of the BaseContext
+        bundle.update({"text/html": self._repr_html_(), "text/plain": repr(self)})
+        return bundle
 
 
 class VertexRayClientBuilder(client_builder.ClientBuilder):

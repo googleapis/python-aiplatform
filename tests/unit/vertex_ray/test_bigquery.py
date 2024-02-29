@@ -28,7 +28,15 @@ from google.cloud.bigquery import job
 from google.cloud.bigquery_storage_v1.types import stream as gcbqs_stream
 import mock
 import pytest
+import pyarrow as pa
 import ray
+
+try:
+    from google.cloud.aiplatform.preview.vertex_ray.bigquery_datasink import (
+        _BigQueryDatasink,
+    )
+except:
+    _BigQueryDatasink = None
 
 
 _TEST_BQ_DATASET_ID = "mockdataset"
@@ -130,6 +138,13 @@ def ray_remote_function_mock():
     with mock.patch.object(ray.remote_function.RemoteFunction, "_remote") as remote_fn:
         remote_fn.return_value = 1
         yield remote_fn
+
+
+@pytest.fixture
+def ray_get_mock():
+    with mock.patch.object(ray, "get") as ray_get:
+        ray_get.return_value = None
+        yield ray_get
 
 
 class TestReadBigQuery:
@@ -259,6 +274,7 @@ class TestWriteBigQuery:
     def teardown_method(self):
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
+    # Ray 2.4.0 only
     def test_do_write(self, ray_remote_function_mock):
         bq_ds = bigquery_datasource.BigQueryDatasource()
         write_tasks_list = bq_ds.do_write(
@@ -270,6 +286,7 @@ class TestWriteBigQuery:
         )
         assert len(write_tasks_list) == 4
 
+    # Ray 2.4.0 only
     def test_do_write_initialized(self, ray_remote_function_mock):
         """If initialized, do_write doesn't need to specify project_id."""
         aiplatform.init(
@@ -285,6 +302,7 @@ class TestWriteBigQuery:
         )
         assert len(write_tasks_list) == 4
 
+    # Ray 2.4.0 only
     def test_do_write_dataset_exists(self, ray_remote_function_mock):
         bq_ds = bigquery_datasource.BigQueryDatasource()
         write_tasks_list = bq_ds.do_write(
@@ -295,3 +313,31 @@ class TestWriteBigQuery:
             dataset="existingdataset" + "." + _TEST_BQ_TABLE_ID,
         )
         assert len(write_tasks_list) == 4
+
+    # Ray 2.9.3 only
+    def test_write(self, ray_get_mock):
+        bq_datasink = _BigQueryDatasink(
+            project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+            dataset=_TEST_BQ_DATASET,
+        )
+        arr = pa.array([2, 4, 5, 100])
+        block = pa.Table.from_arrays([arr], names=["data"])
+        status = bq_datasink.write(
+            blocks=[block],
+            ctx=None,
+        )
+        assert status == "ok"
+
+    # Ray 2.9.3 only
+    def test_write_dataset_exists(self, ray_get_mock):
+        bq_datasink = _BigQueryDatasink(
+            project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+            dataset="existingdataset" + "." + _TEST_BQ_TABLE_ID,
+        )
+        arr = pa.array([2, 4, 5, 100])
+        block = pa.Table.from_arrays([arr], names=["data"])
+        status = bq_datasink.write(
+            blocks=[block],
+            ctx=None,
+        )
+        assert status == "ok"
