@@ -17,11 +17,18 @@
 
 import ray.data
 from ray.data.dataset import Dataset
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from google.cloud.aiplatform.preview.vertex_ray.bigquery_datasource import (
     BigQueryDatasource,
 )
+
+try:
+    from google.cloud.aiplatform.preview.vertex_ray.bigquery_datasink import (
+        _BigQueryDatasink,
+    )
+except ImportError:
+    _BigQueryDatasink = None
 
 
 def read_bigquery(
@@ -31,6 +38,7 @@ def read_bigquery(
     *,
     parallelism: int = -1,
 ) -> Dataset:
+    # The read is identical in Ray 2.4 and 2.9
     return ray.data.read_datasource(
         BigQueryDatasource(),
         project_id=project_id,
@@ -45,10 +53,35 @@ def write_bigquery(
     project_id: Optional[str] = None,
     dataset: Optional[str] = None,
     max_retry_cnt: int = 10,
-) -> None:
-    return ds.write_datasource(
-        BigQueryDatasource(),
-        project_id=project_id,
-        dataset=dataset,
-        max_retry_cnt=max_retry_cnt,
-    )
+    ray_remote_args: Dict[str, Any] = None,
+) -> Any:
+    if ray.__version__ == "2.4.0":
+        return ds.write_datasource(
+            BigQueryDatasource(),
+            project_id=project_id,
+            dataset=dataset,
+            max_retry_cnt=max_retry_cnt,
+        )
+    elif ray.__version__ == "2.9.3":
+        if ray_remote_args is None:
+            ray_remote_args = {}
+
+        # Each write task will launch individual remote tasks to write each block
+        # To avoid duplicate block writes, the write task should not be retried
+        if ray_remote_args.get("max_retries", 0) != 0:
+            print(
+                "[Ray on Vertex AI]: The max_retries of a BigQuery Write "
+                "Task should be set to 0 to avoid duplicate writes."
+            )
+        else:
+            ray_remote_args["max_retries"] = 0
+
+        datasink = _BigQueryDatasink(
+            project_id=project_id, dataset=dataset, max_retry_cnt=max_retry_cnt
+        )
+        return ds.write_datasink(datasink, ray_remote_args=ray_remote_args)
+    else:
+        raise ImportError(
+            f"[Ray on Vertex AI]: Unsupported version {ray.__version__}."
+            + "Only 2.4.0 and 2.9.3 are supported."
+        )

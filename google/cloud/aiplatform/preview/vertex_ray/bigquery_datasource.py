@@ -171,6 +171,7 @@ class BigQueryDatasource(Datasource):
     def create_reader(self, **kwargs) -> Reader:
         return _BigQueryDatasourceReader(**kwargs)
 
+    # BigQuery write for Ray 2.4.0
     def do_write(
         self,
         blocks: List[ObjectRef[Block]],
