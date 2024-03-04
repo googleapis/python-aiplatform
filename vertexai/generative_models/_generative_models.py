@@ -1217,9 +1217,7 @@ class Tool:
         cls,
         retrieval: "Retrieval",
     ):
-        raw_tool = gapic_tool_types.Tool(
-            retrieval=retrieval._raw_retrieval
-        )
+        raw_tool = gapic_tool_types.Tool(retrieval=retrieval._raw_retrieval)
         return cls._from_gapic(raw_tool=raw_tool)
 
     @classmethod
@@ -1594,6 +1592,17 @@ class Part:
                 function_response=gapic_tool_types.FunctionResponse(
                     name=name,
                     response=response,
+                )
+            )
+        )
+
+    @staticmethod
+    def from_function_call(name: str, args: Dict[str, Any]) -> "Part":
+        return Part._from_gapic(
+            raw_part=gapic_content_types.Part(
+                function_call=gapic_tool_types.FunctionCall(
+                    name=name,
+                    args=args,
                 )
             )
         )
