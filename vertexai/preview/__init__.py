@@ -15,10 +15,8 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.metadata import metadata
+#from google.cloud.aiplatform.metadata import metadata
 
-from vertexai.preview import developer
-from vertexai.preview import hyperparameter_tuning
 from vertexai.preview import initializer
 from vertexai.preview import tabular_models
 from vertexai.preview._workflow.driver import (
@@ -39,15 +37,15 @@ from_pretrained = model_utils.from_pretrained
 # For Vertex AI Experiment.
 
 # ExperimentRun manipulation.
-start_run = metadata._experiment_tracker.start_run
-end_run = metadata._experiment_tracker.end_run
-get_experiment_df = metadata._experiment_tracker.get_experiment_df
+#start_run = metadata._experiment_tracker.start_run
+#end_run = metadata._experiment_tracker.end_run
+#get_experiment_df = metadata._experiment_tracker.get_experiment_df
 
 # Experiment logging.
-log_params = metadata._experiment_tracker.log_params
-log_metrics = metadata._experiment_tracker.log_metrics
-log_time_series_metrics = metadata._experiment_tracker.log_time_series_metrics
-log_classification_metrics = metadata._experiment_tracker.log_classification_metrics
+#log_params = metadata._experiment_tracker.log_params
+#log_metrics = metadata._experiment_tracker.log_metrics
+#log_time_series_metrics = metadata._experiment_tracker.log_time_series_metrics
+#log_classification_metrics = metadata._experiment_tracker.log_classification_metrics
 
 
 __all__ = (
@@ -56,14 +54,12 @@ __all__ = (
     "VertexModel",
     "register",
     "from_pretrained",
-    "start_run",
-    "end_run",
-    "get_experiment_df",
-    "log_params",
-    "log_metrics",
-    "log_time_series_metrics",
-    "log_classification_metrics",
-    "developer",
-    "hyperparameter_tuning",
+ #   "start_run",
+#    "end_run",
+#    "get_experiment_df",
+#    "log_params",
+#    "log_metrics",
+#    "log_time_series_metrics",
+#    "log_classification_metrics",
     "tabular_models",
 )
