@@ -22,6 +22,7 @@ import json
 import pathlib
 import typing
 from typing import Any, Dict, List, Optional, Union
+import urllib
 
 from google.cloud import storage
 
@@ -80,9 +81,20 @@ class Image:
         Returns:
             Loaded image as an `Image` object.
         """
-        if location.startswith("gs://"):
+        parsed_url = urllib.parse.urlparse(location)
+        if (
+            parsed_url.scheme == "https"
+            and parsed_url.netloc == "storage.googleapis.com"
+        ):
+            parsed_url = parsed_url._replace(
+                scheme="gs", netloc="", path=f"/{urllib.parse.unquote(parsed_url.path)}"
+            )
+            location = urllib.parse.urlunparse(parsed_url)
+
+        if parsed_url.scheme == "gs":
             return Image(gcs_uri=location)
 
+        # Load image from local path
         image_bytes = pathlib.Path(location).read_bytes()
         image = Image(image_bytes=image_bytes)
         return image
