@@ -17,6 +17,7 @@
 
 import copy
 import io
+import logging
 import pathlib
 from typing import (
     Any,
@@ -64,12 +65,12 @@ FinishReason = gapic_content_types.Candidate.FinishReason
 SafetyRating = gapic_content_types.SafetyRating
 
 
-# These type defnitions are expanded to help the user see all the types
+# These type definitions are expanded to help the user see all the types
 PartsType = Union[
     str,
     "Image",
     "Part",
-    List[Union[str, "Image", "Part"]],
+    List[Union[str, "Image", "Part"]]
 ]
 
 ContentDict = Dict[str, Any]
@@ -716,6 +717,7 @@ class ChatSession:
         Raises:
             ResponseBlockedError: If the response was blocked.
         """
+        self._deprecate_chat_content_input(content)
         if stream:
             return self._send_message_streaming(
                 content=content,
@@ -763,6 +765,7 @@ class ChatSession:
         Raises:
             ResponseBlockedError: If the response was blocked.
         """
+        self._deprecate_chat_content_input(content)
         if stream:
             return self._send_message_streaming_async(
                 content=content,
@@ -776,6 +779,14 @@ class ChatSession:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+            )
+
+    def _deprecate_chat_content_input(self, content):
+        if isinstance(content, Content):
+            logging.getLogger(__name__).warning(
+                "Usage of Content in ChatSession is deprecated. "
+                "Please use a valid PartsType type, such as str, Image, Part or a sequence of them.",
+                exc_info=True
             )
 
     def _send_message(
