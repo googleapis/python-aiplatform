@@ -596,57 +596,6 @@ class TestWorkerPoolSpecs:
                 )
         assert output_path == expected_output_path
 
-    # Temporarily remove these tests since they require tensorflow >= 2.12.0
-    # but in our external test environment tf 2.12 is not available due to conflict
-    # TODO(jayceeli) Add these tests back once we fix the external environment issue.
-
-    # def test_set_keras_distributed_strategy_enable_distributed_multi_worker(self):
-    #     model = tf.keras.Sequential(
-    #         [tf.keras.layers.Dense(5, input_shape=(4,)), tf.keras.layers.Softmax()]
-    #     )
-    #     model.compile(optimizer="adam", loss="mean_squared_error")
-    #     with mock.patch.dict(
-    #         os.environ,
-    #         {remote_specs._CLUSTER_SPEC: _TEST_CLUSTER_SPEC_CHIEF_STR},
-    #         clear=True,
-    #     ):
-    #         strategy = remote_specs._get_keras_distributed_strategy(True, None)
-    #         updated_model = remote_specs._set_keras_distributed_strategy(
-    #             model, strategy
-    #         )
-
-    #     assert updated_model.get_config() == model.get_config()
-    #     assert updated_model.get_compile_config() == model.get_compile_config()
-    #     assert "CollectiveAllReduceStrategy" in str(
-    #         type(updated_model.distribute_strategy)
-    #     )
-
-    # def test_set_keras_distributed_strategy_enable_distributed_multi_gpu(self):
-    #     model = tf.keras.Sequential(
-    #         [tf.keras.layers.Dense(5, input_shape=(4,)), tf.keras.layers.Softmax()]
-    #     )
-    #     model.compile(optimizer="adam", loss="mean_squared_error")
-    #     # no cluster_spec is set for single worker training
-    #     strategy = remote_specs._get_keras_distributed_strategy(True, None)
-    #     updated_model = remote_specs._set_keras_distributed_strategy(model, strategy)
-
-    #     assert updated_model.get_config() == model.get_config()
-    #     assert updated_model.get_compile_config() == model.get_compile_config()
-    #     assert "MirroredStrategy" in str(type(updated_model.distribute_strategy))
-
-    # def test_set_keras_distributed_strategy_multi_gpu(self):
-    #     model = tf.keras.Sequential(
-    #         [tf.keras.layers.Dense(5, input_shape=(4,)), tf.keras.layers.Softmax()]
-    #     )
-    #     model.compile(optimizer="adam", loss="mean_squared_error")
-    #     # no cluster_spec is set for single worker training
-    #     strategy = remote_specs._get_keras_distributed_strategy(False, 3)
-    #     updated_model = remote_specs._set_keras_distributed_strategy(model, strategy)
-
-    #     assert updated_model.get_config() == model.get_config()
-    #     assert updated_model.get_compile_config() == model.get_compile_config()
-    #     assert "MirroredStrategy" in str(type(updated_model.distribute_strategy))
-
     @mock.patch.dict(os.environ, {}, clear=True)
     @mock.patch.object(torch.distributed, "init_process_group")
     @mock.patch("torch.nn.parallel.DistributedDataParallel")

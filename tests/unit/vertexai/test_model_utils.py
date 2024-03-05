@@ -46,7 +46,6 @@ import cloudpickle
 import numpy as np
 import sklearn
 from sklearn.linear_model import _logistic
-import tensorflow
 import torch
 
 
@@ -59,7 +58,6 @@ _TEST_UNIQUE_NAME = "test-unique-name"
 
 # framework-specific constants
 _SKLEARN_MODEL = _logistic.LogisticRegression()
-_TF_MODEL = tensorflow.keras.models.Model()
 _PYTORCH_MODEL = torch.nn.Module()
 _TEST_MODEL_GCS_URI = "gs://test_model_dir"
 _MODEL_RESOURCE_NAME = "projects/123/locations/us-central1/models/456"
@@ -385,48 +383,6 @@ class TestModelUtils:
                 mock.call(
                     _SKLEARN_MODEL,
                     f"{expected_uri}/model.pkl",
-                ),
-            ],
-            any_order=True,
-        )
-
-    @pytest.mark.parametrize("use_gpu", [True, False])
-    @pytest.mark.usefixtures("mock_timestamped_unique_name")
-    def test_register_tf_model(self, mock_model_upload, mock_serialize_model, use_gpu):
-        vertexai.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            staging_bucket=_TEST_BUCKET,
-        )
-        vertex_model = vertexai.preview.register(_TF_MODEL, use_gpu=use_gpu)
-
-        expected_display_name = (
-            f"vertex-ai-registered-tensorflow-model-{_TEST_UNIQUE_NAME}"
-        )
-        expected_uri = f"{_TEST_BUCKET}/{expected_display_name}/saved_model"
-        expected_container_uri = (
-            aiplatform.helpers.get_prebuilt_prediction_container_uri(
-                framework="tensorflow",
-                framework_version="2.11",
-                accelerator="gpu" if use_gpu else "cpu",
-            )
-        )
-
-        assert vertex_model.uri == _TEST_MODEL_GCS_URI
-        mock_model_upload.assert_called_once_with(
-            display_name=expected_display_name,
-            artifact_uri=expected_uri,
-            serving_container_image_uri=expected_container_uri,
-            labels={"registered_by_vertex_ai": "true"},
-            sync=True,
-        )
-        assert 2 == mock_serialize_model.call_count
-        mock_serialize_model.assert_has_calls(
-            calls=[
-                mock.call(
-                    _TF_MODEL,
-                    f"{expected_uri}",
-                    save_format="tf",
                 ),
             ],
             any_order=True,

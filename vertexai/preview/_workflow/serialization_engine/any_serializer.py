@@ -55,12 +55,6 @@ _JSONABLE_TYPES = Union[int, float, bytes, bool, str, None]
 _PREDEFINED_SERIALIZERS = frozenset(
     [
         ("sklearn.base.BaseEstimator", serializers.SklearnEstimatorSerializer),
-        ("tensorflow.keras.models.Model", serializers.KerasModelSerializer),
-        (
-            "tensorflow.keras.callbacks.History",
-            serializers.KerasHistoryCallbackSerializer,
-        ),
-        ("tensorflow.data.Dataset", serializers.TFDatasetSerializer),
         ("torch.nn.Module", serializers.TorchModelSerializer),
         ("torch.utils.data.DataLoader", serializers.TorchDataLoaderSerializer),
         ("lightning.pytorch.Trainer", serializers.LightningTrainerSerializer),

@@ -33,16 +33,6 @@ from vertexai.preview._workflow.shared import (
 from vertexai.preview.developer import remote_specs
 
 
-try:
-    # This line ensures a tensorflow model to be loaded by cloudpickle correctly
-    # We put it in a try clause since not all models are tensorflow and if it is
-    # a tensorflow model, the dependency should've been installed and therefore
-    # import should work.
-    import tensorflow as tf  # noqa: F401
-except ImportError:
-    pass
-
-
 os.environ["_IS_VERTEX_REMOTE_TRAINING"] = "True"
 
 print(constants._START_EXECUTION_MSG)
@@ -83,34 +73,13 @@ _ACCELERATOR_COUNT = flags.DEFINE_integer(
 def main(argv):
     del argv
 
-    # set cuda for tensorflow & pytorch
-    try:
-        import tensorflow
-
-        if not _ENABLE_CUDA.value:
-            tensorflow.config.set_visible_devices([], "GPU")
-    except ImportError:
-        pass
-
+    # set cuda for pytorch
     try:
         import torch
 
         torch.set_default_device("cuda" if _ENABLE_CUDA.value else "cpu")
     except ImportError:
         torch = None
-
-    strategy = None
-    try:
-        from tensorflow import keras  # noqa: F401
-
-        # distribute strategy must be initialized at the beginning of the program
-        # to avoid RuntimeError: "Collective ops must be configured at program startup"
-        strategy = remote_specs._get_keras_distributed_strategy(
-            _ENABLE_DISTRIBUTED.value, _ACCELERATOR_COUNT.value
-        )
-
-    except ImportError:
-        pass
 
     if _ENABLE_AUTOLOG.value:
         vertexai.preview.init(autolog=True)
@@ -125,12 +94,6 @@ def main(argv):
     estimator = serializer.deserialize(
         os.path.join(_INPUT_PATH.value, "input_estimator")
     )
-
-    if strategy and supported_frameworks._is_keras(estimator):
-        # Single worker, multi-gpu will be compiled with tf.distribute.MirroredStrategy.
-        # Multi-worker will be compiled with tf.distribute.MultiWorkerMirroredStrategy.
-        # Single worker CPU/GPU will be returned as is.
-        estimator = remote_specs._set_keras_distributed_strategy(estimator, strategy)
 
     if supported_frameworks._is_lightning(estimator):
         from lightning.pytorch.trainer.connectors.accelerator_connector import (

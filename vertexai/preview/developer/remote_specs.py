@@ -35,10 +35,6 @@ from vertexai.preview._workflow.serialization_engine import (
 )
 
 try:
-    import tensorflow as tf
-except ImportError:
-    pass
-try:
     import torch
 except ImportError:
     pass
@@ -747,57 +743,6 @@ def _get_output_path_for_distributed_training(base_dir, name) -> str:
             return temp_path
 
     return os.path.join(base_dir, name)
-
-
-def _get_keras_distributed_strategy(enable_distributed: bool, accelerator_count: int):
-    """Returns distribute strategy for Keras distributed training.
-
-    For multi-worker training, use tf.distribute.MultiWorkerMirroredStrategy().
-    For single worker, multi-GPU training, use tf.distribute.MirroredStrategy().
-    For non-distributed training, return None. Requires TensorFlow >= 2.12.0.
-
-    Args:
-        enable_distributed (boolean): Required. Whether distributed training is enabled.
-        accelerator_count (int): Accelerator count specified for single worker training.
-
-    Returns:
-       A tf.distribute.Strategy.
-    """
-    if enable_distributed:
-        cluster_spec = _get_cluster_spec()
-        # Multiple workers, use tf.distribute.MultiWorkerMirroredStrategy().
-        if cluster_spec and len(cluster_spec.cluster.task_types) >= 2:
-            return tf.distribute.MultiWorkerMirroredStrategy()
-        # Single worker, use tf.distribute.MirroredStrategy(). We validate accelerator_count > 1 before
-        # creating CustomJob.
-        else:
-            return tf.distribute.MirroredStrategy()
-    # Multi-GPU training, but enable_distributed is false, use tf.distribute.MirroredStrategy().
-    elif accelerator_count and accelerator_count > 1:
-        return tf.distribute.MirroredStrategy()
-    # Not distributed, return None.
-    else:
-        return None
-
-
-def _set_keras_distributed_strategy(model: Any, strategy: Any):
-    """Returns a model compiled within the scope of the specified distribute strategy.
-
-    Requires TensorFlow >= 2.12.0.
-
-    Args:
-        model (Any): Required. An instance of a Keras model.
-        strategy (tf.distribute.Strategy): The distribute strategy.
-
-    Returns:
-        A tf.distribute.Strategy.
-    """
-    # Clone and compile model within scope of chosen strategy.
-    with strategy.scope():
-        cloned_model = tf.keras.models.clone_model(model)
-        cloned_model.compile_from_config(model.get_compile_config())
-
-    return cloned_model
 
 
 def setup_pytorch_distributed_training(model: Any) -> Any:

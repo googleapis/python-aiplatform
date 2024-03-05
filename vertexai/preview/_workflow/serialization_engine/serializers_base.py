@@ -121,7 +121,6 @@ def _get_uri_prefix(gcs_uri: str) -> str:
     Returns:
         The parent gcs directory in string format.
     """
-    # For tensorflow, the uri may be "gs://my-bucket/saved_model/"
     if gcs_uri.endswith("/"):
         gcs_uri = gcs_uri[:-1]
     gcs_pathlibpath = pathlib.Path(gcs_uri)

@@ -40,7 +40,6 @@ from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import
 )
 from pyfakefs import fake_filesystem_unittest
 import pytest
-import tensorflow.saved_model as tf_saved_model
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     PersistentResource,
     ResourcePool,
@@ -269,12 +268,6 @@ def mock_uuid():
     with mock.patch.object(uuid, "uuid4") as uuid_mock:
         uuid_mock.return_value = 0
         yield uuid_mock
-
-
-@pytest.fixture
-def mock_tf_saved_model_load():
-    with mock.patch.object(tf_saved_model, "load") as load_mock:
-        yield load_mock
 
 
 @pytest.fixture

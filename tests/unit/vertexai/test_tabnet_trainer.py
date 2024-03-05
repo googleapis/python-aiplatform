@@ -18,6 +18,7 @@ from importlib import reload
 import os
 import re
 from unittest.mock import Mock
+from unittest import mock
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.compat.types import (
@@ -34,6 +35,8 @@ from vertexai.preview._workflow.shared import configs
 import pandas as pd
 import pytest
 import tensorflow as tf
+import tensorflow.saved_model as tf_saved_model
+
 
 _TEST_STAGING_BUCKET = "gs://test_staging_bucket"
 _TEST_JOB_DIR = "gs://test_job_dir"
@@ -50,6 +53,12 @@ _TEST_ACCELERATOR_COUNT = 8
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_K80"
 _TEST_BOOT_DISK_TYPE = "test_boot_disk_type"
 _TEST_BOOT_DISK_SIZE_GB = 10
+
+
+@pytest.fixture
+def mock_tf_saved_model_load():
+    with mock.patch.object(tf_saved_model, "load") as load_mock:
+        yield load_mock
 
 
 class TestTabNetTrainer:
