@@ -17,8 +17,6 @@
 
 from google.cloud.aiplatform.metadata import metadata
 
-from vertexai.preview import developer
-from vertexai.preview import hyperparameter_tuning
 from vertexai.preview import initializer
 from vertexai.preview import tabular_models
 from vertexai.preview._workflow.driver import (
@@ -63,7 +61,5 @@ __all__ = (
     "log_metrics",
     "log_time_series_metrics",
     "log_classification_metrics",
-    "developer",
-    "hyperparameter_tuning",
     "tabular_models",
 )
