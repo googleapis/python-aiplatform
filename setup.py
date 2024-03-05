@@ -98,7 +98,7 @@ preview_extra_require = [
 
 ray_extra_require = [
     # Cluster only supports 2.4.0 and 2.9.3
-    "ray[default] >= 2.4, <= 2.9.3,!= 2.5.*,!= 2.6.*,!= 2.7.*,!= 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2; python_version<'3.11'",
+    "ray[default] >= 2.4, <= 2.9.3; python_version<'3.11'",
     # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
     "ray[default] >= 2.5, <= 2.9.3; python_version>='3.11'",
     "google-cloud-bigquery-storage",
