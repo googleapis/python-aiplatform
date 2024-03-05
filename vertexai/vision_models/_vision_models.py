@@ -22,9 +22,11 @@ import json
 import pathlib
 import typing
 from typing import Any, Dict, List, Optional, Union
+import urllib
+
+import requests
 
 from google.cloud import storage
-
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai._model_garden import _model_garden_models
 
@@ -41,6 +43,8 @@ except ImportError:
 
 
 _SUPPORTED_UPSCALING_SIZES = [2048, 4096]
+
+_SUPPORTED_MIME_TYPES = {"image/png", "image/jpeg", "image/gif", "image/bmp"}
 
 
 class Image:
@@ -71,21 +75,49 @@ class Image:
 
     @staticmethod
     def load_from_file(location: str) -> "Image":
-        """Loads image from local file or Google Cloud Storage.
+        """Loads image from a local file, url, or Google Cloud Storage.
 
         Args:
-            location: Local path or Google Cloud Storage uri from where to load
-                the image.
+            location: Local path, url, or Google Cloud Storage uri from where to
+                load the image.
 
         Returns:
             Loaded image as an `Image` object.
         """
-        if location.startswith("gs://"):
+        parsed_url = urllib.parse.urlparse(location)
+        if (
+            parsed_url.scheme == "https"
+            and parsed_url.netloc == "storage.googleapis.com"
+        ):
+            parsed_url = parsed_url._replace(
+                scheme="gs", netloc="", path=f"/{urllib.parse.unquote(parsed_url.path)}"
+            )
+            location = urllib.parse.urlunparse(parsed_url)
+
+        if parsed_url.scheme == "gs":
             return Image(gcs_uri=location)
 
+        # Check for image at URL
+        if all([parsed_url.scheme, parsed_url.netloc]):
+            response = requests.get(location)
+            response.raise_for_status()
+
+            content_length = int(response.headers.get("content-length", 0))
+            content_type = response.headers.get("content-type", "")
+
+            if content_length > 20 * 1024 * 1024:
+                raise ValueError("Image size exceeds 20MB limit.")
+
+            if content_type not in _SUPPORTED_MIME_TYPES:
+                raise ValueError(
+                    f"Image type is not supported. Supported types {_SUPPORTED_MIME_TYPES}"
+                )
+
+            return Image(image_bytes=response.content)
+
+        # Load image from local path
         image_bytes = pathlib.Path(location).read_bytes()
-        image = Image(image_bytes=image_bytes)
-        return image
+        return Image(image_bytes=image_bytes)
 
     @property
     def _image_bytes(self) -> bytes:
