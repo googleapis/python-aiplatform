@@ -32,7 +32,6 @@ from google.cloud.aiplatform import jobs as aiplatform_jobs
 import vertexai
 from vertexai.preview._workflow import driver
 from vertexai.preview._workflow.serialization_engine import (
-    any_serializer,
     serializers_base,
 )
 
@@ -45,7 +44,7 @@ from vertexai.vision_models import (
 )  # pylint:disable=unused-import
 from vertexai._model_garden import _model_garden_models
 from google.cloud.aiplatform import _publisher_models
-from vertexai.preview._workflow.executor import training
+
 from google.cloud.aiplatform.compat.types import job_state as gca_job_state
 
 
@@ -122,6 +121,7 @@ def _generate_remote_job_output_path(base_gcs_dir: str) -> str:
 def _get_model_from_successful_custom_job(
     job_dir: str,
 ) -> Union["sklearn.base.BaseEstimator", "tf.Module", "torch.nn.Module"]:
+    from vertexai.preview._workflow.serialization_engine import any_serializer
 
     serializer = any_serializer.AnySerializer()
 
@@ -298,7 +298,7 @@ def _check_from_pretrained_passed_exactly_one_arg(fn_args: Dict[str, Any]) -> No
             passed_args += 1
     if passed_args != 1:
         raise ValueError(
-            f"Exactly one of {list(fn_args.keys())} must be provided to from_pretrained."
+            f"Exactly one of {list(fn_args.keys())} must be provided to from_pretrained. Got: {fn_args}"
         )
 
 
@@ -324,6 +324,8 @@ def register(
         ValueError: if default staging bucket is not set
                     or if the framework is not supported.
     """
+    from vertexai.preview._workflow.serialization_engine import any_serializer
+
     staging_bucket = vertexai.preview.global_config.staging_bucket
     if not staging_bucket:
         raise ValueError(
@@ -397,6 +399,9 @@ def from_pretrained(
             If both or neither model_name or custom_job_name are provided
     """
     _check_from_pretrained_passed_exactly_one_arg(locals())
+
+    from vertexai.preview._workflow.executor import training
+    from vertexai.preview._workflow.serialization_engine import any_serializer
 
     project = vertexai.preview.global_config.project
     location = vertexai.preview.global_config.location
