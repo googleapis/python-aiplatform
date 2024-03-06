@@ -25,7 +25,7 @@ import pathlib
 import pickle
 import shutil
 import tempfile
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, TYPE_CHECKING
 import uuid
 
 from google.cloud.aiplatform.utils import gcs_utils
@@ -48,17 +48,18 @@ except ImportError:
 
 SERIALIZATION_METADATA_FRAMEWORK_KEY = "framework"
 
-try:
-    from tensorflow import keras
-    import tensorflow as tf
+if TYPE_CHECKING:
+    try:
+        from tensorflow import keras
+        import tensorflow as tf
 
-    KerasModel = keras.models.Model
-    TFDataset = tf.data.Dataset
-except ImportError:
-    keras = None
-    tf = None
-    KerasModel = Any
-    TFDataset = Any
+        KerasModel = keras.models.Model
+        TFDataset = tf.data.Dataset
+    except ImportError:
+        keras = None
+        tf = None
+        KerasModel = Any
+        TFDataset = Any
 
 try:
     import torch
@@ -184,7 +185,7 @@ class KerasModelSerializer(serializers_base.Serializer):
     )
 
     def serialize(
-        self, to_serialize: KerasModel, gcs_path: str, **kwargs
+        self, to_serialize: "keras.models.Model", gcs_path: str, **kwargs  # noqa: F821
     ) -> str:  # pytype: disable=invalid-annotation
         """Serializes a tensorflow.keras.models.Model to a gcs path.
 
@@ -232,7 +233,9 @@ class KerasModelSerializer(serializers_base.Serializer):
             to_serialize.save(gcs_path, save_format=save_format)
         return gcs_path
 
-    def deserialize(self, serialized_gcs_path: str, **kwargs) -> KerasModel:
+    def deserialize(
+        self, serialized_gcs_path: str, **kwargs
+    ) -> "keras.models.Model":  # noqa: F821
         """Deserialize a tensorflow.keras.models.Model given the gcs file name.
 
         Args:
@@ -335,6 +338,7 @@ class KerasHistoryCallbackSerializer(serializers_base.Serializer):
         Raises:
             ValueError: if `serialized_gcs_path` is not a valid GCS uri.
         """
+        from tensorflow import keras
 
         if not _is_valid_gcs_path(serialized_gcs_path):
             raise ValueError(f"Invalid gcs path: {serialized_gcs_path}")
@@ -922,8 +926,12 @@ class TFDatasetSerializer(serializers_base.Serializer):
         serializers_base.SerializationMetadata(serializer="TFDatasetSerializer")
     )
 
-    def serialize(self, to_serialize: TFDataset, gcs_path: str, **kwargs) -> str:
+    def serialize(
+        self, to_serialize: "tf.data.Dataset", gcs_path: str, **kwargs  # noqa: F821
+    ) -> str:  # noqa: F821
         del kwargs
+        import tensorflow as tf
+
         if not _is_valid_gcs_path(gcs_path):
             raise ValueError(f"Invalid gcs path: {gcs_path}")
         TFDatasetSerializer._metadata.dependencies = (
@@ -936,8 +944,12 @@ class TFDatasetSerializer(serializers_base.Serializer):
             tf.data.experimental.save(to_serialize, gcs_path)
         return gcs_path
 
-    def deserialize(self, serialized_gcs_path: str, **kwargs) -> TFDataset:
+    def deserialize(
+        self, serialized_gcs_path: str, **kwargs
+    ) -> "tf.data.Dataset":  # noqa: F821
         del kwargs
+        import tensorflow as tf
+
         try:
             deserialized = tf.data.Dataset.load(serialized_gcs_path)
         except AttributeError:
@@ -1180,6 +1192,11 @@ class BigframeSerializer(serializers_base.Serializer):
         return gcs_path
 
     def _get_tfio_verison(self):
+        import tensorflow as tf
+
+        if tf.__version__ < "2.13.0":
+            raise ValueError("TensorFlow version < 2.13.0 is not supported.")
+
         major, minor, _ = version.Version(tf.__version__).release
         tf_version = f"{major}.{minor}"
 
@@ -1277,7 +1294,7 @@ class BigframeSerializer(serializers_base.Serializer):
         serialized_gcs_path: str,
         batch_size: Optional[int] = None,
         target_col: Optional[str] = None,
-    ) -> TFDataset:
+    ) -> "tf.data.Dataset":  # noqa: F821
         """Tensorflow deserializes parquet (GCS) --> tf.data.Dataset
 
         serialized_gcs_path is a folder containing one or more parquet files.
@@ -1287,6 +1304,11 @@ class BigframeSerializer(serializers_base.Serializer):
         target_col = target_col.encode("ASCII") if target_col else b"target"
 
         # Deserialization at remote environment
+        import tensorflow as tf
+
+        if tf.__version__ < "2.13.0":
+            raise ValueError("TensorFlow version < 2.13.0 is not supported.")
+
         try:
             import tensorflow_io as tfio
         except ImportError as e:
