@@ -530,9 +530,11 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
+    GenieSource,
     LargeModelReference,
     Model,
     ModelContainerSpec,
+    ModelGardenSource,
     ModelSourceInfo,
     Port,
     PredictSchemata,
@@ -1256,9 +1258,11 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "GenieSource",
     "LargeModelReference",
     "Model",
     "ModelContainerSpec",
+    "ModelGardenSource",
     "ModelSourceInfo",
     "Port",
     "PredictSchemata",

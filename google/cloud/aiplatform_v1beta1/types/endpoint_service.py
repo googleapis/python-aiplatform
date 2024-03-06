@@ -150,11 +150,14 @@ class ListEndpointsRequest(proto.Message):
                -  A key including a space must be quoted.
                   ``labels."a key"``.
 
+            -  ``base_model_name`` only supports =
+
             Some examples:
 
             -  ``endpoint=1``
             -  ``displayName="myDisplayName"``
             -  ``labels.myKey="myValue"``
+            -  ``baseModelName="text-bison"``
         page_size (int):
             Optional. The standard list page size.
         page_token (str):

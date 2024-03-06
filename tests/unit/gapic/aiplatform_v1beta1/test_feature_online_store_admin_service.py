@@ -7051,7 +7051,8 @@ def test_create_feature_view_rest(request_type):
                     "feature_group_id": "feature_group_id_value",
                     "feature_ids": ["feature_ids_value1", "feature_ids_value2"],
                 }
-            ]
+            ],
+            "project_number": 1503,
         },
         "name": "name_value",
         "create_time": {"seconds": 751, "nanos": 543},
@@ -8123,7 +8124,8 @@ def test_update_feature_view_rest(request_type):
                     "feature_group_id": "feature_group_id_value",
                     "feature_ids": ["feature_ids_value1", "feature_ids_value2"],
                 }
-            ]
+            ],
+            "project_number": 1503,
         },
         "name": "projects/sample1/locations/sample2/featureOnlineStores/sample3/featureViews/sample4",
         "create_time": {"seconds": 751, "nanos": 543},
