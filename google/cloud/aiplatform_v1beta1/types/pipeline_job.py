@@ -147,6 +147,9 @@ class PipelineJob(proto.Message):
             Output only. The schedule resource name.
             Only returned if the Pipeline is created by
             Schedule API.
+        preflight_validations (bool):
+            Optional. Whether to do component level
+            validations before job creation.
     """
 
     class RuntimeConfig(proto.Message):
@@ -335,6 +338,10 @@ class PipelineJob(proto.Message):
     schedule_name: str = proto.Field(
         proto.STRING,
         number=22,
+    )
+    preflight_validations: bool = proto.Field(
+        proto.BOOL,
+        number=26,
     )
 
 

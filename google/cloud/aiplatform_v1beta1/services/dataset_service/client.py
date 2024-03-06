@@ -1723,8 +1723,12 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 client = aiplatform_v1beta1.DatasetServiceClient()
 
                 # Initialize request argument(s)
+                dataset_version = aiplatform_v1beta1.DatasetVersion()
+                dataset_version.metadata.null_value = "NULL_VALUE"
+
                 request = aiplatform_v1beta1.CreateDatasetVersionRequest(
                     parent="parent_value",
+                    dataset_version=dataset_version,
                 )
 
                 # Make the request
