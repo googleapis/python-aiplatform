@@ -60,18 +60,7 @@ if TYPE_CHECKING:
         tf = None
         KerasModel = Any
         TFDataset = Any
-
-try:
     import torch
-
-    TorchModel = torch.nn.Module
-    TorchDataLoader = torch.utils.data.DataLoader
-    TorchTensor = torch.tensor
-except ImportError:
-    torch = None
-    TorchModel = Any
-    TorchDataLoader = Any
-    TorchTensor = Any
 
 
 _LIGHTNING_ROOT_DIR = "/vertex_lightning_root_dir/"
@@ -153,7 +142,8 @@ def _is_valid_gcs_path(path: str) -> bool:
     return path.startswith(("gs://", "/gcs/", "gcs/"))
 
 
-def _load_torch_model(path: str, map_location: "torch.device") -> TorchModel:
+def _load_torch_model(path: str, map_location: "torch.device") -> "torch.nn.Module":
+    import torch
     try:
         return torch.load(path, map_location=map_location)
     except Exception:
@@ -444,7 +434,7 @@ class TorchModelSerializer(serializers_base.Serializer):
         serializers_base.SerializationMetadata(serializer="TorchModelSerializer")
     )
 
-    def serialize(self, to_serialize: TorchModel, gcs_path: str, **kwargs) -> str:
+    def serialize(self, to_serialize: "torch.nn.Module", gcs_path: str, **kwargs) -> str:
         """Serializes a torch.nn.Module to a gcs path.
 
         Args:
@@ -459,6 +449,7 @@ class TorchModelSerializer(serializers_base.Serializer):
         Raises:
             ValueError: if `gcs_path` is not a valid GCS uri.
         """
+        import torch
         del kwargs
         if not _is_valid_gcs_path(gcs_path):
             raise ValueError(f"Invalid gcs path: {gcs_path}")
@@ -486,7 +477,7 @@ class TorchModelSerializer(serializers_base.Serializer):
 
         return gcs_path
 
-    def deserialize(self, serialized_gcs_path: str, **kwargs) -> TorchModel:
+    def deserialize(self, serialized_gcs_path: str, **kwargs) -> "torch.nn.Module":
         """Deserialize a torch.nn.Module given the gcs file name.
 
         Args:
@@ -740,7 +731,7 @@ class TorchDataLoaderSerializer(serializers_base.Serializer):
         serializers_base.SerializationMetadata(serializer="TorchDataLoaderSerializer")
     )
 
-    def _serialize_to_local(self, to_serialize: TorchDataLoader, path: str):
+    def _serialize_to_local(self, to_serialize: "torch.utils.data.DataLoader", path: str):
         """Serializes a torch.utils.data.DataLoader to a local path.
 
         Args:
@@ -786,6 +777,7 @@ class TorchDataLoaderSerializer(serializers_base.Serializer):
         # sampler, and drop_last.
         # for default batch sampler we store batch_size, drop_last, and sampler object
         # but not batch sampler object.
+        import torch
         if isinstance(to_serialize.batch_sampler, torch.utils.data.BatchSampler):
             pass_through_args["batch_size"] = to_serialize.batch_size
             pass_through_args["drop_last"] = to_serialize.drop_last
@@ -805,7 +797,7 @@ class TorchDataLoaderSerializer(serializers_base.Serializer):
         with open(f"{path}/pass_through_args.json", "w") as f:
             json.dump(pass_through_args, f)
 
-    def serialize(self, to_serialize: TorchDataLoader, gcs_path: str, **kwargs) -> str:
+    def serialize(self, to_serialize: "torch.utils.data.DataLoader", gcs_path: str, **kwargs) -> str:
         """Serializes a torch.utils.data.DataLoader to a gcs path.
 
         Args:
@@ -838,7 +830,7 @@ class TorchDataLoaderSerializer(serializers_base.Serializer):
 
         return gcs_path
 
-    def _deserialize_from_local(self, path: str) -> TorchDataLoader:
+    def _deserialize_from_local(self, path: str) -> "torch.utils.data.DataLoader":
         """Deserialize a torch.utils.data.DataLoader given a local path.
 
         Args:
@@ -891,7 +883,7 @@ class TorchDataLoaderSerializer(serializers_base.Serializer):
 
         return torch.utils.data.DataLoader(**kwargs)
 
-    def deserialize(self, serialized_gcs_path: str, **kwargs) -> TorchDataLoader:
+    def deserialize(self, serialized_gcs_path: str, **kwargs) -> "torch.utils.data.DataLoader":
         """Deserialize a torch.utils.data.DataLoader given the gcs path.
 
         Args:
@@ -1251,12 +1243,19 @@ class BigframeSerializer(serializers_base.Serializer):
 
         return pd_dataframe
 
-    def _deserialize_torch(self, serialized_gcs_path: str) -> TorchTensor:
+    def _deserialize_torch(self, serialized_gcs_path: str) -> "torch.tensor":
         """Torch deserializes parquet (GCS) --> torch.tensor
 
         serialized_gcs_path is a folder containing one or more parquet files.
         """
         # Deserialization at remote environment
+        try:
+            import torch
+        except ImportError as e:
+            raise ImportError(
+                f"torch is not installed and required to deserialize the file from {serialized_gcs_path}."
+            ) from e
+
         try:
             from torchdata.datapipes.iter import FileLister
         except ImportError as e:
