@@ -28,6 +28,24 @@ from vertexai.preview import (
     generative_models as preview_generative_models,
 )
 
+_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT = {
+    "type": "object",
+    "properties": {
+        "location": {
+            "type": "string",
+            "description": "The city and state, e.g. San Francisco, CA",
+        },
+        "unit": {
+            "type": "string",
+            "enum": [
+                "celsius",
+                "fahrenheit",
+            ],
+        },
+    },
+    "required": ["location"],
+}
+
 
 class TestGenerativeModels(e2e_base.TestEndToEnd):
     """System tests for generative models."""
@@ -188,3 +206,111 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         assert response2.text
         assert len(chat.history) == 4
+
+    def test_chat_function_calling(self):
+        get_current_weather_func = generative_models.FunctionDeclaration(
+            name="get_current_weather",
+            description="Get the current weather in a given location",
+            parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+        )
+
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+
+        model = generative_models.GenerativeModel(
+            "gemini-1.0-pro",
+            # Specifying the tools once to avoid specifying them in every request
+            tools=[weather_tool],
+        )
+
+        chat = model.start_chat()
+
+        response1 = chat.send_message("What is the weather like in Boston?")
+        assert (
+            response1.candidates[0].content.parts[0].function_call.name
+            == "get_current_weather"
+        )
+        response2 = chat.send_message(
+            generative_models.Part.from_function_response(
+                name="get_current_weather",
+                response={
+                    "content": {"weather": "super nice"},
+                },
+            ),
+        )
+        assert response2.text
+
+    def test_generate_content_function_calling(self):
+        get_current_weather_func = generative_models.FunctionDeclaration(
+            name="get_current_weather",
+            description="Get the current weather in a given location",
+            parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+        )
+
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+
+        model = generative_models.GenerativeModel(
+            "gemini-1.0-pro",
+            # Specifying the tools once to avoid specifying them in every request
+            tools=[weather_tool],
+        )
+
+        # Define the user's prompt in a Content object that we can reuse in model calls
+        prompt = "What is the weather like in Boston?"
+        user_prompt_content = generative_models.Content(
+            role="user",
+            parts=[
+                generative_models.Part.from_text(prompt),
+            ],
+        )
+
+        # Send the prompt and instruct the model to generate content using the Tool
+        response = model.generate_content(
+            user_prompt_content,
+            generation_config={"temperature": 0},
+            tools=[weather_tool],
+        )
+        response_function_call_content = response.candidates[0].content
+
+        assert (
+            response.candidates[0].content.parts[0].function_call.name
+            == "get_current_weather"
+        )
+
+        assert response.candidates[0].content.parts[0].function_call.args["location"]
+
+        # fake api_response data
+        api_response = {
+            "location": "Boston, MA",
+            "temperature": 38,
+            "description": "Partly Cloudy",
+            "icon": "partly-cloudy",
+            "humidity": 65,
+            "wind": {"speed": 10, "direction": "NW"},
+        }
+
+        response = model.generate_content(
+            [
+                user_prompt_content,
+                response_function_call_content,
+                generative_models.Content(
+                    role="user",
+                    parts=[
+                        generative_models.Part.from_function_response(
+                            name="get_current_weather",
+                            response=api_response,
+                        )
+                    ],
+                ),
+            ],
+            tools=[weather_tool],
+        )
+        assert response
+
+        # Get the model summary response
+        summary = response.candidates[0].content.parts[0].text
+
+        assert summary
