@@ -23,7 +23,9 @@ from unittest import mock
 import vertexai
 from google.cloud.aiplatform import initializer
 from vertexai import generative_models
-from vertexai.preview import generative_models as preview_generative_models
+from vertexai.preview import (
+    generative_models as preview_generative_models,
+)
 from vertexai.generative_models._generative_models import (
     prediction_service,
     gapic_prediction_service_types,
@@ -348,10 +350,31 @@ class TestGenerativeModels:
         chat = model.start_chat()
 
         response1 = chat.send_message("What is the weather like in Boston?")
-        assert (
-            response1.candidates[0].content.parts[0].function_call.name
-            == "get_current_weather"
+        expected_function_call_part = generative_models.Part.from_function_call(
+            name="get_current_weather",
+            args={
+                "fields": {
+                    "key": "location",
+                    "value": {
+                        "string_value": "Boston",
+                    },
+                }
+            },
         )
+        expected_function_call = expected_function_call_part.to_dict()["function_call"]
+        function_call = (
+            response1.candidates[0].content.parts[0].to_dict()["function_call"]
+        )
+        assert function_call["name"] == expected_function_call["name"]
+        assert (
+            function_call["args"]["fields"]["key"]
+            == expected_function_call["args"]["fields"]["key"]
+        )
+        assert (
+            function_call["args"]["fields"]["value"]["string_value"]
+            == expected_function_call["args"]["fields"]["value"]["string_value"]
+        )
+
         response2 = chat.send_message(
             generative_models.Part.from_function_response(
                 name="get_current_weather",
