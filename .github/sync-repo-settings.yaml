@@ -19,3 +19,4 @@ branchProtectionRules:
     - 'Presubmit - Unit Tests Python 3.9'
     - 'Presubmit - Unit Tests Python 3.10'
     - 'Presubmit - Unit Tests Python 3.11'
+    - 'Presubmit - Unit Tests Python 3.12'

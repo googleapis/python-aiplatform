@@ -20,6 +20,7 @@
 import logging
 import os
 import pickle
+import ray
 import tempfile
 from typing import Optional, TYPE_CHECKING
 
@@ -117,15 +118,23 @@ def _get_estimator_from(
     Raises:
         ValueError: Invalid Argument.
     """
-    if not isinstance(checkpoint, ray_sklearn.SklearnCheckpoint):
-        raise ValueError(
-            "[Ray on Vertex AI]: arg checkpoint should be a"
-            " ray.train.sklearn.SklearnCheckpoint instance"
-        )
-    if checkpoint.get_preprocessor() is not None:
-        logging.warning(
-            "Checkpoint contains preprocessor. However, converting from a Ray"
-            " Checkpoint to framework specific model does NOT support"
-            " preprocessing. The model will be exported without preprocessors."
-        )
-    return checkpoint.get_estimator()
+    ray_version = ray.__version__
+    if ray_version == "2.4.0":
+        if not isinstance(checkpoint, ray_sklearn.SklearnCheckpoint):
+            raise ValueError(
+                "[Ray on Vertex AI]: arg checkpoint should be a"
+                " ray.train.sklearn.SklearnCheckpoint instance"
+            )
+        if checkpoint.get_preprocessor() is not None:
+            logging.warning(
+                "Checkpoint contains preprocessor. However, converting from a Ray"
+                " Checkpoint to framework specific model does NOT support"
+                " preprocessing. The model will be exported without preprocessors."
+            )
+        return checkpoint.get_estimator()
+
+    # get_model() signature changed in future versions
+    try:
+        return checkpoint.get_estimator()
+    except AttributeError:
+        raise RuntimeError("Unsupported Ray version.")

@@ -65,9 +65,15 @@ def ray_tensorflow_checkpoint():
 
 @pytest.fixture()
 def ray_checkpoint_from_dict():
-    checkpoint_data = {"data": 123}
-    checkpoint = ray.air.checkpoint.Checkpoint.from_dict(checkpoint_data)
-    return checkpoint
+    if ray.__version__ == "2.4.0":
+        checkpoint_data = {"data": 123}
+        return ray.air.checkpoint.Checkpoint.from_dict(checkpoint_data)
+
+    # Checkpoint.from_dict() removed  in future versions
+    try:
+        return ray.train.Checkpoint.from_directory("/tmp/checkpoint")
+    except AttributeError:
+        raise RuntimeError("Unsupported Ray version.")
 
 
 @pytest.fixture()
@@ -163,6 +169,7 @@ class TestPredictionFunctionality:
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
     # Tensorflow Tests
+    @tc.rovminversion
     def test_convert_checkpoint_to_tf_model_raise_exception(
         self, ray_checkpoint_from_dict
     ) -> None:
@@ -178,6 +185,7 @@ class TestPredictionFunctionality:
             "ray.train.tensorflow.TensorflowCheckpoint .*"
         )
 
+    @tc.rovminversion
     def test_convert_checkpoint_to_tensorflow_model_succeed(
         self, ray_tensorflow_checkpoint
     ) -> None:
@@ -192,6 +200,7 @@ class TestPredictionFunctionality:
         values = model.predict([[1, 1, 1, 1]])
         assert values[0] is not None
 
+    @tc.rovminversion
     def test_register_tensorflow_succeed(
         self,
         ray_tensorflow_checkpoint,
@@ -213,6 +222,7 @@ class TestPredictionFunctionality:
             f"{tc.ProjectConstants._TEST_ARTIFACT_URI}/ray-on-vertex-registered-tensorflow-model"
         )
 
+    @tc.rovminversion
     def test_register_tensorflow_initialized_succeed(
         self,
         ray_tensorflow_checkpoint,
@@ -264,6 +274,7 @@ class TestPredictionFunctionality:
         assert ve.match(regexp=r".*'artifact_uri' should " "start with 'gs://'.*")
 
     # Sklearn Tests
+    @tc.rovminversion
     def test_convert_checkpoint_to_sklearn_raise_exception(
         self, ray_checkpoint_from_dict
     ) -> None:
@@ -365,6 +376,7 @@ class TestPredictionFunctionality:
         assert ve.match(regexp=r".*'artifact_uri' should " "start with 'gs://'.*")
 
     # XGBoost Tests
+    @tc.rovminversion
     def test_convert_checkpoint_to_xgboost_raise_exception(
         self, ray_checkpoint_from_dict
     ) -> None:
@@ -470,6 +482,7 @@ class TestPredictionFunctionality:
         assert ve.match(regexp=r".*'artifact_uri' should " "start with 'gs://'.*")
 
     # Pytorch Tests
+    @tc.rovminversion
     def test_convert_checkpoint_to_torch_model_raises_exception(
         self, ray_checkpoint_from_dict
     ) -> None:

@@ -961,7 +961,7 @@ class ExperimentRun(
 
         self._soft_create_time_series(metric_keys=set(metrics.keys()))
 
-        if not step:
+        if step is None:
             step = self._largest_step or self._get_latest_time_series_step()
             step += 1
             self._largest_step = step

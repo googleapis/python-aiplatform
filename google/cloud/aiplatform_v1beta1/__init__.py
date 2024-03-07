@@ -92,9 +92,12 @@ from .types.content import CitationMetadata
 from .types.content import Content
 from .types.content import FileData
 from .types.content import GenerationConfig
+from .types.content import GroundingAttribution
+from .types.content import GroundingMetadata
 from .types.content import Part
 from .types.content import SafetyRating
 from .types.content import SafetySetting
+from .types.content import Segment
 from .types.content import VideoMetadata
 from .types.content import HarmCategory
 from .types.context import Context
@@ -554,6 +557,7 @@ from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
 from .types.persistent_resource import PersistentResource
+from .types.persistent_resource import RayMetricSpec
 from .types.persistent_resource import RaySpec
 from .types.persistent_resource import ResourcePool
 from .types.persistent_resource import ResourceRuntime
@@ -573,6 +577,9 @@ from .types.pipeline_job import PipelineJobDetail
 from .types.pipeline_job import PipelineTaskDetail
 from .types.pipeline_job import PipelineTaskExecutorDetail
 from .types.pipeline_job import PipelineTemplateMetadata
+from .types.pipeline_service import BatchCancelPipelineJobsOperationMetadata
+from .types.pipeline_service import BatchCancelPipelineJobsRequest
+from .types.pipeline_service import BatchCancelPipelineJobsResponse
 from .types.pipeline_service import BatchDeletePipelineJobsRequest
 from .types.pipeline_service import BatchDeletePipelineJobsResponse
 from .types.pipeline_service import CancelPipelineJobRequest
@@ -601,6 +608,10 @@ from .types.prediction_service import GenerateContentResponse
 from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
+from .types.prediction_service import StreamDirectPredictRequest
+from .types.prediction_service import StreamDirectPredictResponse
+from .types.prediction_service import StreamDirectRawPredictRequest
+from .types.prediction_service import StreamDirectRawPredictResponse
 from .types.prediction_service import StreamingPredictRequest
 from .types.prediction_service import StreamingPredictResponse
 from .types.prediction_service import StreamingRawPredictRequest
@@ -617,6 +628,7 @@ from .types.schedule_service import PauseScheduleRequest
 from .types.schedule_service import ResumeScheduleRequest
 from .types.schedule_service import UpdateScheduleRequest
 from .types.service_networking import PrivateServiceConnectConfig
+from .types.service_networking import PscAutomatedEndpoints
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -691,7 +703,10 @@ from .types.tensorboard_time_series import TensorboardTimeSeries
 from .types.tool import FunctionCall
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
+from .types.tool import GoogleSearchRetrieval
+from .types.tool import Retrieval
 from .types.tool import Tool
+from .types.tool import VertexAISearch
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
 from .types.training_pipeline import InputDataConfig
@@ -771,6 +786,9 @@ __all__ = (
     "AutomaticResources",
     "AutoscalingMetricSpec",
     "AvroSource",
+    "BatchCancelPipelineJobsOperationMetadata",
+    "BatchCancelPipelineJobsRequest",
+    "BatchCancelPipelineJobsResponse",
     "BatchCreateFeaturesOperationMetadata",
     "BatchCreateFeaturesRequest",
     "BatchCreateFeaturesResponse",
@@ -1060,6 +1078,9 @@ __all__ = (
     "GetTensorboardTimeSeriesRequest",
     "GetTrainingPipelineRequest",
     "GetTrialRequest",
+    "GoogleSearchRetrieval",
+    "GroundingAttribution",
+    "GroundingMetadata",
     "HarmCategory",
     "HyperparameterTuningJob",
     "IdMatcher",
@@ -1247,6 +1268,7 @@ __all__ = (
     "PrivateEndpoints",
     "PrivateServiceConnectConfig",
     "Probe",
+    "PscAutomatedEndpoints",
     "PublisherModel",
     "PublisherModelView",
     "PurgeArtifactsMetadata",
@@ -1265,6 +1287,7 @@ __all__ = (
     "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
     "RawPredictRequest",
+    "RayMetricSpec",
     "RaySpec",
     "ReadFeatureValuesRequest",
     "ReadFeatureValuesResponse",
@@ -1290,6 +1313,7 @@ __all__ = (
     "RestoreDatasetVersionRequest",
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
+    "Retrieval",
     "SafetyRating",
     "SafetySetting",
     "SampleConfig",
@@ -1311,12 +1335,17 @@ __all__ = (
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
+    "Segment",
     "ServiceAccountSpec",
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
     "StopTrialRequest",
     "StratifiedSplit",
+    "StreamDirectPredictRequest",
+    "StreamDirectPredictResponse",
+    "StreamDirectRawPredictRequest",
+    "StreamDirectRawPredictResponse",
     "StreamingPredictRequest",
     "StreamingPredictResponse",
     "StreamingRawPredictRequest",
@@ -1402,6 +1431,7 @@ __all__ = (
     "UpsertDatapointsResponse",
     "UserActionReference",
     "Value",
+    "VertexAISearch",
     "VideoMetadata",
     "VizierServiceClient",
     "WorkerPoolSpec",

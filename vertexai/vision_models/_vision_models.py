@@ -22,7 +22,11 @@ import json
 import pathlib
 import typing
 from typing import Any, Dict, List, Optional, Union
+import urllib
 
+from google.cloud import storage
+
+from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai._model_garden import _model_garden_models
 
 # pylint: disable=g-import-not-at-top
@@ -45,30 +49,70 @@ class Image:
 
     __module__ = "vertexai.vision_models"
 
-    _image_bytes: bytes
+    _loaded_bytes: Optional[bytes] = None
     _loaded_image: Optional["PIL_Image.Image"] = None
+    _gcs_uri: Optional[str] = None
 
-    def __init__(self, image_bytes: bytes):
+    def __init__(
+        self,
+        image_bytes: Optional[bytes] = None,
+        gcs_uri: Optional[str] = None,
+    ):
         """Creates an `Image` object.
 
         Args:
             image_bytes: Image file bytes. Image can be in PNG or JPEG format.
+            gcs_uri: Image URI in Google Cloud Storage.
         """
+        if bool(image_bytes) == bool(gcs_uri):
+            raise ValueError("Either image_bytes or gcs_uri must be provided.")
+
         self._image_bytes = image_bytes
+        self._gcs_uri = gcs_uri
 
     @staticmethod
     def load_from_file(location: str) -> "Image":
-        """Loads image from file.
+        """Loads image from local file or Google Cloud Storage.
 
         Args:
-            location: Local path from where to load the image.
+            location: Local path or Google Cloud Storage uri from where to load
+                the image.
 
         Returns:
             Loaded image as an `Image` object.
         """
+        parsed_url = urllib.parse.urlparse(location)
+        if (
+            parsed_url.scheme == "https"
+            and parsed_url.netloc == "storage.googleapis.com"
+        ):
+            parsed_url = parsed_url._replace(
+                scheme="gs", netloc="", path=f"/{urllib.parse.unquote(parsed_url.path)}"
+            )
+            location = urllib.parse.urlunparse(parsed_url)
+
+        if parsed_url.scheme == "gs":
+            return Image(gcs_uri=location)
+
+        # Load image from local path
         image_bytes = pathlib.Path(location).read_bytes()
         image = Image(image_bytes=image_bytes)
         return image
+
+    @property
+    def _image_bytes(self) -> bytes:
+        if self._loaded_bytes is None:
+            storage_client = storage.Client(
+                credentials=aiplatform_initializer.global_config.credentials
+            )
+            self._loaded_bytes = storage.Blob.from_string(
+                uri=self._gcs_uri, client=storage_client
+            ).download_as_bytes()
+        return self._loaded_bytes
+
+    @_image_bytes.setter
+    def _image_bytes(self, value: bytes):
+        self._loaded_bytes = value
 
     @property
     def _pil_image(self) -> "PIL_Image.Image":
@@ -108,6 +152,136 @@ class Image:
         return base64.b64encode(self._image_bytes).decode("ascii")
 
 
+class Video:
+    """Video."""
+
+    __module__ = "vertexai.vision_models"
+
+    _loaded_bytes: Optional[bytes] = None
+    _gcs_uri: Optional[str] = None
+
+    def __init__(
+        self,
+        video_bytes: Optional[bytes] = None,
+        gcs_uri: Optional[str] = None,
+    ):
+        """Creates an `Image` object.
+
+        Args:
+            video_bytes: Video file bytes. Video can be in AVI, FLV, MKV, MOV,
+                MP4, MPEG, MPG, WEBM, and WMV formats.
+            gcs_uri: Image URI in Google Cloud Storage.
+        """
+        if bool(video_bytes) == bool(gcs_uri):
+            raise ValueError("Either video_bytes or gcs_uri must be provided.")
+
+        self._video_bytes = video_bytes
+        self._gcs_uri = gcs_uri
+
+    @staticmethod
+    def load_from_file(location: str) -> "Video":
+        """Loads video from local file or Google Cloud Storage.
+
+        Args:
+            location: Local path or Google Cloud Storage uri from where to load
+                the video.
+
+        Returns:
+            Loaded video as an `Video` object.
+        """
+        if location.startswith("gs://"):
+            return Video(gcs_uri=location)
+
+        video_bytes = pathlib.Path(location).read_bytes()
+        video = Video(video_bytes=video_bytes)
+        return video
+
+    @property
+    def _video_bytes(self) -> bytes:
+        if self._loaded_bytes is None:
+            storage_client = storage.Client(
+                credentials=aiplatform_initializer.global_config.credentials
+            )
+            self._loaded_bytes = storage.Blob.from_string(
+                uri=self._gcs_uri, client=storage_client
+            ).download_as_bytes()
+        return self._loaded_bytes
+
+    @_video_bytes.setter
+    def _video_bytes(self, value: bytes):
+        self._loaded_bytes = value
+
+    def save(self, location: str):
+        """Saves video to a file.
+
+        Args:
+            location: Local path where to save the video.
+        """
+        pathlib.Path(location).write_bytes(self._video_bytes)
+
+    def _as_base64_string(self) -> str:
+        """Encodes video using the base64 encoding.
+
+        Returns:
+            Base64 encoding of the video as a string.
+        """
+        # ! b64encode returns `bytes` object, not ``str.
+        # We need to convert `bytes` to `str`, otherwise we get service error:
+        # "received initial metadata size exceeds limit"
+        return base64.b64encode(self._video_bytes).decode("ascii")
+
+
+class VideoSegmentConfig:
+    """The specific video segments (in seconds) the embeddings are generated for."""
+
+    __module__ = "vertexai.vision_models"
+
+    start_offset_sec: int
+    end_offset_sec: int
+    interval_sec: int
+
+    def __init__(
+        self,
+        start_offset_sec: int = 0,
+        end_offset_sec: int = 120,
+        interval_sec: int = 16,
+    ):
+        """Creates a `VideoSegmentConfig` object.
+
+        Args:
+            start_offset_sec: Start time offset (in seconds) to generate embeddings for.
+            end_offset_sec: End time offset (in seconds) to generate embeddings for.
+            interval_sec: Interval to divide video for generated embeddings.
+        """
+        self.start_offset_sec = start_offset_sec
+        self.end_offset_sec = end_offset_sec
+        self.interval_sec = interval_sec
+
+
+class VideoEmbedding:
+    """Embeddings generated from video with offset times."""
+
+    __module__ = "vertexai.vision_models"
+
+    start_offset_sec: int
+    end_offset_sec: int
+    embedding: List[float]
+
+    def __init__(
+        self, start_offset_sec: int, end_offset_sec: int, embedding: List[float]
+    ):
+        """Creates a `VideoEmbedding` object.
+
+        Args:
+            start_offset_sec: Start time offset (in seconds) of generated embeddings.
+            end_offset_sec: End time offset (in seconds) of generated embeddings.
+            embedding: Generated embedding for interval.
+        """
+        self.start_offset_sec = start_offset_sec
+        self.end_offset_sec = end_offset_sec
+        self.embedding = embedding
+
+
 class ImageGenerationModel(
     _model_garden_models._ModelGardenModel  # pylint: disable=protected-access
 ):
@@ -142,7 +316,8 @@ class ImageGenerationModel(
         seed: Optional[int] = None,
         base_image: Optional["Image"] = None,
         mask: Optional["Image"] = None,
-        language:Optional[str] = None,
+        language: Optional[str] = None,
+        output_gcs_uri: Optional[str] = None,
     ) -> "ImageGenerationResponse":
         """Generates images from text prompt.
 
@@ -163,7 +338,9 @@ class ImageGenerationModel(
             mask: Mask for the base image.
             language: Language of the text prompt for the image. Default: None.
                 Supported values are `"en"` for English, `"hi"` for Hindi,
-                `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for automatic language detection.
+                `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for
+                automatic language detection.
+            output_gcs_uri: Google Cloud Storage uri to store the generated images.
 
         Returns:
             An `ImageGenerationResponse` object.
@@ -179,24 +356,40 @@ class ImageGenerationModel(
         }
 
         if base_image:
-            base_image_base64 = (
-                base_image._as_base64_string()
-            )  # pylint: disable=protected-access
-            instance["image"] = {"bytesBase64Encoded": base_image_base64}
-            base_image_hash_hex = hashlib.sha1(
-                base_image._image_bytes  # pylint: disable=protected-access
-            ).hexdigest()
-            shared_generation_parameters["base_image_hash"] = base_image_hash_hex
+            if base_image._gcs_uri:  # pylint: disable=protected-access
+                instance["image"] = {
+                    "gcsUri": base_image._gcs_uri  # pylint: disable=protected-access
+                }
+                shared_generation_parameters[
+                    "base_image_uri"
+                ] = base_image._gcs_uri  # pylint: disable=protected-access
+            else:
+                instance["image"] = {
+                    "bytesBase64Encoded": base_image._as_base64_string()  # pylint: disable=protected-access
+                }
+                shared_generation_parameters["base_image_hash"] = hashlib.sha1(
+                    base_image._image_bytes  # pylint: disable=protected-access
+                ).hexdigest()
 
         if mask:
-            mask_image_base64 = (
-                mask._as_base64_string()
-            )  # pylint: disable=protected-access
-            instance["mask"] = {"image": {"bytesBase64Encoded": mask_image_base64}}
-            mask_image_hash_hex = hashlib.sha1(
-                mask._image_bytes  # pylint: disable=protected-access
-            ).hexdigest()
-            shared_generation_parameters["mask_hash"] = mask_image_hash_hex
+            if mask._gcs_uri:  # pylint: disable=protected-access
+                instance["mask"] = {
+                    "image": {
+                        "gcsUri": mask._gcs_uri  # pylint: disable=protected-access
+                    },
+                }
+                shared_generation_parameters[
+                    "mask_uri"
+                ] = mask._gcs_uri  # pylint: disable=protected-access
+            else:
+                instance["mask"] = {
+                    "image": {
+                        "bytesBase64Encoded": mask._as_base64_string()  # pylint: disable=protected-access
+                    },
+                }
+                shared_generation_parameters["mask_hash"] = hashlib.sha1(
+                    mask._image_bytes  # pylint: disable=protected-access
+                ).hexdigest()
 
         parameters = {}
         max_size = max(width or 0, height or 0) or None
@@ -224,6 +417,10 @@ class ImageGenerationModel(
             parameters["language"] = language
             shared_generation_parameters["language"] = language
 
+        if output_gcs_uri is not None:
+            parameters["storageUri"] = output_gcs_uri
+            shared_generation_parameters["storage_uri"] = output_gcs_uri
+
         response = self._endpoint.predict(
             instances=[instance],
             parameters=parameters,
@@ -231,12 +428,13 @@ class ImageGenerationModel(
 
         generated_images: List["GeneratedImage"] = []
         for idx, prediction in enumerate(response.predictions):
-            image_bytes = base64.b64decode(prediction["bytesBase64Encoded"])
             generation_parameters = dict(shared_generation_parameters)
             generation_parameters["index_of_image_in_batch"] = idx
+            encoded_bytes = prediction.get("bytesBase64Encoded")
             generated_image = GeneratedImage(
-                image_bytes=image_bytes,
+                image_bytes=base64.b64decode(encoded_bytes) if encoded_bytes else None,
                 generation_parameters=generation_parameters,
+                gcs_uri=prediction.get("gcsUri"),
             )
             generated_images.append(generated_image)
 
@@ -251,6 +449,7 @@ class ImageGenerationModel(
         guidance_scale: Optional[float] = None,
         language: Optional[str] = None,
         seed: Optional[int] = None,
+        output_gcs_uri: Optional[str] = None,
     ) -> "ImageGenerationResponse":
         """Generates images from text prompt.
 
@@ -268,6 +467,7 @@ class ImageGenerationModel(
                 Supported values are `"en"` for English, `"hi"` for Hindi,
                 `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for automatic language detection.
             seed: Image generation random seed.
+            output_gcs_uri: Google Cloud Storage uri to store the generated images.
 
         Returns:
             An `ImageGenerationResponse` object.
@@ -282,6 +482,7 @@ class ImageGenerationModel(
             guidance_scale=guidance_scale,
             language=language,
             seed=seed,
+            output_gcs_uri=output_gcs_uri,
         )
 
     def edit_image(
@@ -295,6 +496,7 @@ class ImageGenerationModel(
         guidance_scale: Optional[float] = None,
         language: Optional[str] = None,
         seed: Optional[int] = None,
+        output_gcs_uri: Optional[str] = None,
     ) -> "ImageGenerationResponse":
         """Edits an existing image based on text prompt.
 
@@ -314,6 +516,7 @@ class ImageGenerationModel(
                 Supported values are `"en"` for English, `"hi"` for Hindi,
                 `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for automatic language detection.
             seed: Image generation random seed.
+            output_gcs_uri: Google Cloud Storage uri to store the edited images.
 
         Returns:
             An `ImageGenerationResponse` object.
@@ -327,12 +530,14 @@ class ImageGenerationModel(
             base_image=base_image,
             mask=mask,
             language=language,
+            output_gcs_uri=output_gcs_uri,
         )
 
     def upscale_image(
         self,
         image: Union["Image", "GeneratedImage"],
         new_size: Optional[int] = 2048,
+        output_gcs_uri: Optional[str] = None,
     ) -> "Image":
         """Upscales an image.
 
@@ -358,6 +563,7 @@ class ImageGenerationModel(
             new_size (int):
                 The size of the biggest dimension of the upscaled image. Only 2048 and 4096 are currently
                 supported. Results in a 2048x2048 or 4096x4096 image. Defaults to 2048 if not provided.
+            output_gcs_uri: Google Cloud Storage uri to store the upscaled images.
 
         Returns:
             An `Image` object.
@@ -374,16 +580,25 @@ class ImageGenerationModel(
                 f"Only the folowing square upscaling sizes are currently supported: {_SUPPORTED_UPSCALING_SIZES}."
             )
 
-        instance = {
-            "prompt": "",
-            "image": {"bytesBase64Encoded": image._as_base64_string()},
-        }
+        instance = {"prompt": ""}
+
+        if image._gcs_uri:  # pylint: disable=protected-access
+            instance["image"] = {
+                "gcsUri": image._gcs_uri  # pylint: disable=protected-access
+            }
+        else:
+            instance["image"] = {
+                "bytesBase64Encoded": image._as_base64_string()  # pylint: disable=protected-access
+            }
 
         parameters = {
             "sampleImageSize": str(new_size),
             "sampleCount": 1,
             "mode": "upscale",
         }
+
+        if output_gcs_uri is not None:
+            parameters["storageUri"] = output_gcs_uri
 
         response = self._endpoint.predict(
             instances=[instance],
@@ -400,9 +615,11 @@ class ImageGenerationModel(
 
         generation_parameters["upscaled_image_size"] = new_size
 
+        encoded_bytes = upscaled_image.get("bytesBase64Encoded")
         return GeneratedImage(
-            image_bytes=base64.b64decode(upscaled_image["bytesBase64Encoded"]),
+            image_bytes=base64.b64decode(encoded_bytes) if encoded_bytes else None,
             generation_parameters=generation_parameters,
+            gcs_uri=upscaled_image.get("gcsUri"),
         )
 
 
@@ -440,16 +657,18 @@ class GeneratedImage(Image):
 
     def __init__(
         self,
-        image_bytes: bytes,
+        image_bytes: Optional[bytes],
         generation_parameters: Dict[str, Any],
+        gcs_uri: Optional[str] = None,
     ):
         """Creates a `GeneratedImage` object.
 
         Args:
             image_bytes: Image file bytes. Image can be in PNG or JPEG format.
             generation_parameters: Image generation parameter values.
+            gcs_uri: Image file Google Cloud Storage uri.
         """
-        super().__init__(image_bytes=image_bytes)
+        super().__init__(image_bytes=image_bytes, gcs_uri=gcs_uri)
         self._generation_parameters = generation_parameters
 
     @property
@@ -474,6 +693,7 @@ class GeneratedImage(Image):
         return GeneratedImage(
             image_bytes=base_image._image_bytes,  # pylint: disable=protected-access
             generation_parameters=generation_parameters,
+            gcs_uri=base_image._gcs_uri,  # pylint: disable=protected-access
         )
 
     def save(self, location: str, include_generation_parameters: bool = True):
@@ -521,9 +741,6 @@ class ImageCaptioningModel(
     __module__ = "vertexai.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
 
     def get_captions(
         self,
@@ -531,6 +748,7 @@ class ImageCaptioningModel(
         *,
         number_of_results: int = 1,
         language: str = "en",
+        output_gcs_uri: Optional[str] = None,
     ) -> List[str]:
         """Generates captions for a given image.
 
@@ -539,19 +757,28 @@ class ImageCaptioningModel(
             number_of_results: Number of captions to produce. Range: 1-3.
             language: Language to use for captions.
                 Supported languages: "en", "fr", "de", "it", "es"
+            output_gcs_uri: Google Cloud Storage uri to store the captioned images.
 
         Returns:
             A list of image caption strings.
         """
-        instance = {
-            "image": {
+        instance = {}
+
+        if image._gcs_uri:  # pylint: disable=protected-access
+            instance["image"] = {
+                "gcsUri": image._gcs_uri  # pylint: disable=protected-access
+            }
+        else:
+            instance["image"] = {
                 "bytesBase64Encoded": image._as_base64_string()  # pylint: disable=protected-access
             }
-        }
         parameters = {
             "sampleCount": number_of_results,
             "language": language,
         }
+        if output_gcs_uri is not None:
+            parameters["storageUri"] = output_gcs_uri
+
         response = self._endpoint.predict(
             instances=[instance],
             parameters=parameters,
@@ -579,9 +806,6 @@ class ImageQnAModel(
     __module__ = "vertexai.vision_models"
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
 
     def ask_question(
         self,
@@ -600,15 +824,20 @@ class ImageQnAModel(
         Returns:
             A list of answers.
         """
-        instance = {
-            "prompt": question,
-            "image": {
+        instance = {"prompt": question}
+
+        if image._gcs_uri:  # pylint: disable=protected-access
+            instance["image"] = {
+                "gcsUri": image._gcs_uri  # pylint: disable=protected-access
+            }
+        else:
+            instance["image"] = {
                 "bytesBase64Encoded": image._as_base64_string()  # pylint: disable=protected-access
-            },
-        }
+            }
         parameters = {
             "sampleCount": number_of_results,
         }
+
         response = self._endpoint.predict(
             instances=[instance],
             parameters=parameters,
@@ -617,18 +846,21 @@ class ImageQnAModel(
 
 
 class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
-    """Generates embedding vectors from images.
+    """Generates embedding vectors from images and videos.
 
     Examples::
 
         model = MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
         image = Image.load_from_file("image.png")
+        video = Video.load_from_file("video.mp4")
 
         embeddings = model.get_embeddings(
             image=image,
+            video=video,
             contextual_text="Hello world",
         )
         image_embedding = embeddings.image_embedding
+        video_embeddings = embeddings.video_embeddings
         text_embedding = embeddings.text_embedding
     """
 
@@ -636,43 +868,95 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_embedding_model_1.0.0.yaml"
 
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
-
     def get_embeddings(
-        self, image: Optional[Image] = None, contextual_text: Optional[str] = None
+        self,
+        image: Optional[Image] = None,
+        video: Optional[Video] = None,
+        contextual_text: Optional[str] = None,
+        dimension: Optional[int] = None,
+        video_segment_config: Optional[VideoSegmentConfig] = None,
     ) -> "MultiModalEmbeddingResponse":
         """Gets embedding vectors from the provided image.
 
         Args:
-            image (Image):
-                Optional. The image to generate embeddings for. One of `image` or `contextual_text` is required.
-            contextual_text (str):
-                Optional. Contextual text for your input image. If provided, the model will also
-                generate an embedding vector for the provided contextual text. The returned image
-                and text embedding vectors are in the same semantic space with the same dimensionality,
-                and the vectors can be used interchangeably for use cases like searching image by text
-                or searching text by image. One of `image` or `contextual_text` is required.
+            image (Image): Optional. The image to generate embeddings for. One of
+              `image`, `video`, or `contextual_text` is required.
+            video (Video): Optional. The video to generate embeddings for. One of
+              `image`, `video` or `contextual_text` is required.
+            contextual_text (str): Optional. Contextual text for your input image or video.
+              If provided, the model will also generate an embedding vector for the
+              provided contextual text. The returned image and text embedding
+              vectors are in the same semantic space with the same dimensionality,
+              and the vectors can be used interchangeably for use cases like
+              searching image by text or searching text by image. One of `image`, `video` or
+              `contextual_text` is required.
+            dimension (int): Optional. The number of embedding dimensions. Lower
+              values offer decreased latency when using these embeddings for
+              subsequent tasks, while higher values offer better accuracy.
+              Available values: `128`, `256`, `512`, and `1408` (default).
+            video_segment_config (VideoSegmentConfig): Optional. The specific
+              video segments (in seconds) the embeddings are generated for.
 
         Returns:
-            ImageEmbeddingResponse:
+            MultiModalEmbeddingResponse:
                 The image and text embedding vectors.
         """
 
-        if not image and not contextual_text:
-            raise ValueError("One of `image` or `contextual_text` is required.")
+        if not image and not video and not contextual_text:
+            raise ValueError(
+                "One of `image`, `video`, or `contextual_text` is required."
+            )
 
         instance = {}
 
         if image:
-            instance["image"] = {"bytesBase64Encoded": image._as_base64_string()}
+            if image._gcs_uri:  # pylint: disable=protected-access
+                instance["image"] = {
+                    "gcsUri": image._gcs_uri  # pylint: disable=protected-access
+                }
+            else:
+                instance["image"] = {
+                    "bytesBase64Encoded": image._as_base64_string()  # pylint: disable=protected-access
+                }
+
+        if video:
+            if video._gcs_uri:  # pylint: disable=protected-access
+                instance["video"] = {
+                    "gcsUri": video._gcs_uri  # pylint: disable=protected-access
+                }
+            else:
+                instance["video"] = {
+                    "bytesBase64Encoded": video._as_base64_string()  # pylint: disable=protected-access
+                }  # pylint: disable=protected-access
+
+            if video_segment_config:
+                instance["video"]["videoSegmentConfig"] = {
+                    "startOffsetSec": video_segment_config.start_offset_sec,
+                    "endOffsetSec": video_segment_config.end_offset_sec,
+                    "intervalSec": video_segment_config.interval_sec,
+                }
 
         if contextual_text:
             instance["text"] = contextual_text
 
-        response = self._endpoint.predict(instances=[instance])
+        parameters = {}
+        if dimension:
+            parameters["dimension"] = dimension
+
+        response = self._endpoint.predict(
+            instances=[instance],
+            parameters=parameters,
+        )
         image_embedding = response.predictions[0].get("imageEmbedding")
+        video_embeddings = []
+        for video_embedding in response.predictions[0].get("videoEmbeddings", []):
+            video_embeddings.append(
+                VideoEmbedding(
+                    embedding=video_embedding["embedding"],
+                    start_offset_sec=video_embedding["startOffsetSec"],
+                    end_offset_sec=video_embedding["endOffsetSec"],
+                )
+            )
         text_embedding = (
             response.predictions[0].get("textEmbedding")
             if "textEmbedding" in response.predictions[0]
@@ -680,6 +964,7 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
         )
         return MultiModalEmbeddingResponse(
             image_embedding=image_embedding,
+            video_embeddings=video_embeddings,
             _prediction_response=response,
             text_embedding=text_embedding,
         )
@@ -687,19 +972,22 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
 
 @dataclasses.dataclass
 class MultiModalEmbeddingResponse:
-    """The image embedding response.
+    """The multimodal embedding response.
 
     Attributes:
         image_embedding (List[float]):
             Optional. The embedding vector generated from your image.
+        video_embeddings (List[VideoEmbedding]):
+            Optional. The embedding vectors generated from your video.
         text_embedding (List[float]):
-            Optional. The embedding vector generated from the contextual text provided for your image.
+            Optional. The embedding vector generated from the contextual text provided for your image or video.
     """
 
     __module__ = "vertexai.vision_models"
 
     _prediction_response: Any
     image_embedding: Optional[List[float]] = None
+    video_embeddings: Optional[List[VideoEmbedding]] = None
     text_embedding: Optional[List[float]] = None
 
 
@@ -732,13 +1020,3 @@ class ImageTextModel(ImageCaptioningModel, ImageQnAModel):
     # since SDK Model Garden classes should follow the design pattern of exactly 1 SDK class to 1 Model Garden schema URI
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
-    _LAUNCH_STAGE = (
-        _model_garden_models._SDK_GA_LAUNCH_STAGE  # pylint: disable=protected-access
-    )
-
-
-class _PreviewImageTextModel(ImageTextModel):
-
-    __module__ = "vertexai.preview.vision_models"
-
-    _LAUNCH_STAGE = _model_garden_models._SDK_PUBLIC_PREVIEW_LAUNCH_STAGE

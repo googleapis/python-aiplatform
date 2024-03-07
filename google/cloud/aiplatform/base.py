@@ -92,6 +92,8 @@ class VertexLogger(logging.getLoggerClass()):
         cls: Type["VertexAiResourceNoun"],
         resource: proto.Message,
         variable_name: str,
+        *,
+        module_name: str = "aiplatform",
     ):
         """Logs create event is complete.
 
@@ -102,17 +104,23 @@ class VertexLogger(logging.getLoggerClass()):
                 Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
                 Vertex AI Resource proto.Message
-            variable_name (str): Name of variable to use for code snippet
+            variable_name (str):
+                Name of variable to use for code snippet.
+            module_name (str):
+                The module namespace under which the Vertex AI Resource Noun
+                is available. Defaults to `aiplatform`.
         """
         self.info(f"{cls.__name__} created. Resource name: {resource.name}")
         self.info(f"To use this {cls.__name__} in another session:")
-        self.info(f"{variable_name} = aiplatform.{cls.__name__}('{resource.name}')")
+        self.info(f"{variable_name} = {module_name}.{cls.__name__}('{resource.name}')")
 
     def log_create_complete_with_getter(
         self,
         cls: Type["VertexAiResourceNoun"],
         resource: proto.Message,
         variable_name: str,
+        *,
+        module_name: str = "aiplatform",
     ):
         """Logs create event is complete.
 
@@ -123,11 +131,49 @@ class VertexLogger(logging.getLoggerClass()):
                 Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
                 Vertex AI Resource proto.Message
-            variable_name (str): Name of variable to use for code snippet
+            variable_name (str):
+                Name of variable to use for code snippet.
+            module_name (str):
+                The module namespace under which the Vertex AI Resource Noun
+                is available. Defaults to `aiplatform`.
         """
         self.info(f"{cls.__name__} created. Resource name: {resource.name}")
         self.info(f"To use this {cls.__name__} in another session:")
-        self.info(f"{variable_name} = aiplatform.{cls.__name__}.get('{resource.name}')")
+        usage_message = f"{module_name}.{cls.__name__}.get('{resource.name}')"
+        self.info(f"{variable_name} = {usage_message}")
+
+    def log_delete_with_lro(
+        self,
+        resource: Type["VertexAiResourceNoun"],
+        lro: Optional[operation.Operation] = None,
+    ):
+        """Logs delete event with LRO.
+
+        Args:
+            resource: Vertex AI resource that will be deleted.
+            lro: Backing LRO for creation.
+        """
+        self.info(
+            f"Deleting {resource.__class__.__name__} resource: {resource.resource_name}"
+        )
+
+        if lro:
+            self.info(
+                f"Delete {resource.__class__.__name__} backing LRO: {lro.operation.name}"
+            )
+
+    def log_delete_complete(
+        self,
+        resource: Type["VertexAiResourceNoun"],
+    ):
+        """Logs delete event is complete.
+
+        Args:
+            resource: Vertex AI resource that was deleted.
+        """
+        self.info(
+            f"{resource.__class__.__name__} resource {resource.resource_name} deleted."
+        )
 
     def log_action_start_against_resource(
         self, action: str, noun: str, resource_noun_obj: "VertexAiResourceNoun"

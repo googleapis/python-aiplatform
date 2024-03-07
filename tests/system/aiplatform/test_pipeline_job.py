@@ -19,6 +19,8 @@ import pytest
 
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
+from kfp import compiler
+from kfp import dsl
 
 from google.protobuf.json_format import MessageToDict
 
@@ -29,9 +31,9 @@ class TestPipelineJob(e2e_base.TestEndToEnd):
     _temp_prefix = "tmpvrtxsdk-e2e"
 
     def test_add_pipeline_job_to_experiment(self, shared_state):
-        from kfp import dsl
 
         # Components:
+        @dsl.component
         def train(
             number_of_epochs: int,
             learning_rate: float,
@@ -39,13 +41,12 @@ class TestPipelineJob(e2e_base.TestEndToEnd):
             print(f"number_of_epochs={number_of_epochs}")
             print(f"learning_rate={learning_rate}")
 
-        train_op = dsl.component(train)
-
         # Pipeline:
+        @dsl.pipeline
         def training_pipeline(number_of_epochs: int = 10):
-            train_op(
+            train(
                 number_of_epochs=number_of_epochs,
-                learning_rate="0.1",
+                learning_rate=0.1,
             )
 
         # Submitting the pipeline:
@@ -53,8 +54,14 @@ class TestPipelineJob(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
         )
-        job = aiplatform.PipelineJob.from_pipeline_func(
+        ir_file = "pipeline.yaml"
+        compiler.Compiler().compile(
             pipeline_func=training_pipeline,
+            package_path=ir_file,
+        )
+        job = aiplatform.PipelineJob(
+            template_path=ir_file,
+            display_name="display_name",
         )
         job.submit()
 

@@ -24,6 +24,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "PrivateServiceConnectConfig",
+        "PscAutomatedEndpoints",
     },
 )
 
@@ -47,6 +48,35 @@ class PrivateServiceConnectConfig(proto.Message):
     project_allowlist: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
+    )
+
+
+class PscAutomatedEndpoints(proto.Message):
+    r"""PscAutomatedEndpoints defines the output of the forwarding
+    rule automatically created by each PscAutomationConfig.
+
+    Attributes:
+        project_id (str):
+            Corresponding project_id in pscAutomationConfigs
+        network (str):
+            Corresponding network in
+            pscAutomationConfigs.
+        match_address (str):
+            Ip Address created by the automated
+            forwarding rule.
+    """
+
+    project_id: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    network: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    match_address: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 

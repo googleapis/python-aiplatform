@@ -58,6 +58,11 @@ class FeatureViewDataFormat(proto.Enum):
 class FeatureViewDataKey(proto.Message):
     r"""Lookup key for a feature view.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
@@ -65,12 +70,39 @@ class FeatureViewDataKey(proto.Message):
             String key to use for lookup.
 
             This field is a member of `oneof`_ ``key_oneof``.
+        composite_key (google.cloud.aiplatform_v1beta1.types.FeatureViewDataKey.CompositeKey):
+            The actual Entity ID will be composed from
+            this struct. This should match with the way ID
+            is defined in the FeatureView spec.
+
+            This field is a member of `oneof`_ ``key_oneof``.
     """
+
+    class CompositeKey(proto.Message):
+        r"""ID that is comprised from several parts (columns).
+
+        Attributes:
+            parts (MutableSequence[str]):
+                Parts to construct Entity ID. Should match
+                with the same ID columns as defined in
+                FeatureView in the same order.
+        """
+
+        parts: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=1,
+        )
 
     key: str = proto.Field(
         proto.STRING,
         number=1,
         oneof="key_oneof",
+    )
+    composite_key: CompositeKey = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="key_oneof",
+        message=CompositeKey,
     )
 
 
@@ -280,12 +312,13 @@ class NearestNeighborQuery(proto.Message):
 
     class StringFilter(proto.Message):
         r"""String filter is used to search a subset of the entities by using
-        boolean rules. For example: if a query specifies string filter with
-        'name = color, allow_tokens = {red, blue}, deny_tokens = {purple}','
-        then that query will match entities that are red or blue, but if
-        those points are also purple, then they will be excluded even if
-        they are red/blue. Only string filter is supported for now, numeric
-        filter will be supported in the near future.
+        boolean rules on string columns. For example: if a query specifies
+        string filter with 'name = color, allow_tokens = {red, blue},
+        deny_tokens = {purple}',' then that query will match entities that
+        are red or blue, but if those points are also purple, then they will
+        be excluded even if they are red/blue. Only string filter is
+        supported for now, numeric filter will be supported in the near
+        future.
 
         Attributes:
             name (str):

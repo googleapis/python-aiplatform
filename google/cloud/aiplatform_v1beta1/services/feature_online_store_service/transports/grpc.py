@@ -35,6 +35,8 @@ from .base import FeatureOnlineStoreServiceTransport, DEFAULT_CLIENT_INFO
 class FeatureOnlineStoreServiceGrpcTransport(FeatureOnlineStoreServiceTransport):
     """gRPC backend transport for FeatureOnlineStoreService.
 
+    A service for fetching feature values from the online store.
+
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
     and call it.
@@ -66,7 +68,7 @@ class FeatureOnlineStoreServiceGrpcTransport(FeatureOnlineStoreServiceTransport)
 
         Args:
             host (Optional[str]):
-                 The hostname to connect to.
+                 The hostname to connect to (default: 'aiplatform.googleapis.com').
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none

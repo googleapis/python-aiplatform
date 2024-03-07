@@ -74,6 +74,7 @@ from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import _ipython_utils
 
 import constants as test_constants
 
@@ -185,6 +186,22 @@ def get_metadata_store_mock_raise_not_found_exception():
         ]
 
         yield get_metadata_store_mock
+
+
+@pytest.fixture
+def ipython_is_available_mock():
+    with patch.object(_ipython_utils, "is_ipython_available") as ipython_available_mock:
+        ipython_available_mock.return_value = True
+        yield ipython_available_mock
+
+
+@pytest.fixture
+def ipython_is_not_available_mock():
+    with patch.object(
+        _ipython_utils, "is_ipython_available"
+    ) as ipython_not_available_mock:
+        ipython_not_available_mock.return_value = False
+        yield ipython_not_available_mock
 
 
 @pytest.fixture
@@ -1110,6 +1127,38 @@ class TestExperiments:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_with_ipython_environment(
+        self,
+        list_default_tensorboard_mock,
+        assign_backing_tensorboard_mock,
+        ipython_is_available_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_run_mock",
+    )
+    def test_init_experiment_with_no_ipython_environment(
+        self,
+        list_default_tensorboard_mock,
+        assign_backing_tensorboard_mock,
+        ipython_is_not_available_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+        )
+
     @pytest.mark.usefixtures("get_or_create_default_tb_none_mock")
     def test_init_experiment_with_existing_metadataStore_and_context(
         self, get_metadata_store_mock, get_experiment_run_run_mock
@@ -1496,7 +1545,6 @@ class TestExperiments:
         create_experiment_run_context_mock,
         add_context_children_mock,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1527,7 +1575,6 @@ class TestExperiments:
         "get_or_create_default_tb_none_mock",
     )
     def test_start_run_fails_when_run_name_too_long(self):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1846,7 +1893,6 @@ class TestExperiments:
             display_name=_TEST_DISPLAY_NAME,
             metadata=_TEST_METADATA,
         ) as exc:
-
             exc.assign_input_artifacts([in_artifact])
             exc.assign_output_artifacts([out_artifact])
 

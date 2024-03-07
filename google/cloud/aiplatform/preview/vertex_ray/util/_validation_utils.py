@@ -78,8 +78,10 @@ def get_local_ray_version():
 
 def get_image_uri(ray_version, python_version, enable_cuda):
     """Image uri for a given ray version and python version."""
-    if ray_version not in ["2_4"]:
-        raise ValueError("[Ray on Vertex AI]: The supported Ray version is 2_4.")
+    if ray_version not in ["2_4", "2_9"]:
+        raise ValueError(
+            "[Ray on Vertex AI]: The supported Ray versions are 2_4 (2.4.0) and 2_9 (2.9.3)."
+        )
     if python_version not in ["3_10"]:
         raise ValueError("[Ray on Vertex AI]: The supported Python version is 3_10.")
 
@@ -87,12 +89,12 @@ def get_image_uri(ray_version, python_version, enable_cuda):
     region = location.split("-")[0]
     if region not in _AVAILABLE_REGIONS:
         region = _DEFAULT_REGION
-
+    ray_version = ray_version.replace("_", "-")
     if enable_cuda:
         # TODO(b/292003337) update eligible image uris
-        return f"{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-4.py310:latest"
+        return f"{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.{ray_version}.py310:latest"
     else:
-        return f"{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-4.py310:latest"
+        return f"{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.{ray_version}.py310:latest"
 
 
 def get_versions_from_image_uri(image_uri):

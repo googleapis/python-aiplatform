@@ -61,7 +61,7 @@ _EVALUATION_TASKS = frozenset(
 _TEXT_CLASSIFICATION_TEMPLATE_URL = "https://us-kfp.pkg.dev/vertex-evaluation/pipeline-templates/evaluation-llm-classification-pipeline"
 _TEXT_GENERATION_QA_SUMMARIZATION_TEMPLATE_URL = "https://us-kfp.pkg.dev/vertex-evaluation/pipeline-templates/evaluation-llm-text-generation-pipeline"
 
-_EVALUATION_TEMPLATE_VERSION_TAG = "1.0.1"
+_EVALUATION_TEMPLATE_VERSION_TAG = "2.9.0"
 
 _EVALUATION_TEMPLATE_URLS = {
     _TEXT_CLASSIFICATION_TASK_NAME: f"{_TEXT_CLASSIFICATION_TEMPLATE_URL}/{_EVALUATION_TEMPLATE_VERSION_TAG}",
@@ -73,10 +73,9 @@ _EVALUATION_TEMPLATE_URLS = {
 
 _EVALUATION_PIPELINE_COMPONENT_IDENTIFIER = "fpc-llm-evaluation"
 
-# TODO: update this when BP removes the input size limit
-_BATCH_PREDICTION_ROW_LIMIT = 1000
+_BATCH_PREDICTION_ROW_LIMIT = 30000
 
-_EVAL_SUPPORTED_BASE_MODELS = ["text-bison@001"]
+_EVAL_SUPPORTED_BASE_MODELS = ["text-bison@001", "text-bison@002"]
 
 T = TypeVar("T", bound="_EvaluationMetricBase")
 

@@ -118,6 +118,11 @@ class MatchingEngineIndexConfig:
             approximate search algorithm are reordered via a more expensive distance computation.
 
             Required if tree-AH algorithm is used.
+        shard_size (str):
+            Optional. The size of each shard. Index will get resharded the
+            based on specified shard size. During serving,
+            each shard will be served on a separate node and will scale
+            independently.
         distance_measure_type (DistanceMeasureType):
             Optional. The distance measure used in nearest neighbor search.
     """
@@ -126,6 +131,7 @@ class MatchingEngineIndexConfig:
     algorithm_config: AlgorithmConfig
     approximate_neighbors_count: Optional[int] = None
     distance_measure_type: Optional[DistanceMeasureType] = None
+    shard_size: Optional[str] = None
 
     def as_dict(self) -> Dict[str, Any]:
         """Returns the configuration as a dictionary.
@@ -133,10 +139,11 @@ class MatchingEngineIndexConfig:
         Returns:
             Dict[str, Any]
         """
-
-        return {
+        res = {
             "dimensions": self.dimensions,
             "algorithmConfig": self.algorithm_config.as_dict(),
             "approximateNeighborsCount": self.approximate_neighbors_count,
             "distanceMeasureType": self.distance_measure_type,
+            "shardSize": self.shard_size,
         }
+        return res

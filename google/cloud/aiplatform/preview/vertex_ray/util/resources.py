@@ -39,12 +39,30 @@ class Resources:
             be either unspecified or within the range of [100, 64000].
     """
 
-    machine_type: Optional[str] = "n1-standard-4"
+    machine_type: Optional[str] = "n1-standard-8"
     node_count: Optional[int] = 1
     accelerator_type: Optional[str] = None
     accelerator_count: Optional[int] = 0
     boot_disk_type: Optional[str] = "pd-ssd"
     boot_disk_size_gb: Optional[int] = 100
+
+
+@dataclasses.dataclass
+class NodeImages:
+    """
+    Custom images for a ray cluster. We currently support Ray v2.4 and python v3.10.
+    The custom images must be extended from the following base images:
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-4.py310:latest" or
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-4.py310:latest". In
+    order to use custom images, need to specify both head and worker images.
+
+    Attributes:
+        head: head node image (eg. us-docker.pkg.dev/my-project/ray-cpu.2-4.py310-tf:latest).
+        worker: worker node image (eg. us-docker.pkg.dev/my-project/ray-gpu.2-4.py310-tf:latest).
+    """
+
+    head: str = None
+    worker: str = None
 
 
 @dataclasses.dataclass
@@ -64,11 +82,12 @@ class Cluster:
         python_version: Python version for the ray cluster (e.g. "3_10").
         ray_version: Ray version for the ray cluster (e.g. "2_4").
         head_node_type: The head node resource. Resources.node_count must be 1.
-            If not set, by default it is a CPU node with machine_type of n1-standard-4.
+            If not set, by default it is a CPU node with machine_type of n1-standard-8.
         worker_node_types: The list of Resources of the worker nodes. Should not
             duplicate the elements in the list.
         dashboard_address: For Ray Job API (JobSubmissionClient), with this
            cluster connection doesn't require VPC peering.
+        node_images: The NodeImages for a ray cluster.
         labels:
             The labels with user-defined metadata to organize Ray cluster.
 
@@ -87,6 +106,7 @@ class Cluster:
     head_node_type: Resources = None
     worker_node_types: List[Resources] = None
     dashboard_address: str = None
+    node_images: NodeImages = None
     labels: Dict[str, str] = None
 
 

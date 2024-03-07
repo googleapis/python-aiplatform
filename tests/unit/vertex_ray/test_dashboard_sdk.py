@@ -109,5 +109,6 @@ class TestGetJobSubmissionClientClusterInfo:
         get_bearer_token_mock.assert_called_once_with()
         ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
             address=tc.ClusterConstants._TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+            _use_tls=True,
             headers=tc.ClusterConstants._TEST_HEADERS,
         )

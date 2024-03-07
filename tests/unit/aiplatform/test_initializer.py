@@ -168,7 +168,6 @@ class TestInit:
     def test_init_experiment_without_tensorboard_uses_global_tensorboard(
         self, set_experiment_mock
     ):
-
         initializer.global_config.tensorboard = _TEST_TENSORBOARD_NAME
 
         initializer.global_config.init(
@@ -188,7 +187,6 @@ class TestInit:
     def test_init_experiment_tensorboard_false_does_not_set_tensorboard(
         self, set_experiment_mock, set_tensorboard_mock
     ):
-
         initializer.global_config.tensorboard = _TEST_TENSORBOARD_NAME
 
         initializer.global_config.init(
@@ -241,6 +239,38 @@ class TestInit:
         assert (
             client._transport._host == f"{_TEST_LOCATION}-{constants.API_BASE_PATH}:443"
         )
+
+    def test_create_client_with_default_api_transport(self):
+        initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        client = initializer.global_config.create_client(
+            client_class=utils.ModelClientWithOverride
+        )
+        assert client._client_class is model_service_client.ModelServiceClient
+        assert isinstance(client, utils.ModelClientWithOverride)
+        assert client._api_transport is None
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest", None])
+    def test_create_client_with_api_transport_override(self, api_transport):
+        initializer.global_config.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, api_transport=api_transport
+        )
+        client = initializer.global_config.create_client(
+            client_class=utils.ModelClientWithOverride
+        )
+        assert client._client_class is model_service_client.ModelServiceClient
+        assert isinstance(client, utils.ModelClientWithOverride)
+        assert client._api_transport == (
+            api_transport if api_transport == "rest" else None
+        )
+
+    @pytest.mark.parametrize("api_transport", ["grpc_asyncio", "unsupported"])
+    def test_create_client_with_invalid_api_transport_override(self, api_transport):
+        with pytest.raises(ValueError):
+            initializer.global_config.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                api_transport=api_transport,
+            )
 
     def test_create_client_overrides(self):
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)

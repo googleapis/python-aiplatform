@@ -234,10 +234,10 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
         credentials=credentials,
     )
 
-    pipelines_bucket = storage.Blob.from_string(
+    pipelines_bucket = storage.Bucket.from_string(
         uri=output_artifacts_gcs_dir,
         client=storage_client,
-    ).bucket
+    )
 
     if not pipelines_bucket.exists():
         _logger.info(

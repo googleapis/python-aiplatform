@@ -103,13 +103,14 @@ class TrainingJobConstants:
 
     _TEST_RUN_ARGS = ["-v", "0.1", "--test=arg"]
 
+    _TEST_MACHINE_SPEC = {
+        "machine_type": "n1-standard-4",
+        "accelerator_type": "NVIDIA_TESLA_K80",
+        "accelerator_count": 1,
+    }
     _TEST_WORKER_POOL_SPEC = [
         {
-            "machine_spec": {
-                "machine_type": "n1-standard-4",
-                "accelerator_type": "NVIDIA_TESLA_K80",
-                "accelerator_count": 1,
-            },
+            "machine_spec": _TEST_MACHINE_SPEC,
             "replica_count": 1,
             "disk_spec": {"boot_disk_type": "pd-ssd", "boot_disk_size_gb": 100},
             "container_spec": {
@@ -123,6 +124,7 @@ class TrainingJobConstants:
     _TEST_NETWORK = (
         f"projects/{ProjectConstants._TEST_PROJECT}/global/networks/{_TEST_ID}"
     )
+    _TEST_RESERVED_IP_RANGES = ["example_ip_range"]
     _TEST_TIMEOUT = 8000
     _TEST_RESTART_JOB_ON_WORKER_RESTART = True
     _TEST_DISABLE_RETRIES = True
@@ -369,3 +371,15 @@ class MatchingEngineConstants:
     _TEST_DISPLAY_NAME_UPDATE = "my new display name"
     _TEST_DESCRIPTION_UPDATE = "my description update"
     _TEST_REQUEST_METADATA = ()
+
+
+@dataclasses.dataclass(frozen=True)
+class PersistentResourceConstants:
+    """Defines constants used by tests that create PersistentResource resources."""
+
+    _TEST_PERSISTENT_RESOURCE_ID = "test_persistent_resource_id"
+    _TEST_PERSISTENT_RESOURCE_DISPLAY_NAME = "test_display_name"
+    _TEST_RESOURCE_POOL = {
+        "machine_spec": TrainingJobConstants._TEST_MACHINE_SPEC,
+        "replica_count": 1,
+    }

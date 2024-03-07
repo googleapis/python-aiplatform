@@ -61,7 +61,7 @@ class FeatureOnlineStoreServiceTransport(abc.ABC):
 
         Args:
             host (Optional[str]):
-                 The hostname to connect to.
+                 The hostname to connect to (default: 'aiplatform.googleapis.com').
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -124,11 +124,20 @@ class FeatureOnlineStoreServiceTransport(abc.ABC):
             host += ":443"
         self._host = host
 
+    @property
+    def host(self):
+        return self._host
+
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.fetch_feature_values: gapic_v1.method.wrap_method(
                 self.fetch_feature_values,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.search_nearest_entities: gapic_v1.method.wrap_method(
+                self.search_nearest_entities,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -151,6 +160,18 @@ class FeatureOnlineStoreServiceTransport(abc.ABC):
         Union[
             feature_online_store_service.FetchFeatureValuesResponse,
             Awaitable[feature_online_store_service.FetchFeatureValuesResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def search_nearest_entities(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.SearchNearestEntitiesRequest],
+        Union[
+            feature_online_store_service.SearchNearestEntitiesResponse,
+            Awaitable[feature_online_store_service.SearchNearestEntitiesResponse],
         ],
     ]:
         raise NotImplementedError()

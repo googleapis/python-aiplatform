@@ -218,18 +218,30 @@ class PublisherModel(proto.Message):
     class CallToAction(proto.Message):
         r"""Actions could take on this Publisher Model.
 
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             view_rest_api (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.ViewRestApi):
                 Optional. To view Rest API docs.
             open_notebook (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Open notebook of the
                 PublisherModel.
+            open_notebooks (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.OpenNotebooks):
+                Optional. Open notebooks of the
+                PublisherModel.
+
+                This field is a member of `oneof`_ ``_open_notebooks``.
             create_application (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Create application using the
                 PublisherModel.
             open_fine_tuning_pipeline (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Open fine-tuning pipeline of the
                 PublisherModel.
+            open_fine_tuning_pipelines (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.OpenFineTuningPipelines):
+                Optional. Open fine-tuning pipelines of the
+                PublisherModel.
+
+                This field is a member of `oneof`_ ``_open_fine_tuning_pipelines``.
             open_prompt_tuning_pipeline (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Open prompt-tuning pipeline of the
                 PublisherModel.
@@ -238,6 +250,9 @@ class PublisherModel(proto.Message):
             deploy (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.Deploy):
                 Optional. Deploy the PublisherModel to Vertex
                 Endpoint.
+            deploy_gke (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.DeployGke):
+                Optional. Deploy PublisherModel to Google
+                Kubernetes Engine.
             open_generation_ai_studio (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
                 Optional. Open in Generation AI Studio.
             request_access (google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences):
@@ -251,12 +266,26 @@ class PublisherModel(proto.Message):
             r"""The regional resource name or the URI. Key is region, e.g.,
             us-central1, europe-west2, global, etc..
 
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
             Attributes:
                 references (MutableMapping[str, google.cloud.aiplatform_v1.types.PublisherModel.ResourceReference]):
                     Required.
                 title (str):
-                    Required. The title of the regional resource
-                    reference.
+                    Required.
+                resource_title (str):
+                    Optional. Title of the resource.
+
+                    This field is a member of `oneof`_ ``_resource_title``.
+                resource_use_case (str):
+                    Optional. Use case (CUJ) of the resource.
+
+                    This field is a member of `oneof`_ ``_resource_use_case``.
+                resource_description (str):
+                    Optional. Description of the resource.
+
+                    This field is a member of `oneof`_ ``_resource_description``.
             """
 
             references: MutableMapping[
@@ -270,6 +299,21 @@ class PublisherModel(proto.Message):
             title: str = proto.Field(
                 proto.STRING,
                 number=2,
+            )
+            resource_title: str = proto.Field(
+                proto.STRING,
+                number=3,
+                optional=True,
+            )
+            resource_use_case: str = proto.Field(
+                proto.STRING,
+                number=4,
+                optional=True,
+            )
+            resource_description: str = proto.Field(
+                proto.STRING,
+                number=5,
+                optional=True,
             )
 
         class ViewRestApi(proto.Message):
@@ -292,6 +336,40 @@ class PublisherModel(proto.Message):
             title: str = proto.Field(
                 proto.STRING,
                 number=2,
+            )
+
+        class OpenNotebooks(proto.Message):
+            r"""Open notebooks.
+
+            Attributes:
+                notebooks (MutableSequence[google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences]):
+                    Required. Regional resource references to
+                    notebooks.
+            """
+
+            notebooks: MutableSequence[
+                "PublisherModel.CallToAction.RegionalResourceReferences"
+            ] = proto.RepeatedField(
+                proto.MESSAGE,
+                number=1,
+                message="PublisherModel.CallToAction.RegionalResourceReferences",
+            )
+
+        class OpenFineTuningPipelines(proto.Message):
+            r"""Open fine tuning pipelines.
+
+            Attributes:
+                fine_tuning_pipelines (MutableSequence[google.cloud.aiplatform_v1.types.PublisherModel.CallToAction.RegionalResourceReferences]):
+                    Required. Regional resource references to
+                    fine tuning pipelines.
+            """
+
+            fine_tuning_pipelines: MutableSequence[
+                "PublisherModel.CallToAction.RegionalResourceReferences"
+            ] = proto.RepeatedField(
+                proto.MESSAGE,
+                number=1,
+                message="PublisherModel.CallToAction.RegionalResourceReferences",
             )
 
         class Deploy(proto.Message):
@@ -389,6 +467,20 @@ class PublisherModel(proto.Message):
                 number=9,
             )
 
+        class DeployGke(proto.Message):
+            r"""Configurations for PublisherModel GKE deployment
+
+            Attributes:
+                gke_yaml_configs (MutableSequence[str]):
+                    Optional. GKE deployment configuration in
+                    yaml format.
+            """
+
+            gke_yaml_configs: MutableSequence[str] = proto.RepeatedField(
+                proto.STRING,
+                number=1,
+            )
+
         view_rest_api: "PublisherModel.CallToAction.ViewRestApi" = proto.Field(
             proto.MESSAGE,
             number=1,
@@ -401,6 +493,12 @@ class PublisherModel(proto.Message):
                 message="PublisherModel.CallToAction.RegionalResourceReferences",
             )
         )
+        open_notebooks: "PublisherModel.CallToAction.OpenNotebooks" = proto.Field(
+            proto.MESSAGE,
+            number=12,
+            optional=True,
+            message="PublisherModel.CallToAction.OpenNotebooks",
+        )
         create_application: "PublisherModel.CallToAction.RegionalResourceReferences" = (
             proto.Field(
                 proto.MESSAGE,
@@ -412,6 +510,12 @@ class PublisherModel(proto.Message):
             proto.MESSAGE,
             number=4,
             message="PublisherModel.CallToAction.RegionalResourceReferences",
+        )
+        open_fine_tuning_pipelines: "PublisherModel.CallToAction.OpenFineTuningPipelines" = proto.Field(
+            proto.MESSAGE,
+            number=13,
+            optional=True,
+            message="PublisherModel.CallToAction.OpenFineTuningPipelines",
         )
         open_prompt_tuning_pipeline: "PublisherModel.CallToAction.RegionalResourceReferences" = proto.Field(
             proto.MESSAGE,
@@ -429,6 +533,11 @@ class PublisherModel(proto.Message):
             proto.MESSAGE,
             number=7,
             message="PublisherModel.CallToAction.Deploy",
+        )
+        deploy_gke: "PublisherModel.CallToAction.DeployGke" = proto.Field(
+            proto.MESSAGE,
+            number=14,
+            message="PublisherModel.CallToAction.DeployGke",
         )
         open_generation_ai_studio: "PublisherModel.CallToAction.RegionalResourceReferences" = proto.Field(
             proto.MESSAGE,

@@ -17,6 +17,7 @@
 
 import copy
 import logging
+import time
 from typing import Dict, List, Optional
 
 from google.cloud.aiplatform import initializer
@@ -47,6 +48,7 @@ def create_ray_cluster(
     network: Optional[str] = None,
     cluster_name: Optional[str] = None,
     worker_node_types: Optional[List[resources.Resources]] = None,
+    custom_images: Optional[resources.NodeImages] = None,
     labels: Optional[Dict[str, str]] = None,
 ) -> str:
     """Create a ray cluster on the Vertex AI.
@@ -56,14 +58,14 @@ def create_ray_cluster(
     from vertex_ray import Resources
 
     head_node_type = Resources(
-        machine_type="n1-standard-4",
+        machine_type="n1-standard-8",
         node_count=1,
         accelerator_type="NVIDIA_TESLA_K80",
         accelerator_count=1,
     )
 
     worker_node_types = [Resources(
-        machine_type="n1-standard-4",
+        machine_type="n1-standard-8",
         node_count=2,
         accelerator_type="NVIDIA_TESLA_K80",
         accelerator_count=1,
@@ -97,6 +99,8 @@ def create_ray_cluster(
             or hyphen.
         worker_node_types: The list of Resources of the worker nodes. The same
             Resources object should not appear multiple times in the list.
+        custom_images: The NodeImages which specifies head node and worker nodes
+            images. Allowlist only.
         labels:
             The labels with user-defined metadata to organize Ray cluster.
 
@@ -117,10 +121,13 @@ def create_ray_cluster(
 
     local_ray_verion = _validation_utils.get_local_ray_version()
     if ray_version != local_ray_verion:
+        install_ray_version = ".".join(ray_version.split("_"))
         logging.info(
             f"[Ray on Vertex]: Local runtime has Ray version {local_ray_verion}"
             + f", but the requested cluster runtime has {ray_version}. Please "
-            + "ensure that the Ray versions match for client connectivity."
+            + "ensure that the Ray versions match for client connectivity. You may "
+            + f'"pip install --user --force-reinstall ray[default]=={install_ray_version}"'
+            + " and restart runtime before cluster connection."
         )
 
     if cluster_name is None:
@@ -157,6 +164,13 @@ def create_ray_cluster(
     image_uri = _validation_utils.get_image_uri(
         ray_version, python_version, enable_cuda
     )
+    if custom_images is not None:
+        if custom_images.head is None or custom_images.worker is None:
+            raise ValueError(
+                "[Ray on Vertex AI]: custom_images.head and custom_images.worker must be specified when custom_images is set."
+            )
+        image_uri = custom_images.head
+
     resource_pool_images[resource_pool_0.id] = image_uri
 
     worker_pools = []
@@ -199,6 +213,8 @@ def create_ray_cluster(
                 image_uri = _validation_utils.get_image_uri(
                     ray_version, python_version, enable_cuda
                 )
+                if custom_images is not None:
+                    image_uri = custom_images.worker
                 resource_pool_images[resource_pool.id] = image_uri
 
             i += 1
@@ -425,6 +441,12 @@ def update_ray_cluster(
         ) from e
 
     # block before returning
+    start_time = time.time()
     response = operation_future.result()
-    print("[Ray on Vertex AI]: Successfully updated the cluster.")
+    duration = (time.time() - start_time) // 60
+    print(
+        "[Ray on Vertex AI]: Successfully updated the cluster ({} mininutes elapsed).".format(
+            duration
+        )
+    )
     return response.name

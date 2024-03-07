@@ -18,6 +18,7 @@
 #
 import os
 import logging
+import ray
 from typing import Callable, Optional, Union, TYPE_CHECKING
 
 from google.cloud import aiplatform
@@ -122,15 +123,29 @@ def _get_tensorflow_model_from(
     Raises:
         ValueError: Invalid Argument.
     """
-    if not isinstance(checkpoint, ray_tensorflow.TensorflowCheckpoint):
-        raise ValueError(
-            "[Ray on Vertex AI]: arg checkpoint should be a"
-            " ray.train.tensorflow.TensorflowCheckpoint instance"
-        )
-    if checkpoint.get_preprocessor() is not None:
-        logging.warning(
-            "Checkpoint contains preprocessor. However, converting from a Ray"
-            " Checkpoint to framework specific model does NOT support"
-            " preprocessing. The model will be exported without preprocessors."
-        )
-    return checkpoint.get_model(model)
+    ray_version = ray.__version__
+    if ray_version == "2.4.0":
+        if not isinstance(checkpoint, ray_tensorflow.TensorflowCheckpoint):
+            raise ValueError(
+                "[Ray on Vertex AI]: arg checkpoint should be a"
+                " ray.train.tensorflow.TensorflowCheckpoint instance"
+            )
+        if checkpoint.get_preprocessor() is not None:
+            logging.warning(
+                "Checkpoint contains preprocessor. However, converting from a Ray"
+                " Checkpoint to framework specific model does NOT support"
+                " preprocessing. The model will be exported without preprocessors."
+            )
+
+        return checkpoint.get_model(model)
+
+    # get_model() signature changed in future versions
+    try:
+        from tensorflow import keras
+
+        try:
+            return keras.models.load_model(checkpoint.path)
+        except OSError:
+            return keras.models.load_model("gs://" + checkpoint.path)
+    except ImportError:
+        logging.warning("TensorFlow must be installed to load the trained model.")

@@ -64,7 +64,7 @@ class CreateFeatureOnlineStoreRequest(proto.Message):
         parent (str):
             Required. The resource name of the Location to create
             FeatureOnlineStores. Format:
-            ``projects/{project}/locations/{location}'``
+            ``projects/{project}/locations/{location}``
         feature_online_store (google.cloud.aiplatform_v1.types.FeatureOnlineStore):
             Required. The FeatureOnlineStore to create.
         feature_online_store_id (str):
@@ -235,6 +235,7 @@ class UpdateFeatureOnlineStoreRequest(proto.Message):
             Updatable fields:
 
             -  ``big_query_source``
+            -  ``bigtable``
             -  ``labels``
             -  ``sync_config``
     """
@@ -470,6 +471,7 @@ class UpdateFeatureViewRequest(proto.Message):
             Updatable fields:
 
             -  ``labels``
+            -  ``serviceAgentType``
     """
 
     feature_view: gca_feature_view.FeatureView = proto.Field(

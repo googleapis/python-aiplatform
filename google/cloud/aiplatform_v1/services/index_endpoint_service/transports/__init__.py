@@ -19,6 +19,8 @@ from typing import Dict, Type
 from .base import IndexEndpointServiceTransport
 from .grpc import IndexEndpointServiceGrpcTransport
 from .grpc_asyncio import IndexEndpointServiceGrpcAsyncIOTransport
+from .rest import IndexEndpointServiceRestTransport
+from .rest import IndexEndpointServiceRestInterceptor
 
 
 # Compile a registry of transports.
@@ -27,9 +29,12 @@ _transport_registry = (
 )  # type: Dict[str, Type[IndexEndpointServiceTransport]]
 _transport_registry["grpc"] = IndexEndpointServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = IndexEndpointServiceGrpcAsyncIOTransport
+_transport_registry["rest"] = IndexEndpointServiceRestTransport
 
 __all__ = (
     "IndexEndpointServiceTransport",
     "IndexEndpointServiceGrpcTransport",
     "IndexEndpointServiceGrpcAsyncIOTransport",
+    "IndexEndpointServiceRestTransport",
+    "IndexEndpointServiceRestInterceptor",
 )

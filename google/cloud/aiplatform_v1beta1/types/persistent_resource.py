@@ -34,6 +34,7 @@ __protobuf__ = proto.module(
         "RaySpec",
         "ResourceRuntime",
         "ServiceAccountSpec",
+        "RayMetricSpec",
     },
 )
 
@@ -133,12 +134,12 @@ class PersistentResource(proto.Message):
                 persistent resources is being created.
             RUNNING (3):
                 The RUNNING state indicates the persistent
-                resources is healthy and fully usable.
+                resource is healthy and fully usable.
             STOPPING (4):
                 The STOPPING state indicates the persistent
-                resources is being deleted.
+                resource is being deleted.
             ERROR (5):
-                The ERROR state indicates the persistent resources may be
+                The ERROR state indicates the persistent resource may be
                 unusable. Details can be found in the ``error`` field.
         """
         STATE_UNSPECIFIED = 0
@@ -369,6 +370,8 @@ class RaySpec(proto.Message):
             node(the first node within that pool). Will use
             the machine from the first workerpool as the
             head node by default if this field isn't set.
+        ray_metric_spec (google.cloud.aiplatform_v1beta1.types.RayMetricSpec):
+            Optional. Ray metrics configurations.
     """
 
     image_uri: str = proto.Field(
@@ -383,6 +386,11 @@ class RaySpec(proto.Message):
     head_node_resource_pool_id: str = proto.Field(
         proto.STRING,
         number=7,
+    )
+    ray_metric_spec: "RayMetricSpec" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message="RayMetricSpec",
     )
 
 
@@ -439,6 +447,21 @@ class ServiceAccountSpec(proto.Message):
     service_account: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class RayMetricSpec(proto.Message):
+    r"""Configuration for the Ray metrics.
+
+    Attributes:
+        disabled (bool):
+            Optional. Flag to disable the Ray metrics
+            collection.
+    """
+
+    disabled: bool = proto.Field(
+        proto.BOOL,
+        number=1,
     )
 
 

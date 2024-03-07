@@ -432,6 +432,10 @@ class IndexPrivateEndpoints(proto.Message):
             Output only. The name of the service
             attachment resource. Populated if private
             service connect is enabled.
+        psc_automated_endpoints (MutableSequence[google.cloud.aiplatform_v1.types.PscAutomatedEndpoints]):
+            Output only. PscAutomatedEndpoints is
+            populated if private service connect is enabled
+            if PscAutomatedConfig is set.
     """
 
     match_grpc_address: str = proto.Field(
@@ -441,6 +445,13 @@ class IndexPrivateEndpoints(proto.Message):
     service_attachment: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+    psc_automated_endpoints: MutableSequence[
+        service_networking.PscAutomatedEndpoints
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message=service_networking.PscAutomatedEndpoints,
     )
 
 

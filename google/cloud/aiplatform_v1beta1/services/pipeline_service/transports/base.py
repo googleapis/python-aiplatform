@@ -69,7 +69,7 @@ class PipelineServiceTransport(abc.ABC):
 
         Args:
             host (Optional[str]):
-                 The hostname to connect to.
+                 The hostname to connect to (default: 'aiplatform.googleapis.com').
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -132,6 +132,10 @@ class PipelineServiceTransport(abc.ABC):
             host += ":443"
         self._host = host
 
+    @property
+    def host(self):
+        return self._host
+
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
@@ -187,6 +191,11 @@ class PipelineServiceTransport(abc.ABC):
             ),
             self.cancel_pipeline_job: gapic_v1.method.wrap_method(
                 self.cancel_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_cancel_pipeline_jobs: gapic_v1.method.wrap_method(
+                self.batch_cancel_pipeline_jobs,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -314,6 +323,15 @@ class PipelineServiceTransport(abc.ABC):
     ) -> Callable[
         [pipeline_service.CancelPipelineJobRequest],
         Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_cancel_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.BatchCancelPipelineJobsRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

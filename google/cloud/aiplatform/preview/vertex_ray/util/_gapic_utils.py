@@ -28,6 +28,7 @@ from google.cloud.aiplatform.utils import (
 from google.cloud.aiplatform.preview.vertex_ray.util import _validation_utils
 from google.cloud.aiplatform.preview.vertex_ray.util.resources import (
     Cluster,
+    NodeImages,
     Resources,
 )
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
@@ -156,14 +157,24 @@ def persistent_resource_to_cluster(
         )
         return
 
-    image_uri = persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-        "head-node"
-    ]
-    if not image_uri:
-        image_uri = persistent_resource.resource_runtime_spec.ray_spec.image_uri
+    head_image_uri = (
+        persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+            "head-node"
+        ]
+    )
+    worker_image_uri = (
+        persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images.get(
+            "worker-pool1", None
+        )
+    )
+    if worker_image_uri is None:
+        worker_image_uri = head_image_uri
+
+    if not head_image_uri:
+        head_image_uri = persistent_resource.resource_runtime_spec.ray_spec.image_uri
     try:
         python_version, ray_version = _validation_utils.get_versions_from_image_uri(
-            image_uri
+            head_image_uri
         )
     except IndexError:
         logging.info(
@@ -173,6 +184,7 @@ def persistent_resource_to_cluster(
         return
     cluster.python_version = python_version
     cluster.ray_version = ray_version
+    cluster.node_images = NodeImages(head=head_image_uri, worker=worker_image_uri)
 
     resource_pools = persistent_resource.resource_pools
 

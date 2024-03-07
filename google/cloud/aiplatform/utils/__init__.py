@@ -39,6 +39,8 @@ from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
     deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
+    feature_online_store_admin_service_client_v1beta1,
+    feature_online_store_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
     index_service_client_v1beta1,
@@ -59,6 +61,8 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
     endpoint_service_client_v1,
+    feature_online_store_admin_service_client_v1,
+    feature_online_store_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
     index_service_client_v1,
@@ -85,6 +89,8 @@ VertexAiServiceClient = TypeVar(
     dataset_service_client_v1beta1.DatasetServiceClient,
     deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
     endpoint_service_client_v1beta1.EndpointServiceClient,
+    feature_online_store_admin_service_client_v1beta1.FeatureOnlineStoreAdminServiceClient,
+    feature_online_store_service_client_v1beta1.FeatureOnlineStoreServiceClient,
     featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1beta1.FeaturestoreServiceClient,
     index_service_client_v1beta1.IndexServiceClient,
@@ -102,6 +108,8 @@ VertexAiServiceClient = TypeVar(
     # v1
     dataset_service_client_v1.DatasetServiceClient,
     endpoint_service_client_v1.EndpointServiceClient,
+    feature_online_store_admin_service_client_v1.FeatureOnlineStoreAdminServiceClient,
+    feature_online_store_service_client_v1.FeatureOnlineStoreServiceClient,
     featurestore_online_serving_service_client_v1.FeaturestoreOnlineServingServiceClient,
     featurestore_service_client_v1.FeaturestoreServiceClient,
     metadata_service_client_v1.MetadataServiceClient,
@@ -380,6 +388,7 @@ class ClientWithOverride:
             client_options: client_options.ClientOptions,
             client_info: gapic_v1.client_info.ClientInfo,
             credentials: Optional[auth_credentials.Credentials] = None,
+            transport: Optional[str] = None,
         ):
             """Stores parameters needed to instantiate client.
 
@@ -392,20 +401,32 @@ class ClientWithOverride:
                     Required. Client info to pass to client.
                 credentials (auth_credentials.credentials):
                     Optional. Client credentials to pass to client.
+                transport (str):
+                    Optional. Transport type to pass to client.
+                    NOTE: "rest" transport functionality is currently in a
+                    beta state (preview).
             """
 
             self._client_class = client_class
             self._credentials = credentials
             self._client_options = client_options
             self._client_info = client_info
+            self._api_transport = transport
 
         def __getattr__(self, name: str) -> Any:
             """Instantiates client and returns attribute of the client."""
-            temporary_client = self._client_class(
+
+            kwargs = dict(
                 credentials=self._credentials,
                 client_options=self._client_options,
                 client_info=self._client_info,
             )
+
+            if self._api_transport is not None:
+                kwargs["transport"] = self._api_transport
+
+            temporary_client = self._client_class(**kwargs)
+
             return getattr(temporary_client, name)
 
     @property
@@ -440,6 +461,7 @@ class ClientWithOverride:
         client_options: client_options.ClientOptions,
         client_info: gapic_v1.client_info.ClientInfo,
         credentials: Optional[auth_credentials.Credentials] = None,
+        transport: Optional[str] = None,
     ):
         """Stores parameters needed to instantiate client.
 
@@ -450,7 +472,19 @@ class ClientWithOverride:
                 Required. Client info to pass to client.
             credentials (auth_credentials.credentials):
                 Optional. Client credentials to pass to client.
+            transport (str):
+                Optional. Transport type to pass to client.
+                NOTE: "rest" transport functionality is currently in a
+                beta state (preview).
         """
+        kwargs = dict(
+            credentials=credentials,
+            client_options=client_options,
+            client_info=client_info,
+        )
+
+        if transport is not None:
+            kwargs["transport"] = transport
 
         self._clients = {
             version: self.WrappedClient(
@@ -458,13 +492,10 @@ class ClientWithOverride:
                 client_options=client_options,
                 client_info=client_info,
                 credentials=credentials,
+                transport=transport,
             )
             if self._is_temporary
-            else client_class(
-                client_options=client_options,
-                client_info=client_info,
-                credentials=credentials,
-            )
+            else client_class(**kwargs)
             for version, client_class in self._version_map
         }
 
@@ -538,6 +569,36 @@ class IndexEndpointClientWithOverride(ClientWithOverride):
         (
             compat.V1BETA1,
             index_endpoint_service_client_v1beta1.IndexEndpointServiceClient,
+        ),
+    )
+
+
+class FeatureOnlineStoreAdminClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (
+            compat.V1,
+            feature_online_store_admin_service_client_v1.FeatureOnlineStoreAdminServiceClient,
+        ),
+        (
+            compat.V1BETA1,
+            feature_online_store_admin_service_client_v1beta1.FeatureOnlineStoreAdminServiceClient,
+        ),
+    )
+
+
+class FeatureOnlineStoreClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (
+            compat.V1,
+            feature_online_store_service_client_v1.FeatureOnlineStoreServiceClient,
+        ),
+        (
+            compat.V1BETA1,
+            feature_online_store_service_client_v1beta1.FeatureOnlineStoreServiceClient,
         ),
     )
 

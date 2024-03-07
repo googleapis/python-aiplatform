@@ -30,7 +30,7 @@ def log_time_series_metrics_sample(
 ):
     aiplatform.init(experiment=experiment_name, project=project, location=location)
 
-    aiplatform.start_run(run_name=run_name, resume=True)
+    aiplatform.start_run(run=run_name, resume=True)
 
     aiplatform.log_time_series_metrics(metrics=metrics, step=step, wall_time=wall_time)
 

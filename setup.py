@@ -74,10 +74,7 @@ datasets_extra_require = [
 ]
 
 vizier_extra_require = [
-    "google-vizier==0.0.4; python_version=='3.8'",
-    "google-vizier==0.0.11; python_version=='3.9'",
-    "google-vizier>=0.0.14; python_version=='3.10'",
-    "google-vizier>=0.1.6; python_version>='3.11'",
+    "google-vizier>=0.1.6",
 ]
 
 prediction_extra_require = [
@@ -100,13 +97,13 @@ preview_extra_require = [
 ]
 
 ray_extra_require = [
-    # Ray's dependency version must be kept in sync with what Cluster supports.
-    "ray[default] >= 2.4, < 2.5; python_version<'3.11'",
+    # Cluster only supports 2.4.0 and 2.9.3
+    "ray[default] >= 2.4, <= 2.9.3,!= 2.5.*,!= 2.6.*,!= 2.7.*,!= 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2; python_version<'3.11'",
     # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
-    "ray[default] >= 2.5, < 2.5.1; python_version>='3.11'",
+    "ray[default] >= 2.5, <= 2.9.3; python_version>='3.11'",
     "google-cloud-bigquery-storage",
     "google-cloud-bigquery",
-    "pandas >= 1.0.0",
+    "pandas >= 1.0.0, < 2.2.0",
     "pyarrow >= 6.0.1",
     # Workaround for https://github.com/ray-project/ray/issues/36990.
     # TODO(b/295406381): Remove this pin when we drop support of ray<=2.5.
@@ -136,14 +133,17 @@ testing_extra_require = (
     + profiler_extra_require
     + [
         "bigframes; python_version>='3.10'",
+        # google-api-core 2.x is required since kfp requires protobuf > 4
+        "google-api-core >= 2.11, < 3.0.0",
         "grpcio-testing",
         "ipython",
-        "kfp",
+        "kfp >= 2.6.0, < 3.0.0",
         "pyfakefs",
         "pytest-asyncio",
         "pytest-xdist",
         "scikit-learn",
-        "tensorflow >= 2.3.0, <= 2.12.0",
+        # Lazy import requires > 2.12.0
+        "tensorflow == 2.13.0",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
         "torch >= 2.0.0, < 2.1.0",
@@ -175,7 +175,8 @@ setuptools.setup(
     platforms="Posix; MacOS X; Windows",
     include_package_data=True,
     install_requires=(
-        "google-api-core[grpc] >= 1.32.0, <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*",
+        "google-api-core[grpc] >= 1.34.1, <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*",
+        "google-auth >= 2.14.1, <3.0.0dev",
         "proto-plus >= 1.22.0, <2.0.0dev",
         "protobuf>=3.19.5,<5.0.0dev,!=3.20.0,!=3.20.1,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
@@ -183,7 +184,6 @@ setuptools.setup(
         "google-cloud-bigquery >= 1.15.0, < 4.0.0dev",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
         "shapely < 3.0.0dev",
-        "setuptools; python_version >= '3.12'",
     ),
     extras_require={
         "endpoint": endpoint_extra_require,
@@ -214,6 +214,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],

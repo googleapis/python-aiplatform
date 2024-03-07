@@ -234,24 +234,23 @@ class _TensorBoardTracker:
                 project, location, tensorboard_id
             )
         else:
-            if _experiment_tracker._global_tensorboard:
+            if _experiment_tracker._get_global_tensorboard():
                 tensorboard_resource_name = (
-                    _experiment_tracker._global_tensorboard.resource_name
+                    _experiment_tracker._get_global_tensorboard().resource_name
                 )
-            else:
-                if _experiment_tracker._experiment:
-                    if _experiment_tracker._experiment._lookup_backing_tensorboard():
-                        tensorboard_resource_name = (
-                            _experiment_tracker._experiment._lookup_backing_tensorboard().resource_name
-                        )
-                    else:
-                        raise ValueError(
-                            f"No TensorBoard associated with experiment {initializer.global_config.experiment_name}. Please provide tensorboard_id in the argument."
-                        )
+            elif _experiment_tracker._experiment:
+                if _experiment_tracker._experiment._lookup_backing_tensorboard():
+                    tensorboard_resource_name = (
+                        _experiment_tracker._experiment._lookup_backing_tensorboard().resource_name
+                    )
                 else:
                     raise ValueError(
-                        "No TensorBoard found. Please provide tensorboard_id in the argument."
+                        f"No TensorBoard associated with experiment {initializer.global_config.experiment_name}. Please provide tensorboard_id in the argument."
                     )
+            else:
+                raise ValueError(
+                    "No TensorBoard found. Please provide tensorboard_id in the argument."
+                )
 
         api_client = initializer.global_config.create_client(
             client_class=TensorboardClientWithOverride,

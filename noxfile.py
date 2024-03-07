@@ -32,7 +32,7 @@ LINT_PATHS = ["docs", "google", "tests", "noxfile.py", "setup.py"]
 
 DEFAULT_PYTHON_VERSION = "3.8"
 
-UNIT_TEST_PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11"]
+UNIT_TEST_PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 UNIT_TEST_STANDARD_DEPENDENCIES = [
     "mock",
     "asyncmock",
@@ -283,7 +283,7 @@ def docs(session):
 
     session.install("-e", ".")
     session.install(
-        "sphinx==4.0.1",
+        "sphinx==5.0.2",
         "alabaster",
         "google-cloud-aiplatform[prediction]",
         "recommonmark",
@@ -310,6 +310,11 @@ def docfx(session):
     session.install("-e", ".")
     session.install(
         "gcp-sphinx-docfx-yaml",
+        "sphinxcontrib-applehelp==1.0.4",
+        "sphinxcontrib-devhelp==1.0.2",
+        "sphinxcontrib-htmlhelp==2.0.1",
+        "sphinxcontrib-qthelp==1.0.3",
+        "sphinxcontrib-serializinghtml==1.1.5",
         "alabaster",
         "google-cloud-aiplatform[prediction]",
         "recommonmark",

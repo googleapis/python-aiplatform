@@ -20,6 +20,7 @@
 import logging
 import os
 import pickle
+import ray
 import tempfile
 from typing import Optional, TYPE_CHECKING
 
@@ -121,15 +122,23 @@ def _get_xgboost_model_from(
     Raises:
         ValueError: Invalid Argument.
     """
-    if not isinstance(checkpoint, ray_xgboost.XGBoostCheckpoint):
-        raise ValueError(
-            "[Ray on Vertex AI]: arg checkpoint should be a"
-            " ray.train.xgboost.XGBoostCheckpoint instance"
-        )
-    if checkpoint.get_preprocessor() is not None:
-        logging.warning(
-            "Checkpoint contains preprocessor. However, converting from a Ray"
-            " Checkpoint to framework specific model does NOT support"
-            " preprocessing. The model will be exported without preprocessors."
-        )
-    return checkpoint.get_model()
+    ray_version = ray.__version__
+    if ray_version == "2.4.0":
+        if not isinstance(checkpoint, ray_xgboost.XGBoostCheckpoint):
+            raise ValueError(
+                "[Ray on Vertex AI]: arg checkpoint should be a"
+                " ray.train.xgboost.XGBoostCheckpoint instance"
+            )
+        if checkpoint.get_preprocessor() is not None:
+            logging.warning(
+                "Checkpoint contains preprocessor. However, converting from a Ray"
+                " Checkpoint to framework specific model does NOT support"
+                " preprocessing. The model will be exported without preprocessors."
+            )
+        return checkpoint.get_model()
+
+    # get_model() signature changed in future versions
+    try:
+        return checkpoint.get_model()
+    except AttributeError:
+        raise RuntimeError("Unsupported Ray version.")

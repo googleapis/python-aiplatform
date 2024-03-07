@@ -116,13 +116,12 @@ class Model(proto.Message):
             ingested upon
             [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel],
             and all binaries it contains are copied and stored
-            internally by Vertex AI. Not present for AutoML Models or
-            Large Models.
+            internally by Vertex AI. Not required for AutoML Models.
         artifact_uri (str):
             Immutable. The path to the directory
             containing the Model artifact and any of its
-            supporting files. Not present for AutoML Models
-            or Large Models.
+            supporting files. Not required for AutoML
+            Models.
         supported_deployment_resources_types (MutableSequence[google.cloud.aiplatform_v1beta1.types.Model.DeploymentResourcesType]):
             Output only. When this Model is deployed, its prediction
             resources are described by the ``prediction_resources``
@@ -290,8 +289,8 @@ class Model(proto.Message):
         model_source_info (google.cloud.aiplatform_v1beta1.types.ModelSourceInfo):
             Output only. Source of a model. It can either
             be automl training pipeline, custom training
-            pipeline, BigQuery ML, or existing Vertex AI
-            Model.
+            pipeline, BigQuery ML, or saved and tuned from
+            Genie or Model Garden.
         original_model_info (google.cloud.aiplatform_v1beta1.types.Model.OriginalModelInfo):
             Output only. If this Model is a copy of
             another Model, this contains info about the
@@ -979,7 +978,10 @@ class ModelSourceInfo(proto.Message):
     """
 
     class ModelSourceType(proto.Enum):
-        r"""Source of the model.
+        r"""Source of the model. Different from ``objective`` field, this
+        ``ModelSourceType`` enum indicates the source from which the model
+        was accessed or obtained, whereas the ``objective`` indicates the
+        overall aim or function of this model.
 
         Values:
             MODEL_SOURCE_TYPE_UNSPECIFIED (0):
@@ -1001,6 +1003,8 @@ class ModelSourceInfo(proto.Message):
             CUSTOM_TEXT_EMBEDDING (6):
                 The Model is uploaded by text embedding
                 finetuning pipeline.
+            MARKETPLACE (7):
+                The Model is saved or tuned from Marketplace.
         """
         MODEL_SOURCE_TYPE_UNSPECIFIED = 0
         AUTOML = 1
@@ -1009,6 +1013,7 @@ class ModelSourceInfo(proto.Message):
         MODEL_GARDEN = 4
         GENIE = 5
         CUSTOM_TEXT_EMBEDDING = 6
+        MARKETPLACE = 7
 
     source_type: ModelSourceType = proto.Field(
         proto.ENUM,

@@ -33,10 +33,15 @@ __protobuf__ = proto.module(
         "PredictRequest",
         "PredictResponse",
         "RawPredictRequest",
+        "StreamRawPredictRequest",
         "DirectPredictRequest",
         "DirectPredictResponse",
         "DirectRawPredictRequest",
         "DirectRawPredictResponse",
+        "StreamDirectPredictRequest",
+        "StreamDirectPredictResponse",
+        "StreamDirectRawPredictRequest",
+        "StreamDirectRawPredictResponse",
         "StreamingPredictRequest",
         "StreamingPredictResponse",
         "StreamingRawPredictRequest",
@@ -200,6 +205,31 @@ class RawPredictRequest(proto.Message):
     )
 
 
+class StreamRawPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.StreamRawPredict][google.cloud.aiplatform.v1.PredictionService.StreamRawPredict].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        http_body (google.api.httpbody_pb2.HttpBody):
+            The prediction input. Supports HTTP headers
+            and arbitrary data payload.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    http_body: httpbody_pb2.HttpBody = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=httpbody_pb2.HttpBody,
+    )
+
+
 class DirectPredictRequest(proto.Message):
     r"""Request message for
     [PredictionService.DirectPredict][google.cloud.aiplatform.v1.PredictionService.DirectPredict].
@@ -290,6 +320,125 @@ class DirectRawPredictRequest(proto.Message):
 class DirectRawPredictResponse(proto.Message):
     r"""Response message for
     [PredictionService.DirectRawPredict][google.cloud.aiplatform.v1.PredictionService.DirectRawPredict].
+
+    Attributes:
+        output (bytes):
+            The prediction output.
+    """
+
+    output: bytes = proto.Field(
+        proto.BYTES,
+        number=1,
+    )
+
+
+class StreamDirectPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.StreamDirectPredict][google.cloud.aiplatform.v1.PredictionService.StreamDirectPredict].
+
+    The first message must contain
+    [endpoint][google.cloud.aiplatform.v1.StreamDirectPredictRequest.endpoint]
+    field and optionally [input][]. The subsequent messages must contain
+    [input][].
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        inputs (MutableSequence[google.cloud.aiplatform_v1.types.Tensor]):
+            Optional. The prediction input.
+        parameters (google.cloud.aiplatform_v1.types.Tensor):
+            Optional. The parameters that govern the
+            prediction.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    inputs: MutableSequence[types.Tensor] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=types.Tensor,
+    )
+    parameters: types.Tensor = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=types.Tensor,
+    )
+
+
+class StreamDirectPredictResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.StreamDirectPredict][google.cloud.aiplatform.v1.PredictionService.StreamDirectPredict].
+
+    Attributes:
+        outputs (MutableSequence[google.cloud.aiplatform_v1.types.Tensor]):
+            The prediction output.
+        parameters (google.cloud.aiplatform_v1.types.Tensor):
+            The parameters that govern the prediction.
+    """
+
+    outputs: MutableSequence[types.Tensor] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=types.Tensor,
+    )
+    parameters: types.Tensor = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=types.Tensor,
+    )
+
+
+class StreamDirectRawPredictRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.StreamDirectRawPredict][google.cloud.aiplatform.v1.PredictionService.StreamDirectRawPredict].
+
+    The first message must contain
+    [endpoint][google.cloud.aiplatform.v1.StreamDirectRawPredictRequest.endpoint]
+    and
+    [method_name][google.cloud.aiplatform.v1.StreamDirectRawPredictRequest.method_name]
+    fields and optionally
+    [input][google.cloud.aiplatform.v1.StreamDirectRawPredictRequest.input].
+    The subsequent messages must contain
+    [input][google.cloud.aiplatform.v1.StreamDirectRawPredictRequest.input].
+    [method_name][google.cloud.aiplatform.v1.StreamDirectRawPredictRequest.method_name]
+    in the subsequent messages have no effect.
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        method_name (str):
+            Optional. Fully qualified name of the API method being
+            invoked to perform predictions.
+
+            Format: ``/namespace.Service/Method/`` Example:
+            ``/tensorflow.serving.PredictionService/Predict``
+        input (bytes):
+            Optional. The prediction input.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    method_name: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    input: bytes = proto.Field(
+        proto.BYTES,
+        number=3,
+    )
+
+
+class StreamDirectRawPredictResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.StreamDirectRawPredict][google.cloud.aiplatform.v1.PredictionService.StreamDirectRawPredict].
 
     Attributes:
         output (bytes):
@@ -609,8 +758,7 @@ class GenerateContentRequest(proto.Message):
 
             A ``Tool`` is a piece of code that enables the system to
             interact with external systems to perform an action, or set
-            of actions, outside of knowledge and scope of the model. The
-            only supported tool is currently ``Function``
+            of actions, outside of knowledge and scope of the model.
         safety_settings (MutableSequence[google.cloud.aiplatform_v1.types.SafetySetting]):
             Optional. Per request settings for blocking
             unsafe content. Enforced on

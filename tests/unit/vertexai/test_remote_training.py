@@ -23,11 +23,14 @@ from unittest import mock
 from unittest.mock import patch
 
 import cloudpickle
+from google import auth
 from google.api_core import exceptions
+from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.services import (
     job_service_client_v1beta1 as job_service_client,
+    tensorboard_service_client,
 )
 from google.cloud.aiplatform.compat.types import (
     custom_job_v1beta1 as gca_custom_job_compat,
@@ -89,6 +92,7 @@ _TEST_REMOTE_JOB_BASE_PATH = os.path.join(_TEST_BUCKET_NAME, _TEST_REMOTE_JOB_NA
 _TEST_EXPERIMENT = "test-experiment"
 _TEST_EXPERIMENT_RUN = "test-experiment-run"
 _TEST_SERVICE_ACCOUNT = f"{_TEST_PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
 # dataset constants
 dataset = load_iris()
@@ -705,6 +709,25 @@ def update_context_mock():
 def aiplatform_autolog_mock():
     with patch.object(aiplatform, "autolog") as aiplatform_autolog_mock:
         yield aiplatform_autolog_mock
+
+
+@pytest.fixture(scope="module")
+def google_auth_mock():
+    with mock.patch.object(auth, "default") as auth_mock:
+        auth_mock.return_value = (
+            auth_credentials.AnonymousCredentials(),
+            "test-project",
+        )
+        yield auth_mock
+
+
+@pytest.fixture
+def get_tensorboard_mock():
+    with patch.object(
+        tensorboard_service_client.TensorboardServiceClient, "get_tensorboard"
+    ) as get_tensorboard_mock:
+        get_tensorboard_mock.return_value = _TEST_DEFAULT_TENSORBOARD_GCA
+        yield get_tensorboard_mock
 
 
 # unittest `assert_any_call` method doesn't work when arguments contain `np.ndarray`
@@ -1636,6 +1659,7 @@ class TestRemoteTraining:
         "get_artifact_not_found_mock",
         "update_context_mock",
         "mock_autolog_disabled",
+        "get_tensorboard_mock",
     )
     def test_remote_training_sklearn_with_experiment(
         self,
@@ -1647,6 +1671,7 @@ class TestRemoteTraining:
             location=_TEST_LOCATION,
             staging_bucket=_TEST_BUCKET_NAME,
             experiment=_TEST_EXPERIMENT,
+            credentials=_TEST_CREDENTIALS,
         )
         vertexai.preview.init(remote=True)
 
@@ -1720,6 +1745,7 @@ class TestRemoteTraining:
         "update_context_mock",
         "aiplatform_autolog_mock",
         "mock_autolog_enabled",
+        "get_tensorboard_mock",
     )
     def test_remote_training_sklearn_with_experiment_autolog_enabled(
         self,
@@ -1731,6 +1757,7 @@ class TestRemoteTraining:
             location=_TEST_LOCATION,
             staging_bucket=_TEST_BUCKET_NAME,
             experiment=_TEST_EXPERIMENT,
+            credentials=_TEST_CREDENTIALS,
         )
         vertexai.preview.init(remote=True, autolog=True)
 
@@ -1926,6 +1953,7 @@ class TestRemoteTraining:
         "aiplatform_autolog_mock",
         "mock_autolog_enabled",
         "persistent_resource_running_mock",
+        "get_tensorboard_mock",
     )
     def test_remote_training_sklearn_with_persistent_cluster_no_service_account_and_experiment_error(
         self,
@@ -1935,6 +1963,7 @@ class TestRemoteTraining:
             location=_TEST_LOCATION,
             staging_bucket=_TEST_BUCKET_NAME,
             experiment=_TEST_EXPERIMENT,
+            credentials=_TEST_CREDENTIALS,
         )
         vertexai.preview.init(
             remote=True, autolog=True, cluster=_TEST_PERSISTENT_RESOURCE_CONFIG
@@ -1966,6 +1995,7 @@ class TestRemoteTraining:
         "persistent_resource_service_account_running_mock",
         "mock_timestamped_unique_name",
         "mock_get_custom_job",
+        "get_tensorboard_mock",
     )
     def test_remote_training_sklearn_with_persistent_cluster_and_experiment_autologging(
         self,
@@ -1977,6 +2007,7 @@ class TestRemoteTraining:
             location=_TEST_LOCATION,
             staging_bucket=_TEST_BUCKET_NAME,
             experiment=_TEST_EXPERIMENT,
+            credentials=_TEST_CREDENTIALS,
         )
         vertexai.preview.init(
             remote=True,

@@ -252,6 +252,14 @@ class _Job(base.VertexAiStatefulResource):
         else:
             _LOGGER.log_action_completed_against_resource("run", "completed", self)
 
+    def wait_for_completion(self) -> None:
+        """Waits for job to complete.
+
+        Raises:
+            RuntimeError: If job failed or cancelled.
+        """
+        self._block_until_complete()
+
     @classmethod
     def list(
         cls,
@@ -609,6 +617,530 @@ class BatchPredictionJob(_Job):
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
         """
+        return cls._submit_impl(
+            job_display_name=job_display_name,
+            model_name=model_name,
+            instances_format=instances_format,
+            predictions_format=predictions_format,
+            gcs_source=gcs_source,
+            bigquery_source=bigquery_source,
+            gcs_destination_prefix=gcs_destination_prefix,
+            bigquery_destination_prefix=bigquery_destination_prefix,
+            model_parameters=model_parameters,
+            machine_type=machine_type,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
+            starting_replica_count=starting_replica_count,
+            max_replica_count=max_replica_count,
+            generate_explanation=generate_explanation,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
+            sync=sync,
+            create_request_timeout=create_request_timeout,
+            batch_size=batch_size,
+            model_monitoring_objective_config=model_monitoring_objective_config,
+            model_monitoring_alert_config=model_monitoring_alert_config,
+            analysis_instance_schema_uri=analysis_instance_schema_uri,
+            service_account=service_account,
+            # Main distinction of `create` vs `submit`:
+            wait_for_completion=True,
+        )
+
+    @classmethod
+    def submit(
+        cls,
+        *,
+        job_display_name: Optional[str] = None,
+        model_name: Union[str, "aiplatform.Model"],
+        instances_format: str = "jsonl",
+        predictions_format: str = "jsonl",
+        gcs_source: Optional[Union[str, Sequence[str]]] = None,
+        bigquery_source: Optional[str] = None,
+        gcs_destination_prefix: Optional[str] = None,
+        bigquery_destination_prefix: Optional[str] = None,
+        model_parameters: Optional[Dict] = None,
+        machine_type: Optional[str] = None,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        starting_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
+        generate_explanation: Optional[bool] = False,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
+        labels: Optional[Dict[str, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
+        batch_size: Optional[int] = None,
+        model_monitoring_objective_config: Optional[
+            "aiplatform.model_monitoring.ObjectiveConfig"
+        ] = None,
+        model_monitoring_alert_config: Optional[
+            "aiplatform.model_monitoring.AlertConfig"
+        ] = None,
+        analysis_instance_schema_uri: Optional[str] = None,
+        service_account: Optional[str] = None,
+    ) -> "BatchPredictionJob":
+        """Sumbit a batch prediction job (not waiting for completion).
+
+        Args:
+            job_display_name (str):
+                Required. The user-defined name of the BatchPredictionJob.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            model_name (Union[str, aiplatform.Model]):
+                Required. A fully-qualified model resource name or model ID.
+                Example: "projects/123/locations/us-central1/models/456" or
+                "456" when project and location are initialized or passed.
+                May optionally contain a version ID or alias in
+                {model_name}@{version} form.
+
+                Or an instance of aiplatform.Model.
+            instances_format (str):
+                Required. The format in which instances are provided. Must be one
+                of the formats listed in `Model.supported_input_storage_formats`.
+                Default is "jsonl" when using `gcs_source`. If a `bigquery_source`
+                is provided, this is overridden to "bigquery".
+            predictions_format (str):
+                Required. The format in which Vertex AI outputs the
+                predictions, must be one of the formats specified in
+                `Model.supported_output_storage_formats`.
+                Default is "jsonl" when using `gcs_destination_prefix`. If a
+                `bigquery_destination_prefix` is provided, this is overridden to
+                "bigquery".
+            gcs_source (Optional[Sequence[str]]):
+                Google Cloud Storage URI(-s) to your instances to run
+                batch prediction on. They must match `instances_format`.
+
+            bigquery_source (Optional[str]):
+                BigQuery URI to a table, up to 2000 characters long. For example:
+                `bq://projectId.bqDatasetId.bqTableId`
+            gcs_destination_prefix (Optional[str]):
+                The Google Cloud Storage location of the directory where the
+                output is to be written to. In the given directory a new
+                directory is created. Its name is
+                ``prediction-<model-display-name>-<job-create-time>``, where
+                timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601 format.
+                Inside of it files ``predictions_0001.<extension>``,
+                ``predictions_0002.<extension>``, ...,
+                ``predictions_N.<extension>`` are created where
+                ``<extension>`` depends on chosen ``predictions_format``,
+                and N may equal 0001 and depends on the total number of
+                successfully predicted instances. If the Model has both
+                ``instance`` and ``prediction`` schemata defined then each such
+                file contains predictions as per the ``predictions_format``.
+                If prediction for any instance failed (partially or
+                completely), then an additional ``errors_0001.<extension>``,
+                ``errors_0002.<extension>``,..., ``errors_N.<extension>``
+                files are created (N depends on total number of failed
+                predictions). These files contain the failed instances, as
+                per their schema, followed by an additional ``error`` field
+                which as value has ```google.rpc.Status`` <Status>`__
+                containing only ``code`` and ``message`` fields.
+            bigquery_destination_prefix (Optional[str]):
+                The BigQuery project or dataset location where the output is
+                to be written to. If project is provided, a new dataset is
+                created with name
+                ``prediction_<model-display-name>_<job-create-time>`` where
+                is made BigQuery-dataset-name compatible (for example, most
+                special characters become underscores), and timestamp is in
+                YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
+                dataset two tables will be created, ``predictions``, and
+                ``errors``. If the Model has both
+                [instance][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri]
+                and
+                [prediction][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri]
+                schemata defined then the tables have columns as follows:
+                The ``predictions`` table contains instances for which the
+                prediction succeeded, it has columns as per a concatenation
+                of the Model's instance and prediction schemata. The
+                ``errors`` table contains rows for which the prediction has
+                failed, it has instance columns, as per the instance schema,
+                followed by a single "errors" column, which as values has
+                [google.rpc.Status][google.rpc.Status] represented as a
+                STRUCT, and containing only ``code`` and ``message``.
+            model_parameters (Optional[Dict]):
+                The parameters that govern the predictions. The schema of
+                the parameters may be specified via the Model's `parameters_schema_uri`.
+            machine_type (Optional[str]):
+                The type of machine for running batch prediction on
+                dedicated resources. Not specifying machine type will result in
+                batch prediction job being run with automatic resources.
+            accelerator_type (Optional[str]):
+                The type of accelerator(s) that may be attached
+                to the machine as per `accelerator_count`. Only used if
+                `machine_type` is set.
+            accelerator_count (Optional[int]):
+                The number of accelerators to attach to the
+                `machine_type`. Only used if `machine_type` is set.
+            starting_replica_count (Optional[int]):
+                The number of machine replicas used at the start of the batch
+                operation. If not set, Vertex AI decides starting number, not
+                greater than `max_replica_count`. Only used if `machine_type` is
+                set.
+            max_replica_count (Optional[int]):
+                The maximum number of machine replicas the batch operation may
+                be scaled to. Only used if `machine_type` is set.
+                Default is 10.
+            generate_explanation (bool):
+                Optional. Generate explanation along with the batch prediction
+                results. This will cause the batch prediction output to include
+                explanations based on the `prediction_format`:
+                    - `bigquery`: output includes a column named `explanation`. The value
+                        is a struct that conforms to the [aiplatform.gapic.Explanation] object.
+                    - `jsonl`: The JSON objects on each line include an additional entry
+                        keyed `explanation`. The value of the entry is a JSON object that
+                        conforms to the [aiplatform.gapic.Explanation] object.
+                    - `csv`: Generating explanations for CSV format is not supported.
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Explanation metadata configuration for this BatchPredictionJob.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_metadata`.
+                All fields of `explanation_metadata` are optional in the request. If
+                a field of the `explanation_metadata` object is not populated, the
+                corresponding field of the `Model.explanation_metadata` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_parameters`.
+                All fields of `explanation_parameters` are optional in the request. If
+                a field of the `explanation_parameters` object is not populated, the
+                corresponding field of the `Model.explanation_parameters` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your
+                BatchPredictionJobs. Label keys and values can be no longer than
+                64 characters (Unicode codepoints), can only contain lowercase
+                letters, numeric characters, underscores and dashes.
+                International characters are allowed. See https://goo.gl/xmQnxf
+                for more information and examples of labels.
+            credentials (Optional[auth_credentials.Credentials]):
+                Custom credentials to use to create this batch prediction
+                job. Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If this is set, then all
+                resources created by the BatchPredictionJob will
+                be encrypted with the provided encryption key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+            batch_size (int):
+                Optional. The number of the records (e.g. instances) of the operation given in each batch
+                to a machine replica. Machine type, and size of a single record should be considered
+                when setting this parameter, higher value speeds up the batch operation's execution,
+                but too high value will result in a whole batch not fitting in a machine's memory,
+                and the whole operation will fail.
+                The default value is 64.
+            model_monitoring_objective_config (aiplatform.model_monitoring.ObjectiveConfig):
+                Optional. The objective config for model monitoring. Passing this parameter enables
+                monitoring on the model associated with this batch prediction job.
+            model_monitoring_alert_config (aiplatform.model_monitoring.EmailAlertConfig):
+                Optional. Configures how model monitoring alerts are sent to the user. Right now
+                only email alert is supported.
+            analysis_instance_schema_uri (str):
+                Optional. Only applicable if model_monitoring_objective_config is also passed.
+                This parameter specifies the YAML schema file uri describing the format of a single
+                instance that you want Tensorflow Data Validation (TFDV) to
+                analyze. If this field is empty, all the feature data types are
+                inferred from predict_instance_schema_uri, meaning that TFDV
+                will use the data in the exact format as prediction request/response.
+                If there are any data type differences between predict instance
+                and TFDV instance, this field can be used to override the schema.
+                For models trained with Vertex AI, this field must be set as all the
+                fields in predict instance formatted as string.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+        Returns:
+            (jobs.BatchPredictionJob):
+                Instantiated representation of the created batch prediction job.
+        """
+        return cls._submit_impl(
+            job_display_name=job_display_name,
+            model_name=model_name,
+            instances_format=instances_format,
+            predictions_format=predictions_format,
+            gcs_source=gcs_source,
+            bigquery_source=bigquery_source,
+            gcs_destination_prefix=gcs_destination_prefix,
+            bigquery_destination_prefix=bigquery_destination_prefix,
+            model_parameters=model_parameters,
+            machine_type=machine_type,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
+            starting_replica_count=starting_replica_count,
+            max_replica_count=max_replica_count,
+            generate_explanation=generate_explanation,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
+            create_request_timeout=create_request_timeout,
+            batch_size=batch_size,
+            model_monitoring_objective_config=model_monitoring_objective_config,
+            model_monitoring_alert_config=model_monitoring_alert_config,
+            analysis_instance_schema_uri=analysis_instance_schema_uri,
+            service_account=service_account,
+            # Main distinction of `create` vs `submit`:
+            wait_for_completion=False,
+            sync=True,
+        )
+
+    @classmethod
+    def _submit_impl(
+        cls,
+        *,
+        job_display_name: Optional[str] = None,
+        model_name: Union[str, "aiplatform.Model"],
+        instances_format: str = "jsonl",
+        predictions_format: str = "jsonl",
+        gcs_source: Optional[Union[str, Sequence[str]]] = None,
+        bigquery_source: Optional[str] = None,
+        gcs_destination_prefix: Optional[str] = None,
+        bigquery_destination_prefix: Optional[str] = None,
+        model_parameters: Optional[Dict] = None,
+        machine_type: Optional[str] = None,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        starting_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
+        generate_explanation: Optional[bool] = False,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
+        labels: Optional[Dict[str, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        sync: bool = True,
+        create_request_timeout: Optional[float] = None,
+        batch_size: Optional[int] = None,
+        model_monitoring_objective_config: Optional[
+            "aiplatform.model_monitoring.ObjectiveConfig"
+        ] = None,
+        model_monitoring_alert_config: Optional[
+            "aiplatform.model_monitoring.AlertConfig"
+        ] = None,
+        analysis_instance_schema_uri: Optional[str] = None,
+        service_account: Optional[str] = None,
+        wait_for_completion: bool = False,
+    ) -> "BatchPredictionJob":
+        """Create a batch prediction job.
+
+        Args:
+            job_display_name (str):
+                Required. The user-defined name of the BatchPredictionJob.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            model_name (Union[str, aiplatform.Model]):
+                Required. A fully-qualified model resource name or model ID.
+                Example: "projects/123/locations/us-central1/models/456" or
+                "456" when project and location are initialized or passed.
+                May optionally contain a version ID or alias in
+                {model_name}@{version} form.
+
+                Or an instance of aiplatform.Model.
+            instances_format (str):
+                Required. The format in which instances are provided. Must be one
+                of the formats listed in `Model.supported_input_storage_formats`.
+                Default is "jsonl" when using `gcs_source`. If a `bigquery_source`
+                is provided, this is overridden to "bigquery".
+            predictions_format (str):
+                Required. The format in which Vertex AI outputs the
+                predictions, must be one of the formats specified in
+                `Model.supported_output_storage_formats`.
+                Default is "jsonl" when using `gcs_destination_prefix`. If a
+                `bigquery_destination_prefix` is provided, this is overridden to
+                "bigquery".
+            gcs_source (Optional[Sequence[str]]):
+                Google Cloud Storage URI(-s) to your instances to run
+                batch prediction on. They must match `instances_format`.
+
+            bigquery_source (Optional[str]):
+                BigQuery URI to a table, up to 2000 characters long. For example:
+                `bq://projectId.bqDatasetId.bqTableId`
+            gcs_destination_prefix (Optional[str]):
+                The Google Cloud Storage location of the directory where the
+                output is to be written to. In the given directory a new
+                directory is created. Its name is
+                ``prediction-<model-display-name>-<job-create-time>``, where
+                timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601 format.
+                Inside of it files ``predictions_0001.<extension>``,
+                ``predictions_0002.<extension>``, ...,
+                ``predictions_N.<extension>`` are created where
+                ``<extension>`` depends on chosen ``predictions_format``,
+                and N may equal 0001 and depends on the total number of
+                successfully predicted instances. If the Model has both
+                ``instance`` and ``prediction`` schemata defined then each such
+                file contains predictions as per the ``predictions_format``.
+                If prediction for any instance failed (partially or
+                completely), then an additional ``errors_0001.<extension>``,
+                ``errors_0002.<extension>``,..., ``errors_N.<extension>``
+                files are created (N depends on total number of failed
+                predictions). These files contain the failed instances, as
+                per their schema, followed by an additional ``error`` field
+                which as value has ```google.rpc.Status`` <Status>`__
+                containing only ``code`` and ``message`` fields.
+            bigquery_destination_prefix (Optional[str]):
+                The BigQuery project or dataset location where the output is
+                to be written to. If project is provided, a new dataset is
+                created with name
+                ``prediction_<model-display-name>_<job-create-time>`` where
+                is made BigQuery-dataset-name compatible (for example, most
+                special characters become underscores), and timestamp is in
+                YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
+                dataset two tables will be created, ``predictions``, and
+                ``errors``. If the Model has both
+                [instance][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri]
+                and
+                [prediction][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri]
+                schemata defined then the tables have columns as follows:
+                The ``predictions`` table contains instances for which the
+                prediction succeeded, it has columns as per a concatenation
+                of the Model's instance and prediction schemata. The
+                ``errors`` table contains rows for which the prediction has
+                failed, it has instance columns, as per the instance schema,
+                followed by a single "errors" column, which as values has
+                [google.rpc.Status][google.rpc.Status] represented as a
+                STRUCT, and containing only ``code`` and ``message``.
+            model_parameters (Optional[Dict]):
+                The parameters that govern the predictions. The schema of
+                the parameters may be specified via the Model's `parameters_schema_uri`.
+            machine_type (Optional[str]):
+                The type of machine for running batch prediction on
+                dedicated resources. Not specifying machine type will result in
+                batch prediction job being run with automatic resources.
+            accelerator_type (Optional[str]):
+                The type of accelerator(s) that may be attached
+                to the machine as per `accelerator_count`. Only used if
+                `machine_type` is set.
+            accelerator_count (Optional[int]):
+                The number of accelerators to attach to the
+                `machine_type`. Only used if `machine_type` is set.
+            starting_replica_count (Optional[int]):
+                The number of machine replicas used at the start of the batch
+                operation. If not set, Vertex AI decides starting number, not
+                greater than `max_replica_count`. Only used if `machine_type` is
+                set.
+            max_replica_count (Optional[int]):
+                The maximum number of machine replicas the batch operation may
+                be scaled to. Only used if `machine_type` is set.
+                Default is 10.
+            generate_explanation (bool):
+                Optional. Generate explanation along with the batch prediction
+                results. This will cause the batch prediction output to include
+                explanations based on the `prediction_format`:
+                    - `bigquery`: output includes a column named `explanation`. The value
+                        is a struct that conforms to the [aiplatform.gapic.Explanation] object.
+                    - `jsonl`: The JSON objects on each line include an additional entry
+                        keyed `explanation`. The value of the entry is a JSON object that
+                        conforms to the [aiplatform.gapic.Explanation] object.
+                    - `csv`: Generating explanations for CSV format is not supported.
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Explanation metadata configuration for this BatchPredictionJob.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_metadata`.
+                All fields of `explanation_metadata` are optional in the request. If
+                a field of the `explanation_metadata` object is not populated, the
+                corresponding field of the `Model.explanation_metadata` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_parameters`.
+                All fields of `explanation_parameters` are optional in the request. If
+                a field of the `explanation_parameters` object is not populated, the
+                corresponding field of the `Model.explanation_parameters` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your
+                BatchPredictionJobs. Label keys and values can be no longer than
+                64 characters (Unicode codepoints), can only contain lowercase
+                letters, numeric characters, underscores and dashes.
+                International characters are allowed. See https://goo.gl/xmQnxf
+                for more information and examples of labels.
+            credentials (Optional[auth_credentials.Credentials]):
+                Custom credentials to use to create this batch prediction
+                job. Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If this is set, then all
+                resources created by the BatchPredictionJob will
+                be encrypted with the provided encryption key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+            batch_size (int):
+                Optional. The number of the records (e.g. instances) of the operation given in each batch
+                to a machine replica. Machine type, and size of a single record should be considered
+                when setting this parameter, higher value speeds up the batch operation's execution,
+                but too high value will result in a whole batch not fitting in a machine's memory,
+                and the whole operation will fail.
+                The default value is 64.
+            model_monitoring_objective_config (aiplatform.model_monitoring.ObjectiveConfig):
+                Optional. The objective config for model monitoring. Passing this parameter enables
+                monitoring on the model associated with this batch prediction job.
+            model_monitoring_alert_config (aiplatform.model_monitoring.EmailAlertConfig):
+                Optional. Configures how model monitoring alerts are sent to the user. Right now
+                only email alert is supported.
+            analysis_instance_schema_uri (str):
+                Optional. Only applicable if model_monitoring_objective_config is also passed.
+                This parameter specifies the YAML schema file uri describing the format of a single
+                instance that you want Tensorflow Data Validation (TFDV) to
+                analyze. If this field is empty, all the feature data types are
+                inferred from predict_instance_schema_uri, meaning that TFDV
+                will use the data in the exact format as prediction request/response.
+                If there are any data type differences between predict instance
+                and TFDV instance, this field can be used to override the schema.
+                For models trained with Vertex AI, this field must be set as all the
+                fields in predict instance formatted as string.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            wait_for_completion (bool):
+                Whether to wait for the job completion.
+        Returns:
+            (jobs.BatchPredictionJob):
+                Instantiated representation of the created batch prediction job.
+        """
         # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
         if model_monitoring_objective_config:
             from google.cloud.aiplatform.compat.types import (
@@ -802,18 +1334,19 @@ class BatchPredictionJob(_Job):
             gapic_batch_prediction_job.model_monitoring_config = gapic_mm_config
 
         # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
-        return cls._create(
+        return cls._submit_and_optionally_wait_with_sync_support(
             empty_batch_prediction_job=empty_batch_prediction_job,
             model_or_model_name=model_name,
             gca_batch_prediction_job=gapic_batch_prediction_job,
             generate_explanation=generate_explanation,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            wait_for_completion=wait_for_completion,
         )
 
     @classmethod
     @base.optional_sync(return_input_arg="empty_batch_prediction_job")
-    def _create(
+    def _submit_and_optionally_wait_with_sync_support(
         cls,
         empty_batch_prediction_job: "BatchPredictionJob",
         model_or_model_name: Union[str, "aiplatform.Model"],
@@ -821,6 +1354,7 @@ class BatchPredictionJob(_Job):
         generate_explanation: bool,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        wait_for_completion: bool = True,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -839,6 +1373,8 @@ class BatchPredictionJob(_Job):
                 results.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            wait_for_completion (bool):
+                Whether to wait for the job completion.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -882,8 +1418,8 @@ class BatchPredictionJob(_Job):
         _LOGGER.info(
             "View Batch Prediction Job:\n%s" % batch_prediction_job._dashboard_uri()
         )
-
-        batch_prediction_job._block_until_complete()
+        if wait_for_completion:
+            batch_prediction_job._block_until_complete()
 
         return batch_prediction_job
 

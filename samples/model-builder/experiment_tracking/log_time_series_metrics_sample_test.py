@@ -12,14 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
-
 from experiment_tracking import log_time_series_metrics_sample
 import test_constants as constants
 
 
-@pytest.mark.usefixtures("mock_sdk_init", "mock_start_run")
-def test_log_time_series_metrics_sample(mock_log_time_series_metrics):
+def test_log_time_series_metrics_sample(
+        mock_log_time_series_metrics, mock_start_run, mock_sdk_init):
 
     log_time_series_metrics_sample.log_time_series_metrics_sample(
         experiment_name=constants.EXPERIMENT_NAME,
@@ -29,6 +27,17 @@ def test_log_time_series_metrics_sample(mock_log_time_series_metrics):
         wall_time=constants.TIMESTAMP,
         project=constants.PROJECT,
         location=constants.LOCATION,
+    )
+
+    mock_sdk_init.assert_called_with(
+        experiment=constants.EXPERIMENT_NAME,
+        project=constants.PROJECT,
+        location=constants.LOCATION
+    )
+
+    mock_start_run.assert_called_with(
+        run=constants.EXPERIMENT_RUN_NAME,
+        resume=True,
     )
 
     mock_log_time_series_metrics.assert_called_with(

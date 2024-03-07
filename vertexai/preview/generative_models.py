@@ -17,11 +17,12 @@
 # We just want to re-export certain classes
 # pylint: disable=g-multiple-import,g-importing-member
 from vertexai.generative_models._generative_models import (
+    grounding,
     _PreviewGenerativeModel,
+    _PreviewChatSession,
     GenerationConfig,
     GenerationResponse,
     Candidate,
-    ChatSession,
     Content,
     FinishReason,
     FunctionDeclaration,
@@ -30,12 +31,21 @@ from vertexai.generative_models._generative_models import (
     Image,
     Part,
     ResponseBlockedError,
+    ResponseValidationError,
     Tool,
 )
 
-GenerativeModel = _PreviewGenerativeModel
+
+class GenerativeModel(_PreviewGenerativeModel):
+    __doc__ = _PreviewGenerativeModel.__doc__
+
+
+class ChatSession(_PreviewChatSession):
+    __doc__ = _PreviewChatSession.__doc__
+
 
 __all__ = [
+    "grounding",
     "GenerationConfig",
     "GenerativeModel",
     "GenerationResponse",
@@ -49,5 +59,6 @@ __all__ = [
     "Image",
     "Part",
     "ResponseBlockedError",
+    "ResponseValidationError",
     "Tool",
 ]

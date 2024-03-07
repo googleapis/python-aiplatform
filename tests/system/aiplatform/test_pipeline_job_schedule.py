@@ -34,6 +34,7 @@ class TestPipelineJobSchedule(e2e_base.TestEndToEnd):
 
     def test_create_get_pause_resume_update_list(self, shared_state):
         # Components:
+        @dsl.component
         def train(
             number_of_epochs: int,
             learning_rate: float,
@@ -41,12 +42,10 @@ class TestPipelineJobSchedule(e2e_base.TestEndToEnd):
             print(f"number_of_epochs={number_of_epochs}")
             print(f"learning_rate={learning_rate}")
 
-        train_op = dsl.component(train)
-
         # Pipeline:
         @dsl.pipeline(name="system-test-training-pipeline")
         def training_pipeline(number_of_epochs: int = 2):
-            train_op(
+            train(
                 number_of_epochs=number_of_epochs,
                 learning_rate=0.1,
             )

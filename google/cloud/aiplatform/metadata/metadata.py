@@ -21,6 +21,7 @@ import os
 from typing import Dict, Union, Optional, Any, List
 
 from google.api_core import exceptions
+import google.auth
 from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
@@ -37,6 +38,7 @@ from google.cloud.aiplatform.metadata.schema.google import (
 )
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 from google.cloud.aiplatform.utils import autologging_utils
+from google.cloud.aiplatform.utils import _ipython_utils
 
 from google.cloud.aiplatform_v1.types import execution as execution_v1
 
@@ -216,7 +218,7 @@ class _LegacyExperimentService:
 
 
 class _ExperimentTracker:
-    """Tracks Experiments and Experiment Runs wil high level APIs"""
+    """Tracks Experiments and Experiment Runs with high level APIs."""
 
     def __init__(self):
         self._experiment: Optional[experiment_resources.Experiment] = None
@@ -228,6 +230,27 @@ class _ExperimentTracker:
         """Resets this experiment tracker, clearing the current experiment and run."""
         self._experiment = None
         self._experiment_run = None
+
+    def _get_global_tensorboard(self) -> Optional[tensorboard_resource.Tensorboard]:
+        """Helper method to get the global TensorBoard instance.
+
+        Returns:
+            tensorboard_resource.Tensorboard: the global TensorBoard instance.
+        """
+        if self._global_tensorboard:
+            credentials, _ = google.auth.default()
+            if self.experiment and self.experiment._metadata_context.credentials:
+                credentials = self.experiment._metadata_context.credentials
+            try:
+                return tensorboard_resource.Tensorboard(
+                    self._global_tensorboard.resource_name,
+                    project=self._global_tensorboard.project,
+                    location=self._global_tensorboard.location,
+                    credentials=credentials,
+                )
+            except exceptions.NotFound:
+                self._global_tensorboard = None
+        return None
 
     @property
     def experiment_name(self) -> Optional[str]:
@@ -284,7 +307,7 @@ class _ExperimentTracker:
                 If ommitted, or set to `True` or `None`, the global tensorboard is used.
                 If no global tensorboard is set, the default tensorboard will be used, and created if it does not exist.
 
-                To disable using a backign tensorboard, set `backing_tensorboard` to `False`.
+                To disable using a backing tensorboard, set `backing_tensorboard` to `False`.
                 To maintain this behavior, set `experiment_tensorboard` to `False` in subsequent calls to aiplatform.init().
         """
         self.reset()
@@ -299,7 +322,7 @@ class _ExperimentTracker:
             backing_tb = None
         else:
             backing_tb = (
-                self._global_tensorboard or _get_or_create_default_tensorboard()
+                self._get_global_tensorboard() or _get_or_create_default_tensorboard()
             )
 
         current_backing_tb = experiment.backing_tensorboard_resource_name
@@ -307,7 +330,31 @@ class _ExperimentTracker:
         if not current_backing_tb and backing_tb:
             experiment.assign_backing_tensorboard(tensorboard=backing_tb)
 
+        if _ipython_utils.is_ipython_available():
+            self._display_experiment_button(experiment)
+
         self._experiment = experiment
+
+    def _display_experiment_button(
+        self, experiment: experiment_resources.Experiment
+    ) -> None:
+        """Function to generate a link bound to the Vertex experiment"""
+        try:
+            project = experiment._metadata_context.project
+            location = experiment._metadata_context.location
+            experiment_name = experiment._metadata_context.name
+            if experiment_name is None or project is None or location is None:
+                return
+        except AttributeError:
+            _LOGGER.warning("Unable to fetch experiment metadata")
+            return
+
+        uri = (
+            "https://console.cloud.google.com/vertex-ai/experiments/locations/"
+            + f"{location}/experiments/{experiment_name}/"
+            + f"runs?project={project}"
+        )
+        _ipython_utils.display_link("View Experiment", uri, "science")
 
     def set_tensorboard(
         self,
