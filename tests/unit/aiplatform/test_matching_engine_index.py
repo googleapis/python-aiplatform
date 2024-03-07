@@ -61,6 +61,7 @@ _TEST_INDEX_CONFIG_DIMENSIONS = 100
 _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT = 150
 _TEST_LEAF_NODE_EMBEDDING_COUNT = 123
 _TEST_LEAF_NODES_TO_SEARCH_PERCENT = 50
+_TEST_SHARD_SIZES = ["SHARD_SIZE_SMALL", "SHARD_SIZE_LARGE", "SHARD_SIZE_MEDIUM"]
 
 _TEST_INDEX_DESCRIPTION = test_constants.MatchingEngineConstants._TEST_INDEX_DESCRIPTION
 
@@ -361,7 +362,10 @@ class TestMatchingEngineIndex:
             _TEST_INDEX_INVALID_UPDATE_METHOD,
         ],
     )
-    def test_create_tree_ah_index(self, create_index_mock, sync, index_update_method):
+    @pytest.mark.parametrize("shard_size", _TEST_SHARD_SIZES)
+    def test_create_tree_ah_index(
+        self, create_index_mock, sync, index_update_method, shard_size
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
@@ -378,6 +382,7 @@ class TestMatchingEngineIndex:
             index_update_method=index_update_method,
             encryption_spec_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
             create_request_timeout=_TEST_TIMEOUT,
+            shard_size=shard_size,
         )
 
         if not sync:
@@ -398,6 +403,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "shardSize": shard_size,
                 },
                 "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
             },
@@ -429,8 +435,9 @@ class TestMatchingEngineIndex:
             _TEST_INDEX_INVALID_UPDATE_METHOD,
         ],
     )
+    @pytest.mark.parametrize("shard_size", _TEST_SHARD_SIZES)
     def test_create_tree_ah_index_with_empty_index(
-        self, create_index_mock, sync, index_update_method
+        self, create_index_mock, sync, index_update_method, shard_size
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -448,6 +455,7 @@ class TestMatchingEngineIndex:
             index_update_method=index_update_method,
             encryption_spec_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
             create_request_timeout=_TEST_TIMEOUT,
+            shard_size=shard_size,
         )
 
         if not sync:
@@ -468,6 +476,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "shardSize": shard_size,
                 },
             },
             description=_TEST_INDEX_DESCRIPTION,
@@ -518,6 +527,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "shardSize": None,
                 },
                 "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
             },
@@ -543,8 +553,9 @@ class TestMatchingEngineIndex:
             _TEST_INDEX_INVALID_UPDATE_METHOD,
         ],
     )
+    @pytest.mark.parametrize("shard_size", _TEST_SHARD_SIZES)
     def test_create_brute_force_index(
-        self, create_index_mock, sync, index_update_method
+        self, create_index_mock, sync, index_update_method, shard_size
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -559,6 +570,7 @@ class TestMatchingEngineIndex:
             index_update_method=index_update_method,
             encryption_spec_key_name=_TEST_ENCRYPTION_SPEC_KEY_NAME,
             create_request_timeout=_TEST_TIMEOUT,
+            shard_size=shard_size,
         )
 
         if not sync:
@@ -574,6 +586,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": None,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "shardSize": shard_size,
                 },
                 "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
             },
@@ -635,6 +648,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": None,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "shardSize": None,
                 },
             },
             description=_TEST_INDEX_DESCRIPTION,
@@ -677,6 +691,7 @@ class TestMatchingEngineIndex:
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": None,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "shardSize": None,
                 },
                 "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
             },

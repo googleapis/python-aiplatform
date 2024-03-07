@@ -433,6 +433,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         index_update_method: Optional[str] = None,
         encryption_spec_key_name: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
+        shard_size: Optional[str] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource that uses the tree-AH algorithm.
 
@@ -525,6 +526,16 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 created.
             create_request_timeout (float):
                 Optional. The timeout for the request in seconds.
+            shard_size (str):
+                Optional. The size of each shard. Index will get resharded
+                based on specified shard size. During serving, each shard will
+                be served on a separate node and will scale independently.
+
+                Choose one of the following:
+                    SHARD_SIZE_SMALL
+                    SHARD_SIZE_MEDIUM
+                    SHARD_SIZE_LARGE
+
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -541,6 +552,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             algorithm_config=algorithm_config,
             approximate_neighbors_count=approximate_neighbors_count,
             distance_measure_type=distance_measure_type,
+            shard_size=shard_size,
         )
 
         return cls._create(
@@ -578,6 +590,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         index_update_method: Optional[str] = None,
         encryption_spec_key_name: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
+        shard_size: Optional[str] = None,
     ) -> "MatchingEngineIndex":
         """Creates a MatchingEngineIndex resource that uses the brute force algorithm.
 
@@ -659,6 +672,17 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 created.
             create_request_timeout (float):
                 Optional. The timeout for the request in seconds.
+            shard_size (str):
+                Optional. The size of each shard. Index will get resharded
+                based on specified shard size. During serving, each shard will
+                be served on a separate node and will scale independently.
+
+                If not set, shard size is default to SHARD_SIZE_MEDIUM.
+
+                Choose one of the following:
+                    SHARD_SIZE_SMALL
+                    SHARD_SIZE_MEDIUM
+                    SHARD_SIZE_LARGE
 
         Returns:
             MatchingEngineIndex - Index resource object
@@ -671,6 +695,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             dimensions=dimensions,
             algorithm_config=algorithm_config,
             distance_measure_type=distance_measure_type,
+            shard_size=shard_size,
         )
 
         return cls._create(
