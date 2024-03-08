@@ -280,7 +280,12 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             == "get_current_weather"
         )
 
-        assert response.candidates[0].content.parts[0].function_call.args["location"]
+        assert response.candidates[0].function_calls[0].args["location"]
+        assert len(response.candidates[0].function_calls) == 1
+        assert (
+            response.candidates[0].function_calls[0]
+            == response.candidates[0].content.parts[0].function_call
+        )
 
         # fake api_response data
         api_response = {
@@ -309,6 +314,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             tools=[weather_tool],
         )
         assert response
+        assert len(response.candidates[0].function_calls) == 0
 
         # Get the model summary response
         summary = response.candidates[0].content.parts[0].text
