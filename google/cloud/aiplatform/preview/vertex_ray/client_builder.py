@@ -120,9 +120,26 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
             )
         local_ray_verion = _validation_utils.get_local_ray_version()
         if cluster.ray_version != local_ray_verion:
-            raise ValueError(
-                f"[Ray on Vertex AI]: Local runtime has Ray version {local_ray_verion}, but the cluster runtime has {cluster.ray_version}. Please ensure that the Ray versions match."
-            )
+            if cluster.head_node_type.custom_image is None:
+                install_ray_version = _validation_utils.SUPPORTED_RAY_VERSIONS.get(
+                    cluster.ray_version
+                )
+                logging.info(
+                    "[Ray on Vertex]: Local runtime has Ray version %s"
+                    ", but the requested cluster runtime has %s. Please "
+                    "ensure that the Ray versions match for client connectivity. You may "
+                    '"pip install --user --force-reinstall ray[default]==%s"'
+                    " and restart runtime before cluster connection.",
+                    local_ray_verion,
+                    cluster.ray_version,
+                    install_ray_version,
+                )
+            else:
+                logging.info(
+                    "[Ray on Vertex]: Local runtime has Ray version %s."
+                    "Please ensure that the Ray versions match for client connectivity.",
+                    local_ray_verion,
+                )
         super().__init__(address)
 
     def connect(self) -> _VertexRayClientContext:

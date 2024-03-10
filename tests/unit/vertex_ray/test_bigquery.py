@@ -35,7 +35,7 @@ _TEST_BQ_DATASET_ID = "mockdataset"
 _TEST_BQ_TABLE_ID = "mocktable"
 _TEST_BQ_DATASET = _TEST_BQ_DATASET_ID + "." + _TEST_BQ_TABLE_ID
 _TEST_BQ_TEMP_DESTINATION = (
-    tc.ProjectConstants._TEST_GCP_PROJECT_ID + ".tempdataset.temptable"
+    tc.ProjectConstants.TEST_GCP_PROJECT_ID + ".tempdataset.temptable"
 )
 _TEST_DISPLAY_NAME = "display_name"
 
@@ -72,7 +72,7 @@ def bq_client_full_mock(monkeypatch):
     def bq_query_mock(query):
         fake_job_ref = job._JobReference(
             "fake_job_id",
-            tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+            tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             "us-central1",
         )
         fake_query_job = job.QueryJob(fake_job_ref, query, None)
@@ -149,7 +149,7 @@ class TestReadBigQuery:
     def test_create_reader(self, parallelism):
         bq_ds = bigquery_datasource.BigQueryDatasource()
         reader = bq_ds.create_reader(
-            project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+            project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             dataset=_TEST_BQ_DATASET,
             parallelism=parallelism,
         )
@@ -163,8 +163,8 @@ class TestReadBigQuery:
     def test_create_reader_initialized(self, parallelism):
         """If initialized, create_reader doesn't need to specify project_id."""
         aiplatform.init(
-            project=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
-            staging_bucket=tc.ProjectConstants._TEST_ARTIFACT_URI,
+            project=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
+            staging_bucket=tc.ProjectConstants.TEST_ARTIFACT_URI,
         )
         bq_ds = bigquery_datasource.BigQueryDatasource()
         reader = bq_ds.create_reader(
@@ -181,7 +181,7 @@ class TestReadBigQuery:
     def test_create_reader_query(self, parallelism, bq_query_result_mock):
         bq_ds = bigquery_datasource.BigQueryDatasource()
         reader = bq_ds.create_reader(
-            project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+            project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             parallelism=parallelism,
             query="SELECT * FROM mockdataset.mocktable",
         )
@@ -200,7 +200,7 @@ class TestReadBigQuery:
     ):
         bq_ds = bigquery_datasource.BigQueryDatasource()
         reader = bq_ds.create_reader(
-            project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+            project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             parallelism=parallelism,
             query="SELECT * FROM mockdataset.mocktable",
         )
@@ -213,7 +213,7 @@ class TestReadBigQuery:
         bq_ds = bigquery_datasource.BigQueryDatasource()
         with pytest.raises(ValueError) as exception:
             bq_ds.create_reader(
-                project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+                project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
                 dataset=_TEST_BQ_DATASET,
                 query="SELECT * FROM mockdataset.mocktable",
                 parallelism=parallelism,
@@ -225,7 +225,7 @@ class TestReadBigQuery:
         parallelism = 4
         bq_ds = bigquery_datasource.BigQueryDatasource()
         reader = bq_ds.create_reader(
-            project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+            project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             dataset="nonexistentdataset.mocktable",
             parallelism=parallelism,
         )
@@ -238,7 +238,7 @@ class TestReadBigQuery:
         parallelism = 4
         bq_ds = bigquery_datasource.BigQueryDatasource()
         reader = bq_ds.create_reader(
-            project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+            project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             dataset="mockdataset.nonexistenttable",
             parallelism=parallelism,
         )
@@ -265,7 +265,7 @@ class TestWriteBigQuery:
             blocks=[1, 2, 3, 4],
             metadata=[1, 2, 3, 4],
             ray_remote_args={},
-            project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+            project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             dataset=_TEST_BQ_DATASET,
         )
         assert len(write_tasks_list) == 4
@@ -273,8 +273,8 @@ class TestWriteBigQuery:
     def test_do_write_initialized(self, ray_remote_function_mock):
         """If initialized, do_write doesn't need to specify project_id."""
         aiplatform.init(
-            project=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
-            staging_bucket=tc.ProjectConstants._TEST_ARTIFACT_URI,
+            project=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
+            staging_bucket=tc.ProjectConstants.TEST_ARTIFACT_URI,
         )
         bq_ds = bigquery_datasource.BigQueryDatasource()
         write_tasks_list = bq_ds.do_write(
@@ -291,7 +291,7 @@ class TestWriteBigQuery:
             blocks=[1, 2, 3, 4],
             metadata=[1, 2, 3, 4],
             ray_remote_args={},
-            project_id=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
+            project_id=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
             dataset="existingdataset" + "." + _TEST_BQ_TABLE_ID,
         )
         assert len(write_tasks_list) == 4

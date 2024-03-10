@@ -37,6 +37,8 @@ class Resources:
             "pd-standard" (Persistent Disk Hard Disk Drive).
         boot_disk_size_gb: Size in GB of the boot disk (default is 100GB). Must
             be either unspecified or within the range of [100, 64000].
+        custom_image: Custom image for this resource (e.g.
+            us-docker.pkg.dev/my-project/ray-gpu.2-9.py310-tf:latest).
     """
 
     machine_type: Optional[str] = "n1-standard-8"
@@ -45,6 +47,7 @@ class Resources:
     accelerator_count: Optional[int] = 0
     boot_disk_type: Optional[str] = "pd-ssd"
     boot_disk_size_gb: Optional[int] = 100
+    custom_image: Optional[str] = None
 
 
 @dataclasses.dataclass
@@ -57,8 +60,8 @@ class NodeImages:
     order to use custom images, need to specify both head and worker images.
 
     Attributes:
-        head: head node image (eg. us-docker.pkg.dev/my-project/ray-cpu.2-4.py310-tf:latest).
-        worker: worker node image (eg. us-docker.pkg.dev/my-project/ray-gpu.2-4.py310-tf:latest).
+        head: image for head node (eg. us-docker.pkg.dev/my-project/ray-cpu.2-9.py310-tf:latest).
+        worker: image for all worker nodes (eg. us-docker.pkg.dev/my-project/ray-gpu.2-9.py310-tf:latest).
     """
 
     head: str = None
@@ -79,15 +82,14 @@ class Cluster:
             not required because cluster connection can be accessed through
             dashboard address.
         state: Describes the cluster state (defined in PersistentResource.State).
-        python_version: Python version for the ray cluster (e.g. "3_10").
-        ray_version: Ray version for the ray cluster (e.g. "2_4").
+        python_version: Python version for the ray cluster (e.g. "3.10").
+        ray_version: Ray version for the ray cluster (e.g. "2.4").
         head_node_type: The head node resource. Resources.node_count must be 1.
             If not set, by default it is a CPU node with machine_type of n1-standard-8.
         worker_node_types: The list of Resources of the worker nodes. Should not
             duplicate the elements in the list.
         dashboard_address: For Ray Job API (JobSubmissionClient), with this
            cluster connection doesn't require VPC peering.
-        node_images: The NodeImages for a ray cluster.
         labels:
             The labels with user-defined metadata to organize Ray cluster.
 
@@ -106,7 +108,6 @@ class Cluster:
     head_node_type: Resources = None
     worker_node_types: List[Resources] = None
     dashboard_address: str = None
-    node_images: NodeImages = None
     labels: Dict[str, str] = None
 
 

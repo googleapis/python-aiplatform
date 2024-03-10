@@ -43,8 +43,8 @@ from google.protobuf import field_mask_pb2  # type: ignore
 
 def create_ray_cluster(
     head_node_type: Optional[resources.Resources] = resources.Resources(),
-    python_version: Optional[str] = "3_10",
-    ray_version: Optional[str] = "2_4",
+    python_version: Optional[str] = "3.10",
+    ray_version: Optional[str] = "2.9",
     network: Optional[str] = None,
     cluster_name: Optional[str] = None,
     worker_node_types: Optional[List[resources.Resources]] = None,
@@ -62,6 +62,7 @@ def create_ray_cluster(
         node_count=1,
         accelerator_type="NVIDIA_TESLA_K80",
         accelerator_count=1,
+        custom_image="us-docker.pkg.dev/my-project/ray-cpu-image.2.9:latest",  # Optional
     )
 
     worker_node_types = [Resources(
@@ -69,12 +70,14 @@ def create_ray_cluster(
         node_count=2,
         accelerator_type="NVIDIA_TESLA_K80",
         accelerator_count=1,
+        custom_image="us-docker.pkg.dev/my-project/ray-gpu-image.2.9:latest",  # Optional
     )]
 
     cluster_resource_name = vertex_ray.create_ray_cluster(
         head_node_type=head_node_type,
         network="projects/my-project-number/global/networks/my-vpc-name",
         worker_node_types=worker_node_types,
+        ray_version="2.9",
     )
 
     After a ray cluster is set up, you can call
@@ -100,7 +103,10 @@ def create_ray_cluster(
         worker_node_types: The list of Resources of the worker nodes. The same
             Resources object should not appear multiple times in the list.
         custom_images: The NodeImages which specifies head node and worker nodes
-            images. Allowlist only.
+            images. All the workers will share the same image. If each Resource
+            has a specific custom image, use `Resources.custom_image` for
+            head/worker_node_type(s). Note that configuring `Resources.custom_image`
+            will override `custom_images` here. Allowlist only.
         labels:
             The labels with user-defined metadata to organize Ray cluster.
 
@@ -121,14 +127,24 @@ def create_ray_cluster(
 
     local_ray_verion = _validation_utils.get_local_ray_version()
     if ray_version != local_ray_verion:
-        install_ray_version = ".".join(ray_version.split("_"))
-        logging.info(
-            f"[Ray on Vertex]: Local runtime has Ray version {local_ray_verion}"
-            + f", but the requested cluster runtime has {ray_version}. Please "
-            + "ensure that the Ray versions match for client connectivity. You may "
-            + f'"pip install --user --force-reinstall ray[default]=={install_ray_version}"'
-            + " and restart runtime before cluster connection."
-        )
+        if custom_images is None and head_node_type.custom_image is None:
+            install_ray_version = "2.9.3" if ray_version == "2.9" else "2.4.0"
+            logging.info(
+                "[Ray on Vertex]: Local runtime has Ray version %s"
+                ", but the requested cluster runtime has %s. Please "
+                "ensure that the Ray versions match for client connectivity. You may "
+                '"pip install --user --force-reinstall ray[default]==%s"'
+                " and restart runtime before cluster connection.",
+                local_ray_verion,
+                ray_version,
+                install_ray_version,
+            )
+        else:
+            logging.info(
+                "[Ray on Vertex]: Local runtime has Ray version %s."
+                "Please ensure that the Ray versions match for client connectivity.",
+                local_ray_verion,
+            )
 
     if cluster_name is None:
         cluster_name = "ray-cluster-" + utils.timestamped_unique_name()
@@ -161,15 +177,18 @@ def create_ray_cluster(
     resource_pool_0.disk_spec.boot_disk_size_gb = head_node_type.boot_disk_size_gb
 
     enable_cuda = True if head_node_type.accelerator_count > 0 else False
-    image_uri = _validation_utils.get_image_uri(
-        ray_version, python_version, enable_cuda
-    )
-    if custom_images is not None:
-        if custom_images.head is None or custom_images.worker is None:
-            raise ValueError(
-                "[Ray on Vertex AI]: custom_images.head and custom_images.worker must be specified when custom_images is set."
-            )
+    if head_node_type.custom_image is not None:
+        image_uri = head_node_type.custom_image
+    elif custom_images is None:
+        image_uri = _validation_utils.get_image_uri(
+            ray_version, python_version, enable_cuda
+        )
+    elif custom_images.head is not None and custom_images.worker is not None:
         image_uri = custom_images.head
+    else:
+        raise ValueError(
+            "[Ray on Vertex AI]: custom_images.head and custom_images.worker must be specified when custom_images is set."
+        )
 
     resource_pool_images[resource_pool_0.id] = image_uri
 
@@ -210,11 +229,16 @@ def create_ray_cluster(
                 )
                 worker_pools.append(resource_pool)
                 enable_cuda = True if worker_node_type.accelerator_count > 0 else False
-                image_uri = _validation_utils.get_image_uri(
-                    ray_version, python_version, enable_cuda
-                )
-                if custom_images is not None:
+
+                if worker_node_type.custom_image is not None:
+                    image_uri = worker_node_type.custom_image
+                elif custom_images is None:
+                    image_uri = _validation_utils.get_image_uri(
+                        ray_version, python_version, enable_cuda
+                    )
+                else:
                     image_uri = custom_images.worker
+
                 resource_pool_images[resource_pool.id] = image_uri
 
             i += 1
@@ -395,8 +419,10 @@ def update_ray_cluster(
     if len(worker_node_types) != len(previous_worker_node_types):
         raise ValueError(
             "[Ray on Vertex AI]: Desired number of worker_node_types "
-            + f"({len(worker_node_types)}) does not match the number of the "
-            + f"existing worker_node_type({len(previous_worker_node_types)})."
+            + "(%i) does not match the number of the "
+            + "existing worker_node_type(%i).",
+            len(worker_node_types),
+            len(previous_worker_node_types),
         )
 
     # Merge worker_node_type and head_node_type if they share

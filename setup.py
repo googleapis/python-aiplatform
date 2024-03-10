@@ -108,6 +108,7 @@ ray_extra_require = [
     # Workaround for https://github.com/ray-project/ray/issues/36990.
     # TODO(b/295406381): Remove this pin when we drop support of ray<=2.5.
     "pydantic < 2",
+    "immutabledict",
 ]
 
 full_extra_require = list(
@@ -150,6 +151,7 @@ testing_extra_require = (
         "xgboost",
         "xgboost_ray",
         "requests-toolbelt < 1.0.0",
+        "immutabledict",
     ]
 )
 
