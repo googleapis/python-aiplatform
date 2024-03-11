@@ -33,16 +33,6 @@ from vertexai.preview._workflow.shared import (
 from vertexai.preview.developer import remote_specs
 
 
-try:
-    # This line ensures a tensorflow model to be loaded by cloudpickle correctly
-    # We put it in a try clause since not all models are tensorflow and if it is
-    # a tensorflow model, the dependency should've been installed and therefore
-    # import should work.
-    import tensorflow as tf  # noqa: F401
-except ImportError:
-    pass
-
-
 os.environ["_IS_VERTEX_REMOTE_TRAINING"] = "True"
 
 print(constants._START_EXECUTION_MSG)

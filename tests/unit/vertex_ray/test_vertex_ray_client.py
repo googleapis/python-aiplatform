@@ -25,7 +25,7 @@ import ray
 # -*- coding: utf-8 -*-
 
 _TEST_CLIENT_CONTEXT = ray.client_builder.ClientContext(
-    dashboard_url=tc.ClusterConstants._TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+    dashboard_url=tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
     python_version="MOCK_PYTHON_VERSION",
     ray_version="MOCK_RAY_VERSION",
     ray_commit="MOCK_RAY_COMMIT",
@@ -37,8 +37,8 @@ _TEST_CLIENT_CONTEXT = ray.client_builder.ClientContext(
 _TEST_VERTEX_RAY_CLIENT_CONTEXT = vertex_ray.client_builder._VertexRayClientContext(
     persistent_resource_id="MOCK_PERSISTENT_RESOURCE_ID",
     ray_head_uris={
-        "RAY_DASHBOARD_URI": tc.ClusterConstants._TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
-        "RAY_HEAD_NODE_INTERNAL_IP": tc.ClusterConstants._TEST_VERTEX_RAY_HEAD_NODE_IP,
+        "RAY_DASHBOARD_URI": tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+        "RAY_HEAD_NODE_INTERNAL_IP": tc.ClusterConstants.TEST_VERTEX_RAY_HEAD_NODE_IP,
     },
     ray_client_context=_TEST_CLIENT_CONTEXT,
 )
@@ -63,7 +63,7 @@ def get_persistent_resource_status_running_mock():
     with mock.patch.object(
         vertex_ray.util._gapic_utils, "get_persistent_resource"
     ) as resolve_head_ip:
-        resolve_head_ip.return_value = tc.ClusterConstants._TEST_RESPONSE_RUNNING_1_POOL
+        resolve_head_ip.return_value = tc.ClusterConstants.TEST_RESPONSE_RUNNING_1_POOL
         yield resolve_head_ip
 
 
@@ -72,7 +72,7 @@ def get_persistent_resource_status_running_no_ray_mock():
     with mock.patch.object(
         vertex_ray.util._gapic_utils, "get_persistent_resource"
     ) as resolve_head_ip:
-        resolve_head_ip.return_value = tc.ClusterConstants._TEST_RESPONSE_NO_RAY_RUNNING
+        resolve_head_ip.return_value = tc.ClusterConstants.TEST_RESPONSE_NO_RAY_RUNNING
         yield resolve_head_ip
 
 
@@ -90,9 +90,9 @@ class TestClientBuilder:
         self,
         ray_client_init_mock,
     ):
-        vertex_ray.ClientBuilder(tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS)
+        vertex_ray.ClientBuilder(tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS)
         ray_client_init_mock.assert_called_once_with(
-            tc.ClusterConstants._TEST_VERTEX_RAY_HEAD_NODE_IP,
+            tc.ClusterConstants.TEST_VERTEX_RAY_HEAD_NODE_IP,
         )
 
     @tc.rovminversion
@@ -104,27 +104,27 @@ class TestClientBuilder:
         ray_client_init_mock,
         get_project_number_mock,
     ):
-        aiplatform.init(project=tc.ProjectConstants._TEST_GCP_PROJECT_ID)
+        aiplatform.init(project=tc.ProjectConstants.TEST_GCP_PROJECT_ID)
 
-        vertex_ray.ClientBuilder(tc.ClusterConstants._TEST_VERTEX_RAY_PR_ID)
+        vertex_ray.ClientBuilder(tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID)
         get_project_number_mock.assert_called_once_with(
-            name="projects/{}".format(tc.ProjectConstants._TEST_GCP_PROJECT_ID)
+            name="projects/{}".format(tc.ProjectConstants.TEST_GCP_PROJECT_ID)
         )
         ray_client_init_mock.assert_called_once_with(
-            tc.ClusterConstants._TEST_VERTEX_RAY_HEAD_NODE_IP,
+            tc.ClusterConstants.TEST_VERTEX_RAY_HEAD_NODE_IP,
         )
 
     @tc.rovminversion
     @pytest.mark.usefixtures("get_persistent_resource_status_running_mock")
     def test_connect_running(self, ray_client_connect_mock):
         connect_result = vertex_ray.ClientBuilder(
-            tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS
+            tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
         ).connect()
         ray_client_connect_mock.assert_called_once_with()
         assert connect_result == _TEST_VERTEX_RAY_CLIENT_CONTEXT
         assert (
             connect_result.persistent_resource_id
-            == tc.ClusterConstants._TEST_VERTEX_RAY_PR_ID
+            == tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID
         )
 
     @tc.rovminversion
@@ -132,12 +132,12 @@ class TestClientBuilder:
     def test_connect_running_no_ray(self, ray_client_connect_mock):
         expected_message = (
             "Ray Cluster ",
-            tc.ClusterConstants._TEST_VERTEX_RAY_PR_ID,
+            tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
             " failed to start Head node properly.",
         )
         with pytest.raises(ValueError) as exception:
             vertex_ray.ClientBuilder(
-                tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS
+                tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
             ).connect()
 
             ray_client_connect_mock.assert_called_once_with()
@@ -150,7 +150,7 @@ class TestClientBuilder:
             "bad/format/address",
             "must/have/exactly/five/backslashes/no/more/or/less",
             "do/not/append/a/trailing/backslash/",
-            tc.ClusterConstants._TEST_VERTEX_RAY_HEAD_NODE_IP,  # cannot input raw head node ip
+            tc.ClusterConstants.TEST_VERTEX_RAY_HEAD_NODE_IP,  # cannot input raw head node ip
         ],
     )
     def test_bad_format_address(self, address):

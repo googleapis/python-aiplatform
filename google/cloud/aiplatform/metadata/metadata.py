@@ -38,6 +38,7 @@ from google.cloud.aiplatform.metadata.schema.google import (
 )
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 from google.cloud.aiplatform.utils import autologging_utils
+from google.cloud.aiplatform.utils import _ipython_utils
 
 from google.cloud.aiplatform_v1.types import execution as execution_v1
 
@@ -329,7 +330,31 @@ class _ExperimentTracker:
         if not current_backing_tb and backing_tb:
             experiment.assign_backing_tensorboard(tensorboard=backing_tb)
 
+        if _ipython_utils.is_ipython_available():
+            self._display_experiment_button(experiment)
+
         self._experiment = experiment
+
+    def _display_experiment_button(
+        self, experiment: experiment_resources.Experiment
+    ) -> None:
+        """Function to generate a link bound to the Vertex experiment"""
+        try:
+            project = experiment._metadata_context.project
+            location = experiment._metadata_context.location
+            experiment_name = experiment._metadata_context.name
+            if experiment_name is None or project is None or location is None:
+                return
+        except AttributeError:
+            _LOGGER.warning("Unable to fetch experiment metadata")
+            return
+
+        uri = (
+            "https://console.cloud.google.com/vertex-ai/experiments/locations/"
+            + f"{location}/experiments/{experiment_name}/"
+            + f"runs?project={project}"
+        )
+        _ipython_utils.display_link("View Experiment", uri, "science")
 
     def set_tensorboard(
         self,

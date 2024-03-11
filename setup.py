@@ -108,6 +108,7 @@ ray_extra_require = [
     # Workaround for https://github.com/ray-project/ray/issues/36990.
     # TODO(b/295406381): Remove this pin when we drop support of ray<=2.5.
     "pydantic < 2",
+    "immutabledict",
 ]
 
 full_extra_require = list(
@@ -142,13 +143,15 @@ testing_extra_require = (
         "pytest-asyncio",
         "pytest-xdist",
         "scikit-learn",
-        "tensorflow >= 2.3.0, <= 2.12.0",
+        # Lazy import requires > 2.12.0
+        "tensorflow == 2.13.0",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
         "torch >= 2.0.0, < 2.1.0",
         "xgboost",
         "xgboost_ray",
         "requests-toolbelt < 1.0.0",
+        "immutabledict",
     ]
 )
 

@@ -21,16 +21,16 @@ import pytest
 class TestUtils:
     def test_get_persistent_resource_success(self, persistent_client_mock):
         response = vertex_ray.util._gapic_utils.get_persistent_resource(
-            tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS
+            tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
         )
 
         persistent_client_mock.assert_called_once()
-        assert response == tc.ClusterConstants._TEST_RESPONSE_RUNNING_1_POOL
+        assert response == tc.ClusterConstants.TEST_RESPONSE_RUNNING_1_POOL
 
     def test_get_persistent_resource_stopping(self, persistent_client_stopping_mock):
         with pytest.raises(RuntimeError) as e:
             vertex_ray.util._gapic_utils.get_persistent_resource(
-                tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS
+                tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
             )
 
         persistent_client_stopping_mock.assert_called_once()
@@ -39,7 +39,7 @@ class TestUtils:
     def test_get_persistent_resource_error(self, persistent_client_error_mock):
         with pytest.raises(RuntimeError) as e:
             vertex_ray.util._gapic_utils.get_persistent_resource(
-                tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS
+                tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
             )
 
         persistent_client_error_mock.assert_called_once()

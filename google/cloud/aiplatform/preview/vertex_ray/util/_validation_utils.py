@@ -20,10 +20,13 @@ import google.auth.transport.requests
 import logging
 import ray
 import re
+from immutabledict import immutabledict
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import resource_manager_utils
 
+SUPPORTED_RAY_VERSIONS = immutabledict({"2.4": "2.4.0", "2.9": "2.9.3"})
+SUPPORTED_PY_VERSION = ["3.10"]
 
 # Artifact Repository available regions.
 _AVAILABLE_REGIONS = ["us", "europe", "asia"]
@@ -73,25 +76,28 @@ def get_local_ray_version():
     ray_version = ray.__version__.split(".")
     if len(ray_version) == 3:
         ray_version = ray_version[:2]
-    return "_".join(ray_version)
+    return ".".join(ray_version)
 
 
 def get_image_uri(ray_version, python_version, enable_cuda):
     """Image uri for a given ray version and python version."""
-    if ray_version not in ["2_4", "2_9"]:
+    if ray_version not in SUPPORTED_RAY_VERSIONS:
         raise ValueError(
-            "[Ray on Vertex AI]: The supported Ray versions are 2_4 (2.4.0) and 2_9 (2.9.3)."
+            "[Ray on Vertex AI]: The supported Ray versions are %s (%s) and %s (%s).",
+            list(SUPPORTED_RAY_VERSIONS.keys())[0],
+            list(SUPPORTED_RAY_VERSIONS.values())[0],
+            list(SUPPORTED_RAY_VERSIONS.keys())[1],
+            list(SUPPORTED_RAY_VERSIONS.values())[1],
         )
-    if python_version not in ["3_10"]:
-        raise ValueError("[Ray on Vertex AI]: The supported Python version is 3_10.")
+    if python_version not in SUPPORTED_PY_VERSION:
+        raise ValueError("[Ray on Vertex AI]: The supported Python version is 3.10.")
 
     location = initializer.global_config.location
     region = location.split("-")[0]
     if region not in _AVAILABLE_REGIONS:
         region = _DEFAULT_REGION
-    ray_version = ray_version.replace("_", "-")
+    ray_version = ray_version.replace(".", "-")
     if enable_cuda:
-        # TODO(b/292003337) update eligible image uris
         return f"{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.{ray_version}.py310:latest"
     else:
         return f"{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.{ray_version}.py310:latest"
@@ -101,9 +107,13 @@ def get_versions_from_image_uri(image_uri):
     """Get ray version and python version from image uri."""
     logging.info(f"[Ray on Vertex AI]: Getting versions from image uri: {image_uri}")
     image_label = image_uri.split("/")[-1].split(":")[0]
-    py_version = image_label[-3] + "_" + image_label[-2:]
-    ray_version = image_label.split(".")[1].replace("-", "_")
-    return py_version, ray_version
+    py_version = image_label[-3] + "." + image_label[-2:]
+    ray_version = image_label.split(".")[1].replace("-", ".")
+    if ray_version in SUPPORTED_RAY_VERSIONS and py_version in SUPPORTED_PY_VERSION:
+        return py_version, ray_version
+    else:
+        # May not parse custom image and get the versions correctly
+        return None, None
 
 
 def valid_dashboard_address(address):

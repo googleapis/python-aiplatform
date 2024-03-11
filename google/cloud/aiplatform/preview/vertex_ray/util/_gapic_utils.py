@@ -28,7 +28,6 @@ from google.cloud.aiplatform.utils import (
 from google.cloud.aiplatform.preview.vertex_ray.util import _validation_utils
 from google.cloud.aiplatform.preview.vertex_ray.util.resources import (
     Cluster,
-    NodeImages,
     Resources,
 )
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
@@ -37,6 +36,10 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
 from google.cloud.aiplatform_v1beta1.types.persistent_resource_service import (
     GetPersistentResourceRequest,
 )
+
+
+_PRIVATE_PREVIEW_IMAGE = "-docker.pkg.dev/vertex-ai/training/tf-"
+_OFFICIAL_IMAGE = "-docker.pkg.dev/vertex-ai/training/ray-"
 
 
 def create_persistent_resource_client():
@@ -131,7 +134,7 @@ def get_persistent_resource(
 
 def persistent_resource_to_cluster(
     persistent_resource: PersistentResource,
-) -> Cluster:
+) -> Optional[Cluster]:
     """Format a PersistentResource to a dictionary.
 
     Args:
@@ -156,44 +159,44 @@ def persistent_resource_to_cluster(
             persistent_resource.name,
         )
         return
+    resource_pools = persistent_resource.resource_pools
 
+    head_resource_pool = resource_pools[0]
+    head_id = head_resource_pool.id
     head_image_uri = (
-        persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-            "head-node"
-        ]
+        persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[head_id]
     )
-    worker_image_uri = (
-        persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images.get(
-            "worker-pool1", None
-        )
-    )
-    if worker_image_uri is None:
-        worker_image_uri = head_image_uri
 
     if not head_image_uri:
         head_image_uri = persistent_resource.resource_runtime_spec.ray_spec.image_uri
+
     try:
         python_version, ray_version = _validation_utils.get_versions_from_image_uri(
             head_image_uri
         )
     except IndexError:
-        logging.info(
-            "[Ray on Vertex AI]: The image of cluster %s is outdated. It is recommended to delete and recreate the cluster to obtain the latest image.",
-            persistent_resource.name,
-        )
-        return
+        if _PRIVATE_PREVIEW_IMAGE in head_image_uri:
+            # If using outdated images
+            logging.info(
+                "[Ray on Vertex AI]: The image of cluster %s is outdated. It is recommended to delete and recreate the cluster to obtain the latest image.",
+                persistent_resource.name,
+            )
+            return None
+        else:
+            # Custom image might also cause IndexError
+            python_version = None
+            ray_version = None
     cluster.python_version = python_version
     cluster.ray_version = ray_version
-    cluster.node_images = NodeImages(head=head_image_uri, worker=worker_image_uri)
 
-    resource_pools = persistent_resource.resource_pools
-
-    head_resource_pool = resource_pools[0]
     accelerator_type = head_resource_pool.machine_spec.accelerator_type
     if accelerator_type.value != 0:
         accelerator_type = accelerator_type.name
     else:
         accelerator_type = None
+    if _OFFICIAL_IMAGE in head_image_uri:
+        # Official training image is not custom
+        head_image_uri = None
     head_node_type = Resources(
         machine_type=head_resource_pool.machine_spec.machine_type,
         accelerator_type=accelerator_type,
@@ -201,6 +204,7 @@ def persistent_resource_to_cluster(
         boot_disk_type=head_resource_pool.disk_spec.boot_disk_type,
         boot_disk_size_gb=head_resource_pool.disk_spec.boot_disk_size_gb,
         node_count=1,
+        custom_image=head_image_uri,
     )
     worker_node_types = []
     if head_resource_pool.replica_count > 1:
@@ -215,6 +219,7 @@ def persistent_resource_to_cluster(
                 boot_disk_type=head_resource_pool.disk_spec.boot_disk_type,
                 boot_disk_size_gb=head_resource_pool.disk_spec.boot_disk_size_gb,
                 node_count=worker_node_count,
+                custom_image=head_image_uri,
             )
         )
     for i in range(len(resource_pools) - 1):
@@ -225,6 +230,14 @@ def persistent_resource_to_cluster(
             accelerator_type = accelerator_type.name
         else:
             accelerator_type = None
+        worker_image_uri = (
+            persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+                resource_pools[i + 1].id
+            ]
+        )
+        if _OFFICIAL_IMAGE in worker_image_uri:
+            # Official training image is not custom
+            worker_image_uri = None
         worker_node_types.append(
             Resources(
                 machine_type=resource_pools[i + 1].machine_spec.machine_type,
@@ -233,6 +246,7 @@ def persistent_resource_to_cluster(
                 boot_disk_type=resource_pools[i + 1].disk_spec.boot_disk_type,
                 boot_disk_size_gb=resource_pools[i + 1].disk_spec.boot_disk_size_gb,
                 node_count=resource_pools[i + 1].replica_count,
+                custom_image=worker_image_uri,
             )
         )
 

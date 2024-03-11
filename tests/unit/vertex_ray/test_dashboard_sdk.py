@@ -39,7 +39,7 @@ def get_persistent_resource_status_running_mock():
         vertex_ray.util._gapic_utils, "get_persistent_resource"
     ) as get_persistent_resource:
         get_persistent_resource.return_value = (
-            tc.ClusterConstants._TEST_RESPONSE_RUNNING_1_POOL
+            tc.ClusterConstants.TEST_RESPONSE_RUNNING_1_POOL
         )
         yield get_persistent_resource
 
@@ -49,7 +49,7 @@ def get_bearer_token_mock():
     with mock.patch.object(
         vertex_ray.util._validation_utils, "get_bearer_token"
     ) as get_bearer_token_mock:
-        get_bearer_token_mock.return_value = tc.ClusterConstants._TEST_BEARER_TOKEN
+        get_bearer_token_mock.return_value = tc.ClusterConstants.TEST_BEARER_TOKEN
         yield get_bearer_token_mock
 
 
@@ -67,10 +67,10 @@ class TestGetJobSubmissionClientClusterInfo:
         ray_get_job_submission_client_cluster_info_mock,
     ):
         vertex_ray.get_job_submission_client_cluster_info(
-            tc.ClusterConstants._TEST_VERTEX_RAY_PR_ADDRESS
+            tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS
         )
         ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
-            address=tc.ClusterConstants._TEST_VERTEX_RAY_JOB_CLIENT_IP
+            address=tc.ClusterConstants.TEST_VERTEX_RAY_JOB_CLIENT_IP
         )
 
     @pytest.mark.usefixtures(
@@ -81,16 +81,16 @@ class TestGetJobSubmissionClientClusterInfo:
         ray_get_job_submission_client_cluster_info_mock,
         get_project_number_mock,
     ):
-        aiplatform.init(project=tc.ProjectConstants._TEST_GCP_PROJECT_ID)
+        aiplatform.init(project=tc.ProjectConstants.TEST_GCP_PROJECT_ID)
 
         vertex_ray.get_job_submission_client_cluster_info(
-            tc.ClusterConstants._TEST_VERTEX_RAY_PR_ID
+            tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID
         )
         get_project_number_mock.assert_called_once_with(
-            name="projects/{}".format(tc.ProjectConstants._TEST_GCP_PROJECT_ID)
+            name="projects/{}".format(tc.ProjectConstants.TEST_GCP_PROJECT_ID)
         )
         ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
-            address=tc.ClusterConstants._TEST_VERTEX_RAY_JOB_CLIENT_IP
+            address=tc.ClusterConstants.TEST_VERTEX_RAY_JOB_CLIENT_IP
         )
 
     @pytest.mark.usefixtures(
@@ -101,14 +101,14 @@ class TestGetJobSubmissionClientClusterInfo:
         ray_get_job_submission_client_cluster_info_mock,
         get_bearer_token_mock,
     ):
-        aiplatform.init(project=tc.ProjectConstants._TEST_GCP_PROJECT_ID)
+        aiplatform.init(project=tc.ProjectConstants.TEST_GCP_PROJECT_ID)
 
         vertex_ray.get_job_submission_client_cluster_info(
-            tc.ClusterConstants._TEST_VERTEX_RAY_DASHBOARD_ADDRESS
+            tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS
         )
         get_bearer_token_mock.assert_called_once_with()
         ray_get_job_submission_client_cluster_info_mock.assert_called_once_with(
-            address=tc.ClusterConstants._TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+            address=tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
             _use_tls=True,
-            headers=tc.ClusterConstants._TEST_HEADERS,
+            headers=tc.ClusterConstants.TEST_HEADERS,
         )

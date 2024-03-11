@@ -110,7 +110,7 @@ def pickle_dump():
 @pytest.fixture
 def mock_vertex_model():
     model = mock.MagicMock(aiplatform.Model)
-    model.uri = tc.ProjectConstants._TEST_MODEL_GCS_URI
+    model.uri = tc.ProjectConstants.TEST_MODEL_GCS_URI
     model.container_spec.image_uri = "us-docker.xxx/sklearn-cpu.1-0:latest"
     model.labels = {"registered_by_vertex_ai": "true"}
     yield model
@@ -128,7 +128,7 @@ def upload_sklearn_mock(mock_vertex_model):
 @pytest.fixture
 def mock_xgboost_vertex_model():
     model = mock.MagicMock(aiplatform.Model)
-    model.uri = tc.ProjectConstants._TEST_MODEL_GCS_URI
+    model.uri = tc.ProjectConstants.TEST_MODEL_GCS_URI
     model.container_spec.image_uri = "us-docker.xxx/xgboost-cpu.1-6:latest"
     model.labels = {"registered_by_vertex_ai": "true"}
     yield model
@@ -211,7 +211,7 @@ class TestPredictionFunctionality:
         # Act
         prediction_tensorflow.register_tensorflow(
             ray_tensorflow_checkpoint,
-            artifact_uri=tc.ProjectConstants._TEST_ARTIFACT_URI,
+            artifact_uri=tc.ProjectConstants.TEST_ARTIFACT_URI,
             _model=test_prediction_utils.create_tf_model,
             use_gpu=False,
         )
@@ -219,7 +219,7 @@ class TestPredictionFunctionality:
         # Assert
         upload_tensorflow_saved_model_mock.assert_called_once()
         save_tf_model.assert_called_once_with(
-            f"{tc.ProjectConstants._TEST_ARTIFACT_URI}/ray-on-vertex-registered-tensorflow-model"
+            f"{tc.ProjectConstants.TEST_ARTIFACT_URI}/ray-on-vertex-registered-tensorflow-model"
         )
 
     @tc.rovminversion
@@ -231,8 +231,8 @@ class TestPredictionFunctionality:
     ) -> None:
         """Test if a TensorflowCheckpoint upload is successful when artifact_uri is None but initialized."""
         aiplatform.init(
-            project=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
-            staging_bucket=tc.ProjectConstants._TEST_ARTIFACT_URI,
+            project=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
+            staging_bucket=tc.ProjectConstants.TEST_ARTIFACT_URI,
         )
         # Act
         prediction_tensorflow.register_tensorflow(
@@ -244,7 +244,7 @@ class TestPredictionFunctionality:
         # Assert
         upload_tensorflow_saved_model_mock.assert_called_once()
         save_tf_model.assert_called_once_with(
-            f"{tc.ProjectConstants._TEST_ARTIFACT_URI}/ray-on-vertex-registered-tensorflow-model"
+            f"{tc.ProjectConstants.TEST_ARTIFACT_URI}/ray-on-vertex-registered-tensorflow-model"
         )
 
     def test_register_tensorflowartifact_uri_is_none_raise_error(
@@ -268,7 +268,7 @@ class TestPredictionFunctionality:
         with pytest.raises(ValueError) as ve:
             prediction_tensorflow.register_tensorflow(
                 checkpoint=ray_tensorflow_checkpoint,
-                artifact_uri=tc.ProjectConstants._TEST_BAD_ARTIFACT_URI,
+                artifact_uri=tc.ProjectConstants.TEST_BAD_ARTIFACT_URI,
                 _model=test_prediction_utils.create_tf_model,
             )
         assert ve.match(regexp=r".*'artifact_uri' should " "start with 'gs://'.*")
@@ -313,11 +313,11 @@ class TestPredictionFunctionality:
         # Act
         vertex_ai_model = prediction_sklearn.register_sklearn(
             ray_sklearn_checkpoint,
-            artifact_uri=tc.ProjectConstants._TEST_ARTIFACT_URI,
+            artifact_uri=tc.ProjectConstants.TEST_ARTIFACT_URI,
         )
 
         # Assert
-        vertex_ai_model.uri = tc.ProjectConstants._TEST_MODEL_GCS_URI
+        vertex_ai_model.uri = tc.ProjectConstants.TEST_MODEL_GCS_URI
         vertex_ai_model.container_spec.image_uri = (
             "us-docker.xxx/sklearn-cpu.1-0:latest"
         )
@@ -334,8 +334,8 @@ class TestPredictionFunctionality:
     ) -> None:
         """Test if a SklearnCheckpoint upload is successful when artifact_uri is None but initialized."""
         aiplatform.init(
-            project=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
-            staging_bucket=tc.ProjectConstants._TEST_ARTIFACT_URI,
+            project=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
+            staging_bucket=tc.ProjectConstants.TEST_ARTIFACT_URI,
         )
         # Act
         vertex_ai_model = prediction_sklearn.register_sklearn(
@@ -343,7 +343,7 @@ class TestPredictionFunctionality:
         )
 
         # Assert
-        vertex_ai_model.uri = tc.ProjectConstants._TEST_MODEL_GCS_URI
+        vertex_ai_model.uri = tc.ProjectConstants.TEST_MODEL_GCS_URI
         vertex_ai_model.container_spec.image_uri = (
             "us-docker.xxx/sklearn-cpu.1-0:latest"
         )
@@ -371,7 +371,7 @@ class TestPredictionFunctionality:
         with pytest.raises(ValueError) as ve:
             prediction_sklearn.register_sklearn(
                 checkpoint=ray_sklearn_checkpoint,
-                artifact_uri=tc.ProjectConstants._TEST_BAD_ARTIFACT_URI,
+                artifact_uri=tc.ProjectConstants.TEST_BAD_ARTIFACT_URI,
             )
         assert ve.match(regexp=r".*'artifact_uri' should " "start with 'gs://'.*")
 
@@ -419,11 +419,11 @@ class TestPredictionFunctionality:
         # Act
         vertex_ai_model = prediction_xgboost.register_xgboost(
             ray_xgboost_checkpoint,
-            artifact_uri=tc.ProjectConstants._TEST_ARTIFACT_URI,
+            artifact_uri=tc.ProjectConstants.TEST_ARTIFACT_URI,
         )
 
         # Assert
-        vertex_ai_model.uri = tc.ProjectConstants._TEST_MODEL_GCS_URI
+        vertex_ai_model.uri = tc.ProjectConstants.TEST_MODEL_GCS_URI
         vertex_ai_model.container_spec.image_uri = (
             "us-docker.xxx/xgboost-cpu.1-6:latest"
         )
@@ -440,8 +440,8 @@ class TestPredictionFunctionality:
     ) -> None:
         """Test if a XGBoostCheckpoint upload is successful when artifact_uri is None but initialized."""
         aiplatform.init(
-            project=tc.ProjectConstants._TEST_GCP_PROJECT_ID,
-            staging_bucket=tc.ProjectConstants._TEST_ARTIFACT_URI,
+            project=tc.ProjectConstants.TEST_GCP_PROJECT_ID,
+            staging_bucket=tc.ProjectConstants.TEST_ARTIFACT_URI,
         )
         # Act
         vertex_ai_model = prediction_xgboost.register_xgboost(
@@ -449,7 +449,7 @@ class TestPredictionFunctionality:
         )
 
         # Assert
-        vertex_ai_model.uri = tc.ProjectConstants._TEST_MODEL_GCS_URI
+        vertex_ai_model.uri = tc.ProjectConstants.TEST_MODEL_GCS_URI
         vertex_ai_model.container_spec.image_uri = (
             "us-docker.xxx/xgboost-cpu.1-6:latest"
         )
@@ -477,7 +477,7 @@ class TestPredictionFunctionality:
         with pytest.raises(ValueError) as ve:
             prediction_xgboost.register_xgboost(
                 checkpoint=ray_xgboost_checkpoint,
-                artifact_uri=tc.ProjectConstants._TEST_BAD_ARTIFACT_URI,
+                artifact_uri=tc.ProjectConstants.TEST_BAD_ARTIFACT_URI,
             )
         assert ve.match(regexp=r".*'artifact_uri' should " "start with 'gs://'.*")
 
