@@ -1526,7 +1526,7 @@ class Content:
         if len(self.parts) > 1:
             raise ValueError("Multiple content parts are not supported.")
         if not self.parts:
-            raise ValueError("Content has no parts.")
+            raise AttributeError("Content has no parts.")
         return self.parts[0].text
 
 
@@ -1612,7 +1612,7 @@ class Part:
     @property
     def text(self) -> str:
         if "text" not in self._raw_part:
-            raise ValueError("Part has no text.")
+            raise AttributeError("Part has no text.")
         return self._raw_part.text
 
     @property
