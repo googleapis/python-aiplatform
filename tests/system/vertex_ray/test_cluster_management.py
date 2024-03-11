@@ -43,6 +43,7 @@ class TestClusterManagement(e2e_base.TestEndToEnd):
             head_node_type=head_node_type,
             worker_node_types=worker_node_types,
             cluster_name=f"ray-cluster-{timestamp}-test-cluster-management",
+            ray_version="2.4",
         )
 
         cluster_details = vertex_ray.get_ray_cluster(cluster_resource_name)
