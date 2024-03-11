@@ -3138,6 +3138,16 @@
         "grpc": {
           "libraryClient": "PipelineServiceClient",
           "rpcs": {
+            "BatchCancelPipelineJobs": {
+              "methods": [
+                "batch_cancel_pipeline_jobs"
+              ]
+            },
+            "BatchDeletePipelineJobs": {
+              "methods": [
+                "batch_delete_pipeline_jobs"
+              ]
+            },
             "CancelPipelineJob": {
               "methods": [
                 "cancel_pipeline_job"
@@ -3193,6 +3203,16 @@
         "grpc-async": {
           "libraryClient": "PipelineServiceAsyncClient",
           "rpcs": {
+            "BatchCancelPipelineJobs": {
+              "methods": [
+                "batch_cancel_pipeline_jobs"
+              ]
+            },
+            "BatchDeletePipelineJobs": {
+              "methods": [
+                "batch_delete_pipeline_jobs"
+              ]
+            },
             "CancelPipelineJob": {
               "methods": [
                 "cancel_pipeline_job"
@@ -3248,6 +3268,16 @@
         "rest": {
           "libraryClient": "PipelineServiceClient",
           "rpcs": {
+            "BatchCancelPipelineJobs": {
+              "methods": [
+                "batch_cancel_pipeline_jobs"
+              ]
+            },
+            "BatchDeletePipelineJobs": {
+              "methods": [
+                "batch_delete_pipeline_jobs"
+              ]
+            },
             "CancelPipelineJob": {
               "methods": [
                 "cancel_pipeline_job"

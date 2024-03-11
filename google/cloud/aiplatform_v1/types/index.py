@@ -310,6 +310,9 @@ class IndexDatapoint(proto.Message):
                 GREATER (5):
                     Datapoints are eligible iff their value is >
                     the query's.
+                NOT_EQUAL (6):
+                    Datapoints are eligible iff their value is !=
+                    the query's.
             """
             OPERATOR_UNSPECIFIED = 0
             LESS = 1
@@ -317,6 +320,7 @@ class IndexDatapoint(proto.Message):
             EQUAL = 3
             GREATER_EQUAL = 4
             GREATER = 5
+            NOT_EQUAL = 6
 
         value_int: int = proto.Field(
             proto.INT64,

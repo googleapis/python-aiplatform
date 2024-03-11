@@ -1202,8 +1202,12 @@ class DatasetServiceAsyncClient:
                 client = aiplatform_v1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
+                dataset_version = aiplatform_v1.DatasetVersion()
+                dataset_version.metadata.null_value = "NULL_VALUE"
+
                 request = aiplatform_v1.CreateDatasetVersionRequest(
                     parent="parent_value",
+                    dataset_version=dataset_version,
                 )
 
                 # Make the request

@@ -51,6 +51,8 @@ class AcceleratorType(proto.Enum):
             Nvidia A100 80GB GPU.
         NVIDIA_L4 (11):
             Nvidia L4 GPU.
+        NVIDIA_H100_80GB (13):
+            Nvidia H100 80Gb GPU.
         TPU_V2 (6):
             TPU v2.
         TPU_V3 (7):
@@ -67,6 +69,7 @@ class AcceleratorType(proto.Enum):
     NVIDIA_TESLA_A100 = 8
     NVIDIA_A100_80GB = 9
     NVIDIA_L4 = 11
+    NVIDIA_H100_80GB = 13
     TPU_V2 = 6
     TPU_V3 = 7
     TPU_V4_POD = 10

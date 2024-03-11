@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -50,6 +51,13 @@ class DatasetVersion(proto.Message):
         big_query_dataset_name (str):
             Output only. Name of the associated BigQuery
             dataset.
+        display_name (str):
+            The user-defined name of the DatasetVersion.
+            The name can be up to 128 characters long and
+            can consist of any UTF-8 characters.
+        metadata (google.protobuf.struct_pb2.Value):
+            Required. Output only. Additional information
+            about the DatasetVersion.
     """
 
     name: str = proto.Field(
@@ -73,6 +81,15 @@ class DatasetVersion(proto.Message):
     big_query_dataset_name: str = proto.Field(
         proto.STRING,
         number=4,
+    )
+    display_name: str = proto.Field(
+        proto.STRING,
+        number=7,
+    )
+    metadata: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=struct_pb2.Value,
     )
 
 
