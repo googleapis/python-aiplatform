@@ -26,7 +26,6 @@ import time
 import tempfile
 
 RAY_VERSION = "2.4.0"
-CLUSTER_RAY_VERSION = "2_4"
 SDK_VERSION = aiplatform.__version__
 PROJECT_ID = "ucaip-sample-tests"
 
@@ -52,6 +51,7 @@ class TestRayData(e2e_base.TestEndToEnd):
             head_node_type=head_node_type,
             worker_node_types=worker_node_types,
             cluster_name=f"ray-cluster-{timestamp}-test-ray-data",
+            ray_version="2.4",
         )
 
         cluster_details = vertex_ray.get_ray_cluster(cluster_resource_name)

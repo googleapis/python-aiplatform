@@ -26,7 +26,6 @@ import time
 import tempfile
 
 RAY_VERSION = "2.4.0"
-CLUSTER_RAY_VERSION = "2_4"
 PROJECT_ID = "ucaip-sample-tests"
 
 
