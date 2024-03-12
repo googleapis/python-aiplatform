@@ -22,7 +22,7 @@ import datetime
 import ray
 
 RAY_VERSION = "2.4.0"
-CLUSTER_RAY_VERSION = "2_4"
+CLUSTER_RAY_VERSION = "2.4"
 PROJECT_ID = "ucaip-sample-tests"
 
 
