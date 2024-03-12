@@ -19,6 +19,11 @@ import sys
 from uuid import uuid4
 from typing import Optional
 
+from google.cloud.aiplatform import base
+from google.cloud.aiplatform.metadata import experiment_resources
+
+_LOGGER = base.Logger(__name__)
+
 
 def _get_ipython_shell_name() -> str:
     if "IPython" in sys.modules:
@@ -135,3 +140,25 @@ def display_link(text: str, url: str, icon: Optional[str] = "open_in_new") -> No
     from IPython.display import HTML
 
     display(HTML(html))
+
+
+def display_experiment_button(experiment: experiment_resources.Experiment) -> None:
+    """Function to generate a link bound to the Vertex experiment"""
+    if not is_ipython_available():
+        return
+    try:
+        project = experiment._metadata_context.project
+        location = experiment._metadata_context.location
+        experiment_name = experiment._metadata_context.name
+        if experiment_name is None or project is None or location is None:
+            return
+    except AttributeError:
+        _LOGGER.warning("Unable to fetch experiment metadata")
+        return
+
+    uri = (
+        "https://console.cloud.google.com/vertex-ai/experiments/locations/"
+        + f"{location}/experiments/{experiment_name}/"
+        + f"runs?project={project}"
+    )
+    display_link("View Experiment", uri, "science")
