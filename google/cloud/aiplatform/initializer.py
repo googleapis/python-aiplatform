@@ -69,7 +69,9 @@ class _Config:
             # See https://github.com/googleapis/google-auth-library-python/issues/924
             # TODO: Remove when google.auth.default() learns the
             # CLOUD_ML_PROJECT_ID env variable or Vertex AI starts setting GOOGLE_CLOUD_PROJECT env variable.
-            project_number = os.environ.get("CLOUD_ML_PROJECT_ID")
+            project_number = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get(
+                "CLOUD_ML_PROJECT_ID"
+            )
             if project_number:
                 if not self._credentials:
                     credentials, _ = google.auth.default()
@@ -312,7 +314,7 @@ class _Config:
         if self._location:
             return self._location
 
-        location = os.getenv("CLOUD_ML_REGION")
+        location = os.getenv("GOOGLE_CLOUD_REGION") or os.getenv("CLOUD_ML_REGION")
         if location:
             utils.validate_region(location)
             return location

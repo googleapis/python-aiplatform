@@ -86,6 +86,28 @@ class TestInit:
         ):
             assert initializer.global_config.project == _TEST_PROJECT
 
+    def test_infer_project_id_with_precedence(self):
+        lower_precedence_cloud_project_number = "456"
+        higher_precedence_cloud_project_number = "123"
+
+        def mock_get_project_id(project_number: str, **_):
+            assert project_number == higher_precedence_cloud_project_number
+            return _TEST_PROJECT
+
+        with mock.patch.object(
+            target=resource_manager_utils,
+            attribute="get_project_id",
+            new=mock_get_project_id,
+        ), mock.patch.dict(
+            os.environ,
+            {
+                "GOOGLE_CLOUD_PROJECT": higher_precedence_cloud_project_number,
+                "CLOUD_ML_PROJECT_ID": lower_precedence_cloud_project_number,
+            },
+            clear=True,
+        ):
+            assert initializer.global_config.project == _TEST_PROJECT
+
     def test_init_location_sets_location(self):
         initializer.global_config.init(location=_TEST_LOCATION)
         assert initializer.global_config.location == _TEST_LOCATION
