@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -535,6 +535,38 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         return self._stubs["delete_pipeline_job"]
 
     @property
+    def batch_delete_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.BatchDeletePipelineJobsRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the batch delete pipeline jobs method over gRPC.
+
+        Batch deletes PipelineJobs
+        The Operation is atomic. If it fails, none of the
+        PipelineJobs are deleted. If it succeeds, all of the
+        PipelineJobs are deleted.
+
+        Returns:
+            Callable[[~.BatchDeletePipelineJobsRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_delete_pipeline_jobs" not in self._stubs:
+            self._stubs["batch_delete_pipeline_jobs"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.PipelineService/BatchDeletePipelineJobs",
+                request_serializer=pipeline_service.BatchDeletePipelineJobsRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["batch_delete_pipeline_jobs"]
+
+    @property
     def cancel_pipeline_job(
         self,
     ) -> Callable[
@@ -573,6 +605,43 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
                 response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_pipeline_job"]
+
+    @property
+    def batch_cancel_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.BatchCancelPipelineJobsRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the batch cancel pipeline jobs method over gRPC.
+
+        Batch cancel PipelineJobs.
+        Firstly the server will check if all the jobs are in
+        non-terminal states, and skip the jobs that are already
+        terminated.
+        If the operation failed, none of the pipeline jobs are
+        cancelled. The server will poll the states of all the
+        pipeline jobs periodically to check the cancellation
+        status.
+        This operation will return an LRO.
+
+        Returns:
+            Callable[[~.BatchCancelPipelineJobsRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_cancel_pipeline_jobs" not in self._stubs:
+            self._stubs["batch_cancel_pipeline_jobs"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.PipelineService/BatchCancelPipelineJobs",
+                request_serializer=pipeline_service.BatchCancelPipelineJobsRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["batch_cancel_pipeline_jobs"]
 
     def close(self):
         return self.grpc_channel.close()

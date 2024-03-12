@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -89,17 +89,14 @@ class FeatureView(proto.Message):
             latest featureValues for each entityId of this
             FeatureView are made ready for online serving.
         vector_search_config (google.cloud.aiplatform_v1beta1.types.FeatureView.VectorSearchConfig):
-            Optional. Configuration for vector search. It
-            contains the required configurations to create
-            an index from source data, so that approximate
-            nearest neighbor (a.k.a ANN) algorithms search
-            can be performed during online serving.
+            Optional. Deprecated: please use
+            [FeatureView.index_config][google.cloud.aiplatform.v1beta1.FeatureView.index_config]
+            instead.
         service_agent_type (google.cloud.aiplatform_v1beta1.types.FeatureView.ServiceAgentType):
             Optional. Service agent type used during data sync. By
             default, the Vertex AI Service Agent is used. When using an
-            IAM Policy to isolate this FeatureView within a project
-            (https://cloud.google.com/vertex-ai/docs/featurestore/latest/resource-policy)
-            a separate service account should be provisioned by setting
+            IAM Policy to isolate this FeatureView within a project, a
+            separate service account should be provisioned by setting
             this field to ``SERVICE_AGENT_TYPE_FEATURE_VIEW``. This will
             generate a separate service account to access the BigQuery
             source table.
@@ -142,8 +139,7 @@ class FeatureView(proto.Message):
                 materialized on each sync trigger based on
                 FeatureView.SyncConfig.
             entity_id_columns (MutableSequence[str]):
-                Required. Columns to construct entity_id / row keys. Start
-                by supporting 1 only.
+                Required. Columns to construct entity_id / row keys.
         """
 
         uri: str = proto.Field(
@@ -175,7 +171,9 @@ class FeatureView(proto.Message):
         )
 
     class VectorSearchConfig(proto.Message):
-        r"""Configuration for vector search.
+        r"""Deprecated. Use
+        [IndexConfig][google.cloud.aiplatform.v1beta1.FeatureView.IndexConfig]
+        instead.
 
         This message has `oneof`_ fields (mutually exclusive fields).
         For each oneof, at most one member field can be set at the same time.
@@ -316,10 +314,18 @@ class FeatureView(proto.Message):
         r"""A Feature Registry source for features that need to be synced
         to Online Store.
 
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             feature_groups (MutableSequence[google.cloud.aiplatform_v1beta1.types.FeatureView.FeatureRegistrySource.FeatureGroup]):
                 Required. List of features that need to be
                 synced to Online Store.
+            project_number (int):
+                Optional. The project number of the parent
+                project of the Feature Groups.
+
+                This field is a member of `oneof`_ ``_project_number``.
         """
 
         class FeatureGroup(proto.Message):
@@ -349,6 +355,11 @@ class FeatureView(proto.Message):
             proto.MESSAGE,
             number=1,
             message="FeatureView.FeatureRegistrySource.FeatureGroup",
+        )
+        project_number: int = proto.Field(
+            proto.INT64,
+            number=2,
+            optional=True,
         )
 
     big_query_source: BigQuerySource = proto.Field(

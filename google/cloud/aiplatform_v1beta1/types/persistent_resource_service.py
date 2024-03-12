@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -82,12 +82,18 @@ class CreatePersistentResourceOperationMetadata(proto.Message):
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for PersistentResource.
+        progress_message (str):
+            Progress Message for Create LRO
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
+    )
+    progress_message: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 
@@ -97,12 +103,18 @@ class UpdatePersistentResourceOperationMetadata(proto.Message):
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for PersistentResource.
+        progress_message (str):
+            Progress Message for Update LRO
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
+    )
+    progress_message: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 

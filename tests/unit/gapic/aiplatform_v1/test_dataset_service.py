@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -3569,6 +3569,7 @@ def test_get_dataset_version(request_type, transport: str = "grpc"):
             name="name_value",
             etag="etag_value",
             big_query_dataset_name="big_query_dataset_name_value",
+            display_name="display_name_value",
         )
         response = client.get_dataset_version(request)
 
@@ -3582,6 +3583,7 @@ def test_get_dataset_version(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
+    assert response.display_name == "display_name_value"
 
 
 def test_get_dataset_version_empty_call():
@@ -3626,6 +3628,7 @@ async def test_get_dataset_version_async(
                 name="name_value",
                 etag="etag_value",
                 big_query_dataset_name="big_query_dataset_name_value",
+                display_name="display_name_value",
             )
         )
         response = await client.get_dataset_version(request)
@@ -3640,6 +3643,7 @@ async def test_get_dataset_version_async(
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
+    assert response.display_name == "display_name_value"
 
 
 @pytest.mark.asyncio
@@ -8844,6 +8848,15 @@ def test_create_dataset_version_rest(request_type):
         "update_time": {},
         "etag": "etag_value",
         "big_query_dataset_name": "big_query_dataset_name_value",
+        "display_name": "display_name_value",
+        "metadata": {
+            "null_value": 0,
+            "number_value": 0.1285,
+            "string_value": "string_value_value",
+            "bool_value": True,
+            "struct_value": {"fields": {}},
+            "list_value": {"values": {}},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9462,6 +9475,7 @@ def test_get_dataset_version_rest(request_type):
             name="name_value",
             etag="etag_value",
             big_query_dataset_name="big_query_dataset_name_value",
+            display_name="display_name_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -9480,6 +9494,7 @@ def test_get_dataset_version_rest(request_type):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.big_query_dataset_name == "big_query_dataset_name_value"
+    assert response.display_name == "display_name_value"
 
 
 def test_get_dataset_version_rest_required_fields(

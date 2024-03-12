@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -90,9 +90,12 @@ from .types.content import CitationMetadata
 from .types.content import Content
 from .types.content import FileData
 from .types.content import GenerationConfig
+from .types.content import GroundingAttribution
+from .types.content import GroundingMetadata
 from .types.content import Part
 from .types.content import SafetyRating
 from .types.content import SafetySetting
+from .types.content import Segment
 from .types.content import VideoMetadata
 from .types.content import HarmCategory
 from .types.context import Context
@@ -479,9 +482,11 @@ from .types.migration_service import MigrateResourceRequest
 from .types.migration_service import MigrateResourceResponse
 from .types.migration_service import SearchMigratableResourcesRequest
 from .types.migration_service import SearchMigratableResourcesResponse
+from .types.model import GenieSource
 from .types.model import LargeModelReference
 from .types.model import Model
 from .types.model import ModelContainerSpec
+from .types.model import ModelGardenSource
 from .types.model import ModelSourceInfo
 from .types.model import Port
 from .types.model import PredictSchemata
@@ -555,6 +560,11 @@ from .types.pipeline_job import PipelineJobDetail
 from .types.pipeline_job import PipelineTaskDetail
 from .types.pipeline_job import PipelineTaskExecutorDetail
 from .types.pipeline_job import PipelineTemplateMetadata
+from .types.pipeline_service import BatchCancelPipelineJobsOperationMetadata
+from .types.pipeline_service import BatchCancelPipelineJobsRequest
+from .types.pipeline_service import BatchCancelPipelineJobsResponse
+from .types.pipeline_service import BatchDeletePipelineJobsRequest
+from .types.pipeline_service import BatchDeletePipelineJobsResponse
 from .types.pipeline_service import CancelPipelineJobRequest
 from .types.pipeline_service import CancelTrainingPipelineRequest
 from .types.pipeline_service import CreatePipelineJobRequest
@@ -677,7 +687,10 @@ from .types.tensorboard_time_series import TensorboardTimeSeries
 from .types.tool import FunctionCall
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
+from .types.tool import GoogleSearchRetrieval
+from .types.tool import Retrieval
 from .types.tool import Tool
+from .types.tool import VertexAISearch
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
 from .types.training_pipeline import InputDataConfig
@@ -756,6 +769,9 @@ __all__ = (
     "AutomaticResources",
     "AutoscalingMetricSpec",
     "AvroSource",
+    "BatchCancelPipelineJobsOperationMetadata",
+    "BatchCancelPipelineJobsRequest",
+    "BatchCancelPipelineJobsResponse",
     "BatchCreateFeaturesOperationMetadata",
     "BatchCreateFeaturesRequest",
     "BatchCreateFeaturesResponse",
@@ -764,6 +780,8 @@ __all__ = (
     "BatchCreateTensorboardTimeSeriesRequest",
     "BatchCreateTensorboardTimeSeriesResponse",
     "BatchDedicatedResources",
+    "BatchDeletePipelineJobsRequest",
+    "BatchDeletePipelineJobsResponse",
     "BatchImportEvaluatedAnnotationsRequest",
     "BatchImportEvaluatedAnnotationsResponse",
     "BatchImportModelEvaluationSlicesRequest",
@@ -1000,6 +1018,7 @@ __all__ = (
     "GenerateContentResponse",
     "GenerationConfig",
     "GenericOperationMetadata",
+    "GenieSource",
     "GetAnnotationSpecRequest",
     "GetArtifactRequest",
     "GetBatchPredictionJobRequest",
@@ -1040,6 +1059,9 @@ __all__ = (
     "GetTensorboardTimeSeriesRequest",
     "GetTrainingPipelineRequest",
     "GetTrialRequest",
+    "GoogleSearchRetrieval",
+    "GroundingAttribution",
+    "GroundingMetadata",
     "HarmCategory",
     "HyperparameterTuningJob",
     "IdMatcher",
@@ -1176,6 +1198,7 @@ __all__ = (
     "ModelEvaluationSlice",
     "ModelExplanation",
     "ModelGardenServiceClient",
+    "ModelGardenSource",
     "ModelMonitoringAlertConfig",
     "ModelMonitoringObjectiveConfig",
     "ModelMonitoringStatsAnomalies",
@@ -1260,6 +1283,7 @@ __all__ = (
     "RestoreDatasetVersionRequest",
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
+    "Retrieval",
     "SafetyRating",
     "SafetySetting",
     "SampleConfig",
@@ -1281,6 +1305,7 @@ __all__ = (
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
+    "Segment",
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
@@ -1374,6 +1399,7 @@ __all__ = (
     "UpsertDatapointsResponse",
     "UserActionReference",
     "Value",
+    "VertexAISearch",
     "VideoMetadata",
     "VizierServiceClient",
     "WorkerPoolSpec",

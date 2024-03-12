@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -2679,6 +2679,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
             reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
             schedule_name="schedule_name_value",
+            preflight_validations=True,
         )
         response = client.create_pipeline_job(request)
 
@@ -2697,6 +2698,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 def test_create_pipeline_job_empty_call():
@@ -2746,6 +2748,7 @@ async def test_create_pipeline_job_async(
                 reserved_ip_ranges=["reserved_ip_ranges_value"],
                 template_uri="template_uri_value",
                 schedule_name="schedule_name_value",
+                preflight_validations=True,
             )
         )
         response = await client.create_pipeline_job(request)
@@ -2765,6 +2768,7 @@ async def test_create_pipeline_job_async(
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 @pytest.mark.asyncio
@@ -2972,6 +2976,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
             reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
             schedule_name="schedule_name_value",
+            preflight_validations=True,
         )
         response = client.get_pipeline_job(request)
 
@@ -2990,6 +2995,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 def test_get_pipeline_job_empty_call():
@@ -3034,6 +3040,7 @@ async def test_get_pipeline_job_async(
                 reserved_ip_ranges=["reserved_ip_ranges_value"],
                 template_uri="template_uri_value",
                 schedule_name="schedule_name_value",
+                preflight_validations=True,
             )
         )
         response = await client.get_pipeline_job(request)
@@ -3053,6 +3060,7 @@ async def test_get_pipeline_job_async(
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 @pytest.mark.asyncio
@@ -4787,6 +4795,10 @@ def test_create_training_pipeline_rest(request_type):
             "model_source_info": {"source_type": 1, "copy": True},
             "original_model_info": {"model": "model_value"},
             "metadata_artifact": "metadata_artifact_value",
+            "base_model_source": {
+                "model_garden_source": {"public_model_name": "public_model_name_value"},
+                "genie_source": {"base_model_uri": "base_model_uri_value"},
+            },
         },
         "model_id": "model_id_value",
         "parent_model": "parent_model_value",
@@ -6417,6 +6429,7 @@ def test_create_pipeline_job_rest(request_type):
         "template_uri": "template_uri_value",
         "template_metadata": {"version": "version_value"},
         "schedule_name": "schedule_name_value",
+        "preflight_validations": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6499,6 +6512,7 @@ def test_create_pipeline_job_rest(request_type):
             reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
             schedule_name="schedule_name_value",
+            preflight_validations=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -6522,6 +6536,7 @@ def test_create_pipeline_job_rest(request_type):
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 def test_create_pipeline_job_rest_required_fields(
@@ -6552,12 +6567,7 @@ def test_create_pipeline_job_rest_required_fields(
         credentials=ga_credentials.AnonymousCredentials()
     ).create_pipeline_job._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(
-        (
-            "pipeline_job_id",
-            "preflight_validations",
-        )
-    )
+    assert not set(unset_fields) - set(("pipeline_job_id",))
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
@@ -6613,12 +6623,7 @@ def test_create_pipeline_job_rest_unset_required_fields():
 
     unset_fields = transport.create_pipeline_job._get_unset_required_fields({})
     assert set(unset_fields) == (
-        set(
-            (
-                "pipelineJobId",
-                "preflightValidations",
-            )
-        )
+        set(("pipelineJobId",))
         & set(
             (
                 "parent",
@@ -6805,6 +6810,7 @@ def test_get_pipeline_job_rest(request_type):
             reserved_ip_ranges=["reserved_ip_ranges_value"],
             template_uri="template_uri_value",
             schedule_name="schedule_name_value",
+            preflight_validations=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -6828,6 +6834,7 @@ def test_get_pipeline_job_rest(request_type):
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
     assert response.template_uri == "template_uri_value"
     assert response.schedule_name == "schedule_name_value"
+    assert response.preflight_validations is True
 
 
 def test_get_pipeline_job_rest_required_fields(

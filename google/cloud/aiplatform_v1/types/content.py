@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,6 +39,9 @@ __protobuf__ = proto.module(
         "CitationMetadata",
         "Citation",
         "Candidate",
+        "Segment",
+        "GroundingAttribution",
+        "GroundingMetadata",
     },
 )
 
@@ -372,6 +375,13 @@ class SafetyRating(proto.Message):
         probability (google.cloud.aiplatform_v1.types.SafetyRating.HarmProbability):
             Output only. Harm probability levels in the
             content.
+        probability_score (float):
+            Output only. Harm probability score.
+        severity (google.cloud.aiplatform_v1.types.SafetyRating.HarmSeverity):
+            Output only. Harm severity levels in the
+            content.
+        severity_score (float):
+            Output only. Harm severity score.
         blocked (bool):
             Output only. Indicates whether the content
             was filtered out because of this rating.
@@ -398,6 +408,27 @@ class SafetyRating(proto.Message):
         MEDIUM = 3
         HIGH = 4
 
+    class HarmSeverity(proto.Enum):
+        r"""Harm severity levels.
+
+        Values:
+            HARM_SEVERITY_UNSPECIFIED (0):
+                Harm severity unspecified.
+            HARM_SEVERITY_NEGLIGIBLE (1):
+                Negligible level of harm severity.
+            HARM_SEVERITY_LOW (2):
+                Low level of harm severity.
+            HARM_SEVERITY_MEDIUM (3):
+                Medium level of harm severity.
+            HARM_SEVERITY_HIGH (4):
+                High level of harm severity.
+        """
+        HARM_SEVERITY_UNSPECIFIED = 0
+        HARM_SEVERITY_NEGLIGIBLE = 1
+        HARM_SEVERITY_LOW = 2
+        HARM_SEVERITY_MEDIUM = 3
+        HARM_SEVERITY_HIGH = 4
+
     category: "HarmCategory" = proto.Field(
         proto.ENUM,
         number=1,
@@ -407,6 +438,19 @@ class SafetyRating(proto.Message):
         proto.ENUM,
         number=2,
         enum=HarmProbability,
+    )
+    probability_score: float = proto.Field(
+        proto.FLOAT,
+        number=5,
+    )
+    severity: HarmSeverity = proto.Field(
+        proto.ENUM,
+        number=6,
+        enum=HarmSeverity,
+    )
+    severity_score: float = proto.Field(
+        proto.FLOAT,
+        number=7,
     )
     blocked: bool = proto.Field(
         proto.BOOL,
@@ -503,6 +547,9 @@ class Candidate(proto.Message):
         citation_metadata (google.cloud.aiplatform_v1.types.CitationMetadata):
             Output only. Source attribution of the
             generated content.
+        grounding_metadata (google.cloud.aiplatform_v1.types.GroundingMetadata):
+            Output only. Metadata specifies sources used
+            to ground generated content.
     """
 
     class FinishReason(proto.Enum):
@@ -529,6 +576,18 @@ class Candidate(proto.Message):
             OTHER (5):
                 All other reasons that stopped the token
                 generation
+            BLOCKLIST (6):
+                The token generation was stopped as the
+                response was flagged for the terms which are
+                included from the terminology blocklist.
+            PROHIBITED_CONTENT (7):
+                The token generation was stopped as the
+                response was flagged for the prohibited
+                contents.
+            SPII (8):
+                The token generation was stopped as the
+                response was flagged for Sensitive Personally
+                Identifiable Information (SPII) contents.
         """
         FINISH_REASON_UNSPECIFIED = 0
         STOP = 1
@@ -536,6 +595,9 @@ class Candidate(proto.Message):
         SAFETY = 3
         RECITATION = 4
         OTHER = 5
+        BLOCKLIST = 6
+        PROHIBITED_CONTENT = 7
+        SPII = 8
 
     index: int = proto.Field(
         proto.INT32,
@@ -565,6 +627,125 @@ class Candidate(proto.Message):
         proto.MESSAGE,
         number=6,
         message="CitationMetadata",
+    )
+    grounding_metadata: "GroundingMetadata" = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message="GroundingMetadata",
+    )
+
+
+class Segment(proto.Message):
+    r"""Segment of the content.
+
+    Attributes:
+        part_index (int):
+            Output only. The index of a Part object
+            within its parent Content object.
+        start_index (int):
+            Output only. Start index in the given Part,
+            measured in bytes. Offset from the start of the
+            Part, inclusive, starting at zero.
+        end_index (int):
+            Output only. End index in the given Part,
+            measured in bytes. Offset from the start of the
+            Part, exclusive, starting at zero.
+    """
+
+    part_index: int = proto.Field(
+        proto.INT32,
+        number=1,
+    )
+    start_index: int = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    end_index: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+
+
+class GroundingAttribution(proto.Message):
+    r"""Grounding attribution.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        web (google.cloud.aiplatform_v1.types.GroundingAttribution.Web):
+            Optional. Attribution from the web.
+
+            This field is a member of `oneof`_ ``reference``.
+        segment (google.cloud.aiplatform_v1.types.Segment):
+            Output only. Segment of the content this
+            attribution belongs to.
+        confidence_score (float):
+            Optional. Output only. Confidence score of
+            the attribution. Ranges from 0 to 1. 1 is the
+            most confident.
+
+            This field is a member of `oneof`_ ``_confidence_score``.
+    """
+
+    class Web(proto.Message):
+        r"""Attribution from the web.
+
+        Attributes:
+            uri (str):
+                Output only. URI reference of the
+                attribution.
+            title (str):
+                Output only. Title of the attribution.
+        """
+
+        uri: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        title: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
+    web: Web = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="reference",
+        message=Web,
+    )
+    segment: "Segment" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="Segment",
+    )
+    confidence_score: float = proto.Field(
+        proto.FLOAT,
+        number=2,
+        optional=True,
+    )
+
+
+class GroundingMetadata(proto.Message):
+    r"""Metadata returned to client when grounding is enabled.
+
+    Attributes:
+        web_search_queries (MutableSequence[str]):
+            Optional. Web search queries for the
+            following-up web search.
+        grounding_attributions (MutableSequence[google.cloud.aiplatform_v1.types.GroundingAttribution]):
+            Optional. List of grounding attributions.
+    """
+
+    web_search_queries: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=1,
+    )
+    grounding_attributions: MutableSequence[
+        "GroundingAttribution"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="GroundingAttribution",
     )
 
 

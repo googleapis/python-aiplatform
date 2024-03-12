@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,9 +39,12 @@ from .content import (
     Content,
     FileData,
     GenerationConfig,
+    GroundingAttribution,
+    GroundingMetadata,
     Part,
     SafetyRating,
     SafetySetting,
+    Segment,
     VideoMetadata,
     HarmCategory,
 )
@@ -528,9 +531,11 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
+    GenieSource,
     LargeModelReference,
     Model,
     ModelContainerSpec,
+    ModelGardenSource,
     ModelSourceInfo,
     Port,
     PredictSchemata,
@@ -620,6 +625,11 @@ from .pipeline_job import (
     PipelineTemplateMetadata,
 )
 from .pipeline_service import (
+    BatchCancelPipelineJobsOperationMetadata,
+    BatchCancelPipelineJobsRequest,
+    BatchCancelPipelineJobsResponse,
+    BatchDeletePipelineJobsRequest,
+    BatchDeletePipelineJobsResponse,
     CancelPipelineJobRequest,
     CancelTrainingPipelineRequest,
     CreatePipelineJobRequest,
@@ -776,7 +786,10 @@ from .tool import (
     FunctionCall,
     FunctionDeclaration,
     FunctionResponse,
+    GoogleSearchRetrieval,
+    Retrieval,
     Tool,
+    VertexAISearch,
 )
 from .training_pipeline import (
     FilterSplit,
@@ -842,9 +855,12 @@ __all__ = (
     "Content",
     "FileData",
     "GenerationConfig",
+    "GroundingAttribution",
+    "GroundingMetadata",
     "Part",
     "SafetyRating",
     "SafetySetting",
+    "Segment",
     "VideoMetadata",
     "HarmCategory",
     "Context",
@@ -1223,9 +1239,11 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "GenieSource",
     "LargeModelReference",
     "Model",
     "ModelContainerSpec",
+    "ModelGardenSource",
     "ModelSourceInfo",
     "Port",
     "PredictSchemata",
@@ -1291,6 +1309,11 @@ __all__ = (
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
     "PipelineTemplateMetadata",
+    "BatchCancelPipelineJobsOperationMetadata",
+    "BatchCancelPipelineJobsRequest",
+    "BatchCancelPipelineJobsResponse",
+    "BatchDeletePipelineJobsRequest",
+    "BatchDeletePipelineJobsResponse",
     "CancelPipelineJobRequest",
     "CancelTrainingPipelineRequest",
     "CreatePipelineJobRequest",
@@ -1413,7 +1436,10 @@ __all__ = (
     "FunctionCall",
     "FunctionDeclaration",
     "FunctionResponse",
+    "GoogleSearchRetrieval",
+    "Retrieval",
     "Tool",
+    "VertexAISearch",
     "FilterSplit",
     "FractionSplit",
     "InputDataConfig",

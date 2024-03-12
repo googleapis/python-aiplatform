@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,7 +52,31 @@ class FeatureViewSync(proto.Message):
         final_status (google.rpc.status_pb2.Status):
             Output only. Final status of the
             FeatureViewSync.
+        sync_summary (google.cloud.aiplatform_v1beta1.types.FeatureViewSync.SyncSummary):
+            Output only. Summary of the sync job.
     """
+
+    class SyncSummary(proto.Message):
+        r"""Summary from the Sync job. For continuous syncs, the summary
+        is updated periodically. For batch syncs, it gets updated on
+        completion of the sync.
+
+        Attributes:
+            row_synced (int):
+                Output only. Total number of rows synced.
+            total_slot (int):
+                Output only. BigQuery slot milliseconds
+                consumed for the sync job.
+        """
+
+        row_synced: int = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        total_slot: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
 
     name: str = proto.Field(
         proto.STRING,
@@ -72,6 +96,11 @@ class FeatureViewSync(proto.Message):
         proto.MESSAGE,
         number=4,
         message=status_pb2.Status,
+    )
+    sync_summary: SyncSummary = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=SyncSummary,
     )
 
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -115,16 +115,24 @@ class PublisherModel(proto.Message):
                 The model launch stage is unspecified.
             EXPERIMENTAL (1):
                 Used to indicate the PublisherModel is at
-                Experimental launch stage.
+                Experimental launch stage, available to a small
+                set of customers.
             PRIVATE_PREVIEW (2):
                 Used to indicate the PublisherModel is at
-                Private Preview launch stage.
+                Private Preview launch stage, only available to
+                a small set of customers, although a larger set
+                of customers than an Experimental launch.
+                Previews are the first launch stage used to get
+                feedback from customers.
             PUBLIC_PREVIEW (3):
                 Used to indicate the PublisherModel is at
-                Public Preview launch stage.
+                Public Preview launch stage, available to all
+                customers, although not supported for production
+                workloads.
             GA (4):
                 Used to indicate the PublisherModel is at GA
-                launch stage.
+                launch stage, available to all customers and
+                ready for production workload.
         """
         LAUNCH_STAGE_UNSPECIFIED = 0
         EXPERIMENTAL = 1

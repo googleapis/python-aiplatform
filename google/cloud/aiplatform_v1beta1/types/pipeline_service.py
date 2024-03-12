@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -258,11 +258,6 @@ class CreatePipelineJobRequest(proto.Message):
 
             This value should be less than 128 characters, and valid
             characters are ``/[a-z][0-9]-/``.
-        preflight_validations (bool):
-            Optional. Whether to do component level
-            validations before job creation. Currently we
-            only support Google First Party
-            Component/Pipelines.
     """
 
     parent: str = proto.Field(
@@ -277,10 +272,6 @@ class CreatePipelineJobRequest(proto.Message):
     pipeline_job_id: str = proto.Field(
         proto.STRING,
         number=3,
-    )
-    preflight_validations: bool = proto.Field(
-        proto.BOOL,
-        number=4,
     )
 
 

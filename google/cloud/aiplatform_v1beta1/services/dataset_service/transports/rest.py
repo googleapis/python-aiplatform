@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1047,6 +1047,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
                     },
                     {
@@ -1252,6 +1256,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1597,6 +1609,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
@@ -1732,6 +1752,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -1963,6 +1987,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
@@ -2094,6 +2126,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
                     },
                     {
                         "method": "get",
@@ -2325,6 +2361,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
                     },
                     {
@@ -2386,6 +2430,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -2456,6 +2504,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -2684,6 +2736,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -4728,6 +4788,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
                 },
                 {
@@ -4749,6 +4817,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/publishers/*/models/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
                 },
             ]
 
@@ -4842,6 +4918,16 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
                     "body": "*",
                 },
@@ -4863,6 +4949,16 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
                     "body": "*",
                 },
             ]
@@ -4953,6 +5049,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
                 },
                 {
@@ -4970,6 +5074,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
                 },
             ]
 
@@ -5102,6 +5214,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -5310,6 +5426,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -5712,6 +5836,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                 },
                 {
@@ -5907,6 +6039,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -6138,6 +6274,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                 },
                 {
@@ -6330,6 +6474,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
                 },
                 {
                     "method": "get",
@@ -6561,6 +6709,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
                 },
                 {
@@ -6622,6 +6778,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
                 },
             ]
 
@@ -6753,6 +6913,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:wait",
                 },
                 {
                     "method": "post",
@@ -6981,6 +7145,14 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

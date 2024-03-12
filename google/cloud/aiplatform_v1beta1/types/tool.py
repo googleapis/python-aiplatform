@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,13 +43,15 @@ class Tool(proto.Message):
     A ``Tool`` is a piece of code that enables the system to interact
     with external systems to perform an action, or set of actions,
     outside of knowledge and scope of the model. A Tool object should
-    contain exactly one type of Tool.
+    contain exactly one type of Tool (e.g FunctionDeclaration, Retrieval
+    or GoogleSearchRetrieval).
 
     Attributes:
         function_declarations (MutableSequence[google.cloud.aiplatform_v1beta1.types.FunctionDeclaration]):
-            Optional. One or more function declarations to be passed to
-            the model along with the current user query. Model may
-            decide to call a subset of these functions by populating
+            Optional. Function tool type. One or more function
+            declarations to be passed to the model along with the
+            current user query. Model may decide to call a subset of
+            these functions by populating
             [FunctionCall][content.part.function_call] in the response.
             User should provide a
             [FunctionResponse][content.part.function_response] for each
@@ -57,14 +59,15 @@ class Tool(proto.Message):
             responses, Model will generate the final response back to
             the user. Maximum 64 function declarations can be provided.
         retrieval (google.cloud.aiplatform_v1beta1.types.Retrieval):
-            Optional. System will always execute the
-            provided retrieval tool(s) to get external
-            knowledge to answer the prompt. Retrieval
-            results are presented to the model for
-            generation.
+            Optional. Retrieval tool type.
+            System will always execute the provided
+            retrieval tool(s) to get external knowledge to
+            answer the prompt. Retrieval results are
+            presented to the model for generation.
         google_search_retrieval (google.cloud.aiplatform_v1beta1.types.GoogleSearchRetrieval):
-            Optional. Specialized retrieval tool that is
-            powered by Google search.
+            Optional. GoogleSearchRetrieval tool type.
+            Specialized retrieval tool that is powered by
+            Google search.
     """
 
     function_declarations: MutableSequence["FunctionDeclaration"] = proto.RepeatedField(

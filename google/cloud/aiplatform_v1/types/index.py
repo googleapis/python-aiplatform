@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -310,6 +310,9 @@ class IndexDatapoint(proto.Message):
                 GREATER (5):
                     Datapoints are eligible iff their value is >
                     the query's.
+                NOT_EQUAL (6):
+                    Datapoints are eligible iff their value is !=
+                    the query's.
             """
             OPERATOR_UNSPECIFIED = 0
             LESS = 1
@@ -317,6 +320,7 @@ class IndexDatapoint(proto.Message):
             EQUAL = 3
             GREATER_EQUAL = 4
             GREATER = 5
+            NOT_EQUAL = 6
 
         value_int: int = proto.Field(
             proto.INT64,

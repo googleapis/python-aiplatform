@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -3197,9 +3197,9 @@ def test_create_schedule_rest(request_type):
                 "template_uri": "template_uri_value",
                 "template_metadata": {"version": "version_value"},
                 "schedule_name": "schedule_name_value",
+                "preflight_validations": True,
             },
             "pipeline_job_id": "pipeline_job_id_value",
-            "preflight_validations": True,
         },
         "name": "name_value",
         "display_name": "display_name_value",
@@ -5086,9 +5086,9 @@ def test_update_schedule_rest(request_type):
                 "template_uri": "template_uri_value",
                 "template_metadata": {"version": "version_value"},
                 "schedule_name": "schedule_name_value",
+                "preflight_validations": True,
             },
             "pipeline_job_id": "pipeline_job_id_value",
-            "preflight_validations": True,
         },
         "name": "projects/sample1/locations/sample2/schedules/sample3",
         "display_name": "display_name_value",

@@ -8,7 +8,7 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-    "version": "1.43.0"
+    "version": "0.1.0"
   },
   "snippets": [
     {
@@ -64,12 +64,12 @@
       "regionTag": "aiplatform_v1beta1_generated_DatasetService_CreateDatasetVersion_async",
       "segments": [
         {
-          "end": 55,
+          "end": 59,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 55,
+          "end": 59,
           "start": 27,
           "type": "SHORT"
         },
@@ -79,18 +79,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 45,
+          "end": 49,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 52,
-          "start": 46,
+          "end": 56,
+          "start": 50,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 56,
-          "start": 53,
+          "end": 60,
+          "start": 57,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -148,12 +148,12 @@
       "regionTag": "aiplatform_v1beta1_generated_DatasetService_CreateDatasetVersion_sync",
       "segments": [
         {
-          "end": 55,
+          "end": 59,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 55,
+          "end": 59,
           "start": 27,
           "type": "SHORT"
         },
@@ -163,18 +163,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 45,
+          "end": 49,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 52,
-          "start": 46,
+          "end": 56,
+          "start": 50,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 56,
-          "start": 53,
+          "end": 60,
+          "start": 57,
           "type": "RESPONSE_HANDLING"
         }
       ],

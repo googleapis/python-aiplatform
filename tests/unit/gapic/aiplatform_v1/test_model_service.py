@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -7989,6 +7989,10 @@ def test_update_model_rest(request_type):
         "model_source_info": {"source_type": 1, "copy": True},
         "original_model_info": {"model": "model_value"},
         "metadata_artifact": "metadata_artifact_value",
+        "base_model_source": {
+            "model_garden_source": {"public_model_name": "public_model_name_value"},
+            "genie_source": {"base_model_uri": "base_model_uri_value"},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

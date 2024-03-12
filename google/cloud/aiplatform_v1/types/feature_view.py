@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -99,8 +99,7 @@ class FeatureView(proto.Message):
                 materialized on each sync trigger based on
                 FeatureView.SyncConfig.
             entity_id_columns (MutableSequence[str]):
-                Required. Columns to construct entity_id / row keys. Start
-                by supporting 1 only.
+                Required. Columns to construct entity_id / row keys.
         """
 
         uri: str = proto.Field(
@@ -135,10 +134,18 @@ class FeatureView(proto.Message):
         r"""A Feature Registry source for features that need to be synced
         to Online Store.
 
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             feature_groups (MutableSequence[google.cloud.aiplatform_v1.types.FeatureView.FeatureRegistrySource.FeatureGroup]):
                 Required. List of features that need to be
                 synced to Online Store.
+            project_number (int):
+                Optional. The project number of the parent
+                project of the Feature Groups.
+
+                This field is a member of `oneof`_ ``_project_number``.
         """
 
         class FeatureGroup(proto.Message):
@@ -168,6 +175,11 @@ class FeatureView(proto.Message):
             proto.MESSAGE,
             number=1,
             message="FeatureView.FeatureRegistrySource.FeatureGroup",
+        )
+        project_number: int = proto.Field(
+            proto.INT64,
+            number=2,
+            optional=True,
         )
 
     big_query_source: BigQuerySource = proto.Field(

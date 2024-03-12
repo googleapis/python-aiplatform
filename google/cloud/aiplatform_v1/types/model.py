@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ __protobuf__ = proto.module(
     manifest={
         "Model",
         "LargeModelReference",
+        "ModelGardenSource",
+        "GenieSource",
         "PredictSchemata",
         "ModelContainerSpec",
         "Port",
@@ -309,6 +311,11 @@ class Model(proto.Message):
             created in MetadataStore when creating the Model. The
             Artifact resource name pattern is
             ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
+        base_model_source (google.cloud.aiplatform_v1.types.Model.BaseModelSource):
+            Optional. User input field to specify the
+            base model source. Currently it only supports
+            specifing the Model Garden models and Genie
+            models.
     """
 
     class DeploymentResourcesType(proto.Enum):
@@ -474,6 +481,43 @@ class Model(proto.Message):
             number=1,
         )
 
+    class BaseModelSource(proto.Message):
+        r"""User input field to specify the base model source. Currently
+        it only supports specifing the Model Garden models and Genie
+        models.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            model_garden_source (google.cloud.aiplatform_v1.types.ModelGardenSource):
+                Source information of Model Garden models.
+
+                This field is a member of `oneof`_ ``source``.
+            genie_source (google.cloud.aiplatform_v1.types.GenieSource):
+                Information about the base model of Genie
+                models.
+
+                This field is a member of `oneof`_ ``source``.
+        """
+
+        model_garden_source: "ModelGardenSource" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="source",
+            message="ModelGardenSource",
+        )
+        genie_source: "GenieSource" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            oneof="source",
+            message="GenieSource",
+        )
+
     name: str = proto.Field(
         proto.STRING,
         number=1,
@@ -614,6 +658,11 @@ class Model(proto.Message):
         proto.STRING,
         number=44,
     )
+    base_model_source: BaseModelSource = proto.Field(
+        proto.MESSAGE,
+        number=50,
+        message=BaseModelSource,
+    )
 
 
 class LargeModelReference(proto.Message):
@@ -629,6 +678,37 @@ class LargeModelReference(proto.Message):
     """
 
     name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ModelGardenSource(proto.Message):
+    r"""Contains information about the source of the models generated
+    from Model Garden.
+
+    Attributes:
+        public_model_name (str):
+            Required. The model garden source model
+            resource name.
+    """
+
+    public_model_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class GenieSource(proto.Message):
+    r"""Contains information about the source of the models generated
+    from Generative AI Studio.
+
+    Attributes:
+        base_model_uri (str):
+            Required. The public base model URI.
+    """
+
+    base_model_uri: str = proto.Field(
         proto.STRING,
         number=1,
     )

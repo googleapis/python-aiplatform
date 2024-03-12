@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -483,9 +483,11 @@ from .types.migration_service import MigrateResourceRequest
 from .types.migration_service import MigrateResourceResponse
 from .types.migration_service import SearchMigratableResourcesRequest
 from .types.migration_service import SearchMigratableResourcesResponse
+from .types.model import GenieSource
 from .types.model import LargeModelReference
 from .types.model import Model
 from .types.model import ModelContainerSpec
+from .types.model import ModelGardenSource
 from .types.model import ModelSourceInfo
 from .types.model import Port
 from .types.model import PredictSchemata
@@ -1037,6 +1039,7 @@ __all__ = (
     "GenerateContentResponse",
     "GenerationConfig",
     "GenericOperationMetadata",
+    "GenieSource",
     "GetAnnotationSpecRequest",
     "GetArtifactRequest",
     "GetBatchPredictionJobRequest",
@@ -1221,6 +1224,7 @@ __all__ = (
     "ModelEvaluationSlice",
     "ModelExplanation",
     "ModelGardenServiceClient",
+    "ModelGardenSource",
     "ModelMonitoringAlertConfig",
     "ModelMonitoringConfig",
     "ModelMonitoringObjectiveConfig",

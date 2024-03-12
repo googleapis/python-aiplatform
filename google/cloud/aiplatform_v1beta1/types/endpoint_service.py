@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -150,11 +150,14 @@ class ListEndpointsRequest(proto.Message):
                -  A key including a space must be quoted.
                   ``labels."a key"``.
 
+            -  ``base_model_name`` only supports =
+
             Some examples:
 
             -  ``endpoint=1``
             -  ``displayName="myDisplayName"``
             -  ``labels.myKey="myValue"``
+            -  ``baseModelName="text-bison"``
         page_size (int):
             Optional. The standard list page size.
         page_token (str):

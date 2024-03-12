@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -85,9 +85,8 @@ class FeatureGroup(proto.Message):
                 Required. Immutable. The BigQuery source URI
                 that points to either a BigQuery Table or View.
             entity_id_columns (MutableSequence[str]):
-                Optional. Columns to construct entity_id / row keys.
-                Currently only supports 1 entity_id_column. If not provided
-                defaults to ``entity_id``.
+                Optional. Columns to construct entity_id / row keys. If not
+                provided defaults to ``entity_id``.
         """
 
         big_query_source: io.BigQuerySource = proto.Field(

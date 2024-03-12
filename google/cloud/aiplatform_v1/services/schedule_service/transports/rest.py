@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -678,6 +678,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
                     },
                     {
@@ -815,6 +819,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1294,6 +1302,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
                     },
                     {
@@ -1447,6 +1459,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -1616,6 +1632,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/indexes/*}/operations",
                     },
                     {
@@ -1769,6 +1789,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
                     },
                     {
                         "method": "get",
@@ -1935,6 +1959,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3086,6 +3114,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/publishers/*/models/*}:getIamPolicy",
                 },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
+                },
             ]
 
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
@@ -3194,6 +3230,16 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                     "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
                     "body": "*",
                 },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
+                    "body": "*",
+                },
             ]
 
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
@@ -3294,6 +3340,14 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
                 },
             ]
 
@@ -3424,6 +3478,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -3564,6 +3622,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -4160,6 +4222,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
                 },
                 {
@@ -4313,6 +4379,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -4543,6 +4613,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/indexes/*}/operations",
                 },
                 {
@@ -4696,6 +4770,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
                 },
                 {
                     "method": "get",
@@ -4923,6 +5001,10 @@ class ScheduleServiceRestTransport(ScheduleServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

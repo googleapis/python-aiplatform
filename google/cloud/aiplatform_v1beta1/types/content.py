@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -375,6 +375,13 @@ class SafetyRating(proto.Message):
         probability (google.cloud.aiplatform_v1beta1.types.SafetyRating.HarmProbability):
             Output only. Harm probability levels in the
             content.
+        probability_score (float):
+            Output only. Harm probability score.
+        severity (google.cloud.aiplatform_v1beta1.types.SafetyRating.HarmSeverity):
+            Output only. Harm severity levels in the
+            content.
+        severity_score (float):
+            Output only. Harm severity score.
         blocked (bool):
             Output only. Indicates whether the content
             was filtered out because of this rating.
@@ -401,6 +408,27 @@ class SafetyRating(proto.Message):
         MEDIUM = 3
         HIGH = 4
 
+    class HarmSeverity(proto.Enum):
+        r"""Harm severity levels.
+
+        Values:
+            HARM_SEVERITY_UNSPECIFIED (0):
+                Harm severity unspecified.
+            HARM_SEVERITY_NEGLIGIBLE (1):
+                Negligible level of harm severity.
+            HARM_SEVERITY_LOW (2):
+                Low level of harm severity.
+            HARM_SEVERITY_MEDIUM (3):
+                Medium level of harm severity.
+            HARM_SEVERITY_HIGH (4):
+                High level of harm severity.
+        """
+        HARM_SEVERITY_UNSPECIFIED = 0
+        HARM_SEVERITY_NEGLIGIBLE = 1
+        HARM_SEVERITY_LOW = 2
+        HARM_SEVERITY_MEDIUM = 3
+        HARM_SEVERITY_HIGH = 4
+
     category: "HarmCategory" = proto.Field(
         proto.ENUM,
         number=1,
@@ -410,6 +438,19 @@ class SafetyRating(proto.Message):
         proto.ENUM,
         number=2,
         enum=HarmProbability,
+    )
+    probability_score: float = proto.Field(
+        proto.FLOAT,
+        number=5,
+    )
+    severity: HarmSeverity = proto.Field(
+        proto.ENUM,
+        number=6,
+        enum=HarmSeverity,
+    )
+    severity_score: float = proto.Field(
+        proto.FLOAT,
+        number=7,
     )
     blocked: bool = proto.Field(
         proto.BOOL,
@@ -535,6 +576,18 @@ class Candidate(proto.Message):
             OTHER (5):
                 All other reasons that stopped the token
                 generation
+            BLOCKLIST (6):
+                The token generation was stopped as the
+                response was flagged for the terms which are
+                included from the terminology blocklist.
+            PROHIBITED_CONTENT (7):
+                The token generation was stopped as the
+                response was flagged for the prohibited
+                contents.
+            SPII (8):
+                The token generation was stopped as the
+                response was flagged for Sensitive Personally
+                Identifiable Information (SPII) contents.
         """
         FINISH_REASON_UNSPECIFIED = 0
         STOP = 1
@@ -542,6 +595,9 @@ class Candidate(proto.Message):
         SAFETY = 3
         RECITATION = 4
         OTHER = 5
+        BLOCKLIST = 6
+        PROHIBITED_CONTENT = 7
+        SPII = 8
 
     index: int = proto.Field(
         proto.INT32,
