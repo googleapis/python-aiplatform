@@ -36,6 +36,7 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.utils import resource_manager_utils
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
+from google.cloud.aiplatform import telemetry
 
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
@@ -477,6 +478,10 @@ class _Config:
                 )
         except Exception:  # pylint: disable=broad-exception-caught
             pass
+
+        if telemetry._tool_names_to_append:
+            # Must append to gapic_version due to b/259738581.
+            gapic_version = f"{gapic_version}+tools+{'+'.join(telemetry._tool_names_to_append[::-1])}"
 
         user_agent = f"{constants.USER_AGENT_PRODUCT}/{gapic_version}"
         if appended_user_agent:
