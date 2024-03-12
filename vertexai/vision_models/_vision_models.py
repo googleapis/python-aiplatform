@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 """Classes for working with vision models."""
+# pylint: disable=bad-continuation, line-too-long, protected-access
 
 import base64
 import dataclasses
@@ -40,12 +41,17 @@ try:
 except ImportError:
     PIL_Image = None
 
+_FORMAT_TO_MIME_TYPE = {
+    "png": "image/png",
+    "jpeg": "image/jpeg",
+    "gif": "image/gif",
+}
 
 _SUPPORTED_UPSCALING_SIZES = [2048, 4096]
 
 
 class Image:
-    """Image."""
+    """The image that can be sent to or recieved from a generative model."""
 
     __module__ = "vertexai.vision_models"
 
@@ -99,6 +105,19 @@ class Image:
         image = Image(image_bytes=image_bytes)
         return image
 
+    @staticmethod
+    def from_bytes(data: bytes) -> "Image":
+        """Loads image from image bytes.
+
+        Args:
+            data: Image bytes.
+
+        Returns:
+            Loaded image as an `Image` object.
+        """
+        image = Image(image_bytes=data)
+        return image
+
     @property
     def _image_bytes(self) -> bytes:
         if self._loaded_bytes is None:
@@ -117,12 +136,33 @@ class Image:
     @property
     def _pil_image(self) -> "PIL_Image.Image":
         if self._loaded_image is None:
+            if not PIL_Image:
+                raise RuntimeError(
+                    "The PIL module is not available. Please install the Pillow package."
+                )
             self._loaded_image = PIL_Image.open(io.BytesIO(self._image_bytes))
         return self._loaded_image
 
     @property
     def _size(self):
         return self._pil_image.size
+
+    @property
+    def _mime_type(self) -> str:
+        """Returns the MIME type of the image."""
+        if PIL_Image:
+            return _FORMAT_TO_MIME_TYPE[self._pil_image.format.lower()]
+        else:
+            # Fall back to jpeg
+            return "image/jpeg"
+
+    def _repr_png_(self):
+        return self._pil_image._repr_png_()
+
+    @property
+    def data(self) -> bytes:
+        """Returns the image data."""
+        return self._image_bytes
 
     def show(self):
         """Shows the image.
