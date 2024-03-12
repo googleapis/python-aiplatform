@@ -28,7 +28,7 @@ def stream_update_vector_search_index(
       location (str): Required. The region name, e.g. "us-central1"
       index_name (str): Required. The index to update. A fully-qualified index
         resource name or a index ID.  Example:
-        "projects/123/locations/us-central1/ indexes/my_index_id" or
+        "projects/123/locations/us-central1/indexes/my_index_id" or
         "my_index_id".
       datapoints: Sequence[dict]: Required. The datapoints to be updated. The dict
         element should be of the IndexDatapoint type.

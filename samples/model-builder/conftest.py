@@ -1248,8 +1248,31 @@ def mock_index_endpoint_init(mock_index_endpoint):
 
 @pytest.fixture
 def mock_index_endpoint_find_neighbors(mock_index_endpoint):
-    with patch.object(
-        mock_index_endpoint, "find_neighbors"
-    ) as mock_find_neighbors:
+    with patch.object(mock_index_endpoint, "find_neighbors") as mock_find_neighbors:
         mock_find_neighbors.return_value = None
         yield mock_find_neighbors
+
+
+@pytest.fixture
+def mock_index_create_tree_ah_index(mock_index):
+    with patch.object(
+        aiplatform.MatchingEngineIndex, "create_tree_ah_index"
+    ) as mock_create_tree_ah_index:
+        mock_create_tree_ah_index.return_value = mock_index
+        yield mock_create_tree_ah_index
+
+
+@pytest.fixture
+def mock_index_endpoint_create(mock_index_endpoint):
+    with patch.object(
+        aiplatform.MatchingEngineIndexEndpoint, "create"
+    ) as mock_index_endpoint_create:
+        mock_index_endpoint_create.return_value = mock_index_endpoint
+        yield mock_index_endpoint_create
+
+
+@pytest.fixture
+def mock_index_endpoint_deploy_index(mock_index_endpoint):
+    with patch.object(mock_index_endpoint, "deploy_index") as mock_deploy_index:
+        mock_deploy_index.return_value = mock_index_endpoint
+        yield mock_deploy_index
