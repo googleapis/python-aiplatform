@@ -606,6 +606,11 @@ _TEST_PIPELINE_SPEC = {
                     "parameterType": "NUMBER_DOUBLE",
                 },
                 "location": {"parameterType": "STRING"},
+                "max_context_length": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
                 "model_display_name": {"parameterType": "STRING"},
                 "project": {"parameterType": "STRING"},
                 "tensorboard_resource_id": {
@@ -2271,6 +2276,7 @@ class TestLanguageModels:
                     tensorboard=tensorboard_name,
                 ),
                 accelerator_type="TPU",
+                max_context_length="32k",
             )
             call_kwargs = mock_pipeline_service_create.call_args[1]
             pipeline_arguments = call_kwargs[
@@ -2288,6 +2294,7 @@ class TestLanguageModels:
             assert pipeline_arguments["tensorboard_resource_id"] == tensorboard_name
             assert pipeline_arguments["large_model_reference"] == "text-bison@001"
             assert pipeline_arguments["accelerator_type"] == "TPU"
+            assert pipeline_arguments["max_context_length"] == "32k"
             assert (
                 call_kwargs["pipeline_job"].encryption_spec.kms_key_name
                 == _TEST_ENCRYPTION_KEY_NAME

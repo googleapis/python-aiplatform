@@ -21,6 +21,7 @@ class DistillationMixin:
         evaluation_spec: Optional[tuning.TuningEvaluationSpec] = None,
         accelerator_type: Optional[tuning._ACCELERATOR_TYPE_TYPE] = None,
         model_display_name: Optional[str] = None,
+        max_context_length: Optional[str] = None,
     ):
         """Tunes a smaller model with help from another bigger model.
 
@@ -32,6 +33,8 @@ class DistillationMixin:
             evaluation_spec: Specification for the model evaluation during tuning.
             accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
             model_display_name: Custom display name for the tuned model.
+            max_context_length: The max context length used for tuning.
+                Can be either '8k' or '32k'
 
         Returns:
             A tuning job for distillation.
@@ -86,6 +89,8 @@ class DistillationMixin:
             pipeline_arguments[
                 "encryption_spec_key_name"
             ] = aiplatform_initializer.global_config.encryption_spec_key_name
+        if max_context_length is not None:
+            pipeline_arguments["max_context_length"] = max_context_length
         if model_display_name is None:
             model_display_name = (
                 f"{student_short_model_id}"
@@ -94,7 +99,6 @@ class DistillationMixin:
         pipeline_arguments["model_display_name"] = model_display_name
         # # Not exposing these parameters:
         # temperature: Optional[float] = None,
-        # max_context_length: Optional[int] = None,
         # tpu_training_skip_cmek: Optional[bool] = None,
         # api_endpoint: Optional[str] = None,
         # version: Optional[str] = None,
