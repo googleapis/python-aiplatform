@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.44.0](https://github.com/googleapis/python-aiplatform/compare/v1.43.0...v1.44.0) (2024-03-13)
+
+
+### Features
+
+* Add custom tool context manager for telemetry ([b30f5a6](https://github.com/googleapis/python-aiplatform/commit/b30f5a69226310b11a7979d19e63e3b0aa873737))
+* Add display experiment button for Ipython environments ([0b33bdd](https://github.com/googleapis/python-aiplatform/commit/0b33bdd873ab0f3195e4dc6389554a3cac2c3433))
+* Allow module_name to be specified with the base logger. ([c01df66](https://github.com/googleapis/python-aiplatform/commit/c01df6681e5f94d74dcc5fd85a9ea4af4b9dcea6))
+* Enable Ray cluster creation with custom_image for each Resource ([f90c9cc](https://github.com/googleapis/python-aiplatform/commit/f90c9cc0f96eb8108d0d55ffb7ddb51fdc60407d))
+* GenAI - Added `function_calls` shortcut property to `Candidate` class. ([d6490ff](https://github.com/googleapis/python-aiplatform/commit/d6490ffdf28d2f1916d517c223e35537611b1073))
+* LLM - Added support for the `max_context_length` tuning parameter ([e5daae9](https://github.com/googleapis/python-aiplatform/commit/e5daae92125eaada897a8de4f8de8f5da59af6db))
+* Support `shard_size` for `MatchingEngineIndex` create index. ([6dbf7d3](https://github.com/googleapis/python-aiplatform/commit/6dbf7d3f9f74d08b80a3bfb85525ec6922b370fc))
+* Use colab enterprise enviroment variables to infer project_id and region ([5baf5f8](https://github.com/googleapis/python-aiplatform/commit/5baf5f83494373049904bedc898e5b72303bccbd))
+
+
+### Bug Fixes
+
+* Batch read tensorboard time series data to allow reading more than 20 time series metrics. ([6e3eac2](https://github.com/googleapis/python-aiplatform/commit/6e3eac26ed40b1927541b71b99758834a89fa64b))
+* GenAI - Fixed `get_tuned_model` deploying the model every time ([e1c7870](https://github.com/googleapis/python-aiplatform/commit/e1c7870aabe4fac5537589f49484509b3faf3f5b))
+* GenAI - Improved `from_dict` methods for content types (`GenerationResponse`, `Candidate`, `Content`, `Part`) ([613ce69](https://github.com/googleapis/python-aiplatform/commit/613ce690d8224b85da5406507c4df75a35493b0d))
+* Improve import time by moving TensorFlow to lazy import ([f294ba8](https://github.com/googleapis/python-aiplatform/commit/f294ba8b762a88b77a623b86145302c976fdabc4))
+* LVM - Added support for GCS `storage.googleapis.com` URL import in `vision_models.Image` ([2690e72](https://github.com/googleapis/python-aiplatform/commit/2690e7223535d5758ed0e13075aebdde41a678f3))
+* Raise AttributeError for accessing non-existent fields of a proto. ([b91edf5](https://github.com/googleapis/python-aiplatform/commit/b91edf52e2b993c3301a419ad89b473c31c60cc3))
+
+
+### Documentation
+
+* Fixed the documentation generation ([63ad1bf](https://github.com/googleapis/python-aiplatform/commit/63ad1bf9e365d2f10b91e2fd036e3b7d937336c0))
+* GenAI - Added the GA classes to the documentation ([9eb5a52](https://github.com/googleapis/python-aiplatform/commit/9eb5a52c2f7f0c19a2035831181ad69f98bc3df5))
+
 ## [1.43.0](https://github.com/googleapis/python-aiplatform/compare/v1.42.1...v1.43.0) (2024-02-29)
 
 
