@@ -27,11 +27,9 @@ from typing import (
     List,
     Optional,
     Sequence,
-    Type,
     Union,
 )
 
-from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform_v1beta1 import types as aiplatform_types
 from google.cloud.aiplatform_v1beta1.services import prediction_service
@@ -42,9 +40,6 @@ from google.cloud.aiplatform_v1beta1.types import (
     prediction_service as gapic_prediction_service_types,
 )
 from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
-from vertexai.language_models import (
-    _language_models as tunable_models,
-)
 from google.protobuf import json_format
 import warnings
 
@@ -1930,180 +1925,10 @@ class Image:
         return self._pil_image._repr_png_()
 
 
-### Tuning
-
-TuningEvaluationSpec = tunable_models.TuningEvaluationSpec
-
-
-class _TunableGenerativeModelMixin:
-    """Model that can be tuned."""
-
-    _TUNING_PIPELINE_URI = "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v3.0.0"
-
-    def list_tuned_model_names(self) -> Sequence[str]:
-        """Lists the names of tuned models.
-
-        Returns:
-            A list of tuned models that can be used with the `get_tuned_model` method.
-        """
-        tuning_model_id = self._model_name.rsplit("/", 1)[-1]
-        return tunable_models._list_tuned_model_names(model_id=tuning_model_id)
-
-    @classmethod
-    def get_tuned_model(
-        cls: Type[_GenerativeModel],
-        tuned_model_name: str,
-    ) -> "_GenerativeModel":
-        """Loads the specified tuned language model.
-
-        Args:
-            tuned_model_name: A tuned model name returned by `model.list_tuned_model_names()`
-
-        Returns:
-            The tuned model.
-        """
-
-        tuned_vertex_model = aiplatform.Model(tuned_model_name)
-        tuned_model_labels = tuned_vertex_model.labels
-
-        tuning_model_id = tuned_model_labels.get(
-            tunable_models._TUNING_BASE_MODEL_ID_LABEL_KEY
-        )
-        if not tuning_model_id:
-            raise ValueError(
-                f"The provided model {tuned_model_name} does not have a base model ID."
-            )
-
-        tuned_model_deployments = tuned_vertex_model.gca_resource.deployed_models
-        if not tuned_model_deployments:
-            # Deploying the model
-            endpoint_name = tuned_vertex_model.deploy().resource_name
-        else:
-            endpoint_name = tuned_model_deployments[0].endpoint
-
-        base_model_id = tunable_models._get_model_id_from_tuning_model_id(
-            tuning_model_id
-        )
-
-        model = cls(model_name=base_model_id)
-        model._prediction_resource_name = endpoint_name
-        return model
-
-    def tune_model(
-        self,
-        training_data: Union[str, "tunable_models.pandas.core.frame.DataFrame"],
-        *,
-        train_steps: Optional[int] = None,
-        learning_rate_multiplier: Optional[float] = None,
-        model_display_name: Optional[str] = None,
-        tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
-        accelerator_type: Optional[tunable_models._ACCELERATOR_TYPE_TYPE] = None,
-    ) -> "tunable_models._LanguageModelTuningJob":
-        r"""Tunes a model based on training data.
-
-        This method launches and returns an asynchronous model tuning job.
-        Usage:
-            ```
-            tuning_job = model.tune_model(...)
-            ... do some other work
-            tuned_model = tuning_job.get_tuned_model()  # Blocks until tuning is complete
-            ```
-
-        Args:
-            training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
-                The dataset schema is model-specific.
-                See https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models#dataset_format
-            train_steps: Number of training batches to tune on (batch size is 8 samples).
-            learning_rate_multiplier: Learning rate multiplier to use in tuning.
-            model_display_name: Custom display name for the tuned model.
-            tuning_evaluation_spec: Specification for the model evaluation during tuning.
-            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
-
-        Returns:
-            A `LanguageModelTuningJob` object that represents the tuning job.
-            Calling `job.result()` blocks until the tuning is complete and returns a `LanguageModel` object.
-
-        Raises:
-            ValueError: If the "tuning_job_location" value is not supported
-            ValueError: If the "tuned_model_location" value is not supported
-            RuntimeError: If the model does not support tuning
-        """
-        return tunable_models._TunableModelMixin.tune_model(
-            self=self,
-            training_data=training_data,
-            train_steps=train_steps,
-            learning_rate_multiplier=learning_rate_multiplier,
-            tuning_job_location=aiplatform_initializer.global_config.location,
-            tuned_model_location=aiplatform_initializer.global_config.location,
-            model_display_name=model_display_name,
-            tuning_evaluation_spec=tuning_evaluation_spec,
-            accelerator_type=accelerator_type,
-        )
-
-    def _tune_model(
-        self,
-        training_data: Union[str, "tunable_models.pandas.core.frame.DataFrame"],
-        *,
-        tuning_parameters: Dict[str, Any],
-        tuning_job_location: Optional[str] = None,
-        tuned_model_location: Optional[str] = None,
-        model_display_name: Optional[str] = None,
-    ):
-        """Tunes a model based on training data.
-
-        This method launches a model tuning job that can take some time.
-
-        Args:
-            training_data: A Pandas DataFrame or a URI pointing to data in JSON lines format.
-                The dataset schema is model-specific.
-                See https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models#dataset_format
-            tuning_parameters: Tuning pipeline parameter values.
-            tuning_job_location: GCP location where the tuning job should be run.
-            tuned_model_location: GCP location where the tuned model should be deployed.
-            model_display_name: Custom display name for the tuned model.
-
-        Returns:
-            A `LanguageModelTuningJob` object that represents the tuning job.
-            Calling `job.result()` blocks until the tuning is complete and returns a `LanguageModel` object.
-
-        Raises:
-            ValueError: If the "tuning_job_location" value is not supported
-            ValueError: If the "tuned_model_location" value is not supported
-            RuntimeError: If the model does not support tuning
-        """
-        if tuning_job_location not in tunable_models._TUNING_LOCATIONS:
-            raise ValueError(
-                "Please specify the tuning job location (`tuning_job_location`)."
-                f"Tuning is supported in the following locations: {tunable_models._TUNING_LOCATIONS}"
-            )
-        if tuned_model_location not in tunable_models._TUNED_MODEL_LOCATIONS:
-            raise ValueError(
-                "Tuned model deployment is only supported in the following locations: "
-                f"{tunable_models._TUNED_MODEL_LOCATIONS}"
-            )
-
-        tuning_model_id = self._model_name.rsplit("/", 1)[-1]
-        pipeline_job = tunable_models._launch_tuning_job(
-            training_data=training_data,
-            model_id=tuning_model_id,
-            tuning_pipeline_uri=self._TUNING_PIPELINE_URI,
-            tuning_parameters=tuning_parameters,
-            model_display_name=model_display_name,
-            tuning_job_location=tuning_job_location,
-            tuned_model_location=tuned_model_location,
-        )
-
-        job = tunable_models._LanguageModelTuningJob(
-            base_model=self,
-            job=pipeline_job,
-        )
-        return job
-
-
 class GenerativeModel(_GenerativeModel):
     __module__ = "vertexai.generative_models"
 
 
-class _PreviewGenerativeModel(_GenerativeModel, _TunableGenerativeModelMixin):
+class _PreviewGenerativeModel(_GenerativeModel):
     __name__ = "GenerativeModel"
     __module__ = "vertexai.preview.generative_models"
