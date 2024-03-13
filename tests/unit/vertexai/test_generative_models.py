@@ -379,9 +379,29 @@ class TestGenerativeModels:
         [generative_models, preview_generative_models],
     )
     def test_conversion_methods(self, generative_models: generative_models):
-        """Tests the .to_dict, .from_dict and __repr__ methods"""
-        model = generative_models.GenerativeModel("gemini-pro")
-        response = model.generate_content("Why is sky blue?")
+        """Tests the .to_dict, .from_dict and __repr__ methods."""
+        # Testing on a full chat conversation which includes function calling
+        get_current_weather_func = generative_models.FunctionDeclaration(
+            name="get_current_weather",
+            description="Get the current weather in a given location",
+            parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+        )
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+
+        model = generative_models.GenerativeModel("gemini-pro", tools=[weather_tool])
+        chat = model.start_chat()
+        response = chat.send_message("What is the weather like in Boston?")
+        chat.send_message(
+            generative_models.Part.from_function_response(
+                name="get_current_weather",
+                response={
+                    "location": "Boston",
+                    "weather": "super nice",
+                },
+            ),
+        )
 
         response_new = generative_models.GenerationResponse.from_dict(
             response.to_dict()
@@ -396,6 +416,12 @@ class TestGenerativeModels:
             content_new = generative_models.Content.from_dict(content.to_dict())
             assert repr(content_new) == repr(content)
 
+            for part in content.parts:
+                part_new = generative_models.Part.from_dict(part.to_dict())
+                assert repr(part_new) == repr(part)
+
+        # Checking the history which contains different Part types
+        for content in chat.history:
             for part in content.parts:
                 part_new = generative_models.Part.from_dict(part.to_dict())
                 assert repr(part_new) == repr(part)

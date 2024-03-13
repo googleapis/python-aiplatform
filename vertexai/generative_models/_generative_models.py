@@ -45,6 +45,7 @@ from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from vertexai.language_models import (
     _language_models as tunable_models,
 )
+from google.protobuf import json_format
 import warnings
 
 try:
@@ -1377,9 +1378,8 @@ class GenerationResponse:
 
     @classmethod
     def from_dict(cls, response_dict: Dict[str, Any]) -> "GenerationResponse":
-        raw_response = gapic_prediction_service_types.GenerateContentResponse(
-            response_dict
-        )
+        raw_response = gapic_prediction_service_types.GenerateContentResponse()
+        json_format.ParseDict(response_dict, raw_response._pb)
         return cls._from_gapic(raw_response=raw_response)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -1418,7 +1418,8 @@ class Candidate:
 
     @classmethod
     def from_dict(cls, candidate_dict: Dict[str, Any]) -> "Candidate":
-        raw_candidate = gapic_content_types.Candidate(candidate_dict)
+        raw_candidate = gapic_content_types.Candidate()
+        json_format.ParseDict(candidate_dict, raw_candidate._pb)
         return cls._from_gapic(raw_candidate=raw_candidate)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -1497,7 +1498,8 @@ class Content:
 
     @classmethod
     def from_dict(cls, content_dict: Dict[str, Any]) -> "Content":
-        raw_content = gapic_content_types.Content(content_dict)
+        raw_content = gapic_content_types.Content()
+        json_format.ParseDict(content_dict, raw_content._pb)
         return cls._from_gapic(raw_content=raw_content)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -1563,7 +1565,8 @@ class Part:
 
     @classmethod
     def from_dict(cls, part_dict: Dict[str, Any]) -> "Part":
-        raw_part = gapic_content_types.Part(part_dict)
+        raw_part = gapic_content_types.Part()
+        json_format.ParseDict(part_dict, raw_part._pb)
         return cls._from_gapic(raw_part=raw_part)
 
     def __repr__(self):
