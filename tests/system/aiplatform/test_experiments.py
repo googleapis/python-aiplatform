@@ -43,6 +43,8 @@ _RUN_2 = "run-2"
 _PARAMS_2 = {"sdk-param-test-1": 0.2, "sdk-param-test-2": 0.4}
 _METRICS_2 = {"sdk-metric-test-1": 1.6, "sdk-metric-test-2": 200.0}
 
+_READ_TIME_SERIES_BATCH_SIZE = 20
+
 _TIME_SERIES_METRIC_KEY = "accuracy"
 
 _CLASSIFICATION_METRICS = {
@@ -162,6 +164,22 @@ class TestExperiments(e2e_base.TestEndToEnd):
             "step": list(range(1, 6)),
             _TIME_SERIES_METRIC_KEY: [float(value) for value in range(5)],
         }
+
+    def test_get_time_series_data_frame_batch_read_success(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
+        for i in range(_READ_TIME_SERIES_BATCH_SIZE + 1):
+            aiplatform.log_time_series_metrics({f"{_TIME_SERIES_METRIC_KEY}-{i}": 1})
+
+        run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
+
+        time_series_result = run.get_time_series_data_frame()
+
+        assert len(time_series_result) > _READ_TIME_SERIES_BATCH_SIZE
 
     def test_log_classification_metrics(self, shared_state):
         aiplatform.init(

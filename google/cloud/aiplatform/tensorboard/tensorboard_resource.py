@@ -585,6 +585,7 @@ class TensorboardRun(_TensorboardServiceResource):
     _delete_method = "delete_tensorboard_run"
     _parse_resource_name_method = "parse_tensorboard_run_path"
     _format_resource_name_method = "tensorboard_run_path"
+    READ_TIME_SERIES_BATCH_SIZE = 20
 
     def __init__(
         self,
@@ -1030,17 +1031,24 @@ class TensorboardRun(_TensorboardServiceResource):
             **resource_name_parts
         )
 
-        read_response = self.api_client.batch_read_tensorboard_time_series_data(
-            request=gca_tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(
-                tensorboard=tensorboard_resource_name,
-                time_series=time_series_resource_names,
+        batch_size = self.READ_TIME_SERIES_BATCH_SIZE
+        time_series_data_dict = {}
+        for i in range(0, len(time_series_resource_names), batch_size):
+            one_batch_time_series_names = time_series_resource_names[i : i + batch_size]
+            read_response = self.api_client.batch_read_tensorboard_time_series_data(
+                request=gca_tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(
+                    tensorboard=tensorboard_resource_name,
+                    time_series=one_batch_time_series_names,
+                )
             )
-        )
 
-        return {
-            inverted_mapping[data.tensorboard_time_series_id]: data
-            for data in read_response.time_series_data
-        }
+            time_series_data_dict.update(
+                {
+                    inverted_mapping[data.tensorboard_time_series_id]: data
+                    for data in read_response.time_series_data
+                }
+            )
+        return time_series_data_dict
 
 
 class TensorboardTimeSeries(_TensorboardServiceResource):
