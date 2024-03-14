@@ -19,17 +19,20 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform.preview import vertex_ray
 from tests.system.aiplatform import e2e_base
 import datetime
+import pytest
 import ray
 
+# Local ray version will always be 2.4 regardless of cluster version due to
+# depenency conflicts
 RAY_VERSION = "2.4.0"
-CLUSTER_RAY_VERSION = "2.4"
 PROJECT_ID = "ucaip-sample-tests"
 
 
 class TestClusterManagement(e2e_base.TestEndToEnd):
     _temp_prefix = "temp-rov-cluster-management"
 
-    def test_cluster_management(self):
+    @pytest.mark.parametrize("cluster_ray_version", ["2.4", "2.9"])
+    def test_cluster_management(self, cluster_ray_version):
         assert ray.__version__ == RAY_VERSION
         aiplatform.init(project=PROJECT_ID, location="us-central1")
 
@@ -43,17 +46,17 @@ class TestClusterManagement(e2e_base.TestEndToEnd):
             head_node_type=head_node_type,
             worker_node_types=worker_node_types,
             cluster_name=f"ray-cluster-{timestamp}-test-cluster-management",
-            ray_version="2.4",
+            ray_version=cluster_ray_version,
         )
 
         cluster_details = vertex_ray.get_ray_cluster(cluster_resource_name)
-        assert cluster_details.ray_version == CLUSTER_RAY_VERSION
+        assert cluster_details.ray_version == cluster_ray_version
         assert cluster_details.state == "RUNNING"
 
         found_cluster = False
         for cluster in vertex_ray.list_ray_clusters():
             if cluster.cluster_resource_name == cluster_resource_name:
-                assert cluster.ray_version == CLUSTER_RAY_VERSION
+                assert cluster.ray_version == cluster_ray_version
                 assert cluster.state == "RUNNING"
                 found_cluster = True
 

@@ -21,49 +21,18 @@ from ray.job_submission import JobSubmissionClient
 from tests.system.aiplatform import e2e_base
 import datetime
 import os
+import pytest
 import ray
 import time
 import tempfile
 
+# Local ray version will always be 2.4 regardless of cluster version due to
+# depenency conflicts
 RAY_VERSION = "2.4.0"
 SDK_VERSION = aiplatform.__version__
 PROJECT_ID = "ucaip-sample-tests"
 
-
-class TestRayData(e2e_base.TestEndToEnd):
-    _temp_prefix = "temp-ray-data"
-
-    def test_ray_data(self):
-        head_node_type = vertex_ray.Resources()
-        worker_node_types = [
-            vertex_ray.Resources(),
-            vertex_ray.Resources(),
-            vertex_ray.Resources(),
-        ]
-
-        assert ray.__version__ == RAY_VERSION
-        aiplatform.init(project=PROJECT_ID, location="us-central1")
-
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-
-        # Create cluster, get dashboard address
-        cluster_resource_name = vertex_ray.create_ray_cluster(
-            head_node_type=head_node_type,
-            worker_node_types=worker_node_types,
-            cluster_name=f"ray-cluster-{timestamp}-test-ray-data",
-            ray_version="2.4",
-        )
-
-        cluster_details = vertex_ray.get_ray_cluster(cluster_resource_name)
-
-        # Connect to cluster
-        client = JobSubmissionClient(
-            "google.cloud.aiplatform.preview.vertex_ray://{}".format(
-                cluster_details.dashboard_address
-            )
-        )
-
-        my_script = """
+my_script_ray24 = """
 import ray
 from vertex_ray import BigQueryDatasource
 
@@ -85,10 +54,69 @@ ds.write_datasource(
 )
 """
 
+my_script_ray29 = """
+import ray
+import vertex_ray
+
+parallelism = 10
+query = "SELECT * FROM `bigquery-public-data.ml_datasets.ulb_fraud_detection` LIMIT 10000000"
+
+ds = vertex_ray.data.read_bigquery(
+    parallelism=parallelism,
+    query=query
+)
+
+# The reads are lazy, so the end time cannot be captured until ds.materialize() is called
+ds.materialize()
+
+# Write
+vertex_ray.data.write_bigquery(
+    ds,
+    dataset="bugbashbq1.system_test_ray29_write",
+)
+"""
+
+my_script = {"2.4": my_script_ray24, "2.9": my_script_ray29}
+
+
+class TestRayData(e2e_base.TestEndToEnd):
+    _temp_prefix = "temp-ray-data"
+
+    @pytest.mark.parametrize("cluster_ray_version", ["2.4", "2.9"])
+    def test_ray_data(self, cluster_ray_version):
+        head_node_type = vertex_ray.Resources()
+        worker_node_types = [
+            vertex_ray.Resources(),
+            vertex_ray.Resources(),
+            vertex_ray.Resources(),
+        ]
+
+        assert ray.__version__ == RAY_VERSION
+        aiplatform.init(project=PROJECT_ID, location="us-central1")
+
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
+        # Create cluster, get dashboard address
+        cluster_resource_name = vertex_ray.create_ray_cluster(
+            head_node_type=head_node_type,
+            worker_node_types=worker_node_types,
+            cluster_name=f"ray-cluster-{timestamp}-test-ray-data",
+            ray_version=cluster_ray_version,
+        )
+
+        cluster_details = vertex_ray.get_ray_cluster(cluster_resource_name)
+
+        # Connect to cluster
+        client = JobSubmissionClient(
+            "google.cloud.aiplatform.preview.vertex_ray://{}".format(
+                cluster_details.dashboard_address
+            )
+        )
+
         with tempfile.TemporaryDirectory() as temp_dir:
             fp = os.path.join(temp_dir, "my_script.py")
             f = open(fp, "w")
-            f.write(my_script)
+            f.write(my_script[cluster_ray_version])
             f.close()
 
             job_id = client.submit_job(

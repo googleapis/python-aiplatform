@@ -21,10 +21,13 @@ from ray.job_submission import JobSubmissionClient
 from tests.system.aiplatform import e2e_base
 import datetime
 import os
+import pytest
 import ray
 import time
 import tempfile
 
+# Local ray version will always be 2.4 regardless of cluster version due to
+# depenency conflicts
 RAY_VERSION = "2.4.0"
 PROJECT_ID = "ucaip-sample-tests"
 
@@ -32,7 +35,8 @@ PROJECT_ID = "ucaip-sample-tests"
 class TestJobSubmissionDashboard(e2e_base.TestEndToEnd):
     _temp_prefix = "temp-job-submission-dashboard"
 
-    def test_job_submission_dashboard(self):
+    @pytest.mark.parametrize("cluster_ray_version", ["2.4", "2.9"])
+    def test_job_submission_dashboard(self, cluster_ray_version):
         assert ray.__version__ == RAY_VERSION
         aiplatform.init(project=PROJECT_ID, location="us-central1")
 
@@ -46,6 +50,7 @@ class TestJobSubmissionDashboard(e2e_base.TestEndToEnd):
             head_node_type=head_node_type,
             worker_node_types=worker_node_types,
             cluster_name=f"ray-cluster{timestamp}-test-job-submission-dashboard",
+            ray_version=cluster_ray_version,
         )
 
         cluster_details = vertex_ray.get_ray_cluster(cluster_resource_name)
