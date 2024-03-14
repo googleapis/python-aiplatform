@@ -1036,9 +1036,9 @@ class InlineContext(_GroundingSourceBase):
             "sources": [
                 {
                     "type": self._type,
+                    "inlineContext": self.inline_context,
                 }
             ],
-            "inlineContext": self.inline_context,
         }
 
 
