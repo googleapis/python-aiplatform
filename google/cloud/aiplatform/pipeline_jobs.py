@@ -21,9 +21,11 @@ import re
 import tempfile
 import time
 from typing import Any, Callable, Dict, List, Optional, Union
+from google.api_core import operation
 
 from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
+from google.cloud import aiplatform_v1
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -43,6 +45,12 @@ from google.protobuf import json_format
 from google.cloud.aiplatform.compat.types import (
     pipeline_job as gca_pipeline_job,
     pipeline_state as gca_pipeline_state,
+)
+from google.cloud.aiplatform_v1.types import (
+    pipeline_service as PipelineServiceV1,
+)
+from google.cloud.aiplatform_v1.services.pipeline_service import (
+    PipelineServiceClient as PipelineServiceClientGa,
 )
 
 _LOGGER = base.Logger(__name__)
@@ -550,6 +558,106 @@ class PipelineJob(
             self._block_until_complete()
         else:
             super().wait()
+
+    def batch_delete(
+        self,
+        project: str,
+        location: str,
+        names: List[str],
+    ) -> PipelineServiceV1.BatchDeletePipelineJobsResponse:
+        """
+        Example Usage:
+          pipeline_job = aiplatform.PipelineJob(
+            display_name='job_display_name',
+            template_path='your_pipeline.yaml',
+         )
+          pipeline_job.batch_delete(
+            project='your_project_id',
+            location='your_location',
+            names=['pipeline_job_name',
+          'pipeline_job_name2']
+          )
+
+        Args:
+          project: Required. The project id of the PipelineJobs to batch delete.
+          location: Required. The location of the PipelineJobs to batch delete.
+          names: Required. The names of the PipelineJobs to delete. A
+               maximum of 32 PipelineJobs can be deleted in a batch.
+
+        Returns:
+          BatchDeletePipelineJobsResponse contains PipelineJobs deleted.
+        """
+        user_project = project or initializer.global_config.project
+        user_location = location or initializer.global_config.location
+        parent = initializer.global_config.common_location_path(
+            project=user_project, location=user_location
+        )
+        pipeline_jobs_names = [
+            utils.full_resource_name(
+                resource_name=name,
+                resource_noun="pipelineJobs",
+                parse_resource_name_method=PipelineServiceClientGa.parse_pipeline_job_path,
+                format_resource_name_method=PipelineServiceClientGa.pipeline_job_path,
+                project=user_project,
+                location=user_location,
+            )
+            for name in names
+        ]
+        request = aiplatform_v1.BatchDeletePipelineJobsRequest(
+            parent=parent, names=pipeline_jobs_names
+        )
+        operation = self.api_client.batch_delete_pipeline_jobs(request)
+        return operation.result()
+
+    def batch_cancel(
+        self,
+        project: str,
+        location: str,
+        names: List[str],
+    ) -> operation.Operation:
+        """
+        Example Usage:
+          pipeline_job = aiplatform.PipelineJob(
+            display_name='job_display_name',
+            template_path='your_pipeline.yaml',
+         )
+          pipeline_job.batch_cancel(
+            project='your_project_id',
+            location='your_location',
+            names=['pipeline_job_name',
+          'pipeline_job_name2']
+          )
+
+        Args:
+          project: Required. The project id of the PipelineJobs to batch delete.
+          location: Required. The location of the PipelineJobs to batch delete.
+          names: Required. The names of the PipelineJobs to cancel. A
+               maximum of 32 PipelineJobs can be cancelled in a batch.
+
+        Returns:
+          operation (Operation):
+                An object representing a long-running operation.
+        """
+        user_project = project or initializer.global_config.project
+        user_location = location or initializer.global_config.location
+        parent = initializer.global_config.common_location_path(
+            project=user_project, location=user_location
+        )
+        pipeline_jobs_names = [
+            utils.full_resource_name(
+                resource_name=name,
+                resource_noun="pipelineJobs",
+                parse_resource_name_method=PipelineServiceClientGa.parse_pipeline_job_path,
+                format_resource_name_method=PipelineServiceClientGa.pipeline_job_path,
+                project=user_project,
+                location=user_location,
+            )
+            for name in names
+        ]
+        request = aiplatform_v1.BatchCancelPipelineJobsRequest(
+            parent=parent, names=pipeline_jobs_names
+        )
+        return self.api_client.batch_cancel_pipeline_jobs(request)
 
     @property
     def pipeline_spec(self):

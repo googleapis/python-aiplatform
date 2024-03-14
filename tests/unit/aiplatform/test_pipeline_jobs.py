@@ -47,6 +47,9 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform_v1beta1.types import (
     pipeline_service as PipelineServiceV1Beta1,
 )
+from google.cloud.aiplatform_v1.types import (
+    pipeline_service as PipelineServiceV1,
+)
 from google.cloud.aiplatform_v1beta1.services import (
     pipeline_service as v1beta1_pipeline_service,
 )
@@ -256,6 +259,46 @@ def mock_pipeline_service_create():
 
 
 @pytest.fixture
+def mock_pipeline_v1_service_batch_cancel():
+    with patch.object(
+        pipeline_service_client.PipelineServiceClient, "batch_cancel_pipeline_jobs"
+    ) as batch_cancel_pipeline_jobs_mock:
+        batch_cancel_pipeline_jobs_mock.return_value = mock.Mock(ga_operation.Operation)
+        yield batch_cancel_pipeline_jobs_mock
+
+
+@pytest.fixture
+def mock_pipeline_v1_service_batch_delete():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "batch_delete_pipeline_jobs"
+    ) as mock_batch_pipeline_jobs:
+        mock_batch_pipeline_jobs.return_value = (
+            make_v1_batch_delete_pipeline_jobs_response()
+        )
+        mock_lro = mock.Mock(ga_operation.Operation)
+        mock_lro.result.return_value = make_v1_batch_delete_pipeline_jobs_response()
+        mock_batch_pipeline_jobs.return_value = mock_lro
+        yield mock_batch_pipeline_jobs
+
+
+def make_v1_batch_delete_pipeline_jobs_response():
+    response = PipelineServiceV1.BatchDeletePipelineJobsResponse()
+    response.pipeline_jobs.append(
+        make_pipeline_job_with_name(
+            _TEST_PIPELINE_JOB_NAME,
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+        )
+    )
+    response.pipeline_jobs.append(
+        make_pipeline_job_with_name(
+            _TEST_PIPELINE_JOB_NAME_2,
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+        )
+    )
+    return response
+
+
+@pytest.fixture
 def mock_pipeline_v1beta1_service_batch_delete():
     with mock.patch.object(
         v1beta1_pipeline_service.PipelineServiceClient, "batch_delete_pipeline_jobs"
@@ -337,6 +380,22 @@ def make_pipeline_job(state):
         job_detail=gca_pipeline_job.PipelineJobDetail(
             pipeline_run_context=gca_context.Context(
                 name=_TEST_PIPELINE_JOB_NAME,
+            )
+        ),
+    )
+
+
+def make_pipeline_job_with_name(name, state):
+    return gca_pipeline_job.PipelineJob(
+        name=name,
+        state=state,
+        create_time=_TEST_PIPELINE_CREATE_TIME,
+        service_account=_TEST_SERVICE_ACCOUNT,
+        network=_TEST_NETWORK,
+        reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+        job_detail=gca_pipeline_job.PipelineJobDetail(
+            pipeline_run_context=gca_context.Context(
+                name=name,
             )
         ),
     )
@@ -2079,3 +2138,86 @@ class TestPipelineJob:
 
         assert mock_pipeline_v1beta1_service_batch_delete.call_count == 1
         assert len(response.pipeline_jobs) == 2
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_get",
+        "mock_pipeline_v1_service_batch_delete",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [
+            _TEST_PIPELINE_SPEC_JSON,
+            _TEST_PIPELINE_SPEC_YAML,
+            _TEST_PIPELINE_JOB,
+            _TEST_PIPELINE_SPEC_LEGACY_JSON,
+            _TEST_PIPELINE_SPEC_LEGACY_YAML,
+            _TEST_PIPELINE_JOB_LEGACY,
+        ],
+    )
+    def test_create_two_and_batch_delete_v1_pipeline_jobs_returns_response(
+        self,
+        mock_load_yaml_and_json,
+        mock_pipeline_v1_service_batch_delete,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        response = job.batch_delete(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            names=[_TEST_PIPELINE_JOB_ID, _TEST_PIPELINE_JOB_ID_2],
+        )
+
+        assert mock_pipeline_v1_service_batch_delete.call_count == 1
+        assert len(response.pipeline_jobs) == 2
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_get",
+        "mock_pipeline_v1_service_batch_cancel",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [
+            _TEST_PIPELINE_SPEC_JSON,
+            _TEST_PIPELINE_SPEC_YAML,
+            _TEST_PIPELINE_JOB,
+            _TEST_PIPELINE_SPEC_LEGACY_JSON,
+            _TEST_PIPELINE_SPEC_LEGACY_YAML,
+            _TEST_PIPELINE_JOB_LEGACY,
+        ],
+    )
+    def test_create_two_and_batch_cancel_v1_pipeline_jobs_returns_response(
+        self,
+        mock_load_yaml_and_json,
+        mock_pipeline_v1_service_batch_cancel,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        job.batch_cancel(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            names=[_TEST_PIPELINE_JOB_ID, _TEST_PIPELINE_JOB_ID_2],
+        )
+
+        assert mock_pipeline_v1_service_batch_cancel.call_count == 1
