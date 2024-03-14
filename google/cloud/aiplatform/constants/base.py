@@ -21,6 +21,7 @@ from google.cloud.aiplatform import version as aiplatform_version
 DEFAULT_REGION = "us-central1"
 SUPPORTED_REGIONS = frozenset(
     {
+        "africa-south1",
         "asia-east1",
         "asia-east2",
         "asia-northeast1",
@@ -41,6 +42,9 @@ SUPPORTED_REGIONS = frozenset(
         "europe-west6",
         "europe-west8",
         "europe-west9",
+        "europe-west12",
+        "me-central1",
+        "me-central2",
         "me-west1",
         "northamerica-northeast1",
         "northamerica-northeast2",
@@ -49,6 +53,7 @@ SUPPORTED_REGIONS = frozenset(
         "us-central1",
         "us-east1",
         "us-east4",
+        "us-east5",
         "us-south1",
         "us-west1",
         "us-west2",

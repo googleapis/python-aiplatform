@@ -130,7 +130,7 @@ def mock_storage_blob_download_to_filename():
 
 def test_invalid_region_raises_with_invalid_region():
     with pytest.raises(ValueError):
-        aiplatform.utils.validate_region(region="us-east5")
+        aiplatform.utils.validate_region(region="europe-west10")
 
 
 def test_invalid_region_does_not_raise_with_valid_region():
