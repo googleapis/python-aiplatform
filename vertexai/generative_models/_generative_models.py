@@ -710,7 +710,7 @@ class ChatSession:
             A stream of GenerationResponse objects if stream == True
 
         Raises:
-            ResponseBlockedError: If the response was blocked.
+            ResponseValidationError: If the response was blocked or is incomplete.
         """
         if stream:
             return self._send_message_streaming(
@@ -757,7 +757,7 @@ class ChatSession:
             An awaitable for a stream of GenerationResponse objects if stream == True
 
         Raises:
-            ResponseBlockedError: If the response was blocked.
+            ResponseValidationError: If the response was blocked or is incomplete.
         """
         if stream:
             return self._send_message_streaming_async(
@@ -798,7 +798,7 @@ class ChatSession:
             A single GenerationResponse object
 
         Raises:
-            ResponseBlockedError: If the response was blocked.
+            ResponseValidationError: If the response was blocked or is incomplete.
         """
         # Preparing the message history to send
         request_message = Content._from_gapic(
@@ -853,7 +853,7 @@ class ChatSession:
             An awaitable for a single GenerationResponse object
 
         Raises:
-            ResponseBlockedError: If the response was blocked.
+            ResponseValidationError: If the response was blocked or is incomplete.
         """
 
         # Preparing the message history to send
@@ -909,7 +909,7 @@ class ChatSession:
             A stream of GenerationResponse objects
 
         Raises:
-            ResponseBlockedError: If the response was blocked.
+            ResponseValidationError: If the response was blocked or is incomplete.
         """
 
         # Preparing the message history to send
@@ -975,7 +975,7 @@ class ChatSession:
             An awaitable for a stream of GenerationResponse objects
 
         Raises:
-            ResponseBlockedError: If the response was blocked.
+            ResponseValidationError: If the response was blocked or is incomplete.
         """
         # Preparing the message history to send
         request_message = Content._from_gapic(
