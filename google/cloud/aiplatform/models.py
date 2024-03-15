@@ -1687,10 +1687,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         """
         if not self.authorized_session:
             self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+            self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
             self.authorized_session = google_auth_requests.AuthorizedSession(
                 self.credentials
             )
-            self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
 
         return self.authorized_session.post(
             url=self.raw_predict_request_url, data=body, headers=headers
