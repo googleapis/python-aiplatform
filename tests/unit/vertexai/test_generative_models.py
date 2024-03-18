@@ -30,6 +30,7 @@ from vertexai.generative_models._generative_models import (
     prediction_service,
     gapic_prediction_service_types,
     gapic_content_types,
+    gapic_tool_types,
 )
 
 _TEST_PROJECT = "test-project"
@@ -44,16 +45,9 @@ _RESPONSE_FUNCTION_CALL_PART_STRUCT = {
     "function_call": {
         "name": "get_current_weather",
         "args": {
-            "fields": {
-                "key": "location",
-                "value": {"string_value": "Boston"},
-            }
+            "location": "Boston",
         },
     }
-}
-
-_RESPONSE_AFTER_FUNCTION_CALL_PART_STRUCT = {
-    "text": "The weather in Boston is super nice!"
 }
 
 _RESPONSE_SAFETY_RATINGS_STRUCT = [
@@ -146,26 +140,41 @@ def mock_generate_content(
     has_function_declarations = any(
         tool.function_declarations for tool in request.tools
     )
-    has_function_request = any(
+    had_any_function_calls = any(
         content.parts[0].function_call for content in request.contents
     )
-    has_function_response = any(
+    had_any_function_responses = any(
         content.parts[0].function_response for content in request.contents
     )
+    latest_user_message_function_responses = [
+        part.function_response
+        for part in request.contents[-1].parts
+        if part.function_response
+    ]
 
-    if has_function_request:
-        assert has_function_response
+    if had_any_function_calls:
+        assert had_any_function_responses
 
-    if has_function_response:
-        assert has_function_request
+    if had_any_function_responses:
+        assert had_any_function_calls
         assert has_function_declarations
 
-    if has_function_declarations:
-        needs_function_call = not has_function_response
-        if needs_function_call:
-            response_part_struct = _RESPONSE_FUNCTION_CALL_PART_STRUCT
-        else:
-            response_part_struct = _RESPONSE_AFTER_FUNCTION_CALL_PART_STRUCT
+    if has_function_declarations and not had_any_function_calls:
+        # response_part_struct = _RESPONSE_FUNCTION_CALL_PART_STRUCT
+        # Workaround for the proto library bug
+        response_part_struct = dict(
+            function_call=gapic_tool_types.FunctionCall(
+                name="get_current_weather",
+                args={"location": "Boston"},
+            )
+        )
+    elif has_function_declarations and latest_user_message_function_responses:
+        function_response = latest_user_message_function_responses[0]
+        function_response_dict = type(function_response).to_dict(function_response)
+        function_response_response_dict = function_response_dict["response"]
+        response_part_struct = {
+            "text": f"The weather in Boston is {function_response_response_dict}"
+        }
     elif is_continued_chat:
         response_part_struct = {"text": "Other planets may have different sky color."}
     else:
@@ -225,6 +234,23 @@ def mock_stream_generate_content(
 ) -> Iterable[gapic_prediction_service_types.GenerateContentResponse]:
     yield mock_generate_content(
         self=self, request=request, model=model, contents=contents
+    )
+
+
+def get_current_weather(location: str, unit: str = "centigrade"):
+    """Gets weather in the specified location.
+
+    Args:
+        location: The location for which to get the weather.
+        unit: Optional. Temperature unit. Can be Centigrade or Fahrenheit. Defaults to Centigrade.
+
+    Returns:
+        The weather information as a dict.
+    """
+    return dict(
+        location=location,
+        unit=unit,
+        weather="Super nice, but maybe a bit hot.",
     )
 
 
@@ -358,16 +384,23 @@ class TestGenerativeModels:
             function_call.name
             for function_call in response1.candidates[0].function_calls
         ] == ["get_current_weather"]
-        response2 = chat.send_message(
-            generative_models.Part.from_function_response(
-                name="get_current_weather",
-                response={
-                    "content": {"weather_there": "super nice"},
-                },
-            ),
-        )
-        assert response2.text == "The weather in Boston is super nice!"
-        assert len(response2.candidates[0].function_calls) == 0
+        function_map = {
+            "get_current_weather": get_current_weather,
+        }
+        function_response_parts = []
+        for function_call in response1.candidates[0].function_calls:
+            function = function_map[function_call.name]
+            function_result = function(**function_call.args)
+            function_response_part = generative_models.Part.from_function_response(
+                name=function_call.name,
+                response=function_result,
+            )
+            function_response_parts.append(function_response_part)
+
+        response2 = chat.send_message(function_response_parts)
+        assert "Boston" in response2.text
+        assert "nice" in response2.text
+        assert not response2.candidates[0].function_calls
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
