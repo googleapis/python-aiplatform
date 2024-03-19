@@ -577,6 +577,11 @@ class TestFunctionCallingUtils:
             fixed_schema = (
                 _function_calling_utils.adapt_json_schema_to_google_tool_schema(schema)
             )
+            assert fixed_schema
+            assert "type" in fixed_schema
+            assert "description" in fixed_schema
+            assert "properties" in fixed_schema
+            assert "required" in fixed_schema
             function_declaration = generative_models.FunctionDeclaration(
                 name=function_name,
                 description=function_description,

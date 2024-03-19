@@ -135,8 +135,11 @@ def adapt_json_schema_to_google_tool_schema(schema: Struct) -> Struct:
     # Common attributes that we remove:
     # $schema, additionalProperties
     for key in list(fixed_schema):
-        if not hasattr(aiplatform_types.Schema, key) and not hasattr(
-            aiplatform_types.Schema, key + "_"
+        # Warning: The proto-plus library removes attributes from the class,
+        # so `hasattr` does not work.
+        if (
+            key not in aiplatform_types.Schema.meta.fields
+            and key + "_" not in aiplatform_types.Schema.meta.fields
         ):
             fixed_schema.pop(key, None)
     property_schemas = fixed_schema.get("properties")
