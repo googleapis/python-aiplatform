@@ -640,13 +640,23 @@ def _validate_response(
     request_contents: Optional[List["Content"]] = None,
     response_chunks: Optional[List["GenerationResponse"]] = None,
 ) -> None:
-    candidate = response.candidates[0]
-    if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-        message = (
-            "The model response did not completed successfully.\n"
-            f"Finish reason: {candidate.finish_reason}.\n"
-            f"Finish message: {candidate.finish_message}.\n"
-            f"Safety ratings: {candidate.safety_ratings}.\n"
+    message = ""
+    if not response.candidates:
+        message += (
+            f"The model response was blocked due to {response._raw_response.prompt_feedback.block_reason}.\n"
+            f"Blocke reason message: {response._raw_response.prompt_feedback.block_reason_message}.\n"
+        )
+    else:
+        candidate = response.candidates[0]
+        if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
+            message = (
+                "The model response did not completed successfully.\n"
+                f"Finish reason: {candidate.finish_reason}.\n"
+                f"Finish message: {candidate.finish_message}.\n"
+                f"Safety ratings: {candidate.safety_ratings}.\n"
+            )
+    if message:
+        message += (
             "To protect the integrity of the chat session, the request and response were not added to chat history.\n"
             "To skip the response validation, specify `model.start_chat(response_validation=False)`.\n"
             "Note that letting blocked or otherwise incomplete responses into chat history might lead to future interactions being blocked by the service."

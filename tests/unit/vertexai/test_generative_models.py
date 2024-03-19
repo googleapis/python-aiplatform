@@ -133,6 +133,20 @@ def mock_generate_content(
         )
         return response
 
+    should_block = (
+        last_message_part.text
+        and "Please block with block_reason=OTHER" in last_message_part.text
+    )
+    if should_block:
+        response = gapic_prediction_service_types.GenerateContentResponse(
+            candidates=[],
+            prompt_feedback=gapic_prediction_service_types.GenerateContentResponse.PromptFeedback(
+                block_reason=gapic_prediction_service_types.GenerateContentResponse.PromptFeedback.BlockedReason.OTHER,
+                block_reason_message="Blocked for testing",
+            ),
+        )
+        return response
+
     is_continued_chat = len(request.contents) > 1
     has_retrieval = any(
         tool.retrieval or tool.google_search_retrieval for tool in request.tools
@@ -346,6 +360,31 @@ class TestGenerativeModels:
 
         with pytest.raises(generative_models.ResponseValidationError):
             chat.send_message("Please fail!")
+        # Checking that history did not get updated
+        assert len(chat.history) == 2
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_chat_send_message_response_blocked_errors(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel("gemini-pro")
+        chat = model.start_chat()
+        response1 = chat.send_message("Why is sky blue?")
+        assert response1.text
+        assert len(chat.history) == 2
+
+        with pytest.raises(generative_models.ResponseValidationError) as e:
+            chat.send_message("Please block with block_reason=OTHER.")
+
+        assert e.match("Blocked for testing")
         # Checking that history did not get updated
         assert len(chat.history) == 2
 
