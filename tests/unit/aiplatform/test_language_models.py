@@ -4164,6 +4164,7 @@ class TestLanguageModels:
                     ),
                 ],
                 auto_truncate=False,
+                output_dimensionality=3,
             )
             prediction_instances = mock_predict.call_args[1]["instances"]
             assert prediction_instances == [
@@ -4180,6 +4181,7 @@ class TestLanguageModels:
             ]
             prediction_parameters = mock_predict.call_args[1]["parameters"]
             assert not prediction_parameters["autoTruncate"]
+            assert prediction_parameters["outputDimensionality"] == 3
             assert embeddings
             for embedding in embeddings:
                 vector = embedding.values

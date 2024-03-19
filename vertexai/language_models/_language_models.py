@@ -2003,12 +2003,14 @@ class TextEmbeddingModel(_LanguageModel):
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
+        output_dimensionality: Optional[int] = None,
     ) -> _MultiInstancePredictionRequest:
         """Asynchronously calculates embeddings for the given texts.
 
         Args:
             texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
             auto_truncate(bool): Whether to automatically truncate long texts. Default: True.
+            output_dimensionality: Optional dimensions of embeddings. Range: [1, 768]. Default: None.
 
         Returns:
             A `_MultiInstancePredictionRequest` object.
@@ -2029,6 +2031,8 @@ class TextEmbeddingModel(_LanguageModel):
                 raise TypeError(f"Unsupported text embedding input type: {text}.")
             instances.append(instance)
         parameters = {"autoTruncate": auto_truncate}
+        if output_dimensionality is not None:
+            parameters["outputDimensionality"] = output_dimensionality
         return _MultiInstancePredictionRequest(
             instances=instances,
             parameters=parameters,
@@ -2057,12 +2061,14 @@ class TextEmbeddingModel(_LanguageModel):
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
+        output_dimensionality: Optional[int] = None
     ) -> List["TextEmbedding"]:
         """Calculates embeddings for the given texts.
 
         Args:
-            texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
-            auto_truncate(bool): Whether to automatically truncate long texts. Default: True.
+            texts: A list of texts or `TextEmbeddingInput` objects to embed.
+            auto_truncate: Whether to automatically truncate long texts. Default: True.
+            output_dimensionality: Optional dimensions of embeddings. Range: [1, 768]. Default: None.
 
         Returns:
             A list of `TextEmbedding` objects.
@@ -2070,6 +2076,7 @@ class TextEmbeddingModel(_LanguageModel):
         prediction_request = self._prepare_text_embedding_request(
             texts=texts,
             auto_truncate=auto_truncate,
+            output_dimensionality=output_dimensionality,
         )
 
         prediction_response = self._endpoint.predict(
@@ -2092,12 +2099,14 @@ class TextEmbeddingModel(_LanguageModel):
         texts: List[Union[str, TextEmbeddingInput]],
         *,
         auto_truncate: bool = True,
+        output_dimensionality: Optional[int] = None,
     ) -> List["TextEmbedding"]:
         """Asynchronously calculates embeddings for the given texts.
 
         Args:
-            texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
-            auto_truncate(bool): Whether to automatically truncate long texts. Default: True.
+            texts: A list of texts or `TextEmbeddingInput` objects to embed.
+            auto_truncate: Whether to automatically truncate long texts. Default: True.
+            output_dimensionality: Optional dimensions of embeddings. Range: [1, 768]. Default: None.
 
         Returns:
             A list of `TextEmbedding` objects.
@@ -2105,6 +2114,7 @@ class TextEmbeddingModel(_LanguageModel):
         prediction_request = self._prepare_text_embedding_request(
             texts=texts,
             auto_truncate=auto_truncate,
+            output_dimensionality=output_dimensionality
         )
 
         prediction_response = await self._endpoint.predict_async(
