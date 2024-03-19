@@ -32,6 +32,8 @@ from vertexai.generative_models._generative_models import (
     gapic_content_types,
     gapic_tool_types,
 )
+from vertexai.generative_models import _function_calling_utils
+
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -251,12 +253,12 @@ def mock_stream_generate_content(
     )
 
 
-def get_current_weather(location: str, unit: str = "centigrade"):
+def get_current_weather(location: str, unit: Optional[str] = "centigrade"):
     """Gets weather in the specified location.
 
     Args:
         location: The location for which to get the weather.
-        unit: Optional. Temperature unit. Can be Centigrade or Fahrenheit. Defaults to Centigrade.
+        unit: Temperature unit. Can be Centigrade or Fahrenheit. Default: Centigrade.
 
     Returns:
         The weather information as a dict.
@@ -535,3 +537,49 @@ class TestGenerativeModels:
             "Why is sky blue?", tools=[google_search_retriever_tool]
         )
         assert response.text
+
+
+EXPECTED_SCHEMA_FOR_GET_CURRENT_WEATHER = {
+    "title": "get_current_weather",
+    "type": "object",
+    "description": "Gets weather in the specified location.",
+    "properties": {
+        "location": {
+            "title": "Location",
+            "type": "string",
+            "description": "The location for which to get the weather.",
+        },
+        "unit": {
+            "title": "Unit",
+            "type": "string",
+            "description": "Temperature unit. Can be Centigrade or Fahrenheit. Default: Centigrade.",
+            "default": "centigrade",
+            "nullable": True,
+        },
+    },
+    "required": ["location"],
+}
+
+
+class TestFunctionCallingUtils:
+    def test_generate_json_schema_for_callable(self):
+        test_cases = [
+            (get_current_weather, EXPECTED_SCHEMA_FOR_GET_CURRENT_WEATHER),
+        ]
+        for function, expected_schema in test_cases:
+            schema = _function_calling_utils.generate_json_schema_from_function(
+                function
+            )
+            function_name = schema["title"]
+            function_description = schema["description"]
+            assert schema == expected_schema
+
+            fixed_schema = (
+                _function_calling_utils.adapt_json_schema_to_google_tool_schema(schema)
+            )
+            function_declaration = generative_models.FunctionDeclaration(
+                name=function_name,
+                description=function_description,
+                parameters=fixed_schema,
+            )
+            assert function_declaration
