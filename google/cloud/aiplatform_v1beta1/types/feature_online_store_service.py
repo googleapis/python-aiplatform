@@ -21,6 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import featurestore_online_service
 from google.protobuf import struct_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -30,6 +31,8 @@ __protobuf__ = proto.module(
         "FeatureViewDataKey",
         "FetchFeatureValuesRequest",
         "FetchFeatureValuesResponse",
+        "StreamingFetchFeatureValuesRequest",
+        "StreamingFetchFeatureValuesResponse",
         "NearestNeighborQuery",
         "SearchNearestEntitiesRequest",
         "NearestNeighbors",
@@ -200,6 +203,11 @@ class FetchFeatureValuesResponse(proto.Message):
             Feature values in proto Struct format.
 
             This field is a member of `oneof`_ ``format``.
+        data_key (google.cloud.aiplatform_v1beta1.types.FeatureViewDataKey):
+            The data key associated with this response. Will only be
+            populated for
+            [FeatureOnlineStoreService.StreamingFetchFeatureValues][google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService.StreamingFetchFeatureValues]
+            RPCs.
     """
 
     class FeatureNameValuePairList(proto.Message):
@@ -255,6 +263,82 @@ class FetchFeatureValuesResponse(proto.Message):
         number=2,
         oneof="format",
         message=struct_pb2.Struct,
+    )
+    data_key: "FeatureViewDataKey" = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message="FeatureViewDataKey",
+    )
+
+
+class StreamingFetchFeatureValuesRequest(proto.Message):
+    r"""Request message for
+    [FeatureOnlineStoreService.StreamingFetchFeatureValues][google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService.StreamingFetchFeatureValues].
+    For the entities requested, all features under the requested feature
+    view will be returned.
+
+    Attributes:
+        feature_view (str):
+            Required. FeatureView resource format
+            ``projects/{project}/locations/{location}/featureOnlineStores/{featureOnlineStore}/featureViews/{featureView}``
+        data_keys (MutableSequence[google.cloud.aiplatform_v1beta1.types.FeatureViewDataKey]):
+
+        data_format (google.cloud.aiplatform_v1beta1.types.FeatureViewDataFormat):
+            Specify response data format. If not set,
+            KeyValue format will be used.
+    """
+
+    feature_view: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    data_keys: MutableSequence["FeatureViewDataKey"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="FeatureViewDataKey",
+    )
+    data_format: "FeatureViewDataFormat" = proto.Field(
+        proto.ENUM,
+        number=3,
+        enum="FeatureViewDataFormat",
+    )
+
+
+class StreamingFetchFeatureValuesResponse(proto.Message):
+    r"""Response message for
+    [FeatureOnlineStoreService.StreamingFetchFeatureValues][google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService.StreamingFetchFeatureValues].
+
+    Attributes:
+        status (google.rpc.status_pb2.Status):
+            Response status. If OK, then
+            [StreamingFetchFeatureValuesResponse.data][google.cloud.aiplatform.v1beta1.StreamingFetchFeatureValuesResponse.data]
+            will be populated. Otherwise
+            [StreamingFetchFeatureValuesResponse.data_keys_with_error][google.cloud.aiplatform.v1beta1.StreamingFetchFeatureValuesResponse.data_keys_with_error]
+            will be populated with the appropriate data keys. The error
+            only applies to the listed data keys - the stream will
+            remain open for further
+            [FeatureOnlineStoreService.StreamingFetchFeatureValuesRequest][]
+            requests.
+        data (MutableSequence[google.cloud.aiplatform_v1beta1.types.FetchFeatureValuesResponse]):
+
+        data_keys_with_error (MutableSequence[google.cloud.aiplatform_v1beta1.types.FeatureViewDataKey]):
+
+    """
+
+    status: status_pb2.Status = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=status_pb2.Status,
+    )
+    data: MutableSequence["FetchFeatureValuesResponse"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="FetchFeatureValuesResponse",
+    )
+    data_keys_with_error: MutableSequence["FeatureViewDataKey"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message="FeatureViewDataKey",
     )
 
 

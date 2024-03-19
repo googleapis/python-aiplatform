@@ -266,6 +266,40 @@ class FeatureOnlineStoreServiceGrpcAsyncIOTransport(FeatureOnlineStoreServiceTra
         return self._stubs["fetch_feature_values"]
 
     @property
+    def streaming_fetch_feature_values(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.StreamingFetchFeatureValuesRequest],
+        Awaitable[feature_online_store_service.StreamingFetchFeatureValuesResponse],
+    ]:
+        r"""Return a callable for the streaming fetch feature values method over gRPC.
+
+        Bidirectional streaming RPC to fetch feature values
+        under a FeatureView. Requests may not have a one-to-one
+        mapping to responses and responses may be returned
+        out-of-order to reduce latency.
+
+        Returns:
+            Callable[[~.StreamingFetchFeatureValuesRequest],
+                    Awaitable[~.StreamingFetchFeatureValuesResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "streaming_fetch_feature_values" not in self._stubs:
+            self._stubs[
+                "streaming_fetch_feature_values"
+            ] = self.grpc_channel.stream_stream(
+                "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService/StreamingFetchFeatureValues",
+                request_serializer=feature_online_store_service.StreamingFetchFeatureValuesRequest.serialize,
+                response_deserializer=feature_online_store_service.StreamingFetchFeatureValuesResponse.deserialize,
+            )
+        return self._stubs["streaming_fetch_feature_values"]
+
+    @property
     def search_nearest_entities(
         self,
     ) -> Callable[

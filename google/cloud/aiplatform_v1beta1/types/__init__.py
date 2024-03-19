@@ -241,6 +241,8 @@ from .feature_online_store_service import (
     NearestNeighbors,
     SearchNearestEntitiesRequest,
     SearchNearestEntitiesResponse,
+    StreamingFetchFeatureValuesRequest,
+    StreamingFetchFeatureValuesResponse,
     FeatureViewDataFormat,
 )
 from .feature_registry_service import (
@@ -1023,6 +1025,8 @@ __all__ = (
     "NearestNeighbors",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
+    "StreamingFetchFeatureValuesRequest",
+    "StreamingFetchFeatureValuesResponse",
     "FeatureViewDataFormat",
     "CreateFeatureGroupOperationMetadata",
     "CreateFeatureGroupRequest",

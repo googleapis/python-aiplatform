@@ -248,6 +248,8 @@ from .types.feature_online_store_service import NearestNeighborQuery
 from .types.feature_online_store_service import NearestNeighbors
 from .types.feature_online_store_service import SearchNearestEntitiesRequest
 from .types.feature_online_store_service import SearchNearestEntitiesResponse
+from .types.feature_online_store_service import StreamingFetchFeatureValuesRequest
+from .types.feature_online_store_service import StreamingFetchFeatureValuesResponse
 from .types.feature_online_store_service import FeatureViewDataFormat
 from .types.feature_registry_service import CreateFeatureGroupOperationMetadata
 from .types.feature_registry_service import CreateFeatureGroupRequest
@@ -1350,6 +1352,8 @@ __all__ = (
     "StreamDirectPredictResponse",
     "StreamDirectRawPredictRequest",
     "StreamDirectRawPredictResponse",
+    "StreamingFetchFeatureValuesRequest",
+    "StreamingFetchFeatureValuesResponse",
     "StreamingPredictRequest",
     "StreamingPredictResponse",
     "StreamingRawPredictRequest",

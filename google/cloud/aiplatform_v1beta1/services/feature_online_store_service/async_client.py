@@ -22,6 +22,9 @@ from typing import (
     MutableMapping,
     MutableSequence,
     Optional,
+    AsyncIterable,
+    Awaitable,
+    AsyncIterator,
     Sequence,
     Tuple,
     Type,
@@ -48,6 +51,7 @@ from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 from .transports.base import FeatureOnlineStoreServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import FeatureOnlineStoreServiceGrpcAsyncIOTransport
 from .client import FeatureOnlineStoreServiceClient
@@ -383,6 +387,107 @@ class FeatureOnlineStoreServiceAsyncClient:
         # Send the request.
         response = await rpc(
             request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def streaming_fetch_feature_values(
+        self,
+        requests: Optional[
+            AsyncIterator[
+                feature_online_store_service.StreamingFetchFeatureValuesRequest
+            ]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> Awaitable[
+        AsyncIterable[feature_online_store_service.StreamingFetchFeatureValuesResponse]
+    ]:
+        r"""Bidirectional streaming RPC to fetch feature values
+        under a FeatureView. Requests may not have a one-to-one
+        mapping to responses and responses may be returned
+        out-of-order to reduce latency.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_streaming_fetch_feature_values():
+                # Create a client
+                client = aiplatform_v1beta1.FeatureOnlineStoreServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.StreamingFetchFeatureValuesRequest(
+                    feature_view="feature_view_value",
+                )
+
+                # This method expects an iterator which contains
+                # 'aiplatform_v1beta1.StreamingFetchFeatureValuesRequest' objects
+                # Here we create a generator that yields a single `request` for
+                # demonstrative purposes.
+                requests = [request]
+
+                def request_generator():
+                    for request in requests:
+                        yield request
+
+                # Make the request
+                stream = await client.streaming_fetch_feature_values(requests=request_generator())
+
+                # Handle the response
+                async for response in stream:
+                    print(response)
+
+        Args:
+            requests (AsyncIterator[`google.cloud.aiplatform_v1beta1.types.StreamingFetchFeatureValuesRequest`]):
+                The request object AsyncIterator. Request message for
+                [FeatureOnlineStoreService.StreamingFetchFeatureValues][google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService.StreamingFetchFeatureValues].
+                For the entities requested, all features under the
+                requested feature view will be returned.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            AsyncIterable[google.cloud.aiplatform_v1beta1.types.StreamingFetchFeatureValuesResponse]:
+                Response message for
+                   [FeatureOnlineStoreService.StreamingFetchFeatureValues][google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService.StreamingFetchFeatureValues].
+
+        """
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.streaming_fetch_feature_values,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (gapic_v1.routing_header.to_grpc_metadata(()),)
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            requests,
             retry=retry,
             timeout=timeout,
             metadata=metadata,
