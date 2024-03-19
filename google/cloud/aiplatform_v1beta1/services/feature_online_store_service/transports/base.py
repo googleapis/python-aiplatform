@@ -136,6 +136,11 @@ class FeatureOnlineStoreServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.streaming_fetch_feature_values: gapic_v1.method.wrap_method(
+                self.streaming_fetch_feature_values,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.search_nearest_entities: gapic_v1.method.wrap_method(
                 self.search_nearest_entities,
                 default_timeout=None,
@@ -160,6 +165,18 @@ class FeatureOnlineStoreServiceTransport(abc.ABC):
         Union[
             feature_online_store_service.FetchFeatureValuesResponse,
             Awaitable[feature_online_store_service.FetchFeatureValuesResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def streaming_fetch_feature_values(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.StreamingFetchFeatureValuesRequest],
+        Union[
+            feature_online_store_service.StreamingFetchFeatureValuesResponse,
+            Awaitable[feature_online_store_service.StreamingFetchFeatureValuesResponse],
         ],
     ]:
         raise NotImplementedError()

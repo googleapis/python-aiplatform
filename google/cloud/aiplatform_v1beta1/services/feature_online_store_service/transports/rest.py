@@ -671,6 +671,22 @@ class FeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTransport)
             resp = self._interceptor.post_search_nearest_entities(resp)
             return resp
 
+    class _StreamingFetchFeatureValues(FeatureOnlineStoreServiceRestStub):
+        def __hash__(self):
+            return hash("StreamingFetchFeatureValues")
+
+        def __call__(
+            self,
+            request: feature_online_store_service.StreamingFetchFeatureValuesRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> rest_streaming.ResponseIterator:
+            raise NotImplementedError(
+                "Method StreamingFetchFeatureValues is not available over REST transport"
+            )
+
     @property
     def fetch_feature_values(
         self,
@@ -692,6 +708,17 @@ class FeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTransport)
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._SearchNearestEntities(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def streaming_fetch_feature_values(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.StreamingFetchFeatureValuesRequest],
+        feature_online_store_service.StreamingFetchFeatureValuesResponse,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._StreamingFetchFeatureValues(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def get_location(self):

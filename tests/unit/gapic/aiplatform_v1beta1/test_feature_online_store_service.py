@@ -62,6 +62,7 @@ from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import struct_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 import google.auth
 
 
@@ -1468,6 +1469,91 @@ async def test_fetch_feature_values_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
+        feature_online_store_service.StreamingFetchFeatureValuesRequest,
+        dict,
+    ],
+)
+def test_streaming_fetch_feature_values(request_type, transport: str = "grpc"):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.streaming_fetch_feature_values), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter(
+            [feature_online_store_service.StreamingFetchFeatureValuesResponse()]
+        )
+        response = client.streaming_fetch_feature_values(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(
+            message, feature_online_store_service.StreamingFetchFeatureValuesResponse
+        )
+
+
+@pytest.mark.asyncio
+async def test_streaming_fetch_feature_values_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_online_store_service.StreamingFetchFeatureValuesRequest,
+):
+    client = FeatureOnlineStoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.streaming_fetch_feature_values), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.StreamStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[
+                feature_online_store_service.StreamingFetchFeatureValuesResponse()
+            ]
+        )
+        response = await client.streaming_fetch_feature_values(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(
+        message, feature_online_store_service.StreamingFetchFeatureValuesResponse
+    )
+
+
+@pytest.mark.asyncio
+async def test_streaming_fetch_feature_values_async_from_dict():
+    await test_streaming_fetch_feature_values_async(request_type=dict)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         feature_online_store_service.SearchNearestEntitiesRequest,
         dict,
     ],
@@ -1906,6 +1992,17 @@ def test_fetch_feature_values_rest_error():
     )
 
 
+def test_streaming_fetch_feature_values_rest_unimplemented():
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = feature_online_store_service.StreamingFetchFeatureValuesRequest()
+    requests = [request]
+    with pytest.raises(NotImplementedError):
+        client.streaming_fetch_feature_values(requests)
+
+
 @pytest.mark.parametrize(
     "request_type",
     [
@@ -2279,6 +2376,7 @@ def test_feature_online_store_service_base_transport():
     # raise NotImplementedError.
     methods = (
         "fetch_feature_values",
+        "streaming_fetch_feature_values",
         "search_nearest_entities",
         "set_iam_policy",
         "get_iam_policy",
@@ -2556,6 +2654,9 @@ def test_feature_online_store_service_client_transport_session_collision(
     )
     session1 = client1.transport.fetch_feature_values._session
     session2 = client2.transport.fetch_feature_values._session
+    assert session1 != session2
+    session1 = client1.transport.streaming_fetch_feature_values._session
+    session2 = client2.transport.streaming_fetch_feature_values._session
     assert session1 != session2
     session1 = client1.transport.search_nearest_entities._session
     session2 = client2.transport.search_nearest_entities._session

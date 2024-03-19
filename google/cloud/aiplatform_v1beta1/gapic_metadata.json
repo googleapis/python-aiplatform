@@ -755,6 +755,11 @@
               "methods": [
                 "search_nearest_entities"
               ]
+            },
+            "StreamingFetchFeatureValues": {
+              "methods": [
+                "streaming_fetch_feature_values"
+              ]
             }
           }
         },
@@ -770,6 +775,11 @@
               "methods": [
                 "search_nearest_entities"
               ]
+            },
+            "StreamingFetchFeatureValues": {
+              "methods": [
+                "streaming_fetch_feature_values"
+              ]
             }
           }
         },
@@ -784,6 +794,11 @@
             "SearchNearestEntities": {
               "methods": [
                 "search_nearest_entities"
+              ]
+            },
+            "StreamingFetchFeatureValues": {
+              "methods": [
+                "streaming_fetch_feature_values"
               ]
             }
           }
