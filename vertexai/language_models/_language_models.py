@@ -1969,6 +1969,10 @@ class TextEmbeddingInput:
                 Specifies that the given text will be classified.
             CLUSTERING
                 Specifies that the embeddings will be used for clustering.
+            QUESTION_ANSWERING
+                Specifies that the embeddings will be used for question answering.
+            FACT_VERIFICATION
+                Specifies that the embeddings will be used for fact verification.
         title: Optional identifier of the text content.
     """
 
