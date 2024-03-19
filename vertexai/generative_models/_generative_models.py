@@ -1404,7 +1404,12 @@ class GenerationResponse:
     @property
     def text(self) -> str:
         if len(self.candidates) > 1:
-            raise ValueError("Multiple candidates are not supported")
+            raise ValueError(
+                "The response has multiple candidates."
+                " Use `response.candidate[i].text` to get text of a particular candidate."
+            )
+        if not self.candidates:
+            raise ValueError("Response has no candidates (and no text).")
         return self.candidates[0].text
 
 
