@@ -427,6 +427,8 @@ class TestExperiments(e2e_base.TestEndToEnd):
         true_df_dict_1["state"] = aiplatform.gapic.Execution.State.COMPLETE.name
         true_df_dict_1["run_type"] = aiplatform.metadata.constants.SYSTEM_EXPERIMENT_RUN
         true_df_dict_1[f"time_series_metric.{_TIME_SERIES_METRIC_KEY}"] = 4.0
+        for i in range(_READ_TIME_SERIES_BATCH_SIZE + 1):
+            true_df_dict_1[f"time_series_metric.{_TIME_SERIES_METRIC_KEY}-{i}"] = 1.0
 
         true_df_dict_2 = {f"metric.{key}": value for key, value in _METRICS_2.items()}
         for key, value in _PARAMS_2.items():
