@@ -1146,7 +1146,7 @@ class GenerationConfig:
     def to_dict(self) -> Dict[str, Any]:
         return type(self._raw_generation_config).to_dict(self._raw_generation_config)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self._raw_generation_config.__repr__()
 
 
@@ -1208,7 +1208,7 @@ class Tool:
     def from_function_declarations(
         cls,
         function_declarations: List["FunctionDeclaration"],
-    ):
+    ) -> "Tool":
         gapic_function_declarations = [
             function_declaration._raw_function_declaration
             for function_declaration in function_declarations
@@ -1221,16 +1221,16 @@ class Tool:
     @classmethod
     def from_retrieval(
         cls,
-        retrieval: "Retrieval",
-    ):
+        retrieval: "grounding.Retrieval",
+    ) -> "Tool":
         raw_tool = gapic_tool_types.Tool(retrieval=retrieval._raw_retrieval)
         return cls._from_gapic(raw_tool=raw_tool)
 
     @classmethod
     def from_google_search_retrieval(
         cls,
-        google_search_retrieval: "GoogleSearchRetrieval",
-    ):
+        google_search_retrieval: "grounding.GoogleSearchRetrieval",
+    ) -> "Tool":
         raw_tool = gapic_tool_types.Tool(
             google_search_retrieval=google_search_retrieval._raw_google_search_retrieval
         )
@@ -1259,7 +1259,7 @@ class Tool:
     def to_dict(self) -> Dict[str, Any]:
         return type(self._raw_tool).to_dict(self._raw_tool)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self._raw_tool.__repr__()
 
 
@@ -1347,7 +1347,7 @@ class FunctionDeclaration:
         )
 
 
-def _convert_schema_dict_to_gapic(schema_dict: Dict[str, Any]):
+def _convert_schema_dict_to_gapic(schema_dict: Dict[str, Any]) -> Dict[str, Any]:
     """Converts a JsonSchema to a dict that the GAPIC Schema class accepts."""
     gapic_schema_dict = copy.copy(schema_dict)
     if "type" in gapic_schema_dict:
@@ -1390,7 +1390,7 @@ class GenerationResponse:
     def to_dict(self) -> Dict[str, Any]:
         return type(self._raw_response).to_dict(self._raw_response)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self._raw_response.__repr__()
 
     @property
@@ -1435,7 +1435,7 @@ class Candidate:
     def to_dict(self) -> Dict[str, Any]:
         return type(self._raw_candidate).to_dict(self._raw_candidate)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self._raw_candidate.__repr__()
 
     @property
@@ -1515,7 +1515,7 @@ class Content:
     def to_dict(self) -> Dict[str, Any]:
         return type(self._raw_content).to_dict(self._raw_content)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self._raw_content.__repr__()
 
     @property
@@ -1579,7 +1579,7 @@ class Part:
         json_format.ParseDict(part_dict, raw_part._pb)
         return cls._from_gapic(raw_part=raw_part)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self._raw_part.__repr__()
 
     @staticmethod
