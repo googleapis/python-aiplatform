@@ -695,6 +695,22 @@ from .prediction_service import (
 from .publisher_model import (
     PublisherModel,
 )
+from .reasoning_engine import (
+    ReasoningEngine,
+    ReasoningEngineSpec,
+)
+from .reasoning_engine_execution_service import (
+    QueryReasoningEngineRequest,
+    QueryReasoningEngineResponse,
+)
+from .reasoning_engine_service import (
+    CreateReasoningEngineOperationMetadata,
+    CreateReasoningEngineRequest,
+    DeleteReasoningEngineRequest,
+    GetReasoningEngineRequest,
+    ListReasoningEnginesRequest,
+    ListReasoningEnginesResponse,
+)
 from .saved_query import (
     SavedQuery,
 )
@@ -1390,6 +1406,16 @@ __all__ = (
     "StreamingRawPredictRequest",
     "StreamingRawPredictResponse",
     "PublisherModel",
+    "ReasoningEngine",
+    "ReasoningEngineSpec",
+    "QueryReasoningEngineRequest",
+    "QueryReasoningEngineResponse",
+    "CreateReasoningEngineOperationMetadata",
+    "CreateReasoningEngineRequest",
+    "DeleteReasoningEngineRequest",
+    "GetReasoningEngineRequest",
+    "ListReasoningEnginesRequest",
+    "ListReasoningEnginesResponse",
     "SavedQuery",
     "Schedule",
     "CreateScheduleRequest",
