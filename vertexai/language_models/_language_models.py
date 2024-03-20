@@ -413,6 +413,7 @@ class _RlhfTuningParameters:
     deploy_model: Optional[bool] = None
     eval_dataset: Optional[str] = None
     project: Optional[str] = None
+    accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None
     tensorboard_resource_id: Optional[str] = None
 
     def asdict(self) -> Dict[str, Any]:
@@ -439,6 +440,7 @@ class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
         kl_coeff: Optional[float] = None,
         default_context: Optional[str] = None,
         tuning_job_location: Optional[str] = None,
+        accelerator_type: Optional[_ACCELERATOR_TYPE_TYPE] = None,
         tuning_evaluation_spec: Optional["TuningEvaluationSpec"] = None,
     ) -> "_LanguageModelTuningJob":
         """Tunes a model using reinforcement learning from human feedback.
@@ -491,6 +493,7 @@ class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
                 negative" or "Translate this sentence to Danish". Do not specify this
                 if your dataset already prepends the instruction to the inputs field.
             tuning_job_location: GCP location where the tuning job should be run.
+            accelerator_type: Type of accelerator to use. Can be "TPU" or "GPU".
             tuning_evaluation_spec: Evaluation settings to use during tuning.
 
         Returns:
@@ -527,6 +530,13 @@ class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             model_id=self._model_id,
         )
 
+        if accelerator_type:
+            if accelerator_type not in _ACCELERATOR_TYPES:
+                raise ValueError(
+                    f"Unsupported accelerator type: {accelerator_type}."
+                    f" Supported types: {_ACCELERATOR_TYPES}"
+                )
+
         tuning_parameters = _RlhfTuningParameters(
             prompt_dataset=prompt_dataset_uri,
             preference_dataset=preference_dataset_uri,
@@ -542,6 +552,7 @@ class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             kl_coeff=kl_coeff,
             instruction=default_context,
             eval_dataset=eval_dataset,
+            accelerator_type=accelerator_type,
             tensorboard_resource_id=tensorboard_resource_id,
         )
 
@@ -574,7 +585,7 @@ class _RlhfTunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             raise ValueError(
                 _get_invalid_tuning_location_msg(
                     requested_location=tuning_parameters.location,
-                    valid_locations=_SUPPORTED_RLHF_LOCATIONS,
+                    valid_locations=_TUNING_LOCATIONS,
                 )
             )
         if self._model_id not in _SUPPORTED_RLHF_MODELS:
@@ -3432,13 +3443,6 @@ _SUPPORTED_LOCATIONS = [
 _TUNING_LOCATIONS = _SUPPORTED_LOCATIONS
 # Currently, deployment can only work in these locations
 _TUNED_MODEL_LOCATIONS = _SUPPORTED_LOCATIONS
-
-# TODO(b/318874365): Use _SUPPORTED_LOCATIONS defined above once DRZ for RLHF is
-# implemented.
-_SUPPORTED_RLHF_LOCATIONS = {
-    "us-central1",
-    "europe-west4",
-}
 
 # All models supported by RLHF that can also be used for online and batch prediction:
 _SUPPORTED_RLHF_MODELS = {

@@ -723,6 +723,11 @@ _TEST_RLHF_PIPELINE_SPEC = {
                     "isOptional": True,
                     "parameterType": "NUMBER_INTEGER",
                 },
+                "accelerator_type": {
+                    "defaultValue": "",
+                    "isOptional": True,
+                    "parameterType": "STRING",
+                },
                 "tensorboard_resource_id": {
                     "isOptional": True,
                     "parameterType": "STRING",
@@ -2696,6 +2701,7 @@ class TestLanguageModels:
         kl_coeff = 0.3
         tensorboard_resource_id = _get_test_tensorboard_resource_id()
         eval_dataset = "gs://bucket/eval.jsonl"
+        accelerator_type = "TPU"
 
         with mock.patch.object(
             target=model_garden_service_client.ModelGardenServiceClient,
@@ -2718,6 +2724,7 @@ class TestLanguageModels:
                 reward_model_train_steps=reward_model_train_steps,
                 reinforcement_learning_train_steps=reinforcement_learning_train_steps,
                 kl_coeff=kl_coeff,
+                accelerator_type=accelerator_type,
                 tuning_evaluation_spec=preview_language_models.TuningEvaluationSpec(
                     tensorboard=tensorboard_resource_id,
                     evaluation_data=eval_dataset,
@@ -2756,6 +2763,7 @@ class TestLanguageModels:
                 pipeline_arguments["tensorboard_resource_id"] == tensorboard_resource_id
             )
             assert pipeline_arguments["eval_dataset"] == eval_dataset
+            assert pipeline_arguments["accelerator_type"] == "TPU"
 
     @pytest.mark.parametrize(
         "job_spec",
