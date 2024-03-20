@@ -23,6 +23,8 @@ Services for Google Cloud Aiplatform v1beta1 API
     persistent_resource_service
     pipeline_service
     prediction_service
+    reasoning_engine_execution_service
+    reasoning_engine_service
     schedule_service
     specialist_pool_service
     tensorboard_service

@@ -47,23 +47,23 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
-from google.api_core import operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
-from google.cloud.aiplatform_v1beta1.types import migratable_resource
-from google.cloud.aiplatform_v1beta1.types import migration_service
+from google.cloud.aiplatform_v1beta1.types import reasoning_engine_execution_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc import MigrationServiceGrpcTransport
-from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
-from .transports.rest import MigrationServiceRestTransport
+from google.protobuf import struct_pb2  # type: ignore
+from .transports.base import (
+    ReasoningEngineExecutionServiceTransport,
+    DEFAULT_CLIENT_INFO,
+)
+from .transports.grpc import ReasoningEngineExecutionServiceGrpcTransport
+from .transports.grpc_asyncio import ReasoningEngineExecutionServiceGrpcAsyncIOTransport
+from .transports.rest import ReasoningEngineExecutionServiceRestTransport
 
 
-class MigrationServiceClientMeta(type):
-    """Metaclass for the MigrationService client.
+class ReasoningEngineExecutionServiceClientMeta(type):
+    """Metaclass for the ReasoningEngineExecutionService client.
 
     This provides class-level methods for building and retrieving
     support objects (e.g. transport) without polluting the client instance
@@ -72,15 +72,17 @@ class MigrationServiceClientMeta(type):
 
     _transport_registry = (
         OrderedDict()
-    )  # type: Dict[str, Type[MigrationServiceTransport]]
-    _transport_registry["grpc"] = MigrationServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = MigrationServiceGrpcAsyncIOTransport
-    _transport_registry["rest"] = MigrationServiceRestTransport
+    )  # type: Dict[str, Type[ReasoningEngineExecutionServiceTransport]]
+    _transport_registry["grpc"] = ReasoningEngineExecutionServiceGrpcTransport
+    _transport_registry[
+        "grpc_asyncio"
+    ] = ReasoningEngineExecutionServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = ReasoningEngineExecutionServiceRestTransport
 
     def get_transport_class(
         cls,
         label: Optional[str] = None,
-    ) -> Type[MigrationServiceTransport]:
+    ) -> Type[ReasoningEngineExecutionServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -99,10 +101,10 @@ class MigrationServiceClientMeta(type):
         return next(iter(cls._transport_registry.values()))
 
 
-class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
-    """A service that migrates resources from automl.googleapis.com,
-    datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
-    """
+class ReasoningEngineExecutionServiceClient(
+    metaclass=ReasoningEngineExecutionServiceClientMeta
+):
+    """A service for executing queries on Reasoning Engine."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
@@ -154,7 +156,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            ReasoningEngineExecutionServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_info(info)
         kwargs["credentials"] = credentials
@@ -172,7 +174,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            ReasoningEngineExecutionServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -181,160 +183,33 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @property
-    def transport(self) -> MigrationServiceTransport:
+    def transport(self) -> ReasoningEngineExecutionServiceTransport:
         """Returns the transport used by the client instance.
 
         Returns:
-            MigrationServiceTransport: The transport used by the client
+            ReasoningEngineExecutionServiceTransport: The transport used by the client
                 instance.
         """
         return self._transport
 
     @staticmethod
-    def annotated_dataset_path(
-        project: str,
-        dataset: str,
-        annotated_dataset: str,
-    ) -> str:
-        """Returns a fully-qualified annotated_dataset string."""
-        return "projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}".format(
-            project=project,
-            dataset=dataset,
-            annotated_dataset=annotated_dataset,
-        )
-
-    @staticmethod
-    def parse_annotated_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a annotated_dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)/annotatedDatasets/(?P<annotated_dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/datasets/{dataset}".format(
-            project=project,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
+    def reasoning_engine_path(
         project: str,
         location: str,
-        dataset: str,
+        reasoning_engine: str,
     ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        """Returns a fully-qualified reasoning_engine string."""
+        return "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}".format(
             project=project,
             location=location,
-            dataset=dataset,
+            reasoning_engine=reasoning_engine,
         )
 
     @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
+    def parse_reasoning_engine_path(path: str) -> Dict[str, str]:
+        """Parses a reasoning_engine path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_path(
-        project: str,
-        location: str,
-        model: str,
-    ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
-            model=model,
-        )
-
-    @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_path(
-        project: str,
-        location: str,
-        model: str,
-    ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
-            model=model,
-        )
-
-    @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def version_path(
-        project: str,
-        model: str,
-        version: str,
-    ) -> str:
-        """Returns a fully-qualified version string."""
-        return "projects/{project}/models/{model}/versions/{version}".format(
-            project=project,
-            model=model,
-            version=version,
-        )
-
-    @staticmethod
-    def parse_version_path(path: str) -> Dict[str, str]:
-        """Parses a version path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/models/(?P<model>.+?)/versions/(?P<version>.+?)$",
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/reasoningEngines/(?P<reasoning_engine>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -558,15 +433,17 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         elif use_mtls_endpoint == "always" or (
             use_mtls_endpoint == "auto" and client_cert_source
         ):
-            _default_universe = MigrationServiceClient._DEFAULT_UNIVERSE
+            _default_universe = ReasoningEngineExecutionServiceClient._DEFAULT_UNIVERSE
             if universe_domain != _default_universe:
                 raise MutualTLSChannelError(
                     f"mTLS is not supported in any universe other than {_default_universe}."
                 )
-            api_endpoint = MigrationServiceClient.DEFAULT_MTLS_ENDPOINT
+            api_endpoint = ReasoningEngineExecutionServiceClient.DEFAULT_MTLS_ENDPOINT
         else:
-            api_endpoint = MigrationServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
-                UNIVERSE_DOMAIN=universe_domain
+            api_endpoint = (
+                ReasoningEngineExecutionServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+                    UNIVERSE_DOMAIN=universe_domain
+                )
             )
         return api_endpoint
 
@@ -586,7 +463,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         Raises:
             ValueError: If the universe domain is an empty string.
         """
-        universe_domain = MigrationServiceClient._DEFAULT_UNIVERSE
+        universe_domain = ReasoningEngineExecutionServiceClient._DEFAULT_UNIVERSE
         if client_universe_domain is not None:
             universe_domain = client_universe_domain
         elif universe_domain_env is not None:
@@ -612,7 +489,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             ValueError: when client_universe does not match the universe in credentials.
         """
 
-        default_universe = MigrationServiceClient._DEFAULT_UNIVERSE
+        default_universe = ReasoningEngineExecutionServiceClient._DEFAULT_UNIVERSE
         credentials_universe = getattr(credentials, "universe_domain", default_universe)
 
         if client_universe != credentials_universe:
@@ -636,7 +513,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         """
         self._is_universe_domain_valid = (
             self._is_universe_domain_valid
-            or MigrationServiceClient._compare_universes(
+            or ReasoningEngineExecutionServiceClient._compare_universes(
                 self.universe_domain, self.transport._credentials
             )
         )
@@ -664,11 +541,13 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, MigrationServiceTransport]] = None,
+        transport: Optional[
+            Union[str, ReasoningEngineExecutionServiceTransport]
+        ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the migration service client.
+        """Instantiates the reasoning engine execution service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -676,7 +555,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, MigrationServiceTransport]): The
+            transport (Union[str, ReasoningEngineExecutionServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
                 NOTE: "rest" transport functionality is currently in a
@@ -733,12 +612,16 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             self._use_client_cert,
             self._use_mtls_endpoint,
             self._universe_domain_env,
-        ) = MigrationServiceClient._read_environment_variables()
-        self._client_cert_source = MigrationServiceClient._get_client_cert_source(
-            self._client_options.client_cert_source, self._use_client_cert
+        ) = ReasoningEngineExecutionServiceClient._read_environment_variables()
+        self._client_cert_source = (
+            ReasoningEngineExecutionServiceClient._get_client_cert_source(
+                self._client_options.client_cert_source, self._use_client_cert
+            )
         )
-        self._universe_domain = MigrationServiceClient._get_universe_domain(
-            universe_domain_opt, self._universe_domain_env
+        self._universe_domain = (
+            ReasoningEngineExecutionServiceClient._get_universe_domain(
+                universe_domain_opt, self._universe_domain_env
+            )
         )
         self._api_endpoint = None  # updated below, depending on `transport`
 
@@ -754,9 +637,11 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
-        transport_provided = isinstance(transport, MigrationServiceTransport)
+        transport_provided = isinstance(
+            transport, ReasoningEngineExecutionServiceTransport
+        )
         if transport_provided:
-            # transport is a MigrationServiceTransport instance.
+            # transport is a ReasoningEngineExecutionServiceTransport instance.
             if credentials or self._client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
@@ -767,12 +652,12 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                     "When providing a transport instance, provide its scopes "
                     "directly."
                 )
-            self._transport = cast(MigrationServiceTransport, transport)
+            self._transport = cast(ReasoningEngineExecutionServiceTransport, transport)
             self._api_endpoint = self._transport.host
 
         self._api_endpoint = (
             self._api_endpoint
-            or MigrationServiceClient._get_api_endpoint(
+            or ReasoningEngineExecutionServiceClient._get_api_endpoint(
                 self._client_options.api_endpoint,
                 self._client_cert_source,
                 self._universe_domain,
@@ -803,21 +688,17 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 api_audience=self._client_options.api_audience,
             )
 
-    def search_migratable_resources(
+    def query_reasoning_engine(
         self,
         request: Optional[
-            Union[migration_service.SearchMigratableResourcesRequest, dict]
+            Union[reasoning_engine_execution_service.QueryReasoningEngineRequest, dict]
         ] = None,
         *,
-        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.SearchMigratableResourcesPager:
-        r"""Searches all of the resources in
-        automl.googleapis.com, datalabeling.googleapis.com and
-        ml.googleapis.com that can be migrated to Vertex AI's
-        given location.
+    ) -> reasoning_engine_execution_service.QueryReasoningEngineResponse:
+        r"""Queries using a reasoning engine.
 
         .. code-block:: python
 
@@ -830,183 +711,25 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
-            def sample_search_migratable_resources():
+            def sample_query_reasoning_engine():
                 # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
+                client = aiplatform_v1beta1.ReasoningEngineExecutionServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.SearchMigratableResourcesRequest(
-                    parent="parent_value",
+                request = aiplatform_v1beta1.QueryReasoningEngineRequest(
+                    name="name_value",
                 )
 
                 # Make the request
-                page_result = client.search_migratable_resources(request=request)
-
-                # Handle the response
-                for response in page_result:
-                    print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest, dict]):
-                The request object. Request message for
-                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
-            parent (str):
-                Required. The location that the migratable resources
-                should be searched from. It's the Vertex AI location
-                that the resources can be migrated to, not the
-                resources' original location. Format:
-                ``projects/{project}/locations/{location}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.services.migration_service.pagers.SearchMigratableResourcesPager:
-                Response message for
-                   [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
-
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a migration_service.SearchMigratableResourcesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, migration_service.SearchMigratableResourcesRequest):
-            request = migration_service.SearchMigratableResourcesRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.search_migratable_resources
-        ]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
-        )
-
-        # Validate the universe domain.
-        self._validate_universe_domain()
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.SearchMigratableResourcesPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def batch_migrate_resources(
-        self,
-        request: Optional[
-            Union[migration_service.BatchMigrateResourcesRequest, dict]
-        ] = None,
-        *,
-        parent: Optional[str] = None,
-        migrate_resource_requests: Optional[
-            MutableSequence[migration_service.MigrateResourceRequest]
-        ] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation.Operation:
-        r"""Batch migrates resources from ml.googleapis.com,
-        automl.googleapis.com, and datalabeling.googleapis.com
-        to Vertex AI.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_batch_migrate_resources():
-                # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
-
-                # Initialize request argument(s)
-                migrate_resource_requests = aiplatform_v1beta1.MigrateResourceRequest()
-                migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
-
-                request = aiplatform_v1beta1.BatchMigrateResourcesRequest(
-                    parent="parent_value",
-                    migrate_resource_requests=migrate_resource_requests,
-                )
-
-                # Make the request
-                operation = client.batch_migrate_resources(request=request)
-
-                print("Waiting for operation to complete...")
-
-                response = operation.result()
+                response = client.query_reasoning_engine(request=request)
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1beta1.types.QueryReasoningEngineRequest, dict]):
                 The request object. Request message for
-                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
-            parent (str):
-                Required. The location of the migrated resource will
-                live in. Format:
-                ``projects/{project}/locations/{location}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            migrate_resource_requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest]):
-                Required. The request messages
-                specifying the resources to migrate.
-                They must be in the same location as the
-                destination. Up to 50 resources can be
-                migrated in one batch.
-
-                This corresponds to the ``migrate_resource_requests`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
+                [ReasoningEngineExecutionService.Query][].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1014,44 +737,31 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            google.api_core.operation.Operation:
-                An object representing a long-running operation.
-
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesResponse` Response message for
-                   [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
+            google.cloud.aiplatform_v1beta1.types.QueryReasoningEngineResponse:
+                Response message for
+                [ReasoningEngineExecutionService.Query][]
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, migrate_resource_requests])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
         # Minor optimization to avoid making a copy if the user passes
-        # in a migration_service.BatchMigrateResourcesRequest.
+        # in a reasoning_engine_execution_service.QueryReasoningEngineRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, migration_service.BatchMigrateResourcesRequest):
-            request = migration_service.BatchMigrateResourcesRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-            if migrate_resource_requests is not None:
-                request.migrate_resource_requests = migrate_resource_requests
+        if not isinstance(
+            request, reasoning_engine_execution_service.QueryReasoningEngineRequest
+        ):
+            request = reasoning_engine_execution_service.QueryReasoningEngineRequest(
+                request
+            )
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.batch_migrate_resources]
+        rpc = self._transport._wrapped_methods[self._transport.query_reasoning_engine]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Validate the universe domain.
@@ -1065,18 +775,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             metadata=metadata,
         )
 
-        # Wrap the response in an operation future.
-        response = operation.from_gapic(
-            response,
-            self._transport.operations_client,
-            migration_service.BatchMigrateResourcesResponse,
-            metadata_type=migration_service.BatchMigrateResourcesOperationMetadata,
-        )
-
         # Done; return the response.
         return response
 
-    def __enter__(self) -> "MigrationServiceClient":
+    def __enter__(self) -> "ReasoningEngineExecutionServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -1810,4 +1512,4 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
 )
 
 
-__all__ = ("MigrationServiceClient",)
+__all__ = ("ReasoningEngineExecutionServiceClient",)

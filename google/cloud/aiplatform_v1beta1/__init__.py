@@ -70,6 +70,14 @@ from .services.pipeline_service import PipelineServiceClient
 from .services.pipeline_service import PipelineServiceAsyncClient
 from .services.prediction_service import PredictionServiceClient
 from .services.prediction_service import PredictionServiceAsyncClient
+from .services.reasoning_engine_execution_service import (
+    ReasoningEngineExecutionServiceClient,
+)
+from .services.reasoning_engine_execution_service import (
+    ReasoningEngineExecutionServiceAsyncClient,
+)
+from .services.reasoning_engine_service import ReasoningEngineServiceClient
+from .services.reasoning_engine_service import ReasoningEngineServiceAsyncClient
 from .services.schedule_service import ScheduleServiceClient
 from .services.schedule_service import ScheduleServiceAsyncClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
@@ -621,6 +629,16 @@ from .types.prediction_service import StreamingPredictResponse
 from .types.prediction_service import StreamingRawPredictRequest
 from .types.prediction_service import StreamingRawPredictResponse
 from .types.publisher_model import PublisherModel
+from .types.reasoning_engine import ReasoningEngine
+from .types.reasoning_engine import ReasoningEngineSpec
+from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
+from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
+from .types.reasoning_engine_service import CreateReasoningEngineOperationMetadata
+from .types.reasoning_engine_service import CreateReasoningEngineRequest
+from .types.reasoning_engine_service import DeleteReasoningEngineRequest
+from .types.reasoning_engine_service import GetReasoningEngineRequest
+from .types.reasoning_engine_service import ListReasoningEnginesRequest
+from .types.reasoning_engine_service import ListReasoningEnginesResponse
 from .types.saved_query import SavedQuery
 from .types.schedule import Schedule
 from .types.schedule_service import CreateScheduleRequest
@@ -770,6 +788,8 @@ __all__ = (
     "PersistentResourceServiceAsyncClient",
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
+    "ReasoningEngineExecutionServiceAsyncClient",
+    "ReasoningEngineServiceAsyncClient",
     "ScheduleServiceAsyncClient",
     "SpecialistPoolServiceAsyncClient",
     "TensorboardServiceAsyncClient",
@@ -886,6 +906,8 @@ __all__ = (
     "CreatePersistentResourceOperationMetadata",
     "CreatePersistentResourceRequest",
     "CreatePipelineJobRequest",
+    "CreateReasoningEngineOperationMetadata",
+    "CreateReasoningEngineRequest",
     "CreateRegistryFeatureOperationMetadata",
     "CreateScheduleRequest",
     "CreateSpecialistPoolOperationMetadata",
@@ -940,6 +962,7 @@ __all__ = (
     "DeleteOperationMetadata",
     "DeletePersistentResourceRequest",
     "DeletePipelineJobRequest",
+    "DeleteReasoningEngineRequest",
     "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
     "DeleteSpecialistPoolRequest",
@@ -1074,6 +1097,7 @@ __all__ = (
     "GetPersistentResourceRequest",
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
+    "GetReasoningEngineRequest",
     "GetScheduleRequest",
     "GetSpecialistPoolRequest",
     "GetStudyRequest",
@@ -1181,6 +1205,8 @@ __all__ = (
     "ListPipelineJobsResponse",
     "ListPublisherModelsRequest",
     "ListPublisherModelsResponse",
+    "ListReasoningEnginesRequest",
+    "ListReasoningEnginesResponse",
     "ListSavedQueriesRequest",
     "ListSavedQueriesResponse",
     "ListSchedulesRequest",
@@ -1292,6 +1318,8 @@ __all__ = (
     "QueryDeployedModelsRequest",
     "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
+    "QueryReasoningEngineRequest",
+    "QueryReasoningEngineResponse",
     "RawPredictRequest",
     "RayMetricSpec",
     "RaySpec",
@@ -1307,6 +1335,10 @@ __all__ = (
     "ReadTensorboardTimeSeriesDataResponse",
     "ReadTensorboardUsageRequest",
     "ReadTensorboardUsageResponse",
+    "ReasoningEngine",
+    "ReasoningEngineExecutionServiceClient",
+    "ReasoningEngineServiceClient",
+    "ReasoningEngineSpec",
     "RemoveContextChildrenRequest",
     "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",
