@@ -30,6 +30,9 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
 )
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import RaySpec
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
+    RayMetricSpec,
+)
+from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourcePool,
 )
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
@@ -116,14 +119,20 @@ class ClusterConstants:
     TEST_REQUEST_RUNNING_1_POOL = PersistentResource(
         resource_pools=[TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
-            ray_spec=RaySpec(resource_pool_images={"head-node": TEST_GPU_IMAGE}),
+            ray_spec=RaySpec(
+                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                ray_metric_spec=RayMetricSpec(disabled=False),
+            ),
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,
     )
     TEST_REQUEST_RUNNING_1_POOL_WITH_LABELS = PersistentResource(
         resource_pools=[TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
-            ray_spec=RaySpec(resource_pool_images={"head-node": TEST_GPU_IMAGE}),
+            ray_spec=RaySpec(
+                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                ray_metric_spec=RayMetricSpec(disabled=True),
+            ),
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,
         labels=TEST_LABELS,
@@ -131,7 +140,10 @@ class ClusterConstants:
     TEST_REQUEST_RUNNING_1_POOL_CUSTOM_IMAGES = PersistentResource(
         resource_pools=[TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
-            ray_spec=RaySpec(resource_pool_images={"head-node": TEST_CUSTOM_IMAGE}),
+            ray_spec=RaySpec(
+                resource_pool_images={"head-node": TEST_CUSTOM_IMAGE},
+                ray_metric_spec=RayMetricSpec(disabled=False),
+            ),
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,
     )
@@ -140,7 +152,10 @@ class ClusterConstants:
         name=TEST_VERTEX_RAY_PR_ADDRESS,
         resource_pools=[TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
-            ray_spec=RaySpec(resource_pool_images={"head-node": TEST_GPU_IMAGE}),
+            ray_spec=RaySpec(
+                resource_pool_images={"head-node": TEST_GPU_IMAGE},
+                ray_metric_spec=RayMetricSpec(disabled=False),
+            ),
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,
         resource_runtime=ResourceRuntime(
@@ -156,7 +171,10 @@ class ClusterConstants:
         name=TEST_VERTEX_RAY_PR_ADDRESS,
         resource_pools=[TEST_RESOURCE_POOL_0],
         resource_runtime_spec=ResourceRuntimeSpec(
-            ray_spec=RaySpec(resource_pool_images={"head-node": TEST_CUSTOM_IMAGE}),
+            ray_spec=RaySpec(
+                resource_pool_images={"head-node": TEST_CUSTOM_IMAGE},
+                ray_metric_spec=RayMetricSpec(disabled=False),
+            ),
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,
         resource_runtime=ResourceRuntime(
@@ -218,7 +236,8 @@ class ClusterConstants:
                 resource_pool_images={
                     "head-node": TEST_CPU_IMAGE,
                     "worker-pool1": TEST_GPU_IMAGE,
-                }
+                },
+                ray_metric_spec=RayMetricSpec(disabled=False),
             ),
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,
@@ -230,7 +249,8 @@ class ClusterConstants:
                 resource_pool_images={
                     "head-node": TEST_CUSTOM_IMAGE,
                     "worker-pool1": TEST_CUSTOM_IMAGE,
-                }
+                },
+                ray_metric_spec=RayMetricSpec(disabled=False),
             ),
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,
@@ -243,7 +263,8 @@ class ClusterConstants:
                 resource_pool_images={
                     "head-node": TEST_CPU_IMAGE,
                     "worker-pool1": TEST_GPU_IMAGE,
-                }
+                },
+                ray_metric_spec=RayMetricSpec(disabled=False),
             ),
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,
@@ -263,7 +284,8 @@ class ClusterConstants:
                 resource_pool_images={
                     "head-node": TEST_CUSTOM_IMAGE,
                     "worker-pool1": TEST_CUSTOM_IMAGE,
-                }
+                },
+                ray_metric_spec=RayMetricSpec(disabled=False),
             ),
         ),
         network=ProjectConstants.TEST_VPC_NETWORK,

@@ -28,6 +28,7 @@ from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     PersistentResource,
     RaySpec,
+    RayMetricSpec,
     ResourcePool,
     ResourceRuntimeSpec,
 )
@@ -49,6 +50,7 @@ def create_ray_cluster(
     cluster_name: Optional[str] = None,
     worker_node_types: Optional[List[resources.Resources]] = None,
     custom_images: Optional[resources.NodeImages] = None,
+    enable_metrics_collection: Optional[bool] = True,
     labels: Optional[Dict[str, str]] = None,
 ) -> str:
     """Create a ray cluster on the Vertex AI.
@@ -107,6 +109,7 @@ def create_ray_cluster(
             has a specific custom image, use `Resources.custom_image` for
             head/worker_node_type(s). Note that configuring `Resources.custom_image`
             will override `custom_images` here. Allowlist only.
+        enable_metrics_collection: Enable Ray metrics collection for visualization.
         labels:
             The labels with user-defined metadata to organize Ray cluster.
 
@@ -244,8 +247,11 @@ def create_ray_cluster(
             i += 1
 
     resource_pools = [resource_pool_0] + worker_pools
-
-    ray_spec = RaySpec(resource_pool_images=resource_pool_images)
+    disabled = not enable_metrics_collection
+    ray_metric_spec = RayMetricSpec(disabled=disabled)
+    ray_spec = RaySpec(
+        resource_pool_images=resource_pool_images, ray_metric_spec=ray_metric_spec
+    )
     resource_runtime_spec = ResourceRuntimeSpec(ray_spec=ray_spec)
     persistent_resource = PersistentResource(
         resource_pools=resource_pools,

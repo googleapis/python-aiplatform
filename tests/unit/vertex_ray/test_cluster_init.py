@@ -34,7 +34,6 @@ from google.protobuf import field_mask_pb2  # type: ignore
 
 
 # -*- coding: utf-8 -*-
-# TODO(b/328684671)
 _EXPECTED_MASK = field_mask_pb2.FieldMask(paths=["resource_pools.replica_count"])
 
 # for manual scaling
@@ -241,6 +240,22 @@ def update_persistent_resource_2_pools_mock():
         yield update_persistent_resource_2_pools_mock
 
 
+def cluster_eq(returned_cluster, expected_cluster):
+    assert vars(returned_cluster.head_node_type) == vars(
+        expected_cluster.head_node_type
+    )
+    assert vars(returned_cluster.worker_node_types[0]) == vars(
+        expected_cluster.worker_node_types[0]
+    )
+    assert (
+        returned_cluster.cluster_resource_name == expected_cluster.cluster_resource_name
+    )
+    assert returned_cluster.python_version == expected_cluster.python_version
+    assert returned_cluster.ray_version == expected_cluster.ray_version
+    assert returned_cluster.network == expected_cluster.network
+    assert returned_cluster.state == expected_cluster.state
+
+
 @pytest.mark.usefixtures("google_auth_mock", "get_project_number_mock")
 class TestClusterManagement:
     def setup_method(self):
@@ -315,6 +330,7 @@ class TestClusterManagement:
             network=tc.ProjectConstants.TEST_VPC_NETWORK,
             cluster_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
             labels=tc.ClusterConstants.TEST_LABELS,
+            enable_metrics_collection=False,
         )
 
         assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
@@ -465,21 +481,7 @@ class TestClusterManagement:
         )
 
         get_persistent_resource_1_pool_mock.assert_called_once()
-
-        assert vars(cluster.head_node_type) == vars(
-            tc.ClusterConstants.TEST_CLUSTER.head_node_type
-        )
-        assert vars(cluster.worker_node_types[0]) == vars(
-            tc.ClusterConstants.TEST_CLUSTER.worker_node_types[0]
-        )
-        assert (
-            cluster.cluster_resource_name
-            == tc.ClusterConstants.TEST_CLUSTER.cluster_resource_name
-        )
-        assert cluster.python_version == tc.ClusterConstants.TEST_CLUSTER.python_version
-        assert cluster.ray_version == tc.ClusterConstants.TEST_CLUSTER.ray_version
-        assert cluster.network == tc.ClusterConstants.TEST_CLUSTER.network
-        assert cluster.state == tc.ClusterConstants.TEST_CLUSTER.state
+        cluster_eq(cluster, tc.ClusterConstants.TEST_CLUSTER)
 
     def test_get_ray_cluster_with_custom_image_success(
         self, get_persistent_resource_2_pools_custom_image_mock
@@ -489,27 +491,7 @@ class TestClusterManagement:
         )
 
         get_persistent_resource_2_pools_custom_image_mock.assert_called_once()
-
-        assert vars(cluster.head_node_type) == vars(
-            tc.ClusterConstants.TEST_CLUSTER_CUSTOM_IMAGE.head_node_type
-        )
-        assert vars(cluster.worker_node_types[0]) == vars(
-            tc.ClusterConstants.TEST_CLUSTER_CUSTOM_IMAGE.worker_node_types[0]
-        )
-        assert (
-            cluster.cluster_resource_name
-            == tc.ClusterConstants.TEST_CLUSTER_CUSTOM_IMAGE.cluster_resource_name
-        )
-        assert (
-            cluster.python_version
-            == tc.ClusterConstants.TEST_CLUSTER_CUSTOM_IMAGE.python_version
-        )
-        assert (
-            cluster.ray_version
-            == tc.ClusterConstants.TEST_CLUSTER_CUSTOM_IMAGE.ray_version
-        )
-        assert cluster.network == tc.ClusterConstants.TEST_CLUSTER_CUSTOM_IMAGE.network
-        assert cluster.state == tc.ClusterConstants.TEST_CLUSTER_CUSTOM_IMAGE.state
+        cluster_eq(cluster, tc.ClusterConstants.TEST_CLUSTER_CUSTOM_IMAGE)
 
     @pytest.mark.usefixtures("get_persistent_resource_exception_mock")
     def test_get_ray_cluster_error(self):
@@ -526,42 +508,9 @@ class TestClusterManagement:
         list_persistent_resources_mock.assert_called_once()
 
         # first ray cluster
-        assert vars(clusters[0].head_node_type) == vars(
-            tc.ClusterConstants.TEST_CLUSTER.head_node_type
-        )
-        assert vars(clusters[0].worker_node_types[0]) == vars(
-            tc.ClusterConstants.TEST_CLUSTER.worker_node_types[0]
-        )
-        assert (
-            clusters[0].cluster_resource_name
-            == tc.ClusterConstants.TEST_CLUSTER.cluster_resource_name
-        )
-        assert (
-            clusters[0].python_version
-            == tc.ClusterConstants.TEST_CLUSTER.python_version
-        )
-        assert clusters[0].ray_version == tc.ClusterConstants.TEST_CLUSTER.ray_version
-        assert clusters[0].network == tc.ClusterConstants.TEST_CLUSTER.network
-        assert clusters[0].state == tc.ClusterConstants.TEST_CLUSTER.state
-
+        cluster_eq(clusters[0], tc.ClusterConstants.TEST_CLUSTER)
         # second ray cluster
-        assert vars(clusters[1].head_node_type) == vars(
-            tc.ClusterConstants.TEST_CLUSTER_2.head_node_type
-        )
-        assert vars(clusters[1].worker_node_types[0]) == vars(
-            tc.ClusterConstants.TEST_CLUSTER_2.worker_node_types[0]
-        )
-        assert (
-            clusters[1].cluster_resource_name
-            == tc.ClusterConstants.TEST_CLUSTER_2.cluster_resource_name
-        )
-        assert (
-            clusters[1].python_version
-            == tc.ClusterConstants.TEST_CLUSTER_2.python_version
-        )
-        assert clusters[1].ray_version == tc.ClusterConstants.TEST_CLUSTER_2.ray_version
-        assert clusters[1].network == tc.ClusterConstants.TEST_CLUSTER_2.network
-        assert clusters[1].state == tc.ClusterConstants.TEST_CLUSTER_2.state
+        cluster_eq(clusters[1], tc.ClusterConstants.TEST_CLUSTER_2)
 
     def test_list_ray_clusters_initialized_success(
         self, get_project_number_mock, list_persistent_resources_mock
