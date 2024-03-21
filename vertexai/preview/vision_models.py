@@ -15,18 +15,20 @@
 """Classes for working with vision models."""
 
 from vertexai.vision_models._vision_models import (
+    GeneratedImage,
     Image,
+    ImageCaptioningModel,
     ImageGenerationModel,
     ImageGenerationResponse,
-    ImageCaptioningModel,
     ImageQnAModel,
     ImageTextModel,
-    GeneratedImage,
     MultiModalEmbeddingModel,
     MultiModalEmbeddingResponse,
     Video,
     VideoEmbedding,
     VideoSegmentConfig,
+    WatermarkVerificationModel,
+    WatermarkVerificationResponse,
 )
 
 __all__ = [
@@ -36,10 +38,12 @@ __all__ = [
     "ImageCaptioningModel",
     "ImageQnAModel",
     "ImageTextModel",
+    "WatermarkVerificationModel",
     "GeneratedImage",
     "MultiModalEmbeddingModel",
     "MultiModalEmbeddingResponse",
     "Video",
     "VideoEmbedding",
     "VideoSegmentConfig",
+    "WatermarkVerificationResponse",
 ]

@@ -162,6 +162,83 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             assert image.generation_parameters["index_of_image_in_batch"] == idx
             assert image.generation_parameters["language"] == language
 
+        for width, height in [(1, 1), (9, 16), (16, 9), (4, 3), (3, 4)]:
+            prompt_aspect_ratio = "A street lit up on a rainy night"
+            model = vision_models.ImageGenerationModel.from_pretrained(
+                "imagegeneration@006"
+            )
+
+            number_of_images = 4
+            seed = 1
+            guidance_scale = 15
+            language = "en"
+            aspect_ratio = f"{width}:{height}"
+
+            image_response = model.generate_images(
+                prompt=prompt_aspect_ratio,
+                number_of_images=number_of_images,
+                aspect_ratio=aspect_ratio,
+                seed=seed,
+                guidance_scale=guidance_scale,
+                language=language,
+            )
+
+        assert len(image_response.images) == number_of_images
+        for idx, image in enumerate(image_response):
+            assert image.generation_parameters
+            assert image.generation_parameters["prompt"] == prompt_aspect_ratio
+            assert image.generation_parameters["aspect_ratio"] == aspect_ratio
+            assert image.generation_parameters["seed"] == seed
+            assert image.generation_parameters["guidance_scale"] == guidance_scale
+            assert image.generation_parameters["index_of_image_in_batch"] == idx
+            assert image.generation_parameters["language"] == language
+            assert (
+                abs(
+                    float(image.size[0]) / float(image.size[1])
+                    - float(width) / float(height)
+                )
+                <= 0.001
+            )
+
+        person_generation_prompts = [
+            "A street lit up on a rainy night",
+            "A woman walking down a street lit up on a rainy night",
+            "A child walking down a street lit up on a rainy night",
+            "A man walking down a street lit up on a rainy night",
+        ]
+
+        person_generation_levels = ["dont_allow", "allow_adult", "allow_all"]
+
+        for i in range(0, 3):
+            for j in range(0, i + 1):
+                image_response = model.generate_images(
+                    prompt=person_generation_prompts[j],
+                    number_of_images=number_of_images,
+                    seed=seed,
+                    guidance_scale=guidance_scale,
+                    language=language,
+                    person_generation=person_generation_levels[j],
+                )
+                if i == j:
+                    assert len(image_response.images) == number_of_images
+                else:
+                    assert len(image_response.images) < number_of_images
+                for idx, image in enumerate(image_response):
+                    assert (
+                        image.generation_parameters["person_generation"]
+                        == person_generation_levels[j]
+                    )
+                    assert (
+                        image.generation_parameters["prompt"]
+                        == person_generation_prompts[j]
+                    )
+                    assert image.generation_parameters["seed"] == seed
+                    assert (
+                        image.generation_parameters["guidance_scale"] == guidance_scale
+                    )
+                    assert image.generation_parameters["index_of_image_in_batch"] == idx
+                    assert image.generation_parameters["language"] == language
+
         # Test saving and loading images
         with tempfile.TemporaryDirectory() as temp_dir:
             image_path = os.path.join(temp_dir, "image.png")
@@ -178,8 +255,14 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             mask_pil_image.save(mask_path, format="PNG")
             mask_image = vision_models.Image.load_from_file(mask_path)
 
-        # Test generating image from base image
+            # Test generating image from base image
         prompt2 = "Ancient book style"
+        edit_mode = "inpainting-insert"
+        mask_mode = "foreground"
+        mask_dilation = 0.06
+        product_position = "fixed"
+        output_mime_type = "image/jpeg"
+        compression_quality = 0.90
         image_response2 = model.edit_image(
             prompt=prompt2,
             # Optional:
@@ -188,6 +271,12 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             guidance_scale=guidance_scale,
             base_image=image1,
             mask=mask_image,
+            edit_mode=edit_mode,
+            mask_mode=mask_mode,
+            mask_dilation=mask_dilation,
+            product_position=product_position,
+            output_mime_type=output_mime_type,
+            compression_quality=compression_quality,
             language=language,
         )
         assert len(image_response2.images) == number_of_images
@@ -199,6 +288,90 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             assert image.generation_parameters["seed"] == seed
             assert image.generation_parameters["guidance_scale"] == guidance_scale
             assert image.generation_parameters["index_of_image_in_batch"] == idx
+            assert image.generation_parameters["edit_mode"] == edit_mode
+            assert image.generation_parameters["mask_mode"] == mask_mode
+            assert image.generation_parameters["mask_dilation"] == mask_dilation
+            assert image.generation_parameters["product_position"] == product_position
+            assert image.generation_parameters["mime_type"] == output_mime_type
+            assert (
+                image.generation_parameters["compression_quality"]
+                == compression_quality
+            )
             assert image.generation_parameters["language"] == language
             assert "base_image_hash" in image.generation_parameters
             assert "mask_hash" in image.generation_parameters
+
+        prompt3 = "Chocolate chip cookies"
+        edit_mode = "inpainting-insert"
+        mask_mode = "semantic"
+        segmentation_classes = [1, 13, 17, 9, 18]
+        product_position = "fixed"
+        output_mime_type = "image/png"
+
+        image_response3 = model.edit_image(
+            prompt=prompt3,
+            number_of_images=number_of_images,
+            seed=seed,
+            guidance_scale=guidance_scale,
+            base_image=image1,
+            mask=mask_image,
+            edit_mode=edit_mode,
+            mask_mode=mask_mode,
+            segmentation_classes=segmentation_classes,
+            product_position=product_position,
+            output_mime_type=output_mime_type,
+            language=language,
+        )
+
+        assert len(image_response3.images) == number_of_images
+        for idx, image in enumerate(image_response3):
+            assert image.generation_parameters
+            assert image.generation_parameters["prompt"] == prompt3
+            assert image.generation_parameters["seed"] == seed
+            assert image.generation_parameters["guidance_scale"] == guidance_scale
+            assert image.generation_parameters["index_of_image_in_batch"] == idx
+            assert image.generation_parameters["edit_mode"] == edit_mode
+            assert image.generation_parameters["mask_mode"] == mask_mode
+            assert (
+                image.generation_parameters["segmentation_classes"]
+                == segmentation_classes
+            )
+            assert image.generation_parameters["product_position"] == product_position
+            assert image.generation_parameters["mime_type"] == output_mime_type
+            assert image.generation_parameters["language"] == language
+            assert "base_image_hash" in image.generation_parameters
+            assert "mask_hash" in image.generation_parameters
+
+    def test_image_verification_model_verify_image(self):
+        """Tests the image verification model verifying watermark presence in an image."""
+        verification_model = vision_models.ImageVerificationModel.from_pretrained(
+            "imageverification@001"
+        )
+        model = vision_models.ImageGenerationModel.from_pretrained(
+            "imagegeneration@005"
+        )
+        seed = 1
+        guidance_scale = 15
+        language = "en"
+        image_verification_response = verification_model.verify_image(
+            image=_create_blank_image()
+        )
+        assert image_verification_response["decision"] == "REJECT"
+
+        prompt = "A street lit up on a rainy night"
+        image_response = model.generate_images(
+            prompt=prompt,
+            number_of_images=1,
+            seed=seed,
+            guidance_scale=guidance_scale,
+            language=language,
+            add_watermark=True,
+        )
+        assert len(image_response.images) == 1
+
+        image_with_watermark = vision_models.Image(image_response.images[0].image_bytes)
+
+        image_verification_response = verification_model.verify_image(
+            image_with_watermark
+        )
+        assert image_verification_response["decision"] == "ACCEPT"

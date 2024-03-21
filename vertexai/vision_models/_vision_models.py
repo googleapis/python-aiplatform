@@ -21,7 +21,7 @@ import io
 import json
 import pathlib
 import typing
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 import urllib
 
 from google.cloud import storage
@@ -312,35 +312,104 @@ class ImageGenerationModel(
         number_of_images: int = 1,
         width: Optional[int] = None,
         height: Optional[int] = None,
+        aspect_ratio: Optional[Literal["1:1", "9:16", "16:9", "4;3", "3:4"]] = None,
         guidance_scale: Optional[float] = None,
         seed: Optional[int] = None,
         base_image: Optional["Image"] = None,
         mask: Optional["Image"] = None,
+        edit_mode: Optional[
+            Literal[
+                "inpainting-insert", "inpainting-remove", "outpainting", "product-image"
+            ]
+        ] = None,
+        mask_mode: Optional[Literal["background", "foreground", "semantic"]] = None,
+        segmentation_classes: Optional[List[str]] = None,
+        mask_dilation: Optional[float] = None,
+        product_position: Optional[Literal["fixed", "reposition"]] = None,
+        output_mime_type: Optional[Literal["image/png", "image/jpeg"]] = None,
+        compression_quality: Optional[float] = None,
         language: Optional[str] = None,
         output_gcs_uri: Optional[str] = None,
+        add_watermark: Optional[bool] = False,
+        safety_filter_level: Optional[
+            Literal["block_most", "block_some", "block_few", "block_fewest"]
+        ] = None,
+        person_generation: Optional[
+            Literal["dont_allow", "allow_adult", "allow_all"]
+        ] = None,
     ) -> "ImageGenerationResponse":
         """Generates images from text prompt.
 
         Args:
             prompt: Text prompt for the image.
-            negative_prompt: A description of what you want to omit in
-                the generated images.
+            negative_prompt: A description of what you want to omit in the generated
+              images.
             number_of_images: Number of images to generate. Range: 1..8.
             width: Width of the image. One of the sizes must be 256 or 1024.
             height: Height of the image. One of the sizes must be 256 or 1024.
-            guidance_scale: Controls the strength of the prompt.
-                Suggested values are:
+            aspect_ratio: Aspect ratio for the image. Supported values are:
+                * 1:1 - Square image
+                * 9:16 - Portait image
+                * 16:9 - Landscape image
+                * 4:3 - Landscape, desktop ratio.
+                * 3:4 - Portrait, desktop ratio
+            guidance_scale: Controls the strength of the prompt. Suggested values
+            are -
                 * 0-9 (low strength)
                 * 10-20 (medium strength)
                 * 21+ (high strength)
             seed: Image generation random seed.
             base_image: Base image to use for the image generation.
             mask: Mask for the base image.
+            edit_mode: Describes the editing mode for the request. Supported values
+            are -
+                * inpainting-insert: fills the mask area based on the text prompt
+                (requires mask and text)
+                * inpainting-remove: removes the object(s) in the mask area.
+                (requires mask)
+                * outpainting: extend the image based on the mask area.
+                (Requires mask)
+                * product-image: Changes the background for the predominant product
+                or subject in the image
+            mask_mode: Solicits generation of the mask (v/s providing mask as an
+            input). Supported values are:
+                * background: Automatically generates a mask for all regions except
+                the primary subject(s) of the image
+                * foreground: Automatically generates a mask for the primary
+                subjects(s) of the image.
+                * semantic: Segment one or more of the segmentation classes using
+                class ID
+            segmentation_classes: List of class IDs for segmentation. Max of 5 IDs
+            mask_dilation: Defines the dilation percentage of the mask provided.
+            Float between 0 and 1. Defaults to 0.03
+            product_position: Defines whether the product should stay fixed or be
+            repositioned. Supported Values:
+                * fixed: Fixed position
+                * reposition: Can be moved (default)
+            output_mime_type: Which image format should the output be saved as.
+            Supported values:
+                * image/png: Save as a PNG image
+                * image/jpeg: Save as a JPEG image
+            compression_quality: Level of compression if the output mime type is
+            selected to be image/jpeg. Float between 0 to 100
             language: Language of the text prompt for the image. Default: None.
-                Supported values are `"en"` for English, `"hi"` for Hindi,
-                `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for
-                automatic language detection.
+                Supported values are `"en"` for English, `"hi"` for Hindi, `"ja"`
+                for Japanese, `"ko"` for Korean, and `"auto"` for automatic language
+                detection.
             output_gcs_uri: Google Cloud Storage uri to store the generated images.
+            add_watermark: Add a watermark to the generated image
+            safety_filter_level: Adds a filter level to Safety filtering. Supported
+                values are:
+                * "block_most" : Strongest filtering level, most strict
+                blocking
+                * "block_some" : Block some problematic prompts and responses
+                * "block_few" : Block fewer problematic prompts and responses
+                * "block_fewest" : Block very few problematic prompts and responses
+            person_generation: Allow generation of people by the model Supported
+                values are:
+                * "dont_allow" : Block generation of people
+                * "allow_adult" : Generate adults, but not children
+                * "allow_all" : Generate adults and children
 
         Returns:
             An `ImageGenerationResponse` object.
@@ -393,7 +462,9 @@ class ImageGenerationModel(
 
         parameters = {}
         max_size = max(width or 0, height or 0) or None
-        if max_size:
+        if aspect_ratio is not None:
+            parameters["aspectRatio"] = aspect_ratio
+        elif max_size:
             # Note: The size needs to be a string
             parameters["sampleImageSize"] = str(max_size)
             if height is not None and width is not None and height != width:
@@ -421,6 +492,48 @@ class ImageGenerationModel(
             parameters["storageUri"] = output_gcs_uri
             shared_generation_parameters["storage_uri"] = output_gcs_uri
 
+        parameters["editConfig"] = {}
+        if edit_mode is not None:
+            parameters["editConfig"]["editMode"] = edit_mode
+            shared_generation_parameters["edit_mode"] = edit_mode
+
+        if mask_mode is not None:
+            parameters["editConfig"]["maskMode"] = mask_mode
+            shared_generation_parameters["mask_mode"] = mask_mode
+
+        if segmentation_classes is not None:
+            parameters["editConfig"]["segmentationClasses"] = segmentation_classes
+            shared_generation_parameters["segmentation_classes"] = segmentation_classes
+
+        if mask_dilation is not None:
+            parameters["editConfig"]["maskDilation"] = mask_dilation
+            shared_generation_parameters["mask_dilation"] = mask_dilation
+
+        if product_position is not None:
+            parameters["editConfig"]["productPosition"] = product_position
+            shared_generation_parameters["product_position"] = product_position
+
+        parameters["outputOptions"] = {}
+        if output_mime_type is not None:
+            parameters["outputOptions"]["mimeType"] = output_mime_type
+            shared_generation_parameters["mime_type"] = output_mime_type
+
+        if compression_quality is not None:
+            parameters["outputOptions"]["compressionQuality"] = compression_quality
+            shared_generation_parameters["compression_quality"] = compression_quality
+
+        if add_watermark is not None:
+            parameters["addWatermark"] = add_watermark
+            shared_generation_parameters["add_watermark"] = add_watermark
+
+        if safety_filter_level is not None:
+            parameters["safetyFilterLevel"] = safety_filter_level
+            shared_generation_parameters["safety_filter_level"] = safety_filter_level
+
+        if person_generation is not None:
+            parameters["personGeneration"] = person_generation
+            shared_generation_parameters["person_generation"] = person_generation
+
         response = self._endpoint.predict(
             instances=[instance],
             parameters=parameters,
@@ -446,29 +559,57 @@ class ImageGenerationModel(
         *,
         negative_prompt: Optional[str] = None,
         number_of_images: int = 1,
+        aspect_ratio: Optional[Literal["1:1", "9:16", "16:9", "4;3", "3:4"]] = None,
         guidance_scale: Optional[float] = None,
         language: Optional[str] = None,
         seed: Optional[int] = None,
         output_gcs_uri: Optional[str] = None,
+        add_watermark: Optional[bool] = False,
+        safety_filter_level: Optional[
+            Literal["block_most", "block_some", "block_few", "block_fewest"]
+        ] = None,
+        person_generation: Optional[
+            Literal["dont_allow", "allow_adult", "allow_all"]
+        ] = None,
     ) -> "ImageGenerationResponse":
         """Generates images from text prompt.
 
         Args:
             prompt: Text prompt for the image.
-            negative_prompt: A description of what you want to omit in
-                the generated images.
+            negative_prompt: A description of what you want to omit in the generated
+                images.
             number_of_images: Number of images to generate. Range: 1..8.
-            guidance_scale: Controls the strength of the prompt.
-                Suggested values are:
+            aspect_ratio: Changes the aspect ratio of the generated image Supported
+                values are:
+                * "1:1" : 1:1 aspect ratio
+                * "9:16" : 9:16 aspect ratio
+                * "16:9" : 16:9 aspect ratio
+                * "4:3" : 4:3 aspect ratio
+                * "3:4" : 3;4 aspect_ratio
+            guidance_scale: Controls the strength of the prompt. Suggested values
+                are:
                 * 0-9 (low strength)
                 * 10-20 (medium strength)
                 * 21+ (high strength)
             language: Language of the text prompt for the image. Default: None.
-                Supported values are `"en"` for English, `"hi"` for Hindi,
-                `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for automatic language detection.
+                Supported values are `"en"` for English, `"hi"` for Hindi, `"ja"`
+                for Japanese, `"ko"` for Korean, and `"auto"` for automatic language
+                detection.
             seed: Image generation random seed.
             output_gcs_uri: Google Cloud Storage uri to store the generated images.
-
+            add_watermark: Add a watermark to the generated image
+            safety_filter_level: Adds a filter level to Safety filtering. Supported
+                values are:
+                * "block_most" : Strongest filtering level, most strict
+                blocking
+                * "block_some" : Block some problematic prompts and responses
+                * "block_few" : Block fewer problematic prompts and responses
+                * "block_fewest" : Block very few problematic prompts and responses
+            person_generation: Allow generation of people by the model Supported
+                values are:
+                * "dont_allow" : Block generation of people
+                * "allow_adult" : Generate adults, but not children
+                * "allow_all" : Generate adults and children
         Returns:
             An `ImageGenerationResponse` object.
         """
@@ -476,13 +617,14 @@ class ImageGenerationModel(
             prompt=prompt,
             negative_prompt=negative_prompt,
             number_of_images=number_of_images,
-            # b/295946075 The service stopped supporting image sizes.
-            width=None,
-            height=None,
+            aspect_ratio=aspect_ratio,
             guidance_scale=guidance_scale,
             language=language,
             seed=seed,
             output_gcs_uri=output_gcs_uri,
+            add_watermark=add_watermark,
+            safety_filter_level=safety_filter_level,
+            person_generation=person_generation,
         )
 
     def edit_image(
@@ -494,9 +636,26 @@ class ImageGenerationModel(
         negative_prompt: Optional[str] = None,
         number_of_images: int = 1,
         guidance_scale: Optional[float] = None,
+        edit_mode: Optional[
+            Literal[
+                "inpainting-insert", "inpainting-remove", "outpainting", "product-image"
+            ]
+        ] = None,
+        mask_mode: Optional[Literal["background", "foreground", "semantic"]] = None,
+        segmentation_classes: Optional[List[str]] = None,
+        mask_dilation: Optional[float] = None,
+        product_position: Optional[Literal["fixed", "reposition"]] = None,
+        output_mime_type: Optional[Literal["image/png", "image/jpeg"]] = None,
+        compression_quality: Optional[float] = None,
         language: Optional[str] = None,
         seed: Optional[int] = None,
         output_gcs_uri: Optional[str] = None,
+        safety_filter_level: Optional[
+            Literal["block_most", "block_some", "block_few", "block_fewest"]
+        ] = None,
+        person_generation: Optional[
+            Literal["dont_allow", "allow_adult", "allow_all"]
+        ] = None,
     ) -> "ImageGenerationResponse":
         """Edits an existing image based on text prompt.
 
@@ -512,11 +671,55 @@ class ImageGenerationModel(
                 * 0-9 (low strength)
                 * 10-20 (medium strength)
                 * 21+ (high strength)
+            edit_mode: Describes the editing mode for the request. Supported values
+                are:
+                * inpainting-insert: fills the mask area based on the text prompt
+                (requires mask and text)
+                * inpainting-remove: removes the object(s) in the mask area.
+                (requires mask)
+                * outpainting: extend the image based on the mask area.
+                (Requires mask)
+                * product-image: Changes the background for the predominant product
+                or subject in the image
+            segmentation_classes: List of class IDs for segmentation. Max of 5 IDs
+            mask_mode: Solicits generation of the mask (v/s providing mask as an
+                input). Supported values are:
+                * background: Automatically generates a mask for all regions except
+                the primary subject(s) of the image
+                * foreground: Automatically generates a mask for the primary
+                subjects(s) of the image.
+                * semantic: Segment one or more of the segmentation classes using
+                class ID
+            mask_dilation: Defines the dilation percentage of the mask provided.
+                Float between 0 and 1. Defaults to 0.03
+            product_position: Defines whether the product should stay fixed or be
+                repositioned. Supported Values:
+                * fixed: Fixed position
+                * reposition: Can be moved (default)
+            output_mime_type: Which image format should the output be saved as.
+                Supported values:
+                * image/png: Save as a PNG image
+                * image/jpeg: Save as a JPEG image
+            compression_quality: Level of compression if the output mime type is
+              selected to be image/jpeg. Float between 0 to 100
             language: Language of the text prompt for the image. Default: None.
                 Supported values are `"en"` for English, `"hi"` for Hindi,
-                `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for automatic language detection.
+                `"ja"` for Japanese, `"ko"` for Korean, and `"auto"` for
+                automatic language detection.
             seed: Image generation random seed.
             output_gcs_uri: Google Cloud Storage uri to store the edited images.
+            safety_filter_level: Adds a filter level to Safety filtering. Supported
+                values are:
+                * "block_most" : Strongest filtering level, most strict
+                blocking
+                * "block_some" : Block some problematic prompts and responses
+                * "block_few" : Block fewer problematic prompts and responses
+                * "block_fewest" : Block very few problematic prompts and responses
+            person_generation: Allow generation of people by the model Supported
+                values are:
+                * "dont_allow" : Block generation of people
+                * "allow_adult" : Generate adults, but not children
+                * "allow_all" : Generate adults and children
 
         Returns:
             An `ImageGenerationResponse` object.
@@ -529,8 +732,18 @@ class ImageGenerationModel(
             seed=seed,
             base_image=base_image,
             mask=mask,
+            edit_mode=edit_mode,
+            mask_mode=mask_mode,
+            segmentation_classes=segmentation_classes,
+            mask_dilation=mask_dilation,
+            product_position=product_position,
+            output_mime_type=output_mime_type,
+            compression_quality=compression_quality,
             language=language,
             output_gcs_uri=output_gcs_uri,
+            add_watermark=False,  # Not supported for editing yet
+            safety_filter_level=safety_filter_level,
+            person_generation=person_generation,
         )
 
     def upscale_image(
@@ -1020,3 +1233,52 @@ class ImageTextModel(ImageCaptioningModel, ImageQnAModel):
     # since SDK Model Garden classes should follow the design pattern of exactly 1 SDK class to 1 Model Garden schema URI
 
     _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/vision_reasoning_model_1.0.0.yaml"
+
+
+@dataclasses.dataclass
+class WatermarkVerificationResponse:
+
+    __module__ = "vertex.preview.vision_models"
+
+    _prediction_response: Any
+    watermark_verification_result: Optional[str] = None
+
+
+class WatermarkVerificationModel(_model_garden_models._ModelGardenModel):
+    """Verifies if an image has a watermark"""
+
+    __module__ = "vertexai.preview.vision_models"
+
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/watermark_watermark_verification_model_1.0.0.yaml"
+
+    def verify_image(self, image: Image) -> WatermarkVerificationResponse:
+        """Verifies the watermark of an image.
+
+        Args:
+            image: The image to verify.
+
+        Returns:
+            A WatermarkVerificationResponse, containing the confidence level of
+            the image being watermarked.
+        """
+        if not image:
+            raise ValueError("Image is required.")
+
+        instance = {}
+
+        if image._gcs_uri:
+            instance["image"] = {"gcsUri": image._gcs_uri}
+        else:
+            instance["image"] = {"bytesBase64Encoded": image._as_base64_string()}
+
+        parameters = {}
+        response = self._endpoint.predict(
+            instances=[instance],
+            parameters=parameters,
+        )
+
+        verification_likelihood = response.predictions[0].get("decision")
+        return WatermarkVerificationResponse(
+            _prediction_response=response,
+            watermark_verification_result=verification_likelihood,
+        )

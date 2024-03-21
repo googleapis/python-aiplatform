@@ -91,6 +91,18 @@ _IMAGE_GENERATION_PUBLISHER_MODEL_DICT = {
     },
 }
 
+_IMAGE_VERIFICATION_PUBLISHER_MODEL_DICT = {
+    "name": "publishers/google/models/imageverification",
+    "version_id": "001",
+    "open_source_category": "PROPRIETARY",
+    "launch_stage": gca_publisher_model.PublisherModel.LaunchStage.GA,
+    "publisher_model_template": "projects/{project}/locations/{location}/publishers/google/models/imageverification@001",
+    "predict_schemata": {
+        "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/watermark_verification_model_1.0.0.yaml",
+        "parameters_schema_uri": "gs://google-cloud-aiplatfrom/schema/predict/params/watermark_verification_model_1.0.0.yaml",
+    },
+}
+
 
 def make_image_base64(width: int, height: int) -> str:
     image: PIL_Image.Image = PIL_Image.new(mode="RGB", size=(width, height))
@@ -119,7 +131,9 @@ def make_image_generation_response_gcs(count: int = 1) -> Dict[str, Any]:
     for _ in range(count):
         predictions.append(
             {
-                "gcsUri": "gs://cloud-samples-data/vertex-ai/llm/prompts/landmark1.png",
+                "gcsUri": (
+                    "gs://cloud-samples-data/vertex-ai/llm/prompts/landmark1.png"
+                ),
                 "mimeType": "image/png",
             }
         )
@@ -181,7 +195,9 @@ class TestImageGenerationModels:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def _get_image_generation_model(self) -> preview_vision_models.ImageGenerationModel:
+    def _get_image_generation_model(
+        self,
+    ) -> preview_vision_models.ImageGenerationModel:
         """Gets the image generation model."""
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -320,9 +336,9 @@ class TestImageGenerationModels:
             image_response[0].save(location=image_path)
             image1 = preview_vision_models.GeneratedImage.load_from_file(image_path)
             # assert image1._pil_image.size == (width, height)
-            assert image1.generation_parameters
             assert image1.generation_parameters["prompt"] == prompt1
             assert image1.generation_parameters["language"] == language
+            assert image1.generation_parameters["negative_prompt"] == negative_prompt1
 
             # Preparing mask
             mask_path = os.path.join(temp_dir, "mask.png")
@@ -441,6 +457,14 @@ class TestImageGenerationModels:
             return_value=gca_predict_response,
         ) as mock_predict:
             prompt2 = "Ancient book style"
+            edit_mode = "inpainting-insert"
+            mask_mode = "background"
+            mask_dilation = 0.06
+            product_position = "fixed"
+            output_mime_type = "image/jpeg"
+            compression_quality = 80
+            safety_filter_level = "block_fewest"
+            person_generation = "allow_all"
             image_response2 = model.edit_image(
                 prompt=prompt2,
                 # Optional:
@@ -449,8 +473,14 @@ class TestImageGenerationModels:
                 guidance_scale=guidance_scale,
                 base_image=image1,
                 mask=mask_image,
-                language=language,
-                output_gcs_uri=output_gcs_uri,
+                edit_mode=edit_mode,
+                mask_mode=mask_mode,
+                mask_dilation=mask_dilation,
+                product_position=product_position,
+                output_mime_type=output_mime_type,
+                compression_quality=compression_quality,
+                safety_filter_level=safety_filter_level,
+                person_generation=person_generation,
             )
             predict_kwargs = mock_predict.call_args[1]
             actual_parameters = predict_kwargs["parameters"]
@@ -458,7 +488,19 @@ class TestImageGenerationModels:
             assert actual_instance["prompt"] == prompt2
             assert actual_instance["image"]["gcsUri"]
             assert actual_instance["mask"]["image"]["gcsUri"]
-            assert actual_parameters["language"] == language
+            assert actual_parameters["editConfig"]["editMode"] == edit_mode
+            assert actual_parameters["editConfig"]["maskMode"] == mask_mode
+            assert actual_parameters["editConfig"]["maskDilation"] == mask_dilation
+            assert (
+                actual_parameters["editConfig"]["productPosition"] == product_position
+            )
+            assert actual_parameters["outputOptions"]["mimeType"] == output_mime_type
+            assert (
+                actual_parameters["outputOptions"]["compressionQuality"]
+                == compression_quality
+            )
+            assert actual_parameters["safetyFilterLevel"] == safety_filter_level
+            assert actual_parameters["personGeneration"] == person_generation
 
         assert len(image_response2.images) == number_of_images
         for image in image_response2:
@@ -466,8 +508,20 @@ class TestImageGenerationModels:
             assert image.generation_parameters["prompt"] == prompt2
             assert image.generation_parameters["base_image_uri"]
             assert image.generation_parameters["mask_uri"]
-            assert image.generation_parameters["language"] == language
-            assert image.generation_parameters["storage_uri"] == output_gcs_uri
+            assert image.generation_parameters["edit_mode"] == edit_mode
+            assert image.generation_parameters["mask_mode"] == mask_mode
+            assert image.generation_parameters["mask_dilation"] == mask_dilation
+            assert image.generation_parameters["product_position"] == product_position
+            assert image.generation_parameters["mime_type"] == output_mime_type
+            assert (
+                image.generation_parameters["compression_quality"]
+                == compression_quality
+            )
+            assert (
+                image.generation_parameters["safety_filter_level"]
+                == safety_filter_level
+            )
+            assert image.generation_parameters["person_generation"] == person_generation
 
     @unittest.skip(reason="b/295946075 The service stopped supporting image sizes.")
     def test_generate_images_requests_square_images_by_default(self):
@@ -513,6 +567,96 @@ class TestImageGenerationModels:
             predict_kwargs = mock_predict.call_args[1]
             actual_parameters = predict_kwargs["parameters"]
             assert "sampleImageSize" not in actual_parameters
+
+    def test_generate_images_requests_9x16_images(self):
+        """Tests that the model class generates 9x16 images."""
+        model = self._get_image_generation_model()
+
+        aspect_ratio = "9:16"
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+        ) as mock_predict:
+            model.generate_images(prompt="test", aspect_ratio=aspect_ratio)
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            assert actual_parameters["aspectRatio"] == aspect_ratio
+
+    def test_generate_images_requests_with_aspect_ratio(self):
+        """Tests that the model class generates images with different aspect ratios"""
+
+        def test_aspect_ratio(aspect_ratio: str):
+            model = self._get_image_generation_model()
+
+            with mock.patch.object(
+                target=prediction_service_client.PredictionServiceClient,
+                attribute="predict",
+            ) as mock_predict:
+                model.generate_images(prompt="test", aspect_ratio=aspect_ratio)
+                predict_kwargs = mock_predict.call_args[1]
+                actual_parameters = predict_kwargs["parameters"]
+                assert actual_parameters["aspectRatio"] == aspect_ratio
+
+        aspect_ratios = ["1:1", "9:16", "16:9", "4:3", "3:4"]
+        for aspect_ratio in aspect_ratios:
+            test_aspect_ratio(aspect_ratio)
+
+    def test_generate_images_requests_add_watermark(self):
+        """Tests that the model class generates images with watermark."""
+        model = self._get_image_generation_model()
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+        ) as mock_predict:
+            model.generate_images(
+                prompt="test",
+                add_watermark=True,
+            )
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            assert actual_parameters["addWatermark"]
+
+    def test_generate_images_requests_safety_filter_level(self):
+        """Tests that the model class applies safety filter levels"""
+        model = self._get_image_generation_model()
+
+        safety_filter_levels = [
+            "block_most",
+            "block_some",
+            "block_few",
+            "block_fewest",
+        ]
+
+        for level in safety_filter_levels:
+            with mock.patch.object(
+                target=prediction_service_client.PredictionServiceClient,
+                attribute="predict",
+            ) as mock_predict:
+                model.generate_images(
+                    prompt="test",
+                    safety_filter_level=level,
+                )
+                predict_kwargs = mock_predict.call_args[1]
+                actual_parameters = predict_kwargs["parameters"]
+                assert actual_parameters["safetyFilterLevel"] == level
+
+    def test_generate_images_requests_person_generation(self):
+        """Tests that the model class generates person images."""
+        model = self._get_image_generation_model()
+
+        for person_generation in ["dont_allow", "allow_adult", "allow_all"]:
+            with mock.patch.object(
+                target=prediction_service_client.PredictionServiceClient,
+                attribute="predict",
+            ) as mock_predict:
+                model.generate_images(
+                    prompt="test",
+                    person_generation=person_generation,
+                )
+                predict_kwargs = mock_predict.call_args[1]
+                actual_parameters = predict_kwargs["parameters"]
+                assert actual_parameters["personGeneration"] == person_generation
 
     def test_upscale_image_on_generated_image(self):
         """Tests image upscaling on generated images."""
@@ -712,6 +856,51 @@ class ImageQnAModelTests:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+class ImageVerificationModelTests:
+    """Unit tests for the image verification models."""
+
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_get_image_verification_results(self):
+        """Tests the image verification model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_VERIFICATION_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = ga_vision_models.ImageVerificationModel.from_pretrained(
+                "imageverification@001"
+            )
+            mock_get_publisher_model.assert_called_once_with(
+                name="publishers/google/models/imageverification@001",
+                retry=base._DEFAULT_RETRY,
+            )
+
+        image = generate_image_from_file()
+        gca_prediction_response = gca_prediction_service.PredictResponse()
+        gca_prediction_response.predictions.append({"decision": "REJECT"})
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_prediction_response,
+        ):
+            actual_results = model.verify_image(image=image)
+            assert actual_results == [gca_prediction_response, "REJECT"]
+
+
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMultiModalEmbeddingModels:
     """Unit tests for the image generation models."""
 
@@ -780,7 +969,10 @@ class TestMultiModalEmbeddingModels:
         test_embeddings = [0, 0]
         gca_predict_response = gca_prediction_service.PredictResponse()
         gca_predict_response.predictions.append(
-            {"imageEmbedding": test_embeddings, "textEmbedding": test_embeddings}
+            {
+                "imageEmbedding": test_embeddings,
+                "textEmbedding": test_embeddings,
+            }
         )
 
         image = generate_image_from_file()
@@ -847,7 +1039,10 @@ class TestMultiModalEmbeddingModels:
         test_embeddings = [0] * dimension
         gca_predict_response = gca_prediction_service.PredictResponse()
         gca_predict_response.predictions.append(
-            {"imageEmbedding": test_embeddings, "textEmbedding": test_embeddings}
+            {
+                "imageEmbedding": test_embeddings,
+                "textEmbedding": test_embeddings,
+            }
         )
 
         image = generate_image_from_file()
@@ -883,7 +1078,10 @@ class TestMultiModalEmbeddingModels:
         test_embeddings = [0, 0]
         gca_predict_response = gca_prediction_service.PredictResponse()
         gca_predict_response.predictions.append(
-            {"imageEmbedding": test_embeddings, "textEmbedding": test_embeddings}
+            {
+                "imageEmbedding": test_embeddings,
+                "textEmbedding": test_embeddings,
+            }
         )
 
         image = generate_image_from_gcs_uri()
@@ -919,7 +1117,10 @@ class TestMultiModalEmbeddingModels:
         test_embeddings = [0, 0]
         gca_predict_response = gca_prediction_service.PredictResponse()
         gca_predict_response.predictions.append(
-            {"imageEmbedding": test_embeddings, "textEmbedding": test_embeddings}
+            {
+                "imageEmbedding": test_embeddings,
+                "textEmbedding": test_embeddings,
+            }
         )
 
         image = generate_image_from_storage_url()
