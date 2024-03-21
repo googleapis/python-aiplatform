@@ -57,6 +57,8 @@ from google.cloud.aiplatform.compat.services import (
     vizier_service_client_v1beta1,
     model_garden_service_client_v1beta1,
     persistent_resource_service_client_v1beta1,
+    reasoning_engine_service_client_v1beta1,
+    reasoning_engine_execution_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -746,6 +748,28 @@ class PersistentResourceClientWithOverride(ClientWithOverride):
     )
 
 
+class ReasoningEngineClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            reasoning_engine_service_client_v1beta1.ReasoningEngineServiceClient,
+        ),
+    )
+
+
+class ReasoningEngineExecutionClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            reasoning_engine_execution_service_client_v1beta1.ReasoningEngineExecutionServiceClient,
+        ),
+    )
+
+
 VertexAiServiceClientWithOverride = TypeVar(
     "VertexAiServiceClientWithOverride",
     DatasetClientWithOverride,
@@ -763,6 +787,8 @@ VertexAiServiceClientWithOverride = TypeVar(
     VizierClientWithOverride,
     ModelGardenClientWithOverride,
     PersistentResourceClientWithOverride,
+    ReasoningEngineClientWithOverride,
+    ReasoningEngineExecutionClientWithOverride,
 )
 
 
