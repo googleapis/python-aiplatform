@@ -67,6 +67,7 @@ CURRENT_DIRECTORY = pathlib.Path(__file__).parent.absolute()
 # 'docfx' is excluded since it only needs to run in 'docs-presubmit'
 nox.options.sessions = [
     "unit",
+    "unit_ray",
     "system",
     "cover",
     "lint",
@@ -190,8 +191,34 @@ def unit(session):
     default(session)
 
 
-def install_systemtest_dependencies(session, *constraints):
+@nox.session(python="3.10")
+@nox.parametrize("ray", ["2.4.0", "2.9.3"])
+def unit_ray(session, ray):
+    # Install all test dependencies, then install this package in-place.
 
+    constraints_path = str(CURRENT_DIRECTORY / "testing" / f"constraints-ray-{ray}.txt")
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps, "-c", constraints_path)
+
+    # Install ray extras
+    session.install("-e", ".[ray_testing]", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        f"--junitxml=unit_ray_{ray}_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join("tests", "unit", "vertex_ray"),
+        *session.posargs,
+    )
+
+
+def install_systemtest_dependencies(session, *constraints):
     # Use pre-release gRPC for system tests.
     # Exclude version 1.52.0rc1 which has a known issue.
     # See https://github.com/grpc/grpc/issues/32163

@@ -116,6 +116,17 @@ genai_requires = (
     "docstring_parser < 1",
 )
 
+ray_testing_extra_require = ray_extra_require + [
+    # ray train extras required for prediction tests
+    "ray[train] >= 2.4, <= 2.9.3,!= 2.5.*,!= 2.6.*,!= 2.7.*,!= 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2",
+    # Framework version constraints copied from testing_extra_require
+    "scikit-learn",
+    "tensorflow",
+    "torch >= 2.0.0, < 2.1.0",
+    "xgboost",
+    "xgboost_ray",
+]
+
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -210,6 +221,7 @@ setuptools.setup(
         "autologging": autologging_extra_require,
         "preview": preview_extra_require,
         "ray": ray_extra_require,
+        "ray_testing": ray_testing_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[
