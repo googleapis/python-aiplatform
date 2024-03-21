@@ -553,6 +553,9 @@ def mock_pipeline_service_get():
             make_pipeline_job(
                 gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
             ),
+            make_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
         ]
 
         yield mock_get_pipeline_job
@@ -797,7 +800,6 @@ class TestModelEvaluation:
         assert eval_metrics == _TEST_MODEL_EVAL_METRICS
 
     def test_no_delete_model_evaluation_method(self, mock_model_eval_get):
-
         my_eval = aiplatform.ModelEvaluation(
             evaluation_name=_TEST_MODEL_EVAL_RESOURCE_NAME
         )
@@ -1028,6 +1030,7 @@ class TestModelEvaluationJob:
         mock_load_yaml_and_json,
         mock_model,
         get_model_mock,
+        mock_model_eval_get,
         mock_model_eval_job_get,
         mock_pipeline_service_get,
         mock_model_eval_job_create,
@@ -1128,6 +1131,7 @@ class TestModelEvaluationJob:
         mock_model,
         get_model_mock,
         get_experiment_mock,
+        mock_model_eval_get,
         mock_model_eval_job_get,
         mock_pipeline_service_get,
         mock_model_eval_job_create,
@@ -1308,7 +1312,6 @@ class TestModelEvaluationJob:
         mock_pipeline_bucket_exists,
         mock_request_urlopen,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1388,7 +1391,6 @@ class TestModelEvaluationJob:
     def test_get_template_url(
         self,
     ):
-
         template_url = model_evaluation_job._ModelEvaluationJob._get_template_url(
             model_type="automl_tabular",
             feature_attributions=False,

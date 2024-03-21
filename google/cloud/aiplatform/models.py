@@ -49,6 +49,7 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud.aiplatform.utils import _explanation_utils
+from google.cloud.aiplatform.utils import _ipython_utils
 from google.cloud.aiplatform import model_evaluation
 from google.cloud.aiplatform.compat.services import endpoint_service_client
 
@@ -5136,7 +5137,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 _LOGGER.warning(
                     f"Your model has more than one model evaluation, this is returning only one evaluation resource: {evaluations[0].resource_name}"
                 )
-            return evaluations[0] if evaluations else evaluations
+            _ipython_utils.display_model_evaluation_button(evaluations[0])
+            return evaluations[0]
         else:
             resource_uri_parts = self._parse_resource_name(self.resource_name)
             evaluation_resource_name = (
@@ -5146,10 +5148,12 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 )
             )
 
-            return model_evaluation.ModelEvaluation(
+            evaluation = model_evaluation.ModelEvaluation(
                 evaluation_name=evaluation_resource_name,
                 credentials=self.credentials,
             )
+            _ipython_utils.display_model_evaluation_button(evaluation)
+            return evaluation
 
     def evaluate(
         self,

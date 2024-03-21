@@ -18,6 +18,7 @@
 from typing import Optional, List, Union
 
 from google.auth import credentials as auth_credentials
+import grpc
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -27,6 +28,7 @@ from google.cloud.aiplatform._pipeline_based_service import (
 )
 from google.cloud.aiplatform import model_evaluation
 from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform.utils import _ipython_utils
 
 from google.cloud.aiplatform.compat.types import (
     pipeline_state_v1 as gca_pipeline_state_v1,
@@ -380,7 +382,6 @@ class _ModelEvaluationJob(pipeline_based_service._VertexAiPipelineBasedService):
             return
 
         for component in self.backing_pipeline_job.task_details:
-
             # This assumes that task_details has a task with a task_name == backing_pipeline_job.name
             if not component.task_name == self.backing_pipeline_job.name:
                 continue
@@ -407,5 +408,14 @@ class _ModelEvaluationJob(pipeline_based_service._VertexAiPipelineBasedService):
                 evaluation_name=eval_resource_name,
                 credentials=self.credentials,
             )
-
+            _ipython_utils.display_model_evaluation_button(eval_resource)
             return eval_resource
+
+    def wait(self) -> None:
+        """Wait for the PipelineJob to complete, then get the model evaluation resource."""
+        super().wait()
+
+        try:
+            self.get_model_evaluation()
+        except grpc.RpcError as e:
+            _LOGGER.error("Get model evaluation call failed with error %s", e)

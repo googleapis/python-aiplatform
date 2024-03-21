@@ -16,11 +16,15 @@
 #
 
 import sys
+import typing
 from uuid import uuid4
 from typing import Optional
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.metadata import experiment_resources
+
+if typing.TYPE_CHECKING:
+    from google.cloud.aiplatform.metadata import experiment_resources
+    from google.cloud.aiplatform import model_evaluation
 
 _LOGGER = base.Logger(__name__)
 
@@ -142,7 +146,7 @@ def display_link(text: str, url: str, icon: Optional[str] = "open_in_new") -> No
     display(HTML(html))
 
 
-def display_experiment_button(experiment: experiment_resources.Experiment) -> None:
+def display_experiment_button(experiment: "experiment_resources.Experiment") -> None:
     """Function to generate a link bound to the Vertex experiment"""
     if not is_ipython_available():
         return
@@ -162,3 +166,34 @@ def display_experiment_button(experiment: experiment_resources.Experiment) -> No
         + f"runs?project={project}"
     )
     display_link("View Experiment", uri, "science")
+
+
+def display_model_evaluation_button(
+    evaluation: "model_evaluation.ModelEvaluation",
+) -> None:
+    """Function to generate a link bound to the Vertex model evaluation"""
+    if not is_ipython_available():
+        return
+
+    try:
+        resource_name = evaluation.resource_name
+        fields = evaluation._parse_resource_name(resource_name)
+        project = fields["project"]
+        location = fields["location"]
+        model_id = fields["model"]
+        evaluation_id = fields["evaluation"]
+    except AttributeError:
+        _LOGGER.warning("Unable to parse model evaluation metadata")
+        return
+
+    if "@" in model_id:
+        model_id, version_id = model_id.split("@")
+    else:
+        version_id = "default"
+
+    uri = (
+        "https://console.cloud.google.com/vertex-ai/models/locations/"
+        + f"{location}/models/{model_id}/versions/{version_id}/evaluations/"
+        + f"{evaluation_id}?project={project}"
+    )
+    display_link("View Model Evaluation", uri, "model_training")
