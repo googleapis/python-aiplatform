@@ -1259,7 +1259,8 @@ def test_create_persistent_resource(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.CreatePersistentResourceRequest()
+        request = persistent_resource_service.CreatePersistentResourceRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1278,6 +1279,58 @@ def test_create_persistent_resource_empty_call():
         type(client.transport.create_persistent_resource), "__call__"
     ) as call:
         client.create_persistent_resource()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == persistent_resource_service.CreatePersistentResourceRequest()
+
+
+def test_create_persistent_resource_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PersistentResourceServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = persistent_resource_service.CreatePersistentResourceRequest(
+        parent="parent_value",
+        persistent_resource_id="persistent_resource_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_persistent_resource), "__call__"
+    ) as call:
+        client.create_persistent_resource(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == persistent_resource_service.CreatePersistentResourceRequest(
+            parent="parent_value",
+            persistent_resource_id="persistent_resource_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_persistent_resource_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PersistentResourceServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_persistent_resource), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.create_persistent_resource()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == persistent_resource_service.CreatePersistentResourceRequest()
@@ -1310,7 +1363,8 @@ async def test_create_persistent_resource_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.CreatePersistentResourceRequest()
+        request = persistent_resource_service.CreatePersistentResourceRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1534,7 +1588,8 @@ def test_get_persistent_resource(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.GetPersistentResourceRequest()
+        request = persistent_resource_service.GetPersistentResourceRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, persistent_resource.PersistentResource)
@@ -1558,6 +1613,62 @@ def test_get_persistent_resource_empty_call():
         type(client.transport.get_persistent_resource), "__call__"
     ) as call:
         client.get_persistent_resource()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == persistent_resource_service.GetPersistentResourceRequest()
+
+
+def test_get_persistent_resource_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PersistentResourceServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = persistent_resource_service.GetPersistentResourceRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_persistent_resource), "__call__"
+    ) as call:
+        client.get_persistent_resource(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == persistent_resource_service.GetPersistentResourceRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_persistent_resource_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PersistentResourceServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_persistent_resource), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            persistent_resource.PersistentResource(
+                name="name_value",
+                display_name="display_name_value",
+                state=persistent_resource.PersistentResource.State.PROVISIONING,
+                network="network_value",
+                reserved_ip_ranges=["reserved_ip_ranges_value"],
+            )
+        )
+        response = await client.get_persistent_resource()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == persistent_resource_service.GetPersistentResourceRequest()
@@ -1596,7 +1707,8 @@ async def test_get_persistent_resource_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.GetPersistentResourceRequest()
+        request = persistent_resource_service.GetPersistentResourceRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, persistent_resource.PersistentResource)
@@ -1793,7 +1905,8 @@ def test_list_persistent_resources(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.ListPersistentResourcesRequest()
+        request = persistent_resource_service.ListPersistentResourcesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListPersistentResourcesPager)
@@ -1813,6 +1926,60 @@ def test_list_persistent_resources_empty_call():
         type(client.transport.list_persistent_resources), "__call__"
     ) as call:
         client.list_persistent_resources()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == persistent_resource_service.ListPersistentResourcesRequest()
+
+
+def test_list_persistent_resources_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PersistentResourceServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = persistent_resource_service.ListPersistentResourcesRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_persistent_resources), "__call__"
+    ) as call:
+        client.list_persistent_resources(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == persistent_resource_service.ListPersistentResourcesRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_persistent_resources_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PersistentResourceServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_persistent_resources), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            persistent_resource_service.ListPersistentResourcesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_persistent_resources()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == persistent_resource_service.ListPersistentResourcesRequest()
@@ -1847,7 +2014,8 @@ async def test_list_persistent_resources_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.ListPersistentResourcesRequest()
+        request = persistent_resource_service.ListPersistentResourcesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListPersistentResourcesAsyncPager)
@@ -2246,7 +2414,8 @@ def test_delete_persistent_resource(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.DeletePersistentResourceRequest()
+        request = persistent_resource_service.DeletePersistentResourceRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2265,6 +2434,56 @@ def test_delete_persistent_resource_empty_call():
         type(client.transport.delete_persistent_resource), "__call__"
     ) as call:
         client.delete_persistent_resource()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == persistent_resource_service.DeletePersistentResourceRequest()
+
+
+def test_delete_persistent_resource_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PersistentResourceServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = persistent_resource_service.DeletePersistentResourceRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_persistent_resource), "__call__"
+    ) as call:
+        client.delete_persistent_resource(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == persistent_resource_service.DeletePersistentResourceRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_persistent_resource_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PersistentResourceServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_persistent_resource), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_persistent_resource()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == persistent_resource_service.DeletePersistentResourceRequest()
@@ -2297,7 +2516,8 @@ async def test_delete_persistent_resource_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.DeletePersistentResourceRequest()
+        request = persistent_resource_service.DeletePersistentResourceRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2487,7 +2707,8 @@ def test_update_persistent_resource(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.UpdatePersistentResourceRequest()
+        request = persistent_resource_service.UpdatePersistentResourceRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2506,6 +2727,52 @@ def test_update_persistent_resource_empty_call():
         type(client.transport.update_persistent_resource), "__call__"
     ) as call:
         client.update_persistent_resource()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == persistent_resource_service.UpdatePersistentResourceRequest()
+
+
+def test_update_persistent_resource_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PersistentResourceServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = persistent_resource_service.UpdatePersistentResourceRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_persistent_resource), "__call__"
+    ) as call:
+        client.update_persistent_resource(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == persistent_resource_service.UpdatePersistentResourceRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_persistent_resource_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PersistentResourceServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_persistent_resource), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.update_persistent_resource()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == persistent_resource_service.UpdatePersistentResourceRequest()
@@ -2538,7 +2805,8 @@ async def test_update_persistent_resource_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.UpdatePersistentResourceRequest()
+        request = persistent_resource_service.UpdatePersistentResourceRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)

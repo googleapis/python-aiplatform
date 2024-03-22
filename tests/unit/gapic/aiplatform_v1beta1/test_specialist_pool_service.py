@@ -1235,7 +1235,8 @@ def test_create_specialist_pool(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == specialist_pool_service.CreateSpecialistPoolRequest()
+        request = specialist_pool_service.CreateSpecialistPoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1254,6 +1255,56 @@ def test_create_specialist_pool_empty_call():
         type(client.transport.create_specialist_pool), "__call__"
     ) as call:
         client.create_specialist_pool()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == specialist_pool_service.CreateSpecialistPoolRequest()
+
+
+def test_create_specialist_pool_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = SpecialistPoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = specialist_pool_service.CreateSpecialistPoolRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_specialist_pool), "__call__"
+    ) as call:
+        client.create_specialist_pool(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == specialist_pool_service.CreateSpecialistPoolRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_specialist_pool_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = SpecialistPoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_specialist_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.create_specialist_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == specialist_pool_service.CreateSpecialistPoolRequest()
@@ -1286,7 +1337,8 @@ async def test_create_specialist_pool_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == specialist_pool_service.CreateSpecialistPoolRequest()
+        request = specialist_pool_service.CreateSpecialistPoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1493,7 +1545,8 @@ def test_get_specialist_pool(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == specialist_pool_service.GetSpecialistPoolRequest()
+        request = specialist_pool_service.GetSpecialistPoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, specialist_pool.SpecialistPool)
@@ -1518,6 +1571,63 @@ def test_get_specialist_pool_empty_call():
         type(client.transport.get_specialist_pool), "__call__"
     ) as call:
         client.get_specialist_pool()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == specialist_pool_service.GetSpecialistPoolRequest()
+
+
+def test_get_specialist_pool_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = SpecialistPoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = specialist_pool_service.GetSpecialistPoolRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_specialist_pool), "__call__"
+    ) as call:
+        client.get_specialist_pool(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == specialist_pool_service.GetSpecialistPoolRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_specialist_pool_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = SpecialistPoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_specialist_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            specialist_pool.SpecialistPool(
+                name="name_value",
+                display_name="display_name_value",
+                specialist_managers_count=2662,
+                specialist_manager_emails=["specialist_manager_emails_value"],
+                pending_data_labeling_jobs=["pending_data_labeling_jobs_value"],
+                specialist_worker_emails=["specialist_worker_emails_value"],
+            )
+        )
+        response = await client.get_specialist_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == specialist_pool_service.GetSpecialistPoolRequest()
@@ -1557,7 +1667,8 @@ async def test_get_specialist_pool_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == specialist_pool_service.GetSpecialistPoolRequest()
+        request = specialist_pool_service.GetSpecialistPoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, specialist_pool.SpecialistPool)
@@ -1755,7 +1866,8 @@ def test_list_specialist_pools(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == specialist_pool_service.ListSpecialistPoolsRequest()
+        request = specialist_pool_service.ListSpecialistPoolsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListSpecialistPoolsPager)
@@ -1775,6 +1887,60 @@ def test_list_specialist_pools_empty_call():
         type(client.transport.list_specialist_pools), "__call__"
     ) as call:
         client.list_specialist_pools()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == specialist_pool_service.ListSpecialistPoolsRequest()
+
+
+def test_list_specialist_pools_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = SpecialistPoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = specialist_pool_service.ListSpecialistPoolsRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_specialist_pools), "__call__"
+    ) as call:
+        client.list_specialist_pools(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == specialist_pool_service.ListSpecialistPoolsRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_specialist_pools_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = SpecialistPoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_specialist_pools), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            specialist_pool_service.ListSpecialistPoolsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_specialist_pools()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == specialist_pool_service.ListSpecialistPoolsRequest()
@@ -1809,7 +1975,8 @@ async def test_list_specialist_pools_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == specialist_pool_service.ListSpecialistPoolsRequest()
+        request = specialist_pool_service.ListSpecialistPoolsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListSpecialistPoolsAsyncPager)
@@ -2198,7 +2365,8 @@ def test_delete_specialist_pool(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == specialist_pool_service.DeleteSpecialistPoolRequest()
+        request = specialist_pool_service.DeleteSpecialistPoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2217,6 +2385,56 @@ def test_delete_specialist_pool_empty_call():
         type(client.transport.delete_specialist_pool), "__call__"
     ) as call:
         client.delete_specialist_pool()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == specialist_pool_service.DeleteSpecialistPoolRequest()
+
+
+def test_delete_specialist_pool_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = SpecialistPoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = specialist_pool_service.DeleteSpecialistPoolRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_specialist_pool), "__call__"
+    ) as call:
+        client.delete_specialist_pool(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == specialist_pool_service.DeleteSpecialistPoolRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_specialist_pool_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = SpecialistPoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_specialist_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_specialist_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == specialist_pool_service.DeleteSpecialistPoolRequest()
@@ -2249,7 +2467,8 @@ async def test_delete_specialist_pool_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == specialist_pool_service.DeleteSpecialistPoolRequest()
+        request = specialist_pool_service.DeleteSpecialistPoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2439,7 +2658,8 @@ def test_update_specialist_pool(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == specialist_pool_service.UpdateSpecialistPoolRequest()
+        request = specialist_pool_service.UpdateSpecialistPoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2458,6 +2678,52 @@ def test_update_specialist_pool_empty_call():
         type(client.transport.update_specialist_pool), "__call__"
     ) as call:
         client.update_specialist_pool()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == specialist_pool_service.UpdateSpecialistPoolRequest()
+
+
+def test_update_specialist_pool_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = SpecialistPoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = specialist_pool_service.UpdateSpecialistPoolRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_specialist_pool), "__call__"
+    ) as call:
+        client.update_specialist_pool(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == specialist_pool_service.UpdateSpecialistPoolRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_specialist_pool_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = SpecialistPoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_specialist_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.update_specialist_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == specialist_pool_service.UpdateSpecialistPoolRequest()
@@ -2490,7 +2756,8 @@ async def test_update_specialist_pool_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == specialist_pool_service.UpdateSpecialistPoolRequest()
+        request = specialist_pool_service.UpdateSpecialistPoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)

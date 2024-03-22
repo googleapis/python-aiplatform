@@ -1193,7 +1193,8 @@ def test_search_migratable_resources(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == migration_service.SearchMigratableResourcesRequest()
+        request = migration_service.SearchMigratableResourcesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.SearchMigratableResourcesPager)
@@ -1213,6 +1214,62 @@ def test_search_migratable_resources_empty_call():
         type(client.transport.search_migratable_resources), "__call__"
     ) as call:
         client.search_migratable_resources()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == migration_service.SearchMigratableResourcesRequest()
+
+
+def test_search_migratable_resources_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MigrationServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = migration_service.SearchMigratableResourcesRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+        filter="filter_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_migratable_resources), "__call__"
+    ) as call:
+        client.search_migratable_resources(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == migration_service.SearchMigratableResourcesRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+            filter="filter_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_search_migratable_resources_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MigrationServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_migratable_resources), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            migration_service.SearchMigratableResourcesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.search_migratable_resources()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == migration_service.SearchMigratableResourcesRequest()
@@ -1247,7 +1304,8 @@ async def test_search_migratable_resources_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == migration_service.SearchMigratableResourcesRequest()
+        request = migration_service.SearchMigratableResourcesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.SearchMigratableResourcesAsyncPager)
@@ -1640,7 +1698,8 @@ def test_batch_migrate_resources(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == migration_service.BatchMigrateResourcesRequest()
+        request = migration_service.BatchMigrateResourcesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1659,6 +1718,56 @@ def test_batch_migrate_resources_empty_call():
         type(client.transport.batch_migrate_resources), "__call__"
     ) as call:
         client.batch_migrate_resources()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == migration_service.BatchMigrateResourcesRequest()
+
+
+def test_batch_migrate_resources_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MigrationServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = migration_service.BatchMigrateResourcesRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_migrate_resources), "__call__"
+    ) as call:
+        client.batch_migrate_resources(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == migration_service.BatchMigrateResourcesRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_migrate_resources_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MigrationServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_migrate_resources), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.batch_migrate_resources()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == migration_service.BatchMigrateResourcesRequest()
@@ -1691,7 +1800,8 @@ async def test_batch_migrate_resources_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == migration_service.BatchMigrateResourcesRequest()
+        request = migration_service.BatchMigrateResourcesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -3147,31 +3257,8 @@ def test_parse_annotated_dataset_path():
 
 def test_dataset_path():
     project = "cuttlefish"
-    dataset = "mussel"
-    expected = "projects/{project}/datasets/{dataset}".format(
-        project=project,
-        dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "winkle",
-        "dataset": "nautilus",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "scallop"
-    location = "abalone"
-    dataset = "squid"
+    location = "mussel"
+    dataset = "winkle"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project,
         location=location,
@@ -3183,8 +3270,31 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
+        "project": "nautilus",
+        "location": "scallop",
+        "dataset": "abalone",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "squid"
+    dataset = "clam"
+    expected = "projects/{project}/datasets/{dataset}".format(
+        project=project,
+        dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "whelk",
         "dataset": "octopus",
     }
     path = MigrationServiceClient.dataset_path(**expected)

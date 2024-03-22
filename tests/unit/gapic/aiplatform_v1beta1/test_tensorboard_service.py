@@ -1220,7 +1220,8 @@ def test_create_tensorboard(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardRequest()
+        request = tensorboard_service.CreateTensorboardRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1239,6 +1240,56 @@ def test_create_tensorboard_empty_call():
         type(client.transport.create_tensorboard), "__call__"
     ) as call:
         client.create_tensorboard()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.CreateTensorboardRequest()
+
+
+def test_create_tensorboard_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.CreateTensorboardRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard), "__call__"
+    ) as call:
+        client.create_tensorboard(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.CreateTensorboardRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_tensorboard_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.create_tensorboard()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.CreateTensorboardRequest()
@@ -1271,7 +1322,8 @@ async def test_create_tensorboard_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardRequest()
+        request = tensorboard_service.CreateTensorboardRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1477,7 +1529,8 @@ def test_get_tensorboard(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardRequest()
+        request = tensorboard_service.GetTensorboardRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard.Tensorboard)
@@ -1501,6 +1554,60 @@ def test_get_tensorboard_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
         client.get_tensorboard()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.GetTensorboardRequest()
+
+
+def test_get_tensorboard_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.GetTensorboardRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
+        client.get_tensorboard(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.GetTensorboardRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_tensorboard_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard.Tensorboard(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                blob_storage_path_prefix="blob_storage_path_prefix_value",
+                run_count=989,
+                etag="etag_value",
+                is_default=True,
+            )
+        )
+        response = await client.get_tensorboard()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardRequest()
@@ -1539,7 +1646,8 @@ async def test_get_tensorboard_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardRequest()
+        request = tensorboard_service.GetTensorboardRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard.Tensorboard)
@@ -1728,7 +1836,8 @@ def test_update_tensorboard(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardRequest()
+        request = tensorboard_service.UpdateTensorboardRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1747,6 +1856,52 @@ def test_update_tensorboard_empty_call():
         type(client.transport.update_tensorboard), "__call__"
     ) as call:
         client.update_tensorboard()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.UpdateTensorboardRequest()
+
+
+def test_update_tensorboard_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.UpdateTensorboardRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard), "__call__"
+    ) as call:
+        client.update_tensorboard(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.UpdateTensorboardRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_tensorboard_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.update_tensorboard()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardRequest()
@@ -1779,7 +1934,8 @@ async def test_update_tensorboard_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardRequest()
+        request = tensorboard_service.UpdateTensorboardRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1981,7 +2137,8 @@ def test_list_tensorboards(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardsRequest()
+        request = tensorboard_service.ListTensorboardsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardsPager)
@@ -2001,6 +2158,64 @@ def test_list_tensorboards_empty_call():
         type(client.transport.list_tensorboards), "__call__"
     ) as call:
         client.list_tensorboards()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ListTensorboardsRequest()
+
+
+def test_list_tensorboards_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.ListTensorboardsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboards), "__call__"
+    ) as call:
+        client.list_tensorboards(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ListTensorboardsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_tensorboards_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboards), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ListTensorboardsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_tensorboards()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ListTensorboardsRequest()
@@ -2035,7 +2250,8 @@ async def test_list_tensorboards_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardsRequest()
+        request = tensorboard_service.ListTensorboardsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardsAsyncPager)
@@ -2424,7 +2640,8 @@ def test_delete_tensorboard(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardRequest()
+        request = tensorboard_service.DeleteTensorboardRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2443,6 +2660,56 @@ def test_delete_tensorboard_empty_call():
         type(client.transport.delete_tensorboard), "__call__"
     ) as call:
         client.delete_tensorboard()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.DeleteTensorboardRequest()
+
+
+def test_delete_tensorboard_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.DeleteTensorboardRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard), "__call__"
+    ) as call:
+        client.delete_tensorboard(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.DeleteTensorboardRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_tensorboard_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_tensorboard()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardRequest()
@@ -2475,7 +2742,8 @@ async def test_delete_tensorboard_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardRequest()
+        request = tensorboard_service.DeleteTensorboardRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2665,7 +2933,8 @@ def test_read_tensorboard_usage(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardUsageRequest()
+        request = tensorboard_service.ReadTensorboardUsageRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.ReadTensorboardUsageResponse)
@@ -2684,6 +2953,56 @@ def test_read_tensorboard_usage_empty_call():
         type(client.transport.read_tensorboard_usage), "__call__"
     ) as call:
         client.read_tensorboard_usage()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ReadTensorboardUsageRequest()
+
+
+def test_read_tensorboard_usage_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.ReadTensorboardUsageRequest(
+        tensorboard="tensorboard_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_usage), "__call__"
+    ) as call:
+        client.read_tensorboard_usage(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ReadTensorboardUsageRequest(
+            tensorboard="tensorboard_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_read_tensorboard_usage_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_usage), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ReadTensorboardUsageResponse()
+        )
+        response = await client.read_tensorboard_usage()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ReadTensorboardUsageRequest()
@@ -2716,7 +3035,8 @@ async def test_read_tensorboard_usage_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardUsageRequest()
+        request = tensorboard_service.ReadTensorboardUsageRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.ReadTensorboardUsageResponse)
@@ -2908,7 +3228,8 @@ def test_read_tensorboard_size(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardSizeRequest()
+        request = tensorboard_service.ReadTensorboardSizeRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.ReadTensorboardSizeResponse)
@@ -2928,6 +3249,58 @@ def test_read_tensorboard_size_empty_call():
         type(client.transport.read_tensorboard_size), "__call__"
     ) as call:
         client.read_tensorboard_size()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ReadTensorboardSizeRequest()
+
+
+def test_read_tensorboard_size_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.ReadTensorboardSizeRequest(
+        tensorboard="tensorboard_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_size), "__call__"
+    ) as call:
+        client.read_tensorboard_size(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ReadTensorboardSizeRequest(
+            tensorboard="tensorboard_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_read_tensorboard_size_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_size), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ReadTensorboardSizeResponse(
+                storage_size_byte=1826,
+            )
+        )
+        response = await client.read_tensorboard_size()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ReadTensorboardSizeRequest()
@@ -2962,7 +3335,8 @@ async def test_read_tensorboard_size_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardSizeRequest()
+        request = tensorboard_service.ReadTensorboardSizeRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.ReadTensorboardSizeResponse)
@@ -3159,7 +3533,8 @@ def test_create_tensorboard_experiment(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardExperimentRequest()
+        request = tensorboard_service.CreateTensorboardExperimentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_experiment.TensorboardExperiment)
@@ -3183,6 +3558,64 @@ def test_create_tensorboard_experiment_empty_call():
         type(client.transport.create_tensorboard_experiment), "__call__"
     ) as call:
         client.create_tensorboard_experiment()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.CreateTensorboardExperimentRequest()
+
+
+def test_create_tensorboard_experiment_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.CreateTensorboardExperimentRequest(
+        parent="parent_value",
+        tensorboard_experiment_id="tensorboard_experiment_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_experiment), "__call__"
+    ) as call:
+        client.create_tensorboard_experiment(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.CreateTensorboardExperimentRequest(
+            parent="parent_value",
+            tensorboard_experiment_id="tensorboard_experiment_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_tensorboard_experiment_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_experiment), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_experiment.TensorboardExperiment(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+                source="source_value",
+            )
+        )
+        response = await client.create_tensorboard_experiment()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.CreateTensorboardExperimentRequest()
@@ -3221,7 +3654,8 @@ async def test_create_tensorboard_experiment_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardExperimentRequest()
+        request = tensorboard_service.CreateTensorboardExperimentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_experiment.TensorboardExperiment)
@@ -3450,7 +3884,8 @@ def test_get_tensorboard_experiment(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardExperimentRequest()
+        request = tensorboard_service.GetTensorboardExperimentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_experiment.TensorboardExperiment)
@@ -3474,6 +3909,62 @@ def test_get_tensorboard_experiment_empty_call():
         type(client.transport.get_tensorboard_experiment), "__call__"
     ) as call:
         client.get_tensorboard_experiment()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.GetTensorboardExperimentRequest()
+
+
+def test_get_tensorboard_experiment_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.GetTensorboardExperimentRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_experiment), "__call__"
+    ) as call:
+        client.get_tensorboard_experiment(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.GetTensorboardExperimentRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_tensorboard_experiment_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_experiment), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_experiment.TensorboardExperiment(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+                source="source_value",
+            )
+        )
+        response = await client.get_tensorboard_experiment()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardExperimentRequest()
@@ -3512,7 +4003,8 @@ async def test_get_tensorboard_experiment_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardExperimentRequest()
+        request = tensorboard_service.GetTensorboardExperimentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_experiment.TensorboardExperiment)
@@ -3713,7 +4205,8 @@ def test_update_tensorboard_experiment(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardExperimentRequest()
+        request = tensorboard_service.UpdateTensorboardExperimentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_experiment.TensorboardExperiment)
@@ -3737,6 +4230,58 @@ def test_update_tensorboard_experiment_empty_call():
         type(client.transport.update_tensorboard_experiment), "__call__"
     ) as call:
         client.update_tensorboard_experiment()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.UpdateTensorboardExperimentRequest()
+
+
+def test_update_tensorboard_experiment_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.UpdateTensorboardExperimentRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_experiment), "__call__"
+    ) as call:
+        client.update_tensorboard_experiment(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.UpdateTensorboardExperimentRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_tensorboard_experiment_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_experiment), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_experiment.TensorboardExperiment(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+                source="source_value",
+            )
+        )
+        response = await client.update_tensorboard_experiment()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardExperimentRequest()
@@ -3775,7 +4320,8 @@ async def test_update_tensorboard_experiment_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardExperimentRequest()
+        request = tensorboard_service.UpdateTensorboardExperimentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_experiment.TensorboardExperiment)
@@ -3990,7 +4536,8 @@ def test_list_tensorboard_experiments(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardExperimentsRequest()
+        request = tensorboard_service.ListTensorboardExperimentsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardExperimentsPager)
@@ -4010,6 +4557,64 @@ def test_list_tensorboard_experiments_empty_call():
         type(client.transport.list_tensorboard_experiments), "__call__"
     ) as call:
         client.list_tensorboard_experiments()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ListTensorboardExperimentsRequest()
+
+
+def test_list_tensorboard_experiments_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.ListTensorboardExperimentsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_experiments), "__call__"
+    ) as call:
+        client.list_tensorboard_experiments(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ListTensorboardExperimentsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_tensorboard_experiments_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_experiments), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ListTensorboardExperimentsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_tensorboard_experiments()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ListTensorboardExperimentsRequest()
@@ -4044,7 +4649,8 @@ async def test_list_tensorboard_experiments_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardExperimentsRequest()
+        request = tensorboard_service.ListTensorboardExperimentsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardExperimentsAsyncPager)
@@ -4438,7 +5044,8 @@ def test_delete_tensorboard_experiment(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardExperimentRequest()
+        request = tensorboard_service.DeleteTensorboardExperimentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4457,6 +5064,56 @@ def test_delete_tensorboard_experiment_empty_call():
         type(client.transport.delete_tensorboard_experiment), "__call__"
     ) as call:
         client.delete_tensorboard_experiment()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.DeleteTensorboardExperimentRequest()
+
+
+def test_delete_tensorboard_experiment_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.DeleteTensorboardExperimentRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_experiment), "__call__"
+    ) as call:
+        client.delete_tensorboard_experiment(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.DeleteTensorboardExperimentRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_tensorboard_experiment_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_experiment), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_tensorboard_experiment()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardExperimentRequest()
@@ -4489,7 +5146,8 @@ async def test_delete_tensorboard_experiment_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardExperimentRequest()
+        request = tensorboard_service.DeleteTensorboardExperimentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4684,7 +5342,8 @@ def test_create_tensorboard_run(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardRunRequest()
+        request = tensorboard_service.CreateTensorboardRunRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_run.TensorboardRun)
@@ -4707,6 +5366,63 @@ def test_create_tensorboard_run_empty_call():
         type(client.transport.create_tensorboard_run), "__call__"
     ) as call:
         client.create_tensorboard_run()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.CreateTensorboardRunRequest()
+
+
+def test_create_tensorboard_run_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.CreateTensorboardRunRequest(
+        parent="parent_value",
+        tensorboard_run_id="tensorboard_run_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_run), "__call__"
+    ) as call:
+        client.create_tensorboard_run(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.CreateTensorboardRunRequest(
+            parent="parent_value",
+            tensorboard_run_id="tensorboard_run_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_tensorboard_run_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_run), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_run.TensorboardRun(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+            )
+        )
+        response = await client.create_tensorboard_run()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.CreateTensorboardRunRequest()
@@ -4744,7 +5460,8 @@ async def test_create_tensorboard_run_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardRunRequest()
+        request = tensorboard_service.CreateTensorboardRunRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_run.TensorboardRun)
@@ -4958,7 +5675,8 @@ def test_batch_create_tensorboard_runs(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest()
+        request = tensorboard_service.BatchCreateTensorboardRunsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.BatchCreateTensorboardRunsResponse)
@@ -4977,6 +5695,56 @@ def test_batch_create_tensorboard_runs_empty_call():
         type(client.transport.batch_create_tensorboard_runs), "__call__"
     ) as call:
         client.batch_create_tensorboard_runs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest()
+
+
+def test_batch_create_tensorboard_runs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.BatchCreateTensorboardRunsRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        client.batch_create_tensorboard_runs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_runs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_runs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchCreateTensorboardRunsResponse()
+        )
+        response = await client.batch_create_tensorboard_runs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest()
@@ -5009,7 +5777,8 @@ async def test_batch_create_tensorboard_runs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.BatchCreateTensorboardRunsRequest()
+        request = tensorboard_service.BatchCreateTensorboardRunsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.BatchCreateTensorboardRunsResponse)
@@ -5226,7 +5995,8 @@ def test_get_tensorboard_run(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardRunRequest()
+        request = tensorboard_service.GetTensorboardRunRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_run.TensorboardRun)
@@ -5249,6 +6019,61 @@ def test_get_tensorboard_run_empty_call():
         type(client.transport.get_tensorboard_run), "__call__"
     ) as call:
         client.get_tensorboard_run()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.GetTensorboardRunRequest()
+
+
+def test_get_tensorboard_run_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.GetTensorboardRunRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_run), "__call__"
+    ) as call:
+        client.get_tensorboard_run(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.GetTensorboardRunRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_tensorboard_run_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_run), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_run.TensorboardRun(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+            )
+        )
+        response = await client.get_tensorboard_run()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardRunRequest()
@@ -5286,7 +6111,8 @@ async def test_get_tensorboard_run_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardRunRequest()
+        request = tensorboard_service.GetTensorboardRunRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_run.TensorboardRun)
@@ -5485,7 +6311,8 @@ def test_update_tensorboard_run(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardRunRequest()
+        request = tensorboard_service.UpdateTensorboardRunRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_run.TensorboardRun)
@@ -5508,6 +6335,57 @@ def test_update_tensorboard_run_empty_call():
         type(client.transport.update_tensorboard_run), "__call__"
     ) as call:
         client.update_tensorboard_run()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.UpdateTensorboardRunRequest()
+
+
+def test_update_tensorboard_run_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.UpdateTensorboardRunRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_run), "__call__"
+    ) as call:
+        client.update_tensorboard_run(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.UpdateTensorboardRunRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_tensorboard_run_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_run), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_run.TensorboardRun(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+            )
+        )
+        response = await client.update_tensorboard_run()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardRunRequest()
@@ -5545,7 +6423,8 @@ async def test_update_tensorboard_run_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardRunRequest()
+        request = tensorboard_service.UpdateTensorboardRunRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_run.TensorboardRun)
@@ -5751,7 +6630,8 @@ def test_list_tensorboard_runs(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardRunsRequest()
+        request = tensorboard_service.ListTensorboardRunsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardRunsPager)
@@ -5771,6 +6651,64 @@ def test_list_tensorboard_runs_empty_call():
         type(client.transport.list_tensorboard_runs), "__call__"
     ) as call:
         client.list_tensorboard_runs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ListTensorboardRunsRequest()
+
+
+def test_list_tensorboard_runs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.ListTensorboardRunsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_runs), "__call__"
+    ) as call:
+        client.list_tensorboard_runs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ListTensorboardRunsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_tensorboard_runs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_runs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ListTensorboardRunsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_tensorboard_runs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ListTensorboardRunsRequest()
@@ -5805,7 +6743,8 @@ async def test_list_tensorboard_runs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardRunsRequest()
+        request = tensorboard_service.ListTensorboardRunsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardRunsAsyncPager)
@@ -6194,7 +7133,8 @@ def test_delete_tensorboard_run(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardRunRequest()
+        request = tensorboard_service.DeleteTensorboardRunRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -6213,6 +7153,56 @@ def test_delete_tensorboard_run_empty_call():
         type(client.transport.delete_tensorboard_run), "__call__"
     ) as call:
         client.delete_tensorboard_run()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.DeleteTensorboardRunRequest()
+
+
+def test_delete_tensorboard_run_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.DeleteTensorboardRunRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_run), "__call__"
+    ) as call:
+        client.delete_tensorboard_run(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.DeleteTensorboardRunRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_tensorboard_run_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_run), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_tensorboard_run()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardRunRequest()
@@ -6245,7 +7235,8 @@ async def test_delete_tensorboard_run_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardRunRequest()
+        request = tensorboard_service.DeleteTensorboardRunRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -6437,7 +7428,8 @@ def test_batch_create_tensorboard_time_series(request_type, transport: str = "gr
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+        request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -6458,6 +7450,56 @@ def test_batch_create_tensorboard_time_series_empty_call():
         type(client.transport.batch_create_tensorboard_time_series), "__call__"
     ) as call:
         client.batch_create_tensorboard_time_series()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+
+
+def test_batch_create_tensorboard_time_series_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        client.batch_create_tensorboard_time_series(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_create_tensorboard_time_series_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
+        )
+        response = await client.batch_create_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
@@ -6490,7 +7532,8 @@ async def test_batch_create_tensorboard_time_series_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+        request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -6730,7 +7773,8 @@ def test_create_tensorboard_time_series(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardTimeSeriesRequest()
+        request = tensorboard_service.CreateTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_time_series.TensorboardTimeSeries)
@@ -6759,6 +7803,66 @@ def test_create_tensorboard_time_series_empty_call():
         type(client.transport.create_tensorboard_time_series), "__call__"
     ) as call:
         client.create_tensorboard_time_series()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.CreateTensorboardTimeSeriesRequest()
+
+
+def test_create_tensorboard_time_series_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.CreateTensorboardTimeSeriesRequest(
+        parent="parent_value",
+        tensorboard_time_series_id="tensorboard_time_series_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_time_series), "__call__"
+    ) as call:
+        client.create_tensorboard_time_series(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.CreateTensorboardTimeSeriesRequest(
+            parent="parent_value",
+            tensorboard_time_series_id="tensorboard_time_series_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_tensorboard_time_series_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_time_series.TensorboardTimeSeries(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+                etag="etag_value",
+                plugin_name="plugin_name_value",
+                plugin_data=b"plugin_data_blob",
+            )
+        )
+        response = await client.create_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.CreateTensorboardTimeSeriesRequest()
@@ -6799,7 +7903,8 @@ async def test_create_tensorboard_time_series_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.CreateTensorboardTimeSeriesRequest()
+        request = tensorboard_service.CreateTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_time_series.TensorboardTimeSeries)
@@ -7025,7 +8130,8 @@ def test_get_tensorboard_time_series(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardTimeSeriesRequest()
+        request = tensorboard_service.GetTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_time_series.TensorboardTimeSeries)
@@ -7054,6 +8160,64 @@ def test_get_tensorboard_time_series_empty_call():
         type(client.transport.get_tensorboard_time_series), "__call__"
     ) as call:
         client.get_tensorboard_time_series()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.GetTensorboardTimeSeriesRequest()
+
+
+def test_get_tensorboard_time_series_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.GetTensorboardTimeSeriesRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_time_series), "__call__"
+    ) as call:
+        client.get_tensorboard_time_series(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.GetTensorboardTimeSeriesRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_tensorboard_time_series_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_time_series.TensorboardTimeSeries(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+                etag="etag_value",
+                plugin_name="plugin_name_value",
+                plugin_data=b"plugin_data_blob",
+            )
+        )
+        response = await client.get_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.GetTensorboardTimeSeriesRequest()
@@ -7094,7 +8258,8 @@ async def test_get_tensorboard_time_series_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.GetTensorboardTimeSeriesRequest()
+        request = tensorboard_service.GetTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_time_series.TensorboardTimeSeries)
@@ -7302,7 +8467,8 @@ def test_update_tensorboard_time_series(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+        request = tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_time_series.TensorboardTimeSeries)
@@ -7331,6 +8497,60 @@ def test_update_tensorboard_time_series_empty_call():
         type(client.transport.update_tensorboard_time_series), "__call__"
     ) as call:
         client.update_tensorboard_time_series()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+
+
+def test_update_tensorboard_time_series_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_time_series), "__call__"
+    ) as call:
+        client.update_tensorboard_time_series(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_tensorboard_time_series_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_tensorboard_time_series.TensorboardTimeSeries(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+                etag="etag_value",
+                plugin_name="plugin_name_value",
+                plugin_data=b"plugin_data_blob",
+            )
+        )
+        response = await client.update_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.UpdateTensorboardTimeSeriesRequest()
@@ -7371,7 +8591,8 @@ async def test_update_tensorboard_time_series_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+        request = tensorboard_service.UpdateTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_tensorboard_time_series.TensorboardTimeSeries)
@@ -7591,7 +8812,8 @@ def test_list_tensorboard_time_series(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardTimeSeriesRequest()
+        request = tensorboard_service.ListTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardTimeSeriesPager)
@@ -7611,6 +8833,64 @@ def test_list_tensorboard_time_series_empty_call():
         type(client.transport.list_tensorboard_time_series), "__call__"
     ) as call:
         client.list_tensorboard_time_series()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ListTensorboardTimeSeriesRequest()
+
+
+def test_list_tensorboard_time_series_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.ListTensorboardTimeSeriesRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_time_series), "__call__"
+    ) as call:
+        client.list_tensorboard_time_series(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ListTensorboardTimeSeriesRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_tensorboard_time_series_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ListTensorboardTimeSeriesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ListTensorboardTimeSeriesRequest()
@@ -7645,7 +8925,8 @@ async def test_list_tensorboard_time_series_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ListTensorboardTimeSeriesRequest()
+        request = tensorboard_service.ListTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTensorboardTimeSeriesAsyncPager)
@@ -8040,7 +9321,8 @@ def test_delete_tensorboard_time_series(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardTimeSeriesRequest()
+        request = tensorboard_service.DeleteTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -8059,6 +9341,56 @@ def test_delete_tensorboard_time_series_empty_call():
         type(client.transport.delete_tensorboard_time_series), "__call__"
     ) as call:
         client.delete_tensorboard_time_series()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.DeleteTensorboardTimeSeriesRequest()
+
+
+def test_delete_tensorboard_time_series_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.DeleteTensorboardTimeSeriesRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_time_series), "__call__"
+    ) as call:
+        client.delete_tensorboard_time_series(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.DeleteTensorboardTimeSeriesRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_tensorboard_time_series_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_tensorboard_time_series), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_tensorboard_time_series()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.DeleteTensorboardTimeSeriesRequest()
@@ -8091,7 +9423,8 @@ async def test_delete_tensorboard_time_series_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.DeleteTensorboardTimeSeriesRequest()
+        request = tensorboard_service.DeleteTensorboardTimeSeriesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -8283,9 +9616,8 @@ def test_batch_read_tensorboard_time_series_data(request_type, transport: str = 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0] == tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
-        )
+        request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -8306,6 +9638,58 @@ def test_batch_read_tensorboard_time_series_data_empty_call():
         type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
     ) as call:
         client.batch_read_tensorboard_time_series_data()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0] == tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+        )
+
+
+def test_batch_read_tensorboard_time_series_data_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(
+        tensorboard="tensorboard_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        client.batch_read_tensorboard_time_series_data(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(
+            tensorboard="tensorboard_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_read_tensorboard_time_series_data_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
+        )
+        response = await client.batch_read_tensorboard_time_series_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -8340,9 +9724,8 @@ async def test_batch_read_tensorboard_time_series_data_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0] == tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
-        )
+        request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -8540,7 +9923,8 @@ def test_read_tensorboard_time_series_data(request_type, transport: str = "grpc"
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
+        request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -8561,6 +9945,58 @@ def test_read_tensorboard_time_series_data_empty_call():
         type(client.transport.read_tensorboard_time_series_data), "__call__"
     ) as call:
         client.read_tensorboard_time_series_data()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
+
+
+def test_read_tensorboard_time_series_data_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest(
+        tensorboard_time_series="tensorboard_time_series_value",
+        filter="filter_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        client.read_tensorboard_time_series_data(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ReadTensorboardTimeSeriesDataRequest(
+            tensorboard_time_series="tensorboard_time_series_value",
+            filter="filter_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_read_tensorboard_time_series_data_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_time_series_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
+        )
+        response = await client.read_tensorboard_time_series_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
@@ -8593,7 +10029,8 @@ async def test_read_tensorboard_time_series_data_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
+        request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -8787,7 +10224,8 @@ def test_read_tensorboard_blob_data(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardBlobDataRequest()
+        request = tensorboard_service.ReadTensorboardBlobDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     for message in response:
@@ -8807,6 +10245,57 @@ def test_read_tensorboard_blob_data_empty_call():
         type(client.transport.read_tensorboard_blob_data), "__call__"
     ) as call:
         client.read_tensorboard_blob_data()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ReadTensorboardBlobDataRequest()
+
+
+def test_read_tensorboard_blob_data_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.ReadTensorboardBlobDataRequest(
+        time_series="time_series_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_blob_data), "__call__"
+    ) as call:
+        client.read_tensorboard_blob_data(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ReadTensorboardBlobDataRequest(
+            time_series="time_series_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_read_tensorboard_blob_data_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_tensorboard_blob_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[tensorboard_service.ReadTensorboardBlobDataResponse()]
+        )
+        response = await client.read_tensorboard_blob_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ReadTensorboardBlobDataRequest()
@@ -8840,7 +10329,8 @@ async def test_read_tensorboard_blob_data_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ReadTensorboardBlobDataRequest()
+        request = tensorboard_service.ReadTensorboardBlobDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     message = await response.read()
@@ -9036,7 +10526,8 @@ def test_write_tensorboard_experiment_data(request_type, transport: str = "grpc"
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest()
+        request = tensorboard_service.WriteTensorboardExperimentDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -9057,6 +10548,56 @@ def test_write_tensorboard_experiment_data_empty_call():
         type(client.transport.write_tensorboard_experiment_data), "__call__"
     ) as call:
         client.write_tensorboard_experiment_data()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest()
+
+
+def test_write_tensorboard_experiment_data_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.WriteTensorboardExperimentDataRequest(
+        tensorboard_experiment="tensorboard_experiment_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        client.write_tensorboard_experiment_data(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest(
+            tensorboard_experiment="tensorboard_experiment_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_write_tensorboard_experiment_data_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_experiment_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.WriteTensorboardExperimentDataResponse()
+        )
+        response = await client.write_tensorboard_experiment_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest()
@@ -9089,7 +10630,8 @@ async def test_write_tensorboard_experiment_data_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.WriteTensorboardExperimentDataRequest()
+        request = tensorboard_service.WriteTensorboardExperimentDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -9315,7 +10857,8 @@ def test_write_tensorboard_run_data(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.WriteTensorboardRunDataRequest()
+        request = tensorboard_service.WriteTensorboardRunDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.WriteTensorboardRunDataResponse)
@@ -9334,6 +10877,56 @@ def test_write_tensorboard_run_data_empty_call():
         type(client.transport.write_tensorboard_run_data), "__call__"
     ) as call:
         client.write_tensorboard_run_data()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.WriteTensorboardRunDataRequest()
+
+
+def test_write_tensorboard_run_data_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.WriteTensorboardRunDataRequest(
+        tensorboard_run="tensorboard_run_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_run_data), "__call__"
+    ) as call:
+        client.write_tensorboard_run_data(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.WriteTensorboardRunDataRequest(
+            tensorboard_run="tensorboard_run_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_write_tensorboard_run_data_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.write_tensorboard_run_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.WriteTensorboardRunDataResponse()
+        )
+        response = await client.write_tensorboard_run_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.WriteTensorboardRunDataRequest()
@@ -9366,7 +10959,8 @@ async def test_write_tensorboard_run_data_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.WriteTensorboardRunDataRequest()
+        request = tensorboard_service.WriteTensorboardRunDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, tensorboard_service.WriteTensorboardRunDataResponse)
@@ -9592,7 +11186,8 @@ def test_export_tensorboard_time_series_data(request_type, transport: str = "grp
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
+        request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ExportTensorboardTimeSeriesDataPager)
@@ -9612,6 +11207,64 @@ def test_export_tensorboard_time_series_data_empty_call():
         type(client.transport.export_tensorboard_time_series_data), "__call__"
     ) as call:
         client.export_tensorboard_time_series_data()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
+
+
+def test_export_tensorboard_time_series_data_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = TensorboardServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(
+        tensorboard_time_series="tensorboard_time_series_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.export_tensorboard_time_series_data), "__call__"
+    ) as call:
+        client.export_tensorboard_time_series_data(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == tensorboard_service.ExportTensorboardTimeSeriesDataRequest(
+            tensorboard_time_series="tensorboard_time_series_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_export_tensorboard_time_series_data_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = TensorboardServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.export_tensorboard_time_series_data), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            tensorboard_service.ExportTensorboardTimeSeriesDataResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.export_tensorboard_time_series_data()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
@@ -9646,7 +11299,8 @@ async def test_export_tensorboard_time_series_data_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
+        request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ExportTensorboardTimeSeriesDataAsyncPager)

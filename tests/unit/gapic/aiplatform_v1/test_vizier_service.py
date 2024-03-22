@@ -1161,7 +1161,8 @@ def test_create_study(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CreateStudyRequest()
+        request = vizier_service.CreateStudyRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_study.Study)
@@ -1182,6 +1183,57 @@ def test_create_study_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_study), "__call__") as call:
         client.create_study()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.CreateStudyRequest()
+
+
+def test_create_study_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.CreateStudyRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_study), "__call__") as call:
+        client.create_study(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.CreateStudyRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_study_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_study), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_study.Study(
+                name="name_value",
+                display_name="display_name_value",
+                state=gca_study.Study.State.ACTIVE,
+                inactive_reason="inactive_reason_value",
+            )
+        )
+        response = await client.create_study()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.CreateStudyRequest()
@@ -1216,7 +1268,8 @@ async def test_create_study_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CreateStudyRequest()
+        request = vizier_service.CreateStudyRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_study.Study)
@@ -1411,7 +1464,8 @@ def test_get_study(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.GetStudyRequest()
+        request = vizier_service.GetStudyRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Study)
@@ -1432,6 +1486,57 @@ def test_get_study_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_study), "__call__") as call:
         client.get_study()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.GetStudyRequest()
+
+
+def test_get_study_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.GetStudyRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_study), "__call__") as call:
+        client.get_study(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.GetStudyRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_study_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_study), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Study(
+                name="name_value",
+                display_name="display_name_value",
+                state=study.Study.State.ACTIVE,
+                inactive_reason="inactive_reason_value",
+            )
+        )
+        response = await client.get_study()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.GetStudyRequest()
@@ -1466,7 +1571,8 @@ async def test_get_study_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.GetStudyRequest()
+        request = vizier_service.GetStudyRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Study)
@@ -1648,7 +1754,8 @@ def test_list_studies(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListStudiesRequest()
+        request = vizier_service.ListStudiesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListStudiesPager)
@@ -1666,6 +1773,56 @@ def test_list_studies_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
         client.list_studies()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.ListStudiesRequest()
+
+
+def test_list_studies_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.ListStudiesRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
+        client.list_studies(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.ListStudiesRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_studies_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vizier_service.ListStudiesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_studies()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.ListStudiesRequest()
@@ -1697,7 +1854,8 @@ async def test_list_studies_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListStudiesRequest()
+        request = vizier_service.ListStudiesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListStudiesAsyncPager)
@@ -2068,7 +2226,8 @@ def test_delete_study(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.DeleteStudyRequest()
+        request = vizier_service.DeleteStudyRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -2085,6 +2244,50 @@ def test_delete_study_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
         client.delete_study()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.DeleteStudyRequest()
+
+
+def test_delete_study_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.DeleteStudyRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
+        client.delete_study(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.DeleteStudyRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_study_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.delete_study()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.DeleteStudyRequest()
@@ -2112,7 +2315,8 @@ async def test_delete_study_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.DeleteStudyRequest()
+        request = vizier_service.DeleteStudyRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -2293,7 +2497,8 @@ def test_lookup_study(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.LookupStudyRequest()
+        request = vizier_service.LookupStudyRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Study)
@@ -2314,6 +2519,59 @@ def test_lookup_study_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
         client.lookup_study()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.LookupStudyRequest()
+
+
+def test_lookup_study_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.LookupStudyRequest(
+        parent="parent_value",
+        display_name="display_name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
+        client.lookup_study(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.LookupStudyRequest(
+            parent="parent_value",
+            display_name="display_name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_lookup_study_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Study(
+                name="name_value",
+                display_name="display_name_value",
+                state=study.Study.State.ACTIVE,
+                inactive_reason="inactive_reason_value",
+            )
+        )
+        response = await client.lookup_study()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.LookupStudyRequest()
@@ -2348,7 +2606,8 @@ async def test_lookup_study_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.LookupStudyRequest()
+        request = vizier_service.LookupStudyRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Study)
@@ -2528,7 +2787,8 @@ def test_suggest_trials(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.SuggestTrialsRequest()
+        request = vizier_service.SuggestTrialsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2545,6 +2805,54 @@ def test_suggest_trials_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
         client.suggest_trials()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.SuggestTrialsRequest()
+
+
+def test_suggest_trials_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.SuggestTrialsRequest(
+        parent="parent_value",
+        client_id="client_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
+        client.suggest_trials(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.SuggestTrialsRequest(
+            parent="parent_value",
+            client_id="client_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_suggest_trials_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.suggest_trials()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.SuggestTrialsRequest()
@@ -2574,7 +2882,8 @@ async def test_suggest_trials_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.SuggestTrialsRequest()
+        request = vizier_service.SuggestTrialsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2679,7 +2988,8 @@ def test_create_trial(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CreateTrialRequest()
+        request = vizier_service.CreateTrialRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
@@ -2702,6 +3012,59 @@ def test_create_trial_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
         client.create_trial()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.CreateTrialRequest()
+
+
+def test_create_trial_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.CreateTrialRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
+        client.create_trial(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.CreateTrialRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_trial_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Trial(
+                name="name_value",
+                id="id_value",
+                state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
+                custom_job="custom_job_value",
+            )
+        )
+        response = await client.create_trial()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.CreateTrialRequest()
@@ -2738,7 +3101,8 @@ async def test_create_trial_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CreateTrialRequest()
+        request = vizier_service.CreateTrialRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
@@ -2937,7 +3301,8 @@ def test_get_trial(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.GetTrialRequest()
+        request = vizier_service.GetTrialRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
@@ -2960,6 +3325,59 @@ def test_get_trial_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
         client.get_trial()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.GetTrialRequest()
+
+
+def test_get_trial_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.GetTrialRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
+        client.get_trial(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.GetTrialRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_trial_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Trial(
+                name="name_value",
+                id="id_value",
+                state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
+                custom_job="custom_job_value",
+            )
+        )
+        response = await client.get_trial()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.GetTrialRequest()
@@ -2996,7 +3414,8 @@ async def test_get_trial_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.GetTrialRequest()
+        request = vizier_service.GetTrialRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
@@ -3180,7 +3599,8 @@ def test_list_trials(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListTrialsRequest()
+        request = vizier_service.ListTrialsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTrialsPager)
@@ -3198,6 +3618,56 @@ def test_list_trials_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
         client.list_trials()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.ListTrialsRequest()
+
+
+def test_list_trials_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.ListTrialsRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
+        client.list_trials(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.ListTrialsRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_trials_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vizier_service.ListTrialsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_trials()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.ListTrialsRequest()
@@ -3229,7 +3699,8 @@ async def test_list_trials_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListTrialsRequest()
+        request = vizier_service.ListTrialsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTrialsAsyncPager)
@@ -3609,7 +4080,8 @@ def test_add_trial_measurement(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.AddTrialMeasurementRequest()
+        request = vizier_service.AddTrialMeasurementRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
@@ -3634,6 +4106,63 @@ def test_add_trial_measurement_empty_call():
         type(client.transport.add_trial_measurement), "__call__"
     ) as call:
         client.add_trial_measurement()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.AddTrialMeasurementRequest()
+
+
+def test_add_trial_measurement_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.AddTrialMeasurementRequest(
+        trial_name="trial_name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_trial_measurement), "__call__"
+    ) as call:
+        client.add_trial_measurement(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.AddTrialMeasurementRequest(
+            trial_name="trial_name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_add_trial_measurement_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_trial_measurement), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Trial(
+                name="name_value",
+                id="id_value",
+                state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
+                custom_job="custom_job_value",
+            )
+        )
+        response = await client.add_trial_measurement()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.AddTrialMeasurementRequest()
@@ -3673,7 +4202,8 @@ async def test_add_trial_measurement_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.AddTrialMeasurementRequest()
+        request = vizier_service.AddTrialMeasurementRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
@@ -3786,7 +4316,8 @@ def test_complete_trial(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CompleteTrialRequest()
+        request = vizier_service.CompleteTrialRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
@@ -3809,6 +4340,61 @@ def test_complete_trial_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
         client.complete_trial()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.CompleteTrialRequest()
+
+
+def test_complete_trial_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.CompleteTrialRequest(
+        name="name_value",
+        infeasible_reason="infeasible_reason_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
+        client.complete_trial(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.CompleteTrialRequest(
+            name="name_value",
+            infeasible_reason="infeasible_reason_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_complete_trial_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Trial(
+                name="name_value",
+                id="id_value",
+                state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
+                custom_job="custom_job_value",
+            )
+        )
+        response = await client.complete_trial()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.CompleteTrialRequest()
@@ -3845,7 +4431,8 @@ async def test_complete_trial_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CompleteTrialRequest()
+        request = vizier_service.CompleteTrialRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
@@ -3947,7 +4534,8 @@ def test_delete_trial(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.DeleteTrialRequest()
+        request = vizier_service.DeleteTrialRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -3964,6 +4552,50 @@ def test_delete_trial_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
         client.delete_trial()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.DeleteTrialRequest()
+
+
+def test_delete_trial_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.DeleteTrialRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
+        client.delete_trial(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.DeleteTrialRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_trial_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.delete_trial()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.DeleteTrialRequest()
@@ -3991,7 +4623,8 @@ async def test_delete_trial_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.DeleteTrialRequest()
+        request = vizier_service.DeleteTrialRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -4169,7 +4802,8 @@ def test_check_trial_early_stopping_state(request_type, transport: str = "grpc")
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CheckTrialEarlyStoppingStateRequest()
+        request = vizier_service.CheckTrialEarlyStoppingStateRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4188,6 +4822,56 @@ def test_check_trial_early_stopping_state_empty_call():
         type(client.transport.check_trial_early_stopping_state), "__call__"
     ) as call:
         client.check_trial_early_stopping_state()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.CheckTrialEarlyStoppingStateRequest()
+
+
+def test_check_trial_early_stopping_state_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.CheckTrialEarlyStoppingStateRequest(
+        trial_name="trial_name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.check_trial_early_stopping_state), "__call__"
+    ) as call:
+        client.check_trial_early_stopping_state(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.CheckTrialEarlyStoppingStateRequest(
+            trial_name="trial_name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_check_trial_early_stopping_state_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.check_trial_early_stopping_state), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.check_trial_early_stopping_state()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.CheckTrialEarlyStoppingStateRequest()
@@ -4220,7 +4904,8 @@ async def test_check_trial_early_stopping_state_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CheckTrialEarlyStoppingStateRequest()
+        request = vizier_service.CheckTrialEarlyStoppingStateRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4329,7 +5014,8 @@ def test_stop_trial(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.StopTrialRequest()
+        request = vizier_service.StopTrialRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
@@ -4352,6 +5038,59 @@ def test_stop_trial_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
         client.stop_trial()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.StopTrialRequest()
+
+
+def test_stop_trial_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.StopTrialRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
+        client.stop_trial(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.StopTrialRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_stop_trial_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Trial(
+                name="name_value",
+                id="id_value",
+                state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
+                custom_job="custom_job_value",
+            )
+        )
+        response = await client.stop_trial()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.StopTrialRequest()
@@ -4388,7 +5127,8 @@ async def test_stop_trial_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.StopTrialRequest()
+        request = vizier_service.StopTrialRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
@@ -4492,7 +5232,8 @@ def test_list_optimal_trials(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListOptimalTrialsRequest()
+        request = vizier_service.ListOptimalTrialsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, vizier_service.ListOptimalTrialsResponse)
@@ -4511,6 +5252,56 @@ def test_list_optimal_trials_empty_call():
         type(client.transport.list_optimal_trials), "__call__"
     ) as call:
         client.list_optimal_trials()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.ListOptimalTrialsRequest()
+
+
+def test_list_optimal_trials_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vizier_service.ListOptimalTrialsRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_optimal_trials), "__call__"
+    ) as call:
+        client.list_optimal_trials(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vizier_service.ListOptimalTrialsRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_optimal_trials_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = VizierServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_optimal_trials), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vizier_service.ListOptimalTrialsResponse()
+        )
+        response = await client.list_optimal_trials()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.ListOptimalTrialsRequest()
@@ -4543,7 +5334,8 @@ async def test_list_optimal_trials_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListOptimalTrialsRequest()
+        request = vizier_service.ListOptimalTrialsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, vizier_service.ListOptimalTrialsResponse)
