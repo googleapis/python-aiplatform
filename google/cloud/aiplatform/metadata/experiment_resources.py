@@ -583,10 +583,10 @@ class Experiment:
                 credentials=self._metadata_context.credentials,
             )
 
-        if tensorboard.project not in self._metadata_context._project_tuple:
-            raise ValueError(
-                f"Tensorboard is in project {tensorboard.project} but must be in project {self._metadata_context.project}"
-            )
+        # if tensorboard.project not in self._metadata_context._project_tuple:
+        #     raise ValueError(
+        #         f"Tensorboard is in project {tensorboard.project} but must be in project {self._metadata_context.project}"
+        #     )
         if tensorboard.location != self._metadata_context.location:
             raise ValueError(
                 f"Tensorboard is in location {tensorboard.location} but must be in location {self._metadata_context.location}"
