@@ -1641,7 +1641,7 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
 
         # writing feature values from a Python dict with timestamp column
         my_data_dict = {
-                "movie_02" : {"average_rating": 3.7, "feature_timestamp": timestmap}}
+                "movie_02" : {"average_rating": 3.7, "feature_timestamp": timestamp}}
         }
 
         my_entity_type.write_feature_values(
@@ -1665,7 +1665,7 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
                         "average_rating": featurestore_online_service.FeatureValue(
                                 string_value="test",
                                 metadata=featurestore_online_service.FeatureValue.Metadata(
-                                        generate_time=timestmap
+                                        generate_time=timestamp
                                 )
                        }
                 }
@@ -1701,7 +1701,7 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
             feature_time Union[str, datetime.datetime]:
                 Optional. Either column name in DataFrame or Dict which contains timestamp value,
                 or datetime to apply to the entire DataFrame or Dict.
-                Timestamp will be applied to generate_timestmap in all FeatureValue.
+                Timestamp will be applied to generate_timestamp in all FeatureValue.
                 If not provided, curreent timestamp is used. This param is not used
                 when instances is List[WriteFeatureValuesPayload].
 
