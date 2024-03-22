@@ -159,7 +159,7 @@ class _TensorBoardTracker:
             verbosity=0,
             allowed_plugins=allowed_plugins,
         )
-        threading.Thread(target=self._tensorboard_uploader.start_uploading).start()
+        threading.Thread(target=self._tensorboard_uploader.start_uploading, daemon=True).start()
 
     def end_upload_tb_log(self):
         """Ends the current TensorBoard uploader
