@@ -6004,12 +6004,16 @@ def test_create_feature_online_store_rest(request_type):
                 "cpu_utilization_target": 2377,
             }
         },
+        "optimized": {},
         "name": "name_value",
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
         "labels": {},
         "state": 1,
+        "dedicated_serving_endpoint": {
+            "public_endpoint_domain_name": "public_endpoint_domain_name_value"
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7056,12 +7060,16 @@ def test_update_feature_online_store_rest(request_type):
                 "cpu_utilization_target": 2377,
             }
         },
+        "optimized": {},
         "name": "projects/sample1/locations/sample2/featureOnlineStores/sample3",
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
         "labels": {},
         "state": 1,
+        "dedicated_serving_endpoint": {
+            "public_endpoint_domain_name": "public_endpoint_domain_name_value"
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7719,6 +7727,15 @@ def test_create_feature_view_rest(request_type):
         "etag": "etag_value",
         "labels": {},
         "sync_config": {"cron": "cron_value"},
+        "index_config": {
+            "tree_ah_config": {"leaf_node_embedding_count": 2595},
+            "brute_force_config": {},
+            "embedding_column": "embedding_column_value",
+            "filter_columns": ["filter_columns_value1", "filter_columns_value2"],
+            "crowding_column": "crowding_column_value",
+            "embedding_dimension": 1988,
+            "distance_measure_type": 1,
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8774,6 +8791,15 @@ def test_update_feature_view_rest(request_type):
         "etag": "etag_value",
         "labels": {},
         "sync_config": {"cron": "cron_value"},
+        "index_config": {
+            "tree_ah_config": {"leaf_node_embedding_count": 2595},
+            "brute_force_config": {},
+            "embedding_column": "embedding_column_value",
+            "filter_columns": ["filter_columns_value1", "filter_columns_value2"],
+            "crowding_column": "crowding_column_value",
+            "embedding_dimension": 1988,
+            "distance_measure_type": 1,
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
