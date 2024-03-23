@@ -2000,7 +2000,7 @@ class TextEmbeddingModel(_LanguageModel):
     Examples::
 
         # Getting embedding:
-        model = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
+        model = TextEmbeddingModel.from_pretrained("textembedding-gecko@003")
         embeddings = model.get_embeddings(["What is life?"])
         for embedding in embeddings:
             vector = embedding.values
@@ -2012,6 +2012,40 @@ class TextEmbeddingModel(_LanguageModel):
     _INSTANCE_SCHEMA_URI = (
         "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
     )
+
+    def __init__(self, model_id: str, endpoint_name: Optional[str] = None):
+        """Creates a TextEmbeddingModel.
+
+        This constructor should not be called directly.
+        Use `TextEmbeddingModel.from_pretrained(model_name=...)` instead.
+
+        Args:
+            model_id: Identifier of a Vertex embedding model. Example: "textembedding-gecko@003"
+            endpoint_name: Vertex Endpoint resource name for the model
+        """
+        action_message = (
+            "Prefer using numbered versions, for example textembedding-gecko@003."
+            " Learn more:"
+            " https://cloud.google.com/vertex-ai/docs/generative-ai/learn/model-versioning#palm-latest-version"
+        )
+        if "@" not in model_id:
+            _LOGGER.warning(
+                "Embedding models with no version number are "
+                "subject to change at any time and may not be suitable "
+                "for production use cases. "
+                + action_message
+            )
+        elif "@latest" in model_id:
+            _LOGGER.warning(
+                "Embedding models with the @latest suffix are "
+                "subject to change at any time and may not be suitable "
+                "for production use cases. "
+                + action_message
+            )
+        super().__init__(
+            model_id=model_id,
+            endpoint_name=endpoint_name,
+        )
 
     def _prepare_text_embedding_request(
         self,
