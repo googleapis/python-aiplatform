@@ -877,7 +877,6 @@ class ChatSession:
             )
             if self._responder
             else None
-        )
 
         while True:
             request_history = self._history + history_delta
