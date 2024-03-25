@@ -658,6 +658,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             ValueError: Should not set ip address for networks other than
                         private service connect.
         """
+        print("instantiate pirvate match service stub")
+        print("ip_address:{}".format(ip_address))
         if ip_address:
             # Should only set for Private Service Connect
             if self.public_endpoint_domain_name:
@@ -688,13 +690,18 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             # Retrieve server ip from deployed index
             ip_address = deployed_indexes[0].private_endpoints.match_grpc_address
 
+        # force channel and stub recreation for testing
+        channel = grpc.insecure_channel("{}:10000".format(ip_address))
         if ip_address not in self._match_grpc_stub_cache:
             # Set up channel and stub
+            print("instantiate pirvate match service channel")
+            print("ip_address:{}".format(ip_address))
             channel = grpc.insecure_channel("{}:10000".format(ip_address))
             self._match_grpc_stub_cache[
                 ip_address
             ] = match_service_pb2_grpc.MatchServiceStub(channel)
-        return self._match_grpc_stub_cache[ip_address]
+        print("instantiate pirvate match service stub completed")
+        return match_service_pb2_grpc.MatchServiceStub(channel)
 
     @property
     def public_endpoint_domain_name(self) -> Optional[str]:
@@ -1397,6 +1404,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         """
 
         if not self._public_match_client:
+            print("find_neighbors is called for a private endpoint without public match client")
             # Private endpoint
             return self.match(
                 deployed_index_id=deployed_index_id,
@@ -1636,6 +1644,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
         """
+        print("match() is called for a private endpoint without public match client")
+        print("ip_address:{}".format(self._private_service_connect_ip_address))
         stub = self._instantiate_private_match_service_stub(
             deployed_index_id=deployed_index_id,
             ip_address=self._private_service_connect_ip_address,
@@ -1700,6 +1710,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         batch_request.requests.append(batch_request_for_index)
 
         # Perform the request
+        print("BatchMatch is called with ip_address:{}".format(
+                self._private_service_connect_ip_address))
         response = stub.BatchMatch(batch_request)
 
         # Wrap the results in MatchNeighbor objects and return
