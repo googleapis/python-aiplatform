@@ -16,7 +16,7 @@
 #
 
 import re
-from typing import Optional
+from typing import Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -40,6 +40,7 @@ class _PublisherModel(base.VertexAiResourceNoun):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
     ):
         """Retrieves an existing PublisherModel resource given a resource name or model garden id.
 
@@ -58,6 +59,8 @@ class _PublisherModel(base.VertexAiResourceNoun):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve the resource.
                 Overrides credentials set in aiplatform.init.
+            metadata (Sequence[Tuple[str, str]]):
+                Strings which should be sent along with the request as metadata.
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
@@ -75,5 +78,5 @@ class _PublisherModel(base.VertexAiResourceNoun):
                 )
 
         self._gca_resource = getattr(self.api_client, self._getter_method)(
-            name=full_resource_name, retry=base._DEFAULT_RETRY
+            name=full_resource_name, retry=base._DEFAULT_RETRY, metadata=metadata,
         )

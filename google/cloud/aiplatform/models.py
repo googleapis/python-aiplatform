@@ -1524,6 +1524,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         parameters: Optional[Dict] = None,
         timeout: Optional[float] = None,
         use_raw_predict: Optional[bool] = False,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> Prediction:
         """Make a prediction against this Endpoint.
 
@@ -1551,6 +1552,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             use_raw_predict (bool):
                 Optional. Default value is False. If set to True, the underlying prediction call will be made
                 against Endpoint.raw_predict().
+            metadata (Sequence[Tuple[str, str]]):
+                Strings which should be sent along with the request as metadata.
 
         Returns:
             prediction (aiplatform.Prediction):
@@ -1582,6 +1585,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 instances=instances,
                 parameters=parameters,
                 timeout=timeout,
+                metadata=metadata,
             )
             if prediction_response._pb.metadata:
                 metadata = json_format.MessageToDict(prediction_response._pb.metadata)
@@ -1605,6 +1609,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         *,
         parameters: Optional[Dict] = None,
         timeout: Optional[float] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> Prediction:
         """Make an asynchronous prediction against this Endpoint.
         Example usage:
@@ -1634,6 +1639,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
             timeout (float): Optional. The timeout for this request in seconds.
+            metadata (Sequence[Tuple[str, str]]):
+                Strings which should be sent along with the request as metadata.
 
         Returns:
             prediction (aiplatform.Prediction):
