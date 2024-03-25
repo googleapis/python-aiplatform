@@ -785,6 +785,9 @@ class GenerateContentRequest(proto.Message):
             A ``Tool`` is a piece of code that enables the system to
             interact with external systems to perform an action, or set
             of actions, outside of knowledge and scope of the model.
+        tool_config (google.cloud.aiplatform_v1beta1.types.ToolConfig):
+            Tool config. This config is shared for all
+            tools provided in the request.
         safety_settings (MutableSequence[google.cloud.aiplatform_v1beta1.types.SafetySetting]):
             Optional. Per request settings for blocking
             unsafe content. Enforced on
@@ -806,6 +809,11 @@ class GenerateContentRequest(proto.Message):
         proto.MESSAGE,
         number=6,
         message=tool.Tool,
+    )
+    tool_config: tool.ToolConfig = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=tool.ToolConfig,
     )
     safety_settings: MutableSequence[content.SafetySetting] = proto.RepeatedField(
         proto.MESSAGE,

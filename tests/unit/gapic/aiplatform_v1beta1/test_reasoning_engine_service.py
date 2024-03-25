@@ -1240,7 +1240,8 @@ def test_create_reasoning_engine(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == reasoning_engine_service.CreateReasoningEngineRequest()
+        request = reasoning_engine_service.CreateReasoningEngineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1259,6 +1260,56 @@ def test_create_reasoning_engine_empty_call():
         type(client.transport.create_reasoning_engine), "__call__"
     ) as call:
         client.create_reasoning_engine()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == reasoning_engine_service.CreateReasoningEngineRequest()
+
+
+def test_create_reasoning_engine_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ReasoningEngineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = reasoning_engine_service.CreateReasoningEngineRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_reasoning_engine), "__call__"
+    ) as call:
+        client.create_reasoning_engine(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == reasoning_engine_service.CreateReasoningEngineRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_reasoning_engine_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ReasoningEngineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_reasoning_engine), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.create_reasoning_engine()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == reasoning_engine_service.CreateReasoningEngineRequest()
@@ -1291,7 +1342,8 @@ async def test_create_reasoning_engine_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == reasoning_engine_service.CreateReasoningEngineRequest()
+        request = reasoning_engine_service.CreateReasoningEngineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1496,7 +1548,8 @@ def test_get_reasoning_engine(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == reasoning_engine_service.GetReasoningEngineRequest()
+        request = reasoning_engine_service.GetReasoningEngineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, reasoning_engine.ReasoningEngine)
@@ -1519,6 +1572,61 @@ def test_get_reasoning_engine_empty_call():
         type(client.transport.get_reasoning_engine), "__call__"
     ) as call:
         client.get_reasoning_engine()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == reasoning_engine_service.GetReasoningEngineRequest()
+
+
+def test_get_reasoning_engine_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ReasoningEngineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = reasoning_engine_service.GetReasoningEngineRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_reasoning_engine), "__call__"
+    ) as call:
+        client.get_reasoning_engine(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == reasoning_engine_service.GetReasoningEngineRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_reasoning_engine_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ReasoningEngineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_reasoning_engine), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            reasoning_engine.ReasoningEngine(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+            )
+        )
+        response = await client.get_reasoning_engine()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == reasoning_engine_service.GetReasoningEngineRequest()
@@ -1556,7 +1664,8 @@ async def test_get_reasoning_engine_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == reasoning_engine_service.GetReasoningEngineRequest()
+        request = reasoning_engine_service.GetReasoningEngineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, reasoning_engine.ReasoningEngine)
@@ -1752,7 +1861,8 @@ def test_list_reasoning_engines(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == reasoning_engine_service.ListReasoningEnginesRequest()
+        request = reasoning_engine_service.ListReasoningEnginesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListReasoningEnginesPager)
@@ -1772,6 +1882,62 @@ def test_list_reasoning_engines_empty_call():
         type(client.transport.list_reasoning_engines), "__call__"
     ) as call:
         client.list_reasoning_engines()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == reasoning_engine_service.ListReasoningEnginesRequest()
+
+
+def test_list_reasoning_engines_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ReasoningEngineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = reasoning_engine_service.ListReasoningEnginesRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_reasoning_engines), "__call__"
+    ) as call:
+        client.list_reasoning_engines(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == reasoning_engine_service.ListReasoningEnginesRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_reasoning_engines_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ReasoningEngineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_reasoning_engines), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            reasoning_engine_service.ListReasoningEnginesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_reasoning_engines()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == reasoning_engine_service.ListReasoningEnginesRequest()
@@ -1806,7 +1972,8 @@ async def test_list_reasoning_engines_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == reasoning_engine_service.ListReasoningEnginesRequest()
+        request = reasoning_engine_service.ListReasoningEnginesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListReasoningEnginesAsyncPager)
@@ -2195,7 +2362,8 @@ def test_delete_reasoning_engine(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == reasoning_engine_service.DeleteReasoningEngineRequest()
+        request = reasoning_engine_service.DeleteReasoningEngineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2214,6 +2382,56 @@ def test_delete_reasoning_engine_empty_call():
         type(client.transport.delete_reasoning_engine), "__call__"
     ) as call:
         client.delete_reasoning_engine()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == reasoning_engine_service.DeleteReasoningEngineRequest()
+
+
+def test_delete_reasoning_engine_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ReasoningEngineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = reasoning_engine_service.DeleteReasoningEngineRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_reasoning_engine), "__call__"
+    ) as call:
+        client.delete_reasoning_engine(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == reasoning_engine_service.DeleteReasoningEngineRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_reasoning_engine_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ReasoningEngineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_reasoning_engine), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_reasoning_engine()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == reasoning_engine_service.DeleteReasoningEngineRequest()
@@ -2246,7 +2464,8 @@ async def test_delete_reasoning_engine_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == reasoning_engine_service.DeleteReasoningEngineRequest()
+        request = reasoning_engine_service.DeleteReasoningEngineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)

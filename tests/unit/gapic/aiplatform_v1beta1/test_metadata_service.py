@@ -1202,7 +1202,8 @@ def test_create_metadata_store(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateMetadataStoreRequest()
+        request = metadata_service.CreateMetadataStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1221,6 +1222,58 @@ def test_create_metadata_store_empty_call():
         type(client.transport.create_metadata_store), "__call__"
     ) as call:
         client.create_metadata_store()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.CreateMetadataStoreRequest()
+
+
+def test_create_metadata_store_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.CreateMetadataStoreRequest(
+        parent="parent_value",
+        metadata_store_id="metadata_store_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_metadata_store), "__call__"
+    ) as call:
+        client.create_metadata_store(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.CreateMetadataStoreRequest(
+            parent="parent_value",
+            metadata_store_id="metadata_store_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_metadata_store_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_metadata_store), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.create_metadata_store()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.CreateMetadataStoreRequest()
@@ -1253,7 +1306,8 @@ async def test_create_metadata_store_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateMetadataStoreRequest()
+        request = metadata_service.CreateMetadataStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1466,7 +1520,8 @@ def test_get_metadata_store(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetMetadataStoreRequest()
+        request = metadata_service.GetMetadataStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_store.MetadataStore)
@@ -1487,6 +1542,59 @@ def test_get_metadata_store_empty_call():
         type(client.transport.get_metadata_store), "__call__"
     ) as call:
         client.get_metadata_store()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.GetMetadataStoreRequest()
+
+
+def test_get_metadata_store_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.GetMetadataStoreRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_metadata_store), "__call__"
+    ) as call:
+        client.get_metadata_store(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.GetMetadataStoreRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_metadata_store_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_metadata_store), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_store.MetadataStore(
+                name="name_value",
+                description="description_value",
+            )
+        )
+        response = await client.get_metadata_store()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.GetMetadataStoreRequest()
@@ -1522,7 +1630,8 @@ async def test_get_metadata_store_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetMetadataStoreRequest()
+        request = metadata_service.GetMetadataStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_store.MetadataStore)
@@ -1716,7 +1825,8 @@ def test_list_metadata_stores(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListMetadataStoresRequest()
+        request = metadata_service.ListMetadataStoresRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListMetadataStoresPager)
@@ -1736,6 +1846,60 @@ def test_list_metadata_stores_empty_call():
         type(client.transport.list_metadata_stores), "__call__"
     ) as call:
         client.list_metadata_stores()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.ListMetadataStoresRequest()
+
+
+def test_list_metadata_stores_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.ListMetadataStoresRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_metadata_stores), "__call__"
+    ) as call:
+        client.list_metadata_stores(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.ListMetadataStoresRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_metadata_stores_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_metadata_stores), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.ListMetadataStoresResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_metadata_stores()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.ListMetadataStoresRequest()
@@ -1770,7 +1934,8 @@ async def test_list_metadata_stores_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListMetadataStoresRequest()
+        request = metadata_service.ListMetadataStoresRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListMetadataStoresAsyncPager)
@@ -2159,7 +2324,8 @@ def test_delete_metadata_store(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteMetadataStoreRequest()
+        request = metadata_service.DeleteMetadataStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2178,6 +2344,56 @@ def test_delete_metadata_store_empty_call():
         type(client.transport.delete_metadata_store), "__call__"
     ) as call:
         client.delete_metadata_store()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.DeleteMetadataStoreRequest()
+
+
+def test_delete_metadata_store_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.DeleteMetadataStoreRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_metadata_store), "__call__"
+    ) as call:
+        client.delete_metadata_store(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.DeleteMetadataStoreRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_metadata_store_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_metadata_store), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_metadata_store()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.DeleteMetadataStoreRequest()
@@ -2210,7 +2426,8 @@ async def test_delete_metadata_store_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteMetadataStoreRequest()
+        request = metadata_service.DeleteMetadataStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2407,7 +2624,8 @@ def test_create_artifact(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateArtifactRequest()
+        request = metadata_service.CreateArtifactRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_artifact.Artifact)
@@ -2432,6 +2650,63 @@ def test_create_artifact_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_artifact), "__call__") as call:
         client.create_artifact()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.CreateArtifactRequest()
+
+
+def test_create_artifact_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.CreateArtifactRequest(
+        parent="parent_value",
+        artifact_id="artifact_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_artifact), "__call__") as call:
+        client.create_artifact(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.CreateArtifactRequest(
+            parent="parent_value",
+            artifact_id="artifact_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_artifact_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_artifact), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_artifact.Artifact(
+                name="name_value",
+                display_name="display_name_value",
+                uri="uri_value",
+                etag="etag_value",
+                state=gca_artifact.Artifact.State.PENDING,
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        response = await client.create_artifact()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.CreateArtifactRequest()
@@ -2470,7 +2745,8 @@ async def test_create_artifact_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateArtifactRequest()
+        request = metadata_service.CreateArtifactRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_artifact.Artifact)
@@ -2687,7 +2963,8 @@ def test_get_artifact(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetArtifactRequest()
+        request = metadata_service.GetArtifactRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, artifact.Artifact)
@@ -2712,6 +2989,61 @@ def test_get_artifact_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_artifact), "__call__") as call:
         client.get_artifact()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.GetArtifactRequest()
+
+
+def test_get_artifact_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.GetArtifactRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_artifact), "__call__") as call:
+        client.get_artifact(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.GetArtifactRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_artifact_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_artifact), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            artifact.Artifact(
+                name="name_value",
+                display_name="display_name_value",
+                uri="uri_value",
+                etag="etag_value",
+                state=artifact.Artifact.State.PENDING,
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        response = await client.get_artifact()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.GetArtifactRequest()
@@ -2750,7 +3082,8 @@ async def test_get_artifact_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetArtifactRequest()
+        request = metadata_service.GetArtifactRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, artifact.Artifact)
@@ -2936,7 +3269,8 @@ def test_list_artifacts(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListArtifactsRequest()
+        request = metadata_service.ListArtifactsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListArtifactsPager)
@@ -2954,6 +3288,60 @@ def test_list_artifacts_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
         client.list_artifacts()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.ListArtifactsRequest()
+
+
+def test_list_artifacts_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.ListArtifactsRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+        filter="filter_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
+        client.list_artifacts(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.ListArtifactsRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+            filter="filter_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_artifacts_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.ListArtifactsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_artifacts()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.ListArtifactsRequest()
@@ -2985,7 +3373,8 @@ async def test_list_artifacts_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListArtifactsRequest()
+        request = metadata_service.ListArtifactsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListArtifactsAsyncPager)
@@ -3365,7 +3754,8 @@ def test_update_artifact(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateArtifactRequest()
+        request = metadata_service.UpdateArtifactRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_artifact.Artifact)
@@ -3390,6 +3780,57 @@ def test_update_artifact_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_artifact), "__call__") as call:
         client.update_artifact()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.UpdateArtifactRequest()
+
+
+def test_update_artifact_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.UpdateArtifactRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.update_artifact), "__call__") as call:
+        client.update_artifact(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.UpdateArtifactRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_artifact_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.update_artifact), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_artifact.Artifact(
+                name="name_value",
+                display_name="display_name_value",
+                uri="uri_value",
+                etag="etag_value",
+                state=gca_artifact.Artifact.State.PENDING,
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        response = await client.update_artifact()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.UpdateArtifactRequest()
@@ -3428,7 +3869,8 @@ async def test_update_artifact_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateArtifactRequest()
+        request = metadata_service.UpdateArtifactRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_artifact.Artifact)
@@ -3626,7 +4068,8 @@ def test_delete_artifact(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteArtifactRequest()
+        request = metadata_service.DeleteArtifactRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -3643,6 +4086,54 @@ def test_delete_artifact_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_artifact), "__call__") as call:
         client.delete_artifact()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.DeleteArtifactRequest()
+
+
+def test_delete_artifact_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.DeleteArtifactRequest(
+        name="name_value",
+        etag="etag_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_artifact), "__call__") as call:
+        client.delete_artifact(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.DeleteArtifactRequest(
+            name="name_value",
+            etag="etag_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_artifact_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_artifact), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_artifact()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.DeleteArtifactRequest()
@@ -3672,7 +4163,8 @@ async def test_delete_artifact_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteArtifactRequest()
+        request = metadata_service.DeleteArtifactRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -3852,7 +4344,8 @@ def test_purge_artifacts(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeArtifactsRequest()
+        request = metadata_service.PurgeArtifactsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -3869,6 +4362,54 @@ def test_purge_artifacts_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_artifacts), "__call__") as call:
         client.purge_artifacts()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.PurgeArtifactsRequest()
+
+
+def test_purge_artifacts_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.PurgeArtifactsRequest(
+        parent="parent_value",
+        filter="filter_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.purge_artifacts), "__call__") as call:
+        client.purge_artifacts(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.PurgeArtifactsRequest(
+            parent="parent_value",
+            filter="filter_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_purge_artifacts_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.purge_artifacts), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.purge_artifacts()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.PurgeArtifactsRequest()
@@ -3898,7 +4439,8 @@ async def test_purge_artifacts_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeArtifactsRequest()
+        request = metadata_service.PurgeArtifactsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4086,7 +4628,8 @@ def test_create_context(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateContextRequest()
+        request = metadata_service.CreateContextRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_context.Context)
@@ -4110,6 +4653,62 @@ def test_create_context_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_context), "__call__") as call:
         client.create_context()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.CreateContextRequest()
+
+
+def test_create_context_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.CreateContextRequest(
+        parent="parent_value",
+        context_id="context_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_context), "__call__") as call:
+        client.create_context(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.CreateContextRequest(
+            parent="parent_value",
+            context_id="context_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_context_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_context), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_context.Context(
+                name="name_value",
+                display_name="display_name_value",
+                etag="etag_value",
+                parent_contexts=["parent_contexts_value"],
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        response = await client.create_context()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.CreateContextRequest()
@@ -4147,7 +4746,8 @@ async def test_create_context_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateContextRequest()
+        request = metadata_service.CreateContextRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_context.Context)
@@ -4358,7 +4958,8 @@ def test_get_context(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetContextRequest()
+        request = metadata_service.GetContextRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, context.Context)
@@ -4382,6 +4983,60 @@ def test_get_context_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_context), "__call__") as call:
         client.get_context()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.GetContextRequest()
+
+
+def test_get_context_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.GetContextRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_context), "__call__") as call:
+        client.get_context(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.GetContextRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_context_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_context), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            context.Context(
+                name="name_value",
+                display_name="display_name_value",
+                etag="etag_value",
+                parent_contexts=["parent_contexts_value"],
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        response = await client.get_context()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.GetContextRequest()
@@ -4419,7 +5074,8 @@ async def test_get_context_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetContextRequest()
+        request = metadata_service.GetContextRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, context.Context)
@@ -4604,7 +5260,8 @@ def test_list_contexts(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListContextsRequest()
+        request = metadata_service.ListContextsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListContextsPager)
@@ -4622,6 +5279,60 @@ def test_list_contexts_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
         client.list_contexts()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.ListContextsRequest()
+
+
+def test_list_contexts_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.ListContextsRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+        filter="filter_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
+        client.list_contexts(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.ListContextsRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+            filter="filter_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_contexts_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.ListContextsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_contexts()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.ListContextsRequest()
@@ -4653,7 +5364,8 @@ async def test_list_contexts_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListContextsRequest()
+        request = metadata_service.ListContextsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListContextsAsyncPager)
@@ -5032,7 +5744,8 @@ def test_update_context(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateContextRequest()
+        request = metadata_service.UpdateContextRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_context.Context)
@@ -5056,6 +5769,56 @@ def test_update_context_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_context), "__call__") as call:
         client.update_context()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.UpdateContextRequest()
+
+
+def test_update_context_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.UpdateContextRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.update_context), "__call__") as call:
+        client.update_context(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.UpdateContextRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_context_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.update_context), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_context.Context(
+                name="name_value",
+                display_name="display_name_value",
+                etag="etag_value",
+                parent_contexts=["parent_contexts_value"],
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        response = await client.update_context()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.UpdateContextRequest()
@@ -5093,7 +5856,8 @@ async def test_update_context_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateContextRequest()
+        request = metadata_service.UpdateContextRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_context.Context)
@@ -5286,7 +6050,8 @@ def test_delete_context(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteContextRequest()
+        request = metadata_service.DeleteContextRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -5303,6 +6068,54 @@ def test_delete_context_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_context), "__call__") as call:
         client.delete_context()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.DeleteContextRequest()
+
+
+def test_delete_context_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.DeleteContextRequest(
+        name="name_value",
+        etag="etag_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_context), "__call__") as call:
+        client.delete_context(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.DeleteContextRequest(
+            name="name_value",
+            etag="etag_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_context_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_context), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_context()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.DeleteContextRequest()
@@ -5332,7 +6145,8 @@ async def test_delete_context_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteContextRequest()
+        request = metadata_service.DeleteContextRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -5512,7 +6326,8 @@ def test_purge_contexts(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeContextsRequest()
+        request = metadata_service.PurgeContextsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -5529,6 +6344,54 @@ def test_purge_contexts_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_contexts), "__call__") as call:
         client.purge_contexts()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.PurgeContextsRequest()
+
+
+def test_purge_contexts_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.PurgeContextsRequest(
+        parent="parent_value",
+        filter="filter_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.purge_contexts), "__call__") as call:
+        client.purge_contexts(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.PurgeContextsRequest(
+            parent="parent_value",
+            filter="filter_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_purge_contexts_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.purge_contexts), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.purge_contexts()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.PurgeContextsRequest()
@@ -5558,7 +6421,8 @@ async def test_purge_contexts_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeContextsRequest()
+        request = metadata_service.PurgeContextsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -5740,7 +6604,8 @@ def test_add_context_artifacts_and_executions(request_type, transport: str = "gr
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddContextArtifactsAndExecutionsRequest()
+        request = metadata_service.AddContextArtifactsAndExecutionsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -5761,6 +6626,56 @@ def test_add_context_artifacts_and_executions_empty_call():
         type(client.transport.add_context_artifacts_and_executions), "__call__"
     ) as call:
         client.add_context_artifacts_and_executions()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.AddContextArtifactsAndExecutionsRequest()
+
+
+def test_add_context_artifacts_and_executions_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.AddContextArtifactsAndExecutionsRequest(
+        context="context_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_context_artifacts_and_executions), "__call__"
+    ) as call:
+        client.add_context_artifacts_and_executions(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.AddContextArtifactsAndExecutionsRequest(
+            context="context_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_add_context_artifacts_and_executions_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_context_artifacts_and_executions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.AddContextArtifactsAndExecutionsResponse()
+        )
+        response = await client.add_context_artifacts_and_executions()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.AddContextArtifactsAndExecutionsRequest()
@@ -5793,7 +6708,8 @@ async def test_add_context_artifacts_and_executions_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddContextArtifactsAndExecutionsRequest()
+        request = metadata_service.AddContextArtifactsAndExecutionsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -6005,7 +6921,8 @@ def test_add_context_children(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddContextChildrenRequest()
+        request = metadata_service.AddContextChildrenRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_service.AddContextChildrenResponse)
@@ -6024,6 +6941,56 @@ def test_add_context_children_empty_call():
         type(client.transport.add_context_children), "__call__"
     ) as call:
         client.add_context_children()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.AddContextChildrenRequest()
+
+
+def test_add_context_children_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.AddContextChildrenRequest(
+        context="context_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_context_children), "__call__"
+    ) as call:
+        client.add_context_children(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.AddContextChildrenRequest(
+            context="context_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_add_context_children_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_context_children), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.AddContextChildrenResponse()
+        )
+        response = await client.add_context_children()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.AddContextChildrenRequest()
@@ -6056,7 +7023,8 @@ async def test_add_context_children_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddContextChildrenRequest()
+        request = metadata_service.AddContextChildrenRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_service.AddContextChildrenResponse)
@@ -6256,7 +7224,8 @@ def test_remove_context_children(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.RemoveContextChildrenRequest()
+        request = metadata_service.RemoveContextChildrenRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_service.RemoveContextChildrenResponse)
@@ -6275,6 +7244,56 @@ def test_remove_context_children_empty_call():
         type(client.transport.remove_context_children), "__call__"
     ) as call:
         client.remove_context_children()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.RemoveContextChildrenRequest()
+
+
+def test_remove_context_children_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.RemoveContextChildrenRequest(
+        context="context_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.remove_context_children), "__call__"
+    ) as call:
+        client.remove_context_children(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.RemoveContextChildrenRequest(
+            context="context_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_remove_context_children_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.remove_context_children), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.RemoveContextChildrenResponse()
+        )
+        response = await client.remove_context_children()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.RemoveContextChildrenRequest()
@@ -6307,7 +7326,8 @@ async def test_remove_context_children_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.RemoveContextChildrenRequest()
+        request = metadata_service.RemoveContextChildrenRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_service.RemoveContextChildrenResponse)
@@ -6507,7 +7527,8 @@ def test_query_context_lineage_subgraph(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryContextLineageSubgraphRequest()
+        request = metadata_service.QueryContextLineageSubgraphRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, lineage_subgraph.LineageSubgraph)
@@ -6526,6 +7547,56 @@ def test_query_context_lineage_subgraph_empty_call():
         type(client.transport.query_context_lineage_subgraph), "__call__"
     ) as call:
         client.query_context_lineage_subgraph()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.QueryContextLineageSubgraphRequest()
+
+
+def test_query_context_lineage_subgraph_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.QueryContextLineageSubgraphRequest(
+        context="context_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_context_lineage_subgraph), "__call__"
+    ) as call:
+        client.query_context_lineage_subgraph(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.QueryContextLineageSubgraphRequest(
+            context="context_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_query_context_lineage_subgraph_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_context_lineage_subgraph), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            lineage_subgraph.LineageSubgraph()
+        )
+        response = await client.query_context_lineage_subgraph()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.QueryContextLineageSubgraphRequest()
@@ -6558,7 +7629,8 @@ async def test_query_context_lineage_subgraph_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryContextLineageSubgraphRequest()
+        request = metadata_service.QueryContextLineageSubgraphRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, lineage_subgraph.LineageSubgraph)
@@ -6754,7 +7826,8 @@ def test_create_execution(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateExecutionRequest()
+        request = metadata_service.CreateExecutionRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_execution.Execution)
@@ -6778,6 +7851,62 @@ def test_create_execution_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_execution), "__call__") as call:
         client.create_execution()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.CreateExecutionRequest()
+
+
+def test_create_execution_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.CreateExecutionRequest(
+        parent="parent_value",
+        execution_id="execution_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_execution), "__call__") as call:
+        client.create_execution(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.CreateExecutionRequest(
+            parent="parent_value",
+            execution_id="execution_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_execution_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_execution), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_execution.Execution(
+                name="name_value",
+                display_name="display_name_value",
+                state=gca_execution.Execution.State.NEW,
+                etag="etag_value",
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        response = await client.create_execution()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.CreateExecutionRequest()
@@ -6816,7 +7945,8 @@ async def test_create_execution_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateExecutionRequest()
+        request = metadata_service.CreateExecutionRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_execution.Execution)
@@ -7031,7 +8161,8 @@ def test_get_execution(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetExecutionRequest()
+        request = metadata_service.GetExecutionRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, execution.Execution)
@@ -7055,6 +8186,60 @@ def test_get_execution_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_execution), "__call__") as call:
         client.get_execution()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.GetExecutionRequest()
+
+
+def test_get_execution_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.GetExecutionRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_execution), "__call__") as call:
+        client.get_execution(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.GetExecutionRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_execution_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_execution), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            execution.Execution(
+                name="name_value",
+                display_name="display_name_value",
+                state=execution.Execution.State.NEW,
+                etag="etag_value",
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        response = await client.get_execution()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.GetExecutionRequest()
@@ -7092,7 +8277,8 @@ async def test_get_execution_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetExecutionRequest()
+        request = metadata_service.GetExecutionRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, execution.Execution)
@@ -7277,7 +8463,8 @@ def test_list_executions(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListExecutionsRequest()
+        request = metadata_service.ListExecutionsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListExecutionsPager)
@@ -7295,6 +8482,60 @@ def test_list_executions_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
         client.list_executions()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.ListExecutionsRequest()
+
+
+def test_list_executions_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.ListExecutionsRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+        filter="filter_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
+        client.list_executions(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.ListExecutionsRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+            filter="filter_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_executions_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.ListExecutionsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_executions()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.ListExecutionsRequest()
@@ -7326,7 +8567,8 @@ async def test_list_executions_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListExecutionsRequest()
+        request = metadata_service.ListExecutionsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListExecutionsAsyncPager)
@@ -7705,7 +8947,8 @@ def test_update_execution(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateExecutionRequest()
+        request = metadata_service.UpdateExecutionRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_execution.Execution)
@@ -7729,6 +8972,56 @@ def test_update_execution_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_execution), "__call__") as call:
         client.update_execution()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.UpdateExecutionRequest()
+
+
+def test_update_execution_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.UpdateExecutionRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.update_execution), "__call__") as call:
+        client.update_execution(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.UpdateExecutionRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_execution_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.update_execution), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_execution.Execution(
+                name="name_value",
+                display_name="display_name_value",
+                state=gca_execution.Execution.State.NEW,
+                etag="etag_value",
+                schema_title="schema_title_value",
+                schema_version="schema_version_value",
+                description="description_value",
+            )
+        )
+        response = await client.update_execution()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.UpdateExecutionRequest()
@@ -7767,7 +9060,8 @@ async def test_update_execution_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.UpdateExecutionRequest()
+        request = metadata_service.UpdateExecutionRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_execution.Execution)
@@ -7964,7 +9258,8 @@ def test_delete_execution(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteExecutionRequest()
+        request = metadata_service.DeleteExecutionRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -7981,6 +9276,54 @@ def test_delete_execution_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_execution), "__call__") as call:
         client.delete_execution()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.DeleteExecutionRequest()
+
+
+def test_delete_execution_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.DeleteExecutionRequest(
+        name="name_value",
+        etag="etag_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_execution), "__call__") as call:
+        client.delete_execution(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.DeleteExecutionRequest(
+            name="name_value",
+            etag="etag_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_execution_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_execution), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_execution()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.DeleteExecutionRequest()
@@ -8011,7 +9354,8 @@ async def test_delete_execution_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.DeleteExecutionRequest()
+        request = metadata_service.DeleteExecutionRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -8191,7 +9535,8 @@ def test_purge_executions(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeExecutionsRequest()
+        request = metadata_service.PurgeExecutionsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -8208,6 +9553,54 @@ def test_purge_executions_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_executions), "__call__") as call:
         client.purge_executions()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.PurgeExecutionsRequest()
+
+
+def test_purge_executions_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.PurgeExecutionsRequest(
+        parent="parent_value",
+        filter="filter_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.purge_executions), "__call__") as call:
+        client.purge_executions(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.PurgeExecutionsRequest(
+            parent="parent_value",
+            filter="filter_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_purge_executions_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.purge_executions), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.purge_executions()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.PurgeExecutionsRequest()
@@ -8238,7 +9631,8 @@ async def test_purge_executions_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.PurgeExecutionsRequest()
+        request = metadata_service.PurgeExecutionsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -8420,7 +9814,8 @@ def test_add_execution_events(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddExecutionEventsRequest()
+        request = metadata_service.AddExecutionEventsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_service.AddExecutionEventsResponse)
@@ -8439,6 +9834,56 @@ def test_add_execution_events_empty_call():
         type(client.transport.add_execution_events), "__call__"
     ) as call:
         client.add_execution_events()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.AddExecutionEventsRequest()
+
+
+def test_add_execution_events_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.AddExecutionEventsRequest(
+        execution="execution_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_execution_events), "__call__"
+    ) as call:
+        client.add_execution_events(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.AddExecutionEventsRequest(
+            execution="execution_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_add_execution_events_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_execution_events), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.AddExecutionEventsResponse()
+        )
+        response = await client.add_execution_events()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.AddExecutionEventsRequest()
@@ -8471,7 +9916,8 @@ async def test_add_execution_events_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.AddExecutionEventsRequest()
+        request = metadata_service.AddExecutionEventsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_service.AddExecutionEventsResponse)
@@ -8671,7 +10117,8 @@ def test_query_execution_inputs_and_outputs(request_type, transport: str = "grpc
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryExecutionInputsAndOutputsRequest()
+        request = metadata_service.QueryExecutionInputsAndOutputsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, lineage_subgraph.LineageSubgraph)
@@ -8690,6 +10137,56 @@ def test_query_execution_inputs_and_outputs_empty_call():
         type(client.transport.query_execution_inputs_and_outputs), "__call__"
     ) as call:
         client.query_execution_inputs_and_outputs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.QueryExecutionInputsAndOutputsRequest()
+
+
+def test_query_execution_inputs_and_outputs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.QueryExecutionInputsAndOutputsRequest(
+        execution="execution_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_execution_inputs_and_outputs), "__call__"
+    ) as call:
+        client.query_execution_inputs_and_outputs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.QueryExecutionInputsAndOutputsRequest(
+            execution="execution_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_query_execution_inputs_and_outputs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_execution_inputs_and_outputs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            lineage_subgraph.LineageSubgraph()
+        )
+        response = await client.query_execution_inputs_and_outputs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.QueryExecutionInputsAndOutputsRequest()
@@ -8722,7 +10219,8 @@ async def test_query_execution_inputs_and_outputs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryExecutionInputsAndOutputsRequest()
+        request = metadata_service.QueryExecutionInputsAndOutputsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, lineage_subgraph.LineageSubgraph)
@@ -8918,7 +10416,8 @@ def test_create_metadata_schema(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateMetadataSchemaRequest()
+        request = metadata_service.CreateMetadataSchemaRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_metadata_schema.MetadataSchema)
@@ -8945,6 +10444,64 @@ def test_create_metadata_schema_empty_call():
         type(client.transport.create_metadata_schema), "__call__"
     ) as call:
         client.create_metadata_schema()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.CreateMetadataSchemaRequest()
+
+
+def test_create_metadata_schema_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.CreateMetadataSchemaRequest(
+        parent="parent_value",
+        metadata_schema_id="metadata_schema_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_metadata_schema), "__call__"
+    ) as call:
+        client.create_metadata_schema(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.CreateMetadataSchemaRequest(
+            parent="parent_value",
+            metadata_schema_id="metadata_schema_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_metadata_schema_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_metadata_schema), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_metadata_schema.MetadataSchema(
+                name="name_value",
+                schema_version="schema_version_value",
+                schema="schema_value",
+                schema_type=gca_metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
+                description="description_value",
+            )
+        )
+        response = await client.create_metadata_schema()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.CreateMetadataSchemaRequest()
@@ -8983,7 +10540,8 @@ async def test_create_metadata_schema_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.CreateMetadataSchemaRequest()
+        request = metadata_service.CreateMetadataSchemaRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_metadata_schema.MetadataSchema)
@@ -9207,7 +10765,8 @@ def test_get_metadata_schema(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetMetadataSchemaRequest()
+        request = metadata_service.GetMetadataSchemaRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_schema.MetadataSchema)
@@ -9234,6 +10793,62 @@ def test_get_metadata_schema_empty_call():
         type(client.transport.get_metadata_schema), "__call__"
     ) as call:
         client.get_metadata_schema()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.GetMetadataSchemaRequest()
+
+
+def test_get_metadata_schema_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.GetMetadataSchemaRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_metadata_schema), "__call__"
+    ) as call:
+        client.get_metadata_schema(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.GetMetadataSchemaRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_metadata_schema_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_metadata_schema), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_schema.MetadataSchema(
+                name="name_value",
+                schema_version="schema_version_value",
+                schema="schema_value",
+                schema_type=metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
+                description="description_value",
+            )
+        )
+        response = await client.get_metadata_schema()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.GetMetadataSchemaRequest()
@@ -9272,7 +10887,8 @@ async def test_get_metadata_schema_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.GetMetadataSchemaRequest()
+        request = metadata_service.GetMetadataSchemaRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, metadata_schema.MetadataSchema)
@@ -9472,7 +11088,8 @@ def test_list_metadata_schemas(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListMetadataSchemasRequest()
+        request = metadata_service.ListMetadataSchemasRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListMetadataSchemasPager)
@@ -9492,6 +11109,62 @@ def test_list_metadata_schemas_empty_call():
         type(client.transport.list_metadata_schemas), "__call__"
     ) as call:
         client.list_metadata_schemas()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.ListMetadataSchemasRequest()
+
+
+def test_list_metadata_schemas_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.ListMetadataSchemasRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+        filter="filter_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_metadata_schemas), "__call__"
+    ) as call:
+        client.list_metadata_schemas(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.ListMetadataSchemasRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+            filter="filter_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_metadata_schemas_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_metadata_schemas), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            metadata_service.ListMetadataSchemasResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_metadata_schemas()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.ListMetadataSchemasRequest()
@@ -9526,7 +11199,8 @@ async def test_list_metadata_schemas_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.ListMetadataSchemasRequest()
+        request = metadata_service.ListMetadataSchemasRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListMetadataSchemasAsyncPager)
@@ -9915,7 +11589,8 @@ def test_query_artifact_lineage_subgraph(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryArtifactLineageSubgraphRequest()
+        request = metadata_service.QueryArtifactLineageSubgraphRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, lineage_subgraph.LineageSubgraph)
@@ -9934,6 +11609,58 @@ def test_query_artifact_lineage_subgraph_empty_call():
         type(client.transport.query_artifact_lineage_subgraph), "__call__"
     ) as call:
         client.query_artifact_lineage_subgraph()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.QueryArtifactLineageSubgraphRequest()
+
+
+def test_query_artifact_lineage_subgraph_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = metadata_service.QueryArtifactLineageSubgraphRequest(
+        artifact="artifact_value",
+        filter="filter_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_artifact_lineage_subgraph), "__call__"
+    ) as call:
+        client.query_artifact_lineage_subgraph(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == metadata_service.QueryArtifactLineageSubgraphRequest(
+            artifact="artifact_value",
+            filter="filter_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_query_artifact_lineage_subgraph_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_artifact_lineage_subgraph), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            lineage_subgraph.LineageSubgraph()
+        )
+        response = await client.query_artifact_lineage_subgraph()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == metadata_service.QueryArtifactLineageSubgraphRequest()
@@ -9966,7 +11693,8 @@ async def test_query_artifact_lineage_subgraph_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == metadata_service.QueryArtifactLineageSubgraphRequest()
+        request = metadata_service.QueryArtifactLineageSubgraphRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, lineage_subgraph.LineageSubgraph)

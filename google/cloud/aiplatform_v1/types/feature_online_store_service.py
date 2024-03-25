@@ -160,6 +160,11 @@ class FetchFeatureValuesResponse(proto.Message):
             Feature values in proto Struct format.
 
             This field is a member of `oneof`_ ``format``.
+        data_key (google.cloud.aiplatform_v1.types.FeatureViewDataKey):
+            The data key associated with this response. Will only be
+            populated for
+            [FeatureOnlineStoreService.StreamingFetchFeatureValues][]
+            RPCs.
     """
 
     class FeatureNameValuePairList(proto.Message):
@@ -215,6 +220,11 @@ class FetchFeatureValuesResponse(proto.Message):
         number=2,
         oneof="format",
         message=struct_pb2.Struct,
+    )
+    data_key: "FeatureViewDataKey" = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message="FeatureViewDataKey",
     )
 
 

@@ -1206,7 +1206,8 @@ def test_predict(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.PredictRequest()
+        request = prediction_service.PredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.PredictResponse)
@@ -1227,6 +1228,57 @@ def test_predict_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.predict), "__call__") as call:
         client.predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.PredictRequest()
+
+
+def test_predict_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = prediction_service.PredictRequest(
+        endpoint="endpoint_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
+        client.predict(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.PredictRequest(
+            endpoint="endpoint_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_predict_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.PredictResponse(
+                deployed_model_id="deployed_model_id_value",
+                model="model_value",
+                model_version_id="model_version_id_value",
+                model_display_name="model_display_name_value",
+            )
+        )
+        response = await client.predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.PredictRequest()
@@ -1261,7 +1313,8 @@ async def test_predict_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.PredictRequest()
+        request = prediction_service.PredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.PredictResponse)
@@ -1399,7 +1452,8 @@ def test_raw_predict(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.RawPredictRequest()
+        request = prediction_service.RawPredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, httpbody_pb2.HttpBody)
@@ -1418,6 +1472,55 @@ def test_raw_predict_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
         client.raw_predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.RawPredictRequest()
+
+
+def test_raw_predict_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = prediction_service.RawPredictRequest(
+        endpoint="endpoint_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
+        client.raw_predict(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.RawPredictRequest(
+            endpoint="endpoint_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_raw_predict_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            httpbody_pb2.HttpBody(
+                content_type="content_type_value",
+                data=b"data_blob",
+            )
+        )
+        response = await client.raw_predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.RawPredictRequest()
@@ -1450,7 +1553,8 @@ async def test_raw_predict_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.RawPredictRequest()
+        request = prediction_service.RawPredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, httpbody_pb2.HttpBody)
@@ -1644,7 +1748,8 @@ def test_stream_raw_predict(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.StreamRawPredictRequest()
+        request = prediction_service.StreamRawPredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     for message in response:
@@ -1664,6 +1769,55 @@ def test_stream_raw_predict_empty_call():
         type(client.transport.stream_raw_predict), "__call__"
     ) as call:
         client.stream_raw_predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamRawPredictRequest()
+
+
+def test_stream_raw_predict_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = prediction_service.StreamRawPredictRequest(
+        endpoint="endpoint_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        client.stream_raw_predict(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamRawPredictRequest(
+            endpoint="endpoint_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_stream_raw_predict_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(side_effect=[httpbody_pb2.HttpBody()])
+        response = await client.stream_raw_predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.StreamRawPredictRequest()
@@ -1695,7 +1849,8 @@ async def test_stream_raw_predict_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.StreamRawPredictRequest()
+        request = prediction_service.StreamRawPredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     message = await response.read()
@@ -1891,7 +2046,8 @@ def test_direct_predict(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.DirectPredictRequest()
+        request = prediction_service.DirectPredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.DirectPredictResponse)
@@ -1908,6 +2064,52 @@ def test_direct_predict_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.direct_predict), "__call__") as call:
         client.direct_predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.DirectPredictRequest()
+
+
+def test_direct_predict_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = prediction_service.DirectPredictRequest(
+        endpoint="endpoint_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.direct_predict), "__call__") as call:
+        client.direct_predict(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.DirectPredictRequest(
+            endpoint="endpoint_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_direct_predict_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.direct_predict), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.DirectPredictResponse()
+        )
+        response = await client.direct_predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.DirectPredictRequest()
@@ -1938,7 +2140,8 @@ async def test_direct_predict_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.DirectPredictRequest()
+        request = prediction_service.DirectPredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.DirectPredictResponse)
@@ -2040,7 +2243,8 @@ def test_direct_raw_predict(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.DirectRawPredictRequest()
+        request = prediction_service.DirectRawPredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.DirectRawPredictResponse)
@@ -2060,6 +2264,60 @@ def test_direct_raw_predict_empty_call():
         type(client.transport.direct_raw_predict), "__call__"
     ) as call:
         client.direct_raw_predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.DirectRawPredictRequest()
+
+
+def test_direct_raw_predict_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = prediction_service.DirectRawPredictRequest(
+        endpoint="endpoint_value",
+        method_name="method_name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.direct_raw_predict), "__call__"
+    ) as call:
+        client.direct_raw_predict(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.DirectRawPredictRequest(
+            endpoint="endpoint_value",
+            method_name="method_name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_direct_raw_predict_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.direct_raw_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.DirectRawPredictResponse(
+                output=b"output_blob",
+            )
+        )
+        response = await client.direct_raw_predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.DirectRawPredictRequest()
@@ -2094,7 +2352,8 @@ async def test_direct_raw_predict_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.DirectRawPredictRequest()
+        request = prediction_service.DirectRawPredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.DirectRawPredictResponse)
@@ -2430,7 +2689,8 @@ def test_server_streaming_predict(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.StreamingPredictRequest()
+        request = prediction_service.StreamingPredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     for message in response:
@@ -2450,6 +2710,57 @@ def test_server_streaming_predict_empty_call():
         type(client.transport.server_streaming_predict), "__call__"
     ) as call:
         client.server_streaming_predict()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamingPredictRequest()
+
+
+def test_server_streaming_predict_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = prediction_service.StreamingPredictRequest(
+        endpoint="endpoint_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.server_streaming_predict), "__call__"
+    ) as call:
+        client.server_streaming_predict(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.StreamingPredictRequest(
+            endpoint="endpoint_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_server_streaming_predict_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.server_streaming_predict), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.StreamingPredictResponse()]
+        )
+        response = await client.server_streaming_predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.StreamingPredictRequest()
@@ -2483,7 +2794,8 @@ async def test_server_streaming_predict_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.StreamingPredictRequest()
+        request = prediction_service.StreamingPredictRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     message = await response.read()
@@ -2666,7 +2978,8 @@ def test_explain(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.ExplainRequest()
+        request = prediction_service.ExplainRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.ExplainResponse)
@@ -2684,6 +2997,56 @@ def test_explain_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.explain), "__call__") as call:
         client.explain()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.ExplainRequest()
+
+
+def test_explain_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = prediction_service.ExplainRequest(
+        endpoint="endpoint_value",
+        deployed_model_id="deployed_model_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.explain), "__call__") as call:
+        client.explain(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.ExplainRequest(
+            endpoint="endpoint_value",
+            deployed_model_id="deployed_model_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_explain_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.explain), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.ExplainResponse(
+                deployed_model_id="deployed_model_id_value",
+            )
+        )
+        response = await client.explain()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.ExplainRequest()
@@ -2715,7 +3078,8 @@ async def test_explain_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.ExplainRequest()
+        request = prediction_service.ExplainRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.ExplainResponse)
@@ -2849,7 +3213,8 @@ def test_generate_content(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.GenerateContentRequest()
+        request = prediction_service.GenerateContentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
@@ -2866,6 +3231,52 @@ def test_generate_content_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
         client.generate_content()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest()
+
+
+def test_generate_content_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = prediction_service.GenerateContentRequest(
+        model="model_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        client.generate_content(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest(
+            model="model_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_generate_content_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.generate_content), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.GenerateContentResponse()
+        )
+        response = await client.generate_content()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.GenerateContentRequest()
@@ -2896,7 +3307,8 @@ async def test_generate_content_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.GenerateContentRequest()
+        request = prediction_service.GenerateContentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
@@ -3088,7 +3500,8 @@ def test_stream_generate_content(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.GenerateContentRequest()
+        request = prediction_service.GenerateContentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     for message in response:
@@ -3108,6 +3521,57 @@ def test_stream_generate_content_empty_call():
         type(client.transport.stream_generate_content), "__call__"
     ) as call:
         client.stream_generate_content()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest()
+
+
+def test_stream_generate_content_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = prediction_service.GenerateContentRequest(
+        model="model_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_generate_content), "__call__"
+    ) as call:
+        client.stream_generate_content(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == prediction_service.GenerateContentRequest(
+            model="model_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_stream_generate_content_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PredictionServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.stream_generate_content), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[prediction_service.GenerateContentResponse()]
+        )
+        response = await client.stream_generate_content()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.GenerateContentRequest()
@@ -3141,7 +3605,8 @@ async def test_stream_generate_content_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == prediction_service.GenerateContentRequest()
+        request = prediction_service.GenerateContentRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     message = await response.read()
