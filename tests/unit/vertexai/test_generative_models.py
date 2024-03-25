@@ -309,6 +309,7 @@ class TestGenerativeModels:
                 max_output_tokens=200,
                 stop_sequences=["\n\n\n"],
             ),
+            metadata=(("x-metadata-key", "metadata-value"),)
         )
         assert response2.text
 
@@ -341,7 +342,8 @@ class TestGenerativeModels:
         chat = model.start_chat()
         response1 = chat.send_message("Why is sky blue?")
         assert response1.text
-        response2 = chat.send_message("Is sky blue on other planets?")
+        metadata = (("x-metadata-key", "metadata-value"),)
+        response2 = chat.send_message("Is sky blue on other planets?", metadata=metadata)
         assert response2.text
 
     @mock.patch.object(

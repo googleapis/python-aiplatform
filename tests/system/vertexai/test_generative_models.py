@@ -71,12 +71,33 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
         assert response.text
 
+    def test_generate_content_from_text_with_metadata(self):
+        model = generative_models.GenerativeModel("gemini-pro")
+        metadata = (("x-metadata-key", "metadata-value"),)
+        response = model.generate_content(
+            "Why is sky blue?",
+            generation_config=generative_models.GenerationConfig(temperature=0),
+            metadata=metadata
+        )
+        assert response.text
+
     @pytest.mark.asyncio
     async def test_generate_content_async(self):
         model = generative_models.GenerativeModel("gemini-pro")
         response = await model.generate_content_async(
             "Why is sky blue?",
             generation_config=generative_models.GenerationConfig(temperature=0),
+        )
+        assert response.text
+
+    @pytest.mark.asyncio
+    async def test_generate_content_async_with_metadata(self):
+        model = generative_models.GenerativeModel("gemini-pro")
+        metadata = (("x-metadata-key", "metadata-value"),)
+        response = await model.generate_content_async(
+            "Why is sky blue?",
+            generation_config=generative_models.GenerationConfig(temperature=0),
+            metadata=metadata,
         )
         assert response.text
 
