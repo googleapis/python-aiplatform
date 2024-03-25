@@ -1274,10 +1274,8 @@ def test_create_feature_online_store(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == feature_online_store_admin_service.CreateFeatureOnlineStoreRequest()
-        )
+        request = feature_online_store_admin_service.CreateFeatureOnlineStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1296,6 +1294,63 @@ def test_create_feature_online_store_empty_call():
         type(client.transport.create_feature_online_store), "__call__"
     ) as call:
         client.create_feature_online_store()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == feature_online_store_admin_service.CreateFeatureOnlineStoreRequest()
+        )
+
+
+def test_create_feature_online_store_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.CreateFeatureOnlineStoreRequest(
+        parent="parent_value",
+        feature_online_store_id="feature_online_store_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_online_store), "__call__"
+    ) as call:
+        client.create_feature_online_store(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == feature_online_store_admin_service.CreateFeatureOnlineStoreRequest(
+            parent="parent_value",
+            feature_online_store_id="feature_online_store_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_feature_online_store_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_online_store), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.create_feature_online_store()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -1331,10 +1386,8 @@ async def test_create_feature_online_store_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == feature_online_store_admin_service.CreateFeatureOnlineStoreRequest()
-        )
+        request = feature_online_store_admin_service.CreateFeatureOnlineStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1584,9 +1637,8 @@ def test_get_feature_online_store(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0] == feature_online_store_admin_service.GetFeatureOnlineStoreRequest()
-        )
+        request = feature_online_store_admin_service.GetFeatureOnlineStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, feature_online_store.FeatureOnlineStore)
@@ -1608,6 +1660,64 @@ def test_get_feature_online_store_empty_call():
         type(client.transport.get_feature_online_store), "__call__"
     ) as call:
         client.get_feature_online_store()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0] == feature_online_store_admin_service.GetFeatureOnlineStoreRequest()
+        )
+
+
+def test_get_feature_online_store_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.GetFeatureOnlineStoreRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_online_store), "__call__"
+    ) as call:
+        client.get_feature_online_store(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == feature_online_store_admin_service.GetFeatureOnlineStoreRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_feature_online_store_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_online_store), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_online_store.FeatureOnlineStore(
+                name="name_value",
+                etag="etag_value",
+                state=feature_online_store.FeatureOnlineStore.State.STABLE,
+            )
+        )
+        response = await client.get_feature_online_store()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -1646,9 +1756,8 @@ async def test_get_feature_online_store_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0] == feature_online_store_admin_service.GetFeatureOnlineStoreRequest()
-        )
+        request = feature_online_store_admin_service.GetFeatureOnlineStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, feature_online_store.FeatureOnlineStore)
@@ -1845,10 +1954,8 @@ def test_list_feature_online_stores(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == feature_online_store_admin_service.ListFeatureOnlineStoresRequest()
-        )
+        request = feature_online_store_admin_service.ListFeatureOnlineStoresRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListFeatureOnlineStoresPager)
@@ -1868,6 +1975,69 @@ def test_list_feature_online_stores_empty_call():
         type(client.transport.list_feature_online_stores), "__call__"
     ) as call:
         client.list_feature_online_stores()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == feature_online_store_admin_service.ListFeatureOnlineStoresRequest()
+        )
+
+
+def test_list_feature_online_stores_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.ListFeatureOnlineStoresRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_online_stores), "__call__"
+    ) as call:
+        client.list_feature_online_stores(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == feature_online_store_admin_service.ListFeatureOnlineStoresRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_feature_online_stores_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_online_stores), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_online_store_admin_service.ListFeatureOnlineStoresResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_feature_online_stores()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -1905,10 +2075,8 @@ async def test_list_feature_online_stores_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == feature_online_store_admin_service.ListFeatureOnlineStoresRequest()
-        )
+        request = feature_online_store_admin_service.ListFeatureOnlineStoresRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListFeatureOnlineStoresAsyncPager)
@@ -2307,10 +2475,8 @@ def test_update_feature_online_store(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest()
-        )
+        request = feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2329,6 +2495,58 @@ def test_update_feature_online_store_empty_call():
         type(client.transport.update_feature_online_store), "__call__"
     ) as call:
         client.update_feature_online_store()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest()
+        )
+
+
+def test_update_feature_online_store_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_feature_online_store), "__call__"
+    ) as call:
+        client.update_feature_online_store(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest()
+        )
+
+
+@pytest.mark.asyncio
+async def test_update_feature_online_store_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_feature_online_store), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.update_feature_online_store()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -2364,10 +2582,8 @@ async def test_update_feature_online_store_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest()
-        )
+        request = feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2603,10 +2819,8 @@ def test_delete_feature_online_store(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest()
-        )
+        request = feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2625,6 +2839,61 @@ def test_delete_feature_online_store_empty_call():
         type(client.transport.delete_feature_online_store), "__call__"
     ) as call:
         client.delete_feature_online_store()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest()
+        )
+
+
+def test_delete_feature_online_store_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_online_store), "__call__"
+    ) as call:
+        client.delete_feature_online_store(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_online_store_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_online_store), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_feature_online_store()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -2660,10 +2929,8 @@ async def test_delete_feature_online_store_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest()
-        )
+        request = feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2863,7 +3130,8 @@ def test_create_feature_view(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.CreateFeatureViewRequest()
+        request = feature_online_store_admin_service.CreateFeatureViewRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2882,6 +3150,58 @@ def test_create_feature_view_empty_call():
         type(client.transport.create_feature_view), "__call__"
     ) as call:
         client.create_feature_view()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.CreateFeatureViewRequest()
+
+
+def test_create_feature_view_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.CreateFeatureViewRequest(
+        parent="parent_value",
+        feature_view_id="feature_view_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_view), "__call__"
+    ) as call:
+        client.create_feature_view(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.CreateFeatureViewRequest(
+            parent="parent_value",
+            feature_view_id="feature_view_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_feature_view_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_view), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.create_feature_view()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == feature_online_store_admin_service.CreateFeatureViewRequest()
@@ -2914,7 +3234,8 @@ async def test_create_feature_view_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.CreateFeatureViewRequest()
+        request = feature_online_store_admin_service.CreateFeatureViewRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -3149,7 +3470,8 @@ def test_get_feature_view(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.GetFeatureViewRequest()
+        request = feature_online_store_admin_service.GetFeatureViewRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, feature_view.FeatureView)
@@ -3168,6 +3490,55 @@ def test_get_feature_view_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_feature_view), "__call__") as call:
         client.get_feature_view()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.GetFeatureViewRequest()
+
+
+def test_get_feature_view_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.GetFeatureViewRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_feature_view), "__call__") as call:
+        client.get_feature_view(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.GetFeatureViewRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_feature_view_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_feature_view), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_view.FeatureView(
+                name="name_value",
+                etag="etag_value",
+            )
+        )
+        response = await client.get_feature_view()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == feature_online_store_admin_service.GetFeatureViewRequest()
@@ -3201,7 +3572,8 @@ async def test_get_feature_view_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.GetFeatureViewRequest()
+        request = feature_online_store_admin_service.GetFeatureViewRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, feature_view.FeatureView)
@@ -3387,7 +3759,8 @@ def test_list_feature_views(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.ListFeatureViewsRequest()
+        request = feature_online_store_admin_service.ListFeatureViewsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListFeatureViewsPager)
@@ -3407,6 +3780,64 @@ def test_list_feature_views_empty_call():
         type(client.transport.list_feature_views), "__call__"
     ) as call:
         client.list_feature_views()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.ListFeatureViewsRequest()
+
+
+def test_list_feature_views_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.ListFeatureViewsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_views), "__call__"
+    ) as call:
+        client.list_feature_views(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.ListFeatureViewsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_feature_views_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_views), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_online_store_admin_service.ListFeatureViewsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_feature_views()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == feature_online_store_admin_service.ListFeatureViewsRequest()
@@ -3441,7 +3872,8 @@ async def test_list_feature_views_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.ListFeatureViewsRequest()
+        request = feature_online_store_admin_service.ListFeatureViewsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListFeatureViewsAsyncPager)
@@ -3836,7 +4268,8 @@ def test_update_feature_view(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.UpdateFeatureViewRequest()
+        request = feature_online_store_admin_service.UpdateFeatureViewRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -3855,6 +4288,52 @@ def test_update_feature_view_empty_call():
         type(client.transport.update_feature_view), "__call__"
     ) as call:
         client.update_feature_view()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.UpdateFeatureViewRequest()
+
+
+def test_update_feature_view_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.UpdateFeatureViewRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_feature_view), "__call__"
+    ) as call:
+        client.update_feature_view(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.UpdateFeatureViewRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_feature_view_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_feature_view), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.update_feature_view()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == feature_online_store_admin_service.UpdateFeatureViewRequest()
@@ -3887,7 +4366,8 @@ async def test_update_feature_view_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.UpdateFeatureViewRequest()
+        request = feature_online_store_admin_service.UpdateFeatureViewRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4111,7 +4591,8 @@ def test_delete_feature_view(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.DeleteFeatureViewRequest()
+        request = feature_online_store_admin_service.DeleteFeatureViewRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4130,6 +4611,56 @@ def test_delete_feature_view_empty_call():
         type(client.transport.delete_feature_view), "__call__"
     ) as call:
         client.delete_feature_view()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.DeleteFeatureViewRequest()
+
+
+def test_delete_feature_view_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.DeleteFeatureViewRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_view), "__call__"
+    ) as call:
+        client.delete_feature_view(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.DeleteFeatureViewRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_view_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_view), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_feature_view()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == feature_online_store_admin_service.DeleteFeatureViewRequest()
@@ -4162,7 +4693,8 @@ async def test_delete_feature_view_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.DeleteFeatureViewRequest()
+        request = feature_online_store_admin_service.DeleteFeatureViewRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4354,7 +4886,8 @@ def test_sync_feature_view(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.SyncFeatureViewRequest()
+        request = feature_online_store_admin_service.SyncFeatureViewRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -4376,6 +4909,58 @@ def test_sync_feature_view_empty_call():
         type(client.transport.sync_feature_view), "__call__"
     ) as call:
         client.sync_feature_view()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.SyncFeatureViewRequest()
+
+
+def test_sync_feature_view_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.SyncFeatureViewRequest(
+        feature_view="feature_view_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.sync_feature_view), "__call__"
+    ) as call:
+        client.sync_feature_view(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.SyncFeatureViewRequest(
+            feature_view="feature_view_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_sync_feature_view_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.sync_feature_view), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_online_store_admin_service.SyncFeatureViewResponse(
+                feature_view_sync="feature_view_sync_value",
+            )
+        )
+        response = await client.sync_feature_view()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == feature_online_store_admin_service.SyncFeatureViewRequest()
@@ -4410,7 +4995,8 @@ async def test_sync_feature_view_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.SyncFeatureViewRequest()
+        request = feature_online_store_admin_service.SyncFeatureViewRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -4605,7 +5191,8 @@ def test_get_feature_view_sync(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.GetFeatureViewSyncRequest()
+        request = feature_online_store_admin_service.GetFeatureViewSyncRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, feature_view_sync.FeatureViewSync)
@@ -4625,6 +5212,58 @@ def test_get_feature_view_sync_empty_call():
         type(client.transport.get_feature_view_sync), "__call__"
     ) as call:
         client.get_feature_view_sync()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.GetFeatureViewSyncRequest()
+
+
+def test_get_feature_view_sync_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.GetFeatureViewSyncRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_view_sync), "__call__"
+    ) as call:
+        client.get_feature_view_sync(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_admin_service.GetFeatureViewSyncRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_feature_view_sync_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_view_sync), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_view_sync.FeatureViewSync(
+                name="name_value",
+            )
+        )
+        response = await client.get_feature_view_sync()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == feature_online_store_admin_service.GetFeatureViewSyncRequest()
@@ -4659,7 +5298,8 @@ async def test_get_feature_view_sync_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_admin_service.GetFeatureViewSyncRequest()
+        request = feature_online_store_admin_service.GetFeatureViewSyncRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, feature_view_sync.FeatureViewSync)
@@ -4854,9 +5494,8 @@ def test_list_feature_view_syncs(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0] == feature_online_store_admin_service.ListFeatureViewSyncsRequest()
-        )
+        request = feature_online_store_admin_service.ListFeatureViewSyncsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListFeatureViewSyncsPager)
@@ -4876,6 +5515,68 @@ def test_list_feature_view_syncs_empty_call():
         type(client.transport.list_feature_view_syncs), "__call__"
     ) as call:
         client.list_feature_view_syncs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0] == feature_online_store_admin_service.ListFeatureViewSyncsRequest()
+        )
+
+
+def test_list_feature_view_syncs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreAdminServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_admin_service.ListFeatureViewSyncsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_view_syncs), "__call__"
+    ) as call:
+        client.list_feature_view_syncs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == feature_online_store_admin_service.ListFeatureViewSyncsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_feature_view_syncs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreAdminServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_view_syncs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_online_store_admin_service.ListFeatureViewSyncsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_feature_view_syncs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -4912,9 +5613,8 @@ async def test_list_feature_view_syncs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0] == feature_online_store_admin_service.ListFeatureViewSyncsRequest()
-        )
+        request = feature_online_store_admin_service.ListFeatureViewSyncsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListFeatureViewSyncsAsyncPager)
@@ -5304,12 +6004,16 @@ def test_create_feature_online_store_rest(request_type):
                 "cpu_utilization_target": 2377,
             }
         },
+        "optimized": {},
         "name": "name_value",
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
         "labels": {},
         "state": 1,
+        "dedicated_serving_endpoint": {
+            "public_endpoint_domain_name": "public_endpoint_domain_name_value"
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6356,12 +7060,16 @@ def test_update_feature_online_store_rest(request_type):
                 "cpu_utilization_target": 2377,
             }
         },
+        "optimized": {},
         "name": "projects/sample1/locations/sample2/featureOnlineStores/sample3",
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
         "labels": {},
         "state": 1,
+        "dedicated_serving_endpoint": {
+            "public_endpoint_domain_name": "public_endpoint_domain_name_value"
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7019,6 +7727,15 @@ def test_create_feature_view_rest(request_type):
         "etag": "etag_value",
         "labels": {},
         "sync_config": {"cron": "cron_value"},
+        "index_config": {
+            "tree_ah_config": {"leaf_node_embedding_count": 2595},
+            "brute_force_config": {},
+            "embedding_column": "embedding_column_value",
+            "filter_columns": ["filter_columns_value1", "filter_columns_value2"],
+            "crowding_column": "crowding_column_value",
+            "embedding_dimension": 1988,
+            "distance_measure_type": 1,
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8074,6 +8791,15 @@ def test_update_feature_view_rest(request_type):
         "etag": "etag_value",
         "labels": {},
         "sync_config": {"cron": "cron_value"},
+        "index_config": {
+            "tree_ah_config": {"leaf_node_embedding_count": 2595},
+            "brute_force_config": {},
+            "embedding_column": "embedding_column_value",
+            "filter_columns": ["filter_columns_value1", "filter_columns_value2"],
+            "crowding_column": "crowding_column_value",
+            "embedding_dimension": 1988,
+            "distance_measure_type": 1,
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

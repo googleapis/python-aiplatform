@@ -1266,10 +1266,8 @@ def test_create_deployment_resource_pool(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1288,6 +1286,63 @@ def test_create_deployment_resource_pool_empty_call():
         type(client.transport.create_deployment_resource_pool), "__call__"
     ) as call:
         client.create_deployment_resource_pool()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+        )
+
+
+def test_create_deployment_resource_pool_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = deployment_resource_pool_service.CreateDeploymentResourcePoolRequest(
+        parent="parent_value",
+        deployment_resource_pool_id="deployment_resource_pool_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_deployment_resource_pool), "__call__"
+    ) as call:
+        client.create_deployment_resource_pool(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest(
+            parent="parent_value",
+            deployment_resource_pool_id="deployment_resource_pool_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_deployment_resource_pool_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.create_deployment_resource_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -1323,10 +1378,8 @@ async def test_create_deployment_resource_pool_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1550,10 +1603,8 @@ def test_get_deployment_resource_pool(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
@@ -1573,6 +1624,63 @@ def test_get_deployment_resource_pool_empty_call():
         type(client.transport.get_deployment_resource_pool), "__call__"
     ) as call:
         client.get_deployment_resource_pool()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+        )
+
+
+def test_get_deployment_resource_pool_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = deployment_resource_pool_service.GetDeploymentResourcePoolRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_deployment_resource_pool), "__call__"
+    ) as call:
+        client.get_deployment_resource_pool(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == deployment_resource_pool_service.GetDeploymentResourcePoolRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_deployment_resource_pool_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool.DeploymentResourcePool(
+                name="name_value",
+            )
+        )
+        response = await client.get_deployment_resource_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -1610,10 +1718,8 @@ async def test_get_deployment_resource_pool_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
@@ -1808,10 +1914,8 @@ def test_list_deployment_resource_pools(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
-        )
+        request = deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListDeploymentResourcePoolsPager)
@@ -1831,6 +1935,65 @@ def test_list_deployment_resource_pools_empty_call():
         type(client.transport.list_deployment_resource_pools), "__call__"
     ) as call:
         client.list_deployment_resource_pools()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
+        )
+
+
+def test_list_deployment_resource_pools_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = deployment_resource_pool_service.ListDeploymentResourcePoolsRequest(
+        parent="parent_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_deployment_resource_pools), "__call__"
+    ) as call:
+        client.list_deployment_resource_pools(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest(
+            parent="parent_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_deployment_resource_pools_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_deployment_resource_pools), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_deployment_resource_pools()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -1868,10 +2031,8 @@ async def test_list_deployment_resource_pools_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
-        )
+        request = deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListDeploymentResourcePoolsAsyncPager)
@@ -2272,10 +2433,8 @@ def test_delete_deployment_resource_pool(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2294,6 +2453,61 @@ def test_delete_deployment_resource_pool_empty_call():
         type(client.transport.delete_deployment_resource_pool), "__call__"
     ) as call:
         client.delete_deployment_resource_pool()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
+        )
+
+
+def test_delete_deployment_resource_pool_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_deployment_resource_pool), "__call__"
+    ) as call:
+        client.delete_deployment_resource_pool(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[
+            0
+        ] == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_deployment_resource_pool_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_deployment_resource_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert (
@@ -2329,10 +2543,8 @@ async def test_delete_deployment_resource_pool_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert (
-            args[0]
-            == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
-        )
+        request = deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2528,7 +2740,8 @@ def test_query_deployed_models(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
+        request = deployment_resource_pool_service.QueryDeployedModelsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.QueryDeployedModelsPager)
@@ -2550,6 +2763,62 @@ def test_query_deployed_models_empty_call():
         type(client.transport.query_deployed_models), "__call__"
     ) as call:
         client.query_deployed_models()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
+
+
+def test_query_deployed_models_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = deployment_resource_pool_service.QueryDeployedModelsRequest(
+        deployment_resource_pool="deployment_resource_pool_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        client.query_deployed_models(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest(
+            deployment_resource_pool="deployment_resource_pool_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_query_deployed_models_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                next_page_token="next_page_token_value",
+                total_deployed_model_count=2769,
+                total_endpoint_count=2156,
+            )
+        )
+        response = await client.query_deployed_models()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
@@ -2586,7 +2855,8 @@ async def test_query_deployed_models_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
+        request = deployment_resource_pool_service.QueryDeployedModelsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.QueryDeployedModelsAsyncPager)

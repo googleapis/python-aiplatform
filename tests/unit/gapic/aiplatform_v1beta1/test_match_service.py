@@ -1129,7 +1129,8 @@ def test_find_neighbors(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == match_service.FindNeighborsRequest()
+        request = match_service.FindNeighborsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, match_service.FindNeighborsResponse)
@@ -1146,6 +1147,54 @@ def test_find_neighbors_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.find_neighbors), "__call__") as call:
         client.find_neighbors()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == match_service.FindNeighborsRequest()
+
+
+def test_find_neighbors_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MatchServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = match_service.FindNeighborsRequest(
+        index_endpoint="index_endpoint_value",
+        deployed_index_id="deployed_index_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.find_neighbors), "__call__") as call:
+        client.find_neighbors(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == match_service.FindNeighborsRequest(
+            index_endpoint="index_endpoint_value",
+            deployed_index_id="deployed_index_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_find_neighbors_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MatchServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.find_neighbors), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            match_service.FindNeighborsResponse()
+        )
+        response = await client.find_neighbors()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == match_service.FindNeighborsRequest()
@@ -1175,7 +1224,8 @@ async def test_find_neighbors_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == match_service.FindNeighborsRequest()
+        request = match_service.FindNeighborsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, match_service.FindNeighborsResponse)
@@ -1275,7 +1325,8 @@ def test_read_index_datapoints(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == match_service.ReadIndexDatapointsRequest()
+        request = match_service.ReadIndexDatapointsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, match_service.ReadIndexDatapointsResponse)
@@ -1294,6 +1345,58 @@ def test_read_index_datapoints_empty_call():
         type(client.transport.read_index_datapoints), "__call__"
     ) as call:
         client.read_index_datapoints()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == match_service.ReadIndexDatapointsRequest()
+
+
+def test_read_index_datapoints_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = MatchServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = match_service.ReadIndexDatapointsRequest(
+        index_endpoint="index_endpoint_value",
+        deployed_index_id="deployed_index_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_index_datapoints), "__call__"
+    ) as call:
+        client.read_index_datapoints(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == match_service.ReadIndexDatapointsRequest(
+            index_endpoint="index_endpoint_value",
+            deployed_index_id="deployed_index_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_read_index_datapoints_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MatchServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.read_index_datapoints), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            match_service.ReadIndexDatapointsResponse()
+        )
+        response = await client.read_index_datapoints()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == match_service.ReadIndexDatapointsRequest()
@@ -1326,7 +1429,8 @@ async def test_read_index_datapoints_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == match_service.ReadIndexDatapointsRequest()
+        request = match_service.ReadIndexDatapointsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, match_service.ReadIndexDatapointsResponse)

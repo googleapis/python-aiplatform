@@ -1240,7 +1240,8 @@ def test_fetch_feature_values(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_service.FetchFeatureValuesRequest()
+        request = feature_online_store_service.FetchFeatureValuesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, feature_online_store_service.FetchFeatureValuesResponse)
@@ -1259,6 +1260,56 @@ def test_fetch_feature_values_empty_call():
         type(client.transport.fetch_feature_values), "__call__"
     ) as call:
         client.fetch_feature_values()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_service.FetchFeatureValuesRequest()
+
+
+def test_fetch_feature_values_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_service.FetchFeatureValuesRequest(
+        feature_view="feature_view_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.fetch_feature_values), "__call__"
+    ) as call:
+        client.fetch_feature_values(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_service.FetchFeatureValuesRequest(
+            feature_view="feature_view_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_fetch_feature_values_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.fetch_feature_values), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_online_store_service.FetchFeatureValuesResponse()
+        )
+        response = await client.fetch_feature_values()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == feature_online_store_service.FetchFeatureValuesRequest()
@@ -1291,7 +1342,8 @@ async def test_fetch_feature_values_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_service.FetchFeatureValuesRequest()
+        request = feature_online_store_service.FetchFeatureValuesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, feature_online_store_service.FetchFeatureValuesResponse)
@@ -1491,7 +1543,8 @@ def test_search_nearest_entities(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_service.SearchNearestEntitiesRequest()
+        request = feature_online_store_service.SearchNearestEntitiesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
@@ -1512,6 +1565,56 @@ def test_search_nearest_entities_empty_call():
         type(client.transport.search_nearest_entities), "__call__"
     ) as call:
         client.search_nearest_entities()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_service.SearchNearestEntitiesRequest()
+
+
+def test_search_nearest_entities_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_online_store_service.SearchNearestEntitiesRequest(
+        feature_view="feature_view_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        client.search_nearest_entities(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_online_store_service.SearchNearestEntitiesRequest(
+            feature_view="feature_view_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_search_nearest_entities_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = FeatureOnlineStoreServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_nearest_entities), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_online_store_service.SearchNearestEntitiesResponse()
+        )
+        response = await client.search_nearest_entities()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == feature_online_store_service.SearchNearestEntitiesRequest()
@@ -1544,7 +1647,8 @@ async def test_search_nearest_entities_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == feature_online_store_service.SearchNearestEntitiesRequest()
+        request = feature_online_store_service.SearchNearestEntitiesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(
