@@ -33,6 +33,8 @@ __protobuf__ = proto.module(
         "Retrieval",
         "VertexAISearch",
         "GoogleSearchRetrieval",
+        "ToolConfig",
+        "FunctionCallingConfig",
     },
 )
 
@@ -259,6 +261,73 @@ class GoogleSearchRetrieval(proto.Message):
     disable_attribution: bool = proto.Field(
         proto.BOOL,
         number=1,
+    )
+
+
+class ToolConfig(proto.Message):
+    r"""Tool config. This config is shared for all tools provided in
+    the request.
+
+    Attributes:
+        function_calling_config (google.cloud.aiplatform_v1beta1.types.FunctionCallingConfig):
+            Function calling config.
+    """
+
+    function_calling_config: "FunctionCallingConfig" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="FunctionCallingConfig",
+    )
+
+
+class FunctionCallingConfig(proto.Message):
+    r"""Function calling config.
+
+    Attributes:
+        mode (google.cloud.aiplatform_v1beta1.types.FunctionCallingConfig.Mode):
+            Function calling mode.
+        allowed_function_names (MutableSequence[str]):
+            Function names to call. Only set when the Mode is ANY.
+            Function names should match [FunctionDeclaration.name]. With
+            mode set to ANY, model will predict a function call from the
+            set of function names provided.
+    """
+
+    class Mode(proto.Enum):
+        r"""Function calling mode.
+
+        Values:
+            MODE_UNSPECIFIED (0):
+                Unspecified function calling mode. This value
+                should not be used.
+            AUTO (1):
+                Default model behavior, model decides to
+                predict either a function call or a natural
+                language repspose.
+            ANY (2):
+                Model is constrained to always predicting a function call
+                only. If "allowed_function_names" are set, the predicted
+                function call will be limited to any one of
+                "allowed_function_names", else the predicted function call
+                will be any one of the provided "function_declarations".
+            NONE (3):
+                Model will not predict any function call.
+                Model behavior is same as when not passing any
+                function declarations.
+        """
+        MODE_UNSPECIFIED = 0
+        AUTO = 1
+        ANY = 2
+        NONE = 3
+
+    mode: Mode = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum=Mode,
+    )
+    allowed_function_names: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=2,
     )
 
 

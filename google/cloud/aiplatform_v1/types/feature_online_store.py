@@ -35,6 +35,10 @@ class FeatureOnlineStore(proto.Message):
     repository for serving ML features and embedding indexes at low
     latency. The Feature Online Store is a top-level container.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -44,6 +48,16 @@ class FeatureOnlineStore(proto.Message):
             instance that will be created to serve
             featureValues for all FeatureViews under this
             FeatureOnlineStore.
+
+            This field is a member of `oneof`_ ``storage_type``.
+        optimized (google.cloud.aiplatform_v1.types.FeatureOnlineStore.Optimized):
+            Contains settings for the Optimized store that will be
+            created to serve featureValues for all FeatureViews under
+            this FeatureOnlineStore. When choose Optimized storage type,
+            need to set
+            [PrivateServiceConnectConfig.enable_private_service_connect][google.cloud.aiplatform.v1.PrivateServiceConnectConfig.enable_private_service_connect]
+            to use private endpoint. Otherwise will use public endpoint
+            by default.
 
             This field is a member of `oneof`_ ``storage_type``.
         name (str):
@@ -77,6 +91,10 @@ class FeatureOnlineStore(proto.Message):
             "aiplatform.googleapis.com/" and are immutable.
         state (google.cloud.aiplatform_v1.types.FeatureOnlineStore.State):
             Output only. State of the featureOnlineStore.
+        dedicated_serving_endpoint (google.cloud.aiplatform_v1.types.FeatureOnlineStore.DedicatedServingEndpoint):
+            Optional. The dedicated serving endpoint for
+            this FeatureOnlineStore, which is different from
+            common Vertex service endpoint.
     """
 
     class State(proto.Enum):
@@ -154,11 +172,37 @@ class FeatureOnlineStore(proto.Message):
             message="FeatureOnlineStore.Bigtable.AutoScaling",
         )
 
+    class Optimized(proto.Message):
+        r"""Optimized storage type"""
+
+    class DedicatedServingEndpoint(proto.Message):
+        r"""The dedicated serving endpoint for this FeatureOnlineStore.
+        Only need to set when you choose Optimized storage type. Public
+        endpoint is provisioned by default.
+
+        Attributes:
+            public_endpoint_domain_name (str):
+                Output only. This field will be populated
+                with the domain name to use for this
+                FeatureOnlineStore
+        """
+
+        public_endpoint_domain_name: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
     bigtable: Bigtable = proto.Field(
         proto.MESSAGE,
         number=8,
         oneof="storage_type",
         message=Bigtable,
+    )
+    optimized: Optimized = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        oneof="storage_type",
+        message=Optimized,
     )
     name: str = proto.Field(
         proto.STRING,
@@ -187,6 +231,11 @@ class FeatureOnlineStore(proto.Message):
         proto.ENUM,
         number=7,
         enum=State,
+    )
+    dedicated_serving_endpoint: DedicatedServingEndpoint = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=DedicatedServingEndpoint,
     )
 
 

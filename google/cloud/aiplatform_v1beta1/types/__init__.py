@@ -822,11 +822,13 @@ from .tensorboard_time_series import (
 )
 from .tool import (
     FunctionCall,
+    FunctionCallingConfig,
     FunctionDeclaration,
     FunctionResponse,
     GoogleSearchRetrieval,
     Retrieval,
     Tool,
+    ToolConfig,
     VertexAISearch,
 )
 from .training_pipeline import (
@@ -1500,11 +1502,13 @@ __all__ = (
     "WriteTensorboardRunDataResponse",
     "TensorboardTimeSeries",
     "FunctionCall",
+    "FunctionCallingConfig",
     "FunctionDeclaration",
     "FunctionResponse",
     "GoogleSearchRetrieval",
     "Retrieval",
     "Tool",
+    "ToolConfig",
     "VertexAISearch",
     "FilterSplit",
     "FractionSplit",

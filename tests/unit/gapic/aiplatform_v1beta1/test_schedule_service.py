@@ -1210,7 +1210,8 @@ def test_create_schedule(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.CreateScheduleRequest()
+        request = schedule_service.CreateScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_schedule.Schedule)
@@ -1235,6 +1236,61 @@ def test_create_schedule_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
         client.create_schedule()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.CreateScheduleRequest()
+
+
+def test_create_schedule_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ScheduleServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = schedule_service.CreateScheduleRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
+        client.create_schedule(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.CreateScheduleRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_schedule_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ScheduleServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_schedule), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_schedule.Schedule(
+                name="name_value",
+                display_name="display_name_value",
+                max_run_count=1410,
+                started_run_count=1843,
+                state=gca_schedule.Schedule.State.ACTIVE,
+                max_concurrent_run_count=2596,
+                allow_queueing=True,
+                catch_up=True,
+            )
+        )
+        response = await client.create_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.CreateScheduleRequest()
@@ -1273,7 +1329,8 @@ async def test_create_schedule_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.CreateScheduleRequest()
+        request = schedule_service.CreateScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_schedule.Schedule)
@@ -1471,7 +1528,8 @@ def test_delete_schedule(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.DeleteScheduleRequest()
+        request = schedule_service.DeleteScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1488,6 +1546,52 @@ def test_delete_schedule_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
         client.delete_schedule()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.DeleteScheduleRequest()
+
+
+def test_delete_schedule_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ScheduleServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = schedule_service.DeleteScheduleRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
+        client.delete_schedule(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.DeleteScheduleRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_schedule_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ScheduleServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_schedule), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.DeleteScheduleRequest()
@@ -1517,7 +1621,8 @@ async def test_delete_schedule_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.DeleteScheduleRequest()
+        request = schedule_service.DeleteScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -1707,7 +1812,8 @@ def test_get_schedule(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.GetScheduleRequest()
+        request = schedule_service.GetScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, schedule.Schedule)
@@ -1732,6 +1838,61 @@ def test_get_schedule_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
         client.get_schedule()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.GetScheduleRequest()
+
+
+def test_get_schedule_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ScheduleServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = schedule_service.GetScheduleRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
+        client.get_schedule(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.GetScheduleRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_schedule_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ScheduleServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_schedule), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            schedule.Schedule(
+                name="name_value",
+                display_name="display_name_value",
+                max_run_count=1410,
+                started_run_count=1843,
+                state=schedule.Schedule.State.ACTIVE,
+                max_concurrent_run_count=2596,
+                allow_queueing=True,
+                catch_up=True,
+            )
+        )
+        response = await client.get_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.GetScheduleRequest()
@@ -1770,7 +1931,8 @@ async def test_get_schedule_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.GetScheduleRequest()
+        request = schedule_service.GetScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, schedule.Schedule)
@@ -1956,7 +2118,8 @@ def test_list_schedules(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.ListSchedulesRequest()
+        request = schedule_service.ListSchedulesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListSchedulesPager)
@@ -1974,6 +2137,60 @@ def test_list_schedules_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
         client.list_schedules()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.ListSchedulesRequest()
+
+
+def test_list_schedules_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ScheduleServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = schedule_service.ListSchedulesRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
+        client.list_schedules(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.ListSchedulesRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_schedules_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ScheduleServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_schedules), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            schedule_service.ListSchedulesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_schedules()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.ListSchedulesRequest()
@@ -2005,7 +2222,8 @@ async def test_list_schedules_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.ListSchedulesRequest()
+        request = schedule_service.ListSchedulesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListSchedulesAsyncPager)
@@ -2376,7 +2594,8 @@ def test_pause_schedule(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.PauseScheduleRequest()
+        request = schedule_service.PauseScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -2393,6 +2612,50 @@ def test_pause_schedule_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
         client.pause_schedule()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.PauseScheduleRequest()
+
+
+def test_pause_schedule_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ScheduleServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = schedule_service.PauseScheduleRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
+        client.pause_schedule(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.PauseScheduleRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_pause_schedule_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ScheduleServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.pause_schedule), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.pause_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.PauseScheduleRequest()
@@ -2420,7 +2683,8 @@ async def test_pause_schedule_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.PauseScheduleRequest()
+        request = schedule_service.PauseScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -2596,7 +2860,8 @@ def test_resume_schedule(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.ResumeScheduleRequest()
+        request = schedule_service.ResumeScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -2613,6 +2878,50 @@ def test_resume_schedule_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
         client.resume_schedule()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.ResumeScheduleRequest()
+
+
+def test_resume_schedule_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ScheduleServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = schedule_service.ResumeScheduleRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
+        client.resume_schedule(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.ResumeScheduleRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_resume_schedule_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ScheduleServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.resume_schedule), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.resume_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.ResumeScheduleRequest()
@@ -2640,7 +2949,8 @@ async def test_resume_schedule_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.ResumeScheduleRequest()
+        request = schedule_service.ResumeScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -2836,7 +3146,8 @@ def test_update_schedule(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.UpdateScheduleRequest()
+        request = schedule_service.UpdateScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_schedule.Schedule)
@@ -2861,6 +3172,57 @@ def test_update_schedule_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
         client.update_schedule()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.UpdateScheduleRequest()
+
+
+def test_update_schedule_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ScheduleServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = schedule_service.UpdateScheduleRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
+        client.update_schedule(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == schedule_service.UpdateScheduleRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_schedule_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ScheduleServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.update_schedule), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_schedule.Schedule(
+                name="name_value",
+                display_name="display_name_value",
+                max_run_count=1410,
+                started_run_count=1843,
+                state=gca_schedule.Schedule.State.ACTIVE,
+                max_concurrent_run_count=2596,
+                allow_queueing=True,
+                catch_up=True,
+            )
+        )
+        response = await client.update_schedule()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == schedule_service.UpdateScheduleRequest()
@@ -2899,7 +3261,8 @@ async def test_update_schedule_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == schedule_service.UpdateScheduleRequest()
+        request = schedule_service.UpdateScheduleRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_schedule.Schedule)

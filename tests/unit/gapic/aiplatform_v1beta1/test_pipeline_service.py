@@ -1218,7 +1218,8 @@ def test_create_training_pipeline(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.CreateTrainingPipelineRequest()
+        request = pipeline_service.CreateTrainingPipelineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_training_pipeline.TrainingPipeline)
@@ -1243,6 +1244,63 @@ def test_create_training_pipeline_empty_call():
         type(client.transport.create_training_pipeline), "__call__"
     ) as call:
         client.create_training_pipeline()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.CreateTrainingPipelineRequest()
+
+
+def test_create_training_pipeline_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.CreateTrainingPipelineRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_training_pipeline), "__call__"
+    ) as call:
+        client.create_training_pipeline(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.CreateTrainingPipelineRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_training_pipeline_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_training_pipeline), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_training_pipeline.TrainingPipeline(
+                name="name_value",
+                display_name="display_name_value",
+                training_task_definition="training_task_definition_value",
+                model_id="model_id_value",
+                parent_model="parent_model_value",
+                state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
+            )
+        )
+        response = await client.create_training_pipeline()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.CreateTrainingPipelineRequest()
@@ -1282,7 +1340,8 @@ async def test_create_training_pipeline_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.CreateTrainingPipelineRequest()
+        request = pipeline_service.CreateTrainingPipelineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_training_pipeline.TrainingPipeline)
@@ -1495,7 +1554,8 @@ def test_get_training_pipeline(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.GetTrainingPipelineRequest()
+        request = pipeline_service.GetTrainingPipelineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, training_pipeline.TrainingPipeline)
@@ -1520,6 +1580,63 @@ def test_get_training_pipeline_empty_call():
         type(client.transport.get_training_pipeline), "__call__"
     ) as call:
         client.get_training_pipeline()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.GetTrainingPipelineRequest()
+
+
+def test_get_training_pipeline_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.GetTrainingPipelineRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_training_pipeline), "__call__"
+    ) as call:
+        client.get_training_pipeline(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.GetTrainingPipelineRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_training_pipeline_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_training_pipeline), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            training_pipeline.TrainingPipeline(
+                name="name_value",
+                display_name="display_name_value",
+                training_task_definition="training_task_definition_value",
+                model_id="model_id_value",
+                parent_model="parent_model_value",
+                state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
+            )
+        )
+        response = await client.get_training_pipeline()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.GetTrainingPipelineRequest()
@@ -1559,7 +1676,8 @@ async def test_get_training_pipeline_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.GetTrainingPipelineRequest()
+        request = pipeline_service.GetTrainingPipelineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, training_pipeline.TrainingPipeline)
@@ -1757,7 +1875,8 @@ def test_list_training_pipelines(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.ListTrainingPipelinesRequest()
+        request = pipeline_service.ListTrainingPipelinesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTrainingPipelinesPager)
@@ -1777,6 +1896,62 @@ def test_list_training_pipelines_empty_call():
         type(client.transport.list_training_pipelines), "__call__"
     ) as call:
         client.list_training_pipelines()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.ListTrainingPipelinesRequest()
+
+
+def test_list_training_pipelines_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.ListTrainingPipelinesRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_training_pipelines), "__call__"
+    ) as call:
+        client.list_training_pipelines(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.ListTrainingPipelinesRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_training_pipelines_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_training_pipelines), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            pipeline_service.ListTrainingPipelinesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_training_pipelines()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.ListTrainingPipelinesRequest()
@@ -1811,7 +1986,8 @@ async def test_list_training_pipelines_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.ListTrainingPipelinesRequest()
+        request = pipeline_service.ListTrainingPipelinesRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTrainingPipelinesAsyncPager)
@@ -2200,7 +2376,8 @@ def test_delete_training_pipeline(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.DeleteTrainingPipelineRequest()
+        request = pipeline_service.DeleteTrainingPipelineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2219,6 +2396,56 @@ def test_delete_training_pipeline_empty_call():
         type(client.transport.delete_training_pipeline), "__call__"
     ) as call:
         client.delete_training_pipeline()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.DeleteTrainingPipelineRequest()
+
+
+def test_delete_training_pipeline_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.DeleteTrainingPipelineRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_training_pipeline), "__call__"
+    ) as call:
+        client.delete_training_pipeline(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.DeleteTrainingPipelineRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_training_pipeline_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_training_pipeline), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_training_pipeline()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.DeleteTrainingPipelineRequest()
@@ -2251,7 +2478,8 @@ async def test_delete_training_pipeline_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.DeleteTrainingPipelineRequest()
+        request = pipeline_service.DeleteTrainingPipelineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -2441,7 +2669,8 @@ def test_cancel_training_pipeline(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.CancelTrainingPipelineRequest()
+        request = pipeline_service.CancelTrainingPipelineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -2460,6 +2689,54 @@ def test_cancel_training_pipeline_empty_call():
         type(client.transport.cancel_training_pipeline), "__call__"
     ) as call:
         client.cancel_training_pipeline()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.CancelTrainingPipelineRequest()
+
+
+def test_cancel_training_pipeline_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.CancelTrainingPipelineRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_training_pipeline), "__call__"
+    ) as call:
+        client.cancel_training_pipeline(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.CancelTrainingPipelineRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_cancel_training_pipeline_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_training_pipeline), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_training_pipeline()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.CancelTrainingPipelineRequest()
@@ -2490,7 +2767,8 @@ async def test_cancel_training_pipeline_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.CancelTrainingPipelineRequest()
+        request = pipeline_service.CancelTrainingPipelineRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -2686,7 +2964,8 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.CreatePipelineJobRequest()
+        request = pipeline_service.CreatePipelineJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_pipeline_job.PipelineJob)
@@ -2714,6 +2993,68 @@ def test_create_pipeline_job_empty_call():
         type(client.transport.create_pipeline_job), "__call__"
     ) as call:
         client.create_pipeline_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.CreatePipelineJobRequest()
+
+
+def test_create_pipeline_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.CreatePipelineJobRequest(
+        parent="parent_value",
+        pipeline_job_id="pipeline_job_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_pipeline_job), "__call__"
+    ) as call:
+        client.create_pipeline_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.CreatePipelineJobRequest(
+            parent="parent_value",
+            pipeline_job_id="pipeline_job_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_pipeline_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_pipeline_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_pipeline_job.PipelineJob(
+                name="name_value",
+                display_name="display_name_value",
+                state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
+                service_account="service_account_value",
+                network="network_value",
+                reserved_ip_ranges=["reserved_ip_ranges_value"],
+                template_uri="template_uri_value",
+                schedule_name="schedule_name_value",
+                preflight_validations=True,
+            )
+        )
+        response = await client.create_pipeline_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.CreatePipelineJobRequest()
@@ -2756,7 +3097,8 @@ async def test_create_pipeline_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.CreatePipelineJobRequest()
+        request = pipeline_service.CreatePipelineJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_pipeline_job.PipelineJob)
@@ -2983,7 +3325,8 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.GetPipelineJobRequest()
+        request = pipeline_service.GetPipelineJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pipeline_job.PipelineJob)
@@ -3009,6 +3352,62 @@ def test_get_pipeline_job_empty_call():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_pipeline_job), "__call__") as call:
         client.get_pipeline_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.GetPipelineJobRequest()
+
+
+def test_get_pipeline_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.GetPipelineJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_pipeline_job), "__call__") as call:
+        client.get_pipeline_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.GetPipelineJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_pipeline_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_pipeline_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            pipeline_job.PipelineJob(
+                name="name_value",
+                display_name="display_name_value",
+                state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
+                service_account="service_account_value",
+                network="network_value",
+                reserved_ip_ranges=["reserved_ip_ranges_value"],
+                template_uri="template_uri_value",
+                schedule_name="schedule_name_value",
+                preflight_validations=True,
+            )
+        )
+        response = await client.get_pipeline_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.GetPipelineJobRequest()
@@ -3048,7 +3447,8 @@ async def test_get_pipeline_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.GetPipelineJobRequest()
+        request = pipeline_service.GetPipelineJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pipeline_job.PipelineJob)
@@ -3241,7 +3641,8 @@ def test_list_pipeline_jobs(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.ListPipelineJobsRequest()
+        request = pipeline_service.ListPipelineJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListPipelineJobsPager)
@@ -3261,6 +3662,64 @@ def test_list_pipeline_jobs_empty_call():
         type(client.transport.list_pipeline_jobs), "__call__"
     ) as call:
         client.list_pipeline_jobs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.ListPipelineJobsRequest()
+
+
+def test_list_pipeline_jobs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.ListPipelineJobsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_pipeline_jobs), "__call__"
+    ) as call:
+        client.list_pipeline_jobs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.ListPipelineJobsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_pipeline_jobs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_pipeline_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            pipeline_service.ListPipelineJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_pipeline_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.ListPipelineJobsRequest()
@@ -3295,7 +3754,8 @@ async def test_list_pipeline_jobs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.ListPipelineJobsRequest()
+        request = pipeline_service.ListPipelineJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListPipelineJobsAsyncPager)
@@ -3684,7 +4144,8 @@ def test_delete_pipeline_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.DeletePipelineJobRequest()
+        request = pipeline_service.DeletePipelineJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -3703,6 +4164,56 @@ def test_delete_pipeline_job_empty_call():
         type(client.transport.delete_pipeline_job), "__call__"
     ) as call:
         client.delete_pipeline_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.DeletePipelineJobRequest()
+
+
+def test_delete_pipeline_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.DeletePipelineJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_pipeline_job), "__call__"
+    ) as call:
+        client.delete_pipeline_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.DeletePipelineJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_pipeline_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_pipeline_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_pipeline_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.DeletePipelineJobRequest()
@@ -3735,7 +4246,8 @@ async def test_delete_pipeline_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.DeletePipelineJobRequest()
+        request = pipeline_service.DeletePipelineJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -3925,7 +4437,8 @@ def test_batch_delete_pipeline_jobs(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.BatchDeletePipelineJobsRequest()
+        request = pipeline_service.BatchDeletePipelineJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -3944,6 +4457,56 @@ def test_batch_delete_pipeline_jobs_empty_call():
         type(client.transport.batch_delete_pipeline_jobs), "__call__"
     ) as call:
         client.batch_delete_pipeline_jobs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.BatchDeletePipelineJobsRequest()
+
+
+def test_batch_delete_pipeline_jobs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.BatchDeletePipelineJobsRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_delete_pipeline_jobs), "__call__"
+    ) as call:
+        client.batch_delete_pipeline_jobs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.BatchDeletePipelineJobsRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_delete_pipeline_jobs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_delete_pipeline_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.batch_delete_pipeline_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.BatchDeletePipelineJobsRequest()
@@ -3976,7 +4539,8 @@ async def test_batch_delete_pipeline_jobs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.BatchDeletePipelineJobsRequest()
+        request = pipeline_service.BatchDeletePipelineJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4176,7 +4740,8 @@ def test_cancel_pipeline_job(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.CancelPipelineJobRequest()
+        request = pipeline_service.CancelPipelineJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -4195,6 +4760,54 @@ def test_cancel_pipeline_job_empty_call():
         type(client.transport.cancel_pipeline_job), "__call__"
     ) as call:
         client.cancel_pipeline_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.CancelPipelineJobRequest()
+
+
+def test_cancel_pipeline_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.CancelPipelineJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_pipeline_job), "__call__"
+    ) as call:
+        client.cancel_pipeline_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.CancelPipelineJobRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_cancel_pipeline_job_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_pipeline_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_pipeline_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.CancelPipelineJobRequest()
@@ -4225,7 +4838,8 @@ async def test_cancel_pipeline_job_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.CancelPipelineJobRequest()
+        request = pipeline_service.CancelPipelineJobRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert response is None
@@ -4411,7 +5025,8 @@ def test_batch_cancel_pipeline_jobs(request_type, transport: str = "grpc"):
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.BatchCancelPipelineJobsRequest()
+        request = pipeline_service.BatchCancelPipelineJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
@@ -4430,6 +5045,56 @@ def test_batch_cancel_pipeline_jobs_empty_call():
         type(client.transport.batch_cancel_pipeline_jobs), "__call__"
     ) as call:
         client.batch_cancel_pipeline_jobs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.BatchCancelPipelineJobsRequest()
+
+
+def test_batch_cancel_pipeline_jobs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = pipeline_service.BatchCancelPipelineJobsRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_cancel_pipeline_jobs), "__call__"
+    ) as call:
+        client.batch_cancel_pipeline_jobs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == pipeline_service.BatchCancelPipelineJobsRequest(
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_cancel_pipeline_jobs_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_cancel_pipeline_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.batch_cancel_pipeline_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.BatchCancelPipelineJobsRequest()
@@ -4462,7 +5127,8 @@ async def test_batch_cancel_pipeline_jobs_async(
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == pipeline_service.BatchCancelPipelineJobsRequest()
+        request = pipeline_service.BatchCancelPipelineJobsRequest()
+        assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)

@@ -723,11 +723,13 @@ from .types.tensorboard_service import WriteTensorboardRunDataRequest
 from .types.tensorboard_service import WriteTensorboardRunDataResponse
 from .types.tensorboard_time_series import TensorboardTimeSeries
 from .types.tool import FunctionCall
+from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
 from .types.tool import GoogleSearchRetrieval
 from .types.tool import Retrieval
 from .types.tool import Tool
+from .types.tool import ToolConfig
 from .types.tool import VertexAISearch
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
@@ -1056,6 +1058,7 @@ __all__ = (
     "FindNeighborsResponse",
     "FractionSplit",
     "FunctionCall",
+    "FunctionCallingConfig",
     "FunctionDeclaration",
     "FunctionResponse",
     "GcsDestination",
@@ -1416,6 +1419,7 @@ __all__ = (
     "TimestampSplit",
     "TokensInfo",
     "Tool",
+    "ToolConfig",
     "TrainingConfig",
     "TrainingPipeline",
     "Trial",
