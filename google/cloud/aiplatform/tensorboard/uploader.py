@@ -19,6 +19,7 @@
 import abc
 from collections import defaultdict
 import functools
+import gc
 import logging
 import os
 import re
@@ -380,6 +381,7 @@ class TensorBoardUploader(object):
         TensorboardTimeSeries that need to be created, and creates them in batch
         to speed up uploading later on.
         """
+        logger.warning("Pre-creating runs and time series")
         self._logdir_loader_pre_create.synchronize_runs()
         run_to_events = self._logdir_loader_pre_create.get_run_events()
         if self._run_name_prefix:
@@ -422,9 +424,13 @@ class TensorBoardUploader(object):
                     )
 
         self._one_platform_resource_manager.batch_create_runs(run_names)
+        del run_names
+        gc.collect()
         self._one_platform_resource_manager.batch_create_time_series(
             run_tag_name_to_time_series_proto
         )
+        del run_tag_name_to_time_series_proto
+        gc.collect()
 
     def _upload_once(self):
         """Runs one upload cycle, sending zero or more RPCs."""
@@ -707,6 +713,8 @@ class _Dispatcher(object):
                     for value in event.summary.value:
                         self._request_sender.send_request(run_name, event, value)
         self._request_sender.flush()
+        del run_to_events
+        gc.collect()
 
 
 class _BaseBatchedRequestSender(object):
