@@ -170,8 +170,9 @@ def _is_bigframe(possible_dataframe: Any) -> bool:
     try:
         global bf
         import bigframes as bf
+        from bigframes.dataframe import DataFrame
 
-        return bf.dataframe.DataFrame in _get_mro(possible_dataframe)
+        return DataFrame in _get_mro(possible_dataframe)
     except ImportError:
         return False
 
