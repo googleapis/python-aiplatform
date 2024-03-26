@@ -22,26 +22,31 @@ def test_upload_tensorboard_log_one_time_sample(
     mock_tensorboard_uploader_onetime,
 ):
     upload_tensorboard_log_one_time_sample.upload_tensorboard_log_one_time_sample(
+        tensorboard_id=constants.TENSORBOARD_ID,
+        tensorboard_experiment_name=constants.TENSORBOARD_EXPERIMENT_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
         logdir=constants.TENSORBOARD_LOG_DIR,
-        tensorboard_id=constants.TENSORBOARD_ID,
-        tensorboard_experiment_name=constants.TENSORBOARD_EXPERIMENT_NAME,
-        experiment_display_name=constants.EXPERIMENT_NAME,
         run_name_prefix=constants.EXPERIMENT_RUN_NAME,
+        allowed_plugins=constants.TENSORBOARD_PLUGIN_PROFILE_NAME,
+        experiment_display_name=constants.EXPERIMENT_NAME,
         description=constants.DESCRIPTION,
+        verbosity=constants.VERBOSITY,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT,
         location=constants.LOCATION,
+        experiment=constants.TENSORBOARD_EXPERIMENT_NAME,
     )
 
     mock_tensorboard_uploader_onetime.assert_called_once_with(
-        logdir=constants.TENSORBOARD_LOG_DIR,
         tensorboard_id=constants.TENSORBOARD_ID,
         tensorboard_experiment_name=constants.TENSORBOARD_EXPERIMENT_NAME,
-        experiment_display_name=constants.EXPERIMENT_NAME,
+        logdir=constants.TENSORBOARD_LOG_DIR,
         run_name_prefix=constants.EXPERIMENT_RUN_NAME,
+        allowed_plugins=constants.TENSORBOARD_PLUGIN_PROFILE_NAME,
+        experiment_display_name=constants.EXPERIMENT_NAME,
         description=constants.DESCRIPTION,
+        verbosity=constants.VERBOSITY,
     )
