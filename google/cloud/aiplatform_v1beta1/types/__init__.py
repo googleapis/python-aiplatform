@@ -302,6 +302,31 @@ from .explanation import (
 from .explanation_metadata import (
     ExplanationMetadata,
 )
+from .extension import (
+    AuthConfig,
+    Extension,
+    ExtensionManifest,
+    ExtensionOperation,
+    ExtensionPrivateServiceConnectConfig,
+    RuntimeConfig,
+    AuthType,
+    HttpElementLocation,
+)
+from .extension_execution_service import (
+    ExecuteExtensionRequest,
+    ExecuteExtensionResponse,
+    QueryExtensionRequest,
+    QueryExtensionResponse,
+)
+from .extension_registry_service import (
+    DeleteExtensionRequest,
+    GetExtensionRequest,
+    ImportExtensionOperationMetadata,
+    ImportExtensionRequest,
+    ListExtensionsRequest,
+    ListExtensionsResponse,
+    UpdateExtensionRequest,
+)
 from .feature import (
     Feature,
 )
@@ -933,6 +958,7 @@ from .tool import (
     Retrieval,
     Tool,
     ToolConfig,
+    ToolUseExample,
     VertexAISearch,
 )
 from .training_pipeline import (
@@ -1217,6 +1243,25 @@ __all__ = (
     "SmoothGradConfig",
     "XraiAttribution",
     "ExplanationMetadata",
+    "AuthConfig",
+    "Extension",
+    "ExtensionManifest",
+    "ExtensionOperation",
+    "ExtensionPrivateServiceConnectConfig",
+    "RuntimeConfig",
+    "AuthType",
+    "HttpElementLocation",
+    "ExecuteExtensionRequest",
+    "ExecuteExtensionResponse",
+    "QueryExtensionRequest",
+    "QueryExtensionResponse",
+    "DeleteExtensionRequest",
+    "GetExtensionRequest",
+    "ImportExtensionOperationMetadata",
+    "ImportExtensionRequest",
+    "ListExtensionsRequest",
+    "ListExtensionsResponse",
+    "UpdateExtensionRequest",
     "Feature",
     "FeatureGroup",
     "FeatureStatsAnomaly",
@@ -1715,6 +1760,7 @@ __all__ = (
     "Retrieval",
     "Tool",
     "ToolConfig",
+    "ToolUseExample",
     "VertexAISearch",
     "FilterSplit",
     "FractionSplit",

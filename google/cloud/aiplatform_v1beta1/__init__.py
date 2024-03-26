@@ -30,6 +30,10 @@ from .services.endpoint_service import EndpointServiceClient
 from .services.endpoint_service import EndpointServiceAsyncClient
 from .services.evaluation_service import EvaluationServiceClient
 from .services.evaluation_service import EvaluationServiceAsyncClient
+from .services.extension_execution_service import ExtensionExecutionServiceClient
+from .services.extension_execution_service import ExtensionExecutionServiceAsyncClient
+from .services.extension_registry_service import ExtensionRegistryServiceClient
+from .services.extension_registry_service import ExtensionRegistryServiceAsyncClient
 from .services.feature_online_store_admin_service import (
     FeatureOnlineStoreAdminServiceClient,
 )
@@ -324,6 +328,25 @@ from .types.explanation import SampledShapleyAttribution
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
 from .types.explanation_metadata import ExplanationMetadata
+from .types.extension import AuthConfig
+from .types.extension import Extension
+from .types.extension import ExtensionManifest
+from .types.extension import ExtensionOperation
+from .types.extension import ExtensionPrivateServiceConnectConfig
+from .types.extension import RuntimeConfig
+from .types.extension import AuthType
+from .types.extension import HttpElementLocation
+from .types.extension_execution_service import ExecuteExtensionRequest
+from .types.extension_execution_service import ExecuteExtensionResponse
+from .types.extension_execution_service import QueryExtensionRequest
+from .types.extension_execution_service import QueryExtensionResponse
+from .types.extension_registry_service import DeleteExtensionRequest
+from .types.extension_registry_service import GetExtensionRequest
+from .types.extension_registry_service import ImportExtensionOperationMetadata
+from .types.extension_registry_service import ImportExtensionRequest
+from .types.extension_registry_service import ListExtensionsRequest
+from .types.extension_registry_service import ListExtensionsResponse
+from .types.extension_registry_service import UpdateExtensionRequest
 from .types.feature import Feature
 from .types.feature_group import FeatureGroup
 from .types.feature_monitoring_stats import FeatureStatsAnomaly
@@ -834,6 +857,7 @@ from .types.tool import GoogleSearchRetrieval
 from .types.tool import Retrieval
 from .types.tool import Tool
 from .types.tool import ToolConfig
+from .types.tool import ToolUseExample
 from .types.tool import VertexAISearch
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
@@ -878,6 +902,8 @@ __all__ = (
     "DeploymentResourcePoolServiceAsyncClient",
     "EndpointServiceAsyncClient",
     "EvaluationServiceAsyncClient",
+    "ExtensionExecutionServiceAsyncClient",
+    "ExtensionRegistryServiceAsyncClient",
     "FeatureOnlineStoreAdminServiceAsyncClient",
     "FeatureOnlineStoreServiceAsyncClient",
     "FeatureRegistryServiceAsyncClient",
@@ -914,6 +940,8 @@ __all__ = (
     "AnnotationSpec",
     "Artifact",
     "Attribution",
+    "AuthConfig",
+    "AuthType",
     "AutomaticResources",
     "AutoscalingMetricSpec",
     "AvroSource",
@@ -1058,6 +1086,7 @@ __all__ = (
     "DeleteEndpointRequest",
     "DeleteEntityTypeRequest",
     "DeleteExecutionRequest",
+    "DeleteExtensionRequest",
     "DeleteFeatureGroupRequest",
     "DeleteFeatureOnlineStoreRequest",
     "DeleteFeatureRequest",
@@ -1130,6 +1159,8 @@ __all__ = (
     "Examples",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
+    "ExecuteExtensionRequest",
+    "ExecuteExtensionResponse",
     "Execution",
     "ExplainRequest",
     "ExplainResponse",
@@ -1152,6 +1183,12 @@ __all__ = (
     "ExportModelResponse",
     "ExportTensorboardTimeSeriesDataRequest",
     "ExportTensorboardTimeSeriesDataResponse",
+    "Extension",
+    "ExtensionExecutionServiceClient",
+    "ExtensionManifest",
+    "ExtensionOperation",
+    "ExtensionPrivateServiceConnectConfig",
+    "ExtensionRegistryServiceClient",
     "Feature",
     "FeatureGroup",
     "FeatureNoiseSigma",
@@ -1210,6 +1247,7 @@ __all__ = (
     "GetEndpointRequest",
     "GetEntityTypeRequest",
     "GetExecutionRequest",
+    "GetExtensionRequest",
     "GetFeatureGroupRequest",
     "GetFeatureOnlineStoreRequest",
     "GetFeatureRequest",
@@ -1248,12 +1286,15 @@ __all__ = (
     "GroundingAttribution",
     "GroundingMetadata",
     "HarmCategory",
+    "HttpElementLocation",
     "HyperparameterTuningJob",
     "IdMatcher",
     "ImportDataConfig",
     "ImportDataOperationMetadata",
     "ImportDataRequest",
     "ImportDataResponse",
+    "ImportExtensionOperationMetadata",
+    "ImportExtensionRequest",
     "ImportFeatureValuesOperationMetadata",
     "ImportFeatureValuesRequest",
     "ImportFeatureValuesResponse",
@@ -1298,6 +1339,8 @@ __all__ = (
     "ListEntityTypesResponse",
     "ListExecutionsRequest",
     "ListExecutionsResponse",
+    "ListExtensionsRequest",
+    "ListExtensionsResponse",
     "ListFeatureGroupsRequest",
     "ListFeatureGroupsResponse",
     "ListFeatureOnlineStoresRequest",
@@ -1464,6 +1507,8 @@ __all__ = (
     "QueryDeployedModelsRequest",
     "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
+    "QueryExtensionRequest",
+    "QueryExtensionResponse",
     "QueryReasoningEngineRequest",
     "QueryReasoningEngineResponse",
     "QuestionAnsweringCorrectnessInput",
@@ -1527,6 +1572,7 @@ __all__ = (
     "RougeMetricValue",
     "RougeResults",
     "RougeSpec",
+    "RuntimeConfig",
     "SafetyInput",
     "SafetyInstance",
     "SafetyRating",
@@ -1628,6 +1674,7 @@ __all__ = (
     "ToolParameterKeyMatchMetricValue",
     "ToolParameterKeyMatchResults",
     "ToolParameterKeyMatchSpec",
+    "ToolUseExample",
     "TrainingConfig",
     "TrainingPipeline",
     "Trial",
@@ -1650,6 +1697,7 @@ __all__ = (
     "UpdateExplanationDatasetOperationMetadata",
     "UpdateExplanationDatasetRequest",
     "UpdateExplanationDatasetResponse",
+    "UpdateExtensionRequest",
     "UpdateFeatureGroupOperationMetadata",
     "UpdateFeatureGroupRequest",
     "UpdateFeatureOnlineStoreOperationMetadata",

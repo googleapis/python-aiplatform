@@ -561,6 +561,149 @@
         }
       }
     },
+    "ExtensionExecutionService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ExtensionExecutionServiceClient",
+          "rpcs": {
+            "ExecuteExtension": {
+              "methods": [
+                "execute_extension"
+              ]
+            },
+            "QueryExtension": {
+              "methods": [
+                "query_extension"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ExtensionExecutionServiceAsyncClient",
+          "rpcs": {
+            "ExecuteExtension": {
+              "methods": [
+                "execute_extension"
+              ]
+            },
+            "QueryExtension": {
+              "methods": [
+                "query_extension"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "ExtensionExecutionServiceClient",
+          "rpcs": {
+            "ExecuteExtension": {
+              "methods": [
+                "execute_extension"
+              ]
+            },
+            "QueryExtension": {
+              "methods": [
+                "query_extension"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ExtensionRegistryService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ExtensionRegistryServiceClient",
+          "rpcs": {
+            "DeleteExtension": {
+              "methods": [
+                "delete_extension"
+              ]
+            },
+            "GetExtension": {
+              "methods": [
+                "get_extension"
+              ]
+            },
+            "ImportExtension": {
+              "methods": [
+                "import_extension"
+              ]
+            },
+            "ListExtensions": {
+              "methods": [
+                "list_extensions"
+              ]
+            },
+            "UpdateExtension": {
+              "methods": [
+                "update_extension"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ExtensionRegistryServiceAsyncClient",
+          "rpcs": {
+            "DeleteExtension": {
+              "methods": [
+                "delete_extension"
+              ]
+            },
+            "GetExtension": {
+              "methods": [
+                "get_extension"
+              ]
+            },
+            "ImportExtension": {
+              "methods": [
+                "import_extension"
+              ]
+            },
+            "ListExtensions": {
+              "methods": [
+                "list_extensions"
+              ]
+            },
+            "UpdateExtension": {
+              "methods": [
+                "update_extension"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "ExtensionRegistryServiceClient",
+          "rpcs": {
+            "DeleteExtension": {
+              "methods": [
+                "delete_extension"
+              ]
+            },
+            "GetExtension": {
+              "methods": [
+                "get_extension"
+              ]
+            },
+            "ImportExtension": {
+              "methods": [
+                "import_extension"
+              ]
+            },
+            "ListExtensions": {
+              "methods": [
+                "list_extensions"
+              ]
+            },
+            "UpdateExtension": {
+              "methods": [
+                "update_extension"
+              ]
+            }
+          }
+        }
+      }
+    },
     "FeatureOnlineStoreAdminService": {
       "clients": {
         "grpc": {
