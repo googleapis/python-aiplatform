@@ -55,8 +55,9 @@ except ImportError:
 
 try:
     import bigframes as bf
+    from bigframes.dataframe import DataFrame
 
-    BigframesData = bf.dataframe.DataFrame
+    BigframesData = DataFrame
 except ImportError:
     bf = None
     BigframesData = Any

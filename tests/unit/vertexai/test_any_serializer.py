@@ -309,9 +309,9 @@ class TestAnySerializer:
                 )
 
             if bf:
-                _TEST_SERIALIZATION_SCHEME[
-                    bf.dataframe.DataFrame
-                ] = serializers.BigframeSerializer
+                from bigframes.dataframe import DataFrame
+
+                _TEST_SERIALIZATION_SCHEME[DataFrame] = serializers.BigframeSerializer
             else:
                 # Bigframes dataframe is not registered.
                 # Check the logs to make sure we tried to register them.
