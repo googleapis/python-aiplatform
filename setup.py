@@ -150,8 +150,7 @@ testing_extra_require = (
     full_extra_require
     + profiler_extra_require
     + [
-        "bigframes < 1.0.0",
-        "python_version>='3.10'",
+        "bigframes < 1.0.0; python_version>='3.10'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
         "google-api-core >= 2.11, < 3.0.0",
         "grpcio-testing",
