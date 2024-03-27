@@ -22,6 +22,8 @@ from vertexai.generative_models._generative_models import (
     _PreviewChatSession,
     GenerationConfig,
     GenerationResponse,
+    AutomaticFunctionCallingResponder,
+    CallableFunctionDeclaration,
     Candidate,
     Content,
     FinishReason,
@@ -49,6 +51,8 @@ __all__ = [
     "GenerationConfig",
     "GenerativeModel",
     "GenerationResponse",
+    "AutomaticFunctionCallingResponder",
+    "CallableFunctionDeclaration",
     "Candidate",
     "ChatSession",
     "Content",
@@ -61,4 +65,5 @@ __all__ = [
     "ResponseBlockedError",
     "ResponseValidationError",
     "Tool",
+    #
 ]
