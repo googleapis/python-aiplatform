@@ -65,9 +65,8 @@ from tensorboard.compat.proto import types_pb2
 from tensorboard.plugins.graph import metadata as graphs_metadata
 from tensorboard.plugins.scalar import metadata as scalars_metadata
 from tensorboard.summary import v1 as summary_v1
-from tensorboard.uploader import logdir_loader
-from tensorboard.uploader import upload_tracker
-from tensorboard.uploader import util
+from google.cloud.aiplatform.tensorboard import logdir_loader
+from google.cloud.aiplatform.tensorboard import upload_tracker
 from tensorboard.uploader.proto import server_info_pb2
 
 data_compat = uploader_lib.event_file_loader.data_compat
@@ -222,9 +221,9 @@ def _create_uploader(
     if max_tensor_point_size is _USE_DEFAULT:
         max_tensor_point_size = 16000
     if logdir_poll_rate_limiter is _USE_DEFAULT:
-        logdir_poll_rate_limiter = util.RateLimiter(0)
+        logdir_poll_rate_limiter = uploader_utils.RateLimiter(0)
     if rpc_rate_limiter is _USE_DEFAULT:
-        rpc_rate_limiter = util.RateLimiter(0)
+        rpc_rate_limiter = uploader_utils.RateLimiter(0)
 
     upload_limits = server_info_pb2.UploadLimits(
         max_scalar_request_size=max_scalar_request_size,
@@ -270,9 +269,9 @@ def _create_dispatcher(
         max_blob_request_size=128000,
     )
 
-    rpc_rate_limiter = util.RateLimiter(0)
-    tensor_rpc_rate_limiter = util.RateLimiter(0)
-    blob_rpc_rate_limiter = util.RateLimiter(0)
+    rpc_rate_limiter = uploader_utils.RateLimiter(0)
+    tensor_rpc_rate_limiter = uploader_utils.RateLimiter(0)
+    blob_rpc_rate_limiter = uploader_utils.RateLimiter(0)
 
     one_platform_resource_manager = uploader_utils.OnePlatformResourceManager(
         experiment_resource_name, api
@@ -298,7 +297,7 @@ def _create_dispatcher(
             experiment_resource_name=experiment_resource_name,
             api=api,
             upload_limits=upload_limits,
-            blob_rpc_rate_limiter=util.RateLimiter(0),
+            blob_rpc_rate_limiter=uploader_utils.RateLimiter(0),
             blob_storage_bucket=_create_mock_blob_storage(),
             source_bucket=_create_mock_blob_storage(),
             blob_storage_folder=None,
@@ -325,7 +324,7 @@ def _create_scalar_request_sender(
             experiment_resource_id, api
         ),
         api=api,
-        rpc_rate_limiter=util.RateLimiter(0),
+        rpc_rate_limiter=uploader_utils.RateLimiter(0),
         max_request_size=max_request_size,
         tracker=upload_tracker.UploadTracker(verbosity=0),
     )
@@ -353,7 +352,7 @@ def _create_file_request_sender(
     return profile_uploader._FileRequestSender(
         run_resource_id=run_resource_id,
         api=api,
-        rpc_rate_limiter=util.RateLimiter(0),
+        rpc_rate_limiter=uploader_utils.RateLimiter(0),
         max_blob_request_size=max_blob_request_size,
         max_blob_size=max_blob_size,
         blob_storage_bucket=blob_storage_bucket,
@@ -554,9 +553,9 @@ class TensorboardUploaderTest(tf.test.TestCase):
 
     def test_start_uploading_scalars(self):
         mock_client = _create_mock_client()
-        mock_rate_limiter = mock.create_autospec(util.RateLimiter)
-        mock_tensor_rate_limiter = mock.create_autospec(util.RateLimiter)
-        mock_blob_rate_limiter = mock.create_autospec(util.RateLimiter)
+        mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
+        mock_tensor_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
+        mock_blob_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         mock_tracker = mock.MagicMock()
         with mock.patch.object(
             upload_tracker, "UploadTracker", return_value=mock_tracker
@@ -648,7 +647,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
             batch_create_time_series
         )
 
-        mock_rate_limiter = mock.create_autospec(util.RateLimiter)
+        mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         mock_tracker = mock.MagicMock()
         with mock.patch.object(
             upload_tracker, "UploadTracker", return_value=mock_tracker
@@ -718,7 +717,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
         class SuccessError(Exception):
             pass
 
-        mock_rate_limiter = mock.create_autospec(util.RateLimiter)
+        mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         upload_call_count_box = [0]
 
         def mock_upload_once():
@@ -905,7 +904,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
 
     def test_start_uploading_graphs(self):
         mock_client = _create_mock_client()
-        mock_rate_limiter = mock.create_autospec(util.RateLimiter)
+        mock_rate_limiter = mock.create_autospec(uploader_utils.RateLimiter)
         mock_bucket = mock.create_autospec(storage.Bucket)
         mock_blob = mock.create_autospec(storage.Blob)
         mock_bucket.blob.return_value = mock_blob
@@ -1008,7 +1007,7 @@ class TensorboardUploaderTest(tf.test.TestCase):
             with FileWriter(run_dir) as writer:
                 writer.add_event(event)
 
-        limiter = mock.create_autospec(util.RateLimiter)
+        limiter = mock.create_autospec(uploader_utils.RateLimiter)
         limiter.tick.side_effect = [None, AbortUploadError]
         mock_bucket = mock.create_autospec(storage.Bucket)
         mock_blob = mock.create_autospec(storage.Blob)
