@@ -322,7 +322,8 @@ class PipelineJob(
                 Optional. A list of names for the reserved IP ranges under the VPC network that can be used for this PipelineJob's workload.
                 For example: ['vertex-ai-ip-range'].
             sync (bool):
-                Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
+                Optional. Whether to execute this method synchronously. If False, this
+                method will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
         """
@@ -371,7 +372,8 @@ class PipelineJob(
             create_request_timeout=create_request_timeout,
         )
 
-        self._block_until_complete()
+        if sync:
+            self._block_until_complete()
 
     def submit(
         self,
