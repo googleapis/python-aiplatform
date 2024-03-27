@@ -1565,6 +1565,28 @@ class TestMatchingEngineIndexEndpoint:
 
         assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
 
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_index_endpoint_find_neighbors_for_private_service_access(
+        self, index_endpoint_batch_get_embeddings_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        response = my_index_endpoint.read_index_datapoints(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, ids=["1", "2"]
+        )
+
+        batch_request = match_service_pb2.BatchGetEmbeddingsRequest(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
+        )
+
+        index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
+
+        assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
+
 
 class TestMatchNeighbor:
     def test_from_index_datapoint(self):
