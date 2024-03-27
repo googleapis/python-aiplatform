@@ -49,7 +49,8 @@ try:
     import bigframes as bf
     if bf.__version__ >= "1.0.0":
         raise ImportError("BigFrames version is greater than or equal to 1.0.0. Please install a version less than 1.0.0.")
-except ImportError:
+except ImportError as e:
+    print("ImportError:", e)
     bf = None
 
 # lightning trainer and bigframes dataframe are not in this scheme since
