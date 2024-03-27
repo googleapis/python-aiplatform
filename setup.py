@@ -112,7 +112,7 @@ ray_extra_require = [
 ]
 
 genai_requires = (
-    "pydantic < 2",
+    "pydantic < 3",
     "docstring_parser < 1",
 )
 
