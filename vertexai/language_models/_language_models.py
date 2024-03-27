@@ -1289,6 +1289,7 @@ class _TextGenerationModel(_LanguageModel):
         presence_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
         logit_bias: Optional[Dict[int, float]] = None,
+        seed: Optional[int] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Gets model response for a single prompt.
 
@@ -1321,6 +1322,12 @@ class _TextGenerationModel(_LanguageModel):
                 Larger positive bias increases the probability of choosing the token.
                 Smaller negative bias decreases the probability of choosing the token.
                 Range: [-100.0, 100.0]
+            seed:
+                Decoder generates random noise with a pseudo random number generator, temperature * noise is added to
+                logits before sampling. The pseudo random number generator (prng) takes a seed as input, it generates
+                the same output with the same seed. If seed is not set, the seed used in decoder will not be
+                deterministic, thus the generated random noise will not be deterministic. If seed is set, the
+                generated random noise will be deterministic.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
@@ -1338,6 +1345,7 @@ class _TextGenerationModel(_LanguageModel):
             presence_penalty=presence_penalty,
             frequency_penalty=frequency_penalty,
             logit_bias=logit_bias,
+            seed=seed,
         )
 
         prediction_response = self._endpoint.predict(
@@ -1370,6 +1378,7 @@ class _TextGenerationModel(_LanguageModel):
         presence_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
         logit_bias: Optional[Dict[int, float]] = None,
+        seed: Optional[int] = None,
     ) -> "MultiCandidateTextGenerationResponse":
         """Asynchronously gets model response for a single prompt.
 
@@ -1402,6 +1411,12 @@ class _TextGenerationModel(_LanguageModel):
                 Larger positive bias increases the probability of choosing the token.
                 Smaller negative bias decreases the probability of choosing the token.
                 Range: [-100.0, 100.0]
+            seed:
+                Decoder generates random noise with a pseudo random number generator, temperature * noise is added to
+                logits before sampling. The pseudo random number generator (prng) takes a seed as input, it generates
+                the same output with the same seed. If seed is not set, the seed used in decoder will not be
+                deterministic, thus the generated random noise will not be deterministic. If seed is set, the
+                generated random noise will be deterministic.
 
         Returns:
             A `MultiCandidateTextGenerationResponse` object that contains the text produced by the model.
@@ -1419,6 +1434,7 @@ class _TextGenerationModel(_LanguageModel):
             presence_penalty=presence_penalty,
             frequency_penalty=frequency_penalty,
             logit_bias=logit_bias,
+            seed=seed,
         )
 
         prediction_response = await self._endpoint.predict_async(
@@ -1443,6 +1459,7 @@ class _TextGenerationModel(_LanguageModel):
         presence_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
         logit_bias: Optional[Dict[int, float]] = None,
+        seed: Optional[int] = None,
     ) -> Iterator[TextGenerationResponse]:
         """Gets a streaming model response for a single prompt.
 
@@ -1475,6 +1492,12 @@ class _TextGenerationModel(_LanguageModel):
                 Larger positive bias increases the probability of choosing the token.
                 Smaller negative bias decreases the probability of choosing the token.
                 Range: [-100.0, 100.0]
+            seed:
+                Decoder generates random noise with a pseudo random number generator, temperature * noise is added to
+                logits before sampling. The pseudo random number generator (prng) takes a seed as input, it generates
+                the same output with the same seed. If seed is not set, the seed used in decoder will not be
+                deterministic, thus the generated random noise will not be deterministic. If seed is set, the
+                generated random noise will be deterministic.
 
         Yields:
             A stream of `TextGenerationResponse` objects that contain partial
@@ -1491,6 +1514,7 @@ class _TextGenerationModel(_LanguageModel):
             presence_penalty=presence_penalty,
             frequency_penalty=frequency_penalty,
             logit_bias=logit_bias,
+            seed=seed,
         )
 
         prediction_service_client = self._endpoint._prediction_client
@@ -1521,6 +1545,7 @@ class _TextGenerationModel(_LanguageModel):
         presence_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
         logit_bias: Optional[Dict[int, float]] = None,
+        seed: Optional[int] = None,
     ) -> AsyncIterator[TextGenerationResponse]:
         """Asynchronously gets a streaming model response for a single prompt.
 
@@ -1553,6 +1578,12 @@ class _TextGenerationModel(_LanguageModel):
                 Larger positive bias increases the probability of choosing the token.
                 Smaller negative bias decreases the probability of choosing the token.
                 Range: [-100.0, 100.0]
+            seed:
+                Decoder generates random noise with a pseudo random number generator, temperature * noise is added to
+                logits before sampling. The pseudo random number generator (prng) takes a seed as input, it generates
+                the same output with the same seed. If seed is not set, the seed used in decoder will not be
+                deterministic, thus the generated random noise will not be deterministic. If seed is set, the
+                generated random noise will be deterministic.
 
         Yields:
             A stream of `TextGenerationResponse` objects that contain partial
@@ -1569,6 +1600,7 @@ class _TextGenerationModel(_LanguageModel):
             presence_penalty=presence_penalty,
             frequency_penalty=frequency_penalty,
             logit_bias=logit_bias,
+            seed=seed,
         )
 
         prediction_service_async_client = self._endpoint._prediction_async_client
@@ -1605,6 +1637,7 @@ def _create_text_generation_prediction_request(
     presence_penalty: Optional[float] = None,
     frequency_penalty: Optional[float] = None,
     logit_bias: Optional[Dict[int, int]] = None,
+    seed: Optional[int] = None,
 ) -> "_PredictionRequest":
     """Prepares the text generation request for a single prompt.
 
@@ -1637,6 +1670,12 @@ def _create_text_generation_prediction_request(
             Larger positive bias increases the probability of choosing the token.
             Smaller negative bias decreases the probability of choosing the token.
             Range: [-100.0, 100.0]
+        seed:
+            Decoder generates random noise with a pseudo random number generator, temperature * noise is added to
+            logits before sampling. The pseudo random number generator (prng) takes a seed as input, it generates
+            the same output with the same seed. If seed is not set, the seed used in decoder will not be
+            deterministic, thus the generated random noise will not be deterministic. If seed is set, the
+            generated random noise will be deterministic.
 
     Returns:
         A `_PredictionRequest` object that contains prediction instance and parameters.
@@ -1682,6 +1721,9 @@ def _create_text_generation_prediction_request(
 
     if logit_bias is not None:
         prediction_parameters["logitBias"] = logit_bias
+
+    if seed is not None:
+        prediction_parameters["seed"] = seed
 
     return _PredictionRequest(
         instance=instance,
