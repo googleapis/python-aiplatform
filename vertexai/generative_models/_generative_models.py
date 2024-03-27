@@ -1829,8 +1829,8 @@ def _append_gapic_candidate(
         raise ValueError(
             f"Incorrect candidate indexes: {base_candidate.index} != {new_candidate.index}"
         )
-
-    _append_gapic_content(base_candidate.content, new_candidate.content)
+    if new_candidate.content:
+        _append_gapic_content(base_candidate.content, new_candidate.content)
 
     # For these attributes, the last value wins
     if new_candidate.finish_reason:
