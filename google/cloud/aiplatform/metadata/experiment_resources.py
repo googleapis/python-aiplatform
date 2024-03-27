@@ -16,6 +16,7 @@
 #
 
 import abc
+import concurrent.futures
 from dataclasses import dataclass
 import logging
 from typing import Dict, List, NamedTuple, Optional, Tuple, Type, Union
@@ -448,28 +449,41 @@ class Experiment:
         executions = execution.Execution.list(filter_str, **service_request_args)
 
         rows = []
-        for metadata_context in contexts:
-            row_dict = (
-                _SUPPORTED_LOGGABLE_RESOURCES[context.Context][
-                    metadata_context.schema_title
+        if contexts or executions:
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=max([len(contexts), len(executions)])
+            ) as executor:
+                futures = [
+                    executor.submit(
+                        _SUPPORTED_LOGGABLE_RESOURCES[context.Context][
+                            metadata_context.schema_title
+                        ]._query_experiment_row,
+                        metadata_context,
+                    )
+                    for metadata_context in contexts
                 ]
-                ._query_experiment_row(metadata_context)
-                .to_dict()
-            )
-            row_dict.update({"experiment_name": self.name})
-            rows.append(row_dict)
 
-        # backward compatibility
-        for metadata_execution in executions:
-            row_dict = (
-                _SUPPORTED_LOGGABLE_RESOURCES[execution.Execution][
-                    metadata_execution.schema_title
-                ]
-                ._query_experiment_row(metadata_execution)
-                .to_dict()
-            )
-            row_dict.update({"experiment_name": self.name})
-            rows.append(row_dict)
+                # backward compatibility
+                futures.extend(
+                    executor.submit(
+                        _SUPPORTED_LOGGABLE_RESOURCES[execution.Execution][
+                            metadata_execution.schema_title
+                        ]._query_experiment_row,
+                        metadata_execution,
+                    )
+                    for metadata_execution in executions
+                )
+
+                for future in futures:
+                    try:
+                        row_dict = future.result().to_dict()
+                    except Exception as exc:
+                        raise ValueError(
+                            f"Failed to get experiment row for {self.name}"
+                        ) from exc
+                    else:
+                        row_dict.update({"experiment_name": self.name})
+                        rows.append(row_dict)
 
         df = pd.DataFrame(rows)
 
