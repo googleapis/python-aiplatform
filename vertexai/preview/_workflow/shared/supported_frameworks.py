@@ -170,6 +170,8 @@ def _is_bigframe(possible_dataframe: Any) -> bool:
     try:
         global bf
         import bigframes as bf
+        if bf.__version__ >= "1.0.0":
+            raise ImportError("BigFrames version is greater than or equal to 1.0.0. Please install a version less than 1.0.0.")
         from bigframes.dataframe import DataFrame
 
         return DataFrame in _get_mro(possible_dataframe)
