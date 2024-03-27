@@ -38,7 +38,13 @@ def _generate_json_schema_from_function_using_pydantic(
     Returns:
         The JSON Schema for the function as a dict.
     """
-    import pydantic
+    # FIX(b/331534434): Workaround for a breaking change.
+    try:
+        from pydantic import v1 as pydantic
+        from pydantic.v1 import fields as pydantic_fields
+    except ImportError:
+        import pydantic
+        from pydantic import fields as pydantic_fields
 
     try:
         import docstring_parser  # pylint: disable=g-import-not-at-top
@@ -73,8 +79,8 @@ def _generate_json_schema_from_function_using_pydantic(
                 # 2. We do not support default values for now.
                 default=(
                     param.default if param.default != inspect.Parameter.empty
-                    # ! Need to use pydantic.Undefined instead of None
-                    else pydantic.fields.Undefined
+                    # ! Need to use Undefined instead of None
+                    else pydantic_fields.Undefined
                 ),
                 # 3. We support user-provided descriptions.
                 description=parameter_descriptions.get(name, None),
