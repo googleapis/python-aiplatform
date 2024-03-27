@@ -66,6 +66,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
     def setup_class(cls):
         cls._experiment_name = cls._make_display_name("")[:64]
+        cls._experiment_name_2 = cls._make_display_name("")[:64]
         cls._experiment_model_name = cls._make_display_name("sklearn-model")[:64]
         cls._dataset_artifact_name = cls._make_display_name("")[:64]
         cls._dataset_artifact_uri = cls._make_display_name("ds-uri")
@@ -165,18 +166,29 @@ class TestExperiments(e2e_base.TestEndToEnd):
             _TIME_SERIES_METRIC_KEY: [float(value) for value in range(5)],
         }
 
-    def test_get_time_series_data_frame_batch_read_success(self):
+    def test_get_time_series_data_frame_batch_read_success(self, shared_state):
+        tensorboard = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=self._experiment_name_2,
+        )
+        shared_state["resources"] = [tensorboard]
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
-            experiment=self._experiment_name,
+            experiment=self._experiment_name_2,
+            experiment_tensorboard=tensorboard,
         )
-        aiplatform.start_run(_RUN, resume=True)
+        shared_state["resources"].append(
+            aiplatform.metadata.metadata._experiment_tracker.experiment
+        )
+        aiplatform.start_run(_RUN)
         for i in range(_READ_TIME_SERIES_BATCH_SIZE + 1):
             aiplatform.log_time_series_metrics({f"{_TIME_SERIES_METRIC_KEY}-{i}": 1})
 
-        run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
-
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN, experiment=self._experiment_name_2
+        )
         time_series_result = run.get_time_series_data_frame()
 
         assert len(time_series_result) > _READ_TIME_SERIES_BATCH_SIZE
@@ -427,8 +439,6 @@ class TestExperiments(e2e_base.TestEndToEnd):
         true_df_dict_1["state"] = aiplatform.gapic.Execution.State.COMPLETE.name
         true_df_dict_1["run_type"] = aiplatform.metadata.constants.SYSTEM_EXPERIMENT_RUN
         true_df_dict_1[f"time_series_metric.{_TIME_SERIES_METRIC_KEY}"] = 4.0
-        for i in range(_READ_TIME_SERIES_BATCH_SIZE + 1):
-            true_df_dict_1[f"time_series_metric.{_TIME_SERIES_METRIC_KEY}-{i}"] = 1.0
 
         true_df_dict_2 = {f"metric.{key}": value for key, value in _METRICS_2.items()}
         for key, value in _PARAMS_2.items():
@@ -439,6 +449,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
         true_df_dict_2["state"] = aiplatform.gapic.Execution.State.COMPLETE.name
         true_df_dict_2["run_type"] = aiplatform.metadata.constants.SYSTEM_EXPERIMENT_RUN
         true_df_dict_2[f"time_series_metric.{_TIME_SERIES_METRIC_KEY}"] = 0.0
+        true_df_dict_2.update(pipelines_param_and_metrics)
 
         true_df_dict_3 = {
             "experiment_name": self._experiment_name,
