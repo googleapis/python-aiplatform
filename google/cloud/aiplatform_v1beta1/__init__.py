@@ -28,6 +28,12 @@ from .services.deployment_resource_pool_service import (
 )
 from .services.endpoint_service import EndpointServiceClient
 from .services.endpoint_service import EndpointServiceAsyncClient
+from .services.evaluation_service import EvaluationServiceClient
+from .services.evaluation_service import EvaluationServiceAsyncClient
+from .services.extension_execution_service import ExtensionExecutionServiceClient
+from .services.extension_execution_service import ExtensionExecutionServiceAsyncClient
+from .services.extension_registry_service import ExtensionRegistryServiceClient
+from .services.extension_registry_service import ExtensionRegistryServiceAsyncClient
 from .services.feature_online_store_admin_service import (
     FeatureOnlineStoreAdminServiceClient,
 )
@@ -199,6 +205,108 @@ from .types.env_var import EnvVar
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
+from .types.evaluation_service import BleuInput
+from .types.evaluation_service import BleuInstance
+from .types.evaluation_service import BleuMetricValue
+from .types.evaluation_service import BleuResults
+from .types.evaluation_service import BleuSpec
+from .types.evaluation_service import CoherenceInput
+from .types.evaluation_service import CoherenceInstance
+from .types.evaluation_service import CoherenceResult
+from .types.evaluation_service import CoherenceSpec
+from .types.evaluation_service import EvaluateInstancesRequest
+from .types.evaluation_service import EvaluateInstancesResponse
+from .types.evaluation_service import ExactMatchInput
+from .types.evaluation_service import ExactMatchInstance
+from .types.evaluation_service import ExactMatchMetricValue
+from .types.evaluation_service import ExactMatchResults
+from .types.evaluation_service import ExactMatchSpec
+from .types.evaluation_service import FluencyInput
+from .types.evaluation_service import FluencyInstance
+from .types.evaluation_service import FluencyResult
+from .types.evaluation_service import FluencySpec
+from .types.evaluation_service import FulfillmentInput
+from .types.evaluation_service import FulfillmentInstance
+from .types.evaluation_service import FulfillmentResult
+from .types.evaluation_service import FulfillmentSpec
+from .types.evaluation_service import GroundednessInput
+from .types.evaluation_service import GroundednessInstance
+from .types.evaluation_service import GroundednessResult
+from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import PairwiseQuestionAnsweringQualityInput
+from .types.evaluation_service import PairwiseQuestionAnsweringQualityInstance
+from .types.evaluation_service import PairwiseQuestionAnsweringQualityResult
+from .types.evaluation_service import PairwiseQuestionAnsweringQualitySpec
+from .types.evaluation_service import PairwiseSummarizationQualityInput
+from .types.evaluation_service import PairwiseSummarizationQualityInstance
+from .types.evaluation_service import PairwiseSummarizationQualityResult
+from .types.evaluation_service import PairwiseSummarizationQualitySpec
+from .types.evaluation_service import QuestionAnsweringCorrectnessInput
+from .types.evaluation_service import QuestionAnsweringCorrectnessInstance
+from .types.evaluation_service import QuestionAnsweringCorrectnessResult
+from .types.evaluation_service import QuestionAnsweringCorrectnessSpec
+from .types.evaluation_service import QuestionAnsweringHelpfulnessInput
+from .types.evaluation_service import QuestionAnsweringHelpfulnessInstance
+from .types.evaluation_service import QuestionAnsweringHelpfulnessResult
+from .types.evaluation_service import QuestionAnsweringHelpfulnessSpec
+from .types.evaluation_service import QuestionAnsweringQualityInput
+from .types.evaluation_service import QuestionAnsweringQualityInstance
+from .types.evaluation_service import QuestionAnsweringQualityResult
+from .types.evaluation_service import QuestionAnsweringQualitySpec
+from .types.evaluation_service import QuestionAnsweringRelevanceInput
+from .types.evaluation_service import QuestionAnsweringRelevanceInstance
+from .types.evaluation_service import QuestionAnsweringRelevanceResult
+from .types.evaluation_service import QuestionAnsweringRelevanceSpec
+from .types.evaluation_service import RagContextRecallInput
+from .types.evaluation_service import RagContextRecallInstance
+from .types.evaluation_service import RagContextRecallResult
+from .types.evaluation_service import RagContextRecallSpec
+from .types.evaluation_service import ResponseRecallInput
+from .types.evaluation_service import ResponseRecallInstance
+from .types.evaluation_service import ResponseRecallResult
+from .types.evaluation_service import ResponseRecallSpec
+from .types.evaluation_service import RougeInput
+from .types.evaluation_service import RougeInstance
+from .types.evaluation_service import RougeMetricValue
+from .types.evaluation_service import RougeResults
+from .types.evaluation_service import RougeSpec
+from .types.evaluation_service import SafetyInput
+from .types.evaluation_service import SafetyInstance
+from .types.evaluation_service import SafetyResult
+from .types.evaluation_service import SafetySpec
+from .types.evaluation_service import SummarizationHelpfulnessInput
+from .types.evaluation_service import SummarizationHelpfulnessInstance
+from .types.evaluation_service import SummarizationHelpfulnessResult
+from .types.evaluation_service import SummarizationHelpfulnessSpec
+from .types.evaluation_service import SummarizationQualityInput
+from .types.evaluation_service import SummarizationQualityInstance
+from .types.evaluation_service import SummarizationQualityResult
+from .types.evaluation_service import SummarizationQualitySpec
+from .types.evaluation_service import SummarizationVerbosityInput
+from .types.evaluation_service import SummarizationVerbosityInstance
+from .types.evaluation_service import SummarizationVerbosityResult
+from .types.evaluation_service import SummarizationVerbositySpec
+from .types.evaluation_service import ToolCallValidInput
+from .types.evaluation_service import ToolCallValidInstance
+from .types.evaluation_service import ToolCallValidMetricValue
+from .types.evaluation_service import ToolCallValidResults
+from .types.evaluation_service import ToolCallValidSpec
+from .types.evaluation_service import ToolNameMatchInput
+from .types.evaluation_service import ToolNameMatchInstance
+from .types.evaluation_service import ToolNameMatchMetricValue
+from .types.evaluation_service import ToolNameMatchResults
+from .types.evaluation_service import ToolNameMatchSpec
+from .types.evaluation_service import ToolParameterKeyMatchInput
+from .types.evaluation_service import ToolParameterKeyMatchInstance
+from .types.evaluation_service import ToolParameterKeyMatchMetricValue
+from .types.evaluation_service import ToolParameterKeyMatchResults
+from .types.evaluation_service import ToolParameterKeyMatchSpec
+from .types.evaluation_service import ToolParameterKVMatchInput
+from .types.evaluation_service import ToolParameterKVMatchInstance
+from .types.evaluation_service import ToolParameterKVMatchMetricValue
+from .types.evaluation_service import ToolParameterKVMatchResults
+from .types.evaluation_service import ToolParameterKVMatchSpec
+from .types.evaluation_service import PairwiseChoice
 from .types.event import Event
 from .types.execution import Execution
 from .types.explanation import Attribution
@@ -220,6 +328,25 @@ from .types.explanation import SampledShapleyAttribution
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
 from .types.explanation_metadata import ExplanationMetadata
+from .types.extension import AuthConfig
+from .types.extension import Extension
+from .types.extension import ExtensionManifest
+from .types.extension import ExtensionOperation
+from .types.extension import ExtensionPrivateServiceConnectConfig
+from .types.extension import RuntimeConfig
+from .types.extension import AuthType
+from .types.extension import HttpElementLocation
+from .types.extension_execution_service import ExecuteExtensionRequest
+from .types.extension_execution_service import ExecuteExtensionResponse
+from .types.extension_execution_service import QueryExtensionRequest
+from .types.extension_execution_service import QueryExtensionResponse
+from .types.extension_registry_service import DeleteExtensionRequest
+from .types.extension_registry_service import GetExtensionRequest
+from .types.extension_registry_service import ImportExtensionOperationMetadata
+from .types.extension_registry_service import ImportExtensionRequest
+from .types.extension_registry_service import ListExtensionsRequest
+from .types.extension_registry_service import ListExtensionsResponse
+from .types.extension_registry_service import UpdateExtensionRequest
 from .types.feature import Feature
 from .types.feature_group import FeatureGroup
 from .types.feature_monitoring_stats import FeatureStatsAnomaly
@@ -730,6 +857,7 @@ from .types.tool import GoogleSearchRetrieval
 from .types.tool import Retrieval
 from .types.tool import Tool
 from .types.tool import ToolConfig
+from .types.tool import ToolUseExample
 from .types.tool import VertexAISearch
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
@@ -773,6 +901,9 @@ __all__ = (
     "DatasetServiceAsyncClient",
     "DeploymentResourcePoolServiceAsyncClient",
     "EndpointServiceAsyncClient",
+    "EvaluationServiceAsyncClient",
+    "ExtensionExecutionServiceAsyncClient",
+    "ExtensionRegistryServiceAsyncClient",
     "FeatureOnlineStoreAdminServiceAsyncClient",
     "FeatureOnlineStoreServiceAsyncClient",
     "FeatureRegistryServiceAsyncClient",
@@ -809,6 +940,8 @@ __all__ = (
     "AnnotationSpec",
     "Artifact",
     "Attribution",
+    "AuthConfig",
+    "AuthType",
     "AutomaticResources",
     "AutoscalingMetricSpec",
     "AvroSource",
@@ -840,6 +973,11 @@ __all__ = (
     "BatchReadTensorboardTimeSeriesDataResponse",
     "BigQueryDestination",
     "BigQuerySource",
+    "BleuInput",
+    "BleuInstance",
+    "BleuMetricValue",
+    "BleuResults",
+    "BleuSpec",
     "Blob",
     "BlurBaselineConfig",
     "BoolArray",
@@ -856,6 +994,10 @@ __all__ = (
     "CheckTrialEarlyStoppingStateResponse",
     "Citation",
     "CitationMetadata",
+    "CoherenceInput",
+    "CoherenceInstance",
+    "CoherenceResult",
+    "CoherenceSpec",
     "CompleteTrialRequest",
     "CompletionStats",
     "ComputeTokensRequest",
@@ -944,6 +1086,7 @@ __all__ = (
     "DeleteEndpointRequest",
     "DeleteEntityTypeRequest",
     "DeleteExecutionRequest",
+    "DeleteExtensionRequest",
     "DeleteFeatureGroupRequest",
     "DeleteFeatureOnlineStoreRequest",
     "DeleteFeatureRequest",
@@ -1002,12 +1145,22 @@ __all__ = (
     "EntityType",
     "EnvVar",
     "ErrorAnalysisAnnotation",
+    "EvaluateInstancesRequest",
+    "EvaluateInstancesResponse",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
+    "EvaluationServiceClient",
     "Event",
+    "ExactMatchInput",
+    "ExactMatchInstance",
+    "ExactMatchMetricValue",
+    "ExactMatchResults",
+    "ExactMatchSpec",
     "Examples",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
+    "ExecuteExtensionRequest",
+    "ExecuteExtensionResponse",
     "Execution",
     "ExplainRequest",
     "ExplainResponse",
@@ -1030,6 +1183,12 @@ __all__ = (
     "ExportModelResponse",
     "ExportTensorboardTimeSeriesDataRequest",
     "ExportTensorboardTimeSeriesDataResponse",
+    "Extension",
+    "ExtensionExecutionServiceClient",
+    "ExtensionManifest",
+    "ExtensionOperation",
+    "ExtensionPrivateServiceConnectConfig",
+    "ExtensionRegistryServiceClient",
     "Feature",
     "FeatureGroup",
     "FeatureNoiseSigma",
@@ -1056,7 +1215,15 @@ __all__ = (
     "FilterSplit",
     "FindNeighborsRequest",
     "FindNeighborsResponse",
+    "FluencyInput",
+    "FluencyInstance",
+    "FluencyResult",
+    "FluencySpec",
     "FractionSplit",
+    "FulfillmentInput",
+    "FulfillmentInstance",
+    "FulfillmentResult",
+    "FulfillmentSpec",
     "FunctionCall",
     "FunctionCallingConfig",
     "FunctionDeclaration",
@@ -1080,6 +1247,7 @@ __all__ = (
     "GetEndpointRequest",
     "GetEntityTypeRequest",
     "GetExecutionRequest",
+    "GetExtensionRequest",
     "GetFeatureGroupRequest",
     "GetFeatureOnlineStoreRequest",
     "GetFeatureRequest",
@@ -1111,15 +1279,22 @@ __all__ = (
     "GetTrainingPipelineRequest",
     "GetTrialRequest",
     "GoogleSearchRetrieval",
+    "GroundednessInput",
+    "GroundednessInstance",
+    "GroundednessResult",
+    "GroundednessSpec",
     "GroundingAttribution",
     "GroundingMetadata",
     "HarmCategory",
+    "HttpElementLocation",
     "HyperparameterTuningJob",
     "IdMatcher",
     "ImportDataConfig",
     "ImportDataOperationMetadata",
     "ImportDataRequest",
     "ImportDataResponse",
+    "ImportExtensionOperationMetadata",
+    "ImportExtensionRequest",
     "ImportFeatureValuesOperationMetadata",
     "ImportFeatureValuesRequest",
     "ImportFeatureValuesResponse",
@@ -1164,6 +1339,8 @@ __all__ = (
     "ListEntityTypesResponse",
     "ListExecutionsRequest",
     "ListExecutionsResponse",
+    "ListExtensionsRequest",
+    "ListExtensionsResponse",
     "ListFeatureGroupsRequest",
     "ListFeatureGroupsResponse",
     "ListFeatureOnlineStoresRequest",
@@ -1278,6 +1455,15 @@ __all__ = (
     "NearestNeighbors",
     "Neighbor",
     "NfsMount",
+    "PairwiseChoice",
+    "PairwiseQuestionAnsweringQualityInput",
+    "PairwiseQuestionAnsweringQualityInstance",
+    "PairwiseQuestionAnsweringQualityResult",
+    "PairwiseQuestionAnsweringQualitySpec",
+    "PairwiseSummarizationQualityInput",
+    "PairwiseSummarizationQualityInstance",
+    "PairwiseSummarizationQualityResult",
+    "PairwiseSummarizationQualitySpec",
     "Part",
     "PauseModelDeploymentMonitoringJobRequest",
     "PauseScheduleRequest",
@@ -1321,8 +1507,30 @@ __all__ = (
     "QueryDeployedModelsRequest",
     "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
+    "QueryExtensionRequest",
+    "QueryExtensionResponse",
     "QueryReasoningEngineRequest",
     "QueryReasoningEngineResponse",
+    "QuestionAnsweringCorrectnessInput",
+    "QuestionAnsweringCorrectnessInstance",
+    "QuestionAnsweringCorrectnessResult",
+    "QuestionAnsweringCorrectnessSpec",
+    "QuestionAnsweringHelpfulnessInput",
+    "QuestionAnsweringHelpfulnessInstance",
+    "QuestionAnsweringHelpfulnessResult",
+    "QuestionAnsweringHelpfulnessSpec",
+    "QuestionAnsweringQualityInput",
+    "QuestionAnsweringQualityInstance",
+    "QuestionAnsweringQualityResult",
+    "QuestionAnsweringQualitySpec",
+    "QuestionAnsweringRelevanceInput",
+    "QuestionAnsweringRelevanceInstance",
+    "QuestionAnsweringRelevanceResult",
+    "QuestionAnsweringRelevanceSpec",
+    "RagContextRecallInput",
+    "RagContextRecallInstance",
+    "RagContextRecallResult",
+    "RagContextRecallSpec",
     "RawPredictRequest",
     "RayMetricSpec",
     "RaySpec",
@@ -1350,13 +1558,27 @@ __all__ = (
     "ResourceRuntime",
     "ResourceRuntimeSpec",
     "ResourcesConsumed",
+    "ResponseRecallInput",
+    "ResponseRecallInstance",
+    "ResponseRecallResult",
+    "ResponseRecallSpec",
     "RestoreDatasetVersionOperationMetadata",
     "RestoreDatasetVersionRequest",
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "Retrieval",
+    "RougeInput",
+    "RougeInstance",
+    "RougeMetricValue",
+    "RougeResults",
+    "RougeSpec",
+    "RuntimeConfig",
+    "SafetyInput",
+    "SafetyInstance",
     "SafetyRating",
+    "SafetyResult",
     "SafetySetting",
+    "SafetySpec",
     "SampleConfig",
     "SampledShapleyAttribution",
     "SamplingStrategy",
@@ -1401,6 +1623,18 @@ __all__ = (
     "SuggestTrialsMetadata",
     "SuggestTrialsRequest",
     "SuggestTrialsResponse",
+    "SummarizationHelpfulnessInput",
+    "SummarizationHelpfulnessInstance",
+    "SummarizationHelpfulnessResult",
+    "SummarizationHelpfulnessSpec",
+    "SummarizationQualityInput",
+    "SummarizationQualityInstance",
+    "SummarizationQualityResult",
+    "SummarizationQualitySpec",
+    "SummarizationVerbosityInput",
+    "SummarizationVerbosityInstance",
+    "SummarizationVerbosityResult",
+    "SummarizationVerbositySpec",
     "SyncFeatureViewRequest",
     "SyncFeatureViewResponse",
     "TFRecordDestination",
@@ -1419,7 +1653,28 @@ __all__ = (
     "TimestampSplit",
     "TokensInfo",
     "Tool",
+    "ToolCallValidInput",
+    "ToolCallValidInstance",
+    "ToolCallValidMetricValue",
+    "ToolCallValidResults",
+    "ToolCallValidSpec",
     "ToolConfig",
+    "ToolNameMatchInput",
+    "ToolNameMatchInstance",
+    "ToolNameMatchMetricValue",
+    "ToolNameMatchResults",
+    "ToolNameMatchSpec",
+    "ToolParameterKVMatchInput",
+    "ToolParameterKVMatchInstance",
+    "ToolParameterKVMatchMetricValue",
+    "ToolParameterKVMatchResults",
+    "ToolParameterKVMatchSpec",
+    "ToolParameterKeyMatchInput",
+    "ToolParameterKeyMatchInstance",
+    "ToolParameterKeyMatchMetricValue",
+    "ToolParameterKeyMatchResults",
+    "ToolParameterKeyMatchSpec",
+    "ToolUseExample",
     "TrainingConfig",
     "TrainingPipeline",
     "Trial",
@@ -1442,6 +1697,7 @@ __all__ = (
     "UpdateExplanationDatasetOperationMetadata",
     "UpdateExplanationDatasetRequest",
     "UpdateExplanationDatasetResponse",
+    "UpdateExtensionRequest",
     "UpdateFeatureGroupOperationMetadata",
     "UpdateFeatureGroupRequest",
     "UpdateFeatureOnlineStoreOperationMetadata",
