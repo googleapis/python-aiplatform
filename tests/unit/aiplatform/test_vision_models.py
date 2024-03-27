@@ -499,7 +499,7 @@ class TestImageGenerationModels:
                 actual_parameters["outputOptions"]["compressionQuality"]
                 == compression_quality
             )
-            assert actual_parameters["safetyFilterLevel"] == safety_filter_level
+            assert actual_parameters["safetySetting"] == safety_filter_level
             assert actual_parameters["personGeneration"] == person_generation
 
         assert len(image_response2.images) == number_of_images
@@ -639,7 +639,7 @@ class TestImageGenerationModels:
                 )
                 predict_kwargs = mock_predict.call_args[1]
                 actual_parameters = predict_kwargs["parameters"]
-                assert actual_parameters["safetyFilterLevel"] == level
+                assert actual_parameters["safetySetting"] == level
 
     def test_generate_images_requests_person_generation(self):
         """Tests that the model class generates person images."""
