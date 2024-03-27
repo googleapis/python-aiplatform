@@ -288,6 +288,7 @@ class TestPredictionFunctionality:
             "ray.train.sklearn.SklearnCheckpoint .*"
         )
 
+    @tc.rovminversion
     def test_convert_checkpoint_to_sklearn_model_succeed(
         self, ray_sklearn_checkpoint
     ) -> None:
@@ -302,6 +303,7 @@ class TestPredictionFunctionality:
         y_pred = estimator.predict([[10, 11]])
         assert y_pred[0] is not None
 
+    @tc.rovminversion
     def test_register_sklearn_succeed(
         self,
         ray_sklearn_checkpoint,
@@ -325,6 +327,7 @@ class TestPredictionFunctionality:
         pickle_dump.assert_called_once()
         gcs_utils_upload_to_gcs.assert_called_once()
 
+    @tc.rovminversion
     def test_register_sklearn_initialized_succeed(
         self,
         ray_sklearn_checkpoint,
