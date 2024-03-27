@@ -437,6 +437,23 @@ class ExperimentRun(
         except exceptions.NotFound:
             return None
 
+    def _initialize_experiment_run(
+        self,
+        node: Union[context.Context, execution.Execution],
+        experiment: Optional[experiment_resources.Experiment] = None,
+    ):
+        self._experiment = experiment
+        self._run_name = node.display_name
+        self._metadata_node = node
+        self._largest_step = None
+
+        if self._is_legacy_experiment_run():
+            self._metadata_metric_artifact = self._v1_get_metric_artifact()
+            self._backing_tensorboard_run = None
+        else:
+            self._metadata_metric_artifact = None
+            self._backing_tensorboard_run = self._lookup_tensorboard_run_artifact()
+
     @classmethod
     def list(
         cls,
@@ -495,33 +512,17 @@ class ExperimentRun(
 
         run_executions = execution.Execution.list(filter=filter_str, **metadata_args)
 
-        def _initialize_experiment_run(context: context.Context) -> ExperimentRun:
+        def _create_experiment_run(context: context.Context) -> ExperimentRun:
             this_experiment_run = cls.__new__(cls)
-            this_experiment_run._experiment = experiment
-            this_experiment_run._run_name = context.display_name
-            this_experiment_run._metadata_node = context
-
-            with experiment_resources._SetLoggerLevel(resource):
-                tb_run = this_experiment_run._lookup_tensorboard_run_artifact()
-            if tb_run:
-                this_experiment_run._backing_tensorboard_run = tb_run
-            else:
-                this_experiment_run._backing_tensorboard_run = None
-
-            this_experiment_run._largest_step = None
+            this_experiment_run._initialize_experiment_run(context, experiment)
 
             return this_experiment_run
 
-        def _initialize_v1_experiment_run(
+        def _create_v1_experiment_run(
             execution: execution.Execution,
         ) -> ExperimentRun:
             this_experiment_run = cls.__new__(cls)
-            this_experiment_run._experiment = experiment
-            this_experiment_run._run_name = execution.display_name
-            this_experiment_run._metadata_node = execution
-            this_experiment_run._metadata_metric_artifact = (
-                this_experiment_run._v1_get_metric_artifact()
-            )
+            this_experiment_run._initialize_experiment_run(execution, experiment)
 
             return this_experiment_run
 
@@ -530,13 +531,13 @@ class ExperimentRun(
                 max_workers=max([len(run_contexts), len(run_executions)])
             ) as executor:
                 submissions = [
-                    executor.submit(_initialize_experiment_run, context)
+                    executor.submit(_create_experiment_run, context)
                     for context in run_contexts
                 ]
                 experiment_runs = [submission.result() for submission in submissions]
 
                 submissions = [
-                    executor.submit(_initialize_v1_experiment_run, execution)
+                    executor.submit(_create_v1_experiment_run, execution)
                     for execution in run_executions
                 ]
 
@@ -560,30 +561,20 @@ class ExperimentRun(
             Experiment run row that represents this run.
         """
         this_experiment_run = cls.__new__(cls)
-        this_experiment_run._metadata_node = node
+        this_experiment_run._initialize_experiment_run(node)
 
         row = experiment_resources._ExperimentRow(
             experiment_run_type=node.schema_title,
             name=node.display_name,
         )
 
-        if isinstance(node, context.Context):
-            this_experiment_run._backing_tensorboard_run = (
-                this_experiment_run._lookup_tensorboard_run_artifact()
-            )
-            row.params = node.metadata[constants._PARAM_KEY]
-            row.metrics = node.metadata[constants._METRIC_KEY]
-            row.time_series_metrics = (
-                this_experiment_run._get_latest_time_series_metric_columns()
-            )
-            row.state = node.metadata[constants._STATE_KEY]
-        else:
-            this_experiment_run._metadata_metric_artifact = (
-                this_experiment_run._v1_get_metric_artifact()
-            )
-            row.params = node.metadata
-            row.metrics = this_experiment_run._metadata_metric_artifact.metadata
-            row.state = node.state.name
+        row.params = this_experiment_run.get_params()
+        row.metrics = this_experiment_run.get_metrics()
+        row.state = this_experiment_run.get_state()
+        row.time_series_metrics = (
+            this_experiment_run._get_latest_time_series_metric_columns()
+        )
+
         return row
 
     def _get_logged_pipeline_runs(self) -> List[context.Context]:
@@ -659,7 +650,7 @@ class ExperimentRun(
 
     @staticmethod
     def _validate_run_id(run_id: str):
-        """Validates the run id
+        """Validates the run id.
 
         Args:
             run_id(str): Required. The run id to validate.
@@ -1454,6 +1445,13 @@ class ExperimentRun(
             return self._metadata_metric_artifact.metadata
         else:
             return self._metadata_node.metadata[constants._METRIC_KEY]
+
+    def get_state(self) -> gca_execution.Execution.State:
+        """The state of this run."""
+        if self._is_legacy_experiment_run():
+            return self._metadata_node.state.name
+        else:
+            return self._metadata_node.metadata[constants._STATE_KEY]
 
     @_v1_not_supported
     def get_classification_metrics(self) -> List[Dict[str, Union[str, List]]]:
