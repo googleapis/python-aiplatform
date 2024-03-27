@@ -16,8 +16,13 @@
 # limitations under the License.
 
 import logging
-from typing import Optional
+import os
 import ray
+from ray.air._internal.torch_utils import load_torch_model
+import tempfile
+from google.cloud.aiplatform.utils import gcs_utils
+from typing import Optional
+
 
 try:
     from ray.train import torch as ray_torch
@@ -51,6 +56,8 @@ def get_pytorch_model_from(
 
     Raises:
         ValueError: Invalid Argument.
+        ModuleNotFoundError: PyTorch isn't installed.
+        RuntimeError: Model not found.
     """
     ray_version = ray.__version__
     if ray_version == "2.4.0":
@@ -67,8 +74,33 @@ def get_pytorch_model_from(
             )
         return checkpoint.get_model(model=model)
 
-    # get_model() signature changed in future versions
     try:
         return checkpoint.get_model()
     except AttributeError:
-        raise RuntimeError("Unsupported Ray version.")
+        model_file_name = ray.train.torch.TorchCheckpoint.MODEL_FILENAME
+
+    model_path = os.path.join(checkpoint.path, model_file_name)
+
+    try:
+        import torch
+
+    except ModuleNotFoundError as mnfe:
+        raise ModuleNotFoundError("PyTorch isn't installed.") from mnfe
+
+    if os.path.exists(model_path):
+        model_or_state_dict = torch.load(model_path, map_location="cpu")
+    else:
+        try:
+            # Download from GCS to temp and then load_model
+            with tempfile.TemporaryDirectory() as temp_dir:
+                gcs_utils.download_from_gcs("gs://" + checkpoint.path, temp_dir)
+                model_or_state_dict = torch.load(
+                    f"{temp_dir}/{model_file_name}", map_location="cpu"
+                )
+        except Exception as e:
+            raise RuntimeError(
+                f"{model_file_name} not found in this checkpoint due to: {e}."
+            )
+
+    model = load_torch_model(saved_model=model_or_state_dict, model_definition=model)
+    return model

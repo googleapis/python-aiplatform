@@ -48,6 +48,7 @@ def register_xgboost(
     checkpoint: "ray_xgboost.XGBoostCheckpoint",
     artifact_uri: Optional[str] = None,
     display_name: Optional[str] = None,
+    xgboost_version: Optional[str] = None,
     **kwargs,
 ) -> aiplatform.Model:
     """Uploads a Ray XGBoost Checkpoint as XGBoost Model to Model Registry.
@@ -75,6 +76,9 @@ def register_xgboost(
         display_name (str):
             Optional. The display name of the Model. The name can be up to 128
             characters long and can be consist of any UTF-8 characters.
+        xgboost_version (str): Optional. The version of the XGBoost serving container.
+                Supported versions: ["0.82", "0.90", "1.1", "1.2", "1.3", "1.4", "1.6", "1.7", "2.0"].
+                If the version is not specified, the latest version is used.
         **kwargs:
             Any kwargs will be passed to aiplatform.Model registration.
 
@@ -96,6 +100,8 @@ def register_xgboost(
 
     model_dir = os.path.join(artifact_uri, display_model_name)
     file_path = os.path.join(model_dir, constants._PICKLE_FILE_NAME)
+    if xgboost_version is None:
+        xgboost_version = constants._XGBOOST_VERSION
 
     with tempfile.NamedTemporaryFile(suffix=constants._PICKLE_EXTENTION) as temp_file:
         pickle.dump(model, temp_file)
@@ -103,7 +109,7 @@ def register_xgboost(
         return aiplatform.Model.upload_xgboost_model_file(
             model_file_path=temp_file.name,
             display_name=display_model_name,
-            xgboost_version=constants._XGBOOST_VERSION,
+            xgboost_version=xgboost_version,
             **kwargs,
         )
 
@@ -121,6 +127,8 @@ def _get_xgboost_model_from(
 
     Raises:
         ValueError: Invalid Argument.
+        ModuleNotFoundError: XGBoost isn't installed.
+        RuntimeError: Model not found.
     """
     ray_version = ray.__version__
     if ray_version == "2.4.0":
@@ -137,8 +145,33 @@ def _get_xgboost_model_from(
             )
         return checkpoint.get_model()
 
-    # get_model() signature changed in future versions
     try:
+        # This works for Ray v2.5
         return checkpoint.get_model()
     except AttributeError:
-        raise RuntimeError("Unsupported Ray version.")
+        # This works for Ray v2.9
+        model_file_name = ray.train.xgboost.XGBoostCheckpoint.MODEL_FILENAME
+
+    model_path = os.path.join(checkpoint.path, model_file_name)
+
+    try:
+        import xgboost
+
+    except ModuleNotFoundError as mnfe:
+        raise ModuleNotFoundError("XGBoost isn't installed.") from mnfe
+
+    booster = xgboost.Booster()
+    if os.path.exists(model_path):
+        booster.load_model(model_path)
+        return booster
+
+    try:
+        # Download from GCS to temp and then load_model
+        with tempfile.TemporaryDirectory() as temp_dir:
+            gcs_utils.download_from_gcs("gs://" + checkpoint.path, temp_dir)
+            booster.load_model(f"{temp_dir}/{model_file_name}")
+            return booster
+    except Exception as e:
+        raise RuntimeError(
+            f"{model_file_name} not found in this checkpoint due to: {e}."
+        )
