@@ -53,14 +53,8 @@ try:
 except ImportError:
     import importlib_metadata
 
-try:
-    import bigframes as bf
-    from bigframes.dataframe import DataFrame
-
-    BigframesData = DataFrame
-except ImportError:
-    bf = None
-    BigframesData = Any
+bf = None
+BigframesData = Any
 
 
 try:
