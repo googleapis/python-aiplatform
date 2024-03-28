@@ -458,9 +458,7 @@ class TestImageGenerationModels:
         ) as mock_predict:
             prompt2 = "Ancient book style"
             edit_mode = "inpainting-insert"
-            mask_mode = "background"
             mask_dilation = 0.06
-            product_position = "fixed"
             output_mime_type = "image/jpeg"
             compression_quality = 80
             safety_filter_level = "block_fewest"
@@ -474,9 +472,7 @@ class TestImageGenerationModels:
                 base_image=image1,
                 mask=mask_image,
                 edit_mode=edit_mode,
-                mask_mode=mask_mode,
                 mask_dilation=mask_dilation,
-                product_position=product_position,
                 output_mime_type=output_mime_type,
                 compression_quality=compression_quality,
                 safety_filter_level=safety_filter_level,
@@ -489,11 +485,7 @@ class TestImageGenerationModels:
             assert actual_instance["image"]["gcsUri"]
             assert actual_instance["mask"]["image"]["gcsUri"]
             assert actual_parameters["editConfig"]["editMode"] == edit_mode
-            assert actual_parameters["editConfig"]["maskMode"] == mask_mode
             assert actual_parameters["editConfig"]["maskDilation"] == mask_dilation
-            assert (
-                actual_parameters["editConfig"]["productPosition"] == product_position
-            )
             assert actual_parameters["outputOptions"]["mimeType"] == output_mime_type
             assert (
                 actual_parameters["outputOptions"]["compressionQuality"]
@@ -509,9 +501,7 @@ class TestImageGenerationModels:
             assert image.generation_parameters["base_image_uri"]
             assert image.generation_parameters["mask_uri"]
             assert image.generation_parameters["edit_mode"] == edit_mode
-            assert image.generation_parameters["mask_mode"] == mask_mode
             assert image.generation_parameters["mask_dilation"] == mask_dilation
-            assert image.generation_parameters["product_position"] == product_position
             assert image.generation_parameters["mime_type"] == output_mime_type
             assert (
                 image.generation_parameters["compression_quality"]
@@ -522,6 +512,59 @@ class TestImageGenerationModels:
                 == safety_filter_level
             )
             assert image.generation_parameters["person_generation"] == person_generation
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            prompt3 = "Ancient book style"
+            edit_mode = "inpainting-insert"
+            mask_dilation = 0.06
+            output_mime_type = "image/jpeg"
+            compression_quality = 80
+            safety_filter_level = "block_fewest"
+            person_generation = "allow_all"
+            mask_mode = "background"
+
+            image_response3 = model.edit_image(
+                prompt=prompt3,
+                base_image=image1,
+                number_of_images=number_of_images,
+                edit_mode=edit_mode,
+                mask_dilation=mask_dilation,
+                mask_mode=mask_mode,
+                output_mime_type=output_mime_type,
+                compression_quality=compression_quality,
+                safety_filter_level=safety_filter_level,
+                person_generation=person_generation,
+            )
+
+        predict_kwargs = mock_predict.call_args[1]
+        actual_parameters = predict_kwargs["parameters"]
+        actual_instance = predict_kwargs["instances"][0]
+        assert actual_instance["prompt"] == prompt3
+        assert actual_instance["image"]["gcsUri"]
+        assert actual_parameters["editConfig"]["editMode"] == edit_mode
+        assert actual_parameters["editConfig"]["maskMode"]["maskType"] == mask_mode
+        assert actual_parameters["editConfig"]["maskDilation"] == mask_dilation
+        assert actual_parameters["outputOptions"]["mimeType"] == output_mime_type
+        assert (
+            actual_parameters["outputOptions"]["compressionQuality"]
+            == compression_quality
+        )
+
+        assert len(image_response3.images) == number_of_images
+        for image in image_response3:
+            assert image.generation_parameters
+            assert image.generation_parameters["prompt"] == prompt3
+            assert image.generation_parameters["base_image_uri"]
+            assert image.generation_parameters["edit_mode"] == edit_mode
+            assert image.generation_parameters["mask_dilation"] == mask_dilation
+            assert image.generation_parameters["mime_type"] == output_mime_type
+            assert (
+                image.generation_parameters["compression_quality"]
+                == compression_quality
+            )
 
     @unittest.skip(reason="b/295946075 The service stopped supporting image sizes.")
     def test_generate_images_requests_square_images_by_default(self):
