@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.45.0](https://github.com/googleapis/python-aiplatform/compare/v1.44.0...v1.45.0) (2024-03-28)
+
+
+### Features
+
+* Add an arg to turn off Ray metrics collection during cluster creation ([e33d11f](https://github.com/googleapis/python-aiplatform/commit/e33d11fa02eb721a6fe09bbd7c2e6a9954dbfe98))
+* Add Batch Delete and Batch Cancel Pipeline Jobs and unit tests. ([cb495e7](https://github.com/googleapis/python-aiplatform/commit/cb495e740ace7b2ab9935188ca9f7d6d3bf86d2a))
+* Add display model evaluation button for Ipython environments ([181dc7a](https://github.com/googleapis/python-aiplatform/commit/181dc7a575b0cefc1be0ea9b06cb4f30a7a0da0f))
+* Add safety filter levels, watermark support and person generation support for Imagen 2 ([0c498c5](https://github.com/googleapis/python-aiplatform/commit/0c498c5e4226b2a16adb0ff3cf7e6698a05aa5c7))
+* Add safety filter levels, watermark support and person generation support for Imagen 2 ([e2efdbe](https://github.com/googleapis/python-aiplatform/commit/e2efdbed324bd201f9793c43ca2167e8ccbbe426))
+* Add support for output_dimensionality parameter through get_embeddings. ([b1cab3f](https://github.com/googleapis/python-aiplatform/commit/b1cab3fca34e7a1969c1828348bcbd0eefe42cb8))
+* Add support for task types (TASK_QUESTION_ANSWERING, TASK_FACT_VERIFICATION) through get_embeddings. ([9ec4590](https://github.com/googleapis/python-aiplatform/commit/9ec459014612116e202c2dddda5f30716ff1a7f8))
+* Add v1beta1 service clients for reasoning engine ([13ec7e0](https://github.com/googleapis/python-aiplatform/commit/13ec7e0c63649b7c9a7a0eb4a5d36afeae1ffadb))
+* GenAI - Support generating JSON Schema from Python function ([be4922a](https://github.com/googleapis/python-aiplatform/commit/be4922adbfa42a91d67e46f0b705e62d794cb8c3))
+* Improve get_experiment_df execution speed ([2e56acc](https://github.com/googleapis/python-aiplatform/commit/2e56acc7e5627c4ca46e84febaecf5b791f67462))
+* Ray on Vertex enables XGBoost register model with custom version using pre-built container ([e45ef96](https://github.com/googleapis/python-aiplatform/commit/e45ef96de9f008a5c5556bf119a75403085d8dcb))
+* Support `accelerator_type` in RLHF tuning ([e51c977](https://github.com/googleapis/python-aiplatform/commit/e51c97738e905dda1d726cd778d62647b096a3c8))
+
+
+### Bug Fixes
+
+* Fix failing get_experiments_df test. ([767712e](https://github.com/googleapis/python-aiplatform/commit/767712e9caf4bec8260c57668654bcd257f1c831))
+* GenAI - Capture content blocked case when validating responses ([f0086df](https://github.com/googleapis/python-aiplatform/commit/f0086dfd76c138443e50bc18ae49b232905468f3))
+* LLM - Fixed the `InlineContext` grounding source ([6f59100](https://github.com/googleapis/python-aiplatform/commit/6f591001e834dfc3e49efd988b4faf2b12b1f2d8))
+* Made `Endpoint.raw_predict` thread-safe by setting `authorized_session` last ([c72c1ef](https://github.com/googleapis/python-aiplatform/commit/c72c1ef4c58c79fd7a0ee4064de7f2f4a4257f36))
+
 ## [1.44.0](https://github.com/googleapis/python-aiplatform/compare/v1.43.0...v1.44.0) (2024-03-14)
 
 
