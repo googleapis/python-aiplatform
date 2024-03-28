@@ -637,7 +637,24 @@ _SUCCESSFUL_FINISH_REASONS = [
     gapic_content_types.Candidate.FinishReason.STOP,
     # Many responses have this finish reason
     gapic_content_types.Candidate.FinishReason.FINISH_REASON_UNSPECIFIED,
+    gapic_content_types.Candidate.FinishReason.MAX_TOKENS,
 ]
+
+
+def _validate_candidates(response: "GenerationResponse") -> Optional[str]:
+    if not response.candidates:
+        return (
+            f"The model response was blocked due to {response._raw_response.prompt_feedback.block_reason}.\n"
+            f"Block reason message: {response._raw_response.prompt_feedback.block_reason_message}.\n"
+        )
+    candidate = response.candidates[0]
+    if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
+        return (
+            "The model response did not complete successfully.\n"
+            f"Finish reason: {candidate.finish_reason.name}\n"
+            f"Finish message: {candidate.finish_message}\n"
+            f"Safety ratings: {candidate.safety_ratings}\n"
+        )
 
 
 def _validate_response(
@@ -645,21 +662,7 @@ def _validate_response(
     request_contents: Optional[List["Content"]] = None,
     response_chunks: Optional[List["GenerationResponse"]] = None,
 ) -> None:
-    message = ""
-    if not response.candidates:
-        message += (
-            f"The model response was blocked due to {response._raw_response.prompt_feedback.block_reason}.\n"
-            f"Blocke reason message: {response._raw_response.prompt_feedback.block_reason_message}.\n"
-        )
-    else:
-        candidate = response.candidates[0]
-        if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-            message = (
-                "The model response did not completed successfully.\n"
-                f"Finish reason: {candidate.finish_reason}.\n"
-                f"Finish message: {candidate.finish_message}.\n"
-                f"Safety ratings: {candidate.safety_ratings}.\n"
-            )
+    message = _validate_candidates(response)
     if message:
         message += (
             "To protect the integrity of the chat session, the request and response were not added to chat history.\n"
@@ -1435,9 +1438,13 @@ class CallableFunctionDeclaration(FunctionDeclaration):
         Returns:
             CallableFunctionDeclaration.
         """
-        from vertexai.generative_models import _function_calling_utils
+        from vertexai.generative_models import (
+            _function_calling_utils,
+        )
 
-        function_schema = _function_calling_utils.generate_json_schema_from_function(func)
+        function_schema = _function_calling_utils.generate_json_schema_from_function(
+            func
+        )
         # Getting out the description first since it will be removed from the schema.
         function_description = function_schema["description"]
         function_schema = (
@@ -1497,8 +1504,11 @@ class GenerationResponse:
                 "The response has multiple candidates."
                 " Use `response.candidate[i].text` to get text of a particular candidate."
             )
-        if not self.candidates:
-            raise ValueError("Response has no candidates (and no text).")
+        message = _validate_candidates(self)
+        if message:
+            raise ResponseBlockedError(
+                message, request_contents=[], responses=[self]
+            )
         return self.candidates[0].text
 
 

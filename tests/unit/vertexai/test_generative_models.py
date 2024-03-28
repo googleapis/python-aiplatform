@@ -324,6 +324,30 @@ class TestGenerativeModels:
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content_response_blocked_errors(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel("gemini-pro")
+
+        with pytest.raises(generative_models.ResponseBlockedError):
+            response = model.generate_content("Please fail!")
+            assert response.text
+
+        with pytest.raises(generative_models.ResponseBlockedError) as e:
+            response = model.generate_content("Please block with block_reason=OTHER.")
+            assert response.text
+
+        assert e.match("Blocked for testing")
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
         attribute="stream_generate_content",
         new=mock_stream_generate_content,
     )
