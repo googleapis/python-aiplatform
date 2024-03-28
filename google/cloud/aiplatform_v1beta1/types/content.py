@@ -707,11 +707,35 @@ class GroundingAttribution(proto.Message):
             number=2,
         )
 
+    class RetrievedContext(proto.Message):
+        r"""Attribution from context retrieved by the retrieval tools.
+
+        Attributes:
+            uri (str):
+                URI reference of the attribution.
+            title (str):
+                Title of the attribution.
+        """
+        uri: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        title: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
     web: Web = proto.Field(
         proto.MESSAGE,
         number=3,
         oneof="reference",
         message=Web,
+    )
+    retrieved_context: RetrievedContext = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="reference",
+        message=RetrievedContext,
     )
     segment: "Segment" = proto.Field(
         proto.MESSAGE,
@@ -739,6 +763,10 @@ class GroundingMetadata(proto.Message):
     web_search_queries: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=1,
+    )
+    retrieved_context_queries: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=3,
     )
     grounding_attributions: MutableSequence[
         "GroundingAttribution"
