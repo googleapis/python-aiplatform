@@ -20,6 +20,7 @@ import shutil
 import tempfile
 from typing import Any
 from unittest import mock
+from unittest.mock import patch
 import uuid
 
 from google import auth
@@ -47,7 +48,20 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourceRuntimeSpec,
     ServiceAccountSpec,
 )
-
+from google.cloud.aiplatform.compat.services import (
+    feature_online_store_admin_service_client,
+)
+from feature_store_constants import (
+    _TEST_BIGTABLE_FOS1,
+    _TEST_EMBEDDING_FV1,
+    _TEST_ESF_OPTIMIZED_FOS,
+    _TEST_ESF_OPTIMIZED_FOS2,
+    _TEST_FV1,
+    _TEST_OPTIMIZED_FV1,
+    _TEST_OPTIMIZED_FV2,
+    _TEST_PSC_OPTIMIZED_FOS,
+    _TEST_OPTIMIZED_EMBEDDING_FV,
+)
 
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_NUMBER = "12345678"
@@ -332,3 +346,153 @@ def create_persistent_resource_default_mock():
             create_persistent_resource_lro_mock
         )
         yield create_persistent_resource_default_mock
+
+
+@pytest.fixture
+def get_fos_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "get_feature_online_store",
+    ) as get_fos_mock:
+        get_fos_mock.return_value = _TEST_BIGTABLE_FOS1
+        yield get_fos_mock
+
+
+@pytest.fixture
+def get_esf_optimized_fos_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "get_feature_online_store",
+    ) as get_fos_mock:
+        get_fos_mock.return_value = _TEST_ESF_OPTIMIZED_FOS
+        yield get_fos_mock
+
+
+@pytest.fixture
+def get_psc_optimized_fos_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "get_feature_online_store",
+    ) as get_fos_mock:
+        get_fos_mock.return_value = _TEST_PSC_OPTIMIZED_FOS
+        yield get_fos_mock
+
+
+@pytest.fixture
+def get_esf_optimized_fos_no_endpoint_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "get_feature_online_store",
+    ) as get_fos_mock:
+        get_fos_mock.return_value = _TEST_ESF_OPTIMIZED_FOS2
+        yield get_fos_mock
+
+
+@pytest.fixture
+def create_bigtable_fos_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "create_feature_online_store",
+    ) as create_bigtable_fos_mock:
+        create_fos_lro_mock = mock.Mock(ga_operation.Operation)
+        create_fos_lro_mock.result.return_value = _TEST_BIGTABLE_FOS1
+        create_bigtable_fos_mock.return_value = create_fos_lro_mock
+        yield create_bigtable_fos_mock
+
+
+@pytest.fixture
+def create_esf_optimized_fos_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "create_feature_online_store",
+    ) as create_esf_optimized_fos_mock:
+        create_fos_lro_mock = mock.Mock(ga_operation.Operation)
+        create_fos_lro_mock.result.return_value = _TEST_ESF_OPTIMIZED_FOS
+        create_esf_optimized_fos_mock.return_value = create_fos_lro_mock
+        yield create_esf_optimized_fos_mock
+
+
+@pytest.fixture
+def create_psc_optimized_fos_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "create_feature_online_store",
+    ) as create_psc_optimized_fos_mock:
+        create_fos_lro_mock = mock.Mock(ga_operation.Operation)
+        create_fos_lro_mock.result.return_value = _TEST_PSC_OPTIMIZED_FOS
+        create_psc_optimized_fos_mock.return_value = create_fos_lro_mock
+        yield create_psc_optimized_fos_mock
+
+
+@pytest.fixture
+def get_fv_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "get_feature_view",
+    ) as get_fv_mock:
+        get_fv_mock.return_value = _TEST_FV1
+        yield get_fv_mock
+
+
+@pytest.fixture
+def create_bq_fv_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "create_feature_view",
+    ) as create_bq_fv_mock:
+        create_bq_fv_lro_mock = mock.Mock(ga_operation.Operation)
+        create_bq_fv_lro_mock.result.return_value = _TEST_FV1
+        create_bq_fv_mock.return_value = create_bq_fv_lro_mock
+        yield create_bq_fv_mock
+
+
+@pytest.fixture
+def create_embedding_fv_from_bq_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "create_feature_view",
+    ) as create_embedding_fv_mock:
+        create_embedding_fv_mock_lro = mock.Mock(ga_operation.Operation)
+        create_embedding_fv_mock_lro.result.return_value = _TEST_OPTIMIZED_EMBEDDING_FV
+        create_embedding_fv_mock.return_value = create_embedding_fv_mock_lro
+        yield create_embedding_fv_mock
+
+
+@pytest.fixture
+def get_optimized_embedding_fv_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "get_feature_view",
+    ) as get_fv_mock:
+        get_fv_mock.return_value = _TEST_OPTIMIZED_EMBEDDING_FV
+        yield get_fv_mock
+
+
+@pytest.fixture
+def get_optimized_fv_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "get_feature_view",
+    ) as get_optimized_fv_mock:
+        get_optimized_fv_mock.return_value = _TEST_OPTIMIZED_FV1
+        yield get_optimized_fv_mock
+
+
+@pytest.fixture
+def get_embedding_fv_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "get_feature_view",
+    ) as get_embedding_fv_mock:
+        get_embedding_fv_mock.return_value = _TEST_EMBEDDING_FV1
+        yield get_embedding_fv_mock
+
+
+@pytest.fixture
+def get_optimized_fv_no_endpointmock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "get_feature_view",
+    ) as get_optimized_fv_no_endpointmock:
+        get_optimized_fv_no_endpointmock.return_value = _TEST_OPTIMIZED_FV2
+        yield get_optimized_fv_no_endpointmock
