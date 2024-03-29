@@ -22,6 +22,7 @@ from typing import (
     Any,
     AsyncIterable,
     Awaitable,
+    Callable,
     Dict,
     Iterable,
     List,
@@ -688,6 +689,8 @@ class ChatSession:
         self._model = model
         self._history = history or []
         self._response_validator = _validate_response if response_validation else None
+        # _responder is currently only set by PreviewChatSession
+        self._responder: Optional["AutomaticFunctionCallingResponder"] = None
 
     @property
     def history(self) -> List["Content"]:
@@ -814,29 +817,50 @@ class ChatSession:
         request_message = Content._from_gapic(
             _to_content(value=content, role=self._USER_ROLE)
         )
-        request_history = list(self._history)
-        request_history.append(request_message)
+        history_delta = [request_message]
 
-        response = self._model._generate_content(
-            contents=request_history,
-            generation_config=generation_config,
-            safety_settings=safety_settings,
-            tools=tools,
-        )
-        # By default we're not adding incomplete interactions to history.
-        if self._response_validator is not None:
-            self._response_validator(
-                response=response,
-                request_contents=request_history,
-                response_chunks=[response],
+        message_responder = (
+            self._responder._create_responder_for_message(
+                tools=tools or self._model._tools
             )
+            if self._responder
+            else None
+        )
 
-        # Adding the request and the first response candidate to history
-        response_message = response.candidates[0].content
-        # Response role is NOT set by the model.
-        response_message.role = self._MODEL_ROLE
-        self._history.append(request_message)
-        self._history.append(response_message)
+        while True:
+            request_history = self._history + history_delta
+            response = self._model._generate_content(
+                contents=request_history,
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+                tools=tools,
+            )
+            # By default we're not adding incomplete interactions to history.
+            if self._response_validator is not None:
+                self._response_validator(
+                    response=response,
+                    request_contents=request_history,
+                    response_chunks=[response],
+                )
+
+            # Adding the request and the first response candidate to history
+            response_message = response.candidates[0].content
+            # Response role is NOT set by the model.
+            response_message.role = self._MODEL_ROLE
+            history_delta.append(response_message)
+
+            auto_responder_content = (
+                message_responder.respond_to_model_response(response=response)
+                if message_responder
+                else None
+            )
+            if auto_responder_content:
+                auto_responder_content.role = self._USER_ROLE
+                history_delta.append(auto_responder_content)
+            else:
+                break
+
+        self._history.extend(history_delta)
         return response
 
     async def _send_message_async(
@@ -1042,6 +1066,8 @@ class _PreviewChatSession(ChatSession):
         *,
         history: Optional[List["Content"]] = None,
         response_validation: bool = True,
+        # Preview features:
+        responder: Optional["AutomaticFunctionCallingResponder"] = None,
         # Deprecated
         raise_on_blocked: Optional[bool] = None,
     ):
@@ -1059,6 +1085,7 @@ class _PreviewChatSession(ChatSession):
             history=history,
             response_validation=response_validation,
         )
+        self._responder = responder
 
 
 class ResponseBlockedError(Exception):
@@ -1203,20 +1230,19 @@ class Tool:
         self._raw_tool = gapic_tool_types.Tool(
             function_declarations=gapic_function_declarations
         )
+        callable_functions = {
+            function_declaration._raw_function_declaration.name: function_declaration
+            for function_declaration in function_declarations
+            if isinstance(function_declaration, CallableFunctionDeclaration)
+        }
+        self._callable_functions = callable_functions
 
     @classmethod
     def from_function_declarations(
         cls,
         function_declarations: List["FunctionDeclaration"],
     ) -> "Tool":
-        gapic_function_declarations = [
-            function_declaration._raw_function_declaration
-            for function_declaration in function_declarations
-        ]
-        raw_tool = gapic_tool_types.Tool(
-            function_declarations=gapic_function_declarations
-        )
-        return cls._from_gapic(raw_tool=raw_tool)
+        return Tool(function_declarations=function_declarations)
 
     @classmethod
     def from_retrieval(
@@ -1346,6 +1372,18 @@ class FunctionDeclaration:
             name=name, description=description, parameters=raw_schema
         )
 
+    @classmethod
+    def from_func(cls, func: Callable[..., Any]) -> "CallableFunctionDeclaration":
+        return CallableFunctionDeclaration.from_func(func)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_function_declaration).to_dict(
+            self._raw_function_declaration
+        )
+
+    def __repr__(self) -> str:
+        return self._raw_function_declaration.__repr__()
+
 
 def _convert_schema_dict_to_gapic(schema_dict: Dict[str, Any]) -> Dict[str, Any]:
     """Converts a JsonSchema to a dict that the GAPIC Schema class accepts."""
@@ -1363,6 +1401,53 @@ def _convert_schema_dict_to_gapic(schema_dict: Dict[str, Any]) -> Dict[str, Any]
         for property_name, property_schema in properties.items():
             properties[property_name] = _convert_schema_dict_to_gapic(property_schema)
     return gapic_schema_dict
+
+
+class CallableFunctionDeclaration(FunctionDeclaration):
+    """A function declaration plus a function."""
+
+    def __init__(
+        self,
+        name: str,
+        function: Callable[..., Any],
+        parameters: Dict[str, Any],
+        description: Optional[str] = None,
+    ):
+        super().__init__(
+            name=name,
+            description=description,
+            parameters=parameters,
+        )
+        self._function = function
+
+    @classmethod
+    def from_func(cls, func: Callable[..., Any]) -> "CallableFunctionDeclaration":
+        """Automatically creates a CallableFunctionDeclaration from a Python function.
+
+        The function parameter schema is automatically extracted.
+        Args:
+          func: The function from which to extract schema.
+
+        Returns:
+            CallableFunctionDeclaration.
+        """
+        from vertexai.generative_models import _function_calling_utils
+
+        function_schema = _function_calling_utils.generate_json_schema_from_function(func)
+        # Getting out the description first since it will be removed from the schema.
+        function_description = function_schema["description"]
+        function_schema = (
+            _function_calling_utils.adapt_json_schema_to_google_tool_schema(
+                function_schema
+            )
+        )
+
+        return CallableFunctionDeclaration(
+            name=func.__name__,
+            function=func,
+            description=function_description,
+            parameters=function_schema,
+        )
 
 
 class GenerationResponse:
@@ -1940,6 +2025,96 @@ class Image:
         return self._pil_image._repr_png_()
 
 
+class AutomaticFunctionCallingResponder:
+    """Responder that automatically responds to model's function calls."""
+
+    def __init__(self, max_automatic_function_calls: int = 1):
+        """Initializes the responder.
+
+        Args:
+            max_automatic_function_calls: Maximum number of automatic function calls.
+        """
+        if not (max_automatic_function_calls > 0):
+            raise ValueError("max_automatic_function_calls must be positive.")
+        self._max_automatic_function_calls = max_automatic_function_calls
+
+    def _create_responder_for_message(self, tools: List[Tool]) -> "_MessageResponder":
+        return AutomaticFunctionCallingResponder._MessageResponder(
+            tools=tools,
+            max_automatic_function_calls=self._max_automatic_function_calls,
+        )
+
+    class _MessageResponder:
+        """Automatic Function Calling responder for a single user message."""
+
+        def __init__(
+            self,
+            *,
+            tools: List[Tool],
+            max_automatic_function_calls: int = 1,
+            **_,
+        ):
+            self._tools = tools
+            self._max_automatic_function_calls = max_automatic_function_calls
+            self._remaining_function_calls = max_automatic_function_calls
+
+        def respond_to_model_response(
+            self,
+            *,
+            response: "GenerationResponse",
+            **_,
+        ) -> Optional["Content"]:
+            """Responds to model's response.
+
+            Args:
+                response: Model's response that can be auto-responded.
+
+            Returns:
+                Optional response to model's response.
+            """
+            chosen_candidate = response.candidates[0]
+            function_calls = chosen_candidate.function_calls
+            if not function_calls:
+                return None
+            tools = self._tools or self._model._tools
+            function_response_parts = []
+            for function_call in function_calls:
+                if self._remaining_function_calls > 0:
+                    self._remaining_function_calls -= 1
+                else:
+                    raise RuntimeError(
+                        f"Exceeded the maximum number of automatic function calls ({self._max_automatic_function_calls})."
+                        " If more automatic function calls are needed, set `max_automatic_function_calls` to a higher number."
+                        f" The last function calls: {function_calls}"
+                    )
+                callable_function = None
+                for tool in tools:
+                    callable_function = tool._callable_functions.get(function_call.name)
+                if not callable_function:
+                    raise RuntimeError(
+                        f"""Model has asked to call function "{function_call.name}" which was not found."""
+                    )
+
+                try:
+                    # We cannot use `function_args = type(function_call.args).to_dict(function_call.args)`
+                    # due to: AttributeError: type object 'MapComposite' has no attribute 'to_dict'
+                    function_args = type(function_call).to_dict(function_call)["args"]
+                    function_call_result = callable_function._function(**function_args)
+                except Exception as ex:
+                    raise RuntimeError(
+                        f"""Error raised when calling function "{function_call.name}" as requested by the model."""
+                    ) from ex
+                function_response_part = Part.from_function_response(
+                    name=function_call.name,
+                    response=function_call_result,
+                )
+                function_response_parts.append(function_response_part)
+            function_response_content = Content(
+                parts=function_response_parts,
+            )
+            return function_response_content
+
+
 class GenerativeModel(_GenerativeModel):
     __module__ = "vertexai.generative_models"
 
@@ -1947,3 +2122,37 @@ class GenerativeModel(_GenerativeModel):
 class _PreviewGenerativeModel(_GenerativeModel):
     __name__ = "GenerativeModel"
     __module__ = "vertexai.preview.generative_models"
+
+    def start_chat(
+        self,
+        *,
+        history: Optional[List["Content"]] = None,
+        response_validation: bool = True,
+        # Preview features:
+        responder: Optional["AutomaticFunctionCallingResponder"] = None,
+    ) -> "ChatSession":
+        """Creates a stateful chat session.
+
+        Args:
+            history: Previous history to initialize the chat session.
+            response_validation: Whether to validate responses before adding
+                them to chat history. By default, `send_message` will raise
+                error if the request or response is blocked or if the response
+                is incomplete due to going over the max token limit.
+                If set to `False`, the chat session history will always
+                accumulate the request and response messages even if the
+                response if blocked or incomplete. This can result in an unusable
+                chat session state.
+            responder: An responder object that can automatically respond to
+                some model messages. Supported responder classes:
+                `AutomaticFunctionCallingResponder`.
+
+        Returns:
+            A ChatSession object.
+        """
+        return _PreviewChatSession(
+            model=self,
+            history=history,
+            response_validation=response_validation,
+            responder=responder,
+        )
