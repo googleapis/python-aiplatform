@@ -274,6 +274,12 @@ class DeployedModel(proto.Message):
             is not populated, all fields of the
             [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec]
             will be used for the explanation configuration.
+        disable_explanations (bool):
+            If true, deploy the model without explainable feature,
+            regardless the existence of
+            [Model.explanation_spec][google.cloud.aiplatform.v1.Model.explanation_spec]
+            or
+            [explanation_spec][google.cloud.aiplatform.v1.DeployedModel.explanation_spec].
         service_account (str):
             The service account that the DeployedModel's container runs
             as. Specify the email address of the service account. If
@@ -356,6 +362,10 @@ class DeployedModel(proto.Message):
         proto.MESSAGE,
         number=9,
         message=explanation.ExplanationSpec,
+    )
+    disable_explanations: bool = proto.Field(
+        proto.BOOL,
+        number=19,
     )
     service_account: str = proto.Field(
         proto.STRING,

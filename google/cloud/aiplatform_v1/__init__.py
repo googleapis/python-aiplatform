@@ -66,6 +66,8 @@ from .services.model_service import ModelServiceClient
 from .services.model_service import ModelServiceAsyncClient
 from .services.notebook_service import NotebookServiceClient
 from .services.notebook_service import NotebookServiceAsyncClient
+from .services.persistent_resource_service import PersistentResourceServiceClient
+from .services.persistent_resource_service import PersistentResourceServiceAsyncClient
 from .services.pipeline_service import PipelineServiceClient
 from .services.pipeline_service import PipelineServiceAsyncClient
 from .services.prediction_service import PredictionServiceClient
@@ -582,6 +584,22 @@ from .types.openapi import Schema
 from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
+from .types.persistent_resource import PersistentResource
+from .types.persistent_resource import RaySpec
+from .types.persistent_resource import ResourcePool
+from .types.persistent_resource import ResourceRuntime
+from .types.persistent_resource import ResourceRuntimeSpec
+from .types.persistent_resource import ServiceAccountSpec
+from .types.persistent_resource_service import CreatePersistentResourceOperationMetadata
+from .types.persistent_resource_service import CreatePersistentResourceRequest
+from .types.persistent_resource_service import DeletePersistentResourceRequest
+from .types.persistent_resource_service import GetPersistentResourceRequest
+from .types.persistent_resource_service import ListPersistentResourcesRequest
+from .types.persistent_resource_service import ListPersistentResourcesResponse
+from .types.persistent_resource_service import RebootPersistentResourceOperationMetadata
+from .types.persistent_resource_service import RebootPersistentResourceRequest
+from .types.persistent_resource_service import UpdatePersistentResourceOperationMetadata
+from .types.persistent_resource_service import UpdatePersistentResourceRequest
 from .types.pipeline_failure_policy import PipelineFailurePolicy
 from .types.pipeline_job import PipelineJob
 from .types.pipeline_job import PipelineJobDetail
@@ -776,6 +794,7 @@ __all__ = (
     "ModelGardenServiceAsyncClient",
     "ModelServiceAsyncClient",
     "NotebookServiceAsyncClient",
+    "PersistentResourceServiceAsyncClient",
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
     "ScheduleServiceAsyncClient",
@@ -895,6 +914,8 @@ __all__ = (
     "CreateNasJobRequest",
     "CreateNotebookRuntimeTemplateOperationMetadata",
     "CreateNotebookRuntimeTemplateRequest",
+    "CreatePersistentResourceOperationMetadata",
+    "CreatePersistentResourceRequest",
     "CreatePipelineJobRequest",
     "CreateRegistryFeatureOperationMetadata",
     "CreateScheduleRequest",
@@ -950,6 +971,7 @@ __all__ = (
     "DeleteNotebookRuntimeRequest",
     "DeleteNotebookRuntimeTemplateRequest",
     "DeleteOperationMetadata",
+    "DeletePersistentResourceRequest",
     "DeletePipelineJobRequest",
     "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
@@ -1085,6 +1107,7 @@ __all__ = (
     "GetNasTrialDetailRequest",
     "GetNotebookRuntimeRequest",
     "GetNotebookRuntimeTemplateRequest",
+    "GetPersistentResourceRequest",
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
     "GetScheduleRequest",
@@ -1192,6 +1215,8 @@ __all__ = (
     "ListNotebookRuntimesResponse",
     "ListOptimalTrialsRequest",
     "ListOptimalTrialsResponse",
+    "ListPersistentResourcesRequest",
+    "ListPersistentResourcesResponse",
     "ListPipelineJobsRequest",
     "ListPipelineJobsResponse",
     "ListSavedQueriesRequest",
@@ -1273,6 +1298,8 @@ __all__ = (
     "PauseModelDeploymentMonitoringJobRequest",
     "PauseScheduleRequest",
     "PersistentDiskSpec",
+    "PersistentResource",
+    "PersistentResourceServiceClient",
     "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
@@ -1311,6 +1338,7 @@ __all__ = (
     "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
     "RawPredictRequest",
+    "RaySpec",
     "ReadFeatureValuesRequest",
     "ReadFeatureValuesResponse",
     "ReadIndexDatapointsRequest",
@@ -1323,10 +1351,15 @@ __all__ = (
     "ReadTensorboardTimeSeriesDataResponse",
     "ReadTensorboardUsageRequest",
     "ReadTensorboardUsageResponse",
+    "RebootPersistentResourceOperationMetadata",
+    "RebootPersistentResourceRequest",
     "RemoveContextChildrenRequest",
     "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",
     "RemoveDatapointsResponse",
+    "ResourcePool",
+    "ResourceRuntime",
+    "ResourceRuntimeSpec",
     "ResourcesConsumed",
     "RestoreDatasetVersionOperationMetadata",
     "RestoreDatasetVersionRequest",
@@ -1355,6 +1388,7 @@ __all__ = (
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
     "Segment",
+    "ServiceAccountSpec",
     "ShieldedVmConfig",
     "SmoothGradConfig",
     "SpecialistPool",
@@ -1437,6 +1471,8 @@ __all__ = (
     "UpdateModelDeploymentMonitoringJobOperationMetadata",
     "UpdateModelDeploymentMonitoringJobRequest",
     "UpdateModelRequest",
+    "UpdatePersistentResourceOperationMetadata",
+    "UpdatePersistentResourceRequest",
     "UpdateScheduleRequest",
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",
