@@ -133,7 +133,7 @@ class EvaluationServiceTransport(abc.ABC):
         self._wrapped_methods = {
             self.evaluate_instances: gapic_v1.method.wrap_method(
                 self.evaluate_instances,
-                default_timeout=None,
+                default_timeout=60.0,
                 client_info=client_info,
             ),
         }

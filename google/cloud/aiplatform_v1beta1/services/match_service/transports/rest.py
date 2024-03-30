@@ -1350,6 +1350,10 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                 },
                 {
@@ -1734,6 +1738,10 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -2172,6 +2180,10 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2622,6 +2634,10 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
                 },
                 {
@@ -2864,10 +2880,6 @@ class MatchServiceRestTransport(MatchServiceTransport):
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
                 },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                },
             ]
 
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
@@ -3058,6 +3070,10 @@ class MatchServiceRestTransport(MatchServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

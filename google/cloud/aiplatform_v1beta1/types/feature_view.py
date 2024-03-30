@@ -92,6 +92,13 @@ class FeatureView(proto.Message):
             Optional. Deprecated: please use
             [FeatureView.index_config][google.cloud.aiplatform.v1beta1.FeatureView.index_config]
             instead.
+        index_config (google.cloud.aiplatform_v1beta1.types.FeatureView.IndexConfig):
+            Optional. Configuration for index preparation
+            for vector search. It contains the required
+            configurations to create an index from source
+            data, so that approximate nearest neighbor
+            (a.k.a ANN) algorithms search can be performed
+            during online serving.
         service_agent_type (google.cloud.aiplatform_v1beta1.types.FeatureView.ServiceAgentType):
             Optional. Service agent type used during data sync. By
             default, the Vertex AI Service Agent is used. When using an
@@ -211,9 +218,14 @@ class FeatureView(proto.Message):
             crowding_column (str):
                 Optional. Column of crowding. This column contains crowding
                 attribute which is a constraint on a neighbor list produced
-                by nearest neighbor search requiring that no more than some
-                value k' of the k neighbors returned have the same value of
-                crowding_attribute.
+                by
+                [FeatureOnlineStoreService.SearchNearestEntities][google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService.SearchNearestEntities]
+                to diversify search results. If
+                [NearestNeighborQuery.per_crowding_attribute_neighbor_count][google.cloud.aiplatform.v1beta1.NearestNeighborQuery.per_crowding_attribute_neighbor_count]
+                is set to K in
+                [SearchNearestEntitiesRequest][google.cloud.aiplatform.v1beta1.SearchNearestEntitiesRequest],
+                it's guaranteed that no more than K entities of the same
+                crowding attribute are returned in the response.
             embedding_dimension (int):
                 Optional. The number of dimensions of the
                 input embedding.
@@ -307,6 +319,147 @@ class FeatureView(proto.Message):
                 proto.ENUM,
                 number=7,
                 enum="FeatureView.VectorSearchConfig.DistanceMeasureType",
+            )
+        )
+
+    class IndexConfig(proto.Message):
+        r"""Configuration for vector indexing.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            tree_ah_config (google.cloud.aiplatform_v1beta1.types.FeatureView.IndexConfig.TreeAHConfig):
+                Optional. Configuration options for the
+                tree-AH algorithm (Shallow tree
+                + Asymmetric Hashing). Please refer to this
+                  paper for more details:
+
+                https://arxiv.org/abs/1908.10396
+
+                This field is a member of `oneof`_ ``algorithm_config``.
+            brute_force_config (google.cloud.aiplatform_v1beta1.types.FeatureView.IndexConfig.BruteForceConfig):
+                Optional. Configuration options for using
+                brute force search, which simply implements the
+                standard linear search in the database for each
+                query. It is primarily meant for benchmarking
+                and to generate the ground truth for approximate
+                search.
+
+                This field is a member of `oneof`_ ``algorithm_config``.
+            embedding_column (str):
+                Optional. Column of embedding. This column contains the
+                source data to create index for vector search.
+                embedding_column must be set when using vector search.
+            filter_columns (MutableSequence[str]):
+                Optional. Columns of features that're used to
+                filter vector search results.
+            crowding_column (str):
+                Optional. Column of crowding. This column contains crowding
+                attribute which is a constraint on a neighbor list produced
+                by
+                [FeatureOnlineStoreService.SearchNearestEntities][google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService.SearchNearestEntities]
+                to diversify search results. If
+                [NearestNeighborQuery.per_crowding_attribute_neighbor_count][google.cloud.aiplatform.v1beta1.NearestNeighborQuery.per_crowding_attribute_neighbor_count]
+                is set to K in
+                [SearchNearestEntitiesRequest][google.cloud.aiplatform.v1beta1.SearchNearestEntitiesRequest],
+                it's guaranteed that no more than K entities of the same
+                crowding attribute are returned in the response.
+            embedding_dimension (int):
+                Optional. The number of dimensions of the
+                input embedding.
+
+                This field is a member of `oneof`_ ``_embedding_dimension``.
+            distance_measure_type (google.cloud.aiplatform_v1beta1.types.FeatureView.IndexConfig.DistanceMeasureType):
+                Optional. The distance measure used in
+                nearest neighbor search.
+        """
+
+        class DistanceMeasureType(proto.Enum):
+            r"""The distance measure used in nearest neighbor search.
+
+            Values:
+                DISTANCE_MEASURE_TYPE_UNSPECIFIED (0):
+                    Should not be set.
+                SQUARED_L2_DISTANCE (1):
+                    Euclidean (L_2) Distance.
+                COSINE_DISTANCE (2):
+                    Cosine Distance. Defined as 1 - cosine similarity.
+
+                    We strongly suggest using DOT_PRODUCT_DISTANCE +
+                    UNIT_L2_NORM instead of COSINE distance. Our algorithms have
+                    been more optimized for DOT_PRODUCT distance which, when
+                    combined with UNIT_L2_NORM, is mathematically equivalent to
+                    COSINE distance and results in the same ranking.
+                DOT_PRODUCT_DISTANCE (3):
+                    Dot Product Distance. Defined as a negative
+                    of the dot product.
+            """
+            DISTANCE_MEASURE_TYPE_UNSPECIFIED = 0
+            SQUARED_L2_DISTANCE = 1
+            COSINE_DISTANCE = 2
+            DOT_PRODUCT_DISTANCE = 3
+
+        class BruteForceConfig(proto.Message):
+            r"""Configuration options for using brute force search."""
+
+        class TreeAHConfig(proto.Message):
+            r"""Configuration options for the tree-AH algorithm.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                leaf_node_embedding_count (int):
+                    Optional. Number of embeddings on each leaf
+                    node. The default value is 1000 if not set.
+
+                    This field is a member of `oneof`_ ``_leaf_node_embedding_count``.
+            """
+
+            leaf_node_embedding_count: int = proto.Field(
+                proto.INT64,
+                number=1,
+                optional=True,
+            )
+
+        tree_ah_config: "FeatureView.IndexConfig.TreeAHConfig" = proto.Field(
+            proto.MESSAGE,
+            number=6,
+            oneof="algorithm_config",
+            message="FeatureView.IndexConfig.TreeAHConfig",
+        )
+        brute_force_config: "FeatureView.IndexConfig.BruteForceConfig" = proto.Field(
+            proto.MESSAGE,
+            number=7,
+            oneof="algorithm_config",
+            message="FeatureView.IndexConfig.BruteForceConfig",
+        )
+        embedding_column: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        filter_columns: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=2,
+        )
+        crowding_column: str = proto.Field(
+            proto.STRING,
+            number=3,
+        )
+        embedding_dimension: int = proto.Field(
+            proto.INT32,
+            number=4,
+            optional=True,
+        )
+        distance_measure_type: "FeatureView.IndexConfig.DistanceMeasureType" = (
+            proto.Field(
+                proto.ENUM,
+                number=5,
+                enum="FeatureView.IndexConfig.DistanceMeasureType",
             )
         )
 
@@ -406,6 +559,11 @@ class FeatureView(proto.Message):
         proto.MESSAGE,
         number=8,
         message=VectorSearchConfig,
+    )
+    index_config: IndexConfig = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        message=IndexConfig,
     )
     service_agent_type: ServiceAgentType = proto.Field(
         proto.ENUM,

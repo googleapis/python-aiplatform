@@ -32,6 +32,7 @@ __protobuf__ = proto.module(
         "FunctionCall",
         "FunctionResponse",
         "Retrieval",
+        "VertexRagStore",
         "VertexAISearch",
         "GoogleSearchRetrieval",
         "ToolConfig",
@@ -304,6 +305,10 @@ class Retrieval(proto.Message):
     r"""Defines a retrieval tool that model can call to access
     external knowledge.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -311,6 +316,12 @@ class Retrieval(proto.Message):
         vertex_ai_search (google.cloud.aiplatform_v1beta1.types.VertexAISearch):
             Set to use data source powered by Vertex AI
             Search.
+
+            This field is a member of `oneof`_ ``source``.
+        vertex_rag_store (google.cloud.aiplatform_v1beta1.types.VertexRagStore):
+            Set to use data source powered by Vertex RAG
+            store. User data is uploaded via the
+            VertexRagDataService.
 
             This field is a member of `oneof`_ ``source``.
         disable_attribution (bool):
@@ -326,9 +337,45 @@ class Retrieval(proto.Message):
         oneof="source",
         message="VertexAISearch",
     )
+    vertex_rag_store: "VertexRagStore" = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="source",
+        message="VertexRagStore",
+    )
     disable_attribution: bool = proto.Field(
         proto.BOOL,
         number=3,
+    )
+
+
+class VertexRagStore(proto.Message):
+    r"""Retrieve from Vertex RAG Store for grounding.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        rag_corpora (MutableSequence[str]):
+            Required. Vertex RAG Store corpus resource name:
+            ``projects/{project}/locations/{location}/ragCorpora/{ragCorpus}``
+            Currently only one corpus is allowed. In the future we may
+            open up multiple corpora support. However, they should be
+            from the same project and location.
+        similarity_top_k (int):
+            Optional. Number of top k results to return
+            from the selected corpora.
+
+            This field is a member of `oneof`_ ``_similarity_top_k``.
+    """
+
+    rag_corpora: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=1,
+    )
+    similarity_top_k: int = proto.Field(
+        proto.INT32,
+        number=2,
+        optional=True,
     )
 
 
@@ -338,9 +385,9 @@ class VertexAISearch(proto.Message):
 
     Attributes:
         datastore (str):
-            Required. Fully-qualified Vertex AI Search's
-            datastore resource ID.
-            projects/<>/locations/<>/collections/<>/dataStores/<>
+            Required. Fully-qualified Vertex AI Search's datastore
+            resource ID. Format:
+            ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}``
     """
 
     datastore: str = proto.Field(
@@ -373,7 +420,7 @@ class ToolConfig(proto.Message):
 
     Attributes:
         function_calling_config (google.cloud.aiplatform_v1beta1.types.FunctionCallingConfig):
-            Function calling config.
+            Optional. Function calling config.
     """
 
     function_calling_config: "FunctionCallingConfig" = proto.Field(
@@ -388,12 +435,12 @@ class FunctionCallingConfig(proto.Message):
 
     Attributes:
         mode (google.cloud.aiplatform_v1beta1.types.FunctionCallingConfig.Mode):
-            Function calling mode.
+            Optional. Function calling mode.
         allowed_function_names (MutableSequence[str]):
-            Function names to call. Only set when the Mode is ANY.
-            Function names should match [FunctionDeclaration.name]. With
-            mode set to ANY, model will predict a function call from the
-            set of function names provided.
+            Optional. Function names to call. Only set when the Mode is
+            ANY. Function names should match [FunctionDeclaration.name].
+            With mode set to ANY, model will predict a function call
+            from the set of function names provided.
     """
 
     class Mode(proto.Enum):

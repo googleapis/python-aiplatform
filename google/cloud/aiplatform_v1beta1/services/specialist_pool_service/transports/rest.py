@@ -707,6 +707,10 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -1034,6 +1038,10 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     {
                         "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1412,6 +1420,10 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -1801,6 +1813,10 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
                     },
                     {
@@ -2043,10 +2059,6 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
                     },
-                    {
-                        "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                    },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
                     {
@@ -2176,6 +2188,10 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3627,6 +3643,10 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                 },
                 {
@@ -4011,6 +4031,10 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -4449,6 +4473,10 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -4899,6 +4927,10 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
                 },
                 {
@@ -5141,10 +5173,6 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
                 },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                },
             ]
 
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
@@ -5335,6 +5363,10 @@ class SpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

@@ -130,8 +130,14 @@ class Extension(proto.Message):
             Optional. The PrivateServiceConnect config
             for the extension. If specified, the service
             endpoints associated with the Extension should
-            be registered in the provided Service Directory
+            be registered with private network access in the
+            provided Service Directory
             (https://cloud.google.com/service-directory/docs/configuring-private-network-access).
+
+            If the service contains more than one endpoint
+            with a network, the service will arbitrarilty
+            choose one of the endpoints to use for extension
+            execution.
     """
 
     name: str = proto.Field(
@@ -327,12 +333,6 @@ class AuthConfig(proto.Message):
         auth_type (google.cloud.aiplatform_v1beta1.types.AuthType):
             Type of auth scheme.
     """
-
-    class NoAuth(proto.Message):
-        r"""Empty message, used to indicate no authentication for an
-        endpoint.
-
-        """
 
     class ApiKeyConfig(proto.Message):
         r"""Config for authentication with API key.

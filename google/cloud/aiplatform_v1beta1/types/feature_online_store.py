@@ -97,8 +97,10 @@ class FeatureOnlineStore(proto.Message):
             this FeatureOnlineStore, which is different from
             common Vertex service endpoint.
         embedding_management (google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore.EmbeddingManagement):
-            Optional. The settings for embedding
-            management in FeatureOnlineStore.
+            Optional. Deprecated: This field is no longer
+            needed anymore and embedding management is
+            automatically enabled when specifying Optimized
+            storage type.
     """
 
     class State(proto.Enum):
@@ -180,12 +182,9 @@ class FeatureOnlineStore(proto.Message):
         r"""Optimized storage type"""
 
     class DedicatedServingEndpoint(proto.Message):
-        r"""The dedicated serving endpoint for this FeatureOnlineStore. Only
-        need to set when you choose Optimized storage type or enable
-        EmbeddingManagement. Will use public endpoint by default. Note, for
-        EmbeddingManagement use case, only
-        [DedicatedServingEndpoint.public_endpoint_domain_name] is available
-        now.
+        r"""The dedicated serving endpoint for this FeatureOnlineStore.
+        Only need to set when you choose Optimized storage type. Public
+        endpoint is provisioned by default.
 
         Attributes:
             public_endpoint_domain_name (str):
@@ -222,7 +221,10 @@ class FeatureOnlineStore(proto.Message):
         )
 
     class EmbeddingManagement(proto.Message):
-        r"""Contains settings for embedding management.
+        r"""Deprecated: This sub message is no longer needed anymore and
+        embedding management is automatically enabled when specifying
+        Optimized storage type. Contains settings for embedding
+        management.
 
         Attributes:
             enabled (bool):

@@ -32,6 +32,8 @@ __protobuf__ = proto.module(
         "CsvDestination",
         "TFRecordDestination",
         "ContainerRegistryDestination",
+        "GoogleDriveSource",
+        "DirectUploadSource",
     },
 )
 
@@ -197,6 +199,65 @@ class ContainerRegistryDestination(proto.Message):
         proto.STRING,
         number=1,
     )
+
+
+class GoogleDriveSource(proto.Message):
+    r"""The Google Drive location for the input content.
+
+    Attributes:
+        resource_ids (MutableSequence[google.cloud.aiplatform_v1beta1.types.GoogleDriveSource.ResourceId]):
+            Required. Google Drive resource IDs.
+    """
+
+    class ResourceId(proto.Message):
+        r"""The type and ID of the Google Drive resource.
+
+        Attributes:
+            resource_type (google.cloud.aiplatform_v1beta1.types.GoogleDriveSource.ResourceId.ResourceType):
+                Required. The type of the Google Drive
+                resource.
+            resource_id (str):
+                Required. The ID of the Google Drive
+                resource.
+        """
+
+        class ResourceType(proto.Enum):
+            r"""The type of the Google Drive resource.
+
+            Values:
+                RESOURCE_TYPE_UNSPECIFIED (0):
+                    Unspecified resource type.
+                RESOURCE_TYPE_FILE (1):
+                    File resource type.
+                RESOURCE_TYPE_FOLDER (2):
+                    Folder resource type.
+            """
+            RESOURCE_TYPE_UNSPECIFIED = 0
+            RESOURCE_TYPE_FILE = 1
+            RESOURCE_TYPE_FOLDER = 2
+
+        resource_type: "GoogleDriveSource.ResourceId.ResourceType" = proto.Field(
+            proto.ENUM,
+            number=1,
+            enum="GoogleDriveSource.ResourceId.ResourceType",
+        )
+        resource_id: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
+    resource_ids: MutableSequence[ResourceId] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=ResourceId,
+    )
+
+
+class DirectUploadSource(proto.Message):
+    r"""The input content is encapsulated and uploaded in the
+    request.
+
+    """
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

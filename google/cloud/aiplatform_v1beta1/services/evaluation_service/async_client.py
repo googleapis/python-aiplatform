@@ -316,7 +316,7 @@ class EvaluationServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.evaluate_instances,
-            default_timeout=None,
+            default_timeout=60.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 

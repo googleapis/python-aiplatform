@@ -61,10 +61,6 @@ __protobuf__ = proto.module(
         "FulfillmentInstance",
         "FulfillmentSpec",
         "FulfillmentResult",
-        "ResponseRecallInput",
-        "ResponseRecallInstance",
-        "ResponseRecallSpec",
-        "ResponseRecallResult",
         "SummarizationQualityInput",
         "SummarizationQualityInstance",
         "SummarizationQualitySpec",
@@ -101,10 +97,6 @@ __protobuf__ = proto.module(
         "QuestionAnsweringCorrectnessInstance",
         "QuestionAnsweringCorrectnessSpec",
         "QuestionAnsweringCorrectnessResult",
-        "RagContextRecallInput",
-        "RagContextRecallInstance",
-        "RagContextRecallSpec",
-        "RagContextRecallResult",
         "ToolCallValidInput",
         "ToolCallValidSpec",
         "ToolCallValidInstance",
@@ -195,10 +187,6 @@ class EvaluateInstancesRequest(proto.Message):
             Input for fulfillment metric.
 
             This field is a member of `oneof`_ ``metric_inputs``.
-        response_recall_input (google.cloud.aiplatform_v1beta1.types.ResponseRecallInput):
-            Input for response recall metric.
-
-            This field is a member of `oneof`_ ``metric_inputs``.
         summarization_quality_input (google.cloud.aiplatform_v1beta1.types.SummarizationQualityInput):
             Input for summarization quality metric.
 
@@ -238,10 +226,6 @@ class EvaluateInstancesRequest(proto.Message):
         question_answering_correctness_input (google.cloud.aiplatform_v1beta1.types.QuestionAnsweringCorrectnessInput):
             Input for question answering correctness
             metric.
-
-            This field is a member of `oneof`_ ``metric_inputs``.
-        rag_context_recall_input (google.cloud.aiplatform_v1beta1.types.RagContextRecallInput):
-            Input for rag context recall metric.
 
             This field is a member of `oneof`_ ``metric_inputs``.
         tool_call_valid_input (google.cloud.aiplatform_v1beta1.types.ToolCallValidInput):
@@ -316,12 +300,6 @@ class EvaluateInstancesRequest(proto.Message):
         oneof="metric_inputs",
         message="FulfillmentInput",
     )
-    response_recall_input: "ResponseRecallInput" = proto.Field(
-        proto.MESSAGE,
-        number=13,
-        oneof="metric_inputs",
-        message="ResponseRecallInput",
-    )
     summarization_quality_input: "SummarizationQualityInput" = proto.Field(
         proto.MESSAGE,
         number=7,
@@ -381,12 +359,6 @@ class EvaluateInstancesRequest(proto.Message):
             oneof="metric_inputs",
             message="QuestionAnsweringCorrectnessInput",
         )
-    )
-    rag_context_recall_input: "RagContextRecallInput" = proto.Field(
-        proto.MESSAGE,
-        number=11,
-        oneof="metric_inputs",
-        message="RagContextRecallInput",
     )
     tool_call_valid_input: "ToolCallValidInput" = proto.Field(
         proto.MESSAGE,
@@ -464,10 +436,6 @@ class EvaluateInstancesResponse(proto.Message):
             Result for fulfillment metric.
 
             This field is a member of `oneof`_ ``evaluation_results``.
-        response_recall_result (google.cloud.aiplatform_v1beta1.types.ResponseRecallResult):
-            Result for response recall metric.
-
-            This field is a member of `oneof`_ ``evaluation_results``.
         summarization_quality_result (google.cloud.aiplatform_v1beta1.types.SummarizationQualityResult):
             Summarization only metrics.
             Result for summarization quality metric.
@@ -509,11 +477,6 @@ class EvaluateInstancesResponse(proto.Message):
         question_answering_correctness_result (google.cloud.aiplatform_v1beta1.types.QuestionAnsweringCorrectnessResult):
             Result for question answering correctness
             metric.
-
-            This field is a member of `oneof`_ ``evaluation_results``.
-        rag_context_recall_result (google.cloud.aiplatform_v1beta1.types.RagContextRecallResult):
-            RAG only metrics.
-            Result for context recall metric.
 
             This field is a member of `oneof`_ ``evaluation_results``.
         tool_call_valid_results (google.cloud.aiplatform_v1beta1.types.ToolCallValidResults):
@@ -584,12 +547,6 @@ class EvaluateInstancesResponse(proto.Message):
         oneof="evaluation_results",
         message="FulfillmentResult",
     )
-    response_recall_result: "ResponseRecallResult" = proto.Field(
-        proto.MESSAGE,
-        number=12,
-        oneof="evaluation_results",
-        message="ResponseRecallResult",
-    )
     summarization_quality_result: "SummarizationQualityResult" = proto.Field(
         proto.MESSAGE,
         number=6,
@@ -651,12 +608,6 @@ class EvaluateInstancesResponse(proto.Message):
             oneof="evaluation_results",
             message="QuestionAnsweringCorrectnessResult",
         )
-    )
-    rag_context_recall_result: "RagContextRecallResult" = proto.Field(
-        proto.MESSAGE,
-        number=10,
-        oneof="evaluation_results",
-        message="RagContextRecallResult",
     )
     tool_call_valid_results: "ToolCallValidResults" = proto.Field(
         proto.MESSAGE,
@@ -1461,109 +1412,6 @@ class FulfillmentResult(proto.Message):
     )
 
 
-class ResponseRecallInput(proto.Message):
-    r"""Input for response recall metric.
-
-    Attributes:
-        metric_spec (google.cloud.aiplatform_v1beta1.types.ResponseRecallSpec):
-            Required. Spec for response recall score
-            metric.
-        instance (google.cloud.aiplatform_v1beta1.types.ResponseRecallInstance):
-            Required. Response recall instance.
-    """
-
-    metric_spec: "ResponseRecallSpec" = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message="ResponseRecallSpec",
-    )
-    instance: "ResponseRecallInstance" = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message="ResponseRecallInstance",
-    )
-
-
-class ResponseRecallInstance(proto.Message):
-    r"""Spec for response recall instance.
-
-    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
-
-    Attributes:
-        prediction (str):
-            Required. Output of the evaluated model.
-
-            This field is a member of `oneof`_ ``_prediction``.
-        reference (str):
-            Required. Ground truth used to compare
-            against the prediction.
-
-            This field is a member of `oneof`_ ``_reference``.
-    """
-
-    prediction: str = proto.Field(
-        proto.STRING,
-        number=1,
-        optional=True,
-    )
-    reference: str = proto.Field(
-        proto.STRING,
-        number=2,
-        optional=True,
-    )
-
-
-class ResponseRecallSpec(proto.Message):
-    r"""Spec for response recall metric.
-
-    Attributes:
-        version (int):
-            Optional. Which version to use for
-            evaluation.
-    """
-
-    version: int = proto.Field(
-        proto.INT32,
-        number=1,
-    )
-
-
-class ResponseRecallResult(proto.Message):
-    r"""Spec for response recall result.
-
-    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
-
-    Attributes:
-        score (float):
-            Output only. ResponseRecall score.
-
-            This field is a member of `oneof`_ ``_score``.
-        explanation (str):
-            Output only. Explanation for response recall
-            score.
-        confidence (float):
-            Output only. Confidence for fulfillment
-            score.
-
-            This field is a member of `oneof`_ ``_confidence``.
-    """
-
-    score: float = proto.Field(
-        proto.FLOAT,
-        number=1,
-        optional=True,
-    )
-    explanation: str = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    confidence: float = proto.Field(
-        proto.FLOAT,
-        number=3,
-        optional=True,
-    )
-
-
 class SummarizationQualityInput(proto.Message):
     r"""Input for summarization quality metric.
 
@@ -2125,7 +1973,7 @@ class QuestionAnsweringQualityInstance(proto.Message):
 
             This field is a member of `oneof`_ ``_reference``.
         context (str):
-            Optional. Text to answer the question.
+            Required. Text to answer the question.
 
             This field is a member of `oneof`_ ``_context``.
         instruction (str):
@@ -2259,7 +2107,7 @@ class PairwiseQuestionAnsweringQualityInstance(proto.Message):
 
             This field is a member of `oneof`_ ``_reference``.
         context (str):
-            Optional. Text to answer the question.
+            Required. Text to answer the question.
 
             This field is a member of `oneof`_ ``_context``.
         instruction (str):
@@ -2728,109 +2576,6 @@ class QuestionAnsweringCorrectnessResult(proto.Message):
         confidence (float):
             Output only. Confidence for question
             answering correctness score.
-
-            This field is a member of `oneof`_ ``_confidence``.
-    """
-
-    score: float = proto.Field(
-        proto.FLOAT,
-        number=1,
-        optional=True,
-    )
-    explanation: str = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    confidence: float = proto.Field(
-        proto.FLOAT,
-        number=3,
-        optional=True,
-    )
-
-
-class RagContextRecallInput(proto.Message):
-    r"""Input for rag context recall metric.
-
-    Attributes:
-        metric_spec (google.cloud.aiplatform_v1beta1.types.RagContextRecallSpec):
-            Required. Spec for rag context recall metric.
-        instance (google.cloud.aiplatform_v1beta1.types.RagContextRecallInstance):
-            Required. Rag context recall instance.
-    """
-
-    metric_spec: "RagContextRecallSpec" = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message="RagContextRecallSpec",
-    )
-    instance: "RagContextRecallInstance" = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message="RagContextRecallInstance",
-    )
-
-
-class RagContextRecallInstance(proto.Message):
-    r"""Spec for rag context recall instance.
-
-    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
-
-    Attributes:
-        reference (str):
-            Required. Ground truth used to compare
-            against the context.
-
-            This field is a member of `oneof`_ ``_reference``.
-        context (str):
-            Required. Retrieved facts from RAG pipeline
-            as context to be evaluated.
-
-            This field is a member of `oneof`_ ``_context``.
-    """
-
-    reference: str = proto.Field(
-        proto.STRING,
-        number=1,
-        optional=True,
-    )
-    context: str = proto.Field(
-        proto.STRING,
-        number=2,
-        optional=True,
-    )
-
-
-class RagContextRecallSpec(proto.Message):
-    r"""Spec for rag context recall metric.
-
-    Attributes:
-        version (int):
-            Optional. Which version to use for
-            evaluation.
-    """
-
-    version: int = proto.Field(
-        proto.INT32,
-        number=2,
-    )
-
-
-class RagContextRecallResult(proto.Message):
-    r"""Spec for rag context recall result.
-
-    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
-
-    Attributes:
-        score (float):
-            Output only. RagContextRecall score.
-
-            This field is a member of `oneof`_ ``_score``.
-        explanation (str):
-            Output only. Explanation for rag context
-            recall score.
-        confidence (float):
-            Output only. Confidence for rag context
-            recall score.
 
             This field is a member of `oneof`_ ``_confidence``.
     """

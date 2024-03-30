@@ -7771,6 +7771,15 @@ def test_create_feature_view_rest(request_type):
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
         },
+        "index_config": {
+            "tree_ah_config": {"leaf_node_embedding_count": 2595},
+            "brute_force_config": {},
+            "embedding_column": "embedding_column_value",
+            "filter_columns": ["filter_columns_value1", "filter_columns_value2"],
+            "crowding_column": "crowding_column_value",
+            "embedding_dimension": 1988,
+            "distance_measure_type": 1,
+        },
         "service_agent_type": 1,
         "service_account_email": "service_account_email_value",
     }
@@ -8836,6 +8845,15 @@ def test_update_feature_view_rest(request_type):
         "labels": {},
         "sync_config": {"cron": "cron_value"},
         "vector_search_config": {
+            "tree_ah_config": {"leaf_node_embedding_count": 2595},
+            "brute_force_config": {},
+            "embedding_column": "embedding_column_value",
+            "filter_columns": ["filter_columns_value1", "filter_columns_value2"],
+            "crowding_column": "crowding_column_value",
+            "embedding_dimension": 1988,
+            "distance_measure_type": 1,
+        },
+        "index_config": {
             "tree_ah_config": {"leaf_node_embedding_count": 2595},
             "brute_force_config": {},
             "embedding_column": "embedding_column_value",

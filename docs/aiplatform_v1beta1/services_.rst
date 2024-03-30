@@ -32,4 +32,6 @@ Services for Google Cloud Aiplatform v1beta1 API
     schedule_service
     specialist_pool_service
     tensorboard_service
+    vertex_rag_data_service
+    vertex_rag_service
     vizier_service
