@@ -21,6 +21,7 @@ import logging
 import os
 import pickle
 import ray
+import ray.cloudpickle as cpickle
 import tempfile
 from typing import Optional, TYPE_CHECKING
 
@@ -117,7 +118,9 @@ def _get_estimator_from(
 
     Raises:
         ValueError: Invalid Argument.
+        RuntimeError: Model not found.
     """
+
     ray_version = ray.__version__
     if ray_version == "2.4.0":
         if not isinstance(checkpoint, ray_sklearn.SklearnCheckpoint):
@@ -133,8 +136,25 @@ def _get_estimator_from(
             )
         return checkpoint.get_estimator()
 
-    # get_model() signature changed in future versions
     try:
-        return checkpoint.get_estimator()
+        return checkpoint.get_model()
     except AttributeError:
-        raise RuntimeError("Unsupported Ray version.")
+        model_file_name = ray.train.sklearn.SklearnCheckpoint.MODEL_FILENAME
+
+    model_path = os.path.join(checkpoint.path, model_file_name)
+
+    if os.path.exists(model_path):
+        with open(model_path, mode="rb") as f:
+            obj = pickle.load(f)
+    else:
+        try:
+            # Download from GCS to temp and then load_model
+            with tempfile.TemporaryDirectory() as temp_dir:
+                gcs_utils.download_from_gcs("gs://" + checkpoint.path, temp_dir)
+                with open(f"{temp_dir}/{model_file_name}", mode="rb") as f:
+                    obj = cpickle.load(f)
+        except Exception as e:
+            raise RuntimeError(
+                f"{model_file_name} not found in this checkpoint due to: {e}."
+            )
+    return obj

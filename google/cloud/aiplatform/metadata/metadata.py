@@ -780,7 +780,7 @@ class _ExperimentTracker:
         aiplatform.log_params({'learning_rate': 0.2})
         aiplatform.log_metrics({'accuracy': 0.95})
 
-        aiplatform.get_experiments_df()
+        aiplatform.get_experiment_df()
         ```
 
         Will result in the following DataFrame:

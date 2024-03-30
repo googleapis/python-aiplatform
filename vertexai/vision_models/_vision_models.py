@@ -497,13 +497,15 @@ class ImageGenerationModel(
             parameters["editConfig"]["editMode"] = edit_mode
             shared_generation_parameters["edit_mode"] = edit_mode
 
-        if mask_mode is not None:
-            parameters["editConfig"]["maskMode"] = mask_mode
-            shared_generation_parameters["mask_mode"] = mask_mode
+        if mask is None and edit_mode != "product-image":
+            parameters["editConfig"]["maskMode"] = {}
+            if mask_mode is not None:
+                parameters["editConfig"]["maskMode"]["maskType"] = mask_mode
+                shared_generation_parameters["mask_mode"] = mask_mode
 
-        if segmentation_classes is not None:
-            parameters["editConfig"]["segmentationClasses"] = segmentation_classes
-            shared_generation_parameters["segmentation_classes"] = segmentation_classes
+            if segmentation_classes is not None:
+                parameters["editConfig"]["maskMode"]["classes"] = segmentation_classes
+                shared_generation_parameters["classes"] = segmentation_classes
 
         if mask_dilation is not None:
             parameters["editConfig"]["maskDilation"] = mask_dilation
@@ -527,7 +529,7 @@ class ImageGenerationModel(
             shared_generation_parameters["add_watermark"] = add_watermark
 
         if safety_filter_level is not None:
-            parameters["safetyFilterLevel"] = safety_filter_level
+            parameters["safetySetting"] = safety_filter_level
             shared_generation_parameters["safety_filter_level"] = safety_filter_level
 
         if person_generation is not None:

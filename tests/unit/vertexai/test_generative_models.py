@@ -538,6 +538,45 @@ class TestGenerativeModels:
         )
         assert response.text
 
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    def test_chat_automatic_function_calling(self):
+        generative_models = preview_generative_models
+        get_current_weather_func = generative_models.FunctionDeclaration.from_func(
+            get_current_weather
+        )
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+
+        model = generative_models.GenerativeModel(
+            "gemini-pro",
+            # Specifying the tools once to avoid specifying them in every request
+            tools=[weather_tool],
+        )
+        afc_responder = generative_models.AutomaticFunctionCallingResponder(
+            max_automatic_function_calls=5,
+        )
+        chat = model.start_chat(responder=afc_responder)
+
+        response1 = chat.send_message("What is the weather like in Boston?")
+        assert response1.text.startswith("The weather in Boston is")
+        assert "nice" in response1.text
+        assert len(chat.history) == 4
+        assert chat.history[-3].parts[0].function_call
+        assert chat.history[-2].parts[0].function_response
+
+        # Test max_automatic_function_calls:
+        # Setting the AFC limit to 0 to test the error handling
+        afc_responder._max_automatic_function_calls = 0
+        chat2 = model.start_chat(responder=afc_responder)
+        with pytest.raises(RuntimeError) as err:
+            chat2.send_message("What is the weather like in Boston?")
+        assert err.match("Exceeded the maximum")
+
 
 EXPECTED_SCHEMA_FOR_GET_CURRENT_WEATHER = {
     "title": "get_current_weather",

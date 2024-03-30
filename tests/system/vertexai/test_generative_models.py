@@ -28,6 +28,25 @@ from vertexai.preview import (
     generative_models as preview_generative_models,
 )
 
+
+# A dummy function for function calling
+def get_current_weather(location: str, unit: str = "centigrade"):
+    """Gets weather in the specified location.
+
+    Args:
+        location: The location for which to get the weather.
+        unit: Optional. Temperature unit. Can be Centigrade or Fahrenheit. Defaults to Centigrade.
+
+    Returns:
+        The weather information as a dict.
+    """
+    return dict(
+        location=location,
+        unit=unit,
+        weather="Super nice, but maybe a bit hot.",
+    )
+
+
 _REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT = {
     "type": "object",
     "properties": {
@@ -320,3 +339,34 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         summary = response.candidates[0].content.parts[0].text
 
         assert summary
+
+    def test_chat_automatic_function_calling(self):
+        get_current_weather_func = generative_models.FunctionDeclaration.from_func(
+            get_current_weather
+        )
+
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+
+        model = preview_generative_models.GenerativeModel(
+            "gemini-1.0-pro",
+            # Specifying the tools once to avoid specifying them in every request
+            tools=[weather_tool],
+        )
+
+        chat = model.start_chat(
+            responder=preview_generative_models.AutomaticFunctionCallingResponder(
+                max_automatic_function_calls=1,
+            )
+        )
+
+        response = chat.send_message("What is the weather like in Boston?")
+
+        assert response.text
+        assert "nice" in response.text
+        assert len(chat.history) == 4
+        assert chat.history[-3].parts[0].function_call
+        assert chat.history[-3].parts[0].function_call.name == "get_current_weather"
+        assert chat.history[-2].parts[0].function_response
+        assert chat.history[-2].parts[0].function_response.name == "get_current_weather"

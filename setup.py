@@ -112,7 +112,7 @@ ray_extra_require = [
 ]
 
 genai_requires = (
-    "pydantic < 2",
+    "pydantic < 3",
     "docstring_parser < 1",
 )
 
@@ -200,7 +200,7 @@ setuptools.setup(
         "protobuf>=3.19.5,<5.0.0dev,!=3.20.0,!=3.20.1,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
-        "google-cloud-bigquery >= 1.15.0, < 4.0.0dev",
+        "google-cloud-bigquery >= 1.15.0, < 4.0.0dev, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
         "shapely < 3.0.0dev",
     )
