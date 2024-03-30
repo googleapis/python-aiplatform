@@ -34,6 +34,9 @@ TF2 = "tf2"
 XGBOOST = "xgboost"
 
 XGBOOST_CONTAINER_URIS = [
+    "us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.2-0:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.2-0:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.2-0:latest",
     "us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-7:latest",
     "europe-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-7:latest",
     "asia-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-7:latest",
