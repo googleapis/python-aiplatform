@@ -52,6 +52,8 @@ from google.cloud.aiplatform_v1.services.model_garden_service.client import Mode
 from google.cloud.aiplatform_v1.services.model_garden_service.async_client import ModelGardenServiceAsyncClient
 from google.cloud.aiplatform_v1.services.model_service.client import ModelServiceClient
 from google.cloud.aiplatform_v1.services.model_service.async_client import ModelServiceAsyncClient
+from google.cloud.aiplatform_v1.services.notebook_service.client import NotebookServiceClient
+from google.cloud.aiplatform_v1.services.notebook_service.async_client import NotebookServiceAsyncClient
 from google.cloud.aiplatform_v1.services.pipeline_service.client import PipelineServiceClient
 from google.cloud.aiplatform_v1.services.pipeline_service.async_client import PipelineServiceAsyncClient
 from google.cloud.aiplatform_v1.services.prediction_service.client import PredictionServiceClient
@@ -398,6 +400,7 @@ from google.cloud.aiplatform_v1.types.machine_resources import MachineSpec
 from google.cloud.aiplatform_v1.types.machine_resources import NfsMount
 from google.cloud.aiplatform_v1.types.machine_resources import PersistentDiskSpec
 from google.cloud.aiplatform_v1.types.machine_resources import ResourcesConsumed
+from google.cloud.aiplatform_v1.types.machine_resources import ShieldedVmConfig
 from google.cloud.aiplatform_v1.types.manual_batch_tuning_parameters import ManualBatchTuningParameters
 from google.cloud.aiplatform_v1.types.match_service import FindNeighborsRequest
 from google.cloud.aiplatform_v1.types.match_service import FindNeighborsResponse
@@ -522,6 +525,31 @@ from google.cloud.aiplatform_v1.types.nas_job import NasJobOutput
 from google.cloud.aiplatform_v1.types.nas_job import NasJobSpec
 from google.cloud.aiplatform_v1.types.nas_job import NasTrial
 from google.cloud.aiplatform_v1.types.nas_job import NasTrialDetail
+from google.cloud.aiplatform_v1.types.network_spec import NetworkSpec
+from google.cloud.aiplatform_v1.types.notebook_euc_config import NotebookEucConfig
+from google.cloud.aiplatform_v1.types.notebook_idle_shutdown_config import NotebookIdleShutdownConfig
+from google.cloud.aiplatform_v1.types.notebook_runtime import NotebookRuntime
+from google.cloud.aiplatform_v1.types.notebook_runtime import NotebookRuntimeTemplate
+from google.cloud.aiplatform_v1.types.notebook_runtime import NotebookRuntimeType
+from google.cloud.aiplatform_v1.types.notebook_runtime_template_ref import NotebookRuntimeTemplateRef
+from google.cloud.aiplatform_v1.types.notebook_service import AssignNotebookRuntimeOperationMetadata
+from google.cloud.aiplatform_v1.types.notebook_service import AssignNotebookRuntimeRequest
+from google.cloud.aiplatform_v1.types.notebook_service import CreateNotebookRuntimeTemplateOperationMetadata
+from google.cloud.aiplatform_v1.types.notebook_service import CreateNotebookRuntimeTemplateRequest
+from google.cloud.aiplatform_v1.types.notebook_service import DeleteNotebookRuntimeRequest
+from google.cloud.aiplatform_v1.types.notebook_service import DeleteNotebookRuntimeTemplateRequest
+from google.cloud.aiplatform_v1.types.notebook_service import GetNotebookRuntimeRequest
+from google.cloud.aiplatform_v1.types.notebook_service import GetNotebookRuntimeTemplateRequest
+from google.cloud.aiplatform_v1.types.notebook_service import ListNotebookRuntimesRequest
+from google.cloud.aiplatform_v1.types.notebook_service import ListNotebookRuntimesResponse
+from google.cloud.aiplatform_v1.types.notebook_service import ListNotebookRuntimeTemplatesRequest
+from google.cloud.aiplatform_v1.types.notebook_service import ListNotebookRuntimeTemplatesResponse
+from google.cloud.aiplatform_v1.types.notebook_service import StartNotebookRuntimeOperationMetadata
+from google.cloud.aiplatform_v1.types.notebook_service import StartNotebookRuntimeRequest
+from google.cloud.aiplatform_v1.types.notebook_service import StartNotebookRuntimeResponse
+from google.cloud.aiplatform_v1.types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
+from google.cloud.aiplatform_v1.types.notebook_service import UpgradeNotebookRuntimeRequest
+from google.cloud.aiplatform_v1.types.notebook_service import UpgradeNotebookRuntimeResponse
 from google.cloud.aiplatform_v1.types.openapi import Schema
 from google.cloud.aiplatform_v1.types.openapi import Type
 from google.cloud.aiplatform_v1.types.operation import DeleteOperationMetadata
@@ -735,6 +763,8 @@ __all__ = ('DatasetServiceClient',
     'ModelGardenServiceAsyncClient',
     'ModelServiceClient',
     'ModelServiceAsyncClient',
+    'NotebookServiceClient',
+    'NotebookServiceAsyncClient',
     'PipelineServiceClient',
     'PipelineServiceAsyncClient',
     'PredictionServiceClient',
@@ -1080,6 +1110,7 @@ __all__ = ('DatasetServiceClient',
     'NfsMount',
     'PersistentDiskSpec',
     'ResourcesConsumed',
+    'ShieldedVmConfig',
     'ManualBatchTuningParameters',
     'FindNeighborsRequest',
     'FindNeighborsResponse',
@@ -1204,6 +1235,31 @@ __all__ = ('DatasetServiceClient',
     'NasJobSpec',
     'NasTrial',
     'NasTrialDetail',
+    'NetworkSpec',
+    'NotebookEucConfig',
+    'NotebookIdleShutdownConfig',
+    'NotebookRuntime',
+    'NotebookRuntimeTemplate',
+    'NotebookRuntimeType',
+    'NotebookRuntimeTemplateRef',
+    'AssignNotebookRuntimeOperationMetadata',
+    'AssignNotebookRuntimeRequest',
+    'CreateNotebookRuntimeTemplateOperationMetadata',
+    'CreateNotebookRuntimeTemplateRequest',
+    'DeleteNotebookRuntimeRequest',
+    'DeleteNotebookRuntimeTemplateRequest',
+    'GetNotebookRuntimeRequest',
+    'GetNotebookRuntimeTemplateRequest',
+    'ListNotebookRuntimesRequest',
+    'ListNotebookRuntimesResponse',
+    'ListNotebookRuntimeTemplatesRequest',
+    'ListNotebookRuntimeTemplatesResponse',
+    'StartNotebookRuntimeOperationMetadata',
+    'StartNotebookRuntimeRequest',
+    'StartNotebookRuntimeResponse',
+    'UpgradeNotebookRuntimeOperationMetadata',
+    'UpgradeNotebookRuntimeRequest',
+    'UpgradeNotebookRuntimeResponse',
     'Schema',
     'Type',
     'DeleteOperationMetadata',
