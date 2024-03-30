@@ -402,12 +402,25 @@ class ResourceRuntime(proto.Message):
             Output only. URIs for user to connect to the Cluster.
             Example: { "RAY_HEAD_NODE_INTERNAL_IP": "head-node-IP:10001"
             "RAY_DASHBOARD_URI": "ray-dashboard-address:8888" }
+        notebook_runtime_template (str):
+            Output only. The resource name of
+            NotebookRuntimeTemplate for the RoV Persistent
+            Cluster The NotebokRuntimeTemplate is created in
+            the same VPC (if set), and with the same Ray and
+            Python version as the Persistent Cluster.
+            Example:
+
+            "projects/1000/locations/us-central1/notebookRuntimeTemplates/abc123".
     """
 
     access_uris: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=1,
+    )
+    notebook_runtime_template: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 

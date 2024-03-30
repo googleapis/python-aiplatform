@@ -581,6 +581,7 @@ from .machine_resources import (
     NfsMount,
     PersistentDiskSpec,
     ResourcesConsumed,
+    ShieldedVmConfig,
 )
 from .manual_batch_tuning_parameters import (
     ManualBatchTuningParameters,
@@ -738,6 +739,43 @@ from .nas_job import (
     NasJobSpec,
     NasTrial,
     NasTrialDetail,
+)
+from .network_spec import (
+    NetworkSpec,
+)
+from .notebook_euc_config import (
+    NotebookEucConfig,
+)
+from .notebook_idle_shutdown_config import (
+    NotebookIdleShutdownConfig,
+)
+from .notebook_runtime import (
+    NotebookRuntime,
+    NotebookRuntimeTemplate,
+    NotebookRuntimeType,
+)
+from .notebook_runtime_template_ref import (
+    NotebookRuntimeTemplateRef,
+)
+from .notebook_service import (
+    AssignNotebookRuntimeOperationMetadata,
+    AssignNotebookRuntimeRequest,
+    CreateNotebookRuntimeTemplateOperationMetadata,
+    CreateNotebookRuntimeTemplateRequest,
+    DeleteNotebookRuntimeRequest,
+    DeleteNotebookRuntimeTemplateRequest,
+    GetNotebookRuntimeRequest,
+    GetNotebookRuntimeTemplateRequest,
+    ListNotebookRuntimesRequest,
+    ListNotebookRuntimesResponse,
+    ListNotebookRuntimeTemplatesRequest,
+    ListNotebookRuntimeTemplatesResponse,
+    StartNotebookRuntimeOperationMetadata,
+    StartNotebookRuntimeRequest,
+    StartNotebookRuntimeResponse,
+    UpgradeNotebookRuntimeOperationMetadata,
+    UpgradeNotebookRuntimeRequest,
+    UpgradeNotebookRuntimeResponse,
 )
 from .openapi import (
     Schema,
@@ -1467,6 +1505,7 @@ __all__ = (
     "NfsMount",
     "PersistentDiskSpec",
     "ResourcesConsumed",
+    "ShieldedVmConfig",
     "ManualBatchTuningParameters",
     "FindNeighborsRequest",
     "FindNeighborsResponse",
@@ -1594,6 +1633,31 @@ __all__ = (
     "NasJobSpec",
     "NasTrial",
     "NasTrialDetail",
+    "NetworkSpec",
+    "NotebookEucConfig",
+    "NotebookIdleShutdownConfig",
+    "NotebookRuntime",
+    "NotebookRuntimeTemplate",
+    "NotebookRuntimeType",
+    "NotebookRuntimeTemplateRef",
+    "AssignNotebookRuntimeOperationMetadata",
+    "AssignNotebookRuntimeRequest",
+    "CreateNotebookRuntimeTemplateOperationMetadata",
+    "CreateNotebookRuntimeTemplateRequest",
+    "DeleteNotebookRuntimeRequest",
+    "DeleteNotebookRuntimeTemplateRequest",
+    "GetNotebookRuntimeRequest",
+    "GetNotebookRuntimeTemplateRequest",
+    "ListNotebookRuntimesRequest",
+    "ListNotebookRuntimesResponse",
+    "ListNotebookRuntimeTemplatesRequest",
+    "ListNotebookRuntimeTemplatesResponse",
+    "StartNotebookRuntimeOperationMetadata",
+    "StartNotebookRuntimeRequest",
+    "StartNotebookRuntimeResponse",
+    "UpgradeNotebookRuntimeOperationMetadata",
+    "UpgradeNotebookRuntimeRequest",
+    "UpgradeNotebookRuntimeResponse",
     "Schema",
     "Type",
     "DeleteOperationMetadata",

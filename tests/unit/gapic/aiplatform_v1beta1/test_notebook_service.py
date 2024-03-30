@@ -49,36 +49,36 @@ from google.api_core import operations_v1
 from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
-    PersistentResourceServiceAsyncClient,
+from google.cloud.aiplatform_v1beta1.services.notebook_service import (
+    NotebookServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
-    PersistentResourceServiceClient,
+from google.cloud.aiplatform_v1beta1.services.notebook_service import (
+    NotebookServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import pagers
-from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.notebook_service import pagers
+from google.cloud.aiplatform_v1beta1.services.notebook_service import transports
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
-from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import machine_resources
-from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.cloud.aiplatform_v1beta1.types import persistent_resource
+from google.cloud.aiplatform_v1beta1.types import network_spec
+from google.cloud.aiplatform_v1beta1.types import notebook_euc_config
+from google.cloud.aiplatform_v1beta1.types import notebook_idle_shutdown_config
+from google.cloud.aiplatform_v1beta1.types import notebook_runtime
 from google.cloud.aiplatform_v1beta1.types import (
-    persistent_resource as gca_persistent_resource,
+    notebook_runtime as gca_notebook_runtime,
 )
-from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
+from google.cloud.aiplatform_v1beta1.types import notebook_runtime_template_ref
+from google.cloud.aiplatform_v1beta1.types import notebook_service
+from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
-from google.protobuf import any_pb2  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
 import google.auth
 
 
@@ -115,47 +115,40 @@ def test__get_default_mtls_endpoint():
     sandbox_mtls_endpoint = "example.mtls.sandbox.googleapis.com"
     non_googleapi = "api.example.com"
 
-    assert PersistentResourceServiceClient._get_default_mtls_endpoint(None) is None
+    assert NotebookServiceClient._get_default_mtls_endpoint(None) is None
     assert (
-        PersistentResourceServiceClient._get_default_mtls_endpoint(api_endpoint)
+        NotebookServiceClient._get_default_mtls_endpoint(api_endpoint)
         == api_mtls_endpoint
     )
     assert (
-        PersistentResourceServiceClient._get_default_mtls_endpoint(api_mtls_endpoint)
+        NotebookServiceClient._get_default_mtls_endpoint(api_mtls_endpoint)
         == api_mtls_endpoint
     )
     assert (
-        PersistentResourceServiceClient._get_default_mtls_endpoint(sandbox_endpoint)
+        NotebookServiceClient._get_default_mtls_endpoint(sandbox_endpoint)
         == sandbox_mtls_endpoint
     )
     assert (
-        PersistentResourceServiceClient._get_default_mtls_endpoint(
-            sandbox_mtls_endpoint
-        )
+        NotebookServiceClient._get_default_mtls_endpoint(sandbox_mtls_endpoint)
         == sandbox_mtls_endpoint
     )
     assert (
-        PersistentResourceServiceClient._get_default_mtls_endpoint(non_googleapi)
-        == non_googleapi
+        NotebookServiceClient._get_default_mtls_endpoint(non_googleapi) == non_googleapi
     )
 
 
 def test__read_environment_variables():
-    assert PersistentResourceServiceClient._read_environment_variables() == (
-        False,
-        "auto",
-        None,
-    )
+    assert NotebookServiceClient._read_environment_variables() == (False, "auto", None)
 
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
-        assert PersistentResourceServiceClient._read_environment_variables() == (
+        assert NotebookServiceClient._read_environment_variables() == (
             True,
             "auto",
             None,
         )
 
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
-        assert PersistentResourceServiceClient._read_environment_variables() == (
+        assert NotebookServiceClient._read_environment_variables() == (
             False,
             "auto",
             None,
@@ -165,28 +158,28 @@ def test__read_environment_variables():
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
         with pytest.raises(ValueError) as excinfo:
-            PersistentResourceServiceClient._read_environment_variables()
+            NotebookServiceClient._read_environment_variables()
     assert (
         str(excinfo.value)
         == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
     )
 
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
-        assert PersistentResourceServiceClient._read_environment_variables() == (
+        assert NotebookServiceClient._read_environment_variables() == (
             False,
             "never",
             None,
         )
 
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
-        assert PersistentResourceServiceClient._read_environment_variables() == (
+        assert NotebookServiceClient._read_environment_variables() == (
             False,
             "always",
             None,
         )
 
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"}):
-        assert PersistentResourceServiceClient._read_environment_variables() == (
+        assert NotebookServiceClient._read_environment_variables() == (
             False,
             "auto",
             None,
@@ -194,14 +187,14 @@ def test__read_environment_variables():
 
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
         with pytest.raises(MutualTLSChannelError) as excinfo:
-            PersistentResourceServiceClient._read_environment_variables()
+            NotebookServiceClient._read_environment_variables()
     assert (
         str(excinfo.value)
         == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
     )
 
     with mock.patch.dict(os.environ, {"GOOGLE_CLOUD_UNIVERSE_DOMAIN": "foo.com"}):
-        assert PersistentResourceServiceClient._read_environment_variables() == (
+        assert NotebookServiceClient._read_environment_variables() == (
             False,
             "auto",
             "foo.com",
@@ -212,17 +205,13 @@ def test__get_client_cert_source():
     mock_provided_cert_source = mock.Mock()
     mock_default_cert_source = mock.Mock()
 
-    assert PersistentResourceServiceClient._get_client_cert_source(None, False) is None
+    assert NotebookServiceClient._get_client_cert_source(None, False) is None
     assert (
-        PersistentResourceServiceClient._get_client_cert_source(
-            mock_provided_cert_source, False
-        )
+        NotebookServiceClient._get_client_cert_source(mock_provided_cert_source, False)
         is None
     )
     assert (
-        PersistentResourceServiceClient._get_client_cert_source(
-            mock_provided_cert_source, True
-        )
+        NotebookServiceClient._get_client_cert_source(mock_provided_cert_source, True)
         == mock_provided_cert_source
     )
 
@@ -234,11 +223,11 @@ def test__get_client_cert_source():
             return_value=mock_default_cert_source,
         ):
             assert (
-                PersistentResourceServiceClient._get_client_cert_source(None, True)
+                NotebookServiceClient._get_client_cert_source(None, True)
                 is mock_default_cert_source
             )
             assert (
-                PersistentResourceServiceClient._get_client_cert_source(
+                NotebookServiceClient._get_client_cert_source(
                     mock_provided_cert_source, "true"
                 )
                 is mock_provided_cert_source
@@ -246,74 +235,64 @@ def test__get_client_cert_source():
 
 
 @mock.patch.object(
-    PersistentResourceServiceClient,
+    NotebookServiceClient,
     "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(PersistentResourceServiceClient),
+    modify_default_endpoint_template(NotebookServiceClient),
 )
 @mock.patch.object(
-    PersistentResourceServiceAsyncClient,
+    NotebookServiceAsyncClient,
     "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(PersistentResourceServiceAsyncClient),
+    modify_default_endpoint_template(NotebookServiceAsyncClient),
 )
 def test__get_api_endpoint():
     api_override = "foo.com"
     mock_client_cert_source = mock.Mock()
-    default_universe = PersistentResourceServiceClient._DEFAULT_UNIVERSE
-    default_endpoint = (
-        PersistentResourceServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
-            UNIVERSE_DOMAIN=default_universe
-        )
+    default_universe = NotebookServiceClient._DEFAULT_UNIVERSE
+    default_endpoint = NotebookServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+        UNIVERSE_DOMAIN=default_universe
     )
     mock_universe = "bar.com"
-    mock_endpoint = PersistentResourceServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+    mock_endpoint = NotebookServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
         UNIVERSE_DOMAIN=mock_universe
     )
 
     assert (
-        PersistentResourceServiceClient._get_api_endpoint(
+        NotebookServiceClient._get_api_endpoint(
             api_override, mock_client_cert_source, default_universe, "always"
         )
         == api_override
     )
     assert (
-        PersistentResourceServiceClient._get_api_endpoint(
+        NotebookServiceClient._get_api_endpoint(
             None, mock_client_cert_source, default_universe, "auto"
         )
-        == PersistentResourceServiceClient.DEFAULT_MTLS_ENDPOINT
+        == NotebookServiceClient.DEFAULT_MTLS_ENDPOINT
     )
     assert (
-        PersistentResourceServiceClient._get_api_endpoint(
-            None, None, default_universe, "auto"
-        )
+        NotebookServiceClient._get_api_endpoint(None, None, default_universe, "auto")
         == default_endpoint
     )
     assert (
-        PersistentResourceServiceClient._get_api_endpoint(
-            None, None, default_universe, "always"
-        )
-        == PersistentResourceServiceClient.DEFAULT_MTLS_ENDPOINT
+        NotebookServiceClient._get_api_endpoint(None, None, default_universe, "always")
+        == NotebookServiceClient.DEFAULT_MTLS_ENDPOINT
     )
     assert (
-        PersistentResourceServiceClient._get_api_endpoint(
+        NotebookServiceClient._get_api_endpoint(
             None, mock_client_cert_source, default_universe, "always"
         )
-        == PersistentResourceServiceClient.DEFAULT_MTLS_ENDPOINT
+        == NotebookServiceClient.DEFAULT_MTLS_ENDPOINT
     )
     assert (
-        PersistentResourceServiceClient._get_api_endpoint(
-            None, None, mock_universe, "never"
-        )
+        NotebookServiceClient._get_api_endpoint(None, None, mock_universe, "never")
         == mock_endpoint
     )
     assert (
-        PersistentResourceServiceClient._get_api_endpoint(
-            None, None, default_universe, "never"
-        )
+        NotebookServiceClient._get_api_endpoint(None, None, default_universe, "never")
         == default_endpoint
     )
 
     with pytest.raises(MutualTLSChannelError) as excinfo:
-        PersistentResourceServiceClient._get_api_endpoint(
+        NotebookServiceClient._get_api_endpoint(
             None, mock_client_cert_source, mock_universe, "auto"
         )
     assert (
@@ -327,38 +306,30 @@ def test__get_universe_domain():
     universe_domain_env = "bar.com"
 
     assert (
-        PersistentResourceServiceClient._get_universe_domain(
+        NotebookServiceClient._get_universe_domain(
             client_universe_domain, universe_domain_env
         )
         == client_universe_domain
     )
     assert (
-        PersistentResourceServiceClient._get_universe_domain(None, universe_domain_env)
+        NotebookServiceClient._get_universe_domain(None, universe_domain_env)
         == universe_domain_env
     )
     assert (
-        PersistentResourceServiceClient._get_universe_domain(None, None)
-        == PersistentResourceServiceClient._DEFAULT_UNIVERSE
+        NotebookServiceClient._get_universe_domain(None, None)
+        == NotebookServiceClient._DEFAULT_UNIVERSE
     )
 
     with pytest.raises(ValueError) as excinfo:
-        PersistentResourceServiceClient._get_universe_domain("", None)
+        NotebookServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
 
 
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
     [
-        (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceGrpcTransport,
-            "grpc",
-        ),
-        (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceRestTransport,
-            "rest",
-        ),
+        (NotebookServiceClient, transports.NotebookServiceGrpcTransport, "grpc"),
+        (NotebookServiceClient, transports.NotebookServiceRestTransport, "rest"),
     ],
 )
 def test__validate_universe_domain(client_class, transport_class, transport_name):
@@ -437,12 +408,12 @@ def test__validate_universe_domain(client_class, transport_class, transport_name
 @pytest.mark.parametrize(
     "client_class,transport_name",
     [
-        (PersistentResourceServiceClient, "grpc"),
-        (PersistentResourceServiceAsyncClient, "grpc_asyncio"),
-        (PersistentResourceServiceClient, "rest"),
+        (NotebookServiceClient, "grpc"),
+        (NotebookServiceAsyncClient, "grpc_asyncio"),
+        (NotebookServiceClient, "rest"),
     ],
 )
-def test_persistent_resource_service_client_from_service_account_info(
+def test_notebook_service_client_from_service_account_info(
     client_class, transport_name
 ):
     creds = ga_credentials.AnonymousCredentials()
@@ -465,12 +436,12 @@ def test_persistent_resource_service_client_from_service_account_info(
 @pytest.mark.parametrize(
     "transport_class,transport_name",
     [
-        (transports.PersistentResourceServiceGrpcTransport, "grpc"),
-        (transports.PersistentResourceServiceGrpcAsyncIOTransport, "grpc_asyncio"),
-        (transports.PersistentResourceServiceRestTransport, "rest"),
+        (transports.NotebookServiceGrpcTransport, "grpc"),
+        (transports.NotebookServiceGrpcAsyncIOTransport, "grpc_asyncio"),
+        (transports.NotebookServiceRestTransport, "rest"),
     ],
 )
-def test_persistent_resource_service_client_service_account_always_use_jwt(
+def test_notebook_service_client_service_account_always_use_jwt(
     transport_class, transport_name
 ):
     with mock.patch.object(
@@ -491,12 +462,12 @@ def test_persistent_resource_service_client_service_account_always_use_jwt(
 @pytest.mark.parametrize(
     "client_class,transport_name",
     [
-        (PersistentResourceServiceClient, "grpc"),
-        (PersistentResourceServiceAsyncClient, "grpc_asyncio"),
-        (PersistentResourceServiceClient, "rest"),
+        (NotebookServiceClient, "grpc"),
+        (NotebookServiceAsyncClient, "grpc_asyncio"),
+        (NotebookServiceClient, "rest"),
     ],
 )
-def test_persistent_resource_service_client_from_service_account_file(
+def test_notebook_service_client_from_service_account_file(
     client_class, transport_name
 ):
     creds = ga_credentials.AnonymousCredentials()
@@ -523,63 +494,51 @@ def test_persistent_resource_service_client_from_service_account_file(
         )
 
 
-def test_persistent_resource_service_client_get_transport_class():
-    transport = PersistentResourceServiceClient.get_transport_class()
+def test_notebook_service_client_get_transport_class():
+    transport = NotebookServiceClient.get_transport_class()
     available_transports = [
-        transports.PersistentResourceServiceGrpcTransport,
-        transports.PersistentResourceServiceRestTransport,
+        transports.NotebookServiceGrpcTransport,
+        transports.NotebookServiceRestTransport,
     ]
     assert transport in available_transports
 
-    transport = PersistentResourceServiceClient.get_transport_class("grpc")
-    assert transport == transports.PersistentResourceServiceGrpcTransport
+    transport = NotebookServiceClient.get_transport_class("grpc")
+    assert transport == transports.NotebookServiceGrpcTransport
 
 
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
     [
+        (NotebookServiceClient, transports.NotebookServiceGrpcTransport, "grpc"),
         (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceGrpcTransport,
-            "grpc",
-        ),
-        (
-            PersistentResourceServiceAsyncClient,
-            transports.PersistentResourceServiceGrpcAsyncIOTransport,
+            NotebookServiceAsyncClient,
+            transports.NotebookServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
-        (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceRestTransport,
-            "rest",
-        ),
+        (NotebookServiceClient, transports.NotebookServiceRestTransport, "rest"),
     ],
 )
 @mock.patch.object(
-    PersistentResourceServiceClient,
+    NotebookServiceClient,
     "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(PersistentResourceServiceClient),
+    modify_default_endpoint_template(NotebookServiceClient),
 )
 @mock.patch.object(
-    PersistentResourceServiceAsyncClient,
+    NotebookServiceAsyncClient,
     "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(PersistentResourceServiceAsyncClient),
+    modify_default_endpoint_template(NotebookServiceAsyncClient),
 )
-def test_persistent_resource_service_client_client_options(
+def test_notebook_service_client_client_options(
     client_class, transport_class, transport_name
 ):
     # Check that if channel is provided we won't create a new one.
-    with mock.patch.object(
-        PersistentResourceServiceClient, "get_transport_class"
-    ) as gtc:
+    with mock.patch.object(NotebookServiceClient, "get_transport_class") as gtc:
         transport = transport_class(credentials=ga_credentials.AnonymousCredentials())
         client = client_class(transport=transport)
         gtc.assert_not_called()
 
     # Check that if channel is provided via str we will create a new one.
-    with mock.patch.object(
-        PersistentResourceServiceClient, "get_transport_class"
-    ) as gtc:
+    with mock.patch.object(NotebookServiceClient, "get_transport_class") as gtc:
         client = client_class(transport=transport_name)
         gtc.assert_called()
 
@@ -703,55 +662,55 @@ def test_persistent_resource_service_client_client_options(
     "client_class,transport_class,transport_name,use_client_cert_env",
     [
         (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceGrpcTransport,
+            NotebookServiceClient,
+            transports.NotebookServiceGrpcTransport,
             "grpc",
             "true",
         ),
         (
-            PersistentResourceServiceAsyncClient,
-            transports.PersistentResourceServiceGrpcAsyncIOTransport,
+            NotebookServiceAsyncClient,
+            transports.NotebookServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             "true",
         ),
         (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceGrpcTransport,
+            NotebookServiceClient,
+            transports.NotebookServiceGrpcTransport,
             "grpc",
             "false",
         ),
         (
-            PersistentResourceServiceAsyncClient,
-            transports.PersistentResourceServiceGrpcAsyncIOTransport,
+            NotebookServiceAsyncClient,
+            transports.NotebookServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             "false",
         ),
         (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceRestTransport,
+            NotebookServiceClient,
+            transports.NotebookServiceRestTransport,
             "rest",
             "true",
         ),
         (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceRestTransport,
+            NotebookServiceClient,
+            transports.NotebookServiceRestTransport,
             "rest",
             "false",
         ),
     ],
 )
 @mock.patch.object(
-    PersistentResourceServiceClient,
+    NotebookServiceClient,
     "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(PersistentResourceServiceClient),
+    modify_default_endpoint_template(NotebookServiceClient),
 )
 @mock.patch.object(
-    PersistentResourceServiceAsyncClient,
+    NotebookServiceAsyncClient,
     "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(PersistentResourceServiceAsyncClient),
+    modify_default_endpoint_template(NotebookServiceAsyncClient),
 )
 @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
-def test_persistent_resource_service_client_mtls_env_auto(
+def test_notebook_service_client_mtls_env_auto(
     client_class, transport_class, transport_name, use_client_cert_env
 ):
     # This tests the endpoint autoswitch behavior. Endpoint is autoswitched to the default
@@ -854,22 +813,19 @@ def test_persistent_resource_service_client_mtls_env_auto(
 
 
 @pytest.mark.parametrize(
-    "client_class",
-    [PersistentResourceServiceClient, PersistentResourceServiceAsyncClient],
+    "client_class", [NotebookServiceClient, NotebookServiceAsyncClient]
 )
 @mock.patch.object(
-    PersistentResourceServiceClient,
+    NotebookServiceClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(PersistentResourceServiceClient),
+    modify_default_endpoint(NotebookServiceClient),
 )
 @mock.patch.object(
-    PersistentResourceServiceAsyncClient,
+    NotebookServiceAsyncClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(PersistentResourceServiceAsyncClient),
+    modify_default_endpoint(NotebookServiceAsyncClient),
 )
-def test_persistent_resource_service_client_get_mtls_endpoint_and_cert_source(
-    client_class,
-):
+def test_notebook_service_client_get_mtls_endpoint_and_cert_source(client_class):
     mock_client_cert_source = mock.Mock()
 
     # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "true".
@@ -961,30 +917,27 @@ def test_persistent_resource_service_client_get_mtls_endpoint_and_cert_source(
 
 
 @pytest.mark.parametrize(
-    "client_class",
-    [PersistentResourceServiceClient, PersistentResourceServiceAsyncClient],
+    "client_class", [NotebookServiceClient, NotebookServiceAsyncClient]
 )
 @mock.patch.object(
-    PersistentResourceServiceClient,
+    NotebookServiceClient,
     "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(PersistentResourceServiceClient),
+    modify_default_endpoint_template(NotebookServiceClient),
 )
 @mock.patch.object(
-    PersistentResourceServiceAsyncClient,
+    NotebookServiceAsyncClient,
     "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(PersistentResourceServiceAsyncClient),
+    modify_default_endpoint_template(NotebookServiceAsyncClient),
 )
-def test_persistent_resource_service_client_client_api_endpoint(client_class):
+def test_notebook_service_client_client_api_endpoint(client_class):
     mock_client_cert_source = client_cert_source_callback
     api_override = "foo.com"
-    default_universe = PersistentResourceServiceClient._DEFAULT_UNIVERSE
-    default_endpoint = (
-        PersistentResourceServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
-            UNIVERSE_DOMAIN=default_universe
-        )
+    default_universe = NotebookServiceClient._DEFAULT_UNIVERSE
+    default_endpoint = NotebookServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+        UNIVERSE_DOMAIN=default_universe
     )
     mock_universe = "bar.com"
-    mock_endpoint = PersistentResourceServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+    mock_endpoint = NotebookServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
         UNIVERSE_DOMAIN=mock_universe
     )
 
@@ -1052,24 +1005,16 @@ def test_persistent_resource_service_client_client_api_endpoint(client_class):
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
     [
+        (NotebookServiceClient, transports.NotebookServiceGrpcTransport, "grpc"),
         (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceGrpcTransport,
-            "grpc",
-        ),
-        (
-            PersistentResourceServiceAsyncClient,
-            transports.PersistentResourceServiceGrpcAsyncIOTransport,
+            NotebookServiceAsyncClient,
+            transports.NotebookServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
-        (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceRestTransport,
-            "rest",
-        ),
+        (NotebookServiceClient, transports.NotebookServiceRestTransport, "rest"),
     ],
 )
-def test_persistent_resource_service_client_client_options_scopes(
+def test_notebook_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
@@ -1098,26 +1043,21 @@ def test_persistent_resource_service_client_client_options_scopes(
     "client_class,transport_class,transport_name,grpc_helpers",
     [
         (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceGrpcTransport,
+            NotebookServiceClient,
+            transports.NotebookServiceGrpcTransport,
             "grpc",
             grpc_helpers,
         ),
         (
-            PersistentResourceServiceAsyncClient,
-            transports.PersistentResourceServiceGrpcAsyncIOTransport,
+            NotebookServiceAsyncClient,
+            transports.NotebookServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             grpc_helpers_async,
         ),
-        (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceRestTransport,
-            "rest",
-            None,
-        ),
+        (NotebookServiceClient, transports.NotebookServiceRestTransport, "rest", None),
     ],
 )
-def test_persistent_resource_service_client_client_options_credentials_file(
+def test_notebook_service_client_client_options_credentials_file(
     client_class, transport_class, transport_name, grpc_helpers
 ):
     # Check the case credentials file is provided.
@@ -1141,12 +1081,12 @@ def test_persistent_resource_service_client_client_options_credentials_file(
         )
 
 
-def test_persistent_resource_service_client_client_options_from_dict():
+def test_notebook_service_client_client_options_from_dict():
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.persistent_resource_service.transports.PersistentResourceServiceGrpcTransport.__init__"
+        "google.cloud.aiplatform_v1beta1.services.notebook_service.transports.NotebookServiceGrpcTransport.__init__"
     ) as grpc_transport:
         grpc_transport.return_value = None
-        client = PersistentResourceServiceClient(
+        client = NotebookServiceClient(
             client_options={"api_endpoint": "squid.clam.whelk"}
         )
         grpc_transport.assert_called_once_with(
@@ -1166,20 +1106,20 @@ def test_persistent_resource_service_client_client_options_from_dict():
     "client_class,transport_class,transport_name,grpc_helpers",
     [
         (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceGrpcTransport,
+            NotebookServiceClient,
+            transports.NotebookServiceGrpcTransport,
             "grpc",
             grpc_helpers,
         ),
         (
-            PersistentResourceServiceAsyncClient,
-            transports.PersistentResourceServiceGrpcAsyncIOTransport,
+            NotebookServiceAsyncClient,
+            transports.NotebookServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             grpc_helpers_async,
         ),
     ],
 )
-def test_persistent_resource_service_client_create_channel_credentials_file(
+def test_notebook_service_client_create_channel_credentials_file(
     client_class, transport_class, transport_name, grpc_helpers
 ):
     # Check the case credentials file is provided.
@@ -1234,12 +1174,12 @@ def test_persistent_resource_service_client_create_channel_credentials_file(
 @pytest.mark.parametrize(
     "request_type",
     [
-        persistent_resource_service.CreatePersistentResourceRequest,
+        notebook_service.CreateNotebookRuntimeTemplateRequest,
         dict,
     ],
 )
-def test_create_persistent_resource(request_type, transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+def test_create_notebook_runtime_template(request_type, transport: str = "grpc"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -1250,44 +1190,44 @@ def test_create_persistent_resource(request_type, transport: str = "grpc"):
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_persistent_resource), "__call__"
+        type(client.transport.create_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/spam")
-        response = client.create_persistent_resource(request)
+        response = client.create_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        request = persistent_resource_service.CreatePersistentResourceRequest()
+        request = notebook_service.CreateNotebookRuntimeTemplateRequest()
         assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
 
 
-def test_create_persistent_resource_empty_call():
+def test_create_notebook_runtime_template_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_persistent_resource), "__call__"
+        type(client.transport.create_notebook_runtime_template), "__call__"
     ) as call:
-        client.create_persistent_resource()
+        client.create_notebook_runtime_template()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.CreatePersistentResourceRequest()
+        assert args[0] == notebook_service.CreateNotebookRuntimeTemplateRequest()
 
 
-def test_create_persistent_resource_non_empty_request_with_auto_populated_field():
+def test_create_notebook_runtime_template_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
@@ -1295,53 +1235,53 @@ def test_create_persistent_resource_non_empty_request_with_auto_populated_field(
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
-    request = persistent_resource_service.CreatePersistentResourceRequest(
+    request = notebook_service.CreateNotebookRuntimeTemplateRequest(
         parent="parent_value",
-        persistent_resource_id="persistent_resource_id_value",
+        notebook_runtime_template_id="notebook_runtime_template_id_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_persistent_resource), "__call__"
+        type(client.transport.create_notebook_runtime_template), "__call__"
     ) as call:
-        client.create_persistent_resource(request=request)
+        client.create_notebook_runtime_template(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.CreatePersistentResourceRequest(
+        assert args[0] == notebook_service.CreateNotebookRuntimeTemplateRequest(
             parent="parent_value",
-            persistent_resource_id="persistent_resource_id_value",
+            notebook_runtime_template_id="notebook_runtime_template_id_value",
         )
 
 
 @pytest.mark.asyncio
-async def test_create_persistent_resource_empty_call_async():
+async def test_create_notebook_runtime_template_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc_asyncio",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_persistent_resource), "__call__"
+        type(client.transport.create_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
-        response = await client.create_persistent_resource()
+        response = await client.create_notebook_runtime_template()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.CreatePersistentResourceRequest()
+        assert args[0] == notebook_service.CreateNotebookRuntimeTemplateRequest()
 
 
 @pytest.mark.asyncio
-async def test_create_persistent_resource_async(
+async def test_create_notebook_runtime_template_async(
     transport: str = "grpc_asyncio",
-    request_type=persistent_resource_service.CreatePersistentResourceRequest,
+    request_type=notebook_service.CreateNotebookRuntimeTemplateRequest,
 ):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -1352,18 +1292,18 @@ async def test_create_persistent_resource_async(
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_persistent_resource), "__call__"
+        type(client.transport.create_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
-        response = await client.create_persistent_resource(request)
+        response = await client.create_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        request = persistent_resource_service.CreatePersistentResourceRequest()
+        request = notebook_service.CreateNotebookRuntimeTemplateRequest()
         assert args[0] == request
 
     # Establish that the response is the type that we expect.
@@ -1371,27 +1311,27 @@ async def test_create_persistent_resource_async(
 
 
 @pytest.mark.asyncio
-async def test_create_persistent_resource_async_from_dict():
-    await test_create_persistent_resource_async(request_type=dict)
+async def test_create_notebook_runtime_template_async_from_dict():
+    await test_create_notebook_runtime_template_async(request_type=dict)
 
 
-def test_create_persistent_resource_field_headers():
-    client = PersistentResourceServiceClient(
+def test_create_notebook_runtime_template_field_headers():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = persistent_resource_service.CreatePersistentResourceRequest()
+    request = notebook_service.CreateNotebookRuntimeTemplateRequest()
 
     request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_persistent_resource), "__call__"
+        type(client.transport.create_notebook_runtime_template), "__call__"
     ) as call:
         call.return_value = operations_pb2.Operation(name="operations/op")
-        client.create_persistent_resource(request)
+        client.create_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -1407,25 +1347,25 @@ def test_create_persistent_resource_field_headers():
 
 
 @pytest.mark.asyncio
-async def test_create_persistent_resource_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_create_notebook_runtime_template_field_headers_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = persistent_resource_service.CreatePersistentResourceRequest()
+    request = notebook_service.CreateNotebookRuntimeTemplateRequest()
 
     request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_persistent_resource), "__call__"
+        type(client.transport.create_notebook_runtime_template), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/op")
         )
-        await client.create_persistent_resource(request)
+        await client.create_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
@@ -1440,25 +1380,25 @@ async def test_create_persistent_resource_field_headers_async():
     ) in kw["metadata"]
 
 
-def test_create_persistent_resource_flattened():
-    client = PersistentResourceServiceClient(
+def test_create_notebook_runtime_template_flattened():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_persistent_resource), "__call__"
+        type(client.transport.create_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.create_persistent_resource(
+        client.create_notebook_runtime_template(
             parent="parent_value",
-            persistent_resource=gca_persistent_resource.PersistentResource(
+            notebook_runtime_template=notebook_runtime.NotebookRuntimeTemplate(
                 name="name_value"
             ),
-            persistent_resource_id="persistent_resource_id_value",
+            notebook_runtime_template_id="notebook_runtime_template_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -1468,41 +1408,41 @@ def test_create_persistent_resource_flattened():
         arg = args[0].parent
         mock_val = "parent_value"
         assert arg == mock_val
-        arg = args[0].persistent_resource
-        mock_val = gca_persistent_resource.PersistentResource(name="name_value")
+        arg = args[0].notebook_runtime_template
+        mock_val = notebook_runtime.NotebookRuntimeTemplate(name="name_value")
         assert arg == mock_val
-        arg = args[0].persistent_resource_id
-        mock_val = "persistent_resource_id_value"
+        arg = args[0].notebook_runtime_template_id
+        mock_val = "notebook_runtime_template_id_value"
         assert arg == mock_val
 
 
-def test_create_persistent_resource_flattened_error():
-    client = PersistentResourceServiceClient(
+def test_create_notebook_runtime_template_flattened_error():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.create_persistent_resource(
-            persistent_resource_service.CreatePersistentResourceRequest(),
+        client.create_notebook_runtime_template(
+            notebook_service.CreateNotebookRuntimeTemplateRequest(),
             parent="parent_value",
-            persistent_resource=gca_persistent_resource.PersistentResource(
+            notebook_runtime_template=notebook_runtime.NotebookRuntimeTemplate(
                 name="name_value"
             ),
-            persistent_resource_id="persistent_resource_id_value",
+            notebook_runtime_template_id="notebook_runtime_template_id_value",
         )
 
 
 @pytest.mark.asyncio
-async def test_create_persistent_resource_flattened_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_create_notebook_runtime_template_flattened_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_persistent_resource), "__call__"
+        type(client.transport.create_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
@@ -1512,12 +1452,12 @@ async def test_create_persistent_resource_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.create_persistent_resource(
+        response = await client.create_notebook_runtime_template(
             parent="parent_value",
-            persistent_resource=gca_persistent_resource.PersistentResource(
+            notebook_runtime_template=notebook_runtime.NotebookRuntimeTemplate(
                 name="name_value"
             ),
-            persistent_resource_id="persistent_resource_id_value",
+            notebook_runtime_template_id="notebook_runtime_template_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -1527,42 +1467,42 @@ async def test_create_persistent_resource_flattened_async():
         arg = args[0].parent
         mock_val = "parent_value"
         assert arg == mock_val
-        arg = args[0].persistent_resource
-        mock_val = gca_persistent_resource.PersistentResource(name="name_value")
+        arg = args[0].notebook_runtime_template
+        mock_val = notebook_runtime.NotebookRuntimeTemplate(name="name_value")
         assert arg == mock_val
-        arg = args[0].persistent_resource_id
-        mock_val = "persistent_resource_id_value"
+        arg = args[0].notebook_runtime_template_id
+        mock_val = "notebook_runtime_template_id_value"
         assert arg == mock_val
 
 
 @pytest.mark.asyncio
-async def test_create_persistent_resource_flattened_error_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_create_notebook_runtime_template_flattened_error_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        await client.create_persistent_resource(
-            persistent_resource_service.CreatePersistentResourceRequest(),
+        await client.create_notebook_runtime_template(
+            notebook_service.CreateNotebookRuntimeTemplateRequest(),
             parent="parent_value",
-            persistent_resource=gca_persistent_resource.PersistentResource(
+            notebook_runtime_template=notebook_runtime.NotebookRuntimeTemplate(
                 name="name_value"
             ),
-            persistent_resource_id="persistent_resource_id_value",
+            notebook_runtime_template_id="notebook_runtime_template_id_value",
         )
 
 
 @pytest.mark.parametrize(
     "request_type",
     [
-        persistent_resource_service.GetPersistentResourceRequest,
+        notebook_service.GetNotebookRuntimeTemplateRequest,
         dict,
     ],
 )
-def test_get_persistent_resource(request_type, transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+def test_get_notebook_runtime_template(request_type, transport: str = "grpc"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -1573,55 +1513,64 @@ def test_get_persistent_resource(request_type, transport: str = "grpc"):
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_persistent_resource), "__call__"
+        type(client.transport.get_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = persistent_resource.PersistentResource(
+        call.return_value = notebook_runtime.NotebookRuntimeTemplate(
             name="name_value",
             display_name="display_name_value",
-            state=persistent_resource.PersistentResource.State.PROVISIONING,
-            network="network_value",
-            reserved_ip_ranges=["reserved_ip_ranges_value"],
+            description="description_value",
+            is_default=True,
+            service_account="service_account_value",
+            etag="etag_value",
+            notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+            network_tags=["network_tags_value"],
         )
-        response = client.get_persistent_resource(request)
+        response = client.get_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        request = persistent_resource_service.GetPersistentResourceRequest()
+        request = notebook_service.GetNotebookRuntimeTemplateRequest()
         assert args[0] == request
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, persistent_resource.PersistentResource)
+    assert isinstance(response, notebook_runtime.NotebookRuntimeTemplate)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
-    assert response.state == persistent_resource.PersistentResource.State.PROVISIONING
-    assert response.network == "network_value"
-    assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
+    assert response.description == "description_value"
+    assert response.is_default is True
+    assert response.service_account == "service_account_value"
+    assert response.etag == "etag_value"
+    assert (
+        response.notebook_runtime_type
+        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
+    )
+    assert response.network_tags == ["network_tags_value"]
 
 
-def test_get_persistent_resource_empty_call():
+def test_get_notebook_runtime_template_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_persistent_resource), "__call__"
+        type(client.transport.get_notebook_runtime_template), "__call__"
     ) as call:
-        client.get_persistent_resource()
+        client.get_notebook_runtime_template()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.GetPersistentResourceRequest()
+        assert args[0] == notebook_service.GetNotebookRuntimeTemplateRequest()
 
 
-def test_get_persistent_resource_non_empty_request_with_auto_populated_field():
+def test_get_notebook_runtime_template_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
@@ -1629,57 +1578,60 @@ def test_get_persistent_resource_non_empty_request_with_auto_populated_field():
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
-    request = persistent_resource_service.GetPersistentResourceRequest(
+    request = notebook_service.GetNotebookRuntimeTemplateRequest(
         name="name_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_persistent_resource), "__call__"
+        type(client.transport.get_notebook_runtime_template), "__call__"
     ) as call:
-        client.get_persistent_resource(request=request)
+        client.get_notebook_runtime_template(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.GetPersistentResourceRequest(
+        assert args[0] == notebook_service.GetNotebookRuntimeTemplateRequest(
             name="name_value",
         )
 
 
 @pytest.mark.asyncio
-async def test_get_persistent_resource_empty_call_async():
+async def test_get_notebook_runtime_template_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc_asyncio",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_persistent_resource), "__call__"
+        type(client.transport.get_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            persistent_resource.PersistentResource(
+            notebook_runtime.NotebookRuntimeTemplate(
                 name="name_value",
                 display_name="display_name_value",
-                state=persistent_resource.PersistentResource.State.PROVISIONING,
-                network="network_value",
-                reserved_ip_ranges=["reserved_ip_ranges_value"],
+                description="description_value",
+                is_default=True,
+                service_account="service_account_value",
+                etag="etag_value",
+                notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+                network_tags=["network_tags_value"],
             )
         )
-        response = await client.get_persistent_resource()
+        response = await client.get_notebook_runtime_template()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.GetPersistentResourceRequest()
+        assert args[0] == notebook_service.GetNotebookRuntimeTemplateRequest()
 
 
 @pytest.mark.asyncio
-async def test_get_persistent_resource_async(
+async def test_get_notebook_runtime_template_async(
     transport: str = "grpc_asyncio",
-    request_type=persistent_resource_service.GetPersistentResourceRequest,
+    request_type=notebook_service.GetNotebookRuntimeTemplateRequest,
 ):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -1690,57 +1642,66 @@ async def test_get_persistent_resource_async(
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_persistent_resource), "__call__"
+        type(client.transport.get_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            persistent_resource.PersistentResource(
+            notebook_runtime.NotebookRuntimeTemplate(
                 name="name_value",
                 display_name="display_name_value",
-                state=persistent_resource.PersistentResource.State.PROVISIONING,
-                network="network_value",
-                reserved_ip_ranges=["reserved_ip_ranges_value"],
+                description="description_value",
+                is_default=True,
+                service_account="service_account_value",
+                etag="etag_value",
+                notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+                network_tags=["network_tags_value"],
             )
         )
-        response = await client.get_persistent_resource(request)
+        response = await client.get_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        request = persistent_resource_service.GetPersistentResourceRequest()
+        request = notebook_service.GetNotebookRuntimeTemplateRequest()
         assert args[0] == request
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, persistent_resource.PersistentResource)
+    assert isinstance(response, notebook_runtime.NotebookRuntimeTemplate)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
-    assert response.state == persistent_resource.PersistentResource.State.PROVISIONING
-    assert response.network == "network_value"
-    assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
+    assert response.description == "description_value"
+    assert response.is_default is True
+    assert response.service_account == "service_account_value"
+    assert response.etag == "etag_value"
+    assert (
+        response.notebook_runtime_type
+        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
+    )
+    assert response.network_tags == ["network_tags_value"]
 
 
 @pytest.mark.asyncio
-async def test_get_persistent_resource_async_from_dict():
-    await test_get_persistent_resource_async(request_type=dict)
+async def test_get_notebook_runtime_template_async_from_dict():
+    await test_get_notebook_runtime_template_async(request_type=dict)
 
 
-def test_get_persistent_resource_field_headers():
-    client = PersistentResourceServiceClient(
+def test_get_notebook_runtime_template_field_headers():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = persistent_resource_service.GetPersistentResourceRequest()
+    request = notebook_service.GetNotebookRuntimeTemplateRequest()
 
     request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_persistent_resource), "__call__"
+        type(client.transport.get_notebook_runtime_template), "__call__"
     ) as call:
-        call.return_value = persistent_resource.PersistentResource()
-        client.get_persistent_resource(request)
+        call.return_value = notebook_runtime.NotebookRuntimeTemplate()
+        client.get_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -1756,25 +1717,25 @@ def test_get_persistent_resource_field_headers():
 
 
 @pytest.mark.asyncio
-async def test_get_persistent_resource_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_get_notebook_runtime_template_field_headers_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = persistent_resource_service.GetPersistentResourceRequest()
+    request = notebook_service.GetNotebookRuntimeTemplateRequest()
 
     request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_persistent_resource), "__call__"
+        type(client.transport.get_notebook_runtime_template), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            persistent_resource.PersistentResource()
+            notebook_runtime.NotebookRuntimeTemplate()
         )
-        await client.get_persistent_resource(request)
+        await client.get_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
@@ -1789,20 +1750,20 @@ async def test_get_persistent_resource_field_headers_async():
     ) in kw["metadata"]
 
 
-def test_get_persistent_resource_flattened():
-    client = PersistentResourceServiceClient(
+def test_get_notebook_runtime_template_flattened():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_persistent_resource), "__call__"
+        type(client.transport.get_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = persistent_resource.PersistentResource()
+        call.return_value = notebook_runtime.NotebookRuntimeTemplate()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_persistent_resource(
+        client.get_notebook_runtime_template(
             name="name_value",
         )
 
@@ -1815,39 +1776,39 @@ def test_get_persistent_resource_flattened():
         assert arg == mock_val
 
 
-def test_get_persistent_resource_flattened_error():
-    client = PersistentResourceServiceClient(
+def test_get_notebook_runtime_template_flattened_error():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.get_persistent_resource(
-            persistent_resource_service.GetPersistentResourceRequest(),
+        client.get_notebook_runtime_template(
+            notebook_service.GetNotebookRuntimeTemplateRequest(),
             name="name_value",
         )
 
 
 @pytest.mark.asyncio
-async def test_get_persistent_resource_flattened_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_get_notebook_runtime_template_flattened_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_persistent_resource), "__call__"
+        type(client.transport.get_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = persistent_resource.PersistentResource()
+        call.return_value = notebook_runtime.NotebookRuntimeTemplate()
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            persistent_resource.PersistentResource()
+            notebook_runtime.NotebookRuntimeTemplate()
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_persistent_resource(
+        response = await client.get_notebook_runtime_template(
             name="name_value",
         )
 
@@ -1861,16 +1822,16 @@ async def test_get_persistent_resource_flattened_async():
 
 
 @pytest.mark.asyncio
-async def test_get_persistent_resource_flattened_error_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_get_notebook_runtime_template_flattened_error_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        await client.get_persistent_resource(
-            persistent_resource_service.GetPersistentResourceRequest(),
+        await client.get_notebook_runtime_template(
+            notebook_service.GetNotebookRuntimeTemplateRequest(),
             name="name_value",
         )
 
@@ -1878,12 +1839,12 @@ async def test_get_persistent_resource_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
-        persistent_resource_service.ListPersistentResourcesRequest,
+        notebook_service.ListNotebookRuntimeTemplatesRequest,
         dict,
     ],
 )
-def test_list_persistent_resources(request_type, transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+def test_list_notebook_runtime_templates(request_type, transport: str = "grpc"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -1894,47 +1855,47 @@ def test_list_persistent_resources(request_type, transport: str = "grpc"):
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources), "__call__"
+        type(client.transport.list_notebook_runtime_templates), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = persistent_resource_service.ListPersistentResourcesResponse(
+        call.return_value = notebook_service.ListNotebookRuntimeTemplatesResponse(
             next_page_token="next_page_token_value",
         )
-        response = client.list_persistent_resources(request)
+        response = client.list_notebook_runtime_templates(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        request = persistent_resource_service.ListPersistentResourcesRequest()
+        request = notebook_service.ListNotebookRuntimeTemplatesRequest()
         assert args[0] == request
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListPersistentResourcesPager)
+    assert isinstance(response, pagers.ListNotebookRuntimeTemplatesPager)
     assert response.next_page_token == "next_page_token_value"
 
 
-def test_list_persistent_resources_empty_call():
+def test_list_notebook_runtime_templates_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources), "__call__"
+        type(client.transport.list_notebook_runtime_templates), "__call__"
     ) as call:
-        client.list_persistent_resources()
+        client.list_notebook_runtime_templates()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.ListPersistentResourcesRequest()
+        assert args[0] == notebook_service.ListNotebookRuntimeTemplatesRequest()
 
 
-def test_list_persistent_resources_non_empty_request_with_auto_populated_field():
+def test_list_notebook_runtime_templates_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
@@ -1942,55 +1903,59 @@ def test_list_persistent_resources_non_empty_request_with_auto_populated_field()
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
-    request = persistent_resource_service.ListPersistentResourcesRequest(
+    request = notebook_service.ListNotebookRuntimeTemplatesRequest(
         parent="parent_value",
+        filter="filter_value",
         page_token="page_token_value",
+        order_by="order_by_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources), "__call__"
+        type(client.transport.list_notebook_runtime_templates), "__call__"
     ) as call:
-        client.list_persistent_resources(request=request)
+        client.list_notebook_runtime_templates(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.ListPersistentResourcesRequest(
+        assert args[0] == notebook_service.ListNotebookRuntimeTemplatesRequest(
             parent="parent_value",
+            filter="filter_value",
             page_token="page_token_value",
+            order_by="order_by_value",
         )
 
 
 @pytest.mark.asyncio
-async def test_list_persistent_resources_empty_call_async():
+async def test_list_notebook_runtime_templates_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc_asyncio",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources), "__call__"
+        type(client.transport.list_notebook_runtime_templates), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            persistent_resource_service.ListPersistentResourcesResponse(
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
                 next_page_token="next_page_token_value",
             )
         )
-        response = await client.list_persistent_resources()
+        response = await client.list_notebook_runtime_templates()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.ListPersistentResourcesRequest()
+        assert args[0] == notebook_service.ListNotebookRuntimeTemplatesRequest()
 
 
 @pytest.mark.asyncio
-async def test_list_persistent_resources_async(
+async def test_list_notebook_runtime_templates_async(
     transport: str = "grpc_asyncio",
-    request_type=persistent_resource_service.ListPersistentResourcesRequest,
+    request_type=notebook_service.ListNotebookRuntimeTemplatesRequest,
 ):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2001,51 +1966,49 @@ async def test_list_persistent_resources_async(
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources), "__call__"
+        type(client.transport.list_notebook_runtime_templates), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            persistent_resource_service.ListPersistentResourcesResponse(
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
                 next_page_token="next_page_token_value",
             )
         )
-        response = await client.list_persistent_resources(request)
+        response = await client.list_notebook_runtime_templates(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        request = persistent_resource_service.ListPersistentResourcesRequest()
+        request = notebook_service.ListNotebookRuntimeTemplatesRequest()
         assert args[0] == request
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListPersistentResourcesAsyncPager)
+    assert isinstance(response, pagers.ListNotebookRuntimeTemplatesAsyncPager)
     assert response.next_page_token == "next_page_token_value"
 
 
 @pytest.mark.asyncio
-async def test_list_persistent_resources_async_from_dict():
-    await test_list_persistent_resources_async(request_type=dict)
+async def test_list_notebook_runtime_templates_async_from_dict():
+    await test_list_notebook_runtime_templates_async(request_type=dict)
 
 
-def test_list_persistent_resources_field_headers():
-    client = PersistentResourceServiceClient(
+def test_list_notebook_runtime_templates_field_headers():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = persistent_resource_service.ListPersistentResourcesRequest()
+    request = notebook_service.ListNotebookRuntimeTemplatesRequest()
 
     request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources), "__call__"
+        type(client.transport.list_notebook_runtime_templates), "__call__"
     ) as call:
-        call.return_value = (
-            persistent_resource_service.ListPersistentResourcesResponse()
-        )
-        client.list_persistent_resources(request)
+        call.return_value = notebook_service.ListNotebookRuntimeTemplatesResponse()
+        client.list_notebook_runtime_templates(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -2061,25 +2024,25 @@ def test_list_persistent_resources_field_headers():
 
 
 @pytest.mark.asyncio
-async def test_list_persistent_resources_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_list_notebook_runtime_templates_field_headers_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = persistent_resource_service.ListPersistentResourcesRequest()
+    request = notebook_service.ListNotebookRuntimeTemplatesRequest()
 
     request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources), "__call__"
+        type(client.transport.list_notebook_runtime_templates), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            persistent_resource_service.ListPersistentResourcesResponse()
+            notebook_service.ListNotebookRuntimeTemplatesResponse()
         )
-        await client.list_persistent_resources(request)
+        await client.list_notebook_runtime_templates(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
@@ -2094,22 +2057,20 @@ async def test_list_persistent_resources_field_headers_async():
     ) in kw["metadata"]
 
 
-def test_list_persistent_resources_flattened():
-    client = PersistentResourceServiceClient(
+def test_list_notebook_runtime_templates_flattened():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources), "__call__"
+        type(client.transport.list_notebook_runtime_templates), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = (
-            persistent_resource_service.ListPersistentResourcesResponse()
-        )
+        call.return_value = notebook_service.ListNotebookRuntimeTemplatesResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_persistent_resources(
+        client.list_notebook_runtime_templates(
             parent="parent_value",
         )
 
@@ -2122,41 +2083,39 @@ def test_list_persistent_resources_flattened():
         assert arg == mock_val
 
 
-def test_list_persistent_resources_flattened_error():
-    client = PersistentResourceServiceClient(
+def test_list_notebook_runtime_templates_flattened_error():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.list_persistent_resources(
-            persistent_resource_service.ListPersistentResourcesRequest(),
+        client.list_notebook_runtime_templates(
+            notebook_service.ListNotebookRuntimeTemplatesRequest(),
             parent="parent_value",
         )
 
 
 @pytest.mark.asyncio
-async def test_list_persistent_resources_flattened_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_list_notebook_runtime_templates_flattened_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources), "__call__"
+        type(client.transport.list_notebook_runtime_templates), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = (
-            persistent_resource_service.ListPersistentResourcesResponse()
-        )
+        call.return_value = notebook_service.ListNotebookRuntimeTemplatesResponse()
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            persistent_resource_service.ListPersistentResourcesResponse()
+            notebook_service.ListNotebookRuntimeTemplatesResponse()
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_persistent_resources(
+        response = await client.list_notebook_runtime_templates(
             parent="parent_value",
         )
 
@@ -2170,54 +2129,54 @@ async def test_list_persistent_resources_flattened_async():
 
 
 @pytest.mark.asyncio
-async def test_list_persistent_resources_flattened_error_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_list_notebook_runtime_templates_flattened_error_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        await client.list_persistent_resources(
-            persistent_resource_service.ListPersistentResourcesRequest(),
+        await client.list_notebook_runtime_templates(
+            notebook_service.ListNotebookRuntimeTemplatesRequest(),
             parent="parent_value",
         )
 
 
-def test_list_persistent_resources_pager(transport_name: str = "grpc"):
-    client = PersistentResourceServiceClient(
+def test_list_notebook_runtime_templates_pager(transport_name: str = "grpc"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources), "__call__"
+        type(client.transport.list_notebook_runtime_templates), "__call__"
     ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
                 next_page_token="abc",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[],
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[],
                 next_page_token="def",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
                 next_page_token="ghi",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
             ),
             RuntimeError,
@@ -2227,101 +2186,101 @@ def test_list_persistent_resources_pager(transport_name: str = "grpc"):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.list_persistent_resources(request={})
+        pager = client.list_notebook_runtime_templates(request={})
 
         assert pager._metadata == metadata
 
         results = list(pager)
         assert len(results) == 6
         assert all(
-            isinstance(i, persistent_resource.PersistentResource) for i in results
+            isinstance(i, notebook_runtime.NotebookRuntimeTemplate) for i in results
         )
 
 
-def test_list_persistent_resources_pages(transport_name: str = "grpc"):
-    client = PersistentResourceServiceClient(
+def test_list_notebook_runtime_templates_pages(transport_name: str = "grpc"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources), "__call__"
+        type(client.transport.list_notebook_runtime_templates), "__call__"
     ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
                 next_page_token="abc",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[],
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[],
                 next_page_token="def",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
                 next_page_token="ghi",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
             ),
             RuntimeError,
         )
-        pages = list(client.list_persistent_resources(request={}).pages)
+        pages = list(client.list_notebook_runtime_templates(request={}).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.asyncio
-async def test_list_persistent_resources_async_pager():
-    client = PersistentResourceServiceAsyncClient(
+async def test_list_notebook_runtime_templates_async_pager():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources),
+        type(client.transport.list_notebook_runtime_templates),
         "__call__",
         new_callable=mock.AsyncMock,
     ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
                 next_page_token="abc",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[],
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[],
                 next_page_token="def",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
                 next_page_token="ghi",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_persistent_resources(
+        async_pager = await client.list_notebook_runtime_templates(
             request={},
         )
         assert async_pager.next_page_token == "abc"
@@ -2331,46 +2290,46 @@ async def test_list_persistent_resources_async_pager():
 
         assert len(responses) == 6
         assert all(
-            isinstance(i, persistent_resource.PersistentResource) for i in responses
+            isinstance(i, notebook_runtime.NotebookRuntimeTemplate) for i in responses
         )
 
 
 @pytest.mark.asyncio
-async def test_list_persistent_resources_async_pages():
-    client = PersistentResourceServiceAsyncClient(
+async def test_list_notebook_runtime_templates_async_pages():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_persistent_resources),
+        type(client.transport.list_notebook_runtime_templates),
         "__call__",
         new_callable=mock.AsyncMock,
     ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
                 next_page_token="abc",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[],
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[],
                 next_page_token="def",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
                 next_page_token="ghi",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
             ),
             RuntimeError,
@@ -2379,7 +2338,7 @@ async def test_list_persistent_resources_async_pages():
         # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
         # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
         async for page_ in (  # pragma: no branch
-            await client.list_persistent_resources(request={})
+            await client.list_notebook_runtime_templates(request={})
         ).pages:
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
@@ -2389,12 +2348,12 @@ async def test_list_persistent_resources_async_pages():
 @pytest.mark.parametrize(
     "request_type",
     [
-        persistent_resource_service.DeletePersistentResourceRequest,
+        notebook_service.DeleteNotebookRuntimeTemplateRequest,
         dict,
     ],
 )
-def test_delete_persistent_resource(request_type, transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+def test_delete_notebook_runtime_template(request_type, transport: str = "grpc"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2405,44 +2364,44 @@ def test_delete_persistent_resource(request_type, transport: str = "grpc"):
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_persistent_resource), "__call__"
+        type(client.transport.delete_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/spam")
-        response = client.delete_persistent_resource(request)
+        response = client.delete_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        request = persistent_resource_service.DeletePersistentResourceRequest()
+        request = notebook_service.DeleteNotebookRuntimeTemplateRequest()
         assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
 
 
-def test_delete_persistent_resource_empty_call():
+def test_delete_notebook_runtime_template_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_persistent_resource), "__call__"
+        type(client.transport.delete_notebook_runtime_template), "__call__"
     ) as call:
-        client.delete_persistent_resource()
+        client.delete_notebook_runtime_template()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.DeletePersistentResourceRequest()
+        assert args[0] == notebook_service.DeleteNotebookRuntimeTemplateRequest()
 
 
-def test_delete_persistent_resource_non_empty_request_with_auto_populated_field():
+def test_delete_notebook_runtime_template_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
@@ -2450,51 +2409,51 @@ def test_delete_persistent_resource_non_empty_request_with_auto_populated_field(
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
-    request = persistent_resource_service.DeletePersistentResourceRequest(
+    request = notebook_service.DeleteNotebookRuntimeTemplateRequest(
         name="name_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_persistent_resource), "__call__"
+        type(client.transport.delete_notebook_runtime_template), "__call__"
     ) as call:
-        client.delete_persistent_resource(request=request)
+        client.delete_notebook_runtime_template(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.DeletePersistentResourceRequest(
+        assert args[0] == notebook_service.DeleteNotebookRuntimeTemplateRequest(
             name="name_value",
         )
 
 
 @pytest.mark.asyncio
-async def test_delete_persistent_resource_empty_call_async():
+async def test_delete_notebook_runtime_template_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc_asyncio",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_persistent_resource), "__call__"
+        type(client.transport.delete_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
-        response = await client.delete_persistent_resource()
+        response = await client.delete_notebook_runtime_template()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.DeletePersistentResourceRequest()
+        assert args[0] == notebook_service.DeleteNotebookRuntimeTemplateRequest()
 
 
 @pytest.mark.asyncio
-async def test_delete_persistent_resource_async(
+async def test_delete_notebook_runtime_template_async(
     transport: str = "grpc_asyncio",
-    request_type=persistent_resource_service.DeletePersistentResourceRequest,
+    request_type=notebook_service.DeleteNotebookRuntimeTemplateRequest,
 ):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2505,18 +2464,18 @@ async def test_delete_persistent_resource_async(
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_persistent_resource), "__call__"
+        type(client.transport.delete_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
-        response = await client.delete_persistent_resource(request)
+        response = await client.delete_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        request = persistent_resource_service.DeletePersistentResourceRequest()
+        request = notebook_service.DeleteNotebookRuntimeTemplateRequest()
         assert args[0] == request
 
     # Establish that the response is the type that we expect.
@@ -2524,27 +2483,27 @@ async def test_delete_persistent_resource_async(
 
 
 @pytest.mark.asyncio
-async def test_delete_persistent_resource_async_from_dict():
-    await test_delete_persistent_resource_async(request_type=dict)
+async def test_delete_notebook_runtime_template_async_from_dict():
+    await test_delete_notebook_runtime_template_async(request_type=dict)
 
 
-def test_delete_persistent_resource_field_headers():
-    client = PersistentResourceServiceClient(
+def test_delete_notebook_runtime_template_field_headers():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = persistent_resource_service.DeletePersistentResourceRequest()
+    request = notebook_service.DeleteNotebookRuntimeTemplateRequest()
 
     request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_persistent_resource), "__call__"
+        type(client.transport.delete_notebook_runtime_template), "__call__"
     ) as call:
         call.return_value = operations_pb2.Operation(name="operations/op")
-        client.delete_persistent_resource(request)
+        client.delete_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -2560,25 +2519,25 @@ def test_delete_persistent_resource_field_headers():
 
 
 @pytest.mark.asyncio
-async def test_delete_persistent_resource_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_delete_notebook_runtime_template_field_headers_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = persistent_resource_service.DeletePersistentResourceRequest()
+    request = notebook_service.DeleteNotebookRuntimeTemplateRequest()
 
     request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_persistent_resource), "__call__"
+        type(client.transport.delete_notebook_runtime_template), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/op")
         )
-        await client.delete_persistent_resource(request)
+        await client.delete_notebook_runtime_template(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
@@ -2593,20 +2552,20 @@ async def test_delete_persistent_resource_field_headers_async():
     ) in kw["metadata"]
 
 
-def test_delete_persistent_resource_flattened():
-    client = PersistentResourceServiceClient(
+def test_delete_notebook_runtime_template_flattened():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_persistent_resource), "__call__"
+        type(client.transport.delete_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_persistent_resource(
+        client.delete_notebook_runtime_template(
             name="name_value",
         )
 
@@ -2619,29 +2578,29 @@ def test_delete_persistent_resource_flattened():
         assert arg == mock_val
 
 
-def test_delete_persistent_resource_flattened_error():
-    client = PersistentResourceServiceClient(
+def test_delete_notebook_runtime_template_flattened_error():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.delete_persistent_resource(
-            persistent_resource_service.DeletePersistentResourceRequest(),
+        client.delete_notebook_runtime_template(
+            notebook_service.DeleteNotebookRuntimeTemplateRequest(),
             name="name_value",
         )
 
 
 @pytest.mark.asyncio
-async def test_delete_persistent_resource_flattened_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_delete_notebook_runtime_template_flattened_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_persistent_resource), "__call__"
+        type(client.transport.delete_notebook_runtime_template), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
@@ -2651,7 +2610,7 @@ async def test_delete_persistent_resource_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_persistent_resource(
+        response = await client.delete_notebook_runtime_template(
             name="name_value",
         )
 
@@ -2665,16 +2624,16 @@ async def test_delete_persistent_resource_flattened_async():
 
 
 @pytest.mark.asyncio
-async def test_delete_persistent_resource_flattened_error_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_delete_notebook_runtime_template_flattened_error_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        await client.delete_persistent_resource(
-            persistent_resource_service.DeletePersistentResourceRequest(),
+        await client.delete_notebook_runtime_template(
+            notebook_service.DeleteNotebookRuntimeTemplateRequest(),
             name="name_value",
         )
 
@@ -2682,12 +2641,12 @@ async def test_delete_persistent_resource_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
-        persistent_resource_service.UpdatePersistentResourceRequest,
+        notebook_service.AssignNotebookRuntimeRequest,
         dict,
     ],
 )
-def test_update_persistent_resource(request_type, transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+def test_assign_notebook_runtime(request_type, transport: str = "grpc"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2698,44 +2657,44 @@ def test_update_persistent_resource(request_type, transport: str = "grpc"):
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_persistent_resource), "__call__"
+        type(client.transport.assign_notebook_runtime), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/spam")
-        response = client.update_persistent_resource(request)
+        response = client.assign_notebook_runtime(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        request = persistent_resource_service.UpdatePersistentResourceRequest()
+        request = notebook_service.AssignNotebookRuntimeRequest()
         assert args[0] == request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
 
 
-def test_update_persistent_resource_empty_call():
+def test_assign_notebook_runtime_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_persistent_resource), "__call__"
+        type(client.transport.assign_notebook_runtime), "__call__"
     ) as call:
-        client.update_persistent_resource()
+        client.assign_notebook_runtime()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.UpdatePersistentResourceRequest()
+        assert args[0] == notebook_service.AssignNotebookRuntimeRequest()
 
 
-def test_update_persistent_resource_non_empty_request_with_auto_populated_field():
+def test_assign_notebook_runtime_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
@@ -2743,47 +2702,55 @@ def test_update_persistent_resource_non_empty_request_with_auto_populated_field(
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
-    request = persistent_resource_service.UpdatePersistentResourceRequest()
+    request = notebook_service.AssignNotebookRuntimeRequest(
+        parent="parent_value",
+        notebook_runtime_template="notebook_runtime_template_value",
+        notebook_runtime_id="notebook_runtime_id_value",
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_persistent_resource), "__call__"
+        type(client.transport.assign_notebook_runtime), "__call__"
     ) as call:
-        client.update_persistent_resource(request=request)
+        client.assign_notebook_runtime(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.UpdatePersistentResourceRequest()
+        assert args[0] == notebook_service.AssignNotebookRuntimeRequest(
+            parent="parent_value",
+            notebook_runtime_template="notebook_runtime_template_value",
+            notebook_runtime_id="notebook_runtime_id_value",
+        )
 
 
 @pytest.mark.asyncio
-async def test_update_persistent_resource_empty_call_async():
+async def test_assign_notebook_runtime_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc_asyncio",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_persistent_resource), "__call__"
+        type(client.transport.assign_notebook_runtime), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
-        response = await client.update_persistent_resource()
+        response = await client.assign_notebook_runtime()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == persistent_resource_service.UpdatePersistentResourceRequest()
+        assert args[0] == notebook_service.AssignNotebookRuntimeRequest()
 
 
 @pytest.mark.asyncio
-async def test_update_persistent_resource_async(
+async def test_assign_notebook_runtime_async(
     transport: str = "grpc_asyncio",
-    request_type=persistent_resource_service.UpdatePersistentResourceRequest,
+    request_type=notebook_service.AssignNotebookRuntimeRequest,
 ):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2794,18 +2761,18 @@ async def test_update_persistent_resource_async(
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_persistent_resource), "__call__"
+        type(client.transport.assign_notebook_runtime), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
-        response = await client.update_persistent_resource(request)
+        response = await client.assign_notebook_runtime(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        request = persistent_resource_service.UpdatePersistentResourceRequest()
+        request = notebook_service.AssignNotebookRuntimeRequest()
         assert args[0] == request
 
     # Establish that the response is the type that we expect.
@@ -2813,27 +2780,27 @@ async def test_update_persistent_resource_async(
 
 
 @pytest.mark.asyncio
-async def test_update_persistent_resource_async_from_dict():
-    await test_update_persistent_resource_async(request_type=dict)
+async def test_assign_notebook_runtime_async_from_dict():
+    await test_assign_notebook_runtime_async(request_type=dict)
 
 
-def test_update_persistent_resource_field_headers():
-    client = PersistentResourceServiceClient(
+def test_assign_notebook_runtime_field_headers():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = persistent_resource_service.UpdatePersistentResourceRequest()
+    request = notebook_service.AssignNotebookRuntimeRequest()
 
-    request.persistent_resource.name = "name_value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_persistent_resource), "__call__"
+        type(client.transport.assign_notebook_runtime), "__call__"
     ) as call:
         call.return_value = operations_pb2.Operation(name="operations/op")
-        client.update_persistent_resource(request)
+        client.assign_notebook_runtime(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -2844,30 +2811,30 @@ def test_update_persistent_resource_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "persistent_resource.name=name_value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
-async def test_update_persistent_resource_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_assign_notebook_runtime_field_headers_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = persistent_resource_service.UpdatePersistentResourceRequest()
+    request = notebook_service.AssignNotebookRuntimeRequest()
 
-    request.persistent_resource.name = "name_value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_persistent_resource), "__call__"
+        type(client.transport.assign_notebook_runtime), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/op")
         )
-        await client.update_persistent_resource(request)
+        await client.assign_notebook_runtime(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
@@ -2878,68 +2845,74 @@ async def test_update_persistent_resource_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "persistent_resource.name=name_value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
-def test_update_persistent_resource_flattened():
-    client = PersistentResourceServiceClient(
+def test_assign_notebook_runtime_flattened():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_persistent_resource), "__call__"
+        type(client.transport.assign_notebook_runtime), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.update_persistent_resource(
-            persistent_resource=gca_persistent_resource.PersistentResource(
-                name="name_value"
-            ),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        client.assign_notebook_runtime(
+            parent="parent_value",
+            notebook_runtime_template="notebook_runtime_template_value",
+            notebook_runtime=gca_notebook_runtime.NotebookRuntime(name="name_value"),
+            notebook_runtime_id="notebook_runtime_id_value",
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        arg = args[0].persistent_resource
-        mock_val = gca_persistent_resource.PersistentResource(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
         assert arg == mock_val
-        arg = args[0].update_mask
-        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].notebook_runtime_template
+        mock_val = "notebook_runtime_template_value"
+        assert arg == mock_val
+        arg = args[0].notebook_runtime
+        mock_val = gca_notebook_runtime.NotebookRuntime(name="name_value")
+        assert arg == mock_val
+        arg = args[0].notebook_runtime_id
+        mock_val = "notebook_runtime_id_value"
         assert arg == mock_val
 
 
-def test_update_persistent_resource_flattened_error():
-    client = PersistentResourceServiceClient(
+def test_assign_notebook_runtime_flattened_error():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.update_persistent_resource(
-            persistent_resource_service.UpdatePersistentResourceRequest(),
-            persistent_resource=gca_persistent_resource.PersistentResource(
-                name="name_value"
-            ),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        client.assign_notebook_runtime(
+            notebook_service.AssignNotebookRuntimeRequest(),
+            parent="parent_value",
+            notebook_runtime_template="notebook_runtime_template_value",
+            notebook_runtime=gca_notebook_runtime.NotebookRuntime(name="name_value"),
+            notebook_runtime_id="notebook_runtime_id_value",
         )
 
 
 @pytest.mark.asyncio
-async def test_update_persistent_resource_flattened_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_assign_notebook_runtime_flattened_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_persistent_resource), "__call__"
+        type(client.transport.assign_notebook_runtime), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
@@ -2949,130 +2922,1856 @@ async def test_update_persistent_resource_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.update_persistent_resource(
-            persistent_resource=gca_persistent_resource.PersistentResource(
-                name="name_value"
-            ),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        response = await client.assign_notebook_runtime(
+            parent="parent_value",
+            notebook_runtime_template="notebook_runtime_template_value",
+            notebook_runtime=gca_notebook_runtime.NotebookRuntime(name="name_value"),
+            notebook_runtime_id="notebook_runtime_id_value",
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        arg = args[0].persistent_resource
-        mock_val = gca_persistent_resource.PersistentResource(name="name_value")
+        arg = args[0].parent
+        mock_val = "parent_value"
         assert arg == mock_val
-        arg = args[0].update_mask
-        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        arg = args[0].notebook_runtime_template
+        mock_val = "notebook_runtime_template_value"
+        assert arg == mock_val
+        arg = args[0].notebook_runtime
+        mock_val = gca_notebook_runtime.NotebookRuntime(name="name_value")
+        assert arg == mock_val
+        arg = args[0].notebook_runtime_id
+        mock_val = "notebook_runtime_id_value"
         assert arg == mock_val
 
 
 @pytest.mark.asyncio
-async def test_update_persistent_resource_flattened_error_async():
-    client = PersistentResourceServiceAsyncClient(
+async def test_assign_notebook_runtime_flattened_error_async():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        await client.update_persistent_resource(
-            persistent_resource_service.UpdatePersistentResourceRequest(),
-            persistent_resource=gca_persistent_resource.PersistentResource(
-                name="name_value"
-            ),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        await client.assign_notebook_runtime(
+            notebook_service.AssignNotebookRuntimeRequest(),
+            parent="parent_value",
+            notebook_runtime_template="notebook_runtime_template_value",
+            notebook_runtime=gca_notebook_runtime.NotebookRuntime(name="name_value"),
+            notebook_runtime_id="notebook_runtime_id_value",
         )
 
 
 @pytest.mark.parametrize(
     "request_type",
     [
-        persistent_resource_service.CreatePersistentResourceRequest,
+        notebook_service.GetNotebookRuntimeRequest,
         dict,
     ],
 )
-def test_create_persistent_resource_rest(request_type):
-    client = PersistentResourceServiceClient(
+def test_get_notebook_runtime(request_type, transport: str = "grpc"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = notebook_runtime.NotebookRuntime(
+            name="name_value",
+            runtime_user="runtime_user_value",
+            proxy_uri="proxy_uri_value",
+            health_state=notebook_runtime.NotebookRuntime.HealthState.HEALTHY,
+            display_name="display_name_value",
+            description="description_value",
+            service_account="service_account_value",
+            runtime_state=notebook_runtime.NotebookRuntime.RuntimeState.RUNNING,
+            is_upgradable=True,
+            version="version_value",
+            notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+            network_tags=["network_tags_value"],
+        )
+        response = client.get_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = notebook_service.GetNotebookRuntimeRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, notebook_runtime.NotebookRuntime)
+    assert response.name == "name_value"
+    assert response.runtime_user == "runtime_user_value"
+    assert response.proxy_uri == "proxy_uri_value"
+    assert response.health_state == notebook_runtime.NotebookRuntime.HealthState.HEALTHY
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.service_account == "service_account_value"
+    assert (
+        response.runtime_state == notebook_runtime.NotebookRuntime.RuntimeState.RUNNING
+    )
+    assert response.is_upgradable is True
+    assert response.version == "version_value"
+    assert (
+        response.notebook_runtime_type
+        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
+    )
+    assert response.network_tags == ["network_tags_value"]
+
+
+def test_get_notebook_runtime_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        client.get_notebook_runtime()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.GetNotebookRuntimeRequest()
+
+
+def test_get_notebook_runtime_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = notebook_service.GetNotebookRuntimeRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        client.get_notebook_runtime(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.GetNotebookRuntimeRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_notebook_runtime_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_runtime.NotebookRuntime(
+                name="name_value",
+                runtime_user="runtime_user_value",
+                proxy_uri="proxy_uri_value",
+                health_state=notebook_runtime.NotebookRuntime.HealthState.HEALTHY,
+                display_name="display_name_value",
+                description="description_value",
+                service_account="service_account_value",
+                runtime_state=notebook_runtime.NotebookRuntime.RuntimeState.RUNNING,
+                is_upgradable=True,
+                version="version_value",
+                notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+                network_tags=["network_tags_value"],
+            )
+        )
+        response = await client.get_notebook_runtime()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.GetNotebookRuntimeRequest()
+
+
+@pytest.mark.asyncio
+async def test_get_notebook_runtime_async(
+    transport: str = "grpc_asyncio",
+    request_type=notebook_service.GetNotebookRuntimeRequest,
+):
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_runtime.NotebookRuntime(
+                name="name_value",
+                runtime_user="runtime_user_value",
+                proxy_uri="proxy_uri_value",
+                health_state=notebook_runtime.NotebookRuntime.HealthState.HEALTHY,
+                display_name="display_name_value",
+                description="description_value",
+                service_account="service_account_value",
+                runtime_state=notebook_runtime.NotebookRuntime.RuntimeState.RUNNING,
+                is_upgradable=True,
+                version="version_value",
+                notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+                network_tags=["network_tags_value"],
+            )
+        )
+        response = await client.get_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = notebook_service.GetNotebookRuntimeRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, notebook_runtime.NotebookRuntime)
+    assert response.name == "name_value"
+    assert response.runtime_user == "runtime_user_value"
+    assert response.proxy_uri == "proxy_uri_value"
+    assert response.health_state == notebook_runtime.NotebookRuntime.HealthState.HEALTHY
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.service_account == "service_account_value"
+    assert (
+        response.runtime_state == notebook_runtime.NotebookRuntime.RuntimeState.RUNNING
+    )
+    assert response.is_upgradable is True
+    assert response.version == "version_value"
+    assert (
+        response.notebook_runtime_type
+        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
+    )
+    assert response.network_tags == ["network_tags_value"]
+
+
+@pytest.mark.asyncio
+async def test_get_notebook_runtime_async_from_dict():
+    await test_get_notebook_runtime_async(request_type=dict)
+
+
+def test_get_notebook_runtime_field_headers():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = notebook_service.GetNotebookRuntimeRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = notebook_runtime.NotebookRuntime()
+        client.get_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_notebook_runtime_field_headers_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = notebook_service.GetNotebookRuntimeRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_runtime.NotebookRuntime()
+        )
+        await client.get_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_get_notebook_runtime_flattened():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = notebook_runtime.NotebookRuntime()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.get_notebook_runtime(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_get_notebook_runtime_flattened_error():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_notebook_runtime(
+            notebook_service.GetNotebookRuntimeRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_notebook_runtime_flattened_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = notebook_runtime.NotebookRuntime()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_runtime.NotebookRuntime()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.get_notebook_runtime(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_get_notebook_runtime_flattened_error_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.get_notebook_runtime(
+            notebook_service.GetNotebookRuntimeRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.ListNotebookRuntimesRequest,
+        dict,
+    ],
+)
+def test_list_notebook_runtimes(request_type, transport: str = "grpc"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = notebook_service.ListNotebookRuntimesResponse(
+            next_page_token="next_page_token_value",
+        )
+        response = client.list_notebook_runtimes(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = notebook_service.ListNotebookRuntimesRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNotebookRuntimesPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_notebook_runtimes_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        client.list_notebook_runtimes()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.ListNotebookRuntimesRequest()
+
+
+def test_list_notebook_runtimes_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = notebook_service.ListNotebookRuntimesRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        client.list_notebook_runtimes(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.ListNotebookRuntimesRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_notebook_runtimes_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_service.ListNotebookRuntimesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_notebook_runtimes()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.ListNotebookRuntimesRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_notebook_runtimes_async(
+    transport: str = "grpc_asyncio",
+    request_type=notebook_service.ListNotebookRuntimesRequest,
+):
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_service.ListNotebookRuntimesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_notebook_runtimes(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = notebook_service.ListNotebookRuntimesRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNotebookRuntimesAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+async def test_list_notebook_runtimes_async_from_dict():
+    await test_list_notebook_runtimes_async(request_type=dict)
+
+
+def test_list_notebook_runtimes_field_headers():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = notebook_service.ListNotebookRuntimesRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        call.return_value = notebook_service.ListNotebookRuntimesResponse()
+        client.list_notebook_runtimes(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_notebook_runtimes_field_headers_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = notebook_service.ListNotebookRuntimesRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_service.ListNotebookRuntimesResponse()
+        )
+        await client.list_notebook_runtimes(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_list_notebook_runtimes_flattened():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = notebook_service.ListNotebookRuntimesResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.list_notebook_runtimes(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+def test_list_notebook_runtimes_flattened_error():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_notebook_runtimes(
+            notebook_service.ListNotebookRuntimesRequest(),
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_notebook_runtimes_flattened_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = notebook_service.ListNotebookRuntimesResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_service.ListNotebookRuntimesResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.list_notebook_runtimes(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_list_notebook_runtimes_flattened_error_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.list_notebook_runtimes(
+            notebook_service.ListNotebookRuntimesRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_notebook_runtimes_pager(transport_name: str = "grpc"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                ],
+                next_page_token="abc",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[],
+                next_page_token="def",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                ],
+                next_page_token="ghi",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                ],
+            ),
+            RuntimeError,
+        )
+
+        metadata = ()
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
+        )
+        pager = client.list_notebook_runtimes(request={})
+
+        assert pager._metadata == metadata
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, notebook_runtime.NotebookRuntime) for i in results)
+
+
+def test_list_notebook_runtimes_pages(transport_name: str = "grpc"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                ],
+                next_page_token="abc",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[],
+                next_page_token="def",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                ],
+                next_page_token="ghi",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = list(client.list_notebook_runtimes(request={}).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.asyncio
+async def test_list_notebook_runtimes_async_pager():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                ],
+                next_page_token="abc",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[],
+                next_page_token="def",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                ],
+                next_page_token="ghi",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                ],
+            ),
+            RuntimeError,
+        )
+        async_pager = await client.list_notebook_runtimes(
+            request={},
+        )
+        assert async_pager.next_page_token == "abc"
+        responses = []
+        async for response in async_pager:  # pragma: no branch
+            responses.append(response)
+
+        assert len(responses) == 6
+        assert all(isinstance(i, notebook_runtime.NotebookRuntime) for i in responses)
+
+
+@pytest.mark.asyncio
+async def test_list_notebook_runtimes_async_pages():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                ],
+                next_page_token="abc",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[],
+                next_page_token="def",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                ],
+                next_page_token="ghi",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = []
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
+            await client.list_notebook_runtimes(request={})
+        ).pages:
+            pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.DeleteNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_delete_notebook_runtime(request_type, transport: str = "grpc"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.delete_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = notebook_service.DeleteNotebookRuntimeRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_delete_notebook_runtime_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        client.delete_notebook_runtime()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.DeleteNotebookRuntimeRequest()
+
+
+def test_delete_notebook_runtime_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = notebook_service.DeleteNotebookRuntimeRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        client.delete_notebook_runtime(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.DeleteNotebookRuntimeRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_notebook_runtime_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_notebook_runtime()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.DeleteNotebookRuntimeRequest()
+
+
+@pytest.mark.asyncio
+async def test_delete_notebook_runtime_async(
+    transport: str = "grpc_asyncio",
+    request_type=notebook_service.DeleteNotebookRuntimeRequest,
+):
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = notebook_service.DeleteNotebookRuntimeRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_delete_notebook_runtime_async_from_dict():
+    await test_delete_notebook_runtime_async(request_type=dict)
+
+
+def test_delete_notebook_runtime_field_headers():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = notebook_service.DeleteNotebookRuntimeRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_delete_notebook_runtime_field_headers_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = notebook_service.DeleteNotebookRuntimeRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.delete_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_delete_notebook_runtime_flattened():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.delete_notebook_runtime(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_delete_notebook_runtime_flattened_error():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_notebook_runtime(
+            notebook_service.DeleteNotebookRuntimeRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_notebook_runtime_flattened_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.delete_notebook_runtime(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_delete_notebook_runtime_flattened_error_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.delete_notebook_runtime(
+            notebook_service.DeleteNotebookRuntimeRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.UpgradeNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_upgrade_notebook_runtime(request_type, transport: str = "grpc"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.upgrade_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = notebook_service.UpgradeNotebookRuntimeRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_upgrade_notebook_runtime_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        client.upgrade_notebook_runtime()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.UpgradeNotebookRuntimeRequest()
+
+
+def test_upgrade_notebook_runtime_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = notebook_service.UpgradeNotebookRuntimeRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        client.upgrade_notebook_runtime(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.UpgradeNotebookRuntimeRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_upgrade_notebook_runtime_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.upgrade_notebook_runtime()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.UpgradeNotebookRuntimeRequest()
+
+
+@pytest.mark.asyncio
+async def test_upgrade_notebook_runtime_async(
+    transport: str = "grpc_asyncio",
+    request_type=notebook_service.UpgradeNotebookRuntimeRequest,
+):
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.upgrade_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = notebook_service.UpgradeNotebookRuntimeRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_upgrade_notebook_runtime_async_from_dict():
+    await test_upgrade_notebook_runtime_async(request_type=dict)
+
+
+def test_upgrade_notebook_runtime_field_headers():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = notebook_service.UpgradeNotebookRuntimeRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.upgrade_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_upgrade_notebook_runtime_field_headers_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = notebook_service.UpgradeNotebookRuntimeRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.upgrade_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_upgrade_notebook_runtime_flattened():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.upgrade_notebook_runtime(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_upgrade_notebook_runtime_flattened_error():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.upgrade_notebook_runtime(
+            notebook_service.UpgradeNotebookRuntimeRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_upgrade_notebook_runtime_flattened_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.upgrade_notebook_runtime(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_upgrade_notebook_runtime_flattened_error_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.upgrade_notebook_runtime(
+            notebook_service.UpgradeNotebookRuntimeRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.StartNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_start_notebook_runtime(request_type, transport: str = "grpc"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.start_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = notebook_service.StartNotebookRuntimeRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_start_notebook_runtime_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        client.start_notebook_runtime()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.StartNotebookRuntimeRequest()
+
+
+def test_start_notebook_runtime_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = notebook_service.StartNotebookRuntimeRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        client.start_notebook_runtime(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.StartNotebookRuntimeRequest(
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_start_notebook_runtime_empty_call_async():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.start_notebook_runtime()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == notebook_service.StartNotebookRuntimeRequest()
+
+
+@pytest.mark.asyncio
+async def test_start_notebook_runtime_async(
+    transport: str = "grpc_asyncio",
+    request_type=notebook_service.StartNotebookRuntimeRequest,
+):
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.start_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = notebook_service.StartNotebookRuntimeRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_start_notebook_runtime_async_from_dict():
+    await test_start_notebook_runtime_async(request_type=dict)
+
+
+def test_start_notebook_runtime_field_headers():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = notebook_service.StartNotebookRuntimeRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.start_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_start_notebook_runtime_field_headers_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = notebook_service.StartNotebookRuntimeRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.start_notebook_runtime(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_start_notebook_runtime_flattened():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.start_notebook_runtime(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_start_notebook_runtime_flattened_error():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.start_notebook_runtime(
+            notebook_service.StartNotebookRuntimeRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_start_notebook_runtime_flattened_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.start_notebook_runtime(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_start_notebook_runtime_flattened_error_async():
+    client = NotebookServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.start_notebook_runtime(
+            notebook_service.StartNotebookRuntimeRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.CreateNotebookRuntimeTemplateRequest,
+        dict,
+    ],
+)
+def test_create_notebook_runtime_template_rest(request_type):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
     # send a request that will satisfy transcoding
     request_init = {"parent": "projects/sample1/locations/sample2"}
-    request_init["persistent_resource"] = {
+    request_init["notebook_runtime_template"] = {
         "name": "name_value",
         "display_name": "display_name_value",
-        "resource_pools": [
-            {
-                "id": "id_value",
-                "machine_spec": {
-                    "machine_type": "machine_type_value",
-                    "accelerator_type": 1,
-                    "accelerator_count": 1805,
-                    "tpu_topology": "tpu_topology_value",
-                },
-                "replica_count": 1384,
-                "disk_spec": {
-                    "boot_disk_type": "boot_disk_type_value",
-                    "boot_disk_size_gb": 1792,
-                },
-                "used_replica_count": 1912,
-                "autoscaling_spec": {
-                    "min_replica_count": 1803,
-                    "max_replica_count": 1805,
-                },
-            }
-        ],
-        "state": 1,
-        "error": {
-            "code": 411,
-            "message": "message_value",
-            "details": [
-                {
-                    "type_url": "type.googleapis.com/google.protobuf.Duration",
-                    "value": b"\x08\x0c\x10\xdb\x07",
-                }
-            ],
+        "description": "description_value",
+        "is_default": True,
+        "machine_spec": {
+            "machine_type": "machine_type_value",
+            "accelerator_type": 1,
+            "accelerator_count": 1805,
+            "tpu_topology": "tpu_topology_value",
         },
-        "create_time": {"seconds": 751, "nanos": 543},
-        "start_time": {},
-        "update_time": {},
+        "data_persistent_disk_spec": {
+            "disk_type": "disk_type_value",
+            "disk_size_gb": 1261,
+        },
+        "network_spec": {
+            "enable_internet_access": True,
+            "network": "network_value",
+            "subnetwork": "subnetwork_value",
+        },
+        "service_account": "service_account_value",
+        "etag": "etag_value",
         "labels": {},
-        "network": "network_value",
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-        "resource_runtime_spec": {
-            "service_account_spec": {
-                "enable_custom_service_account": True,
-                "service_account": "service_account_value",
-            },
-            "ray_spec": {
-                "image_uri": "image_uri_value",
-                "resource_pool_images": {},
-                "head_node_resource_pool_id": "head_node_resource_pool_id_value",
-                "ray_metric_spec": {"disabled": True},
-            },
+        "idle_shutdown_config": {
+            "idle_timeout": {"seconds": 751, "nanos": 543},
+            "idle_shutdown_disabled": True,
         },
-        "resource_runtime": {
-            "access_uris": {},
-            "notebook_runtime_template": "notebook_runtime_template_value",
-        },
-        "reserved_ip_ranges": [
-            "reserved_ip_ranges_value1",
-            "reserved_ip_ranges_value2",
-        ],
+        "euc_config": {"euc_disabled": True, "bypass_actas_check": True},
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "notebook_runtime_type": 1,
+        "shielded_vm_config": {"enable_secure_boot": True},
+        "network_tags": ["network_tags_value1", "network_tags_value2"],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
 
     # Determine if the message type is proto-plus or protobuf
-    test_field = (
-        persistent_resource_service.CreatePersistentResourceRequest.meta.fields[
-            "persistent_resource"
-        ]
-    )
+    test_field = notebook_service.CreateNotebookRuntimeTemplateRequest.meta.fields[
+        "notebook_runtime_template"
+    ]
 
     def get_message_fields(field):
         # Given a field which is a message (composite type), return a list with
@@ -3100,7 +4799,9 @@ def test_create_persistent_resource_rest(request_type):
 
     # For each item in the sample request, create a list of sub fields which are not present at runtime
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["persistent_resource"].items():  # pragma: NO COVER
+    for field, value in request_init[
+        "notebook_runtime_template"
+    ].items():  # pragma: NO COVER
         result = None
         is_repeated = False
         # For repeated fields
@@ -3130,10 +4831,12 @@ def test_create_persistent_resource_rest(request_type):
         subfield = subfield_to_delete.get("subfield")
         if subfield:
             if field_repeated:
-                for i in range(0, len(request_init["persistent_resource"][field])):
-                    del request_init["persistent_resource"][field][i][subfield]
+                for i in range(
+                    0, len(request_init["notebook_runtime_template"][field])
+                ):
+                    del request_init["notebook_runtime_template"][field][i][subfield]
             else:
-                del request_init["persistent_resource"][field][subfield]
+                del request_init["notebook_runtime_template"][field][subfield]
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
@@ -3148,20 +4851,19 @@ def test_create_persistent_resource_rest(request_type):
 
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        response = client.create_persistent_resource(request)
+        response = client.create_notebook_runtime_template(request)
 
     # Establish that the response is the type that we expect.
     assert response.operation.name == "operations/spam"
 
 
-def test_create_persistent_resource_rest_required_fields(
-    request_type=persistent_resource_service.CreatePersistentResourceRequest,
+def test_create_notebook_runtime_template_rest_required_fields(
+    request_type=notebook_service.CreateNotebookRuntimeTemplateRequest,
 ):
-    transport_class = transports.PersistentResourceServiceRestTransport
+    transport_class = transports.NotebookServiceRestTransport
 
     request_init = {}
     request_init["parent"] = ""
-    request_init["persistent_resource_id"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
     jsonified_request = json.loads(
@@ -3169,37 +4871,28 @@ def test_create_persistent_resource_rest_required_fields(
     )
 
     # verify fields with default values are dropped
-    assert "persistentResourceId" not in jsonified_request
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
-    ).create_persistent_resource._get_unset_required_fields(jsonified_request)
+    ).create_notebook_runtime_template._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
-    assert "persistentResourceId" in jsonified_request
-    assert (
-        jsonified_request["persistentResourceId"]
-        == request_init["persistent_resource_id"]
-    )
 
     jsonified_request["parent"] = "parent_value"
-    jsonified_request["persistentResourceId"] = "persistent_resource_id_value"
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
-    ).create_persistent_resource._get_unset_required_fields(jsonified_request)
+    ).create_notebook_runtime_template._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("persistent_resource_id",))
+    assert not set(unset_fields) - set(("notebook_runtime_template_id",))
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "parent" in jsonified_request
     assert jsonified_request["parent"] == "parent_value"
-    assert "persistentResourceId" in jsonified_request
-    assert jsonified_request["persistentResourceId"] == "persistent_resource_id_value"
 
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -3231,45 +4924,41 @@ def test_create_persistent_resource_rest_required_fields(
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
 
-            response = client.create_persistent_resource(request)
+            response = client.create_notebook_runtime_template(request)
 
-            expected_params = [
-                (
-                    "persistentResourceId",
-                    "",
-                ),
-            ]
+            expected_params = []
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
 
-def test_create_persistent_resource_rest_unset_required_fields():
-    transport = transports.PersistentResourceServiceRestTransport(
+def test_create_notebook_runtime_template_rest_unset_required_fields():
+    transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials
     )
 
-    unset_fields = transport.create_persistent_resource._get_unset_required_fields({})
+    unset_fields = (
+        transport.create_notebook_runtime_template._get_unset_required_fields({})
+    )
     assert set(unset_fields) == (
-        set(("persistentResourceId",))
+        set(("notebookRuntimeTemplateId",))
         & set(
             (
                 "parent",
-                "persistentResource",
-                "persistentResourceId",
+                "notebookRuntimeTemplate",
             )
         )
     )
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_persistent_resource_rest_interceptors(null_interceptor):
-    transport = transports.PersistentResourceServiceRestTransport(
+def test_create_notebook_runtime_template_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
         interceptor=None
         if null_interceptor
-        else transports.PersistentResourceServiceRestInterceptor(),
+        else transports.NotebookServiceRestInterceptor(),
     )
-    client = PersistentResourceServiceClient(transport=transport)
+    client = NotebookServiceClient(transport=transport)
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -3277,16 +4966,16 @@ def test_create_persistent_resource_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         operation.Operation, "_set_result_from_operation"
     ), mock.patch.object(
-        transports.PersistentResourceServiceRestInterceptor,
-        "post_create_persistent_resource",
+        transports.NotebookServiceRestInterceptor,
+        "post_create_notebook_runtime_template",
     ) as post, mock.patch.object(
-        transports.PersistentResourceServiceRestInterceptor,
-        "pre_create_persistent_resource",
+        transports.NotebookServiceRestInterceptor,
+        "pre_create_notebook_runtime_template",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
-        pb_message = persistent_resource_service.CreatePersistentResourceRequest.pb(
-            persistent_resource_service.CreatePersistentResourceRequest()
+        pb_message = notebook_service.CreateNotebookRuntimeTemplateRequest.pb(
+            notebook_service.CreateNotebookRuntimeTemplateRequest()
         )
         transcode.return_value = {
             "method": "post",
@@ -3302,7 +4991,7 @@ def test_create_persistent_resource_rest_interceptors(null_interceptor):
             operations_pb2.Operation()
         )
 
-        request = persistent_resource_service.CreatePersistentResourceRequest()
+        request = notebook_service.CreateNotebookRuntimeTemplateRequest()
         metadata = [
             ("key", "val"),
             ("cephalopod", "squid"),
@@ -3310,7 +4999,7 @@ def test_create_persistent_resource_rest_interceptors(null_interceptor):
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
 
-        client.create_persistent_resource(
+        client.create_notebook_runtime_template(
             request,
             metadata=[
                 ("key", "val"),
@@ -3322,11 +5011,11 @@ def test_create_persistent_resource_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_create_persistent_resource_rest_bad_request(
+def test_create_notebook_runtime_template_rest_bad_request(
     transport: str = "rest",
-    request_type=persistent_resource_service.CreatePersistentResourceRequest,
+    request_type=notebook_service.CreateNotebookRuntimeTemplateRequest,
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3344,11 +5033,11 @@ def test_create_persistent_resource_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        client.create_persistent_resource(request)
+        client.create_notebook_runtime_template(request)
 
 
-def test_create_persistent_resource_rest_flattened():
-    client = PersistentResourceServiceClient(
+def test_create_notebook_runtime_template_rest_flattened():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -3364,10 +5053,10 @@ def test_create_persistent_resource_rest_flattened():
         # get truthy value for each flattened field
         mock_args = dict(
             parent="parent_value",
-            persistent_resource=gca_persistent_resource.PersistentResource(
+            notebook_runtime_template=notebook_runtime.NotebookRuntimeTemplate(
                 name="name_value"
             ),
-            persistent_resource_id="persistent_resource_id_value",
+            notebook_runtime_template_id="notebook_runtime_template_id_value",
         )
         mock_args.update(sample_request)
 
@@ -3378,21 +5067,21 @@ def test_create_persistent_resource_rest_flattened():
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
 
-        client.create_persistent_resource(**mock_args)
+        client.create_notebook_runtime_template(**mock_args)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*}/persistentResources"
+            "%s/v1beta1/{parent=projects/*/locations/*}/notebookRuntimeTemplates"
             % client.transport._host,
             args[1],
         )
 
 
-def test_create_persistent_resource_rest_flattened_error(transport: str = "rest"):
-    client = PersistentResourceServiceClient(
+def test_create_notebook_runtime_template_rest_flattened_error(transport: str = "rest"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3400,18 +5089,18 @@ def test_create_persistent_resource_rest_flattened_error(transport: str = "rest"
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.create_persistent_resource(
-            persistent_resource_service.CreatePersistentResourceRequest(),
+        client.create_notebook_runtime_template(
+            notebook_service.CreateNotebookRuntimeTemplateRequest(),
             parent="parent_value",
-            persistent_resource=gca_persistent_resource.PersistentResource(
+            notebook_runtime_template=notebook_runtime.NotebookRuntimeTemplate(
                 name="name_value"
             ),
-            persistent_resource_id="persistent_resource_id_value",
+            notebook_runtime_template_id="notebook_runtime_template_id_value",
         )
 
 
-def test_create_persistent_resource_rest_error():
-    client = PersistentResourceServiceClient(
+def test_create_notebook_runtime_template_rest_error():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
@@ -3419,57 +5108,66 @@ def test_create_persistent_resource_rest_error():
 @pytest.mark.parametrize(
     "request_type",
     [
-        persistent_resource_service.GetPersistentResourceRequest,
+        notebook_service.GetNotebookRuntimeTemplateRequest,
         dict,
     ],
 )
-def test_get_persistent_resource_rest(request_type):
-    client = PersistentResourceServiceClient(
+def test_get_notebook_runtime_template_rest(request_type):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
     # send a request that will satisfy transcoding
     request_init = {
-        "name": "projects/sample1/locations/sample2/persistentResources/sample3"
+        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
     }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
     with mock.patch.object(type(client.transport._session), "request") as req:
         # Designate an appropriate value for the returned response.
-        return_value = persistent_resource.PersistentResource(
+        return_value = notebook_runtime.NotebookRuntimeTemplate(
             name="name_value",
             display_name="display_name_value",
-            state=persistent_resource.PersistentResource.State.PROVISIONING,
-            network="network_value",
-            reserved_ip_ranges=["reserved_ip_ranges_value"],
+            description="description_value",
+            is_default=True,
+            service_account="service_account_value",
+            etag="etag_value",
+            notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+            network_tags=["network_tags_value"],
         )
 
         # Wrap the value into a proper Response obj
         response_value = Response()
         response_value.status_code = 200
         # Convert return value to protobuf type
-        return_value = persistent_resource.PersistentResource.pb(return_value)
+        return_value = notebook_runtime.NotebookRuntimeTemplate.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
 
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        response = client.get_persistent_resource(request)
+        response = client.get_notebook_runtime_template(request)
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, persistent_resource.PersistentResource)
+    assert isinstance(response, notebook_runtime.NotebookRuntimeTemplate)
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
-    assert response.state == persistent_resource.PersistentResource.State.PROVISIONING
-    assert response.network == "network_value"
-    assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
+    assert response.description == "description_value"
+    assert response.is_default is True
+    assert response.service_account == "service_account_value"
+    assert response.etag == "etag_value"
+    assert (
+        response.notebook_runtime_type
+        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
+    )
+    assert response.network_tags == ["network_tags_value"]
 
 
-def test_get_persistent_resource_rest_required_fields(
-    request_type=persistent_resource_service.GetPersistentResourceRequest,
+def test_get_notebook_runtime_template_rest_required_fields(
+    request_type=notebook_service.GetNotebookRuntimeTemplateRequest,
 ):
-    transport_class = transports.PersistentResourceServiceRestTransport
+    transport_class = transports.NotebookServiceRestTransport
 
     request_init = {}
     request_init["name"] = ""
@@ -3483,7 +5181,7 @@ def test_get_persistent_resource_rest_required_fields(
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
-    ).get_persistent_resource._get_unset_required_fields(jsonified_request)
+    ).get_notebook_runtime_template._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
@@ -3492,21 +5190,21 @@ def test_get_persistent_resource_rest_required_fields(
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
-    ).get_persistent_resource._get_unset_required_fields(jsonified_request)
+    ).get_notebook_runtime_template._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "name" in jsonified_request
     assert jsonified_request["name"] == "name_value"
 
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = request_type(**request_init)
 
     # Designate an appropriate value for the returned response.
-    return_value = persistent_resource.PersistentResource()
+    return_value = notebook_runtime.NotebookRuntimeTemplate()
     # Mock the http request call within the method and fake a response.
     with mock.patch.object(Session, "request") as req:
         # We need to mock transcode() because providing default values
@@ -3527,52 +5225,52 @@ def test_get_persistent_resource_rest_required_fields(
             response_value.status_code = 200
 
             # Convert return value to protobuf type
-            return_value = persistent_resource.PersistentResource.pb(return_value)
+            return_value = notebook_runtime.NotebookRuntimeTemplate.pb(return_value)
             json_return_value = json_format.MessageToJson(return_value)
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
 
-            response = client.get_persistent_resource(request)
+            response = client.get_notebook_runtime_template(request)
 
             expected_params = []
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
 
-def test_get_persistent_resource_rest_unset_required_fields():
-    transport = transports.PersistentResourceServiceRestTransport(
+def test_get_notebook_runtime_template_rest_unset_required_fields():
+    transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials
     )
 
-    unset_fields = transport.get_persistent_resource._get_unset_required_fields({})
+    unset_fields = transport.get_notebook_runtime_template._get_unset_required_fields(
+        {}
+    )
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_persistent_resource_rest_interceptors(null_interceptor):
-    transport = transports.PersistentResourceServiceRestTransport(
+def test_get_notebook_runtime_template_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
         interceptor=None
         if null_interceptor
-        else transports.PersistentResourceServiceRestInterceptor(),
+        else transports.NotebookServiceRestInterceptor(),
     )
-    client = PersistentResourceServiceClient(transport=transport)
+    client = NotebookServiceClient(transport=transport)
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
         path_template, "transcode"
     ) as transcode, mock.patch.object(
-        transports.PersistentResourceServiceRestInterceptor,
-        "post_get_persistent_resource",
+        transports.NotebookServiceRestInterceptor, "post_get_notebook_runtime_template"
     ) as post, mock.patch.object(
-        transports.PersistentResourceServiceRestInterceptor,
-        "pre_get_persistent_resource",
+        transports.NotebookServiceRestInterceptor, "pre_get_notebook_runtime_template"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
-        pb_message = persistent_resource_service.GetPersistentResourceRequest.pb(
-            persistent_resource_service.GetPersistentResourceRequest()
+        pb_message = notebook_service.GetNotebookRuntimeTemplateRequest.pb(
+            notebook_service.GetNotebookRuntimeTemplateRequest()
         )
         transcode.return_value = {
             "method": "post",
@@ -3584,19 +5282,19 @@ def test_get_persistent_resource_rest_interceptors(null_interceptor):
         req.return_value = Response()
         req.return_value.status_code = 200
         req.return_value.request = PreparedRequest()
-        req.return_value._content = persistent_resource.PersistentResource.to_json(
-            persistent_resource.PersistentResource()
+        req.return_value._content = notebook_runtime.NotebookRuntimeTemplate.to_json(
+            notebook_runtime.NotebookRuntimeTemplate()
         )
 
-        request = persistent_resource_service.GetPersistentResourceRequest()
+        request = notebook_service.GetNotebookRuntimeTemplateRequest()
         metadata = [
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
         pre.return_value = request, metadata
-        post.return_value = persistent_resource.PersistentResource()
+        post.return_value = notebook_runtime.NotebookRuntimeTemplate()
 
-        client.get_persistent_resource(
+        client.get_notebook_runtime_template(
             request,
             metadata=[
                 ("key", "val"),
@@ -3608,18 +5306,18 @@ def test_get_persistent_resource_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_get_persistent_resource_rest_bad_request(
+def test_get_notebook_runtime_template_rest_bad_request(
     transport: str = "rest",
-    request_type=persistent_resource_service.GetPersistentResourceRequest,
+    request_type=notebook_service.GetNotebookRuntimeTemplateRequest,
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
 
     # send a request that will satisfy transcoding
     request_init = {
-        "name": "projects/sample1/locations/sample2/persistentResources/sample3"
+        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
     }
     request = request_type(**request_init)
 
@@ -3632,11 +5330,11 @@ def test_get_persistent_resource_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        client.get_persistent_resource(request)
+        client.get_notebook_runtime_template(request)
 
 
-def test_get_persistent_resource_rest_flattened():
-    client = PersistentResourceServiceClient(
+def test_get_notebook_runtime_template_rest_flattened():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -3644,11 +5342,11 @@ def test_get_persistent_resource_rest_flattened():
     # Mock the http request call within the method and fake a response.
     with mock.patch.object(type(client.transport._session), "request") as req:
         # Designate an appropriate value for the returned response.
-        return_value = persistent_resource.PersistentResource()
+        return_value = notebook_runtime.NotebookRuntimeTemplate()
 
         # get arguments that satisfy an http rule for this method
         sample_request = {
-            "name": "projects/sample1/locations/sample2/persistentResources/sample3"
+            "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
         }
 
         # get truthy value for each flattened field
@@ -3661,26 +5359,26 @@ def test_get_persistent_resource_rest_flattened():
         response_value = Response()
         response_value.status_code = 200
         # Convert return value to protobuf type
-        return_value = persistent_resource.PersistentResource.pb(return_value)
+        return_value = notebook_runtime.NotebookRuntimeTemplate.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
 
-        client.get_persistent_resource(**mock_args)
+        client.get_notebook_runtime_template(**mock_args)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/persistentResources/*}"
+            "%s/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}"
             % client.transport._host,
             args[1],
         )
 
 
-def test_get_persistent_resource_rest_flattened_error(transport: str = "rest"):
-    client = PersistentResourceServiceClient(
+def test_get_notebook_runtime_template_rest_flattened_error(transport: str = "rest"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3688,14 +5386,14 @@ def test_get_persistent_resource_rest_flattened_error(transport: str = "rest"):
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.get_persistent_resource(
-            persistent_resource_service.GetPersistentResourceRequest(),
+        client.get_notebook_runtime_template(
+            notebook_service.GetNotebookRuntimeTemplateRequest(),
             name="name_value",
         )
 
 
-def test_get_persistent_resource_rest_error():
-    client = PersistentResourceServiceClient(
+def test_get_notebook_runtime_template_rest_error():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
@@ -3703,12 +5401,12 @@ def test_get_persistent_resource_rest_error():
 @pytest.mark.parametrize(
     "request_type",
     [
-        persistent_resource_service.ListPersistentResourcesRequest,
+        notebook_service.ListNotebookRuntimeTemplatesRequest,
         dict,
     ],
 )
-def test_list_persistent_resources_rest(request_type):
-    client = PersistentResourceServiceClient(
+def test_list_notebook_runtime_templates_rest(request_type):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -3720,7 +5418,7 @@ def test_list_persistent_resources_rest(request_type):
     # Mock the http request call within the method and fake a response.
     with mock.patch.object(type(client.transport._session), "request") as req:
         # Designate an appropriate value for the returned response.
-        return_value = persistent_resource_service.ListPersistentResourcesResponse(
+        return_value = notebook_service.ListNotebookRuntimeTemplatesResponse(
             next_page_token="next_page_token_value",
         )
 
@@ -3728,24 +5426,24 @@ def test_list_persistent_resources_rest(request_type):
         response_value = Response()
         response_value.status_code = 200
         # Convert return value to protobuf type
-        return_value = persistent_resource_service.ListPersistentResourcesResponse.pb(
+        return_value = notebook_service.ListNotebookRuntimeTemplatesResponse.pb(
             return_value
         )
         json_return_value = json_format.MessageToJson(return_value)
 
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        response = client.list_persistent_resources(request)
+        response = client.list_notebook_runtime_templates(request)
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListPersistentResourcesPager)
+    assert isinstance(response, pagers.ListNotebookRuntimeTemplatesPager)
     assert response.next_page_token == "next_page_token_value"
 
 
-def test_list_persistent_resources_rest_required_fields(
-    request_type=persistent_resource_service.ListPersistentResourcesRequest,
+def test_list_notebook_runtime_templates_rest_required_fields(
+    request_type=notebook_service.ListNotebookRuntimeTemplatesRequest,
 ):
-    transport_class = transports.PersistentResourceServiceRestTransport
+    transport_class = transports.NotebookServiceRestTransport
 
     request_init = {}
     request_init["parent"] = ""
@@ -3759,7 +5457,7 @@ def test_list_persistent_resources_rest_required_fields(
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
-    ).list_persistent_resources._get_unset_required_fields(jsonified_request)
+    ).list_notebook_runtime_templates._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
@@ -3768,12 +5466,15 @@ def test_list_persistent_resources_rest_required_fields(
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
-    ).list_persistent_resources._get_unset_required_fields(jsonified_request)
+    ).list_notebook_runtime_templates._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
     assert not set(unset_fields) - set(
         (
+            "filter",
+            "order_by",
             "page_size",
             "page_token",
+            "read_mask",
         )
     )
     jsonified_request.update(unset_fields)
@@ -3782,14 +5483,14 @@ def test_list_persistent_resources_rest_required_fields(
     assert "parent" in jsonified_request
     assert jsonified_request["parent"] == "parent_value"
 
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = request_type(**request_init)
 
     # Designate an appropriate value for the returned response.
-    return_value = persistent_resource_service.ListPersistentResourcesResponse()
+    return_value = notebook_service.ListNotebookRuntimeTemplatesResponse()
     # Mock the http request call within the method and fake a response.
     with mock.patch.object(Session, "request") as req:
         # We need to mock transcode() because providing default values
@@ -3810,34 +5511,37 @@ def test_list_persistent_resources_rest_required_fields(
             response_value.status_code = 200
 
             # Convert return value to protobuf type
-            return_value = (
-                persistent_resource_service.ListPersistentResourcesResponse.pb(
-                    return_value
-                )
+            return_value = notebook_service.ListNotebookRuntimeTemplatesResponse.pb(
+                return_value
             )
             json_return_value = json_format.MessageToJson(return_value)
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
 
-            response = client.list_persistent_resources(request)
+            response = client.list_notebook_runtime_templates(request)
 
             expected_params = []
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
 
-def test_list_persistent_resources_rest_unset_required_fields():
-    transport = transports.PersistentResourceServiceRestTransport(
+def test_list_notebook_runtime_templates_rest_unset_required_fields():
+    transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials
     )
 
-    unset_fields = transport.list_persistent_resources._get_unset_required_fields({})
+    unset_fields = transport.list_notebook_runtime_templates._get_unset_required_fields(
+        {}
+    )
     assert set(unset_fields) == (
         set(
             (
+                "filter",
+                "orderBy",
                 "pageSize",
                 "pageToken",
+                "readMask",
             )
         )
         & set(("parent",))
@@ -3845,29 +5549,28 @@ def test_list_persistent_resources_rest_unset_required_fields():
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_persistent_resources_rest_interceptors(null_interceptor):
-    transport = transports.PersistentResourceServiceRestTransport(
+def test_list_notebook_runtime_templates_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
         interceptor=None
         if null_interceptor
-        else transports.PersistentResourceServiceRestInterceptor(),
+        else transports.NotebookServiceRestInterceptor(),
     )
-    client = PersistentResourceServiceClient(transport=transport)
+    client = NotebookServiceClient(transport=transport)
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
         path_template, "transcode"
     ) as transcode, mock.patch.object(
-        transports.PersistentResourceServiceRestInterceptor,
-        "post_list_persistent_resources",
+        transports.NotebookServiceRestInterceptor,
+        "post_list_notebook_runtime_templates",
     ) as post, mock.patch.object(
-        transports.PersistentResourceServiceRestInterceptor,
-        "pre_list_persistent_resources",
+        transports.NotebookServiceRestInterceptor, "pre_list_notebook_runtime_templates"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
-        pb_message = persistent_resource_service.ListPersistentResourcesRequest.pb(
-            persistent_resource_service.ListPersistentResourcesRequest()
+        pb_message = notebook_service.ListNotebookRuntimeTemplatesRequest.pb(
+            notebook_service.ListNotebookRuntimeTemplatesRequest()
         )
         transcode.return_value = {
             "method": "post",
@@ -3880,22 +5583,20 @@ def test_list_persistent_resources_rest_interceptors(null_interceptor):
         req.return_value.status_code = 200
         req.return_value.request = PreparedRequest()
         req.return_value._content = (
-            persistent_resource_service.ListPersistentResourcesResponse.to_json(
-                persistent_resource_service.ListPersistentResourcesResponse()
+            notebook_service.ListNotebookRuntimeTemplatesResponse.to_json(
+                notebook_service.ListNotebookRuntimeTemplatesResponse()
             )
         )
 
-        request = persistent_resource_service.ListPersistentResourcesRequest()
+        request = notebook_service.ListNotebookRuntimeTemplatesRequest()
         metadata = [
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
         pre.return_value = request, metadata
-        post.return_value = (
-            persistent_resource_service.ListPersistentResourcesResponse()
-        )
+        post.return_value = notebook_service.ListNotebookRuntimeTemplatesResponse()
 
-        client.list_persistent_resources(
+        client.list_notebook_runtime_templates(
             request,
             metadata=[
                 ("key", "val"),
@@ -3907,11 +5608,11 @@ def test_list_persistent_resources_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_list_persistent_resources_rest_bad_request(
+def test_list_notebook_runtime_templates_rest_bad_request(
     transport: str = "rest",
-    request_type=persistent_resource_service.ListPersistentResourcesRequest,
+    request_type=notebook_service.ListNotebookRuntimeTemplatesRequest,
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3929,11 +5630,11 @@ def test_list_persistent_resources_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        client.list_persistent_resources(request)
+        client.list_notebook_runtime_templates(request)
 
 
-def test_list_persistent_resources_rest_flattened():
-    client = PersistentResourceServiceClient(
+def test_list_notebook_runtime_templates_rest_flattened():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -3941,7 +5642,7 @@ def test_list_persistent_resources_rest_flattened():
     # Mock the http request call within the method and fake a response.
     with mock.patch.object(type(client.transport._session), "request") as req:
         # Designate an appropriate value for the returned response.
-        return_value = persistent_resource_service.ListPersistentResourcesResponse()
+        return_value = notebook_service.ListNotebookRuntimeTemplatesResponse()
 
         # get arguments that satisfy an http rule for this method
         sample_request = {"parent": "projects/sample1/locations/sample2"}
@@ -3956,28 +5657,28 @@ def test_list_persistent_resources_rest_flattened():
         response_value = Response()
         response_value.status_code = 200
         # Convert return value to protobuf type
-        return_value = persistent_resource_service.ListPersistentResourcesResponse.pb(
+        return_value = notebook_service.ListNotebookRuntimeTemplatesResponse.pb(
             return_value
         )
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
 
-        client.list_persistent_resources(**mock_args)
+        client.list_notebook_runtime_templates(**mock_args)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*}/persistentResources"
+            "%s/v1beta1/{parent=projects/*/locations/*}/notebookRuntimeTemplates"
             % client.transport._host,
             args[1],
         )
 
 
-def test_list_persistent_resources_rest_flattened_error(transport: str = "rest"):
-    client = PersistentResourceServiceClient(
+def test_list_notebook_runtime_templates_rest_flattened_error(transport: str = "rest"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3985,14 +5686,14 @@ def test_list_persistent_resources_rest_flattened_error(transport: str = "rest")
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.list_persistent_resources(
-            persistent_resource_service.ListPersistentResourcesRequest(),
+        client.list_notebook_runtime_templates(
+            notebook_service.ListNotebookRuntimeTemplatesRequest(),
             parent="parent_value",
         )
 
 
-def test_list_persistent_resources_rest_pager(transport: str = "rest"):
-    client = PersistentResourceServiceClient(
+def test_list_notebook_runtime_templates_rest_pager(transport: str = "rest"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4003,28 +5704,28 @@ def test_list_persistent_resources_rest_pager(transport: str = "rest"):
         # with mock.patch.object(path_template, 'transcode') as transcode:
         # Set the response as a series of pages
         response = (
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
                 next_page_token="abc",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[],
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[],
                 next_page_token="def",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
                 next_page_token="ghi",
             ),
-            persistent_resource_service.ListPersistentResourcesResponse(
-                persistent_resources=[
-                    persistent_resource.PersistentResource(),
-                    persistent_resource.PersistentResource(),
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                notebook_runtime_templates=[
+                    notebook_runtime.NotebookRuntimeTemplate(),
+                    notebook_runtime.NotebookRuntimeTemplate(),
                 ],
             ),
         )
@@ -4033,7 +5734,7 @@ def test_list_persistent_resources_rest_pager(transport: str = "rest"):
 
         # Wrap the values into proper Response objs
         response = tuple(
-            persistent_resource_service.ListPersistentResourcesResponse.to_json(x)
+            notebook_service.ListNotebookRuntimeTemplatesResponse.to_json(x)
             for x in response
         )
         return_values = tuple(Response() for i in response)
@@ -4044,15 +5745,17 @@ def test_list_persistent_resources_rest_pager(transport: str = "rest"):
 
         sample_request = {"parent": "projects/sample1/locations/sample2"}
 
-        pager = client.list_persistent_resources(request=sample_request)
+        pager = client.list_notebook_runtime_templates(request=sample_request)
 
         results = list(pager)
         assert len(results) == 6
         assert all(
-            isinstance(i, persistent_resource.PersistentResource) for i in results
+            isinstance(i, notebook_runtime.NotebookRuntimeTemplate) for i in results
         )
 
-        pages = list(client.list_persistent_resources(request=sample_request).pages)
+        pages = list(
+            client.list_notebook_runtime_templates(request=sample_request).pages
+        )
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
@@ -4060,19 +5763,19 @@ def test_list_persistent_resources_rest_pager(transport: str = "rest"):
 @pytest.mark.parametrize(
     "request_type",
     [
-        persistent_resource_service.DeletePersistentResourceRequest,
+        notebook_service.DeleteNotebookRuntimeTemplateRequest,
         dict,
     ],
 )
-def test_delete_persistent_resource_rest(request_type):
-    client = PersistentResourceServiceClient(
+def test_delete_notebook_runtime_template_rest(request_type):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
     # send a request that will satisfy transcoding
     request_init = {
-        "name": "projects/sample1/locations/sample2/persistentResources/sample3"
+        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
     }
     request = request_type(**request_init)
 
@@ -4088,16 +5791,16 @@ def test_delete_persistent_resource_rest(request_type):
 
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        response = client.delete_persistent_resource(request)
+        response = client.delete_notebook_runtime_template(request)
 
     # Establish that the response is the type that we expect.
     assert response.operation.name == "operations/spam"
 
 
-def test_delete_persistent_resource_rest_required_fields(
-    request_type=persistent_resource_service.DeletePersistentResourceRequest,
+def test_delete_notebook_runtime_template_rest_required_fields(
+    request_type=notebook_service.DeleteNotebookRuntimeTemplateRequest,
 ):
-    transport_class = transports.PersistentResourceServiceRestTransport
+    transport_class = transports.NotebookServiceRestTransport
 
     request_init = {}
     request_init["name"] = ""
@@ -4111,7 +5814,7 @@ def test_delete_persistent_resource_rest_required_fields(
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
-    ).delete_persistent_resource._get_unset_required_fields(jsonified_request)
+    ).delete_notebook_runtime_template._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
@@ -4120,14 +5823,14 @@ def test_delete_persistent_resource_rest_required_fields(
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
-    ).delete_persistent_resource._get_unset_required_fields(jsonified_request)
+    ).delete_notebook_runtime_template._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "name" in jsonified_request
     assert jsonified_request["name"] == "name_value"
 
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -4158,31 +5861,33 @@ def test_delete_persistent_resource_rest_required_fields(
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
 
-            response = client.delete_persistent_resource(request)
+            response = client.delete_notebook_runtime_template(request)
 
             expected_params = []
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
 
-def test_delete_persistent_resource_rest_unset_required_fields():
-    transport = transports.PersistentResourceServiceRestTransport(
+def test_delete_notebook_runtime_template_rest_unset_required_fields():
+    transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials
     )
 
-    unset_fields = transport.delete_persistent_resource._get_unset_required_fields({})
+    unset_fields = (
+        transport.delete_notebook_runtime_template._get_unset_required_fields({})
+    )
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_persistent_resource_rest_interceptors(null_interceptor):
-    transport = transports.PersistentResourceServiceRestTransport(
+def test_delete_notebook_runtime_template_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
         interceptor=None
         if null_interceptor
-        else transports.PersistentResourceServiceRestInterceptor(),
+        else transports.NotebookServiceRestInterceptor(),
     )
-    client = PersistentResourceServiceClient(transport=transport)
+    client = NotebookServiceClient(transport=transport)
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -4190,16 +5895,16 @@ def test_delete_persistent_resource_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         operation.Operation, "_set_result_from_operation"
     ), mock.patch.object(
-        transports.PersistentResourceServiceRestInterceptor,
-        "post_delete_persistent_resource",
+        transports.NotebookServiceRestInterceptor,
+        "post_delete_notebook_runtime_template",
     ) as post, mock.patch.object(
-        transports.PersistentResourceServiceRestInterceptor,
-        "pre_delete_persistent_resource",
+        transports.NotebookServiceRestInterceptor,
+        "pre_delete_notebook_runtime_template",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
-        pb_message = persistent_resource_service.DeletePersistentResourceRequest.pb(
-            persistent_resource_service.DeletePersistentResourceRequest()
+        pb_message = notebook_service.DeleteNotebookRuntimeTemplateRequest.pb(
+            notebook_service.DeleteNotebookRuntimeTemplateRequest()
         )
         transcode.return_value = {
             "method": "post",
@@ -4215,7 +5920,7 @@ def test_delete_persistent_resource_rest_interceptors(null_interceptor):
             operations_pb2.Operation()
         )
 
-        request = persistent_resource_service.DeletePersistentResourceRequest()
+        request = notebook_service.DeleteNotebookRuntimeTemplateRequest()
         metadata = [
             ("key", "val"),
             ("cephalopod", "squid"),
@@ -4223,7 +5928,7 @@ def test_delete_persistent_resource_rest_interceptors(null_interceptor):
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
 
-        client.delete_persistent_resource(
+        client.delete_notebook_runtime_template(
             request,
             metadata=[
                 ("key", "val"),
@@ -4235,18 +5940,18 @@ def test_delete_persistent_resource_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_delete_persistent_resource_rest_bad_request(
+def test_delete_notebook_runtime_template_rest_bad_request(
     transport: str = "rest",
-    request_type=persistent_resource_service.DeletePersistentResourceRequest,
+    request_type=notebook_service.DeleteNotebookRuntimeTemplateRequest,
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
 
     # send a request that will satisfy transcoding
     request_init = {
-        "name": "projects/sample1/locations/sample2/persistentResources/sample3"
+        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
     }
     request = request_type(**request_init)
 
@@ -4259,11 +5964,11 @@ def test_delete_persistent_resource_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        client.delete_persistent_resource(request)
+        client.delete_notebook_runtime_template(request)
 
 
-def test_delete_persistent_resource_rest_flattened():
-    client = PersistentResourceServiceClient(
+def test_delete_notebook_runtime_template_rest_flattened():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -4275,7 +5980,7 @@ def test_delete_persistent_resource_rest_flattened():
 
         # get arguments that satisfy an http rule for this method
         sample_request = {
-            "name": "projects/sample1/locations/sample2/persistentResources/sample3"
+            "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
         }
 
         # get truthy value for each flattened field
@@ -4291,21 +5996,21 @@ def test_delete_persistent_resource_rest_flattened():
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
 
-        client.delete_persistent_resource(**mock_args)
+        client.delete_notebook_runtime_template(**mock_args)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/persistentResources/*}"
+            "%s/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}"
             % client.transport._host,
             args[1],
         )
 
 
-def test_delete_persistent_resource_rest_flattened_error(transport: str = "rest"):
-    client = PersistentResourceServiceClient(
+def test_delete_notebook_runtime_template_rest_flattened_error(transport: str = "rest"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4313,14 +6018,14 @@ def test_delete_persistent_resource_rest_flattened_error(transport: str = "rest"
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.delete_persistent_resource(
-            persistent_resource_service.DeletePersistentResourceRequest(),
+        client.delete_notebook_runtime_template(
+            notebook_service.DeleteNotebookRuntimeTemplateRequest(),
             name="name_value",
         )
 
 
-def test_delete_persistent_resource_rest_error():
-    client = PersistentResourceServiceClient(
+def test_delete_notebook_runtime_template_rest_error():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
@@ -4328,155 +6033,18 @@ def test_delete_persistent_resource_rest_error():
 @pytest.mark.parametrize(
     "request_type",
     [
-        persistent_resource_service.UpdatePersistentResourceRequest,
+        notebook_service.AssignNotebookRuntimeRequest,
         dict,
     ],
 )
-def test_update_persistent_resource_rest(request_type):
-    client = PersistentResourceServiceClient(
+def test_assign_notebook_runtime_rest(request_type):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
     # send a request that will satisfy transcoding
-    request_init = {
-        "persistent_resource": {
-            "name": "projects/sample1/locations/sample2/persistentResources/sample3"
-        }
-    }
-    request_init["persistent_resource"] = {
-        "name": "projects/sample1/locations/sample2/persistentResources/sample3",
-        "display_name": "display_name_value",
-        "resource_pools": [
-            {
-                "id": "id_value",
-                "machine_spec": {
-                    "machine_type": "machine_type_value",
-                    "accelerator_type": 1,
-                    "accelerator_count": 1805,
-                    "tpu_topology": "tpu_topology_value",
-                },
-                "replica_count": 1384,
-                "disk_spec": {
-                    "boot_disk_type": "boot_disk_type_value",
-                    "boot_disk_size_gb": 1792,
-                },
-                "used_replica_count": 1912,
-                "autoscaling_spec": {
-                    "min_replica_count": 1803,
-                    "max_replica_count": 1805,
-                },
-            }
-        ],
-        "state": 1,
-        "error": {
-            "code": 411,
-            "message": "message_value",
-            "details": [
-                {
-                    "type_url": "type.googleapis.com/google.protobuf.Duration",
-                    "value": b"\x08\x0c\x10\xdb\x07",
-                }
-            ],
-        },
-        "create_time": {"seconds": 751, "nanos": 543},
-        "start_time": {},
-        "update_time": {},
-        "labels": {},
-        "network": "network_value",
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-        "resource_runtime_spec": {
-            "service_account_spec": {
-                "enable_custom_service_account": True,
-                "service_account": "service_account_value",
-            },
-            "ray_spec": {
-                "image_uri": "image_uri_value",
-                "resource_pool_images": {},
-                "head_node_resource_pool_id": "head_node_resource_pool_id_value",
-                "ray_metric_spec": {"disabled": True},
-            },
-        },
-        "resource_runtime": {
-            "access_uris": {},
-            "notebook_runtime_template": "notebook_runtime_template_value",
-        },
-        "reserved_ip_ranges": [
-            "reserved_ip_ranges_value1",
-            "reserved_ip_ranges_value2",
-        ],
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = (
-        persistent_resource_service.UpdatePersistentResourceRequest.meta.fields[
-            "persistent_resource"
-        ]
-    )
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["persistent_resource"].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["persistent_resource"][field])):
-                    del request_init["persistent_resource"][field][i][subfield]
-            else:
-                del request_init["persistent_resource"][field][subfield]
+    request_init = {"parent": "projects/sample1/locations/sample2"}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
@@ -4491,18 +6059,20 @@ def test_update_persistent_resource_rest(request_type):
 
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        response = client.update_persistent_resource(request)
+        response = client.assign_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
     assert response.operation.name == "operations/spam"
 
 
-def test_update_persistent_resource_rest_required_fields(
-    request_type=persistent_resource_service.UpdatePersistentResourceRequest,
+def test_assign_notebook_runtime_rest_required_fields(
+    request_type=notebook_service.AssignNotebookRuntimeRequest,
 ):
-    transport_class = transports.PersistentResourceServiceRestTransport
+    transport_class = transports.NotebookServiceRestTransport
 
     request_init = {}
+    request_init["parent"] = ""
+    request_init["notebook_runtime_template"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
     jsonified_request = json.loads(
@@ -4513,21 +6083,29 @@ def test_update_persistent_resource_rest_required_fields(
 
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
-    ).update_persistent_resource._get_unset_required_fields(jsonified_request)
+    ).assign_notebook_runtime._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
+    jsonified_request["parent"] = "parent_value"
+    jsonified_request["notebookRuntimeTemplate"] = "notebook_runtime_template_value"
+
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
-    ).update_persistent_resource._get_unset_required_fields(jsonified_request)
-    # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("update_mask",))
+    ).assign_notebook_runtime._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+    assert "notebookRuntimeTemplate" in jsonified_request
+    assert (
+        jsonified_request["notebookRuntimeTemplate"]
+        == "notebook_runtime_template_value"
+    )
 
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -4546,7 +6124,7 @@ def test_update_persistent_resource_rest_required_fields(
             pb_request = request_type.pb(request)
             transcode_result = {
                 "uri": "v1/sample_method",
-                "method": "patch",
+                "method": "post",
                 "query_params": pb_request,
             }
             transcode_result["body"] = pb_request
@@ -4559,39 +6137,40 @@ def test_update_persistent_resource_rest_required_fields(
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
 
-            response = client.update_persistent_resource(request)
+            response = client.assign_notebook_runtime(request)
 
             expected_params = []
             actual_params = req.call_args.kwargs["params"]
             assert expected_params == actual_params
 
 
-def test_update_persistent_resource_rest_unset_required_fields():
-    transport = transports.PersistentResourceServiceRestTransport(
+def test_assign_notebook_runtime_rest_unset_required_fields():
+    transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials
     )
 
-    unset_fields = transport.update_persistent_resource._get_unset_required_fields({})
+    unset_fields = transport.assign_notebook_runtime._get_unset_required_fields({})
     assert set(unset_fields) == (
-        set(("updateMask",))
+        set(())
         & set(
             (
-                "persistentResource",
-                "updateMask",
+                "parent",
+                "notebookRuntimeTemplate",
+                "notebookRuntime",
             )
         )
     )
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
-def test_update_persistent_resource_rest_interceptors(null_interceptor):
-    transport = transports.PersistentResourceServiceRestTransport(
+def test_assign_notebook_runtime_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
         interceptor=None
         if null_interceptor
-        else transports.PersistentResourceServiceRestInterceptor(),
+        else transports.NotebookServiceRestInterceptor(),
     )
-    client = PersistentResourceServiceClient(transport=transport)
+    client = NotebookServiceClient(transport=transport)
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -4599,16 +6178,14 @@ def test_update_persistent_resource_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         operation.Operation, "_set_result_from_operation"
     ), mock.patch.object(
-        transports.PersistentResourceServiceRestInterceptor,
-        "post_update_persistent_resource",
+        transports.NotebookServiceRestInterceptor, "post_assign_notebook_runtime"
     ) as post, mock.patch.object(
-        transports.PersistentResourceServiceRestInterceptor,
-        "pre_update_persistent_resource",
+        transports.NotebookServiceRestInterceptor, "pre_assign_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
-        pb_message = persistent_resource_service.UpdatePersistentResourceRequest.pb(
-            persistent_resource_service.UpdatePersistentResourceRequest()
+        pb_message = notebook_service.AssignNotebookRuntimeRequest.pb(
+            notebook_service.AssignNotebookRuntimeRequest()
         )
         transcode.return_value = {
             "method": "post",
@@ -4624,7 +6201,7 @@ def test_update_persistent_resource_rest_interceptors(null_interceptor):
             operations_pb2.Operation()
         )
 
-        request = persistent_resource_service.UpdatePersistentResourceRequest()
+        request = notebook_service.AssignNotebookRuntimeRequest()
         metadata = [
             ("key", "val"),
             ("cephalopod", "squid"),
@@ -4632,7 +6209,7 @@ def test_update_persistent_resource_rest_interceptors(null_interceptor):
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
 
-        client.update_persistent_resource(
+        client.assign_notebook_runtime(
             request,
             metadata=[
                 ("key", "val"),
@@ -4644,20 +6221,317 @@ def test_update_persistent_resource_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_update_persistent_resource_rest_bad_request(
-    transport: str = "rest",
-    request_type=persistent_resource_service.UpdatePersistentResourceRequest,
+def test_assign_notebook_runtime_rest_bad_request(
+    transport: str = "rest", request_type=notebook_service.AssignNotebookRuntimeRequest
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.assign_notebook_runtime(request)
+
+
+def test_assign_notebook_runtime_rest_flattened():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            notebook_runtime_template="notebook_runtime_template_value",
+            notebook_runtime=gca_notebook_runtime.NotebookRuntime(name="name_value"),
+            notebook_runtime_id="notebook_runtime_id_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.assign_notebook_runtime(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/notebookRuntimes:assign"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_assign_notebook_runtime_rest_flattened_error(transport: str = "rest"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.assign_notebook_runtime(
+            notebook_service.AssignNotebookRuntimeRequest(),
+            parent="parent_value",
+            notebook_runtime_template="notebook_runtime_template_value",
+            notebook_runtime=gca_notebook_runtime.NotebookRuntime(name="name_value"),
+            notebook_runtime_id="notebook_runtime_id_value",
+        )
+
+
+def test_assign_notebook_runtime_rest_error():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.GetNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_get_notebook_runtime_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = notebook_runtime.NotebookRuntime(
+            name="name_value",
+            runtime_user="runtime_user_value",
+            proxy_uri="proxy_uri_value",
+            health_state=notebook_runtime.NotebookRuntime.HealthState.HEALTHY,
+            display_name="display_name_value",
+            description="description_value",
+            service_account="service_account_value",
+            runtime_state=notebook_runtime.NotebookRuntime.RuntimeState.RUNNING,
+            is_upgradable=True,
+            version="version_value",
+            notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+            network_tags=["network_tags_value"],
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = notebook_runtime.NotebookRuntime.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_notebook_runtime(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, notebook_runtime.NotebookRuntime)
+    assert response.name == "name_value"
+    assert response.runtime_user == "runtime_user_value"
+    assert response.proxy_uri == "proxy_uri_value"
+    assert response.health_state == notebook_runtime.NotebookRuntime.HealthState.HEALTHY
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.service_account == "service_account_value"
+    assert (
+        response.runtime_state == notebook_runtime.NotebookRuntime.RuntimeState.RUNNING
+    )
+    assert response.is_upgradable is True
+    assert response.version == "version_value"
+    assert (
+        response.notebook_runtime_type
+        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
+    )
+    assert response.network_tags == ["network_tags_value"]
+
+
+def test_get_notebook_runtime_rest_required_fields(
+    request_type=notebook_service.GetNotebookRuntimeRequest,
+):
+    transport_class = transports.NotebookServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_notebook_runtime._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_notebook_runtime._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = notebook_runtime.NotebookRuntime()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = notebook_runtime.NotebookRuntime.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_notebook_runtime(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_notebook_runtime_rest_unset_required_fields():
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_notebook_runtime._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_notebook_runtime_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_get_notebook_runtime"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_get_notebook_runtime"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.GetNotebookRuntimeRequest.pb(
+            notebook_service.GetNotebookRuntimeRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = notebook_runtime.NotebookRuntime.to_json(
+            notebook_runtime.NotebookRuntime()
+        )
+
+        request = notebook_service.GetNotebookRuntimeRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = notebook_runtime.NotebookRuntime()
+
+        client.get_notebook_runtime(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_notebook_runtime_rest_bad_request(
+    transport: str = "rest", request_type=notebook_service.GetNotebookRuntimeRequest
+):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
 
     # send a request that will satisfy transcoding
     request_init = {
-        "persistent_resource": {
-            "name": "projects/sample1/locations/sample2/persistentResources/sample3"
-        }
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
     }
     request = request_type(**request_init)
 
@@ -4670,11 +6544,627 @@ def test_update_persistent_resource_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        client.update_persistent_resource(request)
+        client.get_notebook_runtime(request)
 
 
-def test_update_persistent_resource_rest_flattened():
-    client = PersistentResourceServiceClient(
+def test_get_notebook_runtime_rest_flattened():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = notebook_runtime.NotebookRuntime()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = notebook_runtime.NotebookRuntime.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_notebook_runtime(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_notebook_runtime_rest_flattened_error(transport: str = "rest"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_notebook_runtime(
+            notebook_service.GetNotebookRuntimeRequest(),
+            name="name_value",
+        )
+
+
+def test_get_notebook_runtime_rest_error():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.ListNotebookRuntimesRequest,
+        dict,
+    ],
+)
+def test_list_notebook_runtimes_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = notebook_service.ListNotebookRuntimesResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = notebook_service.ListNotebookRuntimesResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_notebook_runtimes(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNotebookRuntimesPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_notebook_runtimes_rest_required_fields(
+    request_type=notebook_service.ListNotebookRuntimesRequest,
+):
+    transport_class = transports.NotebookServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_notebook_runtimes._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_notebook_runtimes._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "filter",
+            "order_by",
+            "page_size",
+            "page_token",
+            "read_mask",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = notebook_service.ListNotebookRuntimesResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = notebook_service.ListNotebookRuntimesResponse.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_notebook_runtimes(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_notebook_runtimes_rest_unset_required_fields():
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_notebook_runtimes._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "filter",
+                "orderBy",
+                "pageSize",
+                "pageToken",
+                "readMask",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_notebook_runtimes_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_list_notebook_runtimes"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_list_notebook_runtimes"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.ListNotebookRuntimesRequest.pb(
+            notebook_service.ListNotebookRuntimesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = (
+            notebook_service.ListNotebookRuntimesResponse.to_json(
+                notebook_service.ListNotebookRuntimesResponse()
+            )
+        )
+
+        request = notebook_service.ListNotebookRuntimesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = notebook_service.ListNotebookRuntimesResponse()
+
+        client.list_notebook_runtimes(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_notebook_runtimes_rest_bad_request(
+    transport: str = "rest", request_type=notebook_service.ListNotebookRuntimesRequest
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_notebook_runtimes(request)
+
+
+def test_list_notebook_runtimes_rest_flattened():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = notebook_service.ListNotebookRuntimesResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = notebook_service.ListNotebookRuntimesResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_notebook_runtimes(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/notebookRuntimes"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_notebook_runtimes_rest_flattened_error(transport: str = "rest"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_notebook_runtimes(
+            notebook_service.ListNotebookRuntimesRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_notebook_runtimes_rest_pager(transport: str = "rest"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                ],
+                next_page_token="abc",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[],
+                next_page_token="def",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                ],
+                next_page_token="ghi",
+            ),
+            notebook_service.ListNotebookRuntimesResponse(
+                notebook_runtimes=[
+                    notebook_runtime.NotebookRuntime(),
+                    notebook_runtime.NotebookRuntime(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            notebook_service.ListNotebookRuntimesResponse.to_json(x) for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        pager = client.list_notebook_runtimes(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, notebook_runtime.NotebookRuntime) for i in results)
+
+        pages = list(client.list_notebook_runtimes(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.DeleteNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_delete_notebook_runtime_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_notebook_runtime(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_delete_notebook_runtime_rest_required_fields(
+    request_type=notebook_service.DeleteNotebookRuntimeRequest,
+):
+    transport_class = transports.NotebookServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_notebook_runtime._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_notebook_runtime._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_notebook_runtime(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_notebook_runtime_rest_unset_required_fields():
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.delete_notebook_runtime._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_notebook_runtime_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_delete_notebook_runtime"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_delete_notebook_runtime"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.DeleteNotebookRuntimeRequest.pb(
+            notebook_service.DeleteNotebookRuntimeRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = notebook_service.DeleteNotebookRuntimeRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_notebook_runtime(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_notebook_runtime_rest_bad_request(
+    transport: str = "rest", request_type=notebook_service.DeleteNotebookRuntimeRequest
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_notebook_runtime(request)
+
+
+def test_delete_notebook_runtime_rest_flattened():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -4686,17 +7176,12 @@ def test_update_persistent_resource_rest_flattened():
 
         # get arguments that satisfy an http rule for this method
         sample_request = {
-            "persistent_resource": {
-                "name": "projects/sample1/locations/sample2/persistentResources/sample3"
-            }
+            "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
         }
 
         # get truthy value for each flattened field
         mock_args = dict(
-            persistent_resource=gca_persistent_resource.PersistentResource(
-                name="name_value"
-            ),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+            name="name_value",
         )
         mock_args.update(sample_request)
 
@@ -4707,21 +7192,21 @@ def test_update_persistent_resource_rest_flattened():
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
 
-        client.update_persistent_resource(**mock_args)
+        client.delete_notebook_runtime(**mock_args)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{persistent_resource.name=projects/*/locations/*/persistentResources/*}"
+            "%s/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*}"
             % client.transport._host,
             args[1],
         )
 
 
-def test_update_persistent_resource_rest_flattened_error(transport: str = "rest"):
-    client = PersistentResourceServiceClient(
+def test_delete_notebook_runtime_rest_flattened_error(transport: str = "rest"):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -4729,50 +7214,579 @@ def test_update_persistent_resource_rest_flattened_error(transport: str = "rest"
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.update_persistent_resource(
-            persistent_resource_service.UpdatePersistentResourceRequest(),
-            persistent_resource=gca_persistent_resource.PersistentResource(
-                name="name_value"
-            ),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        client.delete_notebook_runtime(
+            notebook_service.DeleteNotebookRuntimeRequest(),
+            name="name_value",
         )
 
 
-def test_update_persistent_resource_rest_error():
-    client = PersistentResourceServiceClient(
+def test_delete_notebook_runtime_rest_error():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.UpgradeNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_upgrade_notebook_runtime_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.upgrade_notebook_runtime(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_upgrade_notebook_runtime_rest_required_fields(
+    request_type=notebook_service.UpgradeNotebookRuntimeRequest,
+):
+    transport_class = transports.NotebookServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).upgrade_notebook_runtime._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).upgrade_notebook_runtime._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.upgrade_notebook_runtime(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_upgrade_notebook_runtime_rest_unset_required_fields():
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.upgrade_notebook_runtime._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_upgrade_notebook_runtime_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_upgrade_notebook_runtime"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_upgrade_notebook_runtime"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.UpgradeNotebookRuntimeRequest.pb(
+            notebook_service.UpgradeNotebookRuntimeRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = notebook_service.UpgradeNotebookRuntimeRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.upgrade_notebook_runtime(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_upgrade_notebook_runtime_rest_bad_request(
+    transport: str = "rest", request_type=notebook_service.UpgradeNotebookRuntimeRequest
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.upgrade_notebook_runtime(request)
+
+
+def test_upgrade_notebook_runtime_rest_flattened():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.upgrade_notebook_runtime(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*}:upgrade"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_upgrade_notebook_runtime_rest_flattened_error(transport: str = "rest"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.upgrade_notebook_runtime(
+            notebook_service.UpgradeNotebookRuntimeRequest(),
+            name="name_value",
+        )
+
+
+def test_upgrade_notebook_runtime_rest_error():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.StartNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_start_notebook_runtime_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.start_notebook_runtime(request)
+
+    # Establish that the response is the type that we expect.
+    assert response.operation.name == "operations/spam"
+
+
+def test_start_notebook_runtime_rest_required_fields(
+    request_type=notebook_service.StartNotebookRuntimeRequest,
+):
+    transport_class = transports.NotebookServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).start_notebook_runtime._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).start_notebook_runtime._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.start_notebook_runtime(request)
+
+            expected_params = []
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_start_notebook_runtime_rest_unset_required_fields():
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.start_notebook_runtime._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_start_notebook_runtime_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_start_notebook_runtime"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_start_notebook_runtime"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.StartNotebookRuntimeRequest.pb(
+            notebook_service.StartNotebookRuntimeRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = Response()
+        req.return_value.status_code = 200
+        req.return_value.request = PreparedRequest()
+        req.return_value._content = json_format.MessageToJson(
+            operations_pb2.Operation()
+        )
+
+        request = notebook_service.StartNotebookRuntimeRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.start_notebook_runtime(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_start_notebook_runtime_rest_bad_request(
+    transport: str = "rest", request_type=notebook_service.StartNotebookRuntimeRequest
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.start_notebook_runtime(request)
+
+
+def test_start_notebook_runtime_rest_flattened():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.start_notebook_runtime(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*}:start"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_start_notebook_runtime_rest_flattened_error(transport: str = "rest"):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.start_notebook_runtime(
+            notebook_service.StartNotebookRuntimeRequest(),
+            name="name_value",
+        )
+
+
+def test_start_notebook_runtime_rest_error():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
 
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
-    transport = transports.PersistentResourceServiceGrpcTransport(
+    transport = transports.NotebookServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = PersistentResourceServiceClient(
+        client = NotebookServiceClient(
             credentials=ga_credentials.AnonymousCredentials(),
             transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
-    transport = transports.PersistentResourceServiceGrpcTransport(
+    transport = transports.NotebookServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = PersistentResourceServiceClient(
+        client = NotebookServiceClient(
             client_options={"credentials_file": "credentials.json"},
             transport=transport,
         )
 
     # It is an error to provide an api_key and a transport instance.
-    transport = transports.PersistentResourceServiceGrpcTransport(
+    transport = transports.NotebookServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = PersistentResourceServiceClient(
+        client = NotebookServiceClient(
             client_options=options,
             transport=transport,
         )
@@ -4781,16 +7795,16 @@ def test_credentials_transport_error():
     options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = PersistentResourceServiceClient(
+        client = NotebookServiceClient(
             client_options=options, credentials=ga_credentials.AnonymousCredentials()
         )
 
     # It is an error to provide scopes and a transport instance.
-    transport = transports.PersistentResourceServiceGrpcTransport(
+    transport = transports.NotebookServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = PersistentResourceServiceClient(
+        client = NotebookServiceClient(
             client_options={"scopes": ["1", "2"]},
             transport=transport,
         )
@@ -4798,22 +7812,22 @@ def test_credentials_transport_error():
 
 def test_transport_instance():
     # A client may be instantiated with a custom transport instance.
-    transport = transports.PersistentResourceServiceGrpcTransport(
+    transport = transports.NotebookServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
-    client = PersistentResourceServiceClient(transport=transport)
+    client = NotebookServiceClient(transport=transport)
     assert client.transport is transport
 
 
 def test_transport_get_channel():
     # A client may be instantiated with a custom transport instance.
-    transport = transports.PersistentResourceServiceGrpcTransport(
+    transport = transports.NotebookServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
     assert channel
 
-    transport = transports.PersistentResourceServiceGrpcAsyncIOTransport(
+    transport = transports.NotebookServiceGrpcAsyncIOTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
@@ -4823,9 +7837,9 @@ def test_transport_get_channel():
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.PersistentResourceServiceGrpcTransport,
-        transports.PersistentResourceServiceGrpcAsyncIOTransport,
-        transports.PersistentResourceServiceRestTransport,
+        transports.NotebookServiceGrpcTransport,
+        transports.NotebookServiceGrpcAsyncIOTransport,
+        transports.NotebookServiceRestTransport,
     ],
 )
 def test_transport_adc(transport_class):
@@ -4844,7 +7858,7 @@ def test_transport_adc(transport_class):
     ],
 )
 def test_transport_kind(transport_name):
-    transport = PersistentResourceServiceClient.get_transport_class(transport_name)(
+    transport = NotebookServiceClient.get_transport_class(transport_name)(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     assert transport.kind == transport_name
@@ -4852,42 +7866,47 @@ def test_transport_kind(transport_name):
 
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     assert isinstance(
         client.transport,
-        transports.PersistentResourceServiceGrpcTransport,
+        transports.NotebookServiceGrpcTransport,
     )
 
 
-def test_persistent_resource_service_base_transport_error():
+def test_notebook_service_base_transport_error():
     # Passing both a credentials object and credentials_file should raise an error
     with pytest.raises(core_exceptions.DuplicateCredentialArgs):
-        transport = transports.PersistentResourceServiceTransport(
+        transport = transports.NotebookServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
             credentials_file="credentials.json",
         )
 
 
-def test_persistent_resource_service_base_transport():
+def test_notebook_service_base_transport():
     # Instantiate the base transport.
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.persistent_resource_service.transports.PersistentResourceServiceTransport.__init__"
+        "google.cloud.aiplatform_v1beta1.services.notebook_service.transports.NotebookServiceTransport.__init__"
     ) as Transport:
         Transport.return_value = None
-        transport = transports.PersistentResourceServiceTransport(
+        transport = transports.NotebookServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
         )
 
     # Every method on the transport should just blindly
     # raise NotImplementedError.
     methods = (
-        "create_persistent_resource",
-        "get_persistent_resource",
-        "list_persistent_resources",
-        "delete_persistent_resource",
-        "update_persistent_resource",
+        "create_notebook_runtime_template",
+        "get_notebook_runtime_template",
+        "list_notebook_runtime_templates",
+        "delete_notebook_runtime_template",
+        "assign_notebook_runtime",
+        "get_notebook_runtime",
+        "list_notebook_runtimes",
+        "delete_notebook_runtime",
+        "upgrade_notebook_runtime",
+        "start_notebook_runtime",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -4920,16 +7939,16 @@ def test_persistent_resource_service_base_transport():
             getattr(transport, r)()
 
 
-def test_persistent_resource_service_base_transport_with_credentials_file():
+def test_notebook_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
         google.auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.persistent_resource_service.transports.PersistentResourceServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1beta1.services.notebook_service.transports.NotebookServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.PersistentResourceServiceTransport(
+        transport = transports.NotebookServiceTransport(
             credentials_file="credentials.json",
             quota_project_id="octopus",
         )
@@ -4941,22 +7960,22 @@ def test_persistent_resource_service_base_transport_with_credentials_file():
         )
 
 
-def test_persistent_resource_service_base_transport_with_adc():
+def test_notebook_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
     with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.persistent_resource_service.transports.PersistentResourceServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1beta1.services.notebook_service.transports.NotebookServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.PersistentResourceServiceTransport()
+        transport = transports.NotebookServiceTransport()
         adc.assert_called_once()
 
 
-def test_persistent_resource_service_auth_adc():
+def test_notebook_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        PersistentResourceServiceClient()
+        NotebookServiceClient()
         adc.assert_called_once_with(
             scopes=None,
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
@@ -4967,11 +7986,11 @@ def test_persistent_resource_service_auth_adc():
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.PersistentResourceServiceGrpcTransport,
-        transports.PersistentResourceServiceGrpcAsyncIOTransport,
+        transports.NotebookServiceGrpcTransport,
+        transports.NotebookServiceGrpcAsyncIOTransport,
     ],
 )
-def test_persistent_resource_service_transport_auth_adc(transport_class):
+def test_notebook_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
@@ -4987,12 +8006,12 @@ def test_persistent_resource_service_transport_auth_adc(transport_class):
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.PersistentResourceServiceGrpcTransport,
-        transports.PersistentResourceServiceGrpcAsyncIOTransport,
-        transports.PersistentResourceServiceRestTransport,
+        transports.NotebookServiceGrpcTransport,
+        transports.NotebookServiceGrpcAsyncIOTransport,
+        transports.NotebookServiceRestTransport,
     ],
 )
-def test_persistent_resource_service_transport_auth_gdch_credentials(transport_class):
+def test_notebook_service_transport_auth_gdch_credentials(transport_class):
     host = "https://language.com"
     api_audience_tests = [None, "https://language2.com"]
     api_audience_expect = [host, "https://language2.com"]
@@ -5010,13 +8029,11 @@ def test_persistent_resource_service_transport_auth_gdch_credentials(transport_c
 @pytest.mark.parametrize(
     "transport_class,grpc_helpers",
     [
-        (transports.PersistentResourceServiceGrpcTransport, grpc_helpers),
-        (transports.PersistentResourceServiceGrpcAsyncIOTransport, grpc_helpers_async),
+        (transports.NotebookServiceGrpcTransport, grpc_helpers),
+        (transports.NotebookServiceGrpcAsyncIOTransport, grpc_helpers_async),
     ],
 )
-def test_persistent_resource_service_transport_create_channel(
-    transport_class, grpc_helpers
-):
+def test_notebook_service_transport_create_channel(transport_class, grpc_helpers):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
     with mock.patch.object(
@@ -5047,13 +8064,11 @@ def test_persistent_resource_service_transport_create_channel(
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.PersistentResourceServiceGrpcTransport,
-        transports.PersistentResourceServiceGrpcAsyncIOTransport,
+        transports.NotebookServiceGrpcTransport,
+        transports.NotebookServiceGrpcAsyncIOTransport,
     ],
 )
-def test_persistent_resource_service_grpc_transport_client_cert_source_for_mtls(
-    transport_class,
-):
+def test_notebook_service_grpc_transport_client_cert_source_for_mtls(transport_class):
     cred = ga_credentials.AnonymousCredentials()
 
     # Check ssl_channel_credentials is used if provided.
@@ -5091,19 +8106,19 @@ def test_persistent_resource_service_grpc_transport_client_cert_source_for_mtls(
             )
 
 
-def test_persistent_resource_service_http_transport_client_cert_source_for_mtls():
+def test_notebook_service_http_transport_client_cert_source_for_mtls():
     cred = ga_credentials.AnonymousCredentials()
     with mock.patch(
         "google.auth.transport.requests.AuthorizedSession.configure_mtls_channel"
     ) as mock_configure_mtls_channel:
-        transports.PersistentResourceServiceRestTransport(
+        transports.NotebookServiceRestTransport(
             credentials=cred, client_cert_source_for_mtls=client_cert_source_callback
         )
         mock_configure_mtls_channel.assert_called_once_with(client_cert_source_callback)
 
 
-def test_persistent_resource_service_rest_lro_client():
-    client = PersistentResourceServiceClient(
+def test_notebook_service_rest_lro_client():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -5127,8 +8142,8 @@ def test_persistent_resource_service_rest_lro_client():
         "rest",
     ],
 )
-def test_persistent_resource_service_host_no_port(transport_name):
-    client = PersistentResourceServiceClient(
+def test_notebook_service_host_no_port(transport_name):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
@@ -5150,8 +8165,8 @@ def test_persistent_resource_service_host_no_port(transport_name):
         "rest",
     ],
 )
-def test_persistent_resource_service_host_with_port(transport_name):
-    client = PersistentResourceServiceClient(
+def test_notebook_service_host_with_port(transport_name):
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
@@ -5171,39 +8186,54 @@ def test_persistent_resource_service_host_with_port(transport_name):
         "rest",
     ],
 )
-def test_persistent_resource_service_client_transport_session_collision(transport_name):
+def test_notebook_service_client_transport_session_collision(transport_name):
     creds1 = ga_credentials.AnonymousCredentials()
     creds2 = ga_credentials.AnonymousCredentials()
-    client1 = PersistentResourceServiceClient(
+    client1 = NotebookServiceClient(
         credentials=creds1,
         transport=transport_name,
     )
-    client2 = PersistentResourceServiceClient(
+    client2 = NotebookServiceClient(
         credentials=creds2,
         transport=transport_name,
     )
-    session1 = client1.transport.create_persistent_resource._session
-    session2 = client2.transport.create_persistent_resource._session
+    session1 = client1.transport.create_notebook_runtime_template._session
+    session2 = client2.transport.create_notebook_runtime_template._session
     assert session1 != session2
-    session1 = client1.transport.get_persistent_resource._session
-    session2 = client2.transport.get_persistent_resource._session
+    session1 = client1.transport.get_notebook_runtime_template._session
+    session2 = client2.transport.get_notebook_runtime_template._session
     assert session1 != session2
-    session1 = client1.transport.list_persistent_resources._session
-    session2 = client2.transport.list_persistent_resources._session
+    session1 = client1.transport.list_notebook_runtime_templates._session
+    session2 = client2.transport.list_notebook_runtime_templates._session
     assert session1 != session2
-    session1 = client1.transport.delete_persistent_resource._session
-    session2 = client2.transport.delete_persistent_resource._session
+    session1 = client1.transport.delete_notebook_runtime_template._session
+    session2 = client2.transport.delete_notebook_runtime_template._session
     assert session1 != session2
-    session1 = client1.transport.update_persistent_resource._session
-    session2 = client2.transport.update_persistent_resource._session
+    session1 = client1.transport.assign_notebook_runtime._session
+    session2 = client2.transport.assign_notebook_runtime._session
+    assert session1 != session2
+    session1 = client1.transport.get_notebook_runtime._session
+    session2 = client2.transport.get_notebook_runtime._session
+    assert session1 != session2
+    session1 = client1.transport.list_notebook_runtimes._session
+    session2 = client2.transport.list_notebook_runtimes._session
+    assert session1 != session2
+    session1 = client1.transport.delete_notebook_runtime._session
+    session2 = client2.transport.delete_notebook_runtime._session
+    assert session1 != session2
+    session1 = client1.transport.upgrade_notebook_runtime._session
+    session2 = client2.transport.upgrade_notebook_runtime._session
+    assert session1 != session2
+    session1 = client1.transport.start_notebook_runtime._session
+    session2 = client2.transport.start_notebook_runtime._session
     assert session1 != session2
 
 
-def test_persistent_resource_service_grpc_transport_channel():
+def test_notebook_service_grpc_transport_channel():
     channel = grpc.secure_channel("http://localhost/", grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
-    transport = transports.PersistentResourceServiceGrpcTransport(
+    transport = transports.NotebookServiceGrpcTransport(
         host="squid.clam.whelk",
         channel=channel,
     )
@@ -5212,11 +8242,11 @@ def test_persistent_resource_service_grpc_transport_channel():
     assert transport._ssl_channel_credentials == None
 
 
-def test_persistent_resource_service_grpc_asyncio_transport_channel():
+def test_notebook_service_grpc_asyncio_transport_channel():
     channel = aio.secure_channel("http://localhost/", grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
-    transport = transports.PersistentResourceServiceGrpcAsyncIOTransport(
+    transport = transports.NotebookServiceGrpcAsyncIOTransport(
         host="squid.clam.whelk",
         channel=channel,
     )
@@ -5230,11 +8260,11 @@ def test_persistent_resource_service_grpc_asyncio_transport_channel():
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.PersistentResourceServiceGrpcTransport,
-        transports.PersistentResourceServiceGrpcAsyncIOTransport,
+        transports.NotebookServiceGrpcTransport,
+        transports.NotebookServiceGrpcAsyncIOTransport,
     ],
 )
-def test_persistent_resource_service_transport_channel_mtls_with_client_cert_source(
+def test_notebook_service_transport_channel_mtls_with_client_cert_source(
     transport_class,
 ):
     with mock.patch(
@@ -5284,11 +8314,11 @@ def test_persistent_resource_service_transport_channel_mtls_with_client_cert_sou
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.PersistentResourceServiceGrpcTransport,
-        transports.PersistentResourceServiceGrpcAsyncIOTransport,
+        transports.NotebookServiceGrpcTransport,
+        transports.NotebookServiceGrpcAsyncIOTransport,
     ],
 )
-def test_persistent_resource_service_transport_channel_mtls_with_adc(transport_class):
+def test_notebook_service_transport_channel_mtls_with_adc(transport_class):
     mock_ssl_cred = mock.Mock()
     with mock.patch.multiple(
         "google.auth.transport.grpc.SslCredentials",
@@ -5325,8 +8355,8 @@ def test_persistent_resource_service_transport_channel_mtls_with_adc(transport_c
             assert transport.grpc_channel == mock_grpc_channel
 
 
-def test_persistent_resource_service_grpc_lro_client():
-    client = PersistentResourceServiceClient(
+def test_notebook_service_grpc_lro_client():
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
@@ -5342,8 +8372,8 @@ def test_persistent_resource_service_grpc_lro_client():
     assert transport.operations_client is transport.operations_client
 
 
-def test_persistent_resource_service_grpc_lro_async_client():
-    client = PersistentResourceServiceAsyncClient(
+def test_notebook_service_grpc_lro_async_client():
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc_asyncio",
     )
@@ -5366,7 +8396,7 @@ def test_network_path():
         project=project,
         network=network,
     )
-    actual = PersistentResourceServiceClient.network_path(project, network)
+    actual = NotebookServiceClient.network_path(project, network)
     assert expected == actual
 
 
@@ -5375,23 +8405,51 @@ def test_parse_network_path():
         "project": "whelk",
         "network": "octopus",
     }
-    path = PersistentResourceServiceClient.network_path(**expected)
+    path = NotebookServiceClient.network_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = PersistentResourceServiceClient.parse_network_path(path)
+    actual = NotebookServiceClient.parse_network_path(path)
+    assert expected == actual
+
+
+def test_notebook_runtime_path():
+    project = "oyster"
+    location = "nudibranch"
+    notebook_runtime = "cuttlefish"
+    expected = "projects/{project}/locations/{location}/notebookRuntimes/{notebook_runtime}".format(
+        project=project,
+        location=location,
+        notebook_runtime=notebook_runtime,
+    )
+    actual = NotebookServiceClient.notebook_runtime_path(
+        project, location, notebook_runtime
+    )
+    assert expected == actual
+
+
+def test_parse_notebook_runtime_path():
+    expected = {
+        "project": "mussel",
+        "location": "winkle",
+        "notebook_runtime": "nautilus",
+    }
+    path = NotebookServiceClient.notebook_runtime_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = NotebookServiceClient.parse_notebook_runtime_path(path)
     assert expected == actual
 
 
 def test_notebook_runtime_template_path():
-    project = "oyster"
-    location = "nudibranch"
-    notebook_runtime_template = "cuttlefish"
+    project = "scallop"
+    location = "abalone"
+    notebook_runtime_template = "squid"
     expected = "projects/{project}/locations/{location}/notebookRuntimeTemplates/{notebook_runtime_template}".format(
         project=project,
         location=location,
         notebook_runtime_template=notebook_runtime_template,
     )
-    actual = PersistentResourceServiceClient.notebook_runtime_template_path(
+    actual = NotebookServiceClient.notebook_runtime_template_path(
         project, location, notebook_runtime_template
     )
     assert expected == actual
@@ -5399,147 +8457,143 @@ def test_notebook_runtime_template_path():
 
 def test_parse_notebook_runtime_template_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "notebook_runtime_template": "nautilus",
-    }
-    path = PersistentResourceServiceClient.notebook_runtime_template_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = PersistentResourceServiceClient.parse_notebook_runtime_template_path(path)
-    assert expected == actual
-
-
-def test_persistent_resource_path():
-    project = "scallop"
-    location = "abalone"
-    persistent_resource = "squid"
-    expected = "projects/{project}/locations/{location}/persistentResources/{persistent_resource}".format(
-        project=project,
-        location=location,
-        persistent_resource=persistent_resource,
-    )
-    actual = PersistentResourceServiceClient.persistent_resource_path(
-        project, location, persistent_resource
-    )
-    assert expected == actual
-
-
-def test_parse_persistent_resource_path():
-    expected = {
         "project": "clam",
         "location": "whelk",
-        "persistent_resource": "octopus",
+        "notebook_runtime_template": "octopus",
     }
-    path = PersistentResourceServiceClient.persistent_resource_path(**expected)
+    path = NotebookServiceClient.notebook_runtime_template_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = PersistentResourceServiceClient.parse_persistent_resource_path(path)
+    actual = NotebookServiceClient.parse_notebook_runtime_template_path(path)
+    assert expected == actual
+
+
+def test_subnetwork_path():
+    project = "oyster"
+    region = "nudibranch"
+    subnetwork = "cuttlefish"
+    expected = "projects/{project}/regions/{region}/subnetworks/{subnetwork}".format(
+        project=project,
+        region=region,
+        subnetwork=subnetwork,
+    )
+    actual = NotebookServiceClient.subnetwork_path(project, region, subnetwork)
+    assert expected == actual
+
+
+def test_parse_subnetwork_path():
+    expected = {
+        "project": "mussel",
+        "region": "winkle",
+        "subnetwork": "nautilus",
+    }
+    path = NotebookServiceClient.subnetwork_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = NotebookServiceClient.parse_subnetwork_path(path)
     assert expected == actual
 
 
 def test_common_billing_account_path():
-    billing_account = "oyster"
+    billing_account = "scallop"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
-    actual = PersistentResourceServiceClient.common_billing_account_path(
-        billing_account
-    )
+    actual = NotebookServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
 
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nudibranch",
+        "billing_account": "abalone",
     }
-    path = PersistentResourceServiceClient.common_billing_account_path(**expected)
+    path = NotebookServiceClient.common_billing_account_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = PersistentResourceServiceClient.parse_common_billing_account_path(path)
+    actual = NotebookServiceClient.parse_common_billing_account_path(path)
     assert expected == actual
 
 
 def test_common_folder_path():
-    folder = "cuttlefish"
+    folder = "squid"
     expected = "folders/{folder}".format(
         folder=folder,
     )
-    actual = PersistentResourceServiceClient.common_folder_path(folder)
+    actual = NotebookServiceClient.common_folder_path(folder)
     assert expected == actual
 
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "mussel",
+        "folder": "clam",
     }
-    path = PersistentResourceServiceClient.common_folder_path(**expected)
+    path = NotebookServiceClient.common_folder_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = PersistentResourceServiceClient.parse_common_folder_path(path)
+    actual = NotebookServiceClient.parse_common_folder_path(path)
     assert expected == actual
 
 
 def test_common_organization_path():
-    organization = "winkle"
+    organization = "whelk"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
-    actual = PersistentResourceServiceClient.common_organization_path(organization)
+    actual = NotebookServiceClient.common_organization_path(organization)
     assert expected == actual
 
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nautilus",
+        "organization": "octopus",
     }
-    path = PersistentResourceServiceClient.common_organization_path(**expected)
+    path = NotebookServiceClient.common_organization_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = PersistentResourceServiceClient.parse_common_organization_path(path)
+    actual = NotebookServiceClient.parse_common_organization_path(path)
     assert expected == actual
 
 
 def test_common_project_path():
-    project = "scallop"
+    project = "oyster"
     expected = "projects/{project}".format(
         project=project,
     )
-    actual = PersistentResourceServiceClient.common_project_path(project)
+    actual = NotebookServiceClient.common_project_path(project)
     assert expected == actual
 
 
 def test_parse_common_project_path():
     expected = {
-        "project": "abalone",
+        "project": "nudibranch",
     }
-    path = PersistentResourceServiceClient.common_project_path(**expected)
+    path = NotebookServiceClient.common_project_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = PersistentResourceServiceClient.parse_common_project_path(path)
+    actual = NotebookServiceClient.parse_common_project_path(path)
     assert expected == actual
 
 
 def test_common_location_path():
-    project = "squid"
-    location = "clam"
+    project = "cuttlefish"
+    location = "mussel"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
     )
-    actual = PersistentResourceServiceClient.common_location_path(project, location)
+    actual = NotebookServiceClient.common_location_path(project, location)
     assert expected == actual
 
 
 def test_parse_common_location_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
+        "project": "winkle",
+        "location": "nautilus",
     }
-    path = PersistentResourceServiceClient.common_location_path(**expected)
+    path = NotebookServiceClient.common_location_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = PersistentResourceServiceClient.parse_common_location_path(path)
+    actual = NotebookServiceClient.parse_common_location_path(path)
     assert expected == actual
 
 
@@ -5547,18 +8601,18 @@ def test_client_with_default_client_info():
     client_info = gapic_v1.client_info.ClientInfo()
 
     with mock.patch.object(
-        transports.PersistentResourceServiceTransport, "_prep_wrapped_messages"
+        transports.NotebookServiceTransport, "_prep_wrapped_messages"
     ) as prep:
-        client = PersistentResourceServiceClient(
+        client = NotebookServiceClient(
             credentials=ga_credentials.AnonymousCredentials(),
             client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
     with mock.patch.object(
-        transports.PersistentResourceServiceTransport, "_prep_wrapped_messages"
+        transports.NotebookServiceTransport, "_prep_wrapped_messages"
     ) as prep:
-        transport_class = PersistentResourceServiceClient.get_transport_class()
+        transport_class = NotebookServiceClient.get_transport_class()
         transport = transport_class(
             credentials=ga_credentials.AnonymousCredentials(),
             client_info=client_info,
@@ -5568,7 +8622,7 @@ def test_client_with_default_client_info():
 
 @pytest.mark.asyncio
 async def test_transport_close_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc_asyncio",
     )
@@ -5583,7 +8637,7 @@ async def test_transport_close_async():
 def test_get_location_rest_bad_request(
     transport: str = "rest", request_type=locations_pb2.GetLocationRequest
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -5613,7 +8667,7 @@ def test_get_location_rest_bad_request(
     ],
 )
 def test_get_location_rest(request_type):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -5641,7 +8695,7 @@ def test_get_location_rest(request_type):
 def test_list_locations_rest_bad_request(
     transport: str = "rest", request_type=locations_pb2.ListLocationsRequest
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -5669,7 +8723,7 @@ def test_list_locations_rest_bad_request(
     ],
 )
 def test_list_locations_rest(request_type):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -5697,7 +8751,7 @@ def test_list_locations_rest(request_type):
 def test_get_iam_policy_rest_bad_request(
     transport: str = "rest", request_type=iam_policy_pb2.GetIamPolicyRequest
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -5728,7 +8782,7 @@ def test_get_iam_policy_rest_bad_request(
     ],
 )
 def test_get_iam_policy_rest(request_type):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -5758,7 +8812,7 @@ def test_get_iam_policy_rest(request_type):
 def test_set_iam_policy_rest_bad_request(
     transport: str = "rest", request_type=iam_policy_pb2.SetIamPolicyRequest
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -5789,7 +8843,7 @@ def test_set_iam_policy_rest_bad_request(
     ],
 )
 def test_set_iam_policy_rest(request_type):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -5819,7 +8873,7 @@ def test_set_iam_policy_rest(request_type):
 def test_test_iam_permissions_rest_bad_request(
     transport: str = "rest", request_type=iam_policy_pb2.TestIamPermissionsRequest
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -5850,7 +8904,7 @@ def test_test_iam_permissions_rest_bad_request(
     ],
 )
 def test_test_iam_permissions_rest(request_type):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -5880,7 +8934,7 @@ def test_test_iam_permissions_rest(request_type):
 def test_cancel_operation_rest_bad_request(
     transport: str = "rest", request_type=operations_pb2.CancelOperationRequest
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -5910,7 +8964,7 @@ def test_cancel_operation_rest_bad_request(
     ],
 )
 def test_cancel_operation_rest(request_type):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -5938,7 +8992,7 @@ def test_cancel_operation_rest(request_type):
 def test_delete_operation_rest_bad_request(
     transport: str = "rest", request_type=operations_pb2.DeleteOperationRequest
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -5968,7 +9022,7 @@ def test_delete_operation_rest_bad_request(
     ],
 )
 def test_delete_operation_rest(request_type):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -5996,7 +9050,7 @@ def test_delete_operation_rest(request_type):
 def test_get_operation_rest_bad_request(
     transport: str = "rest", request_type=operations_pb2.GetOperationRequest
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6026,7 +9080,7 @@ def test_get_operation_rest_bad_request(
     ],
 )
 def test_get_operation_rest(request_type):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -6054,7 +9108,7 @@ def test_get_operation_rest(request_type):
 def test_list_operations_rest_bad_request(
     transport: str = "rest", request_type=operations_pb2.ListOperationsRequest
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6084,7 +9138,7 @@ def test_list_operations_rest_bad_request(
     ],
 )
 def test_list_operations_rest(request_type):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -6112,7 +9166,7 @@ def test_list_operations_rest(request_type):
 def test_wait_operation_rest_bad_request(
     transport: str = "rest", request_type=operations_pb2.WaitOperationRequest
 ):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6142,7 +9196,7 @@ def test_wait_operation_rest_bad_request(
     ],
 )
 def test_wait_operation_rest(request_type):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
@@ -6168,7 +9222,7 @@ def test_wait_operation_rest(request_type):
 
 
 def test_delete_operation(transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6193,7 +9247,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_delete_operation_async(transport: str = "grpc_asyncio"):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6217,7 +9271,7 @@ async def test_delete_operation_async(transport: str = "grpc_asyncio"):
 
 
 def test_delete_operation_field_headers():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6246,7 +9300,7 @@ def test_delete_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_delete_operation_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6273,7 +9327,7 @@ async def test_delete_operation_field_headers_async():
 
 
 def test_delete_operation_from_dict():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6291,7 +9345,7 @@ def test_delete_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_delete_operation_from_dict_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6307,7 +9361,7 @@ async def test_delete_operation_from_dict_async():
 
 
 def test_cancel_operation(transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6332,7 +9386,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6356,7 +9410,7 @@ async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
 
 
 def test_cancel_operation_field_headers():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6385,7 +9439,7 @@ def test_cancel_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_cancel_operation_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6412,7 +9466,7 @@ async def test_cancel_operation_field_headers_async():
 
 
 def test_cancel_operation_from_dict():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6430,7 +9484,7 @@ def test_cancel_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_cancel_operation_from_dict_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6446,7 +9500,7 @@ async def test_cancel_operation_from_dict_async():
 
 
 def test_wait_operation(transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6471,7 +9525,7 @@ def test_wait_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_wait_operation(transport: str = "grpc_asyncio"):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6497,7 +9551,7 @@ async def test_wait_operation(transport: str = "grpc_asyncio"):
 
 
 def test_wait_operation_field_headers():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6526,7 +9580,7 @@ def test_wait_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_wait_operation_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6555,7 +9609,7 @@ async def test_wait_operation_field_headers_async():
 
 
 def test_wait_operation_from_dict():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6573,7 +9627,7 @@ def test_wait_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_wait_operation_from_dict_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6591,7 +9645,7 @@ async def test_wait_operation_from_dict_async():
 
 
 def test_get_operation(transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6616,7 +9670,7 @@ def test_get_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_get_operation_async(transport: str = "grpc_asyncio"):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6642,7 +9696,7 @@ async def test_get_operation_async(transport: str = "grpc_asyncio"):
 
 
 def test_get_operation_field_headers():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6671,7 +9725,7 @@ def test_get_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_operation_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6700,7 +9754,7 @@ async def test_get_operation_field_headers_async():
 
 
 def test_get_operation_from_dict():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6718,7 +9772,7 @@ def test_get_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_get_operation_from_dict_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6736,7 +9790,7 @@ async def test_get_operation_from_dict_async():
 
 
 def test_list_operations(transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6761,7 +9815,7 @@ def test_list_operations(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_operations_async(transport: str = "grpc_asyncio"):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6787,7 +9841,7 @@ async def test_list_operations_async(transport: str = "grpc_asyncio"):
 
 
 def test_list_operations_field_headers():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6816,7 +9870,7 @@ def test_list_operations_field_headers():
 
 @pytest.mark.asyncio
 async def test_list_operations_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6845,7 +9899,7 @@ async def test_list_operations_field_headers_async():
 
 
 def test_list_operations_from_dict():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6863,7 +9917,7 @@ def test_list_operations_from_dict():
 
 @pytest.mark.asyncio
 async def test_list_operations_from_dict_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6881,7 +9935,7 @@ async def test_list_operations_from_dict_async():
 
 
 def test_list_locations(transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6906,7 +9960,7 @@ def test_list_locations(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_locations_async(transport: str = "grpc_asyncio"):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -6932,7 +9986,7 @@ async def test_list_locations_async(transport: str = "grpc_asyncio"):
 
 
 def test_list_locations_field_headers():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6961,7 +10015,7 @@ def test_list_locations_field_headers():
 
 @pytest.mark.asyncio
 async def test_list_locations_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -6990,7 +10044,7 @@ async def test_list_locations_field_headers_async():
 
 
 def test_list_locations_from_dict():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7008,7 +10062,7 @@ def test_list_locations_from_dict():
 
 @pytest.mark.asyncio
 async def test_list_locations_from_dict_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7026,7 +10080,7 @@ async def test_list_locations_from_dict_async():
 
 
 def test_get_location(transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -7051,7 +10105,7 @@ def test_get_location(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_get_location_async(transport: str = "grpc_asyncio"):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -7077,9 +10131,7 @@ async def test_get_location_async(transport: str = "grpc_asyncio"):
 
 
 def test_get_location_field_headers():
-    client = PersistentResourceServiceClient(
-        credentials=ga_credentials.AnonymousCredentials()
-    )
+    client = NotebookServiceClient(credentials=ga_credentials.AnonymousCredentials())
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -7106,7 +10158,7 @@ def test_get_location_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_location_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials()
     )
 
@@ -7135,7 +10187,7 @@ async def test_get_location_field_headers_async():
 
 
 def test_get_location_from_dict():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7153,7 +10205,7 @@ def test_get_location_from_dict():
 
 @pytest.mark.asyncio
 async def test_get_location_from_dict_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7171,7 +10223,7 @@ async def test_get_location_from_dict_async():
 
 
 def test_set_iam_policy(transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -7204,7 +10256,7 @@ def test_set_iam_policy(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -7239,7 +10291,7 @@ async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
 
 
 def test_set_iam_policy_field_headers():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -7269,7 +10321,7 @@ def test_set_iam_policy_field_headers():
 
 @pytest.mark.asyncio
 async def test_set_iam_policy_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -7298,7 +10350,7 @@ async def test_set_iam_policy_field_headers_async():
 
 
 def test_set_iam_policy_from_dict():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7317,7 +10369,7 @@ def test_set_iam_policy_from_dict():
 
 @pytest.mark.asyncio
 async def test_set_iam_policy_from_dict_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7335,7 +10387,7 @@ async def test_set_iam_policy_from_dict_async():
 
 
 def test_get_iam_policy(transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -7370,7 +10422,7 @@ def test_get_iam_policy(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -7406,7 +10458,7 @@ async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
 
 
 def test_get_iam_policy_field_headers():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -7436,7 +10488,7 @@ def test_get_iam_policy_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_iam_policy_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -7465,7 +10517,7 @@ async def test_get_iam_policy_field_headers_async():
 
 
 def test_get_iam_policy_from_dict():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7484,7 +10536,7 @@ def test_get_iam_policy_from_dict():
 
 @pytest.mark.asyncio
 async def test_get_iam_policy_from_dict_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7502,7 +10554,7 @@ async def test_get_iam_policy_from_dict_async():
 
 
 def test_test_iam_permissions(transport: str = "grpc"):
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -7536,7 +10588,7 @@ def test_test_iam_permissions(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -7571,7 +10623,7 @@ async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
 
 
 def test_test_iam_permissions_field_headers():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -7603,7 +10655,7 @@ def test_test_iam_permissions_field_headers():
 
 @pytest.mark.asyncio
 async def test_test_iam_permissions_field_headers_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -7636,7 +10688,7 @@ async def test_test_iam_permissions_field_headers_async():
 
 
 def test_test_iam_permissions_from_dict():
-    client = PersistentResourceServiceClient(
+    client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7657,7 +10709,7 @@ def test_test_iam_permissions_from_dict():
 
 @pytest.mark.asyncio
 async def test_test_iam_permissions_from_dict_async():
-    client = PersistentResourceServiceAsyncClient(
+    client = NotebookServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7685,7 +10737,7 @@ def test_transport_close():
     }
 
     for transport, close_name in transports.items():
-        client = PersistentResourceServiceClient(
+        client = NotebookServiceClient(
             credentials=ga_credentials.AnonymousCredentials(), transport=transport
         )
         with mock.patch.object(
@@ -7702,7 +10754,7 @@ def test_client_ctx():
         "grpc",
     ]
     for transport in transports:
-        client = PersistentResourceServiceClient(
+        client = NotebookServiceClient(
             credentials=ga_credentials.AnonymousCredentials(), transport=transport
         )
         # Test client calls underlying transport.
@@ -7716,14 +10768,8 @@ def test_client_ctx():
 @pytest.mark.parametrize(
     "client_class,transport_class",
     [
-        (
-            PersistentResourceServiceClient,
-            transports.PersistentResourceServiceGrpcTransport,
-        ),
-        (
-            PersistentResourceServiceAsyncClient,
-            transports.PersistentResourceServiceGrpcAsyncIOTransport,
-        ),
+        (NotebookServiceClient, transports.NotebookServiceGrpcTransport),
+        (NotebookServiceAsyncClient, transports.NotebookServiceGrpcAsyncIOTransport),
     ],
 )
 def test_api_key_credentials(client_class, transport_class):

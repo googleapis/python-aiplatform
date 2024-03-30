@@ -36,6 +36,7 @@ __protobuf__ = proto.module(
         "PersistentDiskSpec",
         "NfsMount",
         "AutoscalingMetricSpec",
+        "ShieldedVmConfig",
     },
 )
 
@@ -386,6 +387,29 @@ class AutoscalingMetricSpec(proto.Message):
     target: int = proto.Field(
         proto.INT32,
         number=2,
+    )
+
+
+class ShieldedVmConfig(proto.Message):
+    r"""A set of Shielded Instance options. See `Images using supported
+    Shielded VM
+    features <https://cloud.google.com/compute/docs/instances/modifying-shielded-vm>`__.
+
+    Attributes:
+        enable_secure_boot (bool):
+            Defines whether the instance has `Secure
+            Boot <https://cloud.google.com/compute/shielded-vm/docs/shielded-vm#secure-boot>`__
+            enabled.
+
+            Secure Boot helps ensure that the system only runs authentic
+            software by verifying the digital signature of all boot
+            components, and halting the boot process if signature
+            verification fails.
+    """
+
+    enable_secure_boot: bool = proto.Field(
+        proto.BOOL,
+        number=1,
     )
 
 

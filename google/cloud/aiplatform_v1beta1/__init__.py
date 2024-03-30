@@ -70,6 +70,8 @@ from .services.model_garden_service import ModelGardenServiceClient
 from .services.model_garden_service import ModelGardenServiceAsyncClient
 from .services.model_service import ModelServiceClient
 from .services.model_service import ModelServiceAsyncClient
+from .services.notebook_service import NotebookServiceClient
+from .services.notebook_service import NotebookServiceAsyncClient
 from .services.persistent_resource_service import PersistentResourceServiceClient
 from .services.persistent_resource_service import PersistentResourceServiceAsyncClient
 from .services.pipeline_service import PipelineServiceClient
@@ -556,6 +558,7 @@ from .types.machine_resources import MachineSpec
 from .types.machine_resources import NfsMount
 from .types.machine_resources import PersistentDiskSpec
 from .types.machine_resources import ResourcesConsumed
+from .types.machine_resources import ShieldedVmConfig
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
 from .types.match_service import FindNeighborsRequest
 from .types.match_service import FindNeighborsResponse
@@ -691,6 +694,31 @@ from .types.nas_job import NasJobOutput
 from .types.nas_job import NasJobSpec
 from .types.nas_job import NasTrial
 from .types.nas_job import NasTrialDetail
+from .types.network_spec import NetworkSpec
+from .types.notebook_euc_config import NotebookEucConfig
+from .types.notebook_idle_shutdown_config import NotebookIdleShutdownConfig
+from .types.notebook_runtime import NotebookRuntime
+from .types.notebook_runtime import NotebookRuntimeTemplate
+from .types.notebook_runtime import NotebookRuntimeType
+from .types.notebook_runtime_template_ref import NotebookRuntimeTemplateRef
+from .types.notebook_service import AssignNotebookRuntimeOperationMetadata
+from .types.notebook_service import AssignNotebookRuntimeRequest
+from .types.notebook_service import CreateNotebookRuntimeTemplateOperationMetadata
+from .types.notebook_service import CreateNotebookRuntimeTemplateRequest
+from .types.notebook_service import DeleteNotebookRuntimeRequest
+from .types.notebook_service import DeleteNotebookRuntimeTemplateRequest
+from .types.notebook_service import GetNotebookRuntimeRequest
+from .types.notebook_service import GetNotebookRuntimeTemplateRequest
+from .types.notebook_service import ListNotebookRuntimesRequest
+from .types.notebook_service import ListNotebookRuntimesResponse
+from .types.notebook_service import ListNotebookRuntimeTemplatesRequest
+from .types.notebook_service import ListNotebookRuntimeTemplatesResponse
+from .types.notebook_service import StartNotebookRuntimeOperationMetadata
+from .types.notebook_service import StartNotebookRuntimeRequest
+from .types.notebook_service import StartNotebookRuntimeResponse
+from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
+from .types.notebook_service import UpgradeNotebookRuntimeRequest
+from .types.notebook_service import UpgradeNotebookRuntimeResponse
 from .types.openapi import Schema
 from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
@@ -918,6 +946,7 @@ __all__ = (
     "MigrationServiceAsyncClient",
     "ModelGardenServiceAsyncClient",
     "ModelServiceAsyncClient",
+    "NotebookServiceAsyncClient",
     "PersistentResourceServiceAsyncClient",
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
@@ -939,6 +968,8 @@ __all__ = (
     "Annotation",
     "AnnotationSpec",
     "Artifact",
+    "AssignNotebookRuntimeOperationMetadata",
+    "AssignNotebookRuntimeRequest",
     "Attribution",
     "AuthConfig",
     "AuthType",
@@ -1047,6 +1078,8 @@ __all__ = (
     "CreateMetadataStoreRequest",
     "CreateModelDeploymentMonitoringJobRequest",
     "CreateNasJobRequest",
+    "CreateNotebookRuntimeTemplateOperationMetadata",
+    "CreateNotebookRuntimeTemplateRequest",
     "CreatePersistentResourceOperationMetadata",
     "CreatePersistentResourceRequest",
     "CreatePipelineJobRequest",
@@ -1104,6 +1137,8 @@ __all__ = (
     "DeleteModelRequest",
     "DeleteModelVersionRequest",
     "DeleteNasJobRequest",
+    "DeleteNotebookRuntimeRequest",
+    "DeleteNotebookRuntimeTemplateRequest",
     "DeleteOperationMetadata",
     "DeletePersistentResourceRequest",
     "DeletePipelineJobRequest",
@@ -1265,6 +1300,8 @@ __all__ = (
     "GetModelRequest",
     "GetNasJobRequest",
     "GetNasTrialDetailRequest",
+    "GetNotebookRuntimeRequest",
+    "GetNotebookRuntimeTemplateRequest",
     "GetPersistentResourceRequest",
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
@@ -1377,6 +1414,10 @@ __all__ = (
     "ListNasJobsResponse",
     "ListNasTrialDetailsRequest",
     "ListNasTrialDetailsResponse",
+    "ListNotebookRuntimeTemplatesRequest",
+    "ListNotebookRuntimeTemplatesResponse",
+    "ListNotebookRuntimesRequest",
+    "ListNotebookRuntimesResponse",
     "ListOptimalTrialsRequest",
     "ListOptimalTrialsResponse",
     "ListPersistentResourcesRequest",
@@ -1454,7 +1495,15 @@ __all__ = (
     "NearestNeighborSearchOperationMetadata",
     "NearestNeighbors",
     "Neighbor",
+    "NetworkSpec",
     "NfsMount",
+    "NotebookEucConfig",
+    "NotebookIdleShutdownConfig",
+    "NotebookRuntime",
+    "NotebookRuntimeTemplate",
+    "NotebookRuntimeTemplateRef",
+    "NotebookRuntimeType",
+    "NotebookServiceClient",
     "PairwiseChoice",
     "PairwiseQuestionAnsweringQualityInput",
     "PairwiseQuestionAnsweringQualityInstance",
@@ -1600,9 +1649,13 @@ __all__ = (
     "SearchNearestEntitiesResponse",
     "Segment",
     "ServiceAccountSpec",
+    "ShieldedVmConfig",
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
+    "StartNotebookRuntimeOperationMetadata",
+    "StartNotebookRuntimeRequest",
+    "StartNotebookRuntimeResponse",
     "StopTrialRequest",
     "StratifiedSplit",
     "StreamDirectPredictRequest",
@@ -1724,6 +1777,9 @@ __all__ = (
     "UpdateTensorboardRequest",
     "UpdateTensorboardRunRequest",
     "UpdateTensorboardTimeSeriesRequest",
+    "UpgradeNotebookRuntimeOperationMetadata",
+    "UpgradeNotebookRuntimeRequest",
+    "UpgradeNotebookRuntimeResponse",
     "UploadModelOperationMetadata",
     "UploadModelRequest",
     "UploadModelResponse",

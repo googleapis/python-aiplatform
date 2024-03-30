@@ -30,7 +30,7 @@ from typing import (
 )
 import warnings
 
-from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
@@ -49,30 +49,30 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import pagers
-from google.cloud.aiplatform_v1beta1.types import encryption_spec
-from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.cloud.aiplatform_v1beta1.types import persistent_resource
-from google.cloud.aiplatform_v1beta1.types import (
-    persistent_resource as gca_persistent_resource,
-)
-from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
+from google.cloud.aiplatform_v1.services.notebook_service import pagers
+from google.cloud.aiplatform_v1.types import machine_resources
+from google.cloud.aiplatform_v1.types import network_spec
+from google.cloud.aiplatform_v1.types import notebook_euc_config
+from google.cloud.aiplatform_v1.types import notebook_idle_shutdown_config
+from google.cloud.aiplatform_v1.types import notebook_runtime
+from google.cloud.aiplatform_v1.types import notebook_runtime as gca_notebook_runtime
+from google.cloud.aiplatform_v1.types import notebook_runtime_template_ref
+from google.cloud.aiplatform_v1.types import notebook_service
+from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
-from .transports.base import PersistentResourceServiceTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc import PersistentResourceServiceGrpcTransport
-from .transports.grpc_asyncio import PersistentResourceServiceGrpcAsyncIOTransport
-from .transports.rest import PersistentResourceServiceRestTransport
+from .transports.base import NotebookServiceTransport, DEFAULT_CLIENT_INFO
+from .transports.grpc import NotebookServiceGrpcTransport
+from .transports.grpc_asyncio import NotebookServiceGrpcAsyncIOTransport
+from .transports.rest import NotebookServiceRestTransport
 
 
-class PersistentResourceServiceClientMeta(type):
-    """Metaclass for the PersistentResourceService client.
+class NotebookServiceClientMeta(type):
+    """Metaclass for the NotebookService client.
 
     This provides class-level methods for building and retrieving
     support objects (e.g. transport) without polluting the client instance
@@ -81,15 +81,15 @@ class PersistentResourceServiceClientMeta(type):
 
     _transport_registry = (
         OrderedDict()
-    )  # type: Dict[str, Type[PersistentResourceServiceTransport]]
-    _transport_registry["grpc"] = PersistentResourceServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = PersistentResourceServiceGrpcAsyncIOTransport
-    _transport_registry["rest"] = PersistentResourceServiceRestTransport
+    )  # type: Dict[str, Type[NotebookServiceTransport]]
+    _transport_registry["grpc"] = NotebookServiceGrpcTransport
+    _transport_registry["grpc_asyncio"] = NotebookServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = NotebookServiceRestTransport
 
     def get_transport_class(
         cls,
         label: Optional[str] = None,
-    ) -> Type[PersistentResourceServiceTransport]:
+    ) -> Type[NotebookServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -108,9 +108,9 @@ class PersistentResourceServiceClientMeta(type):
         return next(iter(cls._transport_registry.values()))
 
 
-class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientMeta):
-    """A service for managing Vertex AI's machine learning
-    PersistentResource.
+class NotebookServiceClient(metaclass=NotebookServiceClientMeta):
+    """The interface for Vertex Notebook service (a.k.a. Colab on
+    Workbench).
     """
 
     @staticmethod
@@ -163,7 +163,7 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            PersistentResourceServiceClient: The constructed client.
+            NotebookServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_info(info)
         kwargs["credentials"] = credentials
@@ -181,7 +181,7 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            PersistentResourceServiceClient: The constructed client.
+            NotebookServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -190,11 +190,11 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
     from_service_account_json = from_service_account_file
 
     @property
-    def transport(self) -> PersistentResourceServiceTransport:
+    def transport(self) -> NotebookServiceTransport:
         """Returns the transport used by the client instance.
 
         Returns:
-            PersistentResourceServiceTransport: The transport used by the client
+            NotebookServiceTransport: The transport used by the client
                 instance.
         """
         return self._transport
@@ -215,6 +215,28 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         """Parses a network path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def notebook_runtime_path(
+        project: str,
+        location: str,
+        notebook_runtime: str,
+    ) -> str:
+        """Returns a fully-qualified notebook_runtime string."""
+        return "projects/{project}/locations/{location}/notebookRuntimes/{notebook_runtime}".format(
+            project=project,
+            location=location,
+            notebook_runtime=notebook_runtime,
+        )
+
+    @staticmethod
+    def parse_notebook_runtime_path(path: str) -> Dict[str, str]:
+        """Parses a notebook_runtime path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/notebookRuntimes/(?P<notebook_runtime>.+?)$",
+            path,
         )
         return m.groupdict() if m else {}
 
@@ -241,23 +263,23 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         return m.groupdict() if m else {}
 
     @staticmethod
-    def persistent_resource_path(
+    def subnetwork_path(
         project: str,
-        location: str,
-        persistent_resource: str,
+        region: str,
+        subnetwork: str,
     ) -> str:
-        """Returns a fully-qualified persistent_resource string."""
-        return "projects/{project}/locations/{location}/persistentResources/{persistent_resource}".format(
+        """Returns a fully-qualified subnetwork string."""
+        return "projects/{project}/regions/{region}/subnetworks/{subnetwork}".format(
             project=project,
-            location=location,
-            persistent_resource=persistent_resource,
+            region=region,
+            subnetwork=subnetwork,
         )
 
     @staticmethod
-    def parse_persistent_resource_path(path: str) -> Dict[str, str]:
-        """Parses a persistent_resource path into its component segments."""
+    def parse_subnetwork_path(path: str) -> Dict[str, str]:
+        """Parses a subnetwork path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/persistentResources/(?P<persistent_resource>.+?)$",
+            r"^projects/(?P<project>.+?)/regions/(?P<region>.+?)/subnetworks/(?P<subnetwork>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -481,17 +503,15 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         elif use_mtls_endpoint == "always" or (
             use_mtls_endpoint == "auto" and client_cert_source
         ):
-            _default_universe = PersistentResourceServiceClient._DEFAULT_UNIVERSE
+            _default_universe = NotebookServiceClient._DEFAULT_UNIVERSE
             if universe_domain != _default_universe:
                 raise MutualTLSChannelError(
                     f"mTLS is not supported in any universe other than {_default_universe}."
                 )
-            api_endpoint = PersistentResourceServiceClient.DEFAULT_MTLS_ENDPOINT
+            api_endpoint = NotebookServiceClient.DEFAULT_MTLS_ENDPOINT
         else:
-            api_endpoint = (
-                PersistentResourceServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
-                    UNIVERSE_DOMAIN=universe_domain
-                )
+            api_endpoint = NotebookServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+                UNIVERSE_DOMAIN=universe_domain
             )
         return api_endpoint
 
@@ -511,7 +531,7 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         Raises:
             ValueError: If the universe domain is an empty string.
         """
-        universe_domain = PersistentResourceServiceClient._DEFAULT_UNIVERSE
+        universe_domain = NotebookServiceClient._DEFAULT_UNIVERSE
         if client_universe_domain is not None:
             universe_domain = client_universe_domain
         elif universe_domain_env is not None:
@@ -537,7 +557,7 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             ValueError: when client_universe does not match the universe in credentials.
         """
 
-        default_universe = PersistentResourceServiceClient._DEFAULT_UNIVERSE
+        default_universe = NotebookServiceClient._DEFAULT_UNIVERSE
         credentials_universe = getattr(credentials, "universe_domain", default_universe)
 
         if client_universe != credentials_universe:
@@ -561,7 +581,7 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         """
         self._is_universe_domain_valid = (
             self._is_universe_domain_valid
-            or PersistentResourceServiceClient._compare_universes(
+            or NotebookServiceClient._compare_universes(
                 self.universe_domain, self.transport._credentials
             )
         )
@@ -589,11 +609,11 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[Union[str, PersistentResourceServiceTransport]] = None,
+        transport: Optional[Union[str, NotebookServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the persistent resource service client.
+        """Instantiates the notebook service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -601,7 +621,7 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, PersistentResourceServiceTransport]): The
+            transport (Union[str, NotebookServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
                 NOTE: "rest" transport functionality is currently in a
@@ -658,13 +678,11 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             self._use_client_cert,
             self._use_mtls_endpoint,
             self._universe_domain_env,
-        ) = PersistentResourceServiceClient._read_environment_variables()
-        self._client_cert_source = (
-            PersistentResourceServiceClient._get_client_cert_source(
-                self._client_options.client_cert_source, self._use_client_cert
-            )
+        ) = NotebookServiceClient._read_environment_variables()
+        self._client_cert_source = NotebookServiceClient._get_client_cert_source(
+            self._client_options.client_cert_source, self._use_client_cert
         )
-        self._universe_domain = PersistentResourceServiceClient._get_universe_domain(
+        self._universe_domain = NotebookServiceClient._get_universe_domain(
             universe_domain_opt, self._universe_domain_env
         )
         self._api_endpoint = None  # updated below, depending on `transport`
@@ -681,9 +699,9 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
-        transport_provided = isinstance(transport, PersistentResourceServiceTransport)
+        transport_provided = isinstance(transport, NotebookServiceTransport)
         if transport_provided:
-            # transport is a PersistentResourceServiceTransport instance.
+            # transport is a NotebookServiceTransport instance.
             if credentials or self._client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
@@ -694,12 +712,12 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
                     "When providing a transport instance, provide its scopes "
                     "directly."
                 )
-            self._transport = cast(PersistentResourceServiceTransport, transport)
+            self._transport = cast(NotebookServiceTransport, transport)
             self._api_endpoint = self._transport.host
 
         self._api_endpoint = (
             self._api_endpoint
-            or PersistentResourceServiceClient._get_api_endpoint(
+            or NotebookServiceClient._get_api_endpoint(
                 self._client_options.api_endpoint,
                 self._client_cert_source,
                 self._universe_domain,
@@ -730,22 +748,22 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
                 api_audience=self._client_options.api_audience,
             )
 
-    def create_persistent_resource(
+    def create_notebook_runtime_template(
         self,
         request: Optional[
-            Union[persistent_resource_service.CreatePersistentResourceRequest, dict]
+            Union[notebook_service.CreateNotebookRuntimeTemplateRequest, dict]
         ] = None,
         *,
         parent: Optional[str] = None,
-        persistent_resource: Optional[
-            gca_persistent_resource.PersistentResource
+        notebook_runtime_template: Optional[
+            notebook_runtime.NotebookRuntimeTemplate
         ] = None,
-        persistent_resource_id: Optional[str] = None,
+        notebook_runtime_template_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
-        r"""Creates a PersistentResource.
+        r"""Creates a NotebookRuntimeTemplate.
 
         .. code-block:: python
 
@@ -756,20 +774,23 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             # - It may require specifying regional endpoints when creating the service
             #   client as shown in:
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
+            from google.cloud import aiplatform_v1
 
-            def sample_create_persistent_resource():
+            def sample_create_notebook_runtime_template():
                 # Create a client
-                client = aiplatform_v1beta1.PersistentResourceServiceClient()
+                client = aiplatform_v1.NotebookServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.CreatePersistentResourceRequest(
+                notebook_runtime_template = aiplatform_v1.NotebookRuntimeTemplate()
+                notebook_runtime_template.display_name = "display_name_value"
+
+                request = aiplatform_v1.CreateNotebookRuntimeTemplateRequest(
                     parent="parent_value",
-                    persistent_resource_id="persistent_resource_id_value",
+                    notebook_runtime_template=notebook_runtime_template,
                 )
 
                 # Make the request
-                operation = client.create_persistent_resource(request=request)
+                operation = client.create_notebook_runtime_template(request=request)
 
                 print("Waiting for operation to complete...")
 
@@ -779,33 +800,29 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CreatePersistentResourceRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1.types.CreateNotebookRuntimeTemplateRequest, dict]):
                 The request object. Request message for
-                [PersistentResourceService.CreatePersistentResource][google.cloud.aiplatform.v1beta1.PersistentResourceService.CreatePersistentResource].
+                [NotebookService.CreateNotebookRuntimeTemplate][google.cloud.aiplatform.v1.NotebookService.CreateNotebookRuntimeTemplate].
             parent (str):
                 Required. The resource name of the Location to create
-                the PersistentResource in. Format:
+                the NotebookRuntimeTemplate. Format:
                 ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            persistent_resource (google.cloud.aiplatform_v1beta1.types.PersistentResource):
-                Required. The PersistentResource to
-                create.
+            notebook_runtime_template (google.cloud.aiplatform_v1.types.NotebookRuntimeTemplate):
+                Required. The NotebookRuntimeTemplate
+                to create.
 
-                This corresponds to the ``persistent_resource`` field
+                This corresponds to the ``notebook_runtime_template`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            persistent_resource_id (str):
-                Required. The ID to use for the PersistentResource,
-                which become the final component of the
-                PersistentResource's resource name.
+            notebook_runtime_template_id (str):
+                Optional. User specified ID for the
+                notebook runtime template.
 
-                The maximum length is 63 characters, and valid
-                characters are ``/^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/``.
-
-                This corresponds to the ``persistent_resource_id`` field
+                This corresponds to the ``notebook_runtime_template_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -818,17 +835,17 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.PersistentResource` Represents long-lasting resources that are dedicated to users to runs custom
-                   workloads. A PersistentResource can have multiple
-                   node pools and each node pool can have its own
-                   machine spec.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.NotebookRuntimeTemplate` A template that specifies runtime configurations such as machine type,
+                   runtime version, network configurations, etc.
+                   Multiple runtimes can be created from a runtime
+                   template.
 
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any(
-            [parent, persistent_resource, persistent_resource_id]
+            [parent, notebook_runtime_template, notebook_runtime_template_id]
         )
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -837,28 +854,26 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a persistent_resource_service.CreatePersistentResourceRequest.
+        # in a notebook_service.CreateNotebookRuntimeTemplateRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
         if not isinstance(
-            request, persistent_resource_service.CreatePersistentResourceRequest
+            request, notebook_service.CreateNotebookRuntimeTemplateRequest
         ):
-            request = persistent_resource_service.CreatePersistentResourceRequest(
-                request
-            )
+            request = notebook_service.CreateNotebookRuntimeTemplateRequest(request)
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
             if parent is not None:
                 request.parent = parent
-            if persistent_resource is not None:
-                request.persistent_resource = persistent_resource
-            if persistent_resource_id is not None:
-                request.persistent_resource_id = persistent_resource_id
+            if notebook_runtime_template is not None:
+                request.notebook_runtime_template = notebook_runtime_template
+            if notebook_runtime_template_id is not None:
+                request.notebook_runtime_template_id = notebook_runtime_template_id
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = self._transport._wrapped_methods[
-            self._transport.create_persistent_resource
+            self._transport.create_notebook_runtime_template
         ]
 
         # Certain fields should be provided within the metadata header;
@@ -882,25 +897,25 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            gca_persistent_resource.PersistentResource,
-            metadata_type=persistent_resource_service.CreatePersistentResourceOperationMetadata,
+            notebook_runtime.NotebookRuntimeTemplate,
+            metadata_type=notebook_service.CreateNotebookRuntimeTemplateOperationMetadata,
         )
 
         # Done; return the response.
         return response
 
-    def get_persistent_resource(
+    def get_notebook_runtime_template(
         self,
         request: Optional[
-            Union[persistent_resource_service.GetPersistentResourceRequest, dict]
+            Union[notebook_service.GetNotebookRuntimeTemplateRequest, dict]
         ] = None,
         *,
         name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> persistent_resource.PersistentResource:
-        r"""Gets a PersistentResource.
+    ) -> notebook_runtime.NotebookRuntimeTemplate:
+        r"""Gets a NotebookRuntimeTemplate.
 
         .. code-block:: python
 
@@ -911,31 +926,31 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             # - It may require specifying regional endpoints when creating the service
             #   client as shown in:
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
+            from google.cloud import aiplatform_v1
 
-            def sample_get_persistent_resource():
+            def sample_get_notebook_runtime_template():
                 # Create a client
-                client = aiplatform_v1beta1.PersistentResourceServiceClient()
+                client = aiplatform_v1.NotebookServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.GetPersistentResourceRequest(
+                request = aiplatform_v1.GetNotebookRuntimeTemplateRequest(
                     name="name_value",
                 )
 
                 # Make the request
-                response = client.get_persistent_resource(request=request)
+                response = client.get_notebook_runtime_template(request=request)
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetPersistentResourceRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1.types.GetNotebookRuntimeTemplateRequest, dict]):
                 The request object. Request message for
-                [PersistentResourceService.GetPersistentResource][google.cloud.aiplatform.v1beta1.PersistentResourceService.GetPersistentResource].
+                [NotebookService.GetNotebookRuntimeTemplate][google.cloud.aiplatform.v1.NotebookService.GetNotebookRuntimeTemplate]
             name (str):
-                Required. The name of the PersistentResource resource.
-                Format:
-                ``projects/{project_id_or_number}/locations/{location_id}/persistentResources/{persistent_resource_id}``
+                Required. The name of the NotebookRuntimeTemplate
+                resource. Format:
+                ``projects/{project}/locations/{location}/notebookRuntimeTemplates/{notebook_runtime_template}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -947,12 +962,12 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
                 sent along with the request as metadata.
 
         Returns:
-            google.cloud.aiplatform_v1beta1.types.PersistentResource:
-                Represents long-lasting resources
-                that are dedicated to users to runs
-                custom workloads. A PersistentResource
-                can have multiple node pools and each
-                node pool can have its own machine spec.
+            google.cloud.aiplatform_v1.types.NotebookRuntimeTemplate:
+                A template that specifies runtime
+                configurations such as machine type,
+                runtime version, network configurations,
+                etc. Multiple runtimes can be created
+                from a runtime template.
 
         """
         # Create or coerce a protobuf request object.
@@ -966,13 +981,11 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a persistent_resource_service.GetPersistentResourceRequest.
+        # in a notebook_service.GetNotebookRuntimeTemplateRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(
-            request, persistent_resource_service.GetPersistentResourceRequest
-        ):
-            request = persistent_resource_service.GetPersistentResourceRequest(request)
+        if not isinstance(request, notebook_service.GetNotebookRuntimeTemplateRequest):
+            request = notebook_service.GetNotebookRuntimeTemplateRequest(request)
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
             if name is not None:
@@ -980,7 +993,9 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.get_persistent_resource]
+        rpc = self._transport._wrapped_methods[
+            self._transport.get_notebook_runtime_template
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1002,18 +1017,18 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         # Done; return the response.
         return response
 
-    def list_persistent_resources(
+    def list_notebook_runtime_templates(
         self,
         request: Optional[
-            Union[persistent_resource_service.ListPersistentResourcesRequest, dict]
+            Union[notebook_service.ListNotebookRuntimeTemplatesRequest, dict]
         ] = None,
         *,
         parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListPersistentResourcesPager:
-        r"""Lists PersistentResources in a Location.
+    ) -> pagers.ListNotebookRuntimeTemplatesPager:
+        r"""Lists NotebookRuntimeTemplates in a Location.
 
         .. code-block:: python
 
@@ -1024,31 +1039,31 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             # - It may require specifying regional endpoints when creating the service
             #   client as shown in:
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
+            from google.cloud import aiplatform_v1
 
-            def sample_list_persistent_resources():
+            def sample_list_notebook_runtime_templates():
                 # Create a client
-                client = aiplatform_v1beta1.PersistentResourceServiceClient()
+                client = aiplatform_v1.NotebookServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.ListPersistentResourcesRequest(
+                request = aiplatform_v1.ListNotebookRuntimeTemplatesRequest(
                     parent="parent_value",
                 )
 
                 # Make the request
-                page_result = client.list_persistent_resources(request=request)
+                page_result = client.list_notebook_runtime_templates(request=request)
 
                 # Handle the response
                 for response in page_result:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListPersistentResourcesRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1.types.ListNotebookRuntimeTemplatesRequest, dict]):
                 The request object. Request message for
-                [PersistentResourceService.ListPersistentResource][].
+                [NotebookService.ListNotebookRuntimeTemplates][google.cloud.aiplatform.v1.NotebookService.ListNotebookRuntimeTemplates].
             parent (str):
-                Required. The resource name of the Location to list the
-                PersistentResources from. Format:
+                Required. The resource name of the Location from which
+                to list the NotebookRuntimeTemplates. Format:
                 ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
@@ -1061,9 +1076,9 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
                 sent along with the request as metadata.
 
         Returns:
-            google.cloud.aiplatform_v1beta1.services.persistent_resource_service.pagers.ListPersistentResourcesPager:
+            google.cloud.aiplatform_v1.services.notebook_service.pagers.ListNotebookRuntimeTemplatesPager:
                 Response message for
-                   [PersistentResourceService.ListPersistentResources][google.cloud.aiplatform.v1beta1.PersistentResourceService.ListPersistentResources]
+                   [NotebookService.ListNotebookRuntimeTemplates][google.cloud.aiplatform.v1.NotebookService.ListNotebookRuntimeTemplates].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1080,15 +1095,13 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a persistent_resource_service.ListPersistentResourcesRequest.
+        # in a notebook_service.ListNotebookRuntimeTemplatesRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
         if not isinstance(
-            request, persistent_resource_service.ListPersistentResourcesRequest
+            request, notebook_service.ListNotebookRuntimeTemplatesRequest
         ):
-            request = persistent_resource_service.ListPersistentResourcesRequest(
-                request
-            )
+            request = notebook_service.ListNotebookRuntimeTemplatesRequest(request)
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
             if parent is not None:
@@ -1097,7 +1110,7 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = self._transport._wrapped_methods[
-            self._transport.list_persistent_resources
+            self._transport.list_notebook_runtime_templates
         ]
 
         # Certain fields should be provided within the metadata header;
@@ -1119,7 +1132,7 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
-        response = pagers.ListPersistentResourcesPager(
+        response = pagers.ListNotebookRuntimeTemplatesPager(
             method=rpc,
             request=request,
             response=response,
@@ -1129,10 +1142,10 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         # Done; return the response.
         return response
 
-    def delete_persistent_resource(
+    def delete_notebook_runtime_template(
         self,
         request: Optional[
-            Union[persistent_resource_service.DeletePersistentResourceRequest, dict]
+            Union[notebook_service.DeleteNotebookRuntimeTemplateRequest, dict]
         ] = None,
         *,
         name: Optional[str] = None,
@@ -1140,7 +1153,7 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
-        r"""Deletes a PersistentResource.
+        r"""Deletes a NotebookRuntimeTemplate.
 
         .. code-block:: python
 
@@ -1151,19 +1164,19 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             # - It may require specifying regional endpoints when creating the service
             #   client as shown in:
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
+            from google.cloud import aiplatform_v1
 
-            def sample_delete_persistent_resource():
+            def sample_delete_notebook_runtime_template():
                 # Create a client
-                client = aiplatform_v1beta1.PersistentResourceServiceClient()
+                client = aiplatform_v1.NotebookServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.DeletePersistentResourceRequest(
+                request = aiplatform_v1.DeleteNotebookRuntimeTemplateRequest(
                     name="name_value",
                 )
 
                 # Make the request
-                operation = client.delete_persistent_resource(request=request)
+                operation = client.delete_notebook_runtime_template(request=request)
 
                 print("Waiting for operation to complete...")
 
@@ -1173,13 +1186,13 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeletePersistentResourceRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1.types.DeleteNotebookRuntimeTemplateRequest, dict]):
                 The request object. Request message for
-                [PersistentResourceService.DeletePersistentResource][google.cloud.aiplatform.v1beta1.PersistentResourceService.DeletePersistentResource].
+                [NotebookService.DeleteNotebookRuntimeTemplate][google.cloud.aiplatform.v1.NotebookService.DeleteNotebookRuntimeTemplate].
             name (str):
-                Required. The name of the PersistentResource to be
-                deleted. Format:
-                ``projects/{project}/locations/{location}/persistentResources/{persistent_resource}``
+                Required. The name of the NotebookRuntimeTemplate
+                resource to be deleted. Format:
+                ``projects/{project}/locations/{location}/notebookRuntimeTemplates/{notebook_runtime_template}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1217,15 +1230,13 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a persistent_resource_service.DeletePersistentResourceRequest.
+        # in a notebook_service.DeleteNotebookRuntimeTemplateRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
         if not isinstance(
-            request, persistent_resource_service.DeletePersistentResourceRequest
+            request, notebook_service.DeleteNotebookRuntimeTemplateRequest
         ):
-            request = persistent_resource_service.DeletePersistentResourceRequest(
-                request
-            )
+            request = notebook_service.DeleteNotebookRuntimeTemplateRequest(request)
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
             if name is not None:
@@ -1234,7 +1245,7 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = self._transport._wrapped_methods[
-            self._transport.delete_persistent_resource
+            self._transport.delete_notebook_runtime_template
         ]
 
         # Certain fields should be provided within the metadata header;
@@ -1265,21 +1276,23 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         # Done; return the response.
         return response
 
-    def update_persistent_resource(
+    def assign_notebook_runtime(
         self,
         request: Optional[
-            Union[persistent_resource_service.UpdatePersistentResourceRequest, dict]
+            Union[notebook_service.AssignNotebookRuntimeRequest, dict]
         ] = None,
         *,
-        persistent_resource: Optional[
-            gca_persistent_resource.PersistentResource
-        ] = None,
-        update_mask: Optional[field_mask_pb2.FieldMask] = None,
+        parent: Optional[str] = None,
+        notebook_runtime_template: Optional[str] = None,
+        notebook_runtime: Optional[gca_notebook_runtime.NotebookRuntime] = None,
+        notebook_runtime_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
-        r"""Updates a PersistentResource.
+        r"""Assigns a NotebookRuntime to a user for a particular
+        Notebook file. This method will either returns an
+        existing assignment or generates a new one.
 
         .. code-block:: python
 
@@ -1290,18 +1303,25 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             # - It may require specifying regional endpoints when creating the service
             #   client as shown in:
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
+            from google.cloud import aiplatform_v1
 
-            def sample_update_persistent_resource():
+            def sample_assign_notebook_runtime():
                 # Create a client
-                client = aiplatform_v1beta1.PersistentResourceServiceClient()
+                client = aiplatform_v1.NotebookServiceClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.UpdatePersistentResourceRequest(
+                notebook_runtime = aiplatform_v1.NotebookRuntime()
+                notebook_runtime.runtime_user = "runtime_user_value"
+                notebook_runtime.display_name = "display_name_value"
+
+                request = aiplatform_v1.AssignNotebookRuntimeRequest(
+                    parent="parent_value",
+                    notebook_runtime_template="notebook_runtime_template_value",
+                    notebook_runtime=notebook_runtime,
                 )
 
                 # Make the request
-                operation = client.update_persistent_resource(request=request)
+                operation = client.assign_notebook_runtime(request=request)
 
                 print("Waiting for operation to complete...")
 
@@ -1311,25 +1331,40 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.UpdatePersistentResourceRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1.types.AssignNotebookRuntimeRequest, dict]):
                 The request object. Request message for
-                UpdatePersistentResource method.
-            persistent_resource (google.cloud.aiplatform_v1beta1.types.PersistentResource):
-                Required. The PersistentResource to update.
+                [NotebookService.AssignNotebookRuntime][google.cloud.aiplatform.v1.NotebookService.AssignNotebookRuntime].
+            parent (str):
+                Required. The resource name of the Location to get the
+                NotebookRuntime assignment. Format:
+                ``projects/{project}/locations/{location}``
 
-                The PersistentResource's ``name`` field is used to
-                identify the PersistentResource to update. Format:
-                ``projects/{project}/locations/{location}/persistentResources/{persistent_resource}``
-
-                This corresponds to the ``persistent_resource`` field
+                This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. Specify the fields to be
-                overwritten in the PersistentResource by
-                the update method.
+            notebook_runtime_template (str):
+                Required. The resource name of the
+                NotebookRuntimeTemplate based on which a
+                NotebookRuntime will be assigned (reuse
+                or create a new one).
 
-                This corresponds to the ``update_mask`` field
+                This corresponds to the ``notebook_runtime_template`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            notebook_runtime (google.cloud.aiplatform_v1.types.NotebookRuntime):
+                Required. Provide runtime specific
+                information (e.g. runtime owner,
+                notebook id) used for NotebookRuntime
+                assignment.
+
+                This corresponds to the ``notebook_runtime`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            notebook_runtime_id (str):
+                Optional. User specified ID for the
+                notebook runtime.
+
+                This corresponds to the ``notebook_runtime_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1342,16 +1377,17 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.PersistentResource` Represents long-lasting resources that are dedicated to users to runs custom
-                   workloads. A PersistentResource can have multiple
-                   node pools and each node pool can have its own
-                   machine spec.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.NotebookRuntime` A runtime is a virtual machine allocated to a particular user for a
+                   particular Notebook file on temporary basis with
+                   lifetime limited to 24 hours.
 
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([persistent_resource, update_mask])
+        has_flattened_params = any(
+            [parent, notebook_runtime_template, notebook_runtime, notebook_runtime_id]
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1359,34 +1395,30 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
             )
 
         # Minor optimization to avoid making a copy if the user passes
-        # in a persistent_resource_service.UpdatePersistentResourceRequest.
+        # in a notebook_service.AssignNotebookRuntimeRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(
-            request, persistent_resource_service.UpdatePersistentResourceRequest
-        ):
-            request = persistent_resource_service.UpdatePersistentResourceRequest(
-                request
-            )
+        if not isinstance(request, notebook_service.AssignNotebookRuntimeRequest):
+            request = notebook_service.AssignNotebookRuntimeRequest(request)
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-            if persistent_resource is not None:
-                request.persistent_resource = persistent_resource
-            if update_mask is not None:
-                request.update_mask = update_mask
+            if parent is not None:
+                request.parent = parent
+            if notebook_runtime_template is not None:
+                request.notebook_runtime_template = notebook_runtime_template
+            if notebook_runtime is not None:
+                request.notebook_runtime = notebook_runtime
+            if notebook_runtime_id is not None:
+                request.notebook_runtime_id = notebook_runtime_id
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.update_persistent_resource
-        ]
+        rpc = self._transport._wrapped_methods[self._transport.assign_notebook_runtime]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("persistent_resource.name", request.persistent_resource.name),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Validate the universe domain.
@@ -1404,14 +1436,635 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            gca_persistent_resource.PersistentResource,
-            metadata_type=persistent_resource_service.UpdatePersistentResourceOperationMetadata,
+            gca_notebook_runtime.NotebookRuntime,
+            metadata_type=notebook_service.AssignNotebookRuntimeOperationMetadata,
         )
 
         # Done; return the response.
         return response
 
-    def __enter__(self) -> "PersistentResourceServiceClient":
+    def get_notebook_runtime(
+        self,
+        request: Optional[
+            Union[notebook_service.GetNotebookRuntimeRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> notebook_runtime.NotebookRuntime:
+        r"""Gets a NotebookRuntime.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_get_notebook_runtime():
+                # Create a client
+                client = aiplatform_v1.NotebookServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetNotebookRuntimeRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_notebook_runtime(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.GetNotebookRuntimeRequest, dict]):
+                The request object. Request message for
+                [NotebookService.GetNotebookRuntime][google.cloud.aiplatform.v1.NotebookService.GetNotebookRuntime]
+            name (str):
+                Required. The name of the
+                NotebookRuntime resource. Instead of
+                checking whether the name is in valid
+                NotebookRuntime resource name format,
+                directly throw NotFound exception if
+                there is no such NotebookRuntime in
+                spanner.
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.NotebookRuntime:
+                A runtime is a virtual machine
+                allocated to a particular user for a
+                particular Notebook file on temporary
+                basis with lifetime limited to 24 hours.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a notebook_service.GetNotebookRuntimeRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, notebook_service.GetNotebookRuntimeRequest):
+            request = notebook_service.GetNotebookRuntimeRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_notebook_runtime]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_notebook_runtimes(
+        self,
+        request: Optional[
+            Union[notebook_service.ListNotebookRuntimesRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListNotebookRuntimesPager:
+        r"""Lists NotebookRuntimes in a Location.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_list_notebook_runtimes():
+                # Create a client
+                client = aiplatform_v1.NotebookServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListNotebookRuntimesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_notebook_runtimes(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.ListNotebookRuntimesRequest, dict]):
+                The request object. Request message for
+                [NotebookService.ListNotebookRuntimes][google.cloud.aiplatform.v1.NotebookService.ListNotebookRuntimes].
+            parent (str):
+                Required. The resource name of the Location from which
+                to list the NotebookRuntimes. Format:
+                ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.services.notebook_service.pagers.ListNotebookRuntimesPager:
+                Response message for
+                   [NotebookService.ListNotebookRuntimes][google.cloud.aiplatform.v1.NotebookService.ListNotebookRuntimes].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a notebook_service.ListNotebookRuntimesRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, notebook_service.ListNotebookRuntimesRequest):
+            request = notebook_service.ListNotebookRuntimesRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.list_notebook_runtimes]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.ListNotebookRuntimesPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def delete_notebook_runtime(
+        self,
+        request: Optional[
+            Union[notebook_service.DeleteNotebookRuntimeRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Deletes a NotebookRuntime.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_notebook_runtime():
+                # Create a client
+                client = aiplatform_v1.NotebookServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteNotebookRuntimeRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_notebook_runtime(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.DeleteNotebookRuntimeRequest, dict]):
+                The request object. Request message for
+                [NotebookService.DeleteNotebookRuntime][google.cloud.aiplatform.v1.NotebookService.DeleteNotebookRuntime].
+            name (str):
+                Required. The name of the
+                NotebookRuntime resource to be deleted.
+                Instead of checking whether the name is
+                in valid NotebookRuntime resource name
+                format, directly throw NotFound
+                exception if there is no such
+                NotebookRuntime in spanner.
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a notebook_service.DeleteNotebookRuntimeRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, notebook_service.DeleteNotebookRuntimeRequest):
+            request = notebook_service.DeleteNotebookRuntimeRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.delete_notebook_runtime]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def upgrade_notebook_runtime(
+        self,
+        request: Optional[
+            Union[notebook_service.UpgradeNotebookRuntimeRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Upgrades a NotebookRuntime.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_upgrade_notebook_runtime():
+                # Create a client
+                client = aiplatform_v1.NotebookServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UpgradeNotebookRuntimeRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.upgrade_notebook_runtime(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.UpgradeNotebookRuntimeRequest, dict]):
+                The request object. Request message for
+                [NotebookService.UpgradeNotebookRuntime][google.cloud.aiplatform.v1.NotebookService.UpgradeNotebookRuntime].
+            name (str):
+                Required. The name of the
+                NotebookRuntime resource to be upgrade.
+                Instead of checking whether the name is
+                in valid NotebookRuntime resource name
+                format, directly throw NotFound
+                exception if there is no such
+                NotebookRuntime in spanner.
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.UpgradeNotebookRuntimeResponse` Response message for
+                   [NotebookService.UpgradeNotebookRuntime][google.cloud.aiplatform.v1.NotebookService.UpgradeNotebookRuntime].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a notebook_service.UpgradeNotebookRuntimeRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, notebook_service.UpgradeNotebookRuntimeRequest):
+            request = notebook_service.UpgradeNotebookRuntimeRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.upgrade_notebook_runtime]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            notebook_service.UpgradeNotebookRuntimeResponse,
+            metadata_type=notebook_service.UpgradeNotebookRuntimeOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def start_notebook_runtime(
+        self,
+        request: Optional[
+            Union[notebook_service.StartNotebookRuntimeRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Starts a NotebookRuntime.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_start_notebook_runtime():
+                # Create a client
+                client = aiplatform_v1.NotebookServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.StartNotebookRuntimeRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.start_notebook_runtime(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.StartNotebookRuntimeRequest, dict]):
+                The request object. Request message for
+                [NotebookService.StartNotebookRuntime][google.cloud.aiplatform.v1.NotebookService.StartNotebookRuntime].
+            name (str):
+                Required. The name of the
+                NotebookRuntime resource to be started.
+                Instead of checking whether the name is
+                in valid NotebookRuntime resource name
+                format, directly throw NotFound
+                exception if there is no such
+                NotebookRuntime in spanner.
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.StartNotebookRuntimeResponse` Response message for
+                   [NotebookService.StartNotebookRuntime][google.cloud.aiplatform.v1.NotebookService.StartNotebookRuntime].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a notebook_service.StartNotebookRuntimeRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, notebook_service.StartNotebookRuntimeRequest):
+            request = notebook_service.StartNotebookRuntimeRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.start_notebook_runtime]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            notebook_service.StartNotebookRuntimeResponse,
+            metadata_type=notebook_service.StartNotebookRuntimeOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def __enter__(self) -> "NotebookServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -2145,4 +2798,4 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
 )
 
 
-__all__ = ("PersistentResourceServiceClient",)
+__all__ = ("NotebookServiceClient",)
