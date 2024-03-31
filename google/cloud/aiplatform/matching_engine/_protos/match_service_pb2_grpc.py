@@ -20,6 +20,7 @@ import grpc
 
 from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
 
+
 class MatchServiceStub(object):
     """MatchService is a Google managed service for efficient vector similarity
     search at scale.
