@@ -3519,6 +3519,11 @@
                 "list_persistent_resources"
               ]
             },
+            "RebootPersistentResource": {
+              "methods": [
+                "reboot_persistent_resource"
+              ]
+            },
             "UpdatePersistentResource": {
               "methods": [
                 "update_persistent_resource"
@@ -3549,6 +3554,11 @@
                 "list_persistent_resources"
               ]
             },
+            "RebootPersistentResource": {
+              "methods": [
+                "reboot_persistent_resource"
+              ]
+            },
             "UpdatePersistentResource": {
               "methods": [
                 "update_persistent_resource"
@@ -3577,6 +3587,11 @@
             "ListPersistentResources": {
               "methods": [
                 "list_persistent_resources"
+              ]
+            },
+            "RebootPersistentResource": {
+              "methods": [
+                "reboot_persistent_resource"
               ]
             },
             "UpdatePersistentResource": {

@@ -396,6 +396,35 @@ class PersistentResourceServiceGrpcTransport(PersistentResourceServiceTransport)
             )
         return self._stubs["update_persistent_resource"]
 
+    @property
+    def reboot_persistent_resource(
+        self,
+    ) -> Callable[
+        [persistent_resource_service.RebootPersistentResourceRequest],
+        operations_pb2.Operation,
+    ]:
+        r"""Return a callable for the reboot persistent resource method over gRPC.
+
+        Reboots a PersistentResource.
+
+        Returns:
+            Callable[[~.RebootPersistentResourceRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "reboot_persistent_resource" not in self._stubs:
+            self._stubs["reboot_persistent_resource"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PersistentResourceService/RebootPersistentResource",
+                request_serializer=persistent_resource_service.RebootPersistentResourceRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["reboot_persistent_resource"]
+
     def close(self):
         self.grpc_channel.close()
 

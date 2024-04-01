@@ -16,31 +16,32 @@
 import abc
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Union
 
-from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 import google.auth  # type: ignore
 import google.api_core
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
-from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import persistent_resource
-from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
+from google.cloud.aiplatform_v1.types import genai_tuning_service
+from google.cloud.aiplatform_v1.types import tuning_job
+from google.cloud.aiplatform_v1.types import tuning_job as gca_tuning_job
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
 
 
-class PersistentResourceServiceTransport(abc.ABC):
-    """Abstract transport class for PersistentResourceService."""
+class GenAiTuningServiceTransport(abc.ABC):
+    """Abstract transport class for GenAiTuningService."""
 
     AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
@@ -133,33 +134,23 @@ class PersistentResourceServiceTransport(abc.ABC):
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
-            self.create_persistent_resource: gapic_v1.method.wrap_method(
-                self.create_persistent_resource,
+            self.create_tuning_job: gapic_v1.method.wrap_method(
+                self.create_tuning_job,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.get_persistent_resource: gapic_v1.method.wrap_method(
-                self.get_persistent_resource,
+            self.get_tuning_job: gapic_v1.method.wrap_method(
+                self.get_tuning_job,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.list_persistent_resources: gapic_v1.method.wrap_method(
-                self.list_persistent_resources,
+            self.list_tuning_jobs: gapic_v1.method.wrap_method(
+                self.list_tuning_jobs,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.delete_persistent_resource: gapic_v1.method.wrap_method(
-                self.delete_persistent_resource,
-                default_timeout=None,
-                client_info=client_info,
-            ),
-            self.update_persistent_resource: gapic_v1.method.wrap_method(
-                self.update_persistent_resource,
-                default_timeout=None,
-                client_info=client_info,
-            ),
-            self.reboot_persistent_resource: gapic_v1.method.wrap_method(
-                self.reboot_persistent_resource,
+            self.cancel_tuning_job: gapic_v1.method.wrap_method(
+                self.cancel_tuning_job,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -175,67 +166,41 @@ class PersistentResourceServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
-    def operations_client(self):
-        """Return the client designed to process long-running operations."""
-        raise NotImplementedError()
-
-    @property
-    def create_persistent_resource(
+    def create_tuning_job(
         self,
     ) -> Callable[
-        [persistent_resource_service.CreatePersistentResourceRequest],
-        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+        [genai_tuning_service.CreateTuningJobRequest],
+        Union[gca_tuning_job.TuningJob, Awaitable[gca_tuning_job.TuningJob]],
     ]:
         raise NotImplementedError()
 
     @property
-    def get_persistent_resource(
+    def get_tuning_job(
         self,
     ) -> Callable[
-        [persistent_resource_service.GetPersistentResourceRequest],
+        [genai_tuning_service.GetTuningJobRequest],
+        Union[tuning_job.TuningJob, Awaitable[tuning_job.TuningJob]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_tuning_jobs(
+        self,
+    ) -> Callable[
+        [genai_tuning_service.ListTuningJobsRequest],
         Union[
-            persistent_resource.PersistentResource,
-            Awaitable[persistent_resource.PersistentResource],
+            genai_tuning_service.ListTuningJobsResponse,
+            Awaitable[genai_tuning_service.ListTuningJobsResponse],
         ],
     ]:
         raise NotImplementedError()
 
     @property
-    def list_persistent_resources(
+    def cancel_tuning_job(
         self,
     ) -> Callable[
-        [persistent_resource_service.ListPersistentResourcesRequest],
-        Union[
-            persistent_resource_service.ListPersistentResourcesResponse,
-            Awaitable[persistent_resource_service.ListPersistentResourcesResponse],
-        ],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def delete_persistent_resource(
-        self,
-    ) -> Callable[
-        [persistent_resource_service.DeletePersistentResourceRequest],
-        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def update_persistent_resource(
-        self,
-    ) -> Callable[
-        [persistent_resource_service.UpdatePersistentResourceRequest],
-        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def reboot_persistent_resource(
-        self,
-    ) -> Callable[
-        [persistent_resource_service.RebootPersistentResourceRequest],
-        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+        [genai_tuning_service.CancelTuningJobRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
     ]:
         raise NotImplementedError()
 
@@ -337,4 +302,4 @@ class PersistentResourceServiceTransport(abc.ABC):
         raise NotImplementedError()
 
 
-__all__ = ("PersistentResourceServiceTransport",)
+__all__ = ("GenAiTuningServiceTransport",)

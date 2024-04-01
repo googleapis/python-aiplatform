@@ -14,32 +14,31 @@
 # limitations under the License.
 #
 import warnings
-from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
+from google.api_core import grpc_helpers
 from google.api_core import gapic_v1
-from google.api_core import grpc_helpers_async
-from google.api_core import operations_v1
+import google.auth  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
-from grpc.experimental import aio  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import persistent_resource
-from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
+from google.cloud.aiplatform_v1.types import genai_tuning_service
+from google.cloud.aiplatform_v1.types import tuning_job
+from google.cloud.aiplatform_v1.types import tuning_job as gca_tuning_job
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from .base import PersistentResourceServiceTransport, DEFAULT_CLIENT_INFO
-from .grpc import PersistentResourceServiceGrpcTransport
+from google.protobuf import empty_pb2  # type: ignore
+from .base import GenAiTuningServiceTransport, DEFAULT_CLIENT_INFO
 
 
-class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTransport):
-    """gRPC AsyncIO backend transport for PersistentResourceService.
+class GenAiTuningServiceGrpcTransport(GenAiTuningServiceTransport):
+    """gRPC backend transport for GenAiTuningService.
 
-    A service for managing Vertex AI's machine learning
-    PersistentResource.
+    A service for creating and managing GenAI Tuning Jobs.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
@@ -49,51 +48,7 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
 
-    _grpc_channel: aio.Channel
-    _stubs: Dict[str, Callable] = {}
-
-    @classmethod
-    def create_channel(
-        cls,
-        host: str = "aiplatform.googleapis.com",
-        credentials: Optional[ga_credentials.Credentials] = None,
-        credentials_file: Optional[str] = None,
-        scopes: Optional[Sequence[str]] = None,
-        quota_project_id: Optional[str] = None,
-        **kwargs,
-    ) -> aio.Channel:
-        """Create and return a gRPC AsyncIO channel object.
-        Args:
-            host (Optional[str]): The host for the channel to use.
-            credentials (Optional[~.Credentials]): The
-                authorization credentials to attach to requests. These
-                credentials identify this application to the service. If
-                none are specified, the client will attempt to ascertain
-                the credentials from the environment.
-            credentials_file (Optional[str]): A file with credentials that can
-                be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is ignored if ``channel`` is provided.
-            scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
-                service. These are only used when credentials are not specified and
-                are passed to :func:`google.auth.default`.
-            quota_project_id (Optional[str]): An optional project to use for billing
-                and quota.
-            kwargs (Optional[dict]): Keyword arguments, which are passed to the
-                channel creation.
-        Returns:
-            aio.Channel: A gRPC AsyncIO channel object.
-        """
-
-        return grpc_helpers_async.create_channel(
-            host,
-            credentials=credentials,
-            credentials_file=credentials_file,
-            quota_project_id=quota_project_id,
-            default_scopes=cls.AUTH_SCOPES,
-            scopes=scopes,
-            default_host=cls.DEFAULT_HOST,
-            **kwargs,
-        )
+    _stubs: Dict[str, Callable]
 
     def __init__(
         self,
@@ -102,7 +57,7 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
         credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
-        channel: Optional[aio.Channel] = None,
+        channel: Optional[grpc.Channel] = None,
         api_mtls_endpoint: Optional[str] = None,
         client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
         ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
@@ -126,10 +81,9 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
             credentials_file (Optional[str]): A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
                 This argument is ignored if ``channel`` is provided.
-            scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
-                service. These are only used when credentials are not specified and
-                are passed to :func:`google.auth.default`.
-            channel (Optional[aio.Channel]): A ``Channel`` instance through
+            scopes (Optional(Sequence[str])): A list of scopes. This argument is
+                ignored if ``channel`` is provided.
+            channel (Optional[grpc.Channel]): A ``Channel`` instance through
                 which to make calls.
             api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
                 If provided, it overrides the ``host`` argument and tries to create
@@ -156,7 +110,7 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
                 be used for service account credentials.
 
         Raises:
-            google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
+          google.auth.exceptions.MutualTLSChannelError: If mutual TLS transport
               creation failed for any reason.
           google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
@@ -164,7 +118,6 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
         self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
         self._stubs: Dict[str, Callable] = {}
-        self._operations_client: Optional[operations_v1.OperationsAsyncClient] = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -177,6 +130,7 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
+
         else:
             if api_mtls_endpoint:
                 host = api_mtls_endpoint
@@ -230,46 +184,72 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
         # Wrap messages. This must be done after self._grpc_channel exists
         self._prep_wrapped_messages(client_info)
 
-    @property
-    def grpc_channel(self) -> aio.Channel:
-        """Create the channel designed to connect to this service.
+    @classmethod
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        **kwargs,
+    ) -> grpc.Channel:
+        """Create and return a gRPC channel object.
+        Args:
+            host (Optional[str]): The host for the channel to use.
+            credentials (Optional[~.Credentials]): The
+                authorization credentials to attach to requests. These
+                credentials identify this application to the service. If
+                none are specified, the client will attempt to ascertain
+                the credentials from the environment.
+            credentials_file (Optional[str]): A file with credentials that can
+                be loaded with :func:`google.auth.load_credentials_from_file`.
+                This argument is mutually exclusive with credentials.
+            scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
+                service. These are only used when credentials are not specified and
+                are passed to :func:`google.auth.default`.
+            quota_project_id (Optional[str]): An optional project to use for billing
+                and quota.
+            kwargs (Optional[dict]): Keyword arguments, which are passed to the
+                channel creation.
+        Returns:
+            grpc.Channel: A gRPC channel object.
 
-        This property caches on the instance; repeated calls return
-        the same channel.
+        Raises:
+            google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
+              and ``credentials_file`` are passed.
         """
-        # Return the channel from cache.
+
+        return grpc_helpers.create_channel(
+            host,
+            credentials=credentials,
+            credentials_file=credentials_file,
+            quota_project_id=quota_project_id,
+            default_scopes=cls.AUTH_SCOPES,
+            scopes=scopes,
+            default_host=cls.DEFAULT_HOST,
+            **kwargs,
+        )
+
+    @property
+    def grpc_channel(self) -> grpc.Channel:
+        """Return the channel designed to connect to this service."""
         return self._grpc_channel
 
     @property
-    def operations_client(self) -> operations_v1.OperationsAsyncClient:
-        """Create the client designed to process long-running operations.
-
-        This property caches on the instance; repeated calls return the same
-        client.
-        """
-        # Quick check: Only create a new client if we do not already have one.
-        if self._operations_client is None:
-            self._operations_client = operations_v1.OperationsAsyncClient(
-                self.grpc_channel
-            )
-
-        # Return the client from cache.
-        return self._operations_client
-
-    @property
-    def create_persistent_resource(
+    def create_tuning_job(
         self,
     ) -> Callable[
-        [persistent_resource_service.CreatePersistentResourceRequest],
-        Awaitable[operations_pb2.Operation],
+        [genai_tuning_service.CreateTuningJobRequest], gca_tuning_job.TuningJob
     ]:
-        r"""Return a callable for the create persistent resource method over gRPC.
+        r"""Return a callable for the create tuning job method over gRPC.
 
-        Creates a PersistentResource.
+        Creates a TuningJob. A created TuningJob right away
+        will be attempted to be run.
 
         Returns:
-            Callable[[~.CreatePersistentResourceRequest],
-                    Awaitable[~.Operation]]:
+            Callable[[~.CreateTuningJobRequest],
+                    ~.TuningJob]:
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
@@ -277,28 +257,25 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "create_persistent_resource" not in self._stubs:
-            self._stubs["create_persistent_resource"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PersistentResourceService/CreatePersistentResource",
-                request_serializer=persistent_resource_service.CreatePersistentResourceRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+        if "create_tuning_job" not in self._stubs:
+            self._stubs["create_tuning_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.GenAiTuningService/CreateTuningJob",
+                request_serializer=genai_tuning_service.CreateTuningJobRequest.serialize,
+                response_deserializer=gca_tuning_job.TuningJob.deserialize,
             )
-        return self._stubs["create_persistent_resource"]
+        return self._stubs["create_tuning_job"]
 
     @property
-    def get_persistent_resource(
+    def get_tuning_job(
         self,
-    ) -> Callable[
-        [persistent_resource_service.GetPersistentResourceRequest],
-        Awaitable[persistent_resource.PersistentResource],
-    ]:
-        r"""Return a callable for the get persistent resource method over gRPC.
+    ) -> Callable[[genai_tuning_service.GetTuningJobRequest], tuning_job.TuningJob]:
+        r"""Return a callable for the get tuning job method over gRPC.
 
-        Gets a PersistentResource.
+        Gets a TuningJob.
 
         Returns:
-            Callable[[~.GetPersistentResourceRequest],
-                    Awaitable[~.PersistentResource]]:
+            Callable[[~.GetTuningJobRequest],
+                    ~.TuningJob]:
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
@@ -306,28 +283,28 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "get_persistent_resource" not in self._stubs:
-            self._stubs["get_persistent_resource"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PersistentResourceService/GetPersistentResource",
-                request_serializer=persistent_resource_service.GetPersistentResourceRequest.serialize,
-                response_deserializer=persistent_resource.PersistentResource.deserialize,
+        if "get_tuning_job" not in self._stubs:
+            self._stubs["get_tuning_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.GenAiTuningService/GetTuningJob",
+                request_serializer=genai_tuning_service.GetTuningJobRequest.serialize,
+                response_deserializer=tuning_job.TuningJob.deserialize,
             )
-        return self._stubs["get_persistent_resource"]
+        return self._stubs["get_tuning_job"]
 
     @property
-    def list_persistent_resources(
+    def list_tuning_jobs(
         self,
     ) -> Callable[
-        [persistent_resource_service.ListPersistentResourcesRequest],
-        Awaitable[persistent_resource_service.ListPersistentResourcesResponse],
+        [genai_tuning_service.ListTuningJobsRequest],
+        genai_tuning_service.ListTuningJobsResponse,
     ]:
-        r"""Return a callable for the list persistent resources method over gRPC.
+        r"""Return a callable for the list tuning jobs method over gRPC.
 
-        Lists PersistentResources in a Location.
+        Lists TuningJobs in a Location.
 
         Returns:
-            Callable[[~.ListPersistentResourcesRequest],
-                    Awaitable[~.ListPersistentResourcesResponse]]:
+            Callable[[~.ListTuningJobsRequest],
+                    ~.ListTuningJobsResponse]:
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
@@ -335,28 +312,37 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "list_persistent_resources" not in self._stubs:
-            self._stubs["list_persistent_resources"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PersistentResourceService/ListPersistentResources",
-                request_serializer=persistent_resource_service.ListPersistentResourcesRequest.serialize,
-                response_deserializer=persistent_resource_service.ListPersistentResourcesResponse.deserialize,
+        if "list_tuning_jobs" not in self._stubs:
+            self._stubs["list_tuning_jobs"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.GenAiTuningService/ListTuningJobs",
+                request_serializer=genai_tuning_service.ListTuningJobsRequest.serialize,
+                response_deserializer=genai_tuning_service.ListTuningJobsResponse.deserialize,
             )
-        return self._stubs["list_persistent_resources"]
+        return self._stubs["list_tuning_jobs"]
 
     @property
-    def delete_persistent_resource(
+    def cancel_tuning_job(
         self,
-    ) -> Callable[
-        [persistent_resource_service.DeletePersistentResourceRequest],
-        Awaitable[operations_pb2.Operation],
-    ]:
-        r"""Return a callable for the delete persistent resource method over gRPC.
+    ) -> Callable[[genai_tuning_service.CancelTuningJobRequest], empty_pb2.Empty]:
+        r"""Return a callable for the cancel tuning job method over gRPC.
 
-        Deletes a PersistentResource.
+        Cancels a TuningJob. Starts asynchronous cancellation on the
+        TuningJob. The server makes a best effort to cancel the job, but
+        success is not guaranteed. Clients can use
+        [GenAiTuningService.GetTuningJob][google.cloud.aiplatform.v1.GenAiTuningService.GetTuningJob]
+        or other methods to check whether the cancellation succeeded or
+        whether the job completed despite cancellation. On successful
+        cancellation, the TuningJob is not deleted; instead it becomes a
+        job with a
+        [TuningJob.error][google.cloud.aiplatform.v1.TuningJob.error]
+        value with a [google.rpc.Status.code][google.rpc.Status.code] of
+        1, corresponding to ``Code.CANCELLED``, and
+        [TuningJob.state][google.cloud.aiplatform.v1.TuningJob.state] is
+        set to ``CANCELLED``.
 
         Returns:
-            Callable[[~.DeletePersistentResourceRequest],
-                    Awaitable[~.Operation]]:
+            Callable[[~.CancelTuningJobRequest],
+                    ~.Empty]:
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
@@ -364,74 +350,16 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "delete_persistent_resource" not in self._stubs:
-            self._stubs["delete_persistent_resource"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PersistentResourceService/DeletePersistentResource",
-                request_serializer=persistent_resource_service.DeletePersistentResourceRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+        if "cancel_tuning_job" not in self._stubs:
+            self._stubs["cancel_tuning_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.GenAiTuningService/CancelTuningJob",
+                request_serializer=genai_tuning_service.CancelTuningJobRequest.serialize,
+                response_deserializer=empty_pb2.Empty.FromString,
             )
-        return self._stubs["delete_persistent_resource"]
-
-    @property
-    def update_persistent_resource(
-        self,
-    ) -> Callable[
-        [persistent_resource_service.UpdatePersistentResourceRequest],
-        Awaitable[operations_pb2.Operation],
-    ]:
-        r"""Return a callable for the update persistent resource method over gRPC.
-
-        Updates a PersistentResource.
-
-        Returns:
-            Callable[[~.UpdatePersistentResourceRequest],
-                    Awaitable[~.Operation]]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "update_persistent_resource" not in self._stubs:
-            self._stubs["update_persistent_resource"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PersistentResourceService/UpdatePersistentResource",
-                request_serializer=persistent_resource_service.UpdatePersistentResourceRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
-            )
-        return self._stubs["update_persistent_resource"]
-
-    @property
-    def reboot_persistent_resource(
-        self,
-    ) -> Callable[
-        [persistent_resource_service.RebootPersistentResourceRequest],
-        Awaitable[operations_pb2.Operation],
-    ]:
-        r"""Return a callable for the reboot persistent resource method over gRPC.
-
-        Reboots a PersistentResource.
-
-        Returns:
-            Callable[[~.RebootPersistentResourceRequest],
-                    Awaitable[~.Operation]]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "reboot_persistent_resource" not in self._stubs:
-            self._stubs["reboot_persistent_resource"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PersistentResourceService/RebootPersistentResource",
-                request_serializer=persistent_resource_service.RebootPersistentResourceRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
-            )
-        return self._stubs["reboot_persistent_resource"]
+        return self._stubs["cancel_tuning_job"]
 
     def close(self):
-        return self.grpc_channel.close()
+        self.grpc_channel.close()
 
     @property
     def delete_operation(
@@ -636,5 +564,9 @@ class PersistentResourceServiceGrpcAsyncIOTransport(PersistentResourceServiceTra
             )
         return self._stubs["test_iam_permissions"]
 
+    @property
+    def kind(self) -> str:
+        return "grpc"
 
-__all__ = ("PersistentResourceServiceGrpcAsyncIOTransport",)
+
+__all__ = ("GenAiTuningServiceGrpcTransport",)
