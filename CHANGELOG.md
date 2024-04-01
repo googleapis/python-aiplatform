@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.46.0](https://github.com/googleapis/python-aiplatform/compare/v1.45.0...v1.46.0) (2024-03-30)
+
+
+### Features
+
+* GenAI - Automatic Function Calling feature ([eef84c6](https://github.com/googleapis/python-aiplatform/commit/eef84c6a694ee848d19d8eab8f1a4940e50d4b0d))
+* Python SDK for Vertex Feature Store. ([5015d25](https://github.com/googleapis/python-aiplatform/commit/5015d25c5efdb9ba0a01bc60441f7eb8d5fddc52))
+
 ## [1.45.0](https://github.com/googleapis/python-aiplatform/compare/v1.44.0...v1.45.0) (2024-03-28)
 
 
