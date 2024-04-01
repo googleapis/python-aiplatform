@@ -3448,6 +3448,7 @@ _TUNED_MODEL_LOCATIONS = _SUPPORTED_LOCATIONS
 _SUPPORTED_RLHF_MODELS = {
     "text-bison@001",
     "chat-bison@001",
+    "text-bison@002",
 }
 
 
