@@ -28,6 +28,12 @@ from .services.deployment_resource_pool_service import (
 )
 from .services.endpoint_service import EndpointServiceClient
 from .services.endpoint_service import EndpointServiceAsyncClient
+from .services.evaluation_service import EvaluationServiceClient
+from .services.evaluation_service import EvaluationServiceAsyncClient
+from .services.extension_execution_service import ExtensionExecutionServiceClient
+from .services.extension_execution_service import ExtensionExecutionServiceAsyncClient
+from .services.extension_registry_service import ExtensionRegistryServiceClient
+from .services.extension_registry_service import ExtensionRegistryServiceAsyncClient
 from .services.feature_online_store_admin_service import (
     FeatureOnlineStoreAdminServiceClient,
 )
@@ -64,6 +70,8 @@ from .services.model_garden_service import ModelGardenServiceClient
 from .services.model_garden_service import ModelGardenServiceAsyncClient
 from .services.model_service import ModelServiceClient
 from .services.model_service import ModelServiceAsyncClient
+from .services.notebook_service import NotebookServiceClient
+from .services.notebook_service import NotebookServiceAsyncClient
 from .services.persistent_resource_service import PersistentResourceServiceClient
 from .services.persistent_resource_service import PersistentResourceServiceAsyncClient
 from .services.pipeline_service import PipelineServiceClient
@@ -84,6 +92,10 @@ from .services.specialist_pool_service import SpecialistPoolServiceClient
 from .services.specialist_pool_service import SpecialistPoolServiceAsyncClient
 from .services.tensorboard_service import TensorboardServiceClient
 from .services.tensorboard_service import TensorboardServiceAsyncClient
+from .services.vertex_rag_data_service import VertexRagDataServiceClient
+from .services.vertex_rag_data_service import VertexRagDataServiceAsyncClient
+from .services.vertex_rag_service import VertexRagServiceClient
+from .services.vertex_rag_service import VertexRagServiceAsyncClient
 from .services.vizier_service import VizierServiceClient
 from .services.vizier_service import VizierServiceAsyncClient
 
@@ -199,6 +211,100 @@ from .types.env_var import EnvVar
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
+from .types.evaluation_service import BleuInput
+from .types.evaluation_service import BleuInstance
+from .types.evaluation_service import BleuMetricValue
+from .types.evaluation_service import BleuResults
+from .types.evaluation_service import BleuSpec
+from .types.evaluation_service import CoherenceInput
+from .types.evaluation_service import CoherenceInstance
+from .types.evaluation_service import CoherenceResult
+from .types.evaluation_service import CoherenceSpec
+from .types.evaluation_service import EvaluateInstancesRequest
+from .types.evaluation_service import EvaluateInstancesResponse
+from .types.evaluation_service import ExactMatchInput
+from .types.evaluation_service import ExactMatchInstance
+from .types.evaluation_service import ExactMatchMetricValue
+from .types.evaluation_service import ExactMatchResults
+from .types.evaluation_service import ExactMatchSpec
+from .types.evaluation_service import FluencyInput
+from .types.evaluation_service import FluencyInstance
+from .types.evaluation_service import FluencyResult
+from .types.evaluation_service import FluencySpec
+from .types.evaluation_service import FulfillmentInput
+from .types.evaluation_service import FulfillmentInstance
+from .types.evaluation_service import FulfillmentResult
+from .types.evaluation_service import FulfillmentSpec
+from .types.evaluation_service import GroundednessInput
+from .types.evaluation_service import GroundednessInstance
+from .types.evaluation_service import GroundednessResult
+from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import PairwiseQuestionAnsweringQualityInput
+from .types.evaluation_service import PairwiseQuestionAnsweringQualityInstance
+from .types.evaluation_service import PairwiseQuestionAnsweringQualityResult
+from .types.evaluation_service import PairwiseQuestionAnsweringQualitySpec
+from .types.evaluation_service import PairwiseSummarizationQualityInput
+from .types.evaluation_service import PairwiseSummarizationQualityInstance
+from .types.evaluation_service import PairwiseSummarizationQualityResult
+from .types.evaluation_service import PairwiseSummarizationQualitySpec
+from .types.evaluation_service import QuestionAnsweringCorrectnessInput
+from .types.evaluation_service import QuestionAnsweringCorrectnessInstance
+from .types.evaluation_service import QuestionAnsweringCorrectnessResult
+from .types.evaluation_service import QuestionAnsweringCorrectnessSpec
+from .types.evaluation_service import QuestionAnsweringHelpfulnessInput
+from .types.evaluation_service import QuestionAnsweringHelpfulnessInstance
+from .types.evaluation_service import QuestionAnsweringHelpfulnessResult
+from .types.evaluation_service import QuestionAnsweringHelpfulnessSpec
+from .types.evaluation_service import QuestionAnsweringQualityInput
+from .types.evaluation_service import QuestionAnsweringQualityInstance
+from .types.evaluation_service import QuestionAnsweringQualityResult
+from .types.evaluation_service import QuestionAnsweringQualitySpec
+from .types.evaluation_service import QuestionAnsweringRelevanceInput
+from .types.evaluation_service import QuestionAnsweringRelevanceInstance
+from .types.evaluation_service import QuestionAnsweringRelevanceResult
+from .types.evaluation_service import QuestionAnsweringRelevanceSpec
+from .types.evaluation_service import RougeInput
+from .types.evaluation_service import RougeInstance
+from .types.evaluation_service import RougeMetricValue
+from .types.evaluation_service import RougeResults
+from .types.evaluation_service import RougeSpec
+from .types.evaluation_service import SafetyInput
+from .types.evaluation_service import SafetyInstance
+from .types.evaluation_service import SafetyResult
+from .types.evaluation_service import SafetySpec
+from .types.evaluation_service import SummarizationHelpfulnessInput
+from .types.evaluation_service import SummarizationHelpfulnessInstance
+from .types.evaluation_service import SummarizationHelpfulnessResult
+from .types.evaluation_service import SummarizationHelpfulnessSpec
+from .types.evaluation_service import SummarizationQualityInput
+from .types.evaluation_service import SummarizationQualityInstance
+from .types.evaluation_service import SummarizationQualityResult
+from .types.evaluation_service import SummarizationQualitySpec
+from .types.evaluation_service import SummarizationVerbosityInput
+from .types.evaluation_service import SummarizationVerbosityInstance
+from .types.evaluation_service import SummarizationVerbosityResult
+from .types.evaluation_service import SummarizationVerbositySpec
+from .types.evaluation_service import ToolCallValidInput
+from .types.evaluation_service import ToolCallValidInstance
+from .types.evaluation_service import ToolCallValidMetricValue
+from .types.evaluation_service import ToolCallValidResults
+from .types.evaluation_service import ToolCallValidSpec
+from .types.evaluation_service import ToolNameMatchInput
+from .types.evaluation_service import ToolNameMatchInstance
+from .types.evaluation_service import ToolNameMatchMetricValue
+from .types.evaluation_service import ToolNameMatchResults
+from .types.evaluation_service import ToolNameMatchSpec
+from .types.evaluation_service import ToolParameterKeyMatchInput
+from .types.evaluation_service import ToolParameterKeyMatchInstance
+from .types.evaluation_service import ToolParameterKeyMatchMetricValue
+from .types.evaluation_service import ToolParameterKeyMatchResults
+from .types.evaluation_service import ToolParameterKeyMatchSpec
+from .types.evaluation_service import ToolParameterKVMatchInput
+from .types.evaluation_service import ToolParameterKVMatchInstance
+from .types.evaluation_service import ToolParameterKVMatchMetricValue
+from .types.evaluation_service import ToolParameterKVMatchResults
+from .types.evaluation_service import ToolParameterKVMatchSpec
+from .types.evaluation_service import PairwiseChoice
 from .types.event import Event
 from .types.execution import Execution
 from .types.explanation import Attribution
@@ -220,6 +326,25 @@ from .types.explanation import SampledShapleyAttribution
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
 from .types.explanation_metadata import ExplanationMetadata
+from .types.extension import AuthConfig
+from .types.extension import Extension
+from .types.extension import ExtensionManifest
+from .types.extension import ExtensionOperation
+from .types.extension import ExtensionPrivateServiceConnectConfig
+from .types.extension import RuntimeConfig
+from .types.extension import AuthType
+from .types.extension import HttpElementLocation
+from .types.extension_execution_service import ExecuteExtensionRequest
+from .types.extension_execution_service import ExecuteExtensionResponse
+from .types.extension_execution_service import QueryExtensionRequest
+from .types.extension_execution_service import QueryExtensionResponse
+from .types.extension_registry_service import DeleteExtensionRequest
+from .types.extension_registry_service import GetExtensionRequest
+from .types.extension_registry_service import ImportExtensionOperationMetadata
+from .types.extension_registry_service import ImportExtensionRequest
+from .types.extension_registry_service import ListExtensionsRequest
+from .types.extension_registry_service import ListExtensionsResponse
+from .types.extension_registry_service import UpdateExtensionRequest
 from .types.feature import Feature
 from .types.feature_group import FeatureGroup
 from .types.feature_monitoring_stats import FeatureStatsAnomaly
@@ -368,8 +493,10 @@ from .types.io import BigQuerySource
 from .types.io import ContainerRegistryDestination
 from .types.io import CsvDestination
 from .types.io import CsvSource
+from .types.io import DirectUploadSource
 from .types.io import GcsDestination
 from .types.io import GcsSource
+from .types.io import GoogleDriveSource
 from .types.io import TFRecordDestination
 from .types.job_service import CancelBatchPredictionJobRequest
 from .types.job_service import CancelCustomJobRequest
@@ -429,6 +556,7 @@ from .types.machine_resources import MachineSpec
 from .types.machine_resources import NfsMount
 from .types.machine_resources import PersistentDiskSpec
 from .types.machine_resources import ResourcesConsumed
+from .types.machine_resources import ShieldedVmConfig
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
 from .types.match_service import FindNeighborsRequest
 from .types.match_service import FindNeighborsResponse
@@ -564,6 +692,31 @@ from .types.nas_job import NasJobOutput
 from .types.nas_job import NasJobSpec
 from .types.nas_job import NasTrial
 from .types.nas_job import NasTrialDetail
+from .types.network_spec import NetworkSpec
+from .types.notebook_euc_config import NotebookEucConfig
+from .types.notebook_idle_shutdown_config import NotebookIdleShutdownConfig
+from .types.notebook_runtime import NotebookRuntime
+from .types.notebook_runtime import NotebookRuntimeTemplate
+from .types.notebook_runtime import NotebookRuntimeType
+from .types.notebook_runtime_template_ref import NotebookRuntimeTemplateRef
+from .types.notebook_service import AssignNotebookRuntimeOperationMetadata
+from .types.notebook_service import AssignNotebookRuntimeRequest
+from .types.notebook_service import CreateNotebookRuntimeTemplateOperationMetadata
+from .types.notebook_service import CreateNotebookRuntimeTemplateRequest
+from .types.notebook_service import DeleteNotebookRuntimeRequest
+from .types.notebook_service import DeleteNotebookRuntimeTemplateRequest
+from .types.notebook_service import GetNotebookRuntimeRequest
+from .types.notebook_service import GetNotebookRuntimeTemplateRequest
+from .types.notebook_service import ListNotebookRuntimesRequest
+from .types.notebook_service import ListNotebookRuntimesResponse
+from .types.notebook_service import ListNotebookRuntimeTemplatesRequest
+from .types.notebook_service import ListNotebookRuntimeTemplatesResponse
+from .types.notebook_service import StartNotebookRuntimeOperationMetadata
+from .types.notebook_service import StartNotebookRuntimeRequest
+from .types.notebook_service import StartNotebookRuntimeResponse
+from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
+from .types.notebook_service import UpgradeNotebookRuntimeRequest
+from .types.notebook_service import UpgradeNotebookRuntimeResponse
 from .types.openapi import Schema
 from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
@@ -607,6 +760,7 @@ from .types.pipeline_service import ListPipelineJobsResponse
 from .types.pipeline_service import ListTrainingPipelinesRequest
 from .types.pipeline_service import ListTrainingPipelinesResponse
 from .types.pipeline_state import PipelineState
+from .types.prediction_service import ChatCompletionsRequest
 from .types.prediction_service import CountTokensRequest
 from .types.prediction_service import CountTokensResponse
 from .types.prediction_service import DirectPredictRequest
@@ -730,7 +884,9 @@ from .types.tool import GoogleSearchRetrieval
 from .types.tool import Retrieval
 from .types.tool import Tool
 from .types.tool import ToolConfig
+from .types.tool import ToolUseExample
 from .types.tool import VertexAISearch
+from .types.tool import VertexRagStore
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
 from .types.training_pipeline import InputDataConfig
@@ -746,6 +902,30 @@ from .types.types import Tensor
 from .types.unmanaged_container_model import UnmanagedContainerModel
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
+from .types.vertex_rag_data import ImportRagFilesConfig
+from .types.vertex_rag_data import RagCorpus
+from .types.vertex_rag_data import RagFile
+from .types.vertex_rag_data import RagFileChunkingConfig
+from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
+from .types.vertex_rag_data_service import CreateRagCorpusRequest
+from .types.vertex_rag_data_service import DeleteRagCorpusRequest
+from .types.vertex_rag_data_service import DeleteRagFileRequest
+from .types.vertex_rag_data_service import GetRagCorpusRequest
+from .types.vertex_rag_data_service import GetRagFileRequest
+from .types.vertex_rag_data_service import ImportRagFilesOperationMetadata
+from .types.vertex_rag_data_service import ImportRagFilesRequest
+from .types.vertex_rag_data_service import ImportRagFilesResponse
+from .types.vertex_rag_data_service import ListRagCorporaRequest
+from .types.vertex_rag_data_service import ListRagCorporaResponse
+from .types.vertex_rag_data_service import ListRagFilesRequest
+from .types.vertex_rag_data_service import ListRagFilesResponse
+from .types.vertex_rag_data_service import UploadRagFileRequest
+from .types.vertex_rag_data_service import UploadRagFileResponse
+from .types.vertex_rag_service import RagContexts
+from .types.vertex_rag_service import RagQuery
+from .types.vertex_rag_service import RetrieveContextsRequest
+from .types.vertex_rag_service import RetrieveContextsResponse
 from .types.vizier_service import AddTrialMeasurementRequest
 from .types.vizier_service import CheckTrialEarlyStoppingStateMetatdata
 from .types.vizier_service import CheckTrialEarlyStoppingStateRequest
@@ -773,6 +953,9 @@ __all__ = (
     "DatasetServiceAsyncClient",
     "DeploymentResourcePoolServiceAsyncClient",
     "EndpointServiceAsyncClient",
+    "EvaluationServiceAsyncClient",
+    "ExtensionExecutionServiceAsyncClient",
+    "ExtensionRegistryServiceAsyncClient",
     "FeatureOnlineStoreAdminServiceAsyncClient",
     "FeatureOnlineStoreServiceAsyncClient",
     "FeatureRegistryServiceAsyncClient",
@@ -787,6 +970,7 @@ __all__ = (
     "MigrationServiceAsyncClient",
     "ModelGardenServiceAsyncClient",
     "ModelServiceAsyncClient",
+    "NotebookServiceAsyncClient",
     "PersistentResourceServiceAsyncClient",
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
@@ -795,6 +979,8 @@ __all__ = (
     "ScheduleServiceAsyncClient",
     "SpecialistPoolServiceAsyncClient",
     "TensorboardServiceAsyncClient",
+    "VertexRagDataServiceAsyncClient",
+    "VertexRagServiceAsyncClient",
     "VizierServiceAsyncClient",
     "AcceleratorType",
     "ActiveLearningConfig",
@@ -808,7 +994,11 @@ __all__ = (
     "Annotation",
     "AnnotationSpec",
     "Artifact",
+    "AssignNotebookRuntimeOperationMetadata",
+    "AssignNotebookRuntimeRequest",
     "Attribution",
+    "AuthConfig",
+    "AuthType",
     "AutomaticResources",
     "AutoscalingMetricSpec",
     "AvroSource",
@@ -840,6 +1030,11 @@ __all__ = (
     "BatchReadTensorboardTimeSeriesDataResponse",
     "BigQueryDestination",
     "BigQuerySource",
+    "BleuInput",
+    "BleuInstance",
+    "BleuMetricValue",
+    "BleuResults",
+    "BleuSpec",
     "Blob",
     "BlurBaselineConfig",
     "BoolArray",
@@ -851,11 +1046,16 @@ __all__ = (
     "CancelPipelineJobRequest",
     "CancelTrainingPipelineRequest",
     "Candidate",
+    "ChatCompletionsRequest",
     "CheckTrialEarlyStoppingStateMetatdata",
     "CheckTrialEarlyStoppingStateRequest",
     "CheckTrialEarlyStoppingStateResponse",
     "Citation",
     "CitationMetadata",
+    "CoherenceInput",
+    "CoherenceInstance",
+    "CoherenceResult",
+    "CoherenceSpec",
     "CompleteTrialRequest",
     "CompletionStats",
     "ComputeTokensRequest",
@@ -905,9 +1105,13 @@ __all__ = (
     "CreateMetadataStoreRequest",
     "CreateModelDeploymentMonitoringJobRequest",
     "CreateNasJobRequest",
+    "CreateNotebookRuntimeTemplateOperationMetadata",
+    "CreateNotebookRuntimeTemplateRequest",
     "CreatePersistentResourceOperationMetadata",
     "CreatePersistentResourceRequest",
     "CreatePipelineJobRequest",
+    "CreateRagCorpusOperationMetadata",
+    "CreateRagCorpusRequest",
     "CreateReasoningEngineOperationMetadata",
     "CreateReasoningEngineRequest",
     "CreateRegistryFeatureOperationMetadata",
@@ -944,6 +1148,7 @@ __all__ = (
     "DeleteEndpointRequest",
     "DeleteEntityTypeRequest",
     "DeleteExecutionRequest",
+    "DeleteExtensionRequest",
     "DeleteFeatureGroupRequest",
     "DeleteFeatureOnlineStoreRequest",
     "DeleteFeatureRequest",
@@ -961,9 +1166,13 @@ __all__ = (
     "DeleteModelRequest",
     "DeleteModelVersionRequest",
     "DeleteNasJobRequest",
+    "DeleteNotebookRuntimeRequest",
+    "DeleteNotebookRuntimeTemplateRequest",
     "DeleteOperationMetadata",
     "DeletePersistentResourceRequest",
     "DeletePipelineJobRequest",
+    "DeleteRagCorpusRequest",
+    "DeleteRagFileRequest",
     "DeleteReasoningEngineRequest",
     "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
@@ -993,6 +1202,7 @@ __all__ = (
     "DirectPredictResponse",
     "DirectRawPredictRequest",
     "DirectRawPredictResponse",
+    "DirectUploadSource",
     "DiskSpec",
     "DoubleArray",
     "EncryptionSpec",
@@ -1002,12 +1212,22 @@ __all__ = (
     "EntityType",
     "EnvVar",
     "ErrorAnalysisAnnotation",
+    "EvaluateInstancesRequest",
+    "EvaluateInstancesResponse",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
+    "EvaluationServiceClient",
     "Event",
+    "ExactMatchInput",
+    "ExactMatchInstance",
+    "ExactMatchMetricValue",
+    "ExactMatchResults",
+    "ExactMatchSpec",
     "Examples",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
+    "ExecuteExtensionRequest",
+    "ExecuteExtensionResponse",
     "Execution",
     "ExplainRequest",
     "ExplainResponse",
@@ -1030,6 +1250,12 @@ __all__ = (
     "ExportModelResponse",
     "ExportTensorboardTimeSeriesDataRequest",
     "ExportTensorboardTimeSeriesDataResponse",
+    "Extension",
+    "ExtensionExecutionServiceClient",
+    "ExtensionManifest",
+    "ExtensionOperation",
+    "ExtensionPrivateServiceConnectConfig",
+    "ExtensionRegistryServiceClient",
     "Feature",
     "FeatureGroup",
     "FeatureNoiseSigma",
@@ -1056,7 +1282,15 @@ __all__ = (
     "FilterSplit",
     "FindNeighborsRequest",
     "FindNeighborsResponse",
+    "FluencyInput",
+    "FluencyInstance",
+    "FluencyResult",
+    "FluencySpec",
     "FractionSplit",
+    "FulfillmentInput",
+    "FulfillmentInstance",
+    "FulfillmentResult",
+    "FulfillmentSpec",
     "FunctionCall",
     "FunctionCallingConfig",
     "FunctionDeclaration",
@@ -1080,6 +1314,7 @@ __all__ = (
     "GetEndpointRequest",
     "GetEntityTypeRequest",
     "GetExecutionRequest",
+    "GetExtensionRequest",
     "GetFeatureGroupRequest",
     "GetFeatureOnlineStoreRequest",
     "GetFeatureRequest",
@@ -1097,9 +1332,13 @@ __all__ = (
     "GetModelRequest",
     "GetNasJobRequest",
     "GetNasTrialDetailRequest",
+    "GetNotebookRuntimeRequest",
+    "GetNotebookRuntimeTemplateRequest",
     "GetPersistentResourceRequest",
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
+    "GetRagCorpusRequest",
+    "GetRagFileRequest",
     "GetReasoningEngineRequest",
     "GetScheduleRequest",
     "GetSpecialistPoolRequest",
@@ -1110,20 +1349,32 @@ __all__ = (
     "GetTensorboardTimeSeriesRequest",
     "GetTrainingPipelineRequest",
     "GetTrialRequest",
+    "GoogleDriveSource",
     "GoogleSearchRetrieval",
+    "GroundednessInput",
+    "GroundednessInstance",
+    "GroundednessResult",
+    "GroundednessSpec",
     "GroundingAttribution",
     "GroundingMetadata",
     "HarmCategory",
+    "HttpElementLocation",
     "HyperparameterTuningJob",
     "IdMatcher",
     "ImportDataConfig",
     "ImportDataOperationMetadata",
     "ImportDataRequest",
     "ImportDataResponse",
+    "ImportExtensionOperationMetadata",
+    "ImportExtensionRequest",
     "ImportFeatureValuesOperationMetadata",
     "ImportFeatureValuesRequest",
     "ImportFeatureValuesResponse",
     "ImportModelEvaluationRequest",
+    "ImportRagFilesConfig",
+    "ImportRagFilesOperationMetadata",
+    "ImportRagFilesRequest",
+    "ImportRagFilesResponse",
     "Index",
     "IndexDatapoint",
     "IndexEndpoint",
@@ -1164,6 +1415,8 @@ __all__ = (
     "ListEntityTypesResponse",
     "ListExecutionsRequest",
     "ListExecutionsResponse",
+    "ListExtensionsRequest",
+    "ListExtensionsResponse",
     "ListFeatureGroupsRequest",
     "ListFeatureGroupsResponse",
     "ListFeatureOnlineStoresRequest",
@@ -1200,6 +1453,10 @@ __all__ = (
     "ListNasJobsResponse",
     "ListNasTrialDetailsRequest",
     "ListNasTrialDetailsResponse",
+    "ListNotebookRuntimeTemplatesRequest",
+    "ListNotebookRuntimeTemplatesResponse",
+    "ListNotebookRuntimesRequest",
+    "ListNotebookRuntimesResponse",
     "ListOptimalTrialsRequest",
     "ListOptimalTrialsResponse",
     "ListPersistentResourcesRequest",
@@ -1208,6 +1465,10 @@ __all__ = (
     "ListPipelineJobsResponse",
     "ListPublisherModelsRequest",
     "ListPublisherModelsResponse",
+    "ListRagCorporaRequest",
+    "ListRagCorporaResponse",
+    "ListRagFilesRequest",
+    "ListRagFilesResponse",
     "ListReasoningEnginesRequest",
     "ListReasoningEnginesResponse",
     "ListSavedQueriesRequest",
@@ -1277,7 +1538,24 @@ __all__ = (
     "NearestNeighborSearchOperationMetadata",
     "NearestNeighbors",
     "Neighbor",
+    "NetworkSpec",
     "NfsMount",
+    "NotebookEucConfig",
+    "NotebookIdleShutdownConfig",
+    "NotebookRuntime",
+    "NotebookRuntimeTemplate",
+    "NotebookRuntimeTemplateRef",
+    "NotebookRuntimeType",
+    "NotebookServiceClient",
+    "PairwiseChoice",
+    "PairwiseQuestionAnsweringQualityInput",
+    "PairwiseQuestionAnsweringQualityInstance",
+    "PairwiseQuestionAnsweringQualityResult",
+    "PairwiseQuestionAnsweringQualitySpec",
+    "PairwiseSummarizationQualityInput",
+    "PairwiseSummarizationQualityInstance",
+    "PairwiseSummarizationQualityResult",
+    "PairwiseSummarizationQualitySpec",
     "Part",
     "PauseModelDeploymentMonitoringJobRequest",
     "PauseScheduleRequest",
@@ -1321,8 +1599,31 @@ __all__ = (
     "QueryDeployedModelsRequest",
     "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
+    "QueryExtensionRequest",
+    "QueryExtensionResponse",
     "QueryReasoningEngineRequest",
     "QueryReasoningEngineResponse",
+    "QuestionAnsweringCorrectnessInput",
+    "QuestionAnsweringCorrectnessInstance",
+    "QuestionAnsweringCorrectnessResult",
+    "QuestionAnsweringCorrectnessSpec",
+    "QuestionAnsweringHelpfulnessInput",
+    "QuestionAnsweringHelpfulnessInstance",
+    "QuestionAnsweringHelpfulnessResult",
+    "QuestionAnsweringHelpfulnessSpec",
+    "QuestionAnsweringQualityInput",
+    "QuestionAnsweringQualityInstance",
+    "QuestionAnsweringQualityResult",
+    "QuestionAnsweringQualitySpec",
+    "QuestionAnsweringRelevanceInput",
+    "QuestionAnsweringRelevanceInstance",
+    "QuestionAnsweringRelevanceResult",
+    "QuestionAnsweringRelevanceSpec",
+    "RagContexts",
+    "RagCorpus",
+    "RagFile",
+    "RagFileChunkingConfig",
+    "RagQuery",
     "RawPredictRequest",
     "RayMetricSpec",
     "RaySpec",
@@ -1355,8 +1656,20 @@ __all__ = (
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "Retrieval",
+    "RetrieveContextsRequest",
+    "RetrieveContextsResponse",
+    "RougeInput",
+    "RougeInstance",
+    "RougeMetricValue",
+    "RougeResults",
+    "RougeSpec",
+    "RuntimeConfig",
+    "SafetyInput",
+    "SafetyInstance",
     "SafetyRating",
+    "SafetyResult",
     "SafetySetting",
+    "SafetySpec",
     "SampleConfig",
     "SampledShapleyAttribution",
     "SamplingStrategy",
@@ -1378,9 +1691,13 @@ __all__ = (
     "SearchNearestEntitiesResponse",
     "Segment",
     "ServiceAccountSpec",
+    "ShieldedVmConfig",
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
+    "StartNotebookRuntimeOperationMetadata",
+    "StartNotebookRuntimeRequest",
+    "StartNotebookRuntimeResponse",
     "StopTrialRequest",
     "StratifiedSplit",
     "StreamDirectPredictRequest",
@@ -1401,6 +1718,18 @@ __all__ = (
     "SuggestTrialsMetadata",
     "SuggestTrialsRequest",
     "SuggestTrialsResponse",
+    "SummarizationHelpfulnessInput",
+    "SummarizationHelpfulnessInstance",
+    "SummarizationHelpfulnessResult",
+    "SummarizationHelpfulnessSpec",
+    "SummarizationQualityInput",
+    "SummarizationQualityInstance",
+    "SummarizationQualityResult",
+    "SummarizationQualitySpec",
+    "SummarizationVerbosityInput",
+    "SummarizationVerbosityInstance",
+    "SummarizationVerbosityResult",
+    "SummarizationVerbositySpec",
     "SyncFeatureViewRequest",
     "SyncFeatureViewResponse",
     "TFRecordDestination",
@@ -1419,7 +1748,28 @@ __all__ = (
     "TimestampSplit",
     "TokensInfo",
     "Tool",
+    "ToolCallValidInput",
+    "ToolCallValidInstance",
+    "ToolCallValidMetricValue",
+    "ToolCallValidResults",
+    "ToolCallValidSpec",
     "ToolConfig",
+    "ToolNameMatchInput",
+    "ToolNameMatchInstance",
+    "ToolNameMatchMetricValue",
+    "ToolNameMatchResults",
+    "ToolNameMatchSpec",
+    "ToolParameterKVMatchInput",
+    "ToolParameterKVMatchInstance",
+    "ToolParameterKVMatchMetricValue",
+    "ToolParameterKVMatchResults",
+    "ToolParameterKVMatchSpec",
+    "ToolParameterKeyMatchInput",
+    "ToolParameterKeyMatchInstance",
+    "ToolParameterKeyMatchMetricValue",
+    "ToolParameterKeyMatchResults",
+    "ToolParameterKeyMatchSpec",
+    "ToolUseExample",
     "TrainingConfig",
     "TrainingPipeline",
     "Trial",
@@ -1442,6 +1792,7 @@ __all__ = (
     "UpdateExplanationDatasetOperationMetadata",
     "UpdateExplanationDatasetRequest",
     "UpdateExplanationDatasetResponse",
+    "UpdateExtensionRequest",
     "UpdateFeatureGroupOperationMetadata",
     "UpdateFeatureGroupRequest",
     "UpdateFeatureOnlineStoreOperationMetadata",
@@ -1468,14 +1819,23 @@ __all__ = (
     "UpdateTensorboardRequest",
     "UpdateTensorboardRunRequest",
     "UpdateTensorboardTimeSeriesRequest",
+    "UpgradeNotebookRuntimeOperationMetadata",
+    "UpgradeNotebookRuntimeRequest",
+    "UpgradeNotebookRuntimeResponse",
     "UploadModelOperationMetadata",
     "UploadModelRequest",
     "UploadModelResponse",
+    "UploadRagFileConfig",
+    "UploadRagFileRequest",
+    "UploadRagFileResponse",
     "UpsertDatapointsRequest",
     "UpsertDatapointsResponse",
     "UserActionReference",
     "Value",
     "VertexAISearch",
+    "VertexRagDataServiceClient",
+    "VertexRagServiceClient",
+    "VertexRagStore",
     "VideoMetadata",
     "VizierServiceClient",
     "WorkerPoolSpec",

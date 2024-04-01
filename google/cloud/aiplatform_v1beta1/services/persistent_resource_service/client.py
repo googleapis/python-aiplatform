@@ -219,6 +219,28 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         return m.groupdict() if m else {}
 
     @staticmethod
+    def notebook_runtime_template_path(
+        project: str,
+        location: str,
+        notebook_runtime_template: str,
+    ) -> str:
+        """Returns a fully-qualified notebook_runtime_template string."""
+        return "projects/{project}/locations/{location}/notebookRuntimeTemplates/{notebook_runtime_template}".format(
+            project=project,
+            location=location,
+            notebook_runtime_template=notebook_runtime_template,
+        )
+
+    @staticmethod
+    def parse_notebook_runtime_template_path(path: str) -> Dict[str, str]:
+        """Parses a notebook_runtime_template path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/notebookRuntimeTemplates/(?P<notebook_runtime_template>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def persistent_resource_path(
         project: str,
         location: str,

@@ -192,16 +192,18 @@ class Part(proto.Message):
 
 
 class Blob(proto.Message):
-    r"""Raw media bytes.
+    r"""Content blob.
 
-    Text should not be sent as raw bytes, use the 'text' field.
+    It's preferred to send as
+    [text][google.cloud.aiplatform.v1.Part.text] directly rather than
+    raw bytes.
 
     Attributes:
         mime_type (str):
             Required. The IANA standard MIME type of the
             source data.
         data (bytes):
-            Required. Raw bytes for media formats.
+            Required. Raw bytes.
     """
 
     mime_type: str = proto.Field(
@@ -289,6 +291,23 @@ class GenerationConfig(proto.Message):
             This field is a member of `oneof`_ ``_max_output_tokens``.
         stop_sequences (MutableSequence[str]):
             Optional. Stop sequences.
+        presence_penalty (float):
+            Optional. Positive penalties.
+
+            This field is a member of `oneof`_ ``_presence_penalty``.
+        frequency_penalty (float):
+            Optional. Frequency penalties.
+
+            This field is a member of `oneof`_ ``_frequency_penalty``.
+        response_mime_type (str):
+            Optional. Output response mimetype of the generated
+            candidate text. Supported mimetype:
+
+            -  ``text/plain``: (default) Text output.
+            -  ``application/json``: JSON response in the candidates.
+               The model needs to be prompted to output the appropriate
+               response type, otherwise the behavior is undefined. This
+               is a preview feature.
     """
 
     temperature: float = proto.Field(
@@ -320,6 +339,20 @@ class GenerationConfig(proto.Message):
         proto.STRING,
         number=6,
     )
+    presence_penalty: float = proto.Field(
+        proto.FLOAT,
+        number=8,
+        optional=True,
+    )
+    frequency_penalty: float = proto.Field(
+        proto.FLOAT,
+        number=9,
+        optional=True,
+    )
+    response_mime_type: str = proto.Field(
+        proto.STRING,
+        number=13,
+    )
 
 
 class SafetySetting(proto.Message):
@@ -330,6 +363,11 @@ class SafetySetting(proto.Message):
             Required. Harm category.
         threshold (google.cloud.aiplatform_v1.types.SafetySetting.HarmBlockThreshold):
             Required. The harm block threshold.
+        method (google.cloud.aiplatform_v1.types.SafetySetting.HarmBlockMethod):
+            Optional. Specify if the threshold is used
+            for probability or severity score. If not
+            specified, the threshold is used for probability
+            score.
     """
 
     class HarmBlockThreshold(proto.Enum):
@@ -354,6 +392,23 @@ class SafetySetting(proto.Message):
         BLOCK_ONLY_HIGH = 3
         BLOCK_NONE = 4
 
+    class HarmBlockMethod(proto.Enum):
+        r"""Probability vs severity.
+
+        Values:
+            HARM_BLOCK_METHOD_UNSPECIFIED (0):
+                The harm block method is unspecified.
+            SEVERITY (1):
+                The harm block method uses both probability
+                and severity scores.
+            PROBABILITY (2):
+                The harm block method uses the probability
+                score.
+        """
+        HARM_BLOCK_METHOD_UNSPECIFIED = 0
+        SEVERITY = 1
+        PROBABILITY = 2
+
     category: "HarmCategory" = proto.Field(
         proto.ENUM,
         number=1,
@@ -363,6 +418,11 @@ class SafetySetting(proto.Message):
         proto.ENUM,
         number=2,
         enum=HarmBlockThreshold,
+    )
+    method: HarmBlockMethod = proto.Field(
+        proto.ENUM,
+        number=4,
+        enum=HarmBlockMethod,
     )
 
 

@@ -99,8 +99,8 @@ class FunctionDeclaration(proto.Message):
         name (str):
             Required. The name of the function to call.
             Must start with a letter or an underscore.
-            Must be a-z, A-Z, 0-9, or contain underscores
-            and dashes, with a maximum length of 64.
+            Must be a-z, A-Z, 0-9, or contain underscores,
+            dots and dashes, with a maximum length of 64.
         description (str):
             Optional. Description and purpose of the
             function. Model uses it to decide how and
@@ -113,8 +113,11 @@ class FunctionDeclaration(proto.Message):
             case sensitive. Schema Value: the Schema
             defining the type used for the parameter. For
             function with no parameters, this can be left
-            unset. Example with 1 required and 1 optional
-            parameter: type: OBJECT properties:
+            unset. Parameter names must start with a letter
+            or an underscore and must only contain chars
+            a-z, A-Z, 0-9, or underscores with a maximum
+            length of 64. Example with 1 required and 1
+            optional parameter: type: OBJECT properties:
 
              param1:
 
@@ -233,10 +236,9 @@ class VertexAISearch(proto.Message):
 
     Attributes:
         datastore (str):
-            Required. Fully-qualified Vertex AI Search's
-            datastore resource ID. Format:
-
-            projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}
+            Required. Fully-qualified Vertex AI Search's datastore
+            resource ID. Format:
+            ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}``
     """
 
     datastore: str = proto.Field(

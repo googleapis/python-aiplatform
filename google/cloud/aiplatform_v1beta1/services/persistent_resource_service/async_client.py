@@ -85,6 +85,12 @@ class PersistentResourceServiceAsyncClient:
     parse_network_path = staticmethod(
         PersistentResourceServiceClient.parse_network_path
     )
+    notebook_runtime_template_path = staticmethod(
+        PersistentResourceServiceClient.notebook_runtime_template_path
+    )
+    parse_notebook_runtime_template_path = staticmethod(
+        PersistentResourceServiceClient.parse_notebook_runtime_template_path
+    )
     persistent_resource_path = staticmethod(
         PersistentResourceServiceClient.persistent_resource_path
     )

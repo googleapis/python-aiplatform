@@ -527,6 +527,183 @@
         }
       }
     },
+    "EvaluationService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "EvaluationServiceClient",
+          "rpcs": {
+            "EvaluateInstances": {
+              "methods": [
+                "evaluate_instances"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "EvaluationServiceAsyncClient",
+          "rpcs": {
+            "EvaluateInstances": {
+              "methods": [
+                "evaluate_instances"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "EvaluationServiceClient",
+          "rpcs": {
+            "EvaluateInstances": {
+              "methods": [
+                "evaluate_instances"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ExtensionExecutionService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ExtensionExecutionServiceClient",
+          "rpcs": {
+            "ExecuteExtension": {
+              "methods": [
+                "execute_extension"
+              ]
+            },
+            "QueryExtension": {
+              "methods": [
+                "query_extension"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ExtensionExecutionServiceAsyncClient",
+          "rpcs": {
+            "ExecuteExtension": {
+              "methods": [
+                "execute_extension"
+              ]
+            },
+            "QueryExtension": {
+              "methods": [
+                "query_extension"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "ExtensionExecutionServiceClient",
+          "rpcs": {
+            "ExecuteExtension": {
+              "methods": [
+                "execute_extension"
+              ]
+            },
+            "QueryExtension": {
+              "methods": [
+                "query_extension"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ExtensionRegistryService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ExtensionRegistryServiceClient",
+          "rpcs": {
+            "DeleteExtension": {
+              "methods": [
+                "delete_extension"
+              ]
+            },
+            "GetExtension": {
+              "methods": [
+                "get_extension"
+              ]
+            },
+            "ImportExtension": {
+              "methods": [
+                "import_extension"
+              ]
+            },
+            "ListExtensions": {
+              "methods": [
+                "list_extensions"
+              ]
+            },
+            "UpdateExtension": {
+              "methods": [
+                "update_extension"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ExtensionRegistryServiceAsyncClient",
+          "rpcs": {
+            "DeleteExtension": {
+              "methods": [
+                "delete_extension"
+              ]
+            },
+            "GetExtension": {
+              "methods": [
+                "get_extension"
+              ]
+            },
+            "ImportExtension": {
+              "methods": [
+                "import_extension"
+              ]
+            },
+            "ListExtensions": {
+              "methods": [
+                "list_extensions"
+              ]
+            },
+            "UpdateExtension": {
+              "methods": [
+                "update_extension"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "ExtensionRegistryServiceClient",
+          "rpcs": {
+            "DeleteExtension": {
+              "methods": [
+                "delete_extension"
+              ]
+            },
+            "GetExtension": {
+              "methods": [
+                "get_extension"
+              ]
+            },
+            "ImportExtension": {
+              "methods": [
+                "import_extension"
+              ]
+            },
+            "ListExtensions": {
+              "methods": [
+                "list_extensions"
+              ]
+            },
+            "UpdateExtension": {
+              "methods": [
+                "update_extension"
+              ]
+            }
+          }
+        }
+      }
+    },
     "FeatureOnlineStoreAdminService": {
       "clients": {
         "grpc": {
@@ -3148,6 +3325,175 @@
         }
       }
     },
+    "NotebookService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "NotebookServiceClient",
+          "rpcs": {
+            "AssignNotebookRuntime": {
+              "methods": [
+                "assign_notebook_runtime"
+              ]
+            },
+            "CreateNotebookRuntimeTemplate": {
+              "methods": [
+                "create_notebook_runtime_template"
+              ]
+            },
+            "DeleteNotebookRuntime": {
+              "methods": [
+                "delete_notebook_runtime"
+              ]
+            },
+            "DeleteNotebookRuntimeTemplate": {
+              "methods": [
+                "delete_notebook_runtime_template"
+              ]
+            },
+            "GetNotebookRuntime": {
+              "methods": [
+                "get_notebook_runtime"
+              ]
+            },
+            "GetNotebookRuntimeTemplate": {
+              "methods": [
+                "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookRuntimeTemplates": {
+              "methods": [
+                "list_notebook_runtime_templates"
+              ]
+            },
+            "ListNotebookRuntimes": {
+              "methods": [
+                "list_notebook_runtimes"
+              ]
+            },
+            "StartNotebookRuntime": {
+              "methods": [
+                "start_notebook_runtime"
+              ]
+            },
+            "UpgradeNotebookRuntime": {
+              "methods": [
+                "upgrade_notebook_runtime"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "NotebookServiceAsyncClient",
+          "rpcs": {
+            "AssignNotebookRuntime": {
+              "methods": [
+                "assign_notebook_runtime"
+              ]
+            },
+            "CreateNotebookRuntimeTemplate": {
+              "methods": [
+                "create_notebook_runtime_template"
+              ]
+            },
+            "DeleteNotebookRuntime": {
+              "methods": [
+                "delete_notebook_runtime"
+              ]
+            },
+            "DeleteNotebookRuntimeTemplate": {
+              "methods": [
+                "delete_notebook_runtime_template"
+              ]
+            },
+            "GetNotebookRuntime": {
+              "methods": [
+                "get_notebook_runtime"
+              ]
+            },
+            "GetNotebookRuntimeTemplate": {
+              "methods": [
+                "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookRuntimeTemplates": {
+              "methods": [
+                "list_notebook_runtime_templates"
+              ]
+            },
+            "ListNotebookRuntimes": {
+              "methods": [
+                "list_notebook_runtimes"
+              ]
+            },
+            "StartNotebookRuntime": {
+              "methods": [
+                "start_notebook_runtime"
+              ]
+            },
+            "UpgradeNotebookRuntime": {
+              "methods": [
+                "upgrade_notebook_runtime"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "NotebookServiceClient",
+          "rpcs": {
+            "AssignNotebookRuntime": {
+              "methods": [
+                "assign_notebook_runtime"
+              ]
+            },
+            "CreateNotebookRuntimeTemplate": {
+              "methods": [
+                "create_notebook_runtime_template"
+              ]
+            },
+            "DeleteNotebookRuntime": {
+              "methods": [
+                "delete_notebook_runtime"
+              ]
+            },
+            "DeleteNotebookRuntimeTemplate": {
+              "methods": [
+                "delete_notebook_runtime_template"
+              ]
+            },
+            "GetNotebookRuntime": {
+              "methods": [
+                "get_notebook_runtime"
+              ]
+            },
+            "GetNotebookRuntimeTemplate": {
+              "methods": [
+                "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookRuntimeTemplates": {
+              "methods": [
+                "list_notebook_runtime_templates"
+              ]
+            },
+            "ListNotebookRuntimes": {
+              "methods": [
+                "list_notebook_runtimes"
+              ]
+            },
+            "StartNotebookRuntime": {
+              "methods": [
+                "start_notebook_runtime"
+              ]
+            },
+            "UpgradeNotebookRuntime": {
+              "methods": [
+                "upgrade_notebook_runtime"
+              ]
+            }
+          }
+        }
+      }
+    },
     "PersistentResourceService": {
       "clients": {
         "grpc": {
@@ -3446,6 +3792,11 @@
         "grpc": {
           "libraryClient": "PredictionServiceClient",
           "rpcs": {
+            "ChatCompletions": {
+              "methods": [
+                "chat_completions"
+              ]
+            },
             "CountTokens": {
               "methods": [
                 "count_tokens"
@@ -3516,6 +3867,11 @@
         "grpc-async": {
           "libraryClient": "PredictionServiceAsyncClient",
           "rpcs": {
+            "ChatCompletions": {
+              "methods": [
+                "chat_completions"
+              ]
+            },
             "CountTokens": {
               "methods": [
                 "count_tokens"
@@ -3586,6 +3942,11 @@
         "rest": {
           "libraryClient": "PredictionServiceClient",
           "rpcs": {
+            "ChatCompletions": {
+              "methods": [
+                "chat_completions"
+              ]
+            },
             "CountTokens": {
               "methods": [
                 "count_tokens"
@@ -4449,6 +4810,194 @@
             "WriteTensorboardRunData": {
               "methods": [
                 "write_tensorboard_run_data"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "VertexRagDataService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "VertexRagDataServiceClient",
+          "rpcs": {
+            "CreateRagCorpus": {
+              "methods": [
+                "create_rag_corpus"
+              ]
+            },
+            "DeleteRagCorpus": {
+              "methods": [
+                "delete_rag_corpus"
+              ]
+            },
+            "DeleteRagFile": {
+              "methods": [
+                "delete_rag_file"
+              ]
+            },
+            "GetRagCorpus": {
+              "methods": [
+                "get_rag_corpus"
+              ]
+            },
+            "GetRagFile": {
+              "methods": [
+                "get_rag_file"
+              ]
+            },
+            "ImportRagFiles": {
+              "methods": [
+                "import_rag_files"
+              ]
+            },
+            "ListRagCorpora": {
+              "methods": [
+                "list_rag_corpora"
+              ]
+            },
+            "ListRagFiles": {
+              "methods": [
+                "list_rag_files"
+              ]
+            },
+            "UploadRagFile": {
+              "methods": [
+                "upload_rag_file"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "VertexRagDataServiceAsyncClient",
+          "rpcs": {
+            "CreateRagCorpus": {
+              "methods": [
+                "create_rag_corpus"
+              ]
+            },
+            "DeleteRagCorpus": {
+              "methods": [
+                "delete_rag_corpus"
+              ]
+            },
+            "DeleteRagFile": {
+              "methods": [
+                "delete_rag_file"
+              ]
+            },
+            "GetRagCorpus": {
+              "methods": [
+                "get_rag_corpus"
+              ]
+            },
+            "GetRagFile": {
+              "methods": [
+                "get_rag_file"
+              ]
+            },
+            "ImportRagFiles": {
+              "methods": [
+                "import_rag_files"
+              ]
+            },
+            "ListRagCorpora": {
+              "methods": [
+                "list_rag_corpora"
+              ]
+            },
+            "ListRagFiles": {
+              "methods": [
+                "list_rag_files"
+              ]
+            },
+            "UploadRagFile": {
+              "methods": [
+                "upload_rag_file"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "VertexRagDataServiceClient",
+          "rpcs": {
+            "CreateRagCorpus": {
+              "methods": [
+                "create_rag_corpus"
+              ]
+            },
+            "DeleteRagCorpus": {
+              "methods": [
+                "delete_rag_corpus"
+              ]
+            },
+            "DeleteRagFile": {
+              "methods": [
+                "delete_rag_file"
+              ]
+            },
+            "GetRagCorpus": {
+              "methods": [
+                "get_rag_corpus"
+              ]
+            },
+            "GetRagFile": {
+              "methods": [
+                "get_rag_file"
+              ]
+            },
+            "ImportRagFiles": {
+              "methods": [
+                "import_rag_files"
+              ]
+            },
+            "ListRagCorpora": {
+              "methods": [
+                "list_rag_corpora"
+              ]
+            },
+            "ListRagFiles": {
+              "methods": [
+                "list_rag_files"
+              ]
+            },
+            "UploadRagFile": {
+              "methods": [
+                "upload_rag_file"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "VertexRagService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "VertexRagServiceClient",
+          "rpcs": {
+            "RetrieveContexts": {
+              "methods": [
+                "retrieve_contexts"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "VertexRagServiceAsyncClient",
+          "rpcs": {
+            "RetrieveContexts": {
+              "methods": [
+                "retrieve_contexts"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "VertexRagServiceClient",
+          "rpcs": {
+            "RetrieveContexts": {
+              "methods": [
+                "retrieve_contexts"
               ]
             }
           }

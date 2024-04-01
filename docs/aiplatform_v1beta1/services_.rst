@@ -6,6 +6,9 @@ Services for Google Cloud Aiplatform v1beta1 API
     dataset_service
     deployment_resource_pool_service
     endpoint_service
+    evaluation_service
+    extension_execution_service
+    extension_registry_service
     feature_online_store_admin_service
     feature_online_store_service
     feature_registry_service
@@ -20,6 +23,7 @@ Services for Google Cloud Aiplatform v1beta1 API
     migration_service
     model_garden_service
     model_service
+    notebook_service
     persistent_resource_service
     pipeline_service
     prediction_service
@@ -28,4 +32,6 @@ Services for Google Cloud Aiplatform v1beta1 API
     schedule_service
     specialist_pool_service
     tensorboard_service
+    vertex_rag_data_service
+    vertex_rag_service
     vizier_service

@@ -507,6 +507,28 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def persistent_resource_path(
+        project: str,
+        location: str,
+        persistent_resource: str,
+    ) -> str:
+        """Returns a fully-qualified persistent_resource string."""
+        return "projects/{project}/locations/{location}/persistentResources/{persistent_resource}".format(
+            project=project,
+            location=location,
+            persistent_resource=persistent_resource,
+        )
+
+    @staticmethod
+    def parse_persistent_resource_path(path: str) -> Dict[str, str]:
+        """Parses a persistent_resource path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/persistentResources/(?P<persistent_resource>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def tensorboard_path(
         project: str,
         location: str,

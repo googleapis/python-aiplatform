@@ -73,14 +73,25 @@ class Schema(proto.Message):
             Optional. The format of the data.
             Supported formats:
 
-             for NUMBER type: float, double
-             for INTEGER type: int32, int64
+             for NUMBER type: "float", "double"
+             for INTEGER type: "int32", "int64"
+             for STRING type: "email", "byte", etc
+        title (str):
+            Optional. The title of the Schema.
         description (str):
             Optional. The description of the data.
         nullable (bool):
             Optional. Indicates if the value may be null.
+        default (google.protobuf.struct_pb2.Value):
+            Optional. Default value of the data.
         items (google.cloud.aiplatform_v1beta1.types.Schema):
-            Optional. Schema of the elements of
+            Optional. SCHEMA FIELDS FOR TYPE ARRAY
+            Schema of the elements of Type.ARRAY.
+        min_items (int):
+            Optional. Minimum number of the elements for
+            Type.ARRAY.
+        max_items (int):
+            Optional. Maximum number of the elements for
             Type.ARRAY.
         enum (MutableSequence[str]):
             Optional. Possible values of the element of Type.STRING with
@@ -88,9 +99,31 @@ class Schema(proto.Message):
             : {type:STRING, format:enum, enum:["EAST", NORTH", "SOUTH",
             "WEST"]}
         properties (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.Schema]):
-            Optional. Properties of Type.OBJECT.
+            Optional. SCHEMA FIELDS FOR TYPE OBJECT
+            Properties of Type.OBJECT.
         required (MutableSequence[str]):
             Optional. Required properties of Type.OBJECT.
+        min_properties (int):
+            Optional. Minimum number of the properties
+            for Type.OBJECT.
+        max_properties (int):
+            Optional. Maximum number of the properties
+            for Type.OBJECT.
+        minimum (float):
+            Optional. SCHEMA FIELDS FOR TYPE INTEGER and
+            NUMBER Minimum value of the Type.INTEGER and
+            Type.NUMBER
+        maximum (float):
+            Optional. Maximum value of the Type.INTEGER
+            and Type.NUMBER
+        min_length (int):
+            Optional. SCHEMA FIELDS FOR TYPE STRING
+            Minimum length of the Type.STRING
+        max_length (int):
+            Optional. Maximum length of the Type.STRING
+        pattern (str):
+            Optional. Pattern of the Type.STRING to
+            restrict a string to a regular expression.
         example (google.protobuf.struct_pb2.Value):
             Optional. Example of the object. Will only
             populated when the object is the root.
@@ -105,6 +138,10 @@ class Schema(proto.Message):
         proto.STRING,
         number=7,
     )
+    title: str = proto.Field(
+        proto.STRING,
+        number=24,
+    )
     description: str = proto.Field(
         proto.STRING,
         number=8,
@@ -113,10 +150,23 @@ class Schema(proto.Message):
         proto.BOOL,
         number=6,
     )
+    default: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=23,
+        message=struct_pb2.Value,
+    )
     items: "Schema" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="Schema",
+    )
+    min_items: int = proto.Field(
+        proto.INT64,
+        number=21,
+    )
+    max_items: int = proto.Field(
+        proto.INT64,
+        number=22,
     )
     enum: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
@@ -131,6 +181,34 @@ class Schema(proto.Message):
     required: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=5,
+    )
+    min_properties: int = proto.Field(
+        proto.INT64,
+        number=14,
+    )
+    max_properties: int = proto.Field(
+        proto.INT64,
+        number=15,
+    )
+    minimum: float = proto.Field(
+        proto.DOUBLE,
+        number=16,
+    )
+    maximum: float = proto.Field(
+        proto.DOUBLE,
+        number=17,
+    )
+    min_length: int = proto.Field(
+        proto.INT64,
+        number=18,
+    )
+    max_length: int = proto.Field(
+        proto.INT64,
+        number=19,
+    )
+    pattern: str = proto.Field(
+        proto.STRING,
+        number=20,
     )
     example: struct_pb2.Value = proto.Field(
         proto.MESSAGE,

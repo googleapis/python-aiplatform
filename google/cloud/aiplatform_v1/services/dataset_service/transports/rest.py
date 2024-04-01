@@ -1095,6 +1095,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -1232,6 +1236,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1386,6 +1394,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1550,6 +1562,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1719,6 +1735,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -1884,6 +1904,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2061,6 +2085,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
                     },
                     {
@@ -2161,7 +2189,7 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     },
                     {
                         "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
+                        "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*}/operations",
                     },
                     {
                         "method": "get",
@@ -2214,6 +2242,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/persistentResources/*}/operations",
                     },
                     {
                         "method": "get",
@@ -2391,6 +2423,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
                     },
                     {
@@ -2540,6 +2576,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -4996,6 +5036,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                 },
                 {
@@ -5133,6 +5177,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -5347,6 +5395,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
                 },
                 {
@@ -5508,6 +5560,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -5737,6 +5793,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
                 },
                 {
@@ -5902,6 +5962,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -6140,6 +6204,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
                 },
                 {
@@ -6240,7 +6308,7 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
+                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*}/operations",
                 },
                 {
                     "method": "get",
@@ -6293,6 +6361,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*}/operations",
                 },
                 {
                     "method": "get",
@@ -6531,6 +6603,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
                 },
                 {
@@ -6680,6 +6756,10 @@ class DatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

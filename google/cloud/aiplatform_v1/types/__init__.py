@@ -451,6 +451,7 @@ from .machine_resources import (
     NfsMount,
     PersistentDiskSpec,
     ResourcesConsumed,
+    ShieldedVmConfig,
 )
 from .manual_batch_tuning_parameters import (
     ManualBatchTuningParameters,
@@ -606,6 +607,43 @@ from .nas_job import (
     NasTrial,
     NasTrialDetail,
 )
+from .network_spec import (
+    NetworkSpec,
+)
+from .notebook_euc_config import (
+    NotebookEucConfig,
+)
+from .notebook_idle_shutdown_config import (
+    NotebookIdleShutdownConfig,
+)
+from .notebook_runtime import (
+    NotebookRuntime,
+    NotebookRuntimeTemplate,
+    NotebookRuntimeType,
+)
+from .notebook_runtime_template_ref import (
+    NotebookRuntimeTemplateRef,
+)
+from .notebook_service import (
+    AssignNotebookRuntimeOperationMetadata,
+    AssignNotebookRuntimeRequest,
+    CreateNotebookRuntimeTemplateOperationMetadata,
+    CreateNotebookRuntimeTemplateRequest,
+    DeleteNotebookRuntimeRequest,
+    DeleteNotebookRuntimeTemplateRequest,
+    GetNotebookRuntimeRequest,
+    GetNotebookRuntimeTemplateRequest,
+    ListNotebookRuntimesRequest,
+    ListNotebookRuntimesResponse,
+    ListNotebookRuntimeTemplatesRequest,
+    ListNotebookRuntimeTemplatesResponse,
+    StartNotebookRuntimeOperationMetadata,
+    StartNotebookRuntimeRequest,
+    StartNotebookRuntimeResponse,
+    UpgradeNotebookRuntimeOperationMetadata,
+    UpgradeNotebookRuntimeRequest,
+    UpgradeNotebookRuntimeResponse,
+)
 from .openapi import (
     Schema,
     Type,
@@ -613,6 +651,26 @@ from .openapi import (
 from .operation import (
     DeleteOperationMetadata,
     GenericOperationMetadata,
+)
+from .persistent_resource import (
+    PersistentResource,
+    RaySpec,
+    ResourcePool,
+    ResourceRuntime,
+    ResourceRuntimeSpec,
+    ServiceAccountSpec,
+)
+from .persistent_resource_service import (
+    CreatePersistentResourceOperationMetadata,
+    CreatePersistentResourceRequest,
+    DeletePersistentResourceRequest,
+    GetPersistentResourceRequest,
+    ListPersistentResourcesRequest,
+    ListPersistentResourcesResponse,
+    RebootPersistentResourceOperationMetadata,
+    RebootPersistentResourceRequest,
+    UpdatePersistentResourceOperationMetadata,
+    UpdatePersistentResourceRequest,
 )
 from .pipeline_failure_policy import (
     PipelineFailurePolicy,
@@ -1175,6 +1233,7 @@ __all__ = (
     "NfsMount",
     "PersistentDiskSpec",
     "ResourcesConsumed",
+    "ShieldedVmConfig",
     "ManualBatchTuningParameters",
     "FindNeighborsRequest",
     "FindNeighborsResponse",
@@ -1299,10 +1358,51 @@ __all__ = (
     "NasJobSpec",
     "NasTrial",
     "NasTrialDetail",
+    "NetworkSpec",
+    "NotebookEucConfig",
+    "NotebookIdleShutdownConfig",
+    "NotebookRuntime",
+    "NotebookRuntimeTemplate",
+    "NotebookRuntimeType",
+    "NotebookRuntimeTemplateRef",
+    "AssignNotebookRuntimeOperationMetadata",
+    "AssignNotebookRuntimeRequest",
+    "CreateNotebookRuntimeTemplateOperationMetadata",
+    "CreateNotebookRuntimeTemplateRequest",
+    "DeleteNotebookRuntimeRequest",
+    "DeleteNotebookRuntimeTemplateRequest",
+    "GetNotebookRuntimeRequest",
+    "GetNotebookRuntimeTemplateRequest",
+    "ListNotebookRuntimesRequest",
+    "ListNotebookRuntimesResponse",
+    "ListNotebookRuntimeTemplatesRequest",
+    "ListNotebookRuntimeTemplatesResponse",
+    "StartNotebookRuntimeOperationMetadata",
+    "StartNotebookRuntimeRequest",
+    "StartNotebookRuntimeResponse",
+    "UpgradeNotebookRuntimeOperationMetadata",
+    "UpgradeNotebookRuntimeRequest",
+    "UpgradeNotebookRuntimeResponse",
     "Schema",
     "Type",
     "DeleteOperationMetadata",
     "GenericOperationMetadata",
+    "PersistentResource",
+    "RaySpec",
+    "ResourcePool",
+    "ResourceRuntime",
+    "ResourceRuntimeSpec",
+    "ServiceAccountSpec",
+    "CreatePersistentResourceOperationMetadata",
+    "CreatePersistentResourceRequest",
+    "DeletePersistentResourceRequest",
+    "GetPersistentResourceRequest",
+    "ListPersistentResourcesRequest",
+    "ListPersistentResourcesResponse",
+    "RebootPersistentResourceOperationMetadata",
+    "RebootPersistentResourceRequest",
+    "UpdatePersistentResourceOperationMetadata",
+    "UpdatePersistentResourceRequest",
     "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
