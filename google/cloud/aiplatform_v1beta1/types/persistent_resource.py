@@ -141,12 +141,22 @@ class PersistentResource(proto.Message):
             ERROR (5):
                 The ERROR state indicates the persistent resource may be
                 unusable. Details can be found in the ``error`` field.
+            REBOOTING (6):
+                The REBOOTING state indicates the persistent
+                resource is being rebooted (PR is not available
+                right now but is expected to be ready again
+                later).
+            UPDATING (7):
+                The UPDATING state indicates the persistent
+                resource is being updated.
         """
         STATE_UNSPECIFIED = 0
         PROVISIONING = 1
         RUNNING = 3
         STOPPING = 4
         ERROR = 5
+        REBOOTING = 6
+        UPDATING = 7
 
     name: str = proto.Field(
         proto.STRING,
@@ -436,21 +446,20 @@ class ServiceAccountSpec(proto.Message):
             Service
             Agent <https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents>`__.
         service_account (str):
-            Optional. Default service account that this
-            PersistentResource's workloads run as. The workloads
-            include:
+            Optional. Required when all below conditions are met
 
-            -  Any runtime specified via ``ResourceRuntimeSpec`` on
-               creation time, for example, Ray.
-            -  Jobs submitted to PersistentResource, if no other service
-               account specified in the job specs.
+            -  ``enable_custom_service_account`` is true;
+            -  any runtime is specified via ``ResourceRuntimeSpec`` on
+               creation time, for example, Ray
 
-            Only works when custom service account is enabled and users
-            have the ``iam.serviceAccounts.actAs`` permission on this
-            service account.
+            The users must have ``iam.serviceAccounts.actAs`` permission
+            on this service account and then the specified runtime
+            containers will run as it.
 
-            Required if any containers are specified in
-            ``ResourceRuntimeSpec``.
+            Do not set this field if you want to submit jobs using
+            custom service account to this PersistentResource after
+            creation, but only specify the ``service_account`` inside
+            the job.
     """
 
     enable_custom_service_account: bool = proto.Field(

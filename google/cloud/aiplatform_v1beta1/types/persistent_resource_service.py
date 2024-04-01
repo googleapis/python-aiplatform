@@ -32,11 +32,13 @@ __protobuf__ = proto.module(
         "CreatePersistentResourceRequest",
         "CreatePersistentResourceOperationMetadata",
         "UpdatePersistentResourceOperationMetadata",
+        "RebootPersistentResourceOperationMetadata",
         "GetPersistentResourceRequest",
         "ListPersistentResourcesRequest",
         "ListPersistentResourcesResponse",
         "DeletePersistentResourceRequest",
         "UpdatePersistentResourceRequest",
+        "RebootPersistentResourceRequest",
     },
 )
 
@@ -105,6 +107,27 @@ class UpdatePersistentResourceOperationMetadata(proto.Message):
             Operation metadata for PersistentResource.
         progress_message (str):
             Progress Message for Update LRO
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+    progress_message: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class RebootPersistentResourceOperationMetadata(proto.Message):
+    r"""Details of operations that perform reboot PersistentResource.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            Operation metadata for PersistentResource.
+        progress_message (str):
+            Progress Message for Reboot LRO
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(
@@ -239,6 +262,23 @@ class UpdatePersistentResourceRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=field_mask_pb2.FieldMask,
+    )
+
+
+class RebootPersistentResourceRequest(proto.Message):
+    r"""Request message for
+    [PersistentResourceService.RebootPersistentResource][google.cloud.aiplatform.v1beta1.PersistentResourceService.RebootPersistentResource].
+
+    Attributes:
+        name (str):
+            Required. The name of the PersistentResource resource.
+            Format:
+            ``projects/{project_id_or_number}/locations/{location_id}/persistentResources/{persistent_resource_id}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
     )
 
 

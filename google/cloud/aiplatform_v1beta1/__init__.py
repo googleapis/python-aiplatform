@@ -734,6 +734,8 @@ from .types.persistent_resource_service import DeletePersistentResourceRequest
 from .types.persistent_resource_service import GetPersistentResourceRequest
 from .types.persistent_resource_service import ListPersistentResourcesRequest
 from .types.persistent_resource_service import ListPersistentResourcesResponse
+from .types.persistent_resource_service import RebootPersistentResourceOperationMetadata
+from .types.persistent_resource_service import RebootPersistentResourceRequest
 from .types.persistent_resource_service import UpdatePersistentResourceOperationMetadata
 from .types.persistent_resource_service import UpdatePersistentResourceRequest
 from .types.pipeline_failure_policy import PipelineFailurePolicy
@@ -1643,6 +1645,8 @@ __all__ = (
     "ReasoningEngineExecutionServiceClient",
     "ReasoningEngineServiceClient",
     "ReasoningEngineSpec",
+    "RebootPersistentResourceOperationMetadata",
+    "RebootPersistentResourceRequest",
     "RemoveContextChildrenRequest",
     "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",
