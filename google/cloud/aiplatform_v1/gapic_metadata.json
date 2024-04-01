@@ -3133,6 +3133,284 @@
         }
       }
     },
+    "NotebookService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "NotebookServiceClient",
+          "rpcs": {
+            "AssignNotebookRuntime": {
+              "methods": [
+                "assign_notebook_runtime"
+              ]
+            },
+            "CreateNotebookRuntimeTemplate": {
+              "methods": [
+                "create_notebook_runtime_template"
+              ]
+            },
+            "DeleteNotebookRuntime": {
+              "methods": [
+                "delete_notebook_runtime"
+              ]
+            },
+            "DeleteNotebookRuntimeTemplate": {
+              "methods": [
+                "delete_notebook_runtime_template"
+              ]
+            },
+            "GetNotebookRuntime": {
+              "methods": [
+                "get_notebook_runtime"
+              ]
+            },
+            "GetNotebookRuntimeTemplate": {
+              "methods": [
+                "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookRuntimeTemplates": {
+              "methods": [
+                "list_notebook_runtime_templates"
+              ]
+            },
+            "ListNotebookRuntimes": {
+              "methods": [
+                "list_notebook_runtimes"
+              ]
+            },
+            "StartNotebookRuntime": {
+              "methods": [
+                "start_notebook_runtime"
+              ]
+            },
+            "UpgradeNotebookRuntime": {
+              "methods": [
+                "upgrade_notebook_runtime"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "NotebookServiceAsyncClient",
+          "rpcs": {
+            "AssignNotebookRuntime": {
+              "methods": [
+                "assign_notebook_runtime"
+              ]
+            },
+            "CreateNotebookRuntimeTemplate": {
+              "methods": [
+                "create_notebook_runtime_template"
+              ]
+            },
+            "DeleteNotebookRuntime": {
+              "methods": [
+                "delete_notebook_runtime"
+              ]
+            },
+            "DeleteNotebookRuntimeTemplate": {
+              "methods": [
+                "delete_notebook_runtime_template"
+              ]
+            },
+            "GetNotebookRuntime": {
+              "methods": [
+                "get_notebook_runtime"
+              ]
+            },
+            "GetNotebookRuntimeTemplate": {
+              "methods": [
+                "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookRuntimeTemplates": {
+              "methods": [
+                "list_notebook_runtime_templates"
+              ]
+            },
+            "ListNotebookRuntimes": {
+              "methods": [
+                "list_notebook_runtimes"
+              ]
+            },
+            "StartNotebookRuntime": {
+              "methods": [
+                "start_notebook_runtime"
+              ]
+            },
+            "UpgradeNotebookRuntime": {
+              "methods": [
+                "upgrade_notebook_runtime"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "NotebookServiceClient",
+          "rpcs": {
+            "AssignNotebookRuntime": {
+              "methods": [
+                "assign_notebook_runtime"
+              ]
+            },
+            "CreateNotebookRuntimeTemplate": {
+              "methods": [
+                "create_notebook_runtime_template"
+              ]
+            },
+            "DeleteNotebookRuntime": {
+              "methods": [
+                "delete_notebook_runtime"
+              ]
+            },
+            "DeleteNotebookRuntimeTemplate": {
+              "methods": [
+                "delete_notebook_runtime_template"
+              ]
+            },
+            "GetNotebookRuntime": {
+              "methods": [
+                "get_notebook_runtime"
+              ]
+            },
+            "GetNotebookRuntimeTemplate": {
+              "methods": [
+                "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookRuntimeTemplates": {
+              "methods": [
+                "list_notebook_runtime_templates"
+              ]
+            },
+            "ListNotebookRuntimes": {
+              "methods": [
+                "list_notebook_runtimes"
+              ]
+            },
+            "StartNotebookRuntime": {
+              "methods": [
+                "start_notebook_runtime"
+              ]
+            },
+            "UpgradeNotebookRuntime": {
+              "methods": [
+                "upgrade_notebook_runtime"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "PersistentResourceService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "PersistentResourceServiceClient",
+          "rpcs": {
+            "CreatePersistentResource": {
+              "methods": [
+                "create_persistent_resource"
+              ]
+            },
+            "DeletePersistentResource": {
+              "methods": [
+                "delete_persistent_resource"
+              ]
+            },
+            "GetPersistentResource": {
+              "methods": [
+                "get_persistent_resource"
+              ]
+            },
+            "ListPersistentResources": {
+              "methods": [
+                "list_persistent_resources"
+              ]
+            },
+            "RebootPersistentResource": {
+              "methods": [
+                "reboot_persistent_resource"
+              ]
+            },
+            "UpdatePersistentResource": {
+              "methods": [
+                "update_persistent_resource"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "PersistentResourceServiceAsyncClient",
+          "rpcs": {
+            "CreatePersistentResource": {
+              "methods": [
+                "create_persistent_resource"
+              ]
+            },
+            "DeletePersistentResource": {
+              "methods": [
+                "delete_persistent_resource"
+              ]
+            },
+            "GetPersistentResource": {
+              "methods": [
+                "get_persistent_resource"
+              ]
+            },
+            "ListPersistentResources": {
+              "methods": [
+                "list_persistent_resources"
+              ]
+            },
+            "RebootPersistentResource": {
+              "methods": [
+                "reboot_persistent_resource"
+              ]
+            },
+            "UpdatePersistentResource": {
+              "methods": [
+                "update_persistent_resource"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "PersistentResourceServiceClient",
+          "rpcs": {
+            "CreatePersistentResource": {
+              "methods": [
+                "create_persistent_resource"
+              ]
+            },
+            "DeletePersistentResource": {
+              "methods": [
+                "delete_persistent_resource"
+              ]
+            },
+            "GetPersistentResource": {
+              "methods": [
+                "get_persistent_resource"
+              ]
+            },
+            "ListPersistentResources": {
+              "methods": [
+                "list_persistent_resources"
+              ]
+            },
+            "RebootPersistentResource": {
+              "methods": [
+                "reboot_persistent_resource"
+              ]
+            },
+            "UpdatePersistentResource": {
+              "methods": [
+                "update_persistent_resource"
+              ]
+            }
+          }
+        }
+      }
+    },
     "PipelineService": {
       "clients": {
         "grpc": {

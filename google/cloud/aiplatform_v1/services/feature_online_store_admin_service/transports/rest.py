@@ -987,6 +987,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -1124,6 +1128,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1278,6 +1286,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1442,6 +1454,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1611,6 +1627,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -1776,6 +1796,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -1953,6 +1977,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
                     },
                     {
@@ -2053,7 +2081,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     },
                     {
                         "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
+                        "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*}/operations",
                     },
                     {
                         "method": "get",
@@ -2106,6 +2134,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/persistentResources/*}/operations",
                     },
                     {
                         "method": "get",
@@ -2283,6 +2315,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
                     },
                     {
@@ -2432,6 +2468,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -4501,6 +4541,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                 },
                 {
@@ -4638,6 +4682,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -4852,6 +4900,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
                 },
                 {
@@ -5013,6 +5065,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -5242,6 +5298,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
                 },
                 {
@@ -5407,6 +5467,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -5645,6 +5709,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
                 },
                 {
@@ -5745,7 +5813,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 },
                 {
                     "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
+                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*}/operations",
                 },
                 {
                     "method": "get",
@@ -5798,6 +5866,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*}/operations",
                 },
                 {
                     "method": "get",
@@ -6036,6 +6108,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
                 },
                 {
@@ -6185,6 +6261,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

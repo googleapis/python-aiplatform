@@ -51,6 +51,7 @@ __protobuf__ = proto.module(
         "CountTokensResponse",
         "GenerateContentRequest",
         "GenerateContentResponse",
+        "ChatCompletionsRequest",
     },
 )
 
@@ -766,6 +767,8 @@ class CountTokensResponse(proto.Message):
 class GenerateContentRequest(proto.Message):
     r"""Request message for [PredictionService.GenerateContent].
 
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         model (str):
             Required. The name of the publisher model requested to serve
@@ -778,6 +781,13 @@ class GenerateContentRequest(proto.Message):
             instance. For multi-turn queries, this is a
             repeated field that contains conversation
             history + latest request.
+        system_instruction (google.cloud.aiplatform_v1beta1.types.Content):
+            Optional. The user provided system
+            instructions for the model. Note: only text
+            should be used in parts and content in each part
+            will be in a separate paragraph.
+
+            This field is a member of `oneof`_ ``_system_instruction``.
         tools (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tool]):
             Optional. A list of ``Tools`` the model may use to generate
             the next response.
@@ -786,8 +796,8 @@ class GenerateContentRequest(proto.Message):
             interact with external systems to perform an action, or set
             of actions, outside of knowledge and scope of the model.
         tool_config (google.cloud.aiplatform_v1beta1.types.ToolConfig):
-            Tool config. This config is shared for all
-            tools provided in the request.
+            Optional. Tool config. This config is shared
+            for all tools provided in the request.
         safety_settings (MutableSequence[google.cloud.aiplatform_v1beta1.types.SafetySetting]):
             Optional. Per request settings for blocking
             unsafe content. Enforced on
@@ -803,6 +813,12 @@ class GenerateContentRequest(proto.Message):
     contents: MutableSequence[content.Content] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
+        message=content.Content,
+    )
+    system_instruction: content.Content = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        optional=True,
         message=content.Content,
     )
     tools: MutableSequence[tool.Tool] = proto.RepeatedField(
@@ -865,10 +881,17 @@ class GenerateContentResponse(proto.Message):
                     Candidates blocked due to safety.
                 OTHER (2):
                     Candidates blocked due to other reason.
+                BLOCKLIST (3):
+                    Candidates blocked due to the terms which are
+                    included from the terminology blocklist.
+                PROHIBITED_CONTENT (4):
+                    Candidates blocked due to prohibited content.
             """
             BLOCKED_REASON_UNSPECIFIED = 0
             SAFETY = 1
             OTHER = 2
+            BLOCKLIST = 3
+            PROHIBITED_CONTENT = 4
 
         block_reason: "GenerateContentResponse.PromptFeedback.BlockedReason" = (
             proto.Field(
@@ -926,6 +949,30 @@ class GenerateContentResponse(proto.Message):
         proto.MESSAGE,
         number=4,
         message=UsageMetadata,
+    )
+
+
+class ChatCompletionsRequest(proto.Message):
+    r"""Request message for [PredictionService.ChatCompletions]
+
+    Attributes:
+        endpoint (str):
+            Required. The name of the Endpoint requested to serve the
+            prediction. Format:
+            ``projects/{project}/locations/{location}/endpoints/openapi``
+        http_body (google.api.httpbody_pb2.HttpBody):
+            Optional. The prediction input. Supports HTTP
+            headers and arbitrary data payload.
+    """
+
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    http_body: httpbody_pb2.HttpBody = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=httpbody_pb2.HttpBody,
     )
 
 

@@ -740,6 +740,8 @@ class CountTokensResponse(proto.Message):
 class GenerateContentRequest(proto.Message):
     r"""Request message for [PredictionService.GenerateContent].
 
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         model (str):
             Required. The name of the publisher model requested to serve
@@ -752,6 +754,13 @@ class GenerateContentRequest(proto.Message):
             instance. For multi-turn queries, this is a
             repeated field that contains conversation
             history + latest request.
+        system_instruction (google.cloud.aiplatform_v1.types.Content):
+            Optional. The user provided system
+            instructions for the model. Note: only text
+            should be used in parts and content in each part
+            will be in a separate paragraph.
+
+            This field is a member of `oneof`_ ``_system_instruction``.
         tools (MutableSequence[google.cloud.aiplatform_v1.types.Tool]):
             Optional. A list of ``Tools`` the model may use to generate
             the next response.
@@ -774,6 +783,12 @@ class GenerateContentRequest(proto.Message):
     contents: MutableSequence[content.Content] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
+        message=content.Content,
+    )
+    system_instruction: content.Content = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        optional=True,
         message=content.Content,
     )
     tools: MutableSequence[tool.Tool] = proto.RepeatedField(
@@ -831,10 +846,17 @@ class GenerateContentResponse(proto.Message):
                     Candidates blocked due to safety.
                 OTHER (2):
                     Candidates blocked due to other reason.
+                BLOCKLIST (3):
+                    Candidates blocked due to the terms which are
+                    included from the terminology blocklist.
+                PROHIBITED_CONTENT (4):
+                    Candidates blocked due to prohibited content.
             """
             BLOCKED_REASON_UNSPECIFIED = 0
             SAFETY = 1
             OTHER = 2
+            BLOCKLIST = 3
+            PROHIBITED_CONTENT = 4
 
         block_reason: "GenerateContentResponse.PromptFeedback.BlockedReason" = (
             proto.Field(

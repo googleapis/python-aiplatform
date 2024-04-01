@@ -987,6 +987,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -1314,6 +1318,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1692,6 +1700,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2081,6 +2093,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
                     },
                     {
@@ -2323,10 +2339,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
                     },
-                    {
-                        "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                    },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
                     {
@@ -2456,6 +2468,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -4770,6 +4786,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                 },
                 {
@@ -5154,6 +5174,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 {
                     "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -5592,6 +5616,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -6042,6 +6070,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
                 },
                 {
@@ -6284,10 +6316,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
                 },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                },
             ]
 
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
@@ -6478,6 +6506,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

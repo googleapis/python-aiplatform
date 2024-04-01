@@ -30745,6 +30745,2646 @@
       "clientMethod": {
         "async": true,
         "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient",
+          "shortName": "NotebookServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient.assign_notebook_runtime",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.AssignNotebookRuntime",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "AssignNotebookRuntime"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.AssignNotebookRuntimeRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "notebook_runtime_template",
+            "type": "str"
+          },
+          {
+            "name": "notebook_runtime",
+            "type": "google.cloud.aiplatform_v1.types.NotebookRuntime"
+          },
+          {
+            "name": "notebook_runtime_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "assign_notebook_runtime"
+      },
+      "description": "Sample for AssignNotebookRuntime",
+      "file": "aiplatform_v1_generated_notebook_service_assign_notebook_runtime_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_AssignNotebookRuntime_async",
+      "segments": [
+        {
+          "end": 61,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 61,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 58,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 62,
+          "start": 59,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_assign_notebook_runtime_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient",
+          "shortName": "NotebookServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient.assign_notebook_runtime",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.AssignNotebookRuntime",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "AssignNotebookRuntime"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.AssignNotebookRuntimeRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "notebook_runtime_template",
+            "type": "str"
+          },
+          {
+            "name": "notebook_runtime",
+            "type": "google.cloud.aiplatform_v1.types.NotebookRuntime"
+          },
+          {
+            "name": "notebook_runtime_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "assign_notebook_runtime"
+      },
+      "description": "Sample for AssignNotebookRuntime",
+      "file": "aiplatform_v1_generated_notebook_service_assign_notebook_runtime_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_AssignNotebookRuntime_sync",
+      "segments": [
+        {
+          "end": 61,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 61,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 58,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 62,
+          "start": 59,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_assign_notebook_runtime_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient",
+          "shortName": "NotebookServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient.create_notebook_runtime_template",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.CreateNotebookRuntimeTemplate",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "CreateNotebookRuntimeTemplate"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.CreateNotebookRuntimeTemplateRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "notebook_runtime_template",
+            "type": "google.cloud.aiplatform_v1.types.NotebookRuntimeTemplate"
+          },
+          {
+            "name": "notebook_runtime_template_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "create_notebook_runtime_template"
+      },
+      "description": "Sample for CreateNotebookRuntimeTemplate",
+      "file": "aiplatform_v1_generated_notebook_service_create_notebook_runtime_template_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_CreateNotebookRuntimeTemplate_async",
+      "segments": [
+        {
+          "end": 59,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 59,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 56,
+          "start": 50,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 60,
+          "start": 57,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_create_notebook_runtime_template_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient",
+          "shortName": "NotebookServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient.create_notebook_runtime_template",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.CreateNotebookRuntimeTemplate",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "CreateNotebookRuntimeTemplate"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.CreateNotebookRuntimeTemplateRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "notebook_runtime_template",
+            "type": "google.cloud.aiplatform_v1.types.NotebookRuntimeTemplate"
+          },
+          {
+            "name": "notebook_runtime_template_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "create_notebook_runtime_template"
+      },
+      "description": "Sample for CreateNotebookRuntimeTemplate",
+      "file": "aiplatform_v1_generated_notebook_service_create_notebook_runtime_template_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_CreateNotebookRuntimeTemplate_sync",
+      "segments": [
+        {
+          "end": 59,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 59,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 56,
+          "start": 50,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 60,
+          "start": 57,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_create_notebook_runtime_template_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient",
+          "shortName": "NotebookServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient.delete_notebook_runtime_template",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.DeleteNotebookRuntimeTemplate",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "DeleteNotebookRuntimeTemplate"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeleteNotebookRuntimeTemplateRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_notebook_runtime_template"
+      },
+      "description": "Sample for DeleteNotebookRuntimeTemplate",
+      "file": "aiplatform_v1_generated_notebook_service_delete_notebook_runtime_template_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_DeleteNotebookRuntimeTemplate_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_delete_notebook_runtime_template_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient",
+          "shortName": "NotebookServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient.delete_notebook_runtime_template",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.DeleteNotebookRuntimeTemplate",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "DeleteNotebookRuntimeTemplate"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeleteNotebookRuntimeTemplateRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_notebook_runtime_template"
+      },
+      "description": "Sample for DeleteNotebookRuntimeTemplate",
+      "file": "aiplatform_v1_generated_notebook_service_delete_notebook_runtime_template_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_DeleteNotebookRuntimeTemplate_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_delete_notebook_runtime_template_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient",
+          "shortName": "NotebookServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient.delete_notebook_runtime",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.DeleteNotebookRuntime",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "DeleteNotebookRuntime"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeleteNotebookRuntimeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_notebook_runtime"
+      },
+      "description": "Sample for DeleteNotebookRuntime",
+      "file": "aiplatform_v1_generated_notebook_service_delete_notebook_runtime_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_DeleteNotebookRuntime_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_delete_notebook_runtime_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient",
+          "shortName": "NotebookServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient.delete_notebook_runtime",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.DeleteNotebookRuntime",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "DeleteNotebookRuntime"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeleteNotebookRuntimeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_notebook_runtime"
+      },
+      "description": "Sample for DeleteNotebookRuntime",
+      "file": "aiplatform_v1_generated_notebook_service_delete_notebook_runtime_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_DeleteNotebookRuntime_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_delete_notebook_runtime_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient",
+          "shortName": "NotebookServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient.get_notebook_runtime_template",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.GetNotebookRuntimeTemplate",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "GetNotebookRuntimeTemplate"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetNotebookRuntimeTemplateRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.NotebookRuntimeTemplate",
+        "shortName": "get_notebook_runtime_template"
+      },
+      "description": "Sample for GetNotebookRuntimeTemplate",
+      "file": "aiplatform_v1_generated_notebook_service_get_notebook_runtime_template_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_GetNotebookRuntimeTemplate_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_get_notebook_runtime_template_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient",
+          "shortName": "NotebookServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient.get_notebook_runtime_template",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.GetNotebookRuntimeTemplate",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "GetNotebookRuntimeTemplate"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetNotebookRuntimeTemplateRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.NotebookRuntimeTemplate",
+        "shortName": "get_notebook_runtime_template"
+      },
+      "description": "Sample for GetNotebookRuntimeTemplate",
+      "file": "aiplatform_v1_generated_notebook_service_get_notebook_runtime_template_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_GetNotebookRuntimeTemplate_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_get_notebook_runtime_template_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient",
+          "shortName": "NotebookServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient.get_notebook_runtime",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.GetNotebookRuntime",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "GetNotebookRuntime"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetNotebookRuntimeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.NotebookRuntime",
+        "shortName": "get_notebook_runtime"
+      },
+      "description": "Sample for GetNotebookRuntime",
+      "file": "aiplatform_v1_generated_notebook_service_get_notebook_runtime_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_GetNotebookRuntime_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_get_notebook_runtime_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient",
+          "shortName": "NotebookServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient.get_notebook_runtime",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.GetNotebookRuntime",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "GetNotebookRuntime"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetNotebookRuntimeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.NotebookRuntime",
+        "shortName": "get_notebook_runtime"
+      },
+      "description": "Sample for GetNotebookRuntime",
+      "file": "aiplatform_v1_generated_notebook_service_get_notebook_runtime_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_GetNotebookRuntime_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_get_notebook_runtime_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient",
+          "shortName": "NotebookServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient.list_notebook_runtime_templates",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.ListNotebookRuntimeTemplates",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "ListNotebookRuntimeTemplates"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListNotebookRuntimeTemplatesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.notebook_service.pagers.ListNotebookRuntimeTemplatesAsyncPager",
+        "shortName": "list_notebook_runtime_templates"
+      },
+      "description": "Sample for ListNotebookRuntimeTemplates",
+      "file": "aiplatform_v1_generated_notebook_service_list_notebook_runtime_templates_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_ListNotebookRuntimeTemplates_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_list_notebook_runtime_templates_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient",
+          "shortName": "NotebookServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient.list_notebook_runtime_templates",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.ListNotebookRuntimeTemplates",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "ListNotebookRuntimeTemplates"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListNotebookRuntimeTemplatesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.notebook_service.pagers.ListNotebookRuntimeTemplatesPager",
+        "shortName": "list_notebook_runtime_templates"
+      },
+      "description": "Sample for ListNotebookRuntimeTemplates",
+      "file": "aiplatform_v1_generated_notebook_service_list_notebook_runtime_templates_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_ListNotebookRuntimeTemplates_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_list_notebook_runtime_templates_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient",
+          "shortName": "NotebookServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient.list_notebook_runtimes",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.ListNotebookRuntimes",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "ListNotebookRuntimes"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListNotebookRuntimesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.notebook_service.pagers.ListNotebookRuntimesAsyncPager",
+        "shortName": "list_notebook_runtimes"
+      },
+      "description": "Sample for ListNotebookRuntimes",
+      "file": "aiplatform_v1_generated_notebook_service_list_notebook_runtimes_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_ListNotebookRuntimes_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_list_notebook_runtimes_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient",
+          "shortName": "NotebookServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient.list_notebook_runtimes",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.ListNotebookRuntimes",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "ListNotebookRuntimes"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListNotebookRuntimesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.notebook_service.pagers.ListNotebookRuntimesPager",
+        "shortName": "list_notebook_runtimes"
+      },
+      "description": "Sample for ListNotebookRuntimes",
+      "file": "aiplatform_v1_generated_notebook_service_list_notebook_runtimes_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_ListNotebookRuntimes_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_list_notebook_runtimes_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient",
+          "shortName": "NotebookServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient.start_notebook_runtime",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.StartNotebookRuntime",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "StartNotebookRuntime"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.StartNotebookRuntimeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "start_notebook_runtime"
+      },
+      "description": "Sample for StartNotebookRuntime",
+      "file": "aiplatform_v1_generated_notebook_service_start_notebook_runtime_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_StartNotebookRuntime_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_start_notebook_runtime_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient",
+          "shortName": "NotebookServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient.start_notebook_runtime",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.StartNotebookRuntime",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "StartNotebookRuntime"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.StartNotebookRuntimeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "start_notebook_runtime"
+      },
+      "description": "Sample for StartNotebookRuntime",
+      "file": "aiplatform_v1_generated_notebook_service_start_notebook_runtime_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_StartNotebookRuntime_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_start_notebook_runtime_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient",
+          "shortName": "NotebookServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceAsyncClient.upgrade_notebook_runtime",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.UpgradeNotebookRuntime",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "UpgradeNotebookRuntime"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.UpgradeNotebookRuntimeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "upgrade_notebook_runtime"
+      },
+      "description": "Sample for UpgradeNotebookRuntime",
+      "file": "aiplatform_v1_generated_notebook_service_upgrade_notebook_runtime_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_UpgradeNotebookRuntime_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_upgrade_notebook_runtime_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient",
+          "shortName": "NotebookServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.NotebookServiceClient.upgrade_notebook_runtime",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.NotebookService.UpgradeNotebookRuntime",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.NotebookService",
+            "shortName": "NotebookService"
+          },
+          "shortName": "UpgradeNotebookRuntime"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.UpgradeNotebookRuntimeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "upgrade_notebook_runtime"
+      },
+      "description": "Sample for UpgradeNotebookRuntime",
+      "file": "aiplatform_v1_generated_notebook_service_upgrade_notebook_runtime_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_NotebookService_UpgradeNotebookRuntime_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_notebook_service_upgrade_notebook_runtime_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient",
+          "shortName": "PersistentResourceServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient.create_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.CreatePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "CreatePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.CreatePersistentResourceRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "persistent_resource",
+            "type": "google.cloud.aiplatform_v1.types.PersistentResource"
+          },
+          {
+            "name": "persistent_resource_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "create_persistent_resource"
+      },
+      "description": "Sample for CreatePersistentResource",
+      "file": "aiplatform_v1_generated_persistent_resource_service_create_persistent_resource_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_CreatePersistentResource_async",
+      "segments": [
+        {
+          "end": 56,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 56,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 46,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 53,
+          "start": 47,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 57,
+          "start": 54,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_create_persistent_resource_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient",
+          "shortName": "PersistentResourceServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient.create_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.CreatePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "CreatePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.CreatePersistentResourceRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "persistent_resource",
+            "type": "google.cloud.aiplatform_v1.types.PersistentResource"
+          },
+          {
+            "name": "persistent_resource_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "create_persistent_resource"
+      },
+      "description": "Sample for CreatePersistentResource",
+      "file": "aiplatform_v1_generated_persistent_resource_service_create_persistent_resource_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_CreatePersistentResource_sync",
+      "segments": [
+        {
+          "end": 56,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 56,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 46,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 53,
+          "start": 47,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 57,
+          "start": 54,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_create_persistent_resource_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient",
+          "shortName": "PersistentResourceServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient.delete_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.DeletePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "DeletePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeletePersistentResourceRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_persistent_resource"
+      },
+      "description": "Sample for DeletePersistentResource",
+      "file": "aiplatform_v1_generated_persistent_resource_service_delete_persistent_resource_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_DeletePersistentResource_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_delete_persistent_resource_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient",
+          "shortName": "PersistentResourceServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient.delete_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.DeletePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "DeletePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeletePersistentResourceRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_persistent_resource"
+      },
+      "description": "Sample for DeletePersistentResource",
+      "file": "aiplatform_v1_generated_persistent_resource_service_delete_persistent_resource_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_DeletePersistentResource_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_delete_persistent_resource_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient",
+          "shortName": "PersistentResourceServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient.get_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.GetPersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "GetPersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetPersistentResourceRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.PersistentResource",
+        "shortName": "get_persistent_resource"
+      },
+      "description": "Sample for GetPersistentResource",
+      "file": "aiplatform_v1_generated_persistent_resource_service_get_persistent_resource_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_GetPersistentResource_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_get_persistent_resource_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient",
+          "shortName": "PersistentResourceServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient.get_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.GetPersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "GetPersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetPersistentResourceRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.PersistentResource",
+        "shortName": "get_persistent_resource"
+      },
+      "description": "Sample for GetPersistentResource",
+      "file": "aiplatform_v1_generated_persistent_resource_service_get_persistent_resource_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_GetPersistentResource_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_get_persistent_resource_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient",
+          "shortName": "PersistentResourceServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient.list_persistent_resources",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.ListPersistentResources",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "ListPersistentResources"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListPersistentResourcesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.persistent_resource_service.pagers.ListPersistentResourcesAsyncPager",
+        "shortName": "list_persistent_resources"
+      },
+      "description": "Sample for ListPersistentResources",
+      "file": "aiplatform_v1_generated_persistent_resource_service_list_persistent_resources_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_ListPersistentResources_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_list_persistent_resources_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient",
+          "shortName": "PersistentResourceServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient.list_persistent_resources",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.ListPersistentResources",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "ListPersistentResources"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListPersistentResourcesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.persistent_resource_service.pagers.ListPersistentResourcesPager",
+        "shortName": "list_persistent_resources"
+      },
+      "description": "Sample for ListPersistentResources",
+      "file": "aiplatform_v1_generated_persistent_resource_service_list_persistent_resources_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_ListPersistentResources_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_list_persistent_resources_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient",
+          "shortName": "PersistentResourceServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient.reboot_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.RebootPersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "RebootPersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.RebootPersistentResourceRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "reboot_persistent_resource"
+      },
+      "description": "Sample for RebootPersistentResource",
+      "file": "aiplatform_v1_generated_persistent_resource_service_reboot_persistent_resource_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_RebootPersistentResource_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_reboot_persistent_resource_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient",
+          "shortName": "PersistentResourceServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient.reboot_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.RebootPersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "RebootPersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.RebootPersistentResourceRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "reboot_persistent_resource"
+      },
+      "description": "Sample for RebootPersistentResource",
+      "file": "aiplatform_v1_generated_persistent_resource_service_reboot_persistent_resource_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_RebootPersistentResource_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_reboot_persistent_resource_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient",
+          "shortName": "PersistentResourceServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceAsyncClient.update_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.UpdatePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "UpdatePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.UpdatePersistentResourceRequest"
+          },
+          {
+            "name": "persistent_resource",
+            "type": "google.cloud.aiplatform_v1.types.PersistentResource"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "update_persistent_resource"
+      },
+      "description": "Sample for UpdatePersistentResource",
+      "file": "aiplatform_v1_generated_persistent_resource_service_update_persistent_resource_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_UpdatePersistentResource_async",
+      "segments": [
+        {
+          "end": 54,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 54,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 44,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 45,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 55,
+          "start": 52,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_update_persistent_resource_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient",
+          "shortName": "PersistentResourceServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.PersistentResourceServiceClient.update_persistent_resource",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.PersistentResourceService.UpdatePersistentResource",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.PersistentResourceService",
+            "shortName": "PersistentResourceService"
+          },
+          "shortName": "UpdatePersistentResource"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.UpdatePersistentResourceRequest"
+          },
+          {
+            "name": "persistent_resource",
+            "type": "google.cloud.aiplatform_v1.types.PersistentResource"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "update_persistent_resource"
+      },
+      "description": "Sample for UpdatePersistentResource",
+      "file": "aiplatform_v1_generated_persistent_resource_service_update_persistent_resource_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_PersistentResourceService_UpdatePersistentResource_sync",
+      "segments": [
+        {
+          "end": 54,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 54,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 44,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 45,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 55,
+          "start": 52,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_persistent_resource_service_update_persistent_resource_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
           "fullName": "google.cloud.aiplatform_v1.PipelineServiceAsyncClient",
           "shortName": "PipelineServiceAsyncClient"
         },

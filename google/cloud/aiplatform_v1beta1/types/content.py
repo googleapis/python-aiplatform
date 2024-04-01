@@ -192,16 +192,18 @@ class Part(proto.Message):
 
 
 class Blob(proto.Message):
-    r"""Raw media bytes.
+    r"""Content blob.
 
-    Text should not be sent as raw bytes, use the 'text' field.
+    It's preferred to send as
+    [text][google.cloud.aiplatform.v1beta1.Part.text] directly rather
+    than raw bytes.
 
     Attributes:
         mime_type (str):
             Required. The IANA standard MIME type of the
             source data.
         data (bytes):
-            Required. Raw bytes for media formats.
+            Required. Raw bytes.
     """
 
     mime_type: str = proto.Field(
@@ -289,6 +291,23 @@ class GenerationConfig(proto.Message):
             This field is a member of `oneof`_ ``_max_output_tokens``.
         stop_sequences (MutableSequence[str]):
             Optional. Stop sequences.
+        presence_penalty (float):
+            Optional. Positive penalties.
+
+            This field is a member of `oneof`_ ``_presence_penalty``.
+        frequency_penalty (float):
+            Optional. Frequency penalties.
+
+            This field is a member of `oneof`_ ``_frequency_penalty``.
+        response_mime_type (str):
+            Optional. Output response mimetype of the generated
+            candidate text. Supported mimetype:
+
+            -  ``text/plain``: (default) Text output.
+            -  ``application/json``: JSON response in the candidates.
+               The model needs to be prompted to output the appropriate
+               response type, otherwise the behavior is undefined. This
+               is a preview feature.
     """
 
     temperature: float = proto.Field(
@@ -320,6 +339,20 @@ class GenerationConfig(proto.Message):
         proto.STRING,
         number=6,
     )
+    presence_penalty: float = proto.Field(
+        proto.FLOAT,
+        number=8,
+        optional=True,
+    )
+    frequency_penalty: float = proto.Field(
+        proto.FLOAT,
+        number=9,
+        optional=True,
+    )
+    response_mime_type: str = proto.Field(
+        proto.STRING,
+        number=13,
+    )
 
 
 class SafetySetting(proto.Message):
@@ -330,6 +363,11 @@ class SafetySetting(proto.Message):
             Required. Harm category.
         threshold (google.cloud.aiplatform_v1beta1.types.SafetySetting.HarmBlockThreshold):
             Required. The harm block threshold.
+        method (google.cloud.aiplatform_v1beta1.types.SafetySetting.HarmBlockMethod):
+            Optional. Specify if the threshold is used
+            for probability or severity score. If not
+            specified, the threshold is used for probability
+            score.
     """
 
     class HarmBlockThreshold(proto.Enum):
@@ -354,6 +392,23 @@ class SafetySetting(proto.Message):
         BLOCK_ONLY_HIGH = 3
         BLOCK_NONE = 4
 
+    class HarmBlockMethod(proto.Enum):
+        r"""Probability vs severity.
+
+        Values:
+            HARM_BLOCK_METHOD_UNSPECIFIED (0):
+                The harm block method is unspecified.
+            SEVERITY (1):
+                The harm block method uses both probability
+                and severity scores.
+            PROBABILITY (2):
+                The harm block method uses the probability
+                score.
+        """
+        HARM_BLOCK_METHOD_UNSPECIFIED = 0
+        SEVERITY = 1
+        PROBABILITY = 2
+
     category: "HarmCategory" = proto.Field(
         proto.ENUM,
         number=1,
@@ -363,6 +418,11 @@ class SafetySetting(proto.Message):
         proto.ENUM,
         number=2,
         enum=HarmBlockThreshold,
+    )
+    method: HarmBlockMethod = proto.Field(
+        proto.ENUM,
+        number=4,
+        enum=HarmBlockMethod,
     )
 
 
@@ -669,11 +729,21 @@ class Segment(proto.Message):
 class GroundingAttribution(proto.Message):
     r"""Grounding attribution.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
         web (google.cloud.aiplatform_v1beta1.types.GroundingAttribution.Web):
             Optional. Attribution from the web.
+
+            This field is a member of `oneof`_ ``reference``.
+        retrieved_context (google.cloud.aiplatform_v1beta1.types.GroundingAttribution.RetrievedContext):
+            Optional. Attribution from context retrieved
+            by the retrieval tools.
 
             This field is a member of `oneof`_ ``reference``.
         segment (google.cloud.aiplatform_v1beta1.types.Segment):
@@ -707,11 +777,37 @@ class GroundingAttribution(proto.Message):
             number=2,
         )
 
+    class RetrievedContext(proto.Message):
+        r"""Attribution from context retrieved by the retrieval tools.
+
+        Attributes:
+            uri (str):
+                Output only. URI reference of the
+                attribution.
+            title (str):
+                Output only. Title of the attribution.
+        """
+
+        uri: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        title: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
     web: Web = proto.Field(
         proto.MESSAGE,
         number=3,
         oneof="reference",
         message=Web,
+    )
+    retrieved_context: RetrievedContext = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="reference",
+        message=RetrievedContext,
     )
     segment: "Segment" = proto.Field(
         proto.MESSAGE,
@@ -732,6 +828,9 @@ class GroundingMetadata(proto.Message):
         web_search_queries (MutableSequence[str]):
             Optional. Web search queries for the
             following-up web search.
+        retrieval_queries (MutableSequence[str]):
+            Optional. Queries executed by the retrieval
+            tools.
         grounding_attributions (MutableSequence[google.cloud.aiplatform_v1beta1.types.GroundingAttribution]):
             Optional. List of grounding attributions.
     """
@@ -739,6 +838,10 @@ class GroundingMetadata(proto.Message):
     web_search_queries: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=1,
+    )
+    retrieval_queries: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=3,
     )
     grounding_attributions: MutableSequence[
         "GroundingAttribution"
