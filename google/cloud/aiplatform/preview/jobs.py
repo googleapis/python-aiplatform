@@ -70,7 +70,7 @@ _JOB_ERROR_STATES = (
 
 
 class CustomJob(jobs.CustomJob):
-    """Vertex AI Custom Job."""
+    """Deprecated. Vertex AI Custom Job (preview)."""
 
     def __init__(
         self,
@@ -88,7 +88,9 @@ class CustomJob(jobs.CustomJob):
         staging_bucket: Optional[str] = None,
         persistent_resource_id: Optional[str] = None,
     ):
-        """Constructs a Custom Job with Worker Pool Specs.
+        """Deprecated. Please use the GA (non-preview) version of this class.
+
+        Constructs a Custom Job with Worker Pool Specs.
 
         ```
         Example usage:
@@ -472,7 +474,7 @@ class CustomJob(jobs.CustomJob):
 
 
 class HyperparameterTuningJob(jobs.HyperparameterTuningJob):
-    """Vertex AI Hyperparameter Tuning Job."""
+    """Deprecated. Vertex AI Hyperparameter Tuning Job (preview)."""
 
     def __init__(
         self,
@@ -492,7 +494,8 @@ class HyperparameterTuningJob(jobs.HyperparameterTuningJob):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
     ):
-        """
+        """Deprecated. Please use the GA (non-preview) version of this class.
+
         Configures a HyperparameterTuning Job.
 
         Example usage:

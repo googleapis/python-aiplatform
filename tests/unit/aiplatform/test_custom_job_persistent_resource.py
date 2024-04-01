@@ -20,16 +20,12 @@ from unittest import mock
 from unittest.mock import patch
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.compat.services import (
-    job_service_client_v1beta1,
-)
-from google.cloud.aiplatform.compat.types import custom_job_v1beta1
-from google.cloud.aiplatform.compat.types import encryption_spec_v1beta1
-from google.cloud.aiplatform.compat.types import io_v1beta1
-from google.cloud.aiplatform.compat.types import (
-    job_state_v1beta1 as gca_job_state_compat,
-)
-from google.cloud.aiplatform.preview import jobs
+from google.cloud.aiplatform import jobs
+from google.cloud.aiplatform.compat.services import job_service_client_v1
+from google.cloud.aiplatform.compat.types import custom_job_v1
+from google.cloud.aiplatform.compat.types import encryption_spec_v1
+from google.cloud.aiplatform.compat.types import io_v1
+from google.cloud.aiplatform.compat.types import job_state_v1 as gca_job_state_compat
 import constants as test_constants
 import pytest
 
@@ -58,7 +54,7 @@ _TEST_BASE_OUTPUT_DIR = test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DI
 
 # CMEK encryption
 _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_1234"
-_TEST_DEFAULT_ENCRYPTION_SPEC = encryption_spec_v1beta1.EncryptionSpec(
+_TEST_DEFAULT_ENCRYPTION_SPEC = encryption_spec_v1.EncryptionSpec(
     kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
 )
 
@@ -78,14 +74,14 @@ _TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
 
 # Persistent Resource
 _TEST_PERSISTENT_RESOURCE_ID = "test-persistent-resource-1"
-_TEST_CUSTOM_JOB_WITH_PERSISTENT_RESOURCE_PROTO = custom_job_v1beta1.CustomJob(
+_TEST_CUSTOM_JOB_WITH_PERSISTENT_RESOURCE_PROTO = custom_job_v1.CustomJob(
     display_name=_TEST_DISPLAY_NAME,
-    job_spec=custom_job_v1beta1.CustomJobSpec(
+    job_spec=custom_job_v1.CustomJobSpec(
         worker_pool_specs=_TEST_WORKER_POOL_SPEC,
-        base_output_directory=io_v1beta1.GcsDestination(
+        base_output_directory=io_v1.GcsDestination(
             output_uri_prefix=_TEST_BASE_OUTPUT_DIR
         ),
-        scheduling=custom_job_v1beta1.Scheduling(
+        scheduling=custom_job_v1.Scheduling(
             timeout=duration_pb2.Duration(seconds=_TEST_TIMEOUT),
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             disable_retries=_TEST_DISABLE_RETRIES,
@@ -108,21 +104,21 @@ def _get_custom_job_proto(state=None, name=None, error=None):
 
 
 @pytest.fixture
-def create_preview_custom_job_mock():
+def create_custom_job_mock():
     with mock.patch.object(
-        job_service_client_v1beta1.JobServiceClient, "create_custom_job"
-    ) as create_preview_custom_job_mock:
-        create_preview_custom_job_mock.return_value = _get_custom_job_proto(
+        job_service_client_v1.JobServiceClient, "create_custom_job"
+    ) as create_custom_job_mock:
+        create_custom_job_mock.return_value = _get_custom_job_proto(
             name=_TEST_CUSTOM_JOB_NAME,
             state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
         )
-        yield create_preview_custom_job_mock
+        yield create_custom_job_mock
 
 
 @pytest.fixture
 def get_custom_job_mock():
     with patch.object(
-        job_service_client_v1beta1.JobServiceClient, "get_custom_job"
+        job_service_client_v1.JobServiceClient, "get_custom_job"
     ) as get_custom_job_mock:
         get_custom_job_mock.side_effect = [
             _get_custom_job_proto(
@@ -152,7 +148,7 @@ class TestCustomJobPersistentResource:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_custom_job_with_persistent_resource(
-        self, create_preview_custom_job_mock, get_custom_job_mock, sync
+        self, create_custom_job_mock, get_custom_job_mock, sync
     ):
 
         aiplatform.init(
@@ -188,7 +184,7 @@ class TestCustomJobPersistentResource:
 
         expected_custom_job = _get_custom_job_proto()
 
-        create_preview_custom_job_mock.assert_called_once_with(
+        create_custom_job_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             custom_job=expected_custom_job,
             timeout=None,
@@ -201,7 +197,7 @@ class TestCustomJobPersistentResource:
         assert job.network == _TEST_NETWORK
 
     def test_submit_custom_job_with_persistent_resource(
-        self, create_preview_custom_job_mock, get_custom_job_mock
+        self, create_custom_job_mock, get_custom_job_mock
     ):
 
         aiplatform.init(
@@ -236,7 +232,7 @@ class TestCustomJobPersistentResource:
 
         expected_custom_job = _get_custom_job_proto()
 
-        create_preview_custom_job_mock.assert_called_once_with(
+        create_custom_job_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             custom_job=expected_custom_job,
             timeout=None,
