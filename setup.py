@@ -128,6 +128,11 @@ ray_testing_extra_require = ray_extra_require + [
     "xgboost_ray",
 ]
 
+reasoning_engine_extra_require = [
+    "cloudpickle >= 2.2.1, < 3.0",
+    "pydantic < 3",
+]
+
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -144,6 +149,7 @@ full_extra_require = list(
         + autologging_extra_require
         + preview_extra_require
         + ray_extra_require
+        + reasoning_engine_extra_require
     )
 )
 testing_extra_require = (
@@ -223,6 +229,7 @@ setuptools.setup(
         "preview": preview_extra_require,
         "ray": ray_extra_require,
         "ray_testing": ray_testing_extra_require,
+        "reasoningengine": reasoning_engine_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[
