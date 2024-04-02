@@ -50,6 +50,12 @@ if [[ $KOKORO_BUILD_ARTIFACTS_SUBDIR = *"continuous"* ]]; then
   trap cleanup EXIT HUP
 fi
 
+# if [[ -n "${GITHUB_KOKORO_BUILD_PATH:-}" ]]; then
+#   echo "====.  TEST_XML_PATH"
+#   TEST_XML_PATH="${KOKORO_ARTIFACTS_DIR}/cloud-devrel/client-libraries/python/googleapis/python-aiplatform/${GITHUB_KOKORO_BUILD_PATH}/"
+# fi
+
+
 # If NOX_SESSION is set, it only runs the specified session,
 # otherwise run all the sessions.
 if [[ -n "${NOX_SESSION:-}" ]]; then
@@ -57,3 +63,12 @@ if [[ -n "${NOX_SESSION:-}" ]]; then
 else
     python3 -m nox
 fi
+
+# if [[ -n "${TEST_XML_PATH:-}" && -e "sponge_log.xml" ]]; then
+#   echo "====== file exists... copying... ======"
+#   mkdir -p $TEST_XML_PATH
+#   mv sponge_log.xml $TEST_XML_PATH
+#   chmod -R -x+X $TEST_XML_PATH
+#   ls -lR $TEST_XML_PATH
+# fi
+
