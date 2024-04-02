@@ -77,7 +77,7 @@ def register_xgboost(
             Optional. The display name of the Model. The name can be up to 128
             characters long and can be consist of any UTF-8 characters.
         xgboost_version (str): Optional. The version of the XGBoost serving container.
-                Supported versions: ["0.82", "0.90", "1.1", "1.2", "1.3", "1.4", "1.6", "1.7", "2.0"].
+                Supported versions: ["0.82", "0.90", "1.1", "1.2", "1.3", "1.4", "1.6", "1.7"].
                 If the version is not specified, the latest version is used.
         **kwargs:
             Any kwargs will be passed to aiplatform.Model registration.
