@@ -86,7 +86,7 @@ GenerationConfigType = Union[
 ]
 
 SafetySettingsType = Union[
-    List[gapic_content_types.SafetySetting],
+    List["SafetySetting"],
     Dict[
         gapic_content_types.HarmCategory,
         gapic_content_types.SafetySetting.HarmBlockThreshold,
@@ -258,17 +258,20 @@ class _GenerativeModel:
                 raise TypeError(
                     "generation_config must either be a GenerationConfig object or a dictionary representation of it."
                 )
+
         gapic_safety_settings = None
         if safety_settings:
             if isinstance(safety_settings, Sequence):
-                if not all(
-                    isinstance(safety_setting, gapic_content_types.SafetySetting)
-                    for safety_setting in safety_settings
-                ):
-                    raise TypeError(
-                        "When passing a list with SafetySettings objects, every item in a list must be a SafetySetting object."
-                    )
-                gapic_safety_settings = safety_settings
+                gapic_safety_settings = []
+                for safety_setting in safety_settings:
+                    if isinstance(safety_setting, gapic_content_types.SafetySetting):
+                        gapic_safety_settings.append(safety_setting)
+                    elif isinstance(safety_setting, SafetySetting):
+                        gapic_safety_settings.append(safety_setting._raw_safety_setting)
+                    else:
+                        raise TypeError(
+                            "When passing a list with SafetySettings objects, every item in a list must be a SafetySetting object."
+                        )
             elif isinstance(safety_settings, dict):
                 gapic_safety_settings = [
                     gapic_content_types.SafetySetting(
@@ -283,6 +286,7 @@ class _GenerativeModel:
                 raise TypeError(
                     "safety_settings must either be a list of SafetySettings objects or a dictionary mapping from HarmCategory to HarmBlockThreshold."
                 )
+
         gapic_tools = None
         if tools:
             gapic_tools = []
@@ -1736,6 +1740,61 @@ class Part:
     @property
     def _image(self) -> "Image":
         return Image.from_bytes(data=self._raw_part.inline_data.data)
+
+
+class SafetySetting:
+    """Parameters for the generation."""
+
+    HarmCategory = gapic_content_types.HarmCategory
+    HarmBlockMethod = gapic_content_types.SafetySetting.HarmBlockMethod
+    HarmBlockThreshold = gapic_content_types.SafetySetting.HarmBlockThreshold
+
+    def __init__(
+        self,
+        *,
+        category: "SafetySetting.HarmCategory",
+        threshold: "SafetySetting.HarmBlockThreshold",
+        method: Optional["SafetySetting.HarmBlockMethod"] = None,
+    ):
+        r"""Safety settings.
+
+        Args:
+            category: Harm category.
+            threshold: The harm block threshold.
+            method: Specify if the threshold is used for probability or severity
+                score. If not specified, the threshold is used for probability
+                score.
+        """
+        self._raw_safety_setting = gapic_content_types.SafetySetting(
+            category=category,
+            threshold=threshold,
+            method=method,
+        )
+
+    @classmethod
+    def _from_gapic(
+        cls,
+        raw_safety_setting: gapic_content_types.SafetySetting,
+    ) -> "SafetySetting":
+        response = cls(
+            category=raw_safety_setting.category,
+            threshold=raw_safety_setting.threshold,
+        )
+        response._raw_safety_setting = raw_safety_setting
+        return response
+
+    @classmethod
+    def from_dict(cls, safety_setting_dict: Dict[str, Any]) -> "SafetySetting":
+        raw_safety_setting = gapic_content_types.SafetySetting(
+            safety_setting_dict
+        )
+        return cls._from_gapic(raw_safety_setting=raw_safety_setting)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_safety_setting).to_dict(self._raw_safety_setting)
+
+    def __repr__(self):
+        return self._raw_safety_setting.__repr__()
 
 
 class grounding:  # pylint: disable=invalid-name

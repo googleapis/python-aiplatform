@@ -307,6 +307,18 @@ class TestGenerativeModels:
                 max_output_tokens=200,
                 stop_sequences=["\n\n\n"],
             ),
+            safety_settings=[
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                    method=generative_models.SafetySetting.HarmBlockMethod.SEVERITY,
+                ),
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                    method=generative_models.SafetySetting.HarmBlockMethod.PROBABILITY,
+                ),
+            ],
         )
         assert response2.text
 
