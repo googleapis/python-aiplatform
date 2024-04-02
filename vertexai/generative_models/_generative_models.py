@@ -29,6 +29,7 @@ from typing import (
     Optional,
     Sequence,
     Union,
+    Tuple,
 )
 
 from google.cloud.aiplatform import initializer as aiplatform_initializer
@@ -319,6 +320,7 @@ class _GenerativeModel:
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
         stream: bool = False,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> Union["GenerationResponse", Iterable["GenerationResponse"],]:
         """Generates content.
 
@@ -334,6 +336,8 @@ class _GenerativeModel:
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
             stream: Whether to stream the response.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             A single GenerationResponse object if stream == False
@@ -346,6 +350,7 @@ class _GenerativeModel:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                metadata=metadata,
             )
         else:
             return self._generate_content(
@@ -353,6 +358,7 @@ class _GenerativeModel:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                metadata=metadata,
             )
 
     async def generate_content_async(
@@ -363,6 +369,7 @@ class _GenerativeModel:
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
         stream: bool = False,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> Union["GenerationResponse", AsyncIterable["GenerationResponse"],]:
         """Generates content asynchronously.
 
@@ -378,6 +385,8 @@ class _GenerativeModel:
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
             stream: Whether to stream the response.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             An awaitable for a single GenerationResponse object if stream == False
@@ -389,6 +398,7 @@ class _GenerativeModel:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                metadata=metadata,
             )
         else:
             return await self._generate_content_async(
@@ -396,6 +406,7 @@ class _GenerativeModel:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                metadata=metadata,
             )
 
     def _generate_content(
@@ -405,6 +416,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> "GenerationResponse":
         """Generates content.
 
@@ -419,6 +431,8 @@ class _GenerativeModel:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             A single GenerationResponse object
@@ -429,7 +443,10 @@ class _GenerativeModel:
             safety_settings=safety_settings,
             tools=tools,
         )
-        gapic_response = self._prediction_client.generate_content(request=request)
+        gapic_response = self._prediction_client.generate_content(
+            request=request,
+            metadata=metadata
+        )
         return self._parse_response(gapic_response)
 
     async def _generate_content_async(
@@ -439,6 +456,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> "GenerationResponse":
         """Generates content asynchronously.
 
@@ -453,6 +471,8 @@ class _GenerativeModel:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             An awaitable for a single GenerationResponse object
@@ -464,7 +484,8 @@ class _GenerativeModel:
             tools=tools,
         )
         gapic_response = await self._prediction_async_client.generate_content(
-            request=request
+            request=request,
+            metadata=metadata,
         )
         return self._parse_response(gapic_response)
 
@@ -475,6 +496,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> Iterable["GenerationResponse"]:
         """Generates content.
 
@@ -489,6 +511,8 @@ class _GenerativeModel:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Yields:
             A stream of GenerationResponse objects
@@ -500,7 +524,8 @@ class _GenerativeModel:
             tools=tools,
         )
         response_stream = self._prediction_client.stream_generate_content(
-            request=request
+            request=request,
+            metadata=metadata,
         )
         for chunk in response_stream:
             yield self._parse_response(chunk)
@@ -512,6 +537,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> AsyncIterable["GenerationResponse"]:
         """Generates content asynchronously.
 
@@ -526,6 +552,8 @@ class _GenerativeModel:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             An awaitable for a stream of GenerationResponse objects
@@ -537,7 +565,8 @@ class _GenerativeModel:
             tools=tools,
         )
         response_stream = await self._prediction_async_client.stream_generate_content(
-            request=request
+            request=request,
+            metadata=metadata,
         )
 
         async def async_generator():
@@ -547,7 +576,9 @@ class _GenerativeModel:
         return async_generator()
 
     def count_tokens(
-        self, contents: ContentsType
+        self,
+        contents: ContentsType,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> gapic_prediction_service_types.CountTokensResponse:
         """Counts tokens.
 
@@ -559,6 +590,8 @@ class _GenerativeModel:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
                 * List[Content]
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             A CountTokensResponse object that has the following attributes:
@@ -570,11 +603,14 @@ class _GenerativeModel:
                 endpoint=self._prediction_resource_name,
                 model=self._prediction_resource_name,
                 contents=self._prepare_request(contents=contents).contents,
-            )
+            ),
+            metadata=metadata,
         )
 
     async def count_tokens_async(
-        self, contents: ContentsType
+        self,
+        contents: ContentsType,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> gapic_prediction_service_types.CountTokensResponse:
         """Counts tokens asynchronously.
 
@@ -586,6 +622,8 @@ class _GenerativeModel:
                 * str, Image, Part,
                 * List[Union[str, Image, Part]],
                 * List[Content]
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             And awaitable for a CountTokensResponse object that has the following attributes:
@@ -597,7 +635,8 @@ class _GenerativeModel:
                 endpoint=self._prediction_resource_name,
                 model=self._prediction_resource_name,
                 contents=self._prepare_request(contents=contents).contents,
-            )
+            ),
+            metadata=metadata,
         )
 
     def start_chat(
@@ -704,6 +743,7 @@ class ChatSession:
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
         stream: bool = False,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> Union["GenerationResponse", Iterable["GenerationResponse"]]:
         """Generates content.
 
@@ -717,6 +757,8 @@ class ChatSession:
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
             stream: Whether to stream the response.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             A single GenerationResponse object if stream == False
@@ -731,6 +773,7 @@ class ChatSession:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                metadata=metadata,
             )
         else:
             return self._send_message(
@@ -738,6 +781,7 @@ class ChatSession:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                metadata=metadata,
             )
 
     def send_message_async(
@@ -748,6 +792,7 @@ class ChatSession:
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
         stream: bool = False,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> Union[
         Awaitable["GenerationResponse"],
         Awaitable[AsyncIterable["GenerationResponse"]],
@@ -764,6 +809,8 @@ class ChatSession:
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
             stream: Whether to stream the response.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             An awaitable for a single GenerationResponse object if stream == False
@@ -778,6 +825,7 @@ class ChatSession:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                metadata=metadata,
             )
         else:
             return self._send_message_async(
@@ -785,6 +833,7 @@ class ChatSession:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                metadata=metadata,
             )
 
     def _send_message(
@@ -794,6 +843,7 @@ class ChatSession:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> "GenerationResponse":
         """Generates content.
 
@@ -806,6 +856,8 @@ class ChatSession:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             A single GenerationResponse object
@@ -834,6 +886,7 @@ class ChatSession:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                metadata=metadata,
             )
             # By default we're not adding incomplete interactions to history.
             if self._response_validator is not None:
@@ -870,6 +923,7 @@ class ChatSession:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> "GenerationResponse":
         """Generates content asynchronously.
 
@@ -882,6 +936,8 @@ class ChatSession:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             An awaitable for a single GenerationResponse object
@@ -902,6 +958,7 @@ class ChatSession:
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
+            metadata=metadata,
         )
         # By default we're not adding incomplete interactions to history.
         if self._response_validator is not None:
@@ -926,6 +983,7 @@ class ChatSession:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> Iterable["GenerationResponse"]:
         """Generates content.
 
@@ -938,6 +996,8 @@ class ChatSession:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Yields:
             A stream of GenerationResponse objects
@@ -958,6 +1018,7 @@ class ChatSession:
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
+            metadata=metadata,
         )
         chunks = []
         full_response = None
@@ -992,6 +1053,7 @@ class ChatSession:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
     ) -> AsyncIterable["GenerationResponse"]:
         """Generates content asynchronously.
 
@@ -1004,6 +1066,8 @@ class ChatSession:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
 
         Returns:
             An awaitable for a stream of GenerationResponse objects
@@ -1023,6 +1087,7 @@ class ChatSession:
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
+            metadata=metadata,
         )
 
         async def async_generator():

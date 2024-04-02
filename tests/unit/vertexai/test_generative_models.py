@@ -17,7 +17,7 @@
 
 # pylint: disable=protected-access,bad-continuation
 import pytest
-from typing import Iterable, MutableSequence, Optional
+from typing import Iterable, MutableSequence, Optional, Sequence, Tuple
 from unittest import mock
 
 import vertexai
@@ -117,6 +117,7 @@ def mock_generate_content(
     *,
     model: Optional[str] = None,
     contents: Optional[MutableSequence[gapic_content_types.Content]] = None,
+    metadata: Sequence[Tuple[str, str]] = (),
 ) -> Iterable[gapic_prediction_service_types.GenerateContentResponse]:
     last_message_part = request.contents[-1].parts[0]
     should_fail = last_message_part.text and "Please fail" in last_message_part.text
@@ -247,9 +248,10 @@ def mock_stream_generate_content(
     *,
     model: Optional[str] = None,
     contents: Optional[MutableSequence[gapic_content_types.Content]] = None,
+    metadata: Sequence[Tuple[str, str]] = (),
 ) -> Iterable[gapic_prediction_service_types.GenerateContentResponse]:
     yield mock_generate_content(
-        self=self, request=request, model=model, contents=contents
+        self=self, request=request, model=model, contents=contents, metadata=metadata
     )
 
 
@@ -307,6 +309,7 @@ class TestGenerativeModels:
                 max_output_tokens=200,
                 stop_sequences=["\n\n\n"],
             ),
+            metadata=(("x-metadata-key", "metadata-value"),)
         )
         assert response2.text
 
@@ -339,7 +342,8 @@ class TestGenerativeModels:
         chat = model.start_chat()
         response1 = chat.send_message("Why is sky blue?")
         assert response1.text
-        response2 = chat.send_message("Is sky blue on other planets?")
+        metadata = (("x-metadata-key", "metadata-value"),)
+        response2 = chat.send_message("Is sky blue on other planets?", metadata=metadata)
         assert response2.text
 
     @mock.patch.object(
