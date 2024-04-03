@@ -124,6 +124,9 @@ from google.cloud.aiplatform_v1.services.model_garden_service import (
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.persistent_resource_service import (
+    client as persistent_resource_service_client_v1,
+)
 from google.cloud.aiplatform_v1.services.pipeline_service import (
     client as pipeline_service_client_v1,
 )
@@ -160,6 +163,7 @@ __all__ = (
     metadata_service_client_v1,
     model_garden_service_client_v1,
     model_service_client_v1,
+    persistent_resource_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
     prediction_service_async_client_v1,

@@ -23,13 +23,11 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.services import (
-    persistent_resource_service_client_v1beta1 as persistent_resource_service_client_compat,
+    persistent_resource_service_client_v1 as persistent_resource_service_client_compat,
 )
 from google.cloud.aiplatform.compat.types import (
-    persistent_resource_v1beta1 as gca_persistent_resource_compat,
-)
-from google.cloud.aiplatform_v1beta1.types import (
-    encryption_spec as gca_encryption_spec,
+    encryption_spec as gca_encryption_spec_compat,
+    persistent_resource_v1 as gca_persistent_resource_compat,
 )
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
@@ -194,7 +192,7 @@ class PersistentResource(base.VertexAiResourceNounWithFutureManager):
                 This corresponds to the ``persistent_resource_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            resource_pools (MutableSequence[google.cloud.aiplatform_v1beta1.types.ResourcePool]):
+            resource_pools (MutableSequence[google.cloud.aiplatform_v1.types.ResourcePool]):
                 Required. The list of resource pools to create for the
                 PersistentResource.
             display_name (str):
@@ -294,7 +292,7 @@ class PersistentResource(base.VertexAiResourceNounWithFutureManager):
 
         if kms_key_name:
             gca_persistent_resource.encryption_spec = (
-                gca_encryption_spec.EncryptionSpec(kms_key_name=kms_key_name)
+                gca_encryption_spec_compat.EncryptionSpec(kms_key_name=kms_key_name)
             )
 
         if service_account:

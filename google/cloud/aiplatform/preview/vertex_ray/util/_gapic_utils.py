@@ -47,7 +47,7 @@ def create_persistent_resource_client():
     return initializer.global_config.create_client(
         client_class=PersistentResourceClientWithOverride,
         appended_gapic_version="vertex_ray",
-    )
+    ).select_version("v1beta1")
 
 
 def polling_delay(num_attempts: int, time_scale: float) -> datetime.timedelta:

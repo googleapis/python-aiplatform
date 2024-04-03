@@ -79,6 +79,7 @@ from google.cloud.aiplatform.compat.services import (
     schedule_service_client_v1,
     tensorboard_service_client_v1,
     vizier_service_client_v1,
+    persistent_resource_service_client_v1,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -739,8 +740,12 @@ class ModelGardenClientWithOverride(ClientWithOverride):
 
 class PersistentResourceClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (
+            compat.V1,
+            persistent_resource_service_client_v1.PersistentResourceServiceClient,
+        ),
         (
             compat.V1BETA1,
             persistent_resource_service_client_v1beta1.PersistentResourceServiceClient,

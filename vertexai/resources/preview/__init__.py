@@ -26,9 +26,6 @@ from google.cloud.aiplatform.preview.models import (
     Endpoint,
     Model,
 )
-from google.cloud.aiplatform.preview.persistent_resource import (
-    PersistentResource,
-)
 from google.cloud.aiplatform.preview.featurestore.entity_type import (
     EntityType,
 )
