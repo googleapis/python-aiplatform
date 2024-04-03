@@ -68,6 +68,7 @@ _TEST_RESTART_JOB_ON_WORKER_RESTART = (
     test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
 )
 _TEST_DISABLE_RETRIES = test_constants.TrainingJobConstants._TEST_DISABLE_RETRIES
+_TEST_MAX_WAIT_DURATION = test_constants.TrainingJobConstants._TEST_MAX_WAIT_DURATION
 
 _TEST_METRIC_SPEC_KEY = "test-metric"
 _TEST_METRIC_SPEC_VALUE = "maximize"
@@ -453,6 +454,7 @@ class TestHyperparameterTuningJob:
             sync=sync,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait()
@@ -525,6 +527,7 @@ class TestHyperparameterTuningJob:
             sync=sync,
             create_request_timeout=180.0,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait()
@@ -593,6 +596,7 @@ class TestHyperparameterTuningJob:
                 sync=sync,
                 create_request_timeout=None,
                 disable_retries=_TEST_DISABLE_RETRIES,
+                max_wait_duration=_TEST_MAX_WAIT_DURATION,
             )
 
             job.wait()
@@ -655,6 +659,7 @@ class TestHyperparameterTuningJob:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=False,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         with pytest.raises(RuntimeError) as e:
@@ -792,6 +797,7 @@ class TestHyperparameterTuningJob:
             sync=sync,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait()
@@ -872,6 +878,7 @@ class TestHyperparameterTuningJob:
             sync=sync,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
         )
 
         job.wait()

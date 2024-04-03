@@ -68,6 +68,7 @@ _TEST_RESTART_JOB_ON_WORKER_RESTART = (
     test_constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
 )
 _TEST_DISABLE_RETRIES = test_constants.TrainingJobConstants._TEST_DISABLE_RETRIES
+_TEST_MAX_WAIT_DURATION = test_constants.TrainingJobConstants._TEST_MAX_WAIT_DURATION
 
 _TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
 
@@ -85,6 +86,7 @@ _TEST_CUSTOM_JOB_WITH_PERSISTENT_RESOURCE_PROTO = custom_job_v1.CustomJob(
             timeout=duration_pb2.Duration(seconds=_TEST_TIMEOUT),
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=duration_pb2.Duration(seconds=_TEST_MAX_WAIT_DURATION),
         ),
         service_account=_TEST_SERVICE_ACCOUNT,
         network=_TEST_NETWORK,
@@ -174,6 +176,7 @@ class TestCustomJobPersistentResource:
             sync=sync,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=duration_pb2.Duration(seconds=_TEST_MAX_WAIT_DURATION),
         )
 
         job.wait_for_resource_creation()
@@ -222,6 +225,7 @@ class TestCustomJobPersistentResource:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=duration_pb2.Duration(seconds=_TEST_MAX_WAIT_DURATION),
         )
 
         job.wait_for_resource_creation()

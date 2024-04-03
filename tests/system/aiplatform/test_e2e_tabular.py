@@ -107,6 +107,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             sync=False,
             create_request_timeout=None,
             disable_retries=True,
+            max_wait_duration=1234,
         )
 
         automl_model = automl_job.run(

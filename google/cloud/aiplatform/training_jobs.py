@@ -1489,6 +1489,7 @@ class _CustomTrainingJob(_TrainingJob):
         enable_dashboard_access: bool = False,
         tensorboard: Optional[str] = None,
         disable_retries: bool = False,
+        max_wait_duration: Optional[int] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
 
@@ -1539,6 +1540,10 @@ class _CustomTrainingJob(_TrainingJob):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
         Returns:
             Training task inputs and Output directory for custom job.
         """
@@ -1566,12 +1571,14 @@ class _CustomTrainingJob(_TrainingJob):
         if enable_dashboard_access:
             training_task_inputs["enable_dashboard_access"] = enable_dashboard_access
 
-        if timeout or restart_job_on_worker_restart or disable_retries:
+        if timeout or restart_job_on_worker_restart or disable_retries or max_wait_duration:
             timeout = f"{timeout}s" if timeout else None
+            max_wait_duration = f"{max_wait_duration}s" if max_wait_duration else None
             scheduling = {
                 "timeout": timeout,
                 "restart_job_on_worker_restart": restart_job_on_worker_restart,
                 "disable_retries": disable_retries,
+                "max_wait_duration": max_wait_duration,
             }
             training_task_inputs["scheduling"] = scheduling
 
@@ -2962,6 +2969,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         sync=True,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -3249,6 +3257,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3311,6 +3323,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             sync=sync,
             create_request_timeout=create_request_timeout,
             disable_retries=disable_retries,
+            max_wait_duration=max_wait_duration,
         )
 
     def submit(
@@ -3362,6 +3375,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         sync=True,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -3649,6 +3663,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3711,6 +3729,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             create_request_timeout=create_request_timeout,
             block=False,
             disable_retries=disable_retries,
+            max_wait_duration=max_wait_duration,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -3757,6 +3776,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         create_request_timeout: Optional[float] = None,
         block: Optional[bool] = True,
         disable_retries: bool = False,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -3946,6 +3966,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3999,6 +4023,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
             disable_retries=disable_retries,
+            max_wait_duration=max_wait_duration,
         )
 
         model = self._run_job(
@@ -4321,6 +4346,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         sync=True,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -4601,6 +4627,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -4662,6 +4692,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             sync=sync,
             create_request_timeout=create_request_timeout,
             disable_retries=disable_retries,
+            max_wait_duration=max_wait_duration,
         )
 
     def submit(
@@ -4713,6 +4744,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         sync=True,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -4993,6 +5025,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5054,6 +5090,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             create_request_timeout=create_request_timeout,
             block=False,
             disable_retries=disable_retries,
+            max_wait_duration=max_wait_duration,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -5099,6 +5136,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         create_request_timeout: Optional[float] = None,
         block: Optional[bool] = True,
         disable_retries: bool = False,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
@@ -5284,6 +5322,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5331,6 +5373,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
             disable_retries=disable_retries,
+            max_wait_duration=max_wait_duration,
         )
 
         model = self._run_job(
@@ -7249,6 +7292,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         sync=True,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -7530,6 +7574,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -7586,6 +7634,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             sync=sync,
             create_request_timeout=create_request_timeout,
             disable_retries=disable_retries,
+            max_wait_duration=max_wait_duration,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -7630,6 +7679,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         sync=True,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        max_wait_duration: Optional[int] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -7800,6 +7850,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            max_wait_duration (int):
+                This is the maximum duration that a job will wait for the
+                requested resources to be provisioned in seconds. If set to 0,
+                the job will wait indefinitely. The default is 30 minutes.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -7847,6 +7901,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
             disable_retries=disable_retries,
+            max_wait_duration=max_wait_duration,
         )
 
         model = self._run_job(
