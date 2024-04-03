@@ -25,7 +25,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.compat.types import (
     persistent_resource_v1beta1 as gca_persistent_resource,
 )
-from google.cloud.aiplatform.preview import persistent_resource
+from google.cloud.aiplatform import persistent_resource
 from tests.system.aiplatform import e2e_base
 import pytest
 
