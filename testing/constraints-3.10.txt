@@ -11,4 +11,4 @@ grpcio-testing==1.34.0
 mlflow==1.30.1 # Pinned to speed up installation
 pytest-xdist==3.3.1 # Pinned to unbreak unit tests
 ray==2.4.0 # Pinned until 2.9.3 is verified for Ray tests
-IPython # Added to test supernova rich html buttons
+ipython==8.22.2 # Pinned to unbreak TypeAliasType import error
