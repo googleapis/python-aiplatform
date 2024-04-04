@@ -24,6 +24,12 @@ from google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service i
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
     client as endpoint_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1beta1.services.extension_execution_service import (
+    client as extension_execution_service_client_v1beta1,
+)
+from google.cloud.aiplatform_v1beta1.services.extension_registry_service import (
+    client as extension_registry_service_client_v1beta1,
+)
 from google.cloud.aiplatform_v1beta1.services.feature_online_store_service import (
     client as feature_online_store_service_client_v1beta1,
 )
