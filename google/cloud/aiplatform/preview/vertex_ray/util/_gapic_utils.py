@@ -109,7 +109,7 @@ def get_persistent_resource(
                 )
         if response:
             if response.error.message:
-                logging.error("[Ray on Vertex AI]: %s", response.error.message)
+                logging.error("[Ray on Vertex AI]: %s" % response.error.message)
                 raise RuntimeError("[Ray on Vertex AI]: Cluster returned an error.")
 
             print("[Ray on Vertex AI]: Cluster State =", response.state)
@@ -155,8 +155,8 @@ def persistent_resource_to_cluster(
     if not persistent_resource.resource_runtime_spec.ray_spec:
         # skip PersistentResource without RaySpec
         logging.info(
-            "[Ray on Vertex AI]: Cluster %s does not have Ray installed.",
-            persistent_resource.name,
+            "[Ray on Vertex AI]: Cluster %s does not have Ray installed."
+            % persistent_resource.name,
         )
         return
     resource_pools = persistent_resource.resource_pools
@@ -178,8 +178,9 @@ def persistent_resource_to_cluster(
         if _PRIVATE_PREVIEW_IMAGE in head_image_uri:
             # If using outdated images
             logging.info(
-                "[Ray on Vertex AI]: The image of cluster %s is outdated. It is recommended to delete and recreate the cluster to obtain the latest image.",
-                persistent_resource.name,
+                "[Ray on Vertex AI]: The image of cluster %s is outdated."
+                " It is recommended to delete and recreate the cluster to obtain"
+                " the latest image." % persistent_resource.name
             )
             return None
         else:
