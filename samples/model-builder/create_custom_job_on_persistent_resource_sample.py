@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Optional
 
 from google.cloud import aiplatform
 
@@ -24,7 +25,7 @@ def create_custom_job_on_persistent_resource_sample(
     display_name: str,
     container_uri: str,
     persistent_resource_id: str,
-    service_account: str,
+    service_account: Optional[str] = None,
 ) -> None:
     aiplatform.init(
         project=project, location=location, staging_bucket=staging_bucket
