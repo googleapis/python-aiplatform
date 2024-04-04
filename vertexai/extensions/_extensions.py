@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import immutabledict
 import json
 from typing import Optional, Sequence, Union
 
@@ -32,7 +31,7 @@ _StructOrJson = Union[_utils.JsonDict, struct_pb2.Struct]
 _RuntimeConfigOrJson = Union[_utils.JsonDict, types.RuntimeConfig]
 
 
-_VERTEX_EXTENSION_HUB = immutabledict.immutabledict({
+_VERTEX_EXTENSION_HUB = {
     "code_interpreter": {
         "display_name": "Code Interpreter",
         "description": (
@@ -69,7 +68,7 @@ _VERTEX_EXTENSION_HUB = immutabledict.immutabledict({
             },
         },
     },
-})
+}
 
 
 class Extension(base.VertexAiResourceNounWithFutureManager):
