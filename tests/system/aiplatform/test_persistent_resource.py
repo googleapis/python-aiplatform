@@ -21,10 +21,10 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import persistent_resource
 from google.cloud.aiplatform.compat.types import (
-    machine_resources_v1beta1 as gca_machine_resources,
+    machine_resources_v1 as gca_machine_resources,
 )
 from google.cloud.aiplatform.compat.types import (
-    persistent_resource_v1beta1 as gca_persistent_resource,
+    persistent_resource_v1 as gca_persistent_resource,
 )
 from tests.system.aiplatform import e2e_base
 import pytest
