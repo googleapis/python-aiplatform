@@ -1923,6 +1923,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
+        persistent_resource_id: Optional[str] = None,
     ) -> "CustomJob":
         """Configures a custom job from a local script.
 
@@ -2026,6 +2027,13 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             staging_bucket (str):
                 Optional. Bucket for produced custom job artifacts. Overrides
                 staging_bucket set in aiplatform.init.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
 
         Raises:
             RuntimeError: If staging bucket was not set using aiplatform.init
@@ -2171,6 +2179,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             labels=labels,
             encryption_spec_key_name=encryption_spec_key_name,
             staging_bucket=staging_bucket,
+            persistent_resource_id=persistent_resource_id,
         )
 
         if enable_autolog:
@@ -2191,6 +2200,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
     ) -> None:
         """Run this configured CustomJob.
 
@@ -2252,6 +2262,13 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
         """
         network = network or initializer.global_config.network
         service_account = service_account or initializer.global_config.service_account
@@ -2268,6 +2285,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             sync=sync,
             create_request_timeout=create_request_timeout,
             disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
     @base.optional_sync()
@@ -2284,6 +2302,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
     ) -> None:
         """Helper method to ensure network synchronization and to run the configured CustomJob.
 
@@ -2343,6 +2362,13 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
         """
         self.submit(
             service_account=service_account,
@@ -2355,6 +2381,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             tensorboard=tensorboard,
             create_request_timeout=create_request_timeout,
             disable_retries=disable_retries,
+            persistent_resource_id=persistent_resource_id,
         )
 
         self._block_until_complete()
@@ -2372,6 +2399,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         tensorboard: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
         disable_retries: bool = False,
+        persistent_resource_id: Optional[str] = None,
     ) -> None:
         """Submit the configured CustomJob.
 
@@ -2428,6 +2456,13 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 Indicates if the job should retry for internal errors after the
                 job starts running. If True, overrides
                 `restart_job_on_worker_restart` to False.
+            persistent_resource_id (str):
+                Optional. The ID of the PersistentResource in the same Project
+                and Location. If this is specified, the job will be run on
+                existing machines held by the PersistentResource instead of
+                on-demand short-live machines. The network, CMEK, and node pool
+                configs on the job should be consistent with those on the
+                PersistentResource, otherwise, the job will be rejected.
 
         Raises:
             ValueError:
@@ -2463,6 +2498,9 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
 
         if tensorboard:
             self._gca_resource.job_spec.tensorboard = tensorboard
+
+        if persistent_resource_id:
+            self._gca_resource.job_spec.persistent_resource_id = persistent_resource_id
 
         # TODO(b/275105711) Update implementation after experiment/run in the proto
         if experiment:
