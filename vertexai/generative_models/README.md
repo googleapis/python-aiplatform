@@ -63,6 +63,19 @@ print(vision_chat.send_message(["I like this image.", image]))
 print(vision_chat.send_message("What things do I like?."))
 ```
 
+#### System instructions
+```
+from vertexai.generative_models import GenerativeModel
+model = GenerativeModel(
+    "gemini-1.0-pro",
+    system_instruction=[
+        "Talk like a pirate.",
+        "Don't use rude words.",
+    ],
+)
+print(model.generate_content("Why is sky blue?"))
+```
+
 #### Function calling
 
 ```

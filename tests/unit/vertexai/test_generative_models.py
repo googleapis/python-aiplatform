@@ -297,7 +297,14 @@ class TestGenerativeModels:
         response = model.generate_content("Why is sky blue?")
         assert response.text
 
-        response2 = model.generate_content(
+        model2 = generative_models.GenerativeModel(
+            "gemini-pro",
+            system_instruction=[
+                "Talk like a pirate.",
+                "Don't use rude words.",
+            ],
+        )
+        response2 = model2.generate_content(
             "Why is sky blue?",
             generation_config=generative_models.GenerationConfig(
                 temperature=0.2,

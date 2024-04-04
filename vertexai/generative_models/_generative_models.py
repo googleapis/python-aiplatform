@@ -133,6 +133,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        system_instruction: Optional[PartsType] = None,
     ):
         r"""Initializes GenerativeModel.
 
@@ -147,6 +148,9 @@ class _GenerativeModel:
             generation_config: Default generation config to use in generate_content.
             safety_settings: Default safety settings to use in generate_content.
             tools: Default tools to use in generate_content.
+            system_instruction: Default system instruction to use in generate_content.
+                Note: Only text should be used in parts.
+                Content of each part will become a separate paragraph.
         """
         if "/" not in model_name:
             model_name = "publishers/google/models/" + model_name
@@ -163,6 +167,7 @@ class _GenerativeModel:
         self._generation_config = generation_config
         self._safety_settings = safety_settings
         self._tools = tools
+        self._system_instruction = system_instruction
 
         # Validating the parameters
         self._prepare_request(
@@ -170,6 +175,7 @@ class _GenerativeModel:
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
+            system_instruction=system_instruction,
         )
 
     @property
@@ -205,6 +211,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        system_instruction: Optional[PartsType] = None,
     ) -> gapic_prediction_service_types.GenerateContentRequest:
         """Prepares a GAPIC GenerateContentRequest."""
         if not contents:
@@ -213,6 +220,7 @@ class _GenerativeModel:
         generation_config = generation_config or self._generation_config
         safety_settings = safety_settings or self._safety_settings
         tools = tools or self._tools
+        system_instruction = system_instruction or self._system_instruction
 
         # contents can either be a list of Content objects (most generic case)
         if isinstance(contents, Sequence) and any(
@@ -243,6 +251,10 @@ class _GenerativeModel:
         # or a value that can be converted to a *single* Content object
         else:
             contents = [_to_content(contents)]
+
+        gapic_system_instruction: Optional[gapic_content_types.Content] = None
+        if system_instruction:
+            gapic_system_instruction = _to_content(system_instruction)
 
         gapic_generation_config: Optional[gapic_content_types.GenerationConfig] = None
         if generation_config:
@@ -307,6 +319,7 @@ class _GenerativeModel:
             generation_config=gapic_generation_config,
             safety_settings=gapic_safety_settings,
             tools=gapic_tools,
+            system_instruction=gapic_system_instruction,
         )
 
     def _parse_response(
