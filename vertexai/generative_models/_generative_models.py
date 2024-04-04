@@ -145,6 +145,7 @@ class _GenerativeModel:
 
         Args:
             model_name: Model Garden model resource name.
+                Alternatively, a tuned model endpoint resource name can be provided.
             generation_config: Default generation config to use in generate_content.
             safety_settings: Default safety settings to use in generate_content.
             tools: Default tools to use in generate_content.
@@ -152,6 +153,8 @@ class _GenerativeModel:
                 Note: Only text should be used in parts.
                 Content of each part will become a separate paragraph.
         """
+        if not model_name:
+            raise ValueError("model_name must not be empty")
         if "/" not in model_name:
             model_name = "publishers/google/models/" + model_name
         if model_name.startswith("models/"):
@@ -160,10 +163,13 @@ class _GenerativeModel:
         project = aiplatform_initializer.global_config.project
         location = aiplatform_initializer.global_config.location
 
+        if model_name.startswith("publishers/"):
+            prediction_resource_name = f"projects/{project}/locations/{location}/{model_name}"
+        else:
+            prediction_resource_name = model_name
+
         self._model_name = model_name
-        self._prediction_resource_name = (
-            f"projects/{project}/locations/{location}/{model_name}"
-        )
+        self._prediction_resource_name = prediction_resource_name
         self._generation_config = generation_config
         self._safety_settings = safety_settings
         self._tools = tools
