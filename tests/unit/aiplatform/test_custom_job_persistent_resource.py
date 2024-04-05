@@ -22,10 +22,15 @@ from unittest.mock import patch
 from google.cloud import aiplatform
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform.compat.services import job_service_client_v1
+from google.cloud.aiplatform.compat.types import (
+    custom_job as gca_custom_job_compat,
+)
 from google.cloud.aiplatform.compat.types import custom_job_v1
 from google.cloud.aiplatform.compat.types import encryption_spec_v1
 from google.cloud.aiplatform.compat.types import io_v1
-from google.cloud.aiplatform.compat.types import job_state_v1 as gca_job_state_compat
+from google.cloud.aiplatform.compat.types import (
+    job_state_v1 as gca_job_state_compat,
+)
 import constants as test_constants
 import pytest
 
@@ -71,6 +76,11 @@ _TEST_DISABLE_RETRIES = test_constants.TrainingJobConstants._TEST_DISABLE_RETRIE
 
 _TEST_LABELS = test_constants.ProjectConstants._TEST_LABELS
 
+_TEST_PYTHON_PACKAGE_SPEC = gca_custom_job_compat.PythonPackageSpec(
+    executor_image_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
+    package_uris=[test_constants.TrainingJobConstants._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+    python_module=test_constants.TrainingJobConstants._TEST_MODULE_NAME,
+)
 
 # Persistent Resource
 _TEST_PERSISTENT_RESOURCE_ID = "test-persistent-resource-1"
@@ -212,7 +222,6 @@ class TestCustomJobPersistentResource:
             worker_pool_specs=_TEST_WORKER_POOL_SPEC,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             labels=_TEST_LABELS,
-            persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
         )
 
         job.submit(
@@ -222,6 +231,7 @@ class TestCustomJobPersistentResource:
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             create_request_timeout=None,
             disable_retries=_TEST_DISABLE_RETRIES,
+            persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
         )
 
         job.wait_for_resource_creation()
@@ -243,3 +253,93 @@ class TestCustomJobPersistentResource:
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_PENDING
         )
         assert job.network == _TEST_NETWORK
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_custom_job_with_persistent_resource(
+        self, create_custom_job_mock, get_custom_job_mock, sync
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = jobs.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
+            sync=sync,
+            persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = _get_custom_job_proto()
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+        assert job.job_spec == expected_custom_job.job_spec
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
+        assert job.network == _TEST_NETWORK
+
+    @pytest.mark.usefixtures("mock_python_package_to_gcs")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_from_local_script_custom_job_with_persistent_resource(
+        self, create_custom_job_mock, get_custom_job_mock, sync
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = jobs.CustomJob.from_local_script(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+            persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
+        )
+
+        assert (
+            job.job_spec.worker_pool_specs[0].python_package_spec
+            == _TEST_PYTHON_PACKAGE_SPEC
+        )
+
+        job.run(sync=sync)
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        assert job.job_spec.persistent_resource_id == _TEST_PERSISTENT_RESOURCE_ID
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
