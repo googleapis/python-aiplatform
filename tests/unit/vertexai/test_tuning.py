@@ -27,6 +27,7 @@ import vertexai
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aiplatform_utils
+from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform_v1.services import gen_ai_tuning_service
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import tuning_job as gca_tuning_job
@@ -34,6 +35,8 @@ from vertexai.preview import tuning
 from vertexai.preview.tuning import sft as supervised_tuning
 
 import pytest
+
+from unittest.mock import patch
 
 from google.rpc import status_pb2
 
@@ -136,7 +139,14 @@ class MockTuningJobClientWithOverride(aiplatform_utils.ClientWithOverride):
     )
 
 
-@pytest.mark.usefixtures("google_auth_mock")
+@pytest.fixture()
+def experiment_init_mock():
+    with patch.object(experiment_resources.Experiment, "__init__") as experiment_mock:
+        experiment_mock.return_value = None
+        yield experiment_mock
+
+
+@pytest.mark.usefixtures("google_auth_mock", "experiment_init_mock")
 class TestgenerativeModelTuning:
     """Unit tests for generative model tuning."""
 

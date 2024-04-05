@@ -26,6 +26,7 @@ from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import utils as aiplatform_utils
+from google.cloud.aiplatform.utils import _ipython_utils
 from google.cloud.aiplatform_v1.services import gen_ai_tuning_service as gen_ai_tuning_service_v1
 from google.cloud.aiplatform_v1.types import tuning_job as gca_tuning_job_types
 from google.cloud.aiplatform_v1 import types as gca_types
@@ -57,6 +58,7 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
     _parse_resource_name_method = "parse_tuning_job_path"
     _format_resource_name_method = "tuning_job_path"
     _job_type = "tuning/tuningJob"
+    _has_displayed_experiments_button = False
 
     client_class = TuningJobClientWithOverride
 
@@ -74,6 +76,9 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
         self._gca_resource: gca_tuning_job_types.TuningJob = (
             self._get_gca_resource(resource_name=self.resource_name)
         )
+        if self.experiment and not self._has_displayed_experiments_button:
+            self._has_displayed_experiments_button = True
+            _ipython_utils.display_experiment_button(self.experiment)
         return self
 
     @property
