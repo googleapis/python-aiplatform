@@ -1022,10 +1022,6 @@ class ChatSession:
         full_response = None
         for chunk in stream:
             chunks.append(chunk)
-            if full_response:
-                _append_response(full_response, chunk)
-            else:
-                full_response = chunk
             # By default we're not adding incomplete interactions to history.
             if self._response_validator is not None:
                 self._response_validator(
@@ -1033,6 +1029,10 @@ class ChatSession:
                     request_contents=request_history,
                     response_chunks=chunks,
                 )
+            if full_response:
+                _append_response(full_response, chunk)
+            else:
+                full_response = chunk
             yield chunk
         if not full_response:
             return
@@ -1089,10 +1089,6 @@ class ChatSession:
             full_response = None
             async for chunk in stream:
                 chunks.append(chunk)
-                if full_response:
-                    _append_response(full_response, chunk)
-                else:
-                    full_response = chunk
                 # By default we're not adding incomplete interactions to history.
                 if self._response_validator is not None:
                     self._response_validator(
@@ -1100,7 +1096,10 @@ class ChatSession:
                         request_contents=request_history,
                         response_chunks=chunks,
                     )
-
+                if full_response:
+                    _append_response(full_response, chunk)
+                else:
+                    full_response = chunk
                 yield chunk
             if not full_response:
                 return
