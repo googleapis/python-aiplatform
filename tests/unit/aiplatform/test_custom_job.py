@@ -82,10 +82,6 @@ _TEST_WORKER_POOL_SPEC_WITH_EXPERIMENTS = [
             "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
             "command": [],
             "args": _TEST_RUN_ARGS,
-            "env": [
-                {"name": "AIP_EXPERIMENT_NAME", "value": _TEST_EXPERIMENT},
-                {"name": "AIP_EXPERIMENT_RUN_NAME", "value": _TEST_EXPERIMENT_RUN},
-            ],
         },
     }
 ]
@@ -144,6 +140,7 @@ _TEST_CONTEXT_NAME = f"{_TEST_PARENT_METADATA}/contexts/{_TEST_CONTEXT_ID}"
 _TEST_EXPERIMENT_DESCRIPTION = "test-experiment-description"
 _TEST_RUN = "run-1"
 _TEST_EXECUTION_ID = f"{_TEST_EXPERIMENT}-{_TEST_RUN}"
+_TEST_EXPERIMENT_CONTEXT_NAME = f"{_TEST_PARENT_METADATA}/contexts/{_TEST_EXPERIMENT}"
 _TEST_EXPERIMENT_RUN_CONTEXT_NAME = (
     f"{_TEST_PARENT_METADATA}/contexts/{_TEST_EXECUTION_ID}"
 )
@@ -184,6 +181,8 @@ def _get_custom_job_proto_with_experiments(state=None, name=None, error=None):
     custom_job_proto.job_spec.worker_pool_specs = (
         _TEST_WORKER_POOL_SPEC_WITH_EXPERIMENTS
     )
+    custom_job_proto.job_spec.experiment = _TEST_EXPERIMENT_CONTEXT_NAME
+    custom_job_proto.job_spec.experiment_run = _TEST_EXPERIMENT_RUN_CONTEXT_NAME
     custom_job_proto.name = name
     custom_job_proto.state = state
     custom_job_proto.error = error
@@ -537,16 +536,7 @@ class TestCustomJob:
             timeout=None,
         )
 
-        expected_run_context = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
-        expected_run_context.metadata[constants._CUSTOM_JOB_KEY] = [
-            {
-                constants._CUSTOM_JOB_RESOURCE_NAME: _TEST_CUSTOM_JOB_NAME,
-                constants._CUSTOM_JOB_CONSOLE_URI: job._dashboard_uri(),
-            }
-        ]
-        update_context_mock.assert_called_with(
-            context=expected_run_context,
-        )
+        update_context_mock.assert_not_called()
 
     @pytest.mark.parametrize("sync", [True, False])
     @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
