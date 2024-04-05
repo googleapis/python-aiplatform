@@ -428,10 +428,18 @@ class TestGenerativeModels:
             function_declarations=[get_current_weather_func],
         )
 
+        tool_config = generative_models.ToolConfig(
+            function_calling_config=generative_models.ToolConfig.FunctionCallingConfig(
+                mode=generative_models.ToolConfig.FunctionCallingConfig.Mode.ANY,
+                allowed_function_names=["get_current_weather"],
+            )
+        )
+
         model = generative_models.GenerativeModel(
             "gemini-pro",
             # Specifying the tools once to avoid specifying them in every request
             tools=[weather_tool],
+            tool_config=tool_config,
         )
         chat = model.start_chat()
 
