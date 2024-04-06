@@ -32,6 +32,7 @@ from typing import (
 )
 
 from google.cloud.aiplatform import initializer as aiplatform_initializer
+from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform_v1beta1 import types as aiplatform_types
 from google.cloud.aiplatform_v1beta1.services import prediction_service
 from google.cloud.aiplatform_v1beta1.types import (
@@ -169,11 +170,20 @@ class _GenerativeModel:
             prediction_resource_name = (
                 f"projects/{project}/locations/{location}/{model_name}"
             )
-        else:
+        elif model_name.startswith("projects/"):
             prediction_resource_name = model_name
+        else:
+            raise ValueError(
+                "model_name must be either a Model Garden model ID or a full resource name."
+            )
+
+        location = aiplatform_utils.extract_project_and_location_from_parent(
+            prediction_resource_name
+        )["location"]
 
         self._model_name = model_name
         self._prediction_resource_name = prediction_resource_name
+        self._location = location
         self._generation_config = generation_config
         self._safety_settings = safety_settings
         self._tools = tools
@@ -197,6 +207,7 @@ class _GenerativeModel:
             self._prediction_client_value = (
                 aiplatform_initializer.global_config.create_client(
                     client_class=prediction_service.PredictionServiceClient,
+                    location_override=self._location,
                     prediction_client=True,
                 )
             )
@@ -211,6 +222,7 @@ class _GenerativeModel:
             self._prediction_async_client_value = (
                 aiplatform_initializer.global_config.create_client(
                     client_class=prediction_service.PredictionServiceAsyncClient,
+                    location_override=self._location,
                     prediction_client=True,
                 )
             )

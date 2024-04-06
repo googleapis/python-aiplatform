@@ -36,7 +36,9 @@ from vertexai.generative_models import _function_calling_utils
 
 
 _TEST_PROJECT = "test-project"
+_TEST_PROJECT2 = "test-project2"
 _TEST_LOCATION = "us-central1"
+_TEST_LOCATION2 = "europe-west4"
 
 
 _RESPONSE_TEXT_PART_STRUCT = {
@@ -282,6 +284,50 @@ class TestGenerativeModels:
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generative_model_constructor_model_name(
+        self, generative_models: generative_models
+    ):
+        project_location_prefix = (
+            f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
+        )
+
+        model_name1 = "gemini-pro"
+        model1 = generative_models.GenerativeModel(model_name1)
+        assert (
+            model1._prediction_resource_name
+            == project_location_prefix + "publishers/google/models/" + model_name1
+        )
+
+        model_name2 = "models/gemini-pro"
+        model2 = generative_models.GenerativeModel(model_name2)
+        assert (
+            model2._prediction_resource_name
+            == project_location_prefix + "publishers/google/" + model_name2
+        )
+
+        model_name3 = "publishers/some_publisher/models/some_model"
+        model3 = generative_models.GenerativeModel(model_name3)
+        assert model3._prediction_resource_name == project_location_prefix + model_name3
+
+        model_name4 = (
+            f"projects/{_TEST_PROJECT2}/locations/{_TEST_LOCATION2}/endpoints/endpoint1"
+        )
+        model4 = generative_models.GenerativeModel(model_name4)
+        assert model4._prediction_resource_name == model_name4
+        assert _TEST_LOCATION2 in model4._prediction_client._api_endpoint
+
+        with pytest.raises(ValueError):
+            generative_models.GenerativeModel("foo/bar/models/gemini-pro")
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
