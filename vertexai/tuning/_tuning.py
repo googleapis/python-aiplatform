@@ -236,4 +236,11 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
         """
         return cls._list(filter=filter)
 
-    _dashboard_url = jobs._Job._dashboard_uri
+    def _dashboard_url(self) -> str:
+        """Returns the Google Cloud console URL where job can be viewed."""
+        fields = self._parse_resource_name(self.resource_name)
+        location = fields.pop("location")
+        project = fields.pop("project")
+        job = list(fields.values())[0]
+        url = f"https://console.cloud.google.com/vertex-ai/generative/language/locations/{location}/tuning/tuningJob/{job}?project={project}"
+        return url
