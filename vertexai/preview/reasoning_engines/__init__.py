@@ -20,8 +20,12 @@ from vertexai.reasoning_engines._reasoning_engines import (
     Queryable,
     ReasoningEngine,
 )
+from vertexai.preview.reasoning_engines.templates.langchain import (
+    LangchainAgent
+)
 
 __all__ = (
+    "LangchainAgent",
     "Queryable",
     "ReasoningEngine",
 )

@@ -150,6 +150,12 @@ rapid_evaluation_extra_require = [
     "pandas >= 1.0.0, < 2.2.0",
 ]
 
+langchain_extra_require = [
+    "langchain >= 0.1.13, < 0.2",
+    "langchain-core < 0.2",
+    "langchain-google-vertexai < 0.2",
+]
+
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -253,6 +259,7 @@ setuptools.setup(
         "ray_testing": ray_testing_extra_require,
         "reasoningengine": reasoning_engine_extra_require,
         "rapid_evaluation": rapid_evaluation_extra_require,
+        "langchain": langchain_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[

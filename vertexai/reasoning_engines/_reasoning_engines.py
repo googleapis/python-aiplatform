@@ -237,16 +237,19 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         reasoning_engine_spec = types.ReasoningEngineSpec(
             package_spec=package_spec,
         )
-        schema_dict = _utils.generate_schema(
-            reasoning_engine.query,
-            schema_name=f"{type(reasoning_engine).__name__}_query",
-        )
-        # Note: we append the schema post-initialization to avoid upstream
-        # issues in marshaling the data that would result in errors like:
-        # ../../../../../proto/marshal/rules/struct.py:140: in to_proto
-        #  self._marshal.to_proto(struct_pb2.Value, v) for k, v in value.items()
-        # E   AttributeError: 'list' object has no attribute 'items'
-        reasoning_engine_spec.class_methods.append(_utils.to_proto(schema_dict))
+        try:
+            schema_dict = _utils.generate_schema(
+                reasoning_engine.query,
+                schema_name=f"{type(reasoning_engine).__name__}_query",
+            )
+            # Note: we append the schema post-initialization to avoid upstream
+            # issues in marshaling the data that would result in errors like:
+            # ../../../../../proto/marshal/rules/struct.py:140: in to_proto
+            #  self._marshal.to_proto(struct_pb2.Value, v) for k, v in value.items()
+            # E   AttributeError: 'list' object has no attribute 'items'
+            reasoning_engine_spec.class_methods.append(_utils.to_proto(schema_dict))
+        except Exception as e:
+            _LOGGER.warning(f"failed to generate schema: {e}")
         operation_future = sdk_resource.api_client.create_reasoning_engine(
             parent=initializer.global_config.common_location_path(
                 project=sdk_resource.project, location=sdk_resource.location
