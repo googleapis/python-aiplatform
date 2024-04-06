@@ -34,7 +34,7 @@ def train(
 
     Args:
         source_model (str):
-            Model name for tuning, e.g., "gemini-1.0-pro" or "gemini-1.0-pro-001".
+            Model name for tuning, e.g., "gemini-1.0-pro-002".
         train_dataset: Cloud Storage path to file containing training dataset for tuning.
             The dataset should be in JSONL format.
         validation_dataset: Cloud Storage path to file containing validation dataset for tuning.
