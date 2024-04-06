@@ -32,7 +32,6 @@ from vertexai.generative_models._generative_models import (
     ResponseValidationError,
     SafetySetting,
     Tool,
-    ToolConfig,
 )
 
 __all__ = [
@@ -51,5 +50,4 @@ __all__ = [
     "ResponseValidationError",
     "SafetySetting",
     "Tool",
-    "ToolConfig",
 ]

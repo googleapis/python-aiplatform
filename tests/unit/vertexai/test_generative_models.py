@@ -428,6 +428,59 @@ class TestGenerativeModels:
             function_declarations=[get_current_weather_func],
         )
 
+        model = generative_models.GenerativeModel(
+            "gemini-pro",
+            # Specifying the tools once to avoid specifying them in every request
+            tools=[weather_tool],
+        )
+        chat = model.start_chat()
+
+        response1 = chat.send_message("What is the weather like in Boston?")
+        assert (
+            response1.candidates[0].content.parts[0].function_call.name
+            == "get_current_weather"
+        )
+        assert [
+            function_call.name
+            for function_call in response1.candidates[0].function_calls
+        ] == ["get_current_weather"]
+        function_map = {
+            "get_current_weather": get_current_weather,
+        }
+        function_response_parts = []
+        for function_call in response1.candidates[0].function_calls:
+            function = function_map[function_call.name]
+            function_result = function(**function_call.args)
+            function_response_part = generative_models.Part.from_function_response(
+                name=function_call.name,
+                response=function_result,
+            )
+            function_response_parts.append(function_response_part)
+
+        response2 = chat.send_message(function_response_parts)
+        assert "Boston" in response2.text
+        assert "nice" in response2.text
+        assert not response2.candidates[0].function_calls
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [preview_generative_models],
+    )
+    def test_chat_forced_function_calling(self, generative_models: generative_models):
+        get_current_weather_func = generative_models.FunctionDeclaration(
+            name="get_current_weather",
+            description="Get the current weather in a given location",
+            parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+        )
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+
         tool_config = generative_models.ToolConfig(
             function_calling_config=generative_models.ToolConfig.FunctionCallingConfig(
                 mode=generative_models.ToolConfig.FunctionCallingConfig.Mode.ANY,
