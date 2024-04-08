@@ -47,6 +47,7 @@ from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
     profile_uploader,
 )
+from google.cloud.aiplatform.tensorboard.proto import server_info_pb2
 from google.cloud.aiplatform_v1.services.tensorboard_service.transports import (
     grpc as transports_grpc,
 )
@@ -68,7 +69,6 @@ from tensorboard.summary import v1 as summary_v1
 from tensorboard.uploader import logdir_loader
 from tensorboard.uploader import upload_tracker
 from tensorboard.uploader import util
-from tensorboard.uploader.proto import server_info_pb2
 
 data_compat = uploader_lib.event_file_loader.data_compat
 dataclass_compat = uploader_lib.event_file_loader.dataclass_compat

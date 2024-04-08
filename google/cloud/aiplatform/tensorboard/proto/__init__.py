@@ -14,18 +14,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from google.cloud.aiplatform.tensorboard.tensorboard_resource import (
-    Tensorboard,
-    TensorboardExperiment,
-    TensorboardRun,
-    TensorboardTimeSeries,
-)
-
-__all__ = (
-    "Tensorboard",
-    "TensorboardExperiment",
-    "TensorboardRun",
-    "TensorboardTimeSeries",
-    "server_info_pb2",
-)

@@ -23,7 +23,7 @@ from typing import Tuple
 
 from tensorboard.uploader import upload_tracker
 from tensorboard.uploader import util
-from tensorboard.uploader.proto import server_info_pb2
+from google.cloud.aiplatform.tensorboard.proto import server_info_pb2
 from tensorboard.util import tb_logging
 
 from google.api_core import exceptions

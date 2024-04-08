@@ -33,7 +33,6 @@ from typing import (
 import grpc
 from tensorboard.uploader import upload_tracker
 from tensorboard.uploader import util
-from tensorboard.uploader.proto import server_info_pb2
 from tensorboard.util import tb_logging
 import tensorflow as tf
 
@@ -43,6 +42,7 @@ from google.cloud.aiplatform.compat.types import tensorboard_data
 from google.cloud.aiplatform.compat.types import tensorboard_service
 from google.cloud.aiplatform.compat.types import tensorboard_time_series
 from google.cloud.aiplatform.tensorboard import uploader_utils
+from google.cloud.aiplatform.tensorboard.proto import server_info_pb2
 from google.protobuf import timestamp_pb2 as timestamp
 
 TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient

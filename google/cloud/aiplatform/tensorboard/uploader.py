@@ -41,6 +41,7 @@ from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
     profile_uploader,
 )
+from google.cloud.aiplatform.tensorboard.proto import server_info_pb2
 import grpc
 import tensorflow as tf
 
@@ -63,7 +64,6 @@ from tensorboard.plugins.graph import metadata as graph_metadata
 from tensorboard.uploader import logdir_loader
 from tensorboard.uploader import upload_tracker
 from tensorboard.uploader import util
-from tensorboard.uploader.proto import server_info_pb2
 from tensorboard.util import tb_logging
 from tensorboard.util import tensor_util
 
