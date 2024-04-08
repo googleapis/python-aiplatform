@@ -795,6 +795,8 @@ from .persistent_resource_service import (
     GetPersistentResourceRequest,
     ListPersistentResourcesRequest,
     ListPersistentResourcesResponse,
+    RebootPersistentResourceOperationMetadata,
+    RebootPersistentResourceRequest,
     UpdatePersistentResourceOperationMetadata,
     UpdatePersistentResourceRequest,
 )
@@ -1695,6 +1697,8 @@ __all__ = (
     "GetPersistentResourceRequest",
     "ListPersistentResourcesRequest",
     "ListPersistentResourcesResponse",
+    "RebootPersistentResourceOperationMetadata",
+    "RebootPersistentResourceRequest",
     "UpdatePersistentResourceOperationMetadata",
     "UpdatePersistentResourceRequest",
     "PipelineFailurePolicy",

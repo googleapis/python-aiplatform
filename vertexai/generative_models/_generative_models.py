@@ -32,6 +32,7 @@ from typing import (
 )
 
 from google.cloud.aiplatform import initializer as aiplatform_initializer
+from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform_v1beta1 import types as aiplatform_types
 from google.cloud.aiplatform_v1beta1.services import prediction_service
 from google.cloud.aiplatform_v1beta1.types import (
@@ -86,7 +87,7 @@ GenerationConfigType = Union[
 ]
 
 SafetySettingsType = Union[
-    List[gapic_content_types.SafetySetting],
+    List["SafetySetting"],
     Dict[
         gapic_content_types.HarmCategory,
         gapic_content_types.SafetySetting.HarmBlockThreshold,
@@ -133,6 +134,8 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
+        system_instruction: Optional[PartsType] = None,
     ):
         r"""Initializes GenerativeModel.
 
@@ -144,10 +147,17 @@ class _GenerativeModel:
 
         Args:
             model_name: Model Garden model resource name.
+                Alternatively, a tuned model endpoint resource name can be provided.
             generation_config: Default generation config to use in generate_content.
             safety_settings: Default safety settings to use in generate_content.
             tools: Default tools to use in generate_content.
+            tool_config: Default tool config to use in generate_content.
+            system_instruction: Default system instruction to use in generate_content.
+                Note: Only text should be used in parts.
+                Content of each part will become a separate paragraph.
         """
+        if not model_name:
+            raise ValueError("model_name must not be empty")
         if "/" not in model_name:
             model_name = "publishers/google/models/" + model_name
         if model_name.startswith("models/"):
@@ -156,13 +166,29 @@ class _GenerativeModel:
         project = aiplatform_initializer.global_config.project
         location = aiplatform_initializer.global_config.location
 
+        if model_name.startswith("publishers/"):
+            prediction_resource_name = (
+                f"projects/{project}/locations/{location}/{model_name}"
+            )
+        elif model_name.startswith("projects/"):
+            prediction_resource_name = model_name
+        else:
+            raise ValueError(
+                "model_name must be either a Model Garden model ID or a full resource name."
+            )
+
+        location = aiplatform_utils.extract_project_and_location_from_parent(
+            prediction_resource_name
+        )["location"]
+
         self._model_name = model_name
-        self._prediction_resource_name = (
-            f"projects/{project}/locations/{location}/{model_name}"
-        )
+        self._prediction_resource_name = prediction_resource_name
+        self._location = location
         self._generation_config = generation_config
         self._safety_settings = safety_settings
         self._tools = tools
+        self._tool_config = tool_config
+        self._system_instruction = system_instruction
 
         # Validating the parameters
         self._prepare_request(
@@ -170,6 +196,8 @@ class _GenerativeModel:
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
+            tool_config=tool_config,
+            system_instruction=system_instruction,
         )
 
     @property
@@ -179,6 +207,7 @@ class _GenerativeModel:
             self._prediction_client_value = (
                 aiplatform_initializer.global_config.create_client(
                     client_class=prediction_service.PredictionServiceClient,
+                    location_override=self._location,
                     prediction_client=True,
                 )
             )
@@ -193,6 +222,7 @@ class _GenerativeModel:
             self._prediction_async_client_value = (
                 aiplatform_initializer.global_config.create_client(
                     client_class=prediction_service.PredictionServiceAsyncClient,
+                    location_override=self._location,
                     prediction_client=True,
                 )
             )
@@ -205,6 +235,8 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
+        system_instruction: Optional[PartsType] = None,
     ) -> gapic_prediction_service_types.GenerateContentRequest:
         """Prepares a GAPIC GenerateContentRequest."""
         if not contents:
@@ -213,6 +245,8 @@ class _GenerativeModel:
         generation_config = generation_config or self._generation_config
         safety_settings = safety_settings or self._safety_settings
         tools = tools or self._tools
+        tool_config = tool_config or self._tool_config
+        system_instruction = system_instruction or self._system_instruction
 
         # contents can either be a list of Content objects (most generic case)
         if isinstance(contents, Sequence) and any(
@@ -244,6 +278,10 @@ class _GenerativeModel:
         else:
             contents = [_to_content(contents)]
 
+        gapic_system_instruction: Optional[gapic_content_types.Content] = None
+        if system_instruction:
+            gapic_system_instruction = _to_content(system_instruction)
+
         gapic_generation_config: Optional[gapic_content_types.GenerationConfig] = None
         if generation_config:
             if isinstance(generation_config, gapic_content_types.GenerationConfig):
@@ -258,17 +296,20 @@ class _GenerativeModel:
                 raise TypeError(
                     "generation_config must either be a GenerationConfig object or a dictionary representation of it."
                 )
+
         gapic_safety_settings = None
         if safety_settings:
             if isinstance(safety_settings, Sequence):
-                if not all(
-                    isinstance(safety_setting, gapic_content_types.SafetySetting)
-                    for safety_setting in safety_settings
-                ):
-                    raise TypeError(
-                        "When passing a list with SafetySettings objects, every item in a list must be a SafetySetting object."
-                    )
-                gapic_safety_settings = safety_settings
+                gapic_safety_settings = []
+                for safety_setting in safety_settings:
+                    if isinstance(safety_setting, gapic_content_types.SafetySetting):
+                        gapic_safety_settings.append(safety_setting)
+                    elif isinstance(safety_setting, SafetySetting):
+                        gapic_safety_settings.append(safety_setting._raw_safety_setting)
+                    else:
+                        raise TypeError(
+                            "When passing a list with SafetySettings objects, every item in a list must be a SafetySetting object."
+                        )
             elif isinstance(safety_settings, dict):
                 gapic_safety_settings = [
                     gapic_content_types.SafetySetting(
@@ -283,6 +324,7 @@ class _GenerativeModel:
                 raise TypeError(
                     "safety_settings must either be a list of SafetySettings objects or a dictionary mapping from HarmCategory to HarmBlockThreshold."
                 )
+
         gapic_tools = None
         if tools:
             gapic_tools = []
@@ -294,6 +336,13 @@ class _GenerativeModel:
                 else:
                     raise TypeError(f"Unexpected tool type: {tool}.")
 
+        gapic_tool_config = None
+        if tool_config:
+            if isinstance(tool_config, ToolConfig):
+                gapic_tool_config = tool_config._gapic_tool_config
+            else:
+                raise TypeError("tool_config must be a ToolConfig object.")
+
         return gapic_prediction_service_types.GenerateContentRequest(
             # The `model` parameter now needs to be set for the vision models.
             # Always need to pass the resource via the `model` parameter.
@@ -303,6 +352,8 @@ class _GenerativeModel:
             generation_config=gapic_generation_config,
             safety_settings=gapic_safety_settings,
             tools=gapic_tools,
+            tool_config=gapic_tool_config,
+            system_instruction=gapic_system_instruction,
         )
 
     def _parse_response(
@@ -318,6 +369,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
         stream: bool = False,
     ) -> Union["GenerationResponse", Iterable["GenerationResponse"],]:
         """Generates content.
@@ -333,6 +385,7 @@ class _GenerativeModel:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            tool_config: Config shared for all tools provided in the request.
             stream: Whether to stream the response.
 
         Returns:
@@ -346,6 +399,7 @@ class _GenerativeModel:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                tool_config=tool_config,
             )
         else:
             return self._generate_content(
@@ -353,6 +407,7 @@ class _GenerativeModel:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                tool_config=tool_config,
             )
 
     async def generate_content_async(
@@ -362,6 +417,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
         stream: bool = False,
     ) -> Union["GenerationResponse", AsyncIterable["GenerationResponse"],]:
         """Generates content asynchronously.
@@ -377,6 +433,7 @@ class _GenerativeModel:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            tool_config: Config shared for all tools provided in the request.
             stream: Whether to stream the response.
 
         Returns:
@@ -389,6 +446,7 @@ class _GenerativeModel:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                tool_config=tool_config,
             )
         else:
             return await self._generate_content_async(
@@ -396,6 +454,7 @@ class _GenerativeModel:
                 generation_config=generation_config,
                 safety_settings=safety_settings,
                 tools=tools,
+                tool_config=tool_config,
             )
 
     def _generate_content(
@@ -405,6 +464,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
     ) -> "GenerationResponse":
         """Generates content.
 
@@ -419,6 +479,7 @@ class _GenerativeModel:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            tool_config: Config shared for all tools provided in the request.
 
         Returns:
             A single GenerationResponse object
@@ -428,6 +489,7 @@ class _GenerativeModel:
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
+            tool_config=tool_config,
         )
         gapic_response = self._prediction_client.generate_content(request=request)
         return self._parse_response(gapic_response)
@@ -439,6 +501,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
     ) -> "GenerationResponse":
         """Generates content asynchronously.
 
@@ -453,6 +516,7 @@ class _GenerativeModel:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            tool_config: Config shared for all tools provided in the request.
 
         Returns:
             An awaitable for a single GenerationResponse object
@@ -462,6 +526,7 @@ class _GenerativeModel:
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
+            tool_config=tool_config,
         )
         gapic_response = await self._prediction_async_client.generate_content(
             request=request
@@ -475,6 +540,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
     ) -> Iterable["GenerationResponse"]:
         """Generates content.
 
@@ -489,6 +555,7 @@ class _GenerativeModel:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            tool_config: Config shared for all tools provided in the request.
 
         Yields:
             A stream of GenerationResponse objects
@@ -498,6 +565,7 @@ class _GenerativeModel:
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
+            tool_config=tool_config,
         )
         response_stream = self._prediction_client.stream_generate_content(
             request=request
@@ -512,6 +580,7 @@ class _GenerativeModel:
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
+        tool_config: Optional["ToolConfig"] = None,
     ) -> AsyncIterable["GenerationResponse"]:
         """Generates content asynchronously.
 
@@ -526,6 +595,7 @@ class _GenerativeModel:
             generation_config: Parameters for the generation.
             safety_settings: Safety settings as a mapping from HarmCategory to HarmBlockThreshold.
             tools: A list of tools (functions) that the model can try calling.
+            tool_config: Config shared for all tools provided in the request.
 
         Returns:
             An awaitable for a stream of GenerationResponse objects
@@ -535,6 +605,7 @@ class _GenerativeModel:
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
+            tool_config=tool_config,
         )
         response_stream = await self._prediction_async_client.stream_generate_content(
             request=request
@@ -963,10 +1034,6 @@ class ChatSession:
         full_response = None
         for chunk in stream:
             chunks.append(chunk)
-            if full_response:
-                _append_response(full_response, chunk)
-            else:
-                full_response = chunk
             # By default we're not adding incomplete interactions to history.
             if self._response_validator is not None:
                 self._response_validator(
@@ -974,6 +1041,10 @@ class ChatSession:
                     request_contents=request_history,
                     response_chunks=chunks,
                 )
+            if full_response:
+                _append_response(full_response, chunk)
+            else:
+                full_response = chunk
             yield chunk
         if not full_response:
             return
@@ -1030,10 +1101,6 @@ class ChatSession:
             full_response = None
             async for chunk in stream:
                 chunks.append(chunk)
-                if full_response:
-                    _append_response(full_response, chunk)
-                else:
-                    full_response = chunk
                 # By default we're not adding incomplete interactions to history.
                 if self._response_validator is not None:
                     self._response_validator(
@@ -1041,7 +1108,10 @@ class ChatSession:
                         request_contents=request_history,
                         response_chunks=chunks,
                     )
-
+                if full_response:
+                    _append_response(full_response, chunk)
+                else:
+                    full_response = chunk
                 yield chunk
             if not full_response:
                 return
@@ -1289,6 +1359,77 @@ class Tool:
         return self._raw_tool.__repr__()
 
 
+class ToolConfig:
+    r"""Config shared for all tools provided in the request.
+
+    Usage:
+        Create ToolConfig
+        ```
+        tool_config = ToolConfig(
+            function_calling_config=ToolConfig.FunctionCallingConfig(
+                mode=ToolConfig.FunctionCallingConfig.Mode.ANY,
+                allowed_function_names=["get_current_weather_func"],
+        ))
+        ```
+        Use ToolConfig in `GenerativeModel.generate_content`:
+        ```
+        model = GenerativeModel("gemini-pro")
+        print(model.generate_content(
+            "What is the weather like in Boston?",
+            # You can specify tools when creating a model to avoid having to send them with every request.
+            tools=[weather_tool],
+            tool_config=tool_config,
+        ))
+        ```
+        Use ToolConfig in chat:
+        ```
+        model = GenerativeModel(
+            "gemini-pro",
+            # You can specify tools when creating a model to avoid having to send them with every request.
+            tools=[weather_tool],
+            tool_config=tool_config,
+        )
+        chat = model.start_chat()
+        print(chat.send_message("What is the weather like in Boston?"))
+        print(chat.send_message(
+            Part.from_function_response(
+                name="get_current_weather",
+                response={
+                    "content": {"weather_there": "super nice"},
+                }
+            ),
+        ))
+        ```
+    """
+
+    class FunctionCallingConfig:
+        Mode = gapic_tool_types.FunctionCallingConfig.Mode
+
+        def __init__(
+            self,
+            mode: "ToolConfig.FunctionCallingConfig.Mode",
+            allowed_function_names: Optional[List[str]] = None,
+        ):
+            """Constructs FunctionCallingConfig.
+
+            Args:
+                mode: Enum describing the function calling mode
+                allowed_function_names: A list of allowed function names
+                    (must match from Tool). Only set when the Mode is ANY.
+            """
+            self._gapic_function_calling_config = (
+                gapic_tool_types.FunctionCallingConfig(
+                    mode=mode,
+                    allowed_function_names=allowed_function_names,
+                )
+            )
+
+    def __init__(self, function_calling_config: "ToolConfig.FunctionCallingConfig"):
+        self._gapic_tool_config = gapic_tool_types.ToolConfig(
+            function_calling_config=function_calling_config._gapic_function_calling_config
+        )
+
+
 class FunctionDeclaration:
     r"""A representation of a function declaration.
 
@@ -1431,9 +1572,13 @@ class CallableFunctionDeclaration(FunctionDeclaration):
         Returns:
             CallableFunctionDeclaration.
         """
-        from vertexai.generative_models import _function_calling_utils
+        from vertexai.generative_models import (
+            _function_calling_utils,
+        )
 
-        function_schema = _function_calling_utils.generate_json_schema_from_function(func)
+        function_schema = _function_calling_utils.generate_json_schema_from_function(
+            func
+        )
         # Getting out the description first since it will be removed from the schema.
         function_description = function_schema["description"]
         function_schema = (
@@ -1736,6 +1881,59 @@ class Part:
     @property
     def _image(self) -> "Image":
         return Image.from_bytes(data=self._raw_part.inline_data.data)
+
+
+class SafetySetting:
+    """Parameters for the generation."""
+
+    HarmCategory = gapic_content_types.HarmCategory
+    HarmBlockMethod = gapic_content_types.SafetySetting.HarmBlockMethod
+    HarmBlockThreshold = gapic_content_types.SafetySetting.HarmBlockThreshold
+
+    def __init__(
+        self,
+        *,
+        category: "SafetySetting.HarmCategory",
+        threshold: "SafetySetting.HarmBlockThreshold",
+        method: Optional["SafetySetting.HarmBlockMethod"] = None,
+    ):
+        r"""Safety settings.
+
+        Args:
+            category: Harm category.
+            threshold: The harm block threshold.
+            method: Specify if the threshold is used for probability or severity
+                score. If not specified, the threshold is used for probability
+                score.
+        """
+        self._raw_safety_setting = gapic_content_types.SafetySetting(
+            category=category,
+            threshold=threshold,
+            method=method,
+        )
+
+    @classmethod
+    def _from_gapic(
+        cls,
+        raw_safety_setting: gapic_content_types.SafetySetting,
+    ) -> "SafetySetting":
+        response = cls(
+            category=raw_safety_setting.category,
+            threshold=raw_safety_setting.threshold,
+        )
+        response._raw_safety_setting = raw_safety_setting
+        return response
+
+    @classmethod
+    def from_dict(cls, safety_setting_dict: Dict[str, Any]) -> "SafetySetting":
+        raw_safety_setting = gapic_content_types.SafetySetting(safety_setting_dict)
+        return cls._from_gapic(raw_safety_setting=raw_safety_setting)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return type(self._raw_safety_setting).to_dict(self._raw_safety_setting)
+
+    def __repr__(self):
+        return self._raw_safety_setting.__repr__()
 
 
 class grounding:  # pylint: disable=invalid-name

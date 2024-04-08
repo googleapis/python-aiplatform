@@ -950,36 +950,7 @@ def optional_sync(
     return optional_run_in_thread
 
 
-class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager):
-    """Allows optional asynchronous calls to this Vertex AI Resource
-    Nouns."""
-
-    def __init__(
-        self,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-        resource_name: Optional[str] = None,
-    ):
-        """Initializes class with project, location, and api_client.
-
-        Args:
-            project (str): Optional. Project of the resource noun.
-            location (str): Optional. The location of the resource noun.
-            credentials(google.auth.credentials.Credentials):
-                Optional. custom credentials to use when accessing interacting with
-                resource noun.
-            resource_name(str): A fully-qualified resource name or ID.
-        """
-        VertexAiResourceNoun.__init__(
-            self,
-            project=project,
-            location=location,
-            credentials=credentials,
-            resource_name=resource_name,
-        )
-        FutureManager.__init__(self)
-
+class _VertexAiResourceNounPlus(VertexAiResourceNoun):
     @classmethod
     def _empty_constructor(
         cls,
@@ -987,11 +958,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         resource_name: Optional[str] = None,
-    ) -> "VertexAiResourceNounWithFutureManager":
+    ) -> "_VertexAiResourceNounPlus":
         """Initializes with all attributes set to None.
-
-        The attributes should be populated after a future is complete. This allows
-        scheduling of additional API calls before the resource is created.
 
         Args:
             project (str): Optional. Project of the resource noun.
@@ -1011,38 +979,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             credentials=credentials,
             resource_name=resource_name,
         )
-        FutureManager.__init__(self)
         self._gca_resource = None
         return self
-
-    def _sync_object_with_future_result(
-        self, result: "VertexAiResourceNounWithFutureManager"
-    ):
-        """Populates attributes from a Future result to this object.
-
-        Args:
-            result: VertexAiResourceNounWithFutureManager
-                Required. Result of future with same type as this object.
-        """
-        sync_attributes = [
-            "project",
-            "location",
-            "api_client",
-            "_gca_resource",
-            "credentials",
-        ]
-        optional_sync_attributes = [
-            "_authorized_session",
-            "_raw_predict_request_url",
-        ]
-
-        for attribute in sync_attributes:
-            setattr(self, attribute, getattr(result, attribute))
-
-        for attribute in optional_sync_attributes:
-            value = getattr(result, attribute, None)
-            if value:
-                setattr(self, attribute, value)
 
     @classmethod
     def _construct_sdk_resource_from_gapic(
@@ -1258,6 +1196,111 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
 
         return li
 
+    def _delete(self) -> None:
+        """Deletes this Vertex AI resource. WARNING: This deletion is permanent."""
+        _LOGGER.log_action_start_against_resource("Deleting", "", self)
+        lro = getattr(self.api_client, self._delete_method)(name=self.resource_name)
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Delete", "", self.__class__, lro
+        )
+        lro.result()
+        _LOGGER.log_action_completed_against_resource("deleted.", "", self)
+
+
+class VertexAiResourceNounWithFutureManager(_VertexAiResourceNounPlus, FutureManager):
+    """Allows optional asynchronous calls to this Vertex AI Resource
+    Nouns."""
+
+    def __init__(
+        self,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
+    ):
+        """Initializes class with project, location, and api_client.
+
+        Args:
+            project (str): Optional. Project of the resource noun.
+            location (str): Optional. The location of the resource noun.
+            credentials(google.auth.credentials.Credentials):
+                Optional. custom credentials to use when accessing interacting with
+                resource noun.
+            resource_name(str): A fully-qualified resource name or ID.
+        """
+        _VertexAiResourceNounPlus.__init__(
+            self,
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
+        FutureManager.__init__(self)
+
+    @classmethod
+    def _empty_constructor(
+        cls,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
+    ) -> "VertexAiResourceNounWithFutureManager":
+        """Initializes with all attributes set to None.
+
+        The attributes should be populated after a future is complete. This allows
+        scheduling of additional API calls before the resource is created.
+
+        Args:
+            project (str): Optional. Project of the resource noun.
+            location (str): Optional. The location of the resource noun.
+            credentials(google.auth.credentials.Credentials):
+                Optional. custom credentials to use when accessing interacting with
+                resource noun.
+            resource_name(str): A fully-qualified resource name or ID.
+        Returns:
+            An instance of this class with attributes set to None.
+        """
+        self = cls.__new__(cls)
+        VertexAiResourceNoun.__init__(
+            self,
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
+        FutureManager.__init__(self)
+        self._gca_resource = None
+        return self
+
+    def _sync_object_with_future_result(
+        self, result: "VertexAiResourceNounWithFutureManager"
+    ):
+        """Populates attributes from a Future result to this object.
+
+        Args:
+            result: VertexAiResourceNounWithFutureManager
+                Required. Result of future with same type as this object.
+        """
+        sync_attributes = [
+            "project",
+            "location",
+            "api_client",
+            "_gca_resource",
+            "credentials",
+        ]
+        optional_sync_attributes = [
+            "_authorized_session",
+            "_raw_predict_request_url",
+        ]
+
+        for attribute in sync_attributes:
+            setattr(self, attribute, getattr(result, attribute))
+
+        for attribute in optional_sync_attributes:
+            value = getattr(result, attribute, None)
+            if value:
+                setattr(self, attribute, value)
+
     @classmethod
     def list(
         cls,
@@ -1322,13 +1365,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
-        _LOGGER.log_action_start_against_resource("Deleting", "", self)
-        lro = getattr(self.api_client, self._delete_method)(name=self.resource_name)
-        _LOGGER.log_action_started_against_resource_with_lro(
-            "Delete", "", self.__class__, lro
-        )
-        lro.result()
-        _LOGGER.log_action_completed_against_resource("deleted.", "", self)
+        self._delete()
 
     def __repr__(self) -> str:
         if self._gca_resource and self._resource_is_available:

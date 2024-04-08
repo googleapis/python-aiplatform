@@ -83,11 +83,13 @@ def get_image_uri(ray_version, python_version, enable_cuda):
     """Image uri for a given ray version and python version."""
     if ray_version not in SUPPORTED_RAY_VERSIONS:
         raise ValueError(
-            "[Ray on Vertex AI]: The supported Ray versions are %s (%s) and %s (%s).",
-            list(SUPPORTED_RAY_VERSIONS.keys())[0],
-            list(SUPPORTED_RAY_VERSIONS.values())[0],
-            list(SUPPORTED_RAY_VERSIONS.keys())[1],
-            list(SUPPORTED_RAY_VERSIONS.values())[1],
+            "[Ray on Vertex AI]: The supported Ray versions are %s (%s) and %s (%s)."
+            % (
+                list(SUPPORTED_RAY_VERSIONS.keys())[0],
+                list(SUPPORTED_RAY_VERSIONS.values())[0],
+                list(SUPPORTED_RAY_VERSIONS.keys())[1],
+                list(SUPPORTED_RAY_VERSIONS.values())[1],
+            )
         )
     if python_version not in SUPPORTED_PY_VERSION:
         raise ValueError("[Ray on Vertex AI]: The supported Python version is 3.10.")

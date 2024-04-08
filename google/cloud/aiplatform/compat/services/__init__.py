@@ -24,6 +24,12 @@ from google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service i
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
     client as endpoint_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1beta1.services.extension_execution_service import (
+    client as extension_execution_service_client_v1beta1,
+)
+from google.cloud.aiplatform_v1beta1.services.extension_registry_service import (
+    client as extension_registry_service_client_v1beta1,
+)
 from google.cloud.aiplatform_v1beta1.services.feature_online_store_service import (
     client as feature_online_store_service_client_v1beta1,
 )
@@ -124,6 +130,9 @@ from google.cloud.aiplatform_v1.services.model_garden_service import (
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.persistent_resource_service import (
+    client as persistent_resource_service_client_v1,
+)
 from google.cloud.aiplatform_v1.services.pipeline_service import (
     client as pipeline_service_client_v1,
 )
@@ -160,6 +169,7 @@ __all__ = (
     metadata_service_client_v1,
     model_garden_service_client_v1,
     model_service_client_v1,
+    persistent_resource_service_client_v1,
     pipeline_service_client_v1,
     prediction_service_client_v1,
     prediction_service_async_client_v1,

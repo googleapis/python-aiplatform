@@ -39,6 +39,8 @@ from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
     deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
+    extension_execution_service_client_v1beta1,
+    extension_registry_service_client_v1beta1,
     feature_online_store_admin_service_client_v1beta1,
     feature_online_store_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
@@ -79,6 +81,7 @@ from google.cloud.aiplatform.compat.services import (
     schedule_service_client_v1,
     tensorboard_service_client_v1,
     vizier_service_client_v1,
+    persistent_resource_service_client_v1,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -554,6 +557,28 @@ class EndpointClientWithOverride(ClientWithOverride):
     )
 
 
+class ExtensionExecutionClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            extension_execution_service_client_v1beta1.ExtensionExecutionServiceClient,
+        ),
+    )
+
+
+class ExtensionRegistryClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            extension_registry_service_client_v1beta1.ExtensionRegistryServiceClient,
+        ),
+    )
+
+
 class IndexClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION
@@ -739,8 +764,12 @@ class ModelGardenClientWithOverride(ClientWithOverride):
 
 class PersistentResourceClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (
+            compat.V1,
+            persistent_resource_service_client_v1.PersistentResourceServiceClient,
+        ),
         (
             compat.V1BETA1,
             persistent_resource_service_client_v1beta1.PersistentResourceServiceClient,

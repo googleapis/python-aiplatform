@@ -319,7 +319,10 @@ class ImageGenerationModel(
         mask: Optional["Image"] = None,
         edit_mode: Optional[
             Literal[
-                "inpainting-insert", "inpainting-remove", "outpainting", "product-image"
+                "inpainting-insert",
+                "inpainting-remove",
+                "outpainting",
+                "product-image",
             ]
         ] = None,
         mask_mode: Optional[Literal["background", "foreground", "semantic"]] = None,
@@ -330,7 +333,7 @@ class ImageGenerationModel(
         compression_quality: Optional[float] = None,
         language: Optional[str] = None,
         output_gcs_uri: Optional[str] = None,
-        add_watermark: Optional[bool] = False,
+        add_watermark: Optional[bool] = None,
         safety_filter_level: Optional[
             Literal["block_most", "block_some", "block_few", "block_fewest"]
         ] = None,
@@ -354,62 +357,53 @@ class ImageGenerationModel(
                 * 4:3 - Landscape, desktop ratio.
                 * 3:4 - Portrait, desktop ratio
             guidance_scale: Controls the strength of the prompt. Suggested values
-            are -
-                * 0-9 (low strength)
-                * 10-20 (medium strength)
-                * 21+ (high strength)
+              are - * 0-9 (low strength) * 10-20 (medium strength) * 21+ (high
+              strength)
             seed: Image generation random seed.
             base_image: Base image to use for the image generation.
             mask: Mask for the base image.
             edit_mode: Describes the editing mode for the request. Supported values
-            are -
-                * inpainting-insert: fills the mask area based on the text prompt
-                (requires mask and text)
-                * inpainting-remove: removes the object(s) in the mask area.
-                (requires mask)
-                * outpainting: extend the image based on the mask area.
-                (Requires mask)
-                * product-image: Changes the background for the predominant product
-                or subject in the image
+              are - * inpainting-insert: fills the mask area based on the text
+              prompt (requires mask and text) * inpainting-remove: removes the
+              object(s) in the mask area. (requires mask)
+                * outpainting: extend the image based on the mask area. (Requires
+                  mask) * product-image: Changes the background for the predominant
+                  product or subject in the image
             mask_mode: Solicits generation of the mask (v/s providing mask as an
-            input). Supported values are:
+              input). Supported values are:
                 * background: Automatically generates a mask for all regions except
-                the primary subject(s) of the image
+                  the primary subject(s) of the image
                 * foreground: Automatically generates a mask for the primary
-                subjects(s) of the image.
+                  subjects(s) of the image.
                 * semantic: Segment one or more of the segmentation classes using
-                class ID
+                  class ID
             segmentation_classes: List of class IDs for segmentation. Max of 5 IDs
             mask_dilation: Defines the dilation percentage of the mask provided.
-            Float between 0 and 1. Defaults to 0.03
+              Float between 0 and 1. Defaults to 0.03
             product_position: Defines whether the product should stay fixed or be
-            repositioned. Supported Values:
+              repositioned. Supported Values:
                 * fixed: Fixed position
                 * reposition: Can be moved (default)
             output_mime_type: Which image format should the output be saved as.
-            Supported values:
-                * image/png: Save as a PNG image
-                * image/jpeg: Save as a JPEG image
+              Supported values: * image/png: Save as a PNG image * image/jpeg: Save
+              as a JPEG image
             compression_quality: Level of compression if the output mime type is
-            selected to be image/jpeg. Float between 0 to 100
+              selected to be image/jpeg. Float between 0 to 100
             language: Language of the text prompt for the image. Default: None.
-                Supported values are `"en"` for English, `"hi"` for Hindi, `"ja"`
-                for Japanese, `"ko"` for Korean, and `"auto"` for automatic language
-                detection.
+              Supported values are `"en"` for English, `"hi"` for Hindi, `"ja"` for
+              Japanese, `"ko"` for Korean, and `"auto"` for automatic language
+              detection.
             output_gcs_uri: Google Cloud Storage uri to store the generated images.
             add_watermark: Add a watermark to the generated image
             safety_filter_level: Adds a filter level to Safety filtering. Supported
-                values are:
-                * "block_most" : Strongest filtering level, most strict
-                blocking
-                * "block_some" : Block some problematic prompts and responses
-                * "block_few" : Block fewer problematic prompts and responses
-                * "block_fewest" : Block very few problematic prompts and responses
+              values are: * "block_most" : Strongest filtering level, most strict
+              blocking * "block_some" : Block some problematic prompts and responses
+              * "block_few" : Block fewer problematic prompts and responses *
+              "block_fewest" : Block very few problematic prompts and responses
             person_generation: Allow generation of people by the model Supported
-                values are:
-                * "dont_allow" : Block generation of people
-                * "allow_adult" : Generate adults, but not children
-                * "allow_all" : Generate adults and children
+              values are: * "dont_allow" : Block generation of people *
+              "allow_adult" : Generate adults, but not children * "allow_all" :
+              Generate adults and children
 
         Returns:
             An `ImageGenerationResponse` object.
@@ -566,7 +560,7 @@ class ImageGenerationModel(
         language: Optional[str] = None,
         seed: Optional[int] = None,
         output_gcs_uri: Optional[str] = None,
-        add_watermark: Optional[bool] = False,
+        add_watermark: Optional[bool] = True,
         safety_filter_level: Optional[
             Literal["block_most", "block_some", "block_few", "block_fewest"]
         ] = None,
@@ -1240,7 +1234,7 @@ class ImageTextModel(ImageCaptioningModel, ImageQnAModel):
 @dataclasses.dataclass
 class WatermarkVerificationResponse:
 
-    __module__ = "vertex.preview.vision_models"
+    __module__ = "vertexai.preview.vision_models"
 
     _prediction_response: Any
     watermark_verification_result: Optional[str] = None
@@ -1251,7 +1245,7 @@ class WatermarkVerificationModel(_model_garden_models._ModelGardenModel):
 
     __module__ = "vertexai.preview.vision_models"
 
-    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/watermark_watermark_verification_model_1.0.0.yaml"
+    _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/watermark_verification_model_1.0.0.yaml"
 
     def verify_image(self, image: Image) -> WatermarkVerificationResponse:
         """Verifies the watermark of an image.

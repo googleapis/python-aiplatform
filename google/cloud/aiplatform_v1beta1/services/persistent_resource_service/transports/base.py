@@ -158,6 +158,11 @@ class PersistentResourceServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.reboot_persistent_resource: gapic_v1.method.wrap_method(
+                self.reboot_persistent_resource,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -221,6 +226,15 @@ class PersistentResourceServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [persistent_resource_service.UpdatePersistentResourceRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def reboot_persistent_resource(
+        self,
+    ) -> Callable[
+        [persistent_resource_service.RebootPersistentResourceRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

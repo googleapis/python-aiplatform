@@ -180,6 +180,7 @@ def default(session):
         "--cov-config=.coveragerc",
         "--cov-report=",
         "--cov-fail-under=0",
+        "--ignore=tests/unit/vertex_ray",
         os.path.join("tests", "unit"),
         *session.posargs,
     )

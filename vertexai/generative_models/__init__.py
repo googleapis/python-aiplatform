@@ -30,6 +30,7 @@ from vertexai.generative_models._generative_models import (
     Image,
     Part,
     ResponseValidationError,
+    SafetySetting,
     Tool,
 )
 
@@ -47,5 +48,6 @@ __all__ = [
     "Image",
     "Part",
     "ResponseValidationError",
+    "SafetySetting",
     "Tool",
 ]

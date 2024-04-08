@@ -36,7 +36,9 @@ from vertexai.generative_models import _function_calling_utils
 
 
 _TEST_PROJECT = "test-project"
+_TEST_PROJECT2 = "test-project2"
 _TEST_LOCATION = "us-central1"
+_TEST_LOCATION2 = "europe-west4"
 
 
 _RESPONSE_TEXT_PART_STRUCT = {
@@ -292,12 +294,63 @@ class TestGenerativeModels:
         "generative_models",
         [generative_models, preview_generative_models],
     )
+    def test_generative_model_constructor_model_name(
+        self, generative_models: generative_models
+    ):
+        project_location_prefix = (
+            f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
+        )
+
+        model_name1 = "gemini-pro"
+        model1 = generative_models.GenerativeModel(model_name1)
+        assert (
+            model1._prediction_resource_name
+            == project_location_prefix + "publishers/google/models/" + model_name1
+        )
+
+        model_name2 = "models/gemini-pro"
+        model2 = generative_models.GenerativeModel(model_name2)
+        assert (
+            model2._prediction_resource_name
+            == project_location_prefix + "publishers/google/" + model_name2
+        )
+
+        model_name3 = "publishers/some_publisher/models/some_model"
+        model3 = generative_models.GenerativeModel(model_name3)
+        assert model3._prediction_resource_name == project_location_prefix + model_name3
+
+        model_name4 = (
+            f"projects/{_TEST_PROJECT2}/locations/{_TEST_LOCATION2}/endpoints/endpoint1"
+        )
+        model4 = generative_models.GenerativeModel(model_name4)
+        assert model4._prediction_resource_name == model_name4
+        assert _TEST_LOCATION2 in model4._prediction_client._api_endpoint
+
+        with pytest.raises(ValueError):
+            generative_models.GenerativeModel("foo/bar/models/gemini-pro")
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_generate_content(self, generative_models: generative_models):
         model = generative_models.GenerativeModel("gemini-pro")
         response = model.generate_content("Why is sky blue?")
         assert response.text
 
-        response2 = model.generate_content(
+        model2 = generative_models.GenerativeModel(
+            "gemini-pro",
+            system_instruction=[
+                "Talk like a pirate.",
+                "Don't use rude words.",
+            ],
+        )
+        response2 = model2.generate_content(
             "Why is sky blue?",
             generation_config=generative_models.GenerationConfig(
                 temperature=0.2,
@@ -307,6 +360,18 @@ class TestGenerativeModels:
                 max_output_tokens=200,
                 stop_sequences=["\n\n\n"],
             ),
+            safety_settings=[
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                    method=generative_models.SafetySetting.HarmBlockMethod.SEVERITY,
+                ),
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                    method=generative_models.SafetySetting.HarmBlockMethod.PROBABILITY,
+                ),
+            ],
         )
         assert response2.text
 
@@ -413,6 +478,67 @@ class TestGenerativeModels:
             "gemini-pro",
             # Specifying the tools once to avoid specifying them in every request
             tools=[weather_tool],
+        )
+        chat = model.start_chat()
+
+        response1 = chat.send_message("What is the weather like in Boston?")
+        assert (
+            response1.candidates[0].content.parts[0].function_call.name
+            == "get_current_weather"
+        )
+        assert [
+            function_call.name
+            for function_call in response1.candidates[0].function_calls
+        ] == ["get_current_weather"]
+        function_map = {
+            "get_current_weather": get_current_weather,
+        }
+        function_response_parts = []
+        for function_call in response1.candidates[0].function_calls:
+            function = function_map[function_call.name]
+            function_result = function(**function_call.args)
+            function_response_part = generative_models.Part.from_function_response(
+                name=function_call.name,
+                response=function_result,
+            )
+            function_response_parts.append(function_response_part)
+
+        response2 = chat.send_message(function_response_parts)
+        assert "Boston" in response2.text
+        assert "nice" in response2.text
+        assert not response2.candidates[0].function_calls
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [preview_generative_models],
+    )
+    def test_chat_forced_function_calling(self, generative_models: generative_models):
+        get_current_weather_func = generative_models.FunctionDeclaration(
+            name="get_current_weather",
+            description="Get the current weather in a given location",
+            parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+        )
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+
+        tool_config = generative_models.ToolConfig(
+            function_calling_config=generative_models.ToolConfig.FunctionCallingConfig(
+                mode=generative_models.ToolConfig.FunctionCallingConfig.Mode.ANY,
+                allowed_function_names=["get_current_weather"],
+            )
+        )
+
+        model = generative_models.GenerativeModel(
+            "gemini-pro",
+            # Specifying the tools once to avoid specifying them in every request
+            tools=[weather_tool],
+            tool_config=tool_config,
         )
         chat = model.start_chat()
 

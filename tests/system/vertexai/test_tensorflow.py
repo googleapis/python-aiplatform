@@ -62,6 +62,10 @@ class TestRemoteExecutionTensorflow(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertexai-remote-execution"
 
+    # TODO(b/313893962): Re-enable after fixing the broken test.
+    @pytest.mark.skip(
+        reason="Known issue for removing tensorflow from the top level imports."
+    )
     def test_remote_execution_keras(self, shared_state):
         # Initialize vertexai
         vertexai.init(

@@ -622,6 +622,12 @@ class Experiment:
         context = experiment_loggable._get_context()
         self._metadata_context.add_context_children([context])
 
+    @property
+    def dashboard_url(self) -> Optional[str]:
+        """Cloud console URL for this resource."""
+        url = f"https://console.cloud.google.com/vertex-ai/experiments/locations/{self._metadata_context.location}/experiments/{self._metadata_context.name}?project={self._metadata_context.project}"
+        return url
+
 
 class _SetLoggerLevel:
     """Helper method to suppress logging."""

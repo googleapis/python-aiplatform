@@ -129,16 +129,14 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
                     ", but the requested cluster runtime has %s. Please "
                     "ensure that the Ray versions match for client connectivity. You may "
                     '"pip install --user --force-reinstall ray[default]==%s"'
-                    " and restart runtime before cluster connection.",
-                    local_ray_verion,
-                    cluster.ray_version,
-                    install_ray_version,
+                    " and restart runtime before cluster connection."
+                    % (local_ray_verion, cluster.ray_version, install_ray_version)
                 )
             else:
                 logging.info(
                     "[Ray on Vertex]: Local runtime has Ray version %s."
-                    "Please ensure that the Ray versions match for client connectivity.",
-                    local_ray_verion,
+                    "Please ensure that the Ray versions match for client connectivity."
+                    % local_ray_verion
                 )
         super().__init__(address)
 

@@ -34,7 +34,9 @@ from vertexai.generative_models._generative_models import (
     Part,
     ResponseBlockedError,
     ResponseValidationError,
+    SafetySetting,
     Tool,
+    ToolConfig,
 )
 
 
@@ -64,6 +66,8 @@ __all__ = [
     "Part",
     "ResponseBlockedError",
     "ResponseValidationError",
+    "SafetySetting",
     "Tool",
+    "ToolConfig",
     #
 ]

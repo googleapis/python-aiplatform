@@ -121,7 +121,13 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             assert chunk.text
 
     def test_generate_content_with_parameters(self):
-        model = generative_models.GenerativeModel("gemini-pro")
+        model = generative_models.GenerativeModel(
+            "gemini-pro",
+            system_instruction=[
+                "Talk like a pirate.",
+                "Don't use rude words.",
+            ],
+        )
         response = model.generate_content(
             contents="Why is sky blue?",
             generation_config=generative_models.GenerationConfig(
