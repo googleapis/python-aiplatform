@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.47.0](https://github.com/googleapis/python-aiplatform/compare/v1.46.0...v1.47.0) (2024-04-06)
+
+
+### Features
+
+* Add display experiment button for tuning in Ipython environments ([9bb687c](https://github.com/googleapis/python-aiplatform/commit/9bb687c20b03ea7227908e09831fb1a13ac3a970))
+* Add Persistent Resource ID parameter to Custom Job form_local_script, run, and submit methods. ([f5be0b5](https://github.com/googleapis/python-aiplatform/commit/f5be0b5652b0366eb6e823409ba1cb134e4b7b7c))
+* Add Persistent Resource Id parameter to Custom Training Job run and submit methods. ([f428006](https://github.com/googleapis/python-aiplatform/commit/f428006507e9b053a2121089e89fc54aedd3550a))
+* Added GA support for PersistentResource management ([98a07dd](https://github.com/googleapis/python-aiplatform/commit/98a07dd614063cb6a4c55c9024893874d3c95a1f))
+* Added GA support for running Custom and Hp tuning jobs on Persistent Resources ([35ecbac](https://github.com/googleapis/python-aiplatform/commit/35ecbac53df299b681e835648a9884a091f5d4d8))
+* Added the `Experiment.dashboard_url` property ([c8eec21](https://github.com/googleapis/python-aiplatform/commit/c8eec21d6f6e6f016669a18e19cebd9de1f0a7f9))
+* GenAI - Added support for `SafetySetting.method` (probability or severity) ([317ab8f](https://github.com/googleapis/python-aiplatform/commit/317ab8f7499b345c5a73365b95e9ba91c1adfecf))
+* GenAI - Added support for supervised fine-tuning ([036d2d0](https://github.com/googleapis/python-aiplatform/commit/036d2d0306e5190c972d2c4e5dd34257ea8fad6d))
+* GenAI - Added support for system instructions ([4990eb6](https://github.com/googleapis/python-aiplatform/commit/4990eb6ade736c85c08455ca0ef9f7c9515662fd))
+* GenAI - Forced function calling feature ([806ef9f](https://github.com/googleapis/python-aiplatform/commit/806ef9fe860c51ee99481cb7f209723a22a1d369))
+* Initial template for Langchain on Vertex. ([0752a29](https://github.com/googleapis/python-aiplatform/commit/0752a29ec69280373519406be8528682f1c547ec))
+* LLM - Add RLHF-tuning support for `text-bison@002` ([1f27c3e](https://github.com/googleapis/python-aiplatform/commit/1f27c3eb5bb95b04f5e1708d631309c928df932b))
+* Vertex AI Extension SDK Public Preview ([137b5e1](https://github.com/googleapis/python-aiplatform/commit/137b5e11ab40abfd4f53c61544989d99770dabeb))
+* Vertex AI Reasoning Engine SDK Public Preview ([6aaa5d0](https://github.com/googleapis/python-aiplatform/commit/6aaa5d01c7e675bb1a553fd6780b035e3513d58e))
+* Vertex Rapid Evaluation SDK and Prompt Template for Vertex Prompt Management Public Preview ([8c6ddf5](https://github.com/googleapis/python-aiplatform/commit/8c6ddf54adf91e2fbf00034fef413ccfde3769d6))
+
+
+### Bug Fixes
+
+* GenAI - Fixed response validation error during streaming ([c881998](https://github.com/googleapis/python-aiplatform/commit/c881998c7fb54289efc5ae6f5431b631b3d6c11c))
+* GenAI - Fixed the `GenerativeModel`'s handling of tuned models from different region ([bf33fb3](https://github.com/googleapis/python-aiplatform/commit/bf33fb3e0053898cf8ba919180ee246ea5ad1cdb))
+* GenAI - Fixed the TuningJob dashboard URL ([5367fbb](https://github.com/googleapis/python-aiplatform/commit/5367fbb1125debd16357e4815c704105209fca2a))
+* Reinstate persistent resource preview class and tests ([765d60d](https://github.com/googleapis/python-aiplatform/commit/765d60da57b3e3c947b121667f0a2a2cb93b88f3))
+
+
+### Documentation
+
+* Add run custom job on persistent resource sample. ([53fc845](https://github.com/googleapis/python-aiplatform/commit/53fc8455145c9fb7953a6e7dd6e85aab01055ad2))
+* Add run custom job on persistent resource sample. ([31100c6](https://github.com/googleapis/python-aiplatform/commit/31100c6dd6d7d4b0b588ed7f008e7661835b19d2))
+
 ## [1.46.0](https://github.com/googleapis/python-aiplatform/compare/v1.45.0...v1.46.0) (2024-03-30)
 
 
