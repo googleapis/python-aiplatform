@@ -44,3 +44,8 @@ Vertex AI SDK
     :members:
     :show-inheritance:
     :inherited-members:
+
+.. automodule:: vertexai.preview.evaluation
+    :members:
+    :show-inheritance:
+    :inherited-members:
