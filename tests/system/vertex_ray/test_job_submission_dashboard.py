@@ -49,7 +49,7 @@ class TestJobSubmissionDashboard(e2e_base.TestEndToEnd):
         cluster_resource_name = vertex_ray.create_ray_cluster(
             head_node_type=head_node_type,
             worker_node_types=worker_node_types,
-            cluster_name=f"ray-cluster{timestamp}-test-job-submission-dashboard",
+            cluster_name=f"ray-cluster-{timestamp}-test-job-submission-dashboard",
             ray_version=cluster_ray_version,
         )
 
