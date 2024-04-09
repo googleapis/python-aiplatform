@@ -28,6 +28,9 @@ from vertexai.preview import (
     generative_models as preview_generative_models,
 )
 
+GEMINI_MODEL_NAME = "gemini-1.0-pro-002"
+GEMINI_VISION_MODEL_NAME = "gemini-1.0-pro-vision"
+
 
 # A dummy function for function calling
 def get_current_weather(location: str, unit: str = "centigrade"):
@@ -83,7 +86,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
 
     def test_generate_content_from_text(self):
-        model = generative_models.GenerativeModel("gemini-pro")
+        model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         response = model.generate_content(
             "Why is sky blue?",
             generation_config=generative_models.GenerationConfig(temperature=0),
@@ -92,7 +95,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
 
     @pytest.mark.asyncio
     async def test_generate_content_async(self):
-        model = generative_models.GenerativeModel("gemini-pro")
+        model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         response = await model.generate_content_async(
             "Why is sky blue?",
             generation_config=generative_models.GenerationConfig(temperature=0),
@@ -100,7 +103,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert response.text
 
     def test_generate_content_streaming(self):
-        model = generative_models.GenerativeModel("gemini-pro")
+        model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         stream = model.generate_content(
             "Why is sky blue?",
             stream=True,
@@ -111,7 +114,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
 
     @pytest.mark.asyncio
     async def test_generate_content_streaming_async(self):
-        model = generative_models.GenerativeModel("gemini-pro")
+        model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         async_stream = await model.generate_content_async(
             "Why is sky blue?",
             stream=True,
@@ -122,7 +125,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
 
     def test_generate_content_with_parameters(self):
         model = generative_models.GenerativeModel(
-            "gemini-pro",
+            GEMINI_MODEL_NAME,
             system_instruction=[
                 "Talk like a pirate.",
                 "Don't use rude words.",
@@ -148,7 +151,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert response.text
 
     def test_generate_content_from_list_of_content_dict(self):
-        model = generative_models.GenerativeModel("gemini-pro")
+        model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         response = model.generate_content(
             contents=[{"role": "user", "parts": [{"text": "Why is sky blue?"}]}],
             generation_config=generative_models.GenerationConfig(temperature=0),
@@ -159,7 +162,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         reason="Breaking change in the gemini-pro-vision model. See b/315803556#comment3"
     )
     def test_generate_content_from_remote_image(self):
-        vision_model = generative_models.GenerativeModel("gemini-pro-vision")
+        vision_model = generative_models.GenerativeModel(GEMINI_VISION_MODEL_NAME)
         image_part = generative_models.Part.from_uri(
             uri="gs://download.tensorflow.org/example_images/320px-Felis_catus-cat_on_snow.jpg",
             mime_type="image/jpeg",
@@ -172,7 +175,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert "cat" in response.text
 
     def test_generate_content_from_text_and_remote_image(self):
-        vision_model = generative_models.GenerativeModel("gemini-pro-vision")
+        vision_model = generative_models.GenerativeModel(GEMINI_VISION_MODEL_NAME)
         image_part = generative_models.Part.from_uri(
             uri="gs://download.tensorflow.org/example_images/320px-Felis_catus-cat_on_snow.jpg",
             mime_type="image/jpeg",
@@ -185,7 +188,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert "cat" in response.text
 
     def test_generate_content_from_text_and_remote_video(self):
-        vision_model = generative_models.GenerativeModel("gemini-pro-vision")
+        vision_model = generative_models.GenerativeModel(GEMINI_VISION_MODEL_NAME)
         video_part = generative_models.Part.from_uri(
             uri="gs://cloud-samples-data/video/animals.mp4",
             mime_type="video/mp4",
@@ -198,7 +201,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert "Zootopia" in response.text
 
     def test_grounding_google_search_retriever(self):
-        model = preview_generative_models.GenerativeModel("gemini-pro")
+        model = preview_generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         google_search_retriever_tool = (
             preview_generative_models.Tool.from_google_search_retrieval(
                 preview_generative_models.grounding.GoogleSearchRetrieval(
@@ -216,7 +219,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
     # Chat
 
     def test_send_message_from_text(self):
-        model = generative_models.GenerativeModel("gemini-pro")
+        model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         chat = model.start_chat()
         response1 = chat.send_message(
             "I really like fantasy books.",
@@ -244,7 +247,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
 
         model = generative_models.GenerativeModel(
-            "gemini-1.0-pro",
+            GEMINI_MODEL_NAME,
             # Specifying the tools once to avoid specifying them in every request
             tools=[weather_tool],
         )
@@ -278,7 +281,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
 
         model = generative_models.GenerativeModel(
-            "gemini-1.0-pro",
+            GEMINI_MODEL_NAME,
             # Specifying the tools once to avoid specifying them in every request
             tools=[weather_tool],
         )
@@ -356,7 +359,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         )
 
         model = preview_generative_models.GenerativeModel(
-            "gemini-1.0-pro",
+            GEMINI_MODEL_NAME,
             # Specifying the tools once to avoid specifying them in every request
             tools=[weather_tool],
         )
