@@ -119,7 +119,7 @@ def mock_generate_content(
     *,
     model: Optional[str] = None,
     contents: Optional[MutableSequence[gapic_content_types.Content]] = None,
-) -> Iterable[gapic_prediction_service_types.GenerateContentResponse]:
+) -> gapic_prediction_service_types.GenerateContentResponse:
     last_message_part = request.contents[-1].parts[0]
     should_fail = last_message_part.text and "Please fail" in last_message_part.text
     if should_fail:
@@ -203,8 +203,7 @@ def mock_generate_content(
             gapic_content_types.Candidate(
                 index=0,
                 content=gapic_content_types.Content(
-                    # Model currently does not identify itself
-                    # role="model",
+                    role="model",
                     parts=[
                         gapic_content_types.Part(response_part_struct),
                     ],
@@ -240,6 +239,13 @@ def mock_generate_content(
             ),
         ],
     )
+
+    if "Please block response with finish_reason=OTHER" in (
+        last_message_part.text or ""
+    ):
+        finish_reason = gapic_content_types.Candidate.FinishReason.OTHER
+        response.candidates[0].finish_reason = finish_reason
+
     return response
 
 
@@ -250,9 +256,32 @@ def mock_stream_generate_content(
     model: Optional[str] = None,
     contents: Optional[MutableSequence[gapic_content_types.Content]] = None,
 ) -> Iterable[gapic_prediction_service_types.GenerateContentResponse]:
-    yield mock_generate_content(
+    response = mock_generate_content(
         self=self, request=request, model=model, contents=contents
     )
+    # When a streaming response gets blocked, the last chunk has no content.
+    # Creating such last chunk.
+    blocked_chunk = None
+    candidate_0 = response.candidates[0] if response.candidates else None
+    if candidate_0 and candidate_0.finish_reason not in (
+        gapic_content_types.Candidate.FinishReason.STOP,
+        gapic_content_types.Candidate.FinishReason.MAX_TOKENS,
+    ):
+        blocked_chunk = gapic_prediction_service_types.GenerateContentResponse(
+            candidates=[
+                gapic_content_types.Candidate(
+                    index=0,
+                    finish_reason=candidate_0.finish_reason,
+                    finish_message=candidate_0.finish_message,
+                    safety_ratings=candidate_0.safety_ratings,
+                )
+            ]
+        )
+        candidate_0.finish_reason = None
+        candidate_0.finish_message = None
+    yield response
+    if blocked_chunk:
+        yield blocked_chunk
 
 
 def get_current_weather(location: str, unit: Optional[str] = "centigrade"):
@@ -409,6 +438,25 @@ class TestGenerativeModels:
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
+        attribute="stream_generate_content",
+        new=mock_stream_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_chat_send_message_streaming(self, generative_models: generative_models):
+        model = generative_models.GenerativeModel("gemini-pro")
+        chat = model.start_chat()
+        stream1 = chat.send_message("Why is sky blue?", stream=True)
+        for chunk in stream1:
+            assert chunk.candidates
+        stream2 = chat.send_message("Is sky blue on other planets?", stream=True)
+        for chunk in stream2:
+            assert chunk.candidates
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
         attribute="generate_content",
         new=mock_generate_content,
     )
@@ -454,6 +502,27 @@ class TestGenerativeModels:
         assert e.match("Blocked for testing")
         # Checking that history did not get updated
         assert len(chat.history) == 2
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_chat_send_message_response_candidate_blocked_error(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel("gemini-pro")
+        chat = model.start_chat()
+
+        with pytest.raises(generative_models.ResponseValidationError):
+            chat.send_message("Please block response with finish_reason=OTHER.")
+
+        # Checking that history did not get updated
+        assert not chat.history
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,

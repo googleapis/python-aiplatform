@@ -2113,7 +2113,9 @@ def _append_gapic_candidate(
             f"Incorrect candidate indexes: {base_candidate.index} != {new_candidate.index}"
         )
 
-    _append_gapic_content(base_candidate.content, new_candidate.content)
+    # Only merge content if it exists.
+    if "content" in new_candidate:
+        _append_gapic_content(base_candidate.content, new_candidate.content)
 
     # For these attributes, the last value wins
     if new_candidate.finish_reason:
@@ -2130,7 +2132,9 @@ def _append_gapic_content(
     base_content: gapic_content_types.Content,
     new_content: gapic_content_types.Content,
 ):
-    if base_content.role != new_content.role:
+    # Handling empty role is a workaround for a case when service returns
+    # some chunks with missing role field (e.g. when response is blocked).
+    if new_content.role and base_content.role != new_content.role:
         raise ValueError(
             f"Content roles do not match: {base_content.role} != {new_content.role}"
         )
