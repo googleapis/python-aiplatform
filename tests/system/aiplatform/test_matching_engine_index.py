@@ -347,6 +347,13 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         # )
         # assert results[0][0].id == 9999
 
+        # FindNeighbors query for public index
+        results = public_index_endpoint.find_neighbors(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID_PUBLIC,
+            queries=[_TEST_MATCH_QUERY],
+        )
+        assert results[0][0].id == "0"
+
         # Undeploy index from private endpoint
         my_index_endpoint = my_index_endpoint.undeploy_index(
             deployed_index_id=deployed_index.id
