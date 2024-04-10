@@ -240,11 +240,13 @@ _TEST_NUMERIC_FILTER = [
     NumericNamespace(name="cost", value_double=0.3, op="EQUAL"),
     NumericNamespace(name="size", value_int=0, op="GREATER"),
     NumericNamespace(name="seconds", value_float=-20.5, op="LESS_EQUAL"),
+    NumericNamespace(name="duration", value_int=10, op="NOT_EQUAL"),
 ]
 _TEST_NUMERIC_NAMESPACE = [
     match_service_pb2.NumericNamespace(name="cost", value_double=0.3, op=3),
     match_service_pb2.NumericNamespace(name="size", value_int=0, op=5),
     match_service_pb2.NumericNamespace(name="seconds", value_float=-20.5, op=2),
+    match_service_pb2.NumericNamespace(name="duration", value_int=10, op="NOT_EQUAL"),
 ]
 _TEST_IDS = ["123", "456", "789"]
 _TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS = 3
@@ -1420,6 +1422,9 @@ class TestMatchingEngineIndexEndpoint:
                             ),
                             gca_index_v1beta1.IndexDatapoint.NumericRestriction(
                                 namespace="seconds", value_float=-20.5, op="LESS_EQUAL"
+                            ),
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace="duration", value_int=10, op="NOT_EQUAL"
                             ),
                         ],
                     ),

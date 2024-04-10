@@ -92,6 +92,7 @@ class NumericNamespace:
                 "EQUAL" for datapoints' values = query's value;
                 "GREATER_EQUAL" for datapoints' values >= query's value;
                 "GREATER" for datapoints' values > query's value;
+                "NOT_EQUAL" for datapoints' values != query's value
     """
 
     name: str
