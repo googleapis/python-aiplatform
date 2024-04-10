@@ -175,7 +175,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_matching_engine_test"
 
-    def test_create_get_list_matching_engine_index(self, shared_state):
+    def test_matching_engine_tree_ah_batch_index(self, shared_state):
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -229,21 +229,21 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
 
         assert updated_index.name == get_index.name
 
-        # Create endpoint and check that it is listed
-        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
+        # Create a private service access endpoint and check that it is listed
+        psa_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
             display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             network=e2e_base._VPC_NETWORK_URI,
             labels=_TEST_LABELS,
         )
-        assert my_index_endpoint.resource_name in [
+        assert psa_index_endpoint.resource_name in [
             index_endpoint.resource_name
             for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
         ]
 
-        assert my_index_endpoint.labels == _TEST_LABELS
-        assert my_index_endpoint.display_name == _TEST_INDEX_ENDPOINT_DISPLAY_NAME
-        assert my_index_endpoint.description == _TEST_INDEX_ENDPOINT_DESCRIPTION
+        assert psa_index_endpoint.labels == _TEST_LABELS
+        assert psa_index_endpoint.display_name == _TEST_INDEX_ENDPOINT_DISPLAY_NAME
+        assert psa_index_endpoint.description == _TEST_INDEX_ENDPOINT_DESCRIPTION
 
         # Create endpoint and check that it is listed
         public_index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
@@ -266,10 +266,10 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             public_index_endpoint.description == _TEST_PUBLIC_INDEX_ENDPOINT_DESCRIPTION
         )
 
-        shared_state["resources"].append(my_index_endpoint)
+        shared_state["resources"].append(psa_index_endpoint)
 
         # Deploy endpoint
-        my_index_endpoint = my_index_endpoint.deploy_index(
+        psa_index_endpoint = psa_index_endpoint.deploy_index(
             index=index,
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
@@ -285,7 +285,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         )
 
         # Update endpoint
-        updated_index_endpoint = my_index_endpoint.update(
+        updated_index_endpoint = psa_index_endpoint.update(
             display_name=_TEST_DISPLAY_NAME_UPDATE,
             description=_TEST_DESCRIPTION_UPDATE,
             labels=_TEST_LABELS_UPDATE,
@@ -296,14 +296,14 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         assert updated_index_endpoint.description == _TEST_DESCRIPTION_UPDATE
 
         # Mutate deployed index
-        my_index_endpoint.mutate_deployed_index(
+        psa_index_endpoint.mutate_deployed_index(
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             min_replica_count=_TEST_MIN_REPLICA_COUNT_UPDATED,
             max_replica_count=_TEST_MAX_REPLICA_COUNT_UPDATED,
         )
 
         # deployed index on private endpoint.
-        deployed_index = my_index_endpoint.deployed_indexes[0]
+        deployed_index = psa_index_endpoint.deployed_indexes[0]
 
         assert deployed_index.id == _TEST_DEPLOYED_INDEX_ID
         assert deployed_index.index == index.resource_name
@@ -330,16 +330,16 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
             == _TEST_MAX_REPLICA_COUNT_UPDATED
         )
 
-        # TODO: Test `my_index_endpoint.match` request. This requires running this test in a VPC.
-        # results = my_index_endpoint.match(
+        # TODO: Test `psa_index_endpoint.match` request. This requires running this test in a VPC.
+        # results = psa_index_endpoint.match(
         #     deployed_index_id=_TEST_DEPLOYED_INDEX_ID, queries=[_TEST_MATCH_QUERY]
         # )
 
         # assert results[0][0].id == 870
 
-        # TODO: Test `my_index_endpoint.match` with filter.
+        # TODO: Test `psa_index_endpoint.match` with filter.
         # This requires uploading a new content of the Matching Engine Index to Cloud Storage.
-        # results = my_index_endpoint.match(
+        # results = psa_index_endpoint.match(
         #     deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
         #     queries=[_TEST_MATCH_QUERY],
         #     num_neighbors=1,
@@ -348,7 +348,7 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         # assert results[0][0].id == 9999
 
         # Undeploy index from private endpoint
-        my_index_endpoint = my_index_endpoint.undeploy_index(
+        psa_index_endpoint = psa_index_endpoint.undeploy_index(
             deployed_index_id=deployed_index.id
         )
 
@@ -365,8 +365,8 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         ]
 
         # Delete index endpoint and check that it is no longer listed
-        my_index_endpoint.delete()
-        assert my_index_endpoint.resource_name not in [
+        psa_index_endpoint.delete()
+        assert psa_index_endpoint.resource_name not in [
             index_endpoint.resource_name
             for index_endpoint in aiplatform.MatchingEngineIndexEndpoint.list()
         ]
