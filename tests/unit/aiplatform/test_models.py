@@ -1293,6 +1293,7 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
                 serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+                artifact_uri=_TEST_ARTIFACT_URI,
             )
 
         assert str(exception.value) == expected_message

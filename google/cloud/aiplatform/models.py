@@ -3251,7 +3251,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             container_spec = local_model.get_serving_container_spec()
             appended_user_agent = [prediction_constants.CUSTOM_PREDICTION_ROUTINES]
         else:
-            if not serving_container_image_uri:
+            # Referenced models do not have container_image and artifact_uri
+            # Skip the container_image if this is a referenced model
+            if not serving_container_image_uri and artifact_uri:
                 raise ValueError(
                     "The parameter `serving_container_image_uri` is required "
                     "if no `local_model` is provided."
