@@ -162,10 +162,12 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
 
         Raises:
             ValueError: If `sys.version` is not supported by ReasoningEngine.
-            ValueError: If the project was not set using vertexai.init.
-            ValueError: If the location was not set using vertexai.init.
-            ValueError: If the staging_bucket was not set using vertexai.init.
-            ValueError: If the staging_bucket does not start with "gs://".
+            ValueError: If the `project` was not set using `vertexai.init`.
+            ValueError: If the `location` was not set using `vertexai.init`.
+            ValueError: If the `staging_bucket` was not set using vertexai.init.
+            ValueError: If the `staging_bucket` does not start with "gs://".
+            FileNotFoundError: If `extra_packages` includes a file or directory
+            that does not exist.
         """
         if not sys_version:
             sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
@@ -202,6 +204,11 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
             ) from err
         requirements = requirements or []
         extra_packages = extra_packages or []
+        for extra_package in extra_packages:
+            if not os.path.exists(extra_package):
+                raise FileNotFoundError(
+                    f"Extra package specified but not found: {extra_package=}"
+                )
         # Prepares the Reasoning Engine for creation in Vertex AI.
         # This involves packaging and uploading the artifacts for
         # reasoning_engine, requirements and extra_packages to

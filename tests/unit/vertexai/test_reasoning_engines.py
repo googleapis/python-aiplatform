@@ -82,7 +82,7 @@ _TEST_REASONING_ENGINE_REQUIREMENTS = [
     "google-cloud-aiplatform==1.29.0",
     "langchain",
 ]
-_TEST_REASONING_ENGINE_EXTRA_PACKAGES = [
+_TEST_REASONING_ENGINE_INVALID_EXTRA_PACKAGES = [
     "lib",
     "main.py",
 ]
@@ -282,7 +282,6 @@ class TestReasoningEngine:
             reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
             display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
             requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
-            extra_packages=_TEST_REASONING_ENGINE_EXTRA_PACKAGES,
         )
         # Manually set _gca_resource here to prevent the mocks from propagating.
         test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
@@ -405,8 +404,24 @@ class TestReasoningEngineErrors:
                 reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
-                extra_packages=_TEST_REASONING_ENGINE_EXTRA_PACKAGES,
                 sys_version="2.6",
+            )
+
+    def test_create_reasoning_engine_nonexistent_extra_packages(
+        self,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with pytest.raises(FileNotFoundError, match="not found"):
+            reasoning_engines.ReasoningEngine.create(
+                self.test_app,
+                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+                extra_packages=_TEST_REASONING_ENGINE_INVALID_EXTRA_PACKAGES,
             )
 
     def test_create_reasoning_engine_with_invalid_query_method(
@@ -423,7 +438,6 @@ class TestReasoningEngineErrors:
                 reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
-                extra_packages=_TEST_REASONING_ENGINE_EXTRA_PACKAGES,
             )
 
 
