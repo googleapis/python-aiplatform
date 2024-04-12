@@ -1432,8 +1432,7 @@ class ExperimentRun(
         """
         if self._is_legacy_experiment_run():
             return self._metadata_node.metadata
-        else:
-            return self._metadata_node.metadata[constants._PARAM_KEY]
+        return self._metadata_node.metadata.get(constants._PARAM_KEY, {})
 
     def get_metrics(self) -> Dict[str, Union[float, int, str]]:
         """Get the summary metrics logged to this run.
@@ -1443,15 +1442,15 @@ class ExperimentRun(
         """
         if self._is_legacy_experiment_run():
             return self._metadata_metric_artifact.metadata
-        else:
-            return self._metadata_node.metadata[constants._METRIC_KEY]
+        return self._metadata_node.metadata.get(constants._METRIC_KEY, {})
 
     def get_state(self) -> gca_execution.Execution.State:
         """The state of this run."""
         if self._is_legacy_experiment_run():
             return self._metadata_node.state.name
-        else:
-            return self._metadata_node.metadata[constants._STATE_KEY]
+        return self._metadata_node.metadata.get(
+            constants._STATE_KEY, gca_execution.Execution.State.STATE_UNSPECIFIED.name
+        )
 
     @_v1_not_supported
     def get_classification_metrics(self) -> List[Dict[str, Union[str, List]]]:

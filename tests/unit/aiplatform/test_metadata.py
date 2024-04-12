@@ -778,8 +778,22 @@ _EXPERIMENT_RUN_MOCK = GapicContext(
     },
 )
 
+_EXPERIMENT_RUN_EMPTY_METADATA_MOCK = GapicContext(
+    name=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+    display_name=_TEST_RUN,
+    schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+    schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT_RUN],
+    metadata={},
+)
+
 _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
 _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT.parent_contexts = [_TEST_CONTEXT_NAME]
+_EXPERIMENT_RUN_EMPTY_METADATA_MOCK_WITH_PARENT_EXPERIMENT = copy.deepcopy(
+    _EXPERIMENT_RUN_EMPTY_METADATA_MOCK
+)
+_EXPERIMENT_RUN_EMPTY_METADATA_MOCK_WITH_PARENT_EXPERIMENT.parent_contexts = [
+    _TEST_CONTEXT_NAME
+]
 
 _TEST_CUSTOM_JOB_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/customJobs/12345"
@@ -829,6 +843,17 @@ def get_experiment_run_mock():
         get_context_mock.side_effect = [
             _EXPERIMENT_MOCK,
             _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT,
+        ]
+
+        yield get_context_mock
+
+
+@pytest.fixture
+def get_empty_experiment_run_mock():
+    with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
+        get_context_mock.side_effect = [
+            _EXPERIMENT_MOCK,
+            _EXPERIMENT_RUN_EMPTY_METADATA_MOCK_WITH_PARENT_EXPERIMENT,
         ]
 
         yield get_context_mock
@@ -2131,6 +2156,21 @@ class TestExperiments:
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with pytest.raises(ValueError):
             aiplatform.get_experiment_df(_TEST_EXPERIMENT)
+
+    @pytest.mark.usefixtures(
+        "get_tensorboard_run_artifact_not_found_mock", "get_metadata_store_mock"
+    )
+    def test_run_metadata_not_set(self, get_empty_experiment_run_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        run = aiplatform.ExperimentRun.get(_TEST_RUN, experiment=_TEST_EXPERIMENT)
+
+        params = run.get_params()
+        metrics = run.get_metrics()
+        state = run.get_state()
+
+        assert params == {}
+        assert metrics == {}
+        assert state == gca_execution.Execution.State.STATE_UNSPECIFIED.name
 
     @pytest.mark.usefixtures(
         "get_experiment_run_with_custom_jobs_mock",
