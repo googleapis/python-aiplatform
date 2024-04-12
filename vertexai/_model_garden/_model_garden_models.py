@@ -43,6 +43,8 @@ _SHORT_MODEL_ID_TO_TUNING_PIPELINE_MAP = {
     "chat-bison-32k": "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0",
     "codechat-bison": "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0",
     "codechat-bison-32k": "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0",
+    "textembedding-gecko": "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model/v1.1.2",
+    "textembedding-gecko-multilingual": "https://us-kfp.pkg.dev/ml-pipeline/llm-text-embedding/tune-text-embedding-model/v1.1.2",
 }
 
 _LOGGER = base.Logger(__name__)
@@ -125,12 +127,14 @@ def _get_model_info(
                 resource_name=model_id
             )._gca_resource
         )
+        print(f"HYLEE: {publisher_model_res=}")
 
     if not publisher_model_res.name.startswith("publishers/google/models/"):
         raise ValueError(
             f"Only Google models are currently supported. {publisher_model_res.name}"
         )
     short_model_id = publisher_model_res.name.rsplit("/", 1)[-1]
+    print(f"HYLEE: {short_model_id=}")
 
     # == "projects/{project}/locations/{location}/publishers/google/models/text-bison@001"
     publisher_model_template = publisher_model_res.publisher_model_template.replace(
@@ -200,6 +204,7 @@ def _from_pretrained(
         ValueError: If model does not support this class.
     """
     if interface_class:
+        ###
         if not interface_class._INSTANCE_SCHEMA_URI:
             raise ValueError(
                 f"Class {interface_class} is not a correct model interface class since it does not have an instance schema URI."
@@ -211,6 +216,7 @@ def _from_pretrained(
         )
 
     else:
+        ###
         schema_uri = publisher_model._gca_resource.predict_schemata.instance_schema_uri
         interface_class = _get_model_class_from_schema_uri(schema_uri)
 

@@ -61,6 +61,7 @@ class PipelineRuntimeConfigBuilder(object):
         self._pipeline_root = pipeline_root
         self._schema_version = schema_version
         self._parameter_types = parameter_types
+        print(f"HYLEE::: parameter_values.keys(): {self.parameter_values.keys()}")
         self._parameter_values = copy.deepcopy(parameter_values or {})
         self._input_artifacts = copy.deepcopy(input_artifacts or {})
         self._failure_policy = failure_policy
@@ -181,6 +182,8 @@ class PipelineRuntimeConfigBuilder(object):
         else:
             parameter_values_key = "parameters"
 
+        ###
+        print(f"HYLEE: _parameter_values.keys(): {self._parameter_values.keys()}")
         runtime_config = {
             "gcsOutputDirectory": self._pipeline_root,
             parameter_values_key: {
