@@ -260,6 +260,7 @@ setuptools.setup(
         "reasoningengine": reasoning_engine_extra_require,
         "rapid_evaluation": rapid_evaluation_extra_require,
         "langchain": langchain_extra_require,
+        "langchain_testing": langchain_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[
