@@ -306,10 +306,6 @@ class TensorBoardUploader(object):
     def _should_profile(self) -> bool:
         """Indicate if profile plugin should be enabled."""
         if "profile" in self._allowed_plugins:
-            if not self._one_shot:
-                raise ValueError(
-                    "Profile plugin currently only supported for one shot."
-                )
             logger.info("Profile plugin is enabled.")
             return True
         return False

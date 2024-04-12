@@ -160,6 +160,8 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         Returns:
             Full path for run name.
         """
+        if run_name is None:
+            return os.path.join(self._logdir, self.PROFILE_PATH)
         return os.path.join(self._logdir, run_name, self.PROFILE_PATH)
 
     def send_request(self, run_name: str):
@@ -171,7 +173,7 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         """
 
         if not self._is_valid_event(run_name):
-            logger.warning("No such profile run for %s", run_name)
+            logger.debug("No such profile run for %s", run_name)
             return
 
         # Create a profiler loader if one is not created.
