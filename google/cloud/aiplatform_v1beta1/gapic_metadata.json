@@ -3036,6 +3036,190 @@
         }
       }
     },
+    "ModelMonitoringService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ModelMonitoringServiceClient",
+          "rpcs": {
+            "CreateModelMonitor": {
+              "methods": [
+                "create_model_monitor"
+              ]
+            },
+            "CreateModelMonitoringJob": {
+              "methods": [
+                "create_model_monitoring_job"
+              ]
+            },
+            "DeleteModelMonitor": {
+              "methods": [
+                "delete_model_monitor"
+              ]
+            },
+            "DeleteModelMonitoringJob": {
+              "methods": [
+                "delete_model_monitoring_job"
+              ]
+            },
+            "GetModelMonitor": {
+              "methods": [
+                "get_model_monitor"
+              ]
+            },
+            "GetModelMonitoringJob": {
+              "methods": [
+                "get_model_monitoring_job"
+              ]
+            },
+            "ListModelMonitoringJobs": {
+              "methods": [
+                "list_model_monitoring_jobs"
+              ]
+            },
+            "ListModelMonitors": {
+              "methods": [
+                "list_model_monitors"
+              ]
+            },
+            "SearchModelMonitoringAlerts": {
+              "methods": [
+                "search_model_monitoring_alerts"
+              ]
+            },
+            "SearchModelMonitoringStats": {
+              "methods": [
+                "search_model_monitoring_stats"
+              ]
+            },
+            "UpdateModelMonitor": {
+              "methods": [
+                "update_model_monitor"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ModelMonitoringServiceAsyncClient",
+          "rpcs": {
+            "CreateModelMonitor": {
+              "methods": [
+                "create_model_monitor"
+              ]
+            },
+            "CreateModelMonitoringJob": {
+              "methods": [
+                "create_model_monitoring_job"
+              ]
+            },
+            "DeleteModelMonitor": {
+              "methods": [
+                "delete_model_monitor"
+              ]
+            },
+            "DeleteModelMonitoringJob": {
+              "methods": [
+                "delete_model_monitoring_job"
+              ]
+            },
+            "GetModelMonitor": {
+              "methods": [
+                "get_model_monitor"
+              ]
+            },
+            "GetModelMonitoringJob": {
+              "methods": [
+                "get_model_monitoring_job"
+              ]
+            },
+            "ListModelMonitoringJobs": {
+              "methods": [
+                "list_model_monitoring_jobs"
+              ]
+            },
+            "ListModelMonitors": {
+              "methods": [
+                "list_model_monitors"
+              ]
+            },
+            "SearchModelMonitoringAlerts": {
+              "methods": [
+                "search_model_monitoring_alerts"
+              ]
+            },
+            "SearchModelMonitoringStats": {
+              "methods": [
+                "search_model_monitoring_stats"
+              ]
+            },
+            "UpdateModelMonitor": {
+              "methods": [
+                "update_model_monitor"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "ModelMonitoringServiceClient",
+          "rpcs": {
+            "CreateModelMonitor": {
+              "methods": [
+                "create_model_monitor"
+              ]
+            },
+            "CreateModelMonitoringJob": {
+              "methods": [
+                "create_model_monitoring_job"
+              ]
+            },
+            "DeleteModelMonitor": {
+              "methods": [
+                "delete_model_monitor"
+              ]
+            },
+            "DeleteModelMonitoringJob": {
+              "methods": [
+                "delete_model_monitoring_job"
+              ]
+            },
+            "GetModelMonitor": {
+              "methods": [
+                "get_model_monitor"
+              ]
+            },
+            "GetModelMonitoringJob": {
+              "methods": [
+                "get_model_monitoring_job"
+              ]
+            },
+            "ListModelMonitoringJobs": {
+              "methods": [
+                "list_model_monitoring_jobs"
+              ]
+            },
+            "ListModelMonitors": {
+              "methods": [
+                "list_model_monitors"
+              ]
+            },
+            "SearchModelMonitoringAlerts": {
+              "methods": [
+                "search_model_monitoring_alerts"
+              ]
+            },
+            "SearchModelMonitoringStats": {
+              "methods": [
+                "search_model_monitoring_stats"
+              ]
+            },
+            "UpdateModelMonitor": {
+              "methods": [
+                "update_model_monitor"
+              ]
+            }
+          }
+        }
+      }
+    },
     "ModelService": {
       "clients": {
         "grpc": {
