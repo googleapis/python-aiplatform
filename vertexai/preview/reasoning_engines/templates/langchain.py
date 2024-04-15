@@ -199,6 +199,40 @@ def _default_prompt(has_history: bool) -> "RunnableSerializable":
         ])
 
 
+def _validate_callable_parameters_are_annotated(callable: Callable):
+    """Validates that the parameters of the callable have type annotations.
+
+    This ensures that they can be used for constructing LangChain tools that are
+    usable with Gemini function calling.
+    """
+    import inspect
+    parameters = dict(inspect.signature(callable).parameters)
+    for name, parameter in parameters.items():
+        if parameter.annotation == inspect.Parameter.empty:
+            raise TypeError(
+                f"Callable={callable.__name__} has untyped input_arg={name}. "
+                f"Please specify a type when defining it, e.g. `{name}: str`."
+            )
+
+
+def _convert_tools_or_raise(
+    tools: Sequence[Union[Callable, "BaseTool"]]
+) -> Sequence["BaseTool"]:
+    """Converts the tools into Langchain tools (if needed).
+
+    See https://blog.langchain.dev/structured-tools/ for details.
+    """
+    from langchain_core import tools as lc_tools
+    from langchain.tools.base import StructuredTool
+    result = []
+    for tool in tools:
+        if not isinstance(tool, lc_tools.BaseTool):
+            _validate_callable_parameters_are_annotated(tool)
+            tool = StructuredTool.from_function(tool)
+        result.append(tool)
+    return result
+
+
 class LangchainAgent:
     """A Langchain Agent.
 
@@ -302,19 +336,19 @@ class LangchainAgent:
                 langchain.runnables.history.RunnableWithMessageHistory if
                 chat_history is specified. If chat_history is None, this will be
                 ignored.
+
+        Raises:
+            TypeError: If there is an invalid tool (e.g. function with an input
+            that did not specify its type).
         """
         from google.cloud.aiplatform import initializer
         self._project = initializer.global_config.project
         self._location = initializer.global_config.location
         self._tools = []
         if tools:
-            from langchain_core import tools as lc_tools
-            from langchain.tools.base import StructuredTool
-            self._tools = [
-                tool if isinstance(tool, lc_tools.BaseTool)
-                else StructuredTool.from_function(tool)
-                for tool in tools
-            ]
+            # Unlike the other fields, we convert tools at initialization to
+            # validate the functions/tools before they are deployed.
+            self._tools = _convert_tools_or_raise(tools)
         self._model_name = model
         self._prompt = prompt
         self._output_parser = output_parser

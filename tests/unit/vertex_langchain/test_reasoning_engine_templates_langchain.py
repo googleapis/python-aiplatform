@@ -24,10 +24,12 @@ from google.cloud.aiplatform import initializer
 from vertexai.preview import reasoning_engines
 import pytest
 
+
 from langchain_core import agents
 from langchain_core import messages
 from langchain_core import outputs
 from langchain_core import tools as lc_tools
+from langchain.tools.base import StructuredTool
 
 
 _DEFAULT_PLACE_TOOL_ACTIVITY = "museums"
@@ -100,7 +102,7 @@ class TestLangchainAgent:
             model=_TEST_MODEL,
             tools=[
                 place_tool_query,
-                place_photo_query,
+                StructuredTool.from_function(place_photo_query),
             ],
         )
         for tool in agent._tools:
@@ -178,3 +180,22 @@ class TestDefaultOutputParserErrors:
         agent.set_up()
         with pytest.raises(ValueError, match=r"Can only parse messages"):
             agent._output_parser.parse("text")
+
+
+class TestConvertToolsOrRaise:
+    def test_convert_tools_or_raise(self, vertexai_init_mock):
+        pass
+
+
+def _return_input_no_typing(input_):
+    """Returns input back to user."""
+    return input_
+
+
+class TestConvertToolsOrRaiseErrors:
+    def test_raise_untyped_input_args(self, vertexai_init_mock):
+        with pytest.raises(TypeError, match=r"has untyped input_arg"):
+            reasoning_engines.LangchainAgent(
+                model=_TEST_MODEL,
+                tools=[_return_input_no_typing],
+            )
