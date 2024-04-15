@@ -294,6 +294,36 @@ class TestReasoningEngine:
             retry=_TEST_RETRY,
         )
 
+    def test_create_reasoning_engine_requirements_from_file(
+        self,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with mock.patch(
+            "builtins.open",
+            mock.mock_open(read_data="google-cloud-aiplatform==1.29.0"),
+        ) as mock_file:
+            test_reasoning_engine = reasoning_engines.ReasoningEngine.create(
+                self.test_app,
+                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+                requirements="requirements.txt",
+            )
+        mock_file.assert_called_with("requirements.txt")
+        # Manually set _gca_resource here to prevent the mocks from propagating.
+        test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
+        create_reasoning_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=test_reasoning_engine.gca_resource,
+        )
+        get_reasoning_engine_mock.assert_called_with(
+            name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
     def test_delete_after_create_reasoning_engine(
         self,
         create_reasoning_engine_mock,
@@ -405,6 +435,22 @@ class TestReasoningEngineErrors:
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
                 sys_version="2.6",
+            )
+
+    def test_create_reasoning_engine_requirements_ioerror(
+        self,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with pytest.raises(IOError, match="Failed to read requirements"):
+            reasoning_engines.ReasoningEngine.create(
+                self.test_app,
+                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+                requirements="nonexistent_requirements.txt",
             )
 
     def test_create_reasoning_engine_nonexistent_extra_packages(
