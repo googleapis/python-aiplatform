@@ -46,9 +46,7 @@ packages += [
     if package.startswith("google.cloud.aiplatform.preview.vertex_ray")
 ]
 
-# TODO(b/333098166, b/312527978): Add python_version>3.11 when tensorflow>2.16.1
-# works for tensorboard.
-tensorboard_extra_require = ["tensorflow >=2.3.0, <2.15.0; python_version<='3.11'"]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"]
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
