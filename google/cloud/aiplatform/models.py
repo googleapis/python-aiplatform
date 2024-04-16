@@ -772,6 +772,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -833,6 +834,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -896,6 +900,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -919,6 +924,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -977,6 +983,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -1026,6 +1035,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -1056,6 +1066,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -1123,6 +1134,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -1249,6 +1263,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     dedicated_resources.autoscaling_metric_specs.extend(
                         [autoscaling_metric_spec]
                     )
+
+            if tpu_topology is not None:
+                machine_spec.tpu_topology = tpu_topology
 
             dedicated_resources.machine_spec = machine_spec
             deployed_model.dedicated_resources = dedicated_resources
@@ -2440,6 +2457,7 @@ class PrivateEndpoint(Endpoint):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -2487,6 +2505,9 @@ class PrivateEndpoint(Endpoint):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Required for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -2534,6 +2555,7 @@ class PrivateEndpoint(Endpoint):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -3442,6 +3464,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -3505,6 +3528,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Requireid for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -3601,6 +3627,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
@@ -3627,6 +3654,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -3687,6 +3715,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            tpu_topology (str):
+                Optional. The TPU topology to use for the DeployedModel.
+                Requireid for CloudTPU multihost deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -3777,6 +3808,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            tpu_topology=tpu_topology,
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
