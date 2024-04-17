@@ -246,6 +246,20 @@ def mock_generate_content(
         finish_reason = gapic_content_types.Candidate.FinishReason.OTHER
         response.candidates[0].finish_reason = finish_reason
 
+    request_token_count = sum(
+        len(gapic_content_types.Content.to_json(content).split())
+        for content in request.contents
+    )
+    response_token_count = sum(
+        len(gapic_content_types.Content.to_json(candidate.content).split())
+        for candidate in response.candidates
+    )
+    response.usage_metadata.prompt_token_count = request_token_count
+    response.usage_metadata.candidates_token_count = response_token_count
+    response.usage_metadata.total_token_count = (
+        request_token_count + response_token_count
+    )
+
     return response
 
 
@@ -371,6 +385,8 @@ class TestGenerativeModels:
         model = generative_models.GenerativeModel("gemini-pro")
         response = model.generate_content("Why is sky blue?")
         assert response.text
+        # TODO(avolkov): Add usage metadata to the mock
+        assert response.usage_metadata.total_token_count
 
         model2 = generative_models.GenerativeModel(
             "gemini-pro",
