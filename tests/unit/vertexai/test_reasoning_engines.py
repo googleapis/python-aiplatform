@@ -246,6 +246,27 @@ class InvalidCapitalizeEngineWithoutQuerySelf:
         return "RESPONSE"
 
 
+class InvalidCapitalizeEngineWithoutQueryMethod:
+    """A sample Reasoning Engine without a query method."""
+
+    def set_up(self):
+        pass
+
+    def invoke(self) -> str:
+        """Runs the engine."""
+        return "RESPONSE"
+
+
+class InvalidCapitalizeEngineWithNoncallableQuery:
+    """A sample Reasoning Engine with a noncallable query attribute."""
+
+    def __init__(self):
+        self.query = "RESPONSE"
+
+    def set_up(self):
+        pass
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestReasoningEngine:
     def setup_method(self):
@@ -418,7 +439,76 @@ class TestReasoningEngineErrors:
             staging_bucket=_TEST_STAGING_BUCKET,
         )
         self.test_app = CapitalizeEngine()
-        self.invalid_app = InvalidCapitalizeEngineWithoutQuerySelf()
+
+    def test_create_reasoning_engine_unspecified_staging_bucket(
+        self,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with pytest.raises(
+            ValueError,
+            match="Please provide a `staging_bucket`",
+        ):
+            importlib.reload(initializer)
+            importlib.reload(aiplatform)
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                credentials=_TEST_CREDENTIALS,
+            )
+            reasoning_engines.ReasoningEngine.create(
+                self.test_app,
+                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            )
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                credentials=_TEST_CREDENTIALS,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            )
+
+    def test_create_reasoning_engine_no_query_method(
+        self,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with pytest.raises(
+            TypeError,
+            match="does not have a callable method named `query`",
+        ):
+            reasoning_engines.ReasoningEngine.create(
+                InvalidCapitalizeEngineWithoutQueryMethod(),
+                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            )
+
+    def test_create_reasoning_engine_noncallable_query_attribute(
+        self,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with pytest.raises(
+            TypeError,
+            match="does not have a callable method named `query`",
+        ):
+            reasoning_engines.ReasoningEngine.create(
+                InvalidCapitalizeEngineWithNoncallableQuery(),
+                reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            )
 
     def test_create_reasoning_engine_unsupported_sys_version(
         self,
@@ -480,7 +570,7 @@ class TestReasoningEngineErrors:
     ):
         with pytest.raises(ValueError, match="Invalid query signature"):
             reasoning_engines.ReasoningEngine.create(
-                self.invalid_app,
+                InvalidCapitalizeEngineWithoutQuerySelf(),
                 reasoning_engine_name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
