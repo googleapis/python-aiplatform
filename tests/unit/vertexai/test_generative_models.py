@@ -500,6 +500,8 @@ class TestGenerativeModels:
             chat.send_message("Please block with block_reason=OTHER.")
 
         assert e.match("Blocked for testing")
+        # Checking that the original response and the block reason are accessible.
+        assert e.value.responses[0].prompt_feedback.block_reason.name == "OTHER"
         # Checking that history did not get updated
         assert len(chat.history) == 2
 
