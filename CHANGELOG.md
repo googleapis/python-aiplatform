@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.48.0](https://github.com/googleapis/python-aiplatform/compare/v1.47.0...v1.48.0) (2024-04-17)
+
+
+### Features
+
+* Add support for reading requirements from a file. ([80db7a0](https://github.com/googleapis/python-aiplatform/commit/80db7a0960b80ae0d78182687c1e99db696943f7))
+* Adding tpu_topology to Vertex SDK ([423c764](https://github.com/googleapis/python-aiplatform/commit/423c7646185b4df19985fb41f5776557d572dd9f))
+* Enable continuous upload for profile logs. ([f05924d](https://github.com/googleapis/python-aiplatform/commit/f05924d6bbd9e609f4ca98cdef7ab5a504672e58))
+* GenAI - Added the `GenerationResponse.prompt_feedback` property ([efd5a72](https://github.com/googleapis/python-aiplatform/commit/efd5a72c1856a6767bdbbba9ea83f366518bdac2))
+* GenAI - Added the `GenerationResponse.usage_metadata` property ([0654c35](https://github.com/googleapis/python-aiplatform/commit/0654c3504425d9f9bba6e3be919026229b616ec0))
+* Support `NOT_EQUAL` for `MatchingEngineIndexEndpoint` `numeric_restricts`. ([aa918e3](https://github.com/googleapis/python-aiplatform/commit/aa918e31fcc40878e9f29affa02a4527d90188aa))
+* Support referenced models in SDK. ([c9b6b8b](https://github.com/googleapis/python-aiplatform/commit/c9b6b8b3433854afd95a27065a052393768ceca8))
+
+
+### Bug Fixes
+
+* Add validation check for extra_packages when creating a reasoning engine. ([255dabc](https://github.com/googleapis/python-aiplatform/commit/255dabc77c647ef3ac33a10b06b3a36db122118a))
+* Add validation for langchain tools. ([a821d50](https://github.com/googleapis/python-aiplatform/commit/a821d50724da7136c90abd157a7086d6571f2c30))
+* Fixed the vertexai.init partial initialization issues ([636a654](https://github.com/googleapis/python-aiplatform/commit/636a654590919048f84baf343d291711f28eb03e))
+* GenAI - Workaround for streaming when content role is missing in service responses ([fa35b91](https://github.com/googleapis/python-aiplatform/commit/fa35b9169677c62a5f0fa746dc9db9a5296f44a3))
+
+
+### Documentation
+
+* Add Reasoning Engine reference documentation ([496fc4b](https://github.com/googleapis/python-aiplatform/commit/496fc4b96768c872c9e7312bacf9989ea6e979f5))
+* GenAI - Add Rapid Evaluation SDK reference documentation ([40b728b](https://github.com/googleapis/python-aiplatform/commit/40b728b28210f2bc57374c6c6d507cf3fa0be038))
+
 ## [1.47.0](https://github.com/googleapis/python-aiplatform/compare/v1.46.0...v1.47.0) (2024-04-06)
 
 
