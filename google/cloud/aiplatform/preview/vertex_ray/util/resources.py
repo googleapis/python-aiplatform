@@ -125,6 +125,18 @@ def _check_machine_spec_identical(
         and node_type_1.accelerator_type == node_type_2.accelerator_type
         and node_type_1.accelerator_count == node_type_2.accelerator_count
     ):
+        if node_type_1.boot_disk_type != node_type_2.boot_disk_type:
+            raise ValueError(
+                "Worker disk type must match the head node's disk type if"
+                " sharing the same machine_type, accelerator_type, and"
+                " accelerator_count"
+            )
+        if node_type_1.boot_disk_size_gb != node_type_2.boot_disk_size_gb:
+            raise ValueError(
+                "Worker disk size must match the head node's disk size if"
+                " sharing the same machine_type, accelerator_type, and"
+                " accelerator_count"
+            )
         additional_replica_count = node_type_2.node_count
         return additional_replica_count
 

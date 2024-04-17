@@ -450,6 +450,21 @@ class TestClusterManagement:
             )
         e.match(regexp=r"The supported Ray versions are ")
 
+    def test_create_ray_cluster_same_pool_different_disk_error(self):
+        with pytest.raises(ValueError) as e:
+            vertex_ray.create_ray_cluster(
+                head_node_type=Resources(machine_type="n1-highmem-32", node_count=1),
+                worker_node_types=[
+                    Resources(
+                        machine_type="n1-highmem-32",
+                        node_count=32,
+                        boot_disk_size_gb=1000,
+                    )
+                ],
+                network=tc.ProjectConstants.TEST_VPC_NETWORK,
+            )
+        e.match(regexp=r"Worker disk size must match the head node's disk size if")
+
     @pytest.mark.usefixtures("create_persistent_resource_exception_mock")
     def test_create_ray_cluster_state_error(self):
         with pytest.raises(ValueError) as e:
