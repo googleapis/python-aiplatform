@@ -322,6 +322,10 @@ class OnePlatformResourceManager(object):
             ValueError:
                 More than one time series with the resource name was found.
         """
+        print("_create_or_get_time_series")
+        print("run_resource_name: " + str(run_resource_name))
+        print("tag_name: " + str(tag_name))
+        print("time_series_resource_creator: " + str(time_series_resource_creator))
         time_series = time_series_resource_creator()
         time_series.display_name = tag_name
         try:

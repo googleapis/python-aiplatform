@@ -147,6 +147,7 @@ class TensorBoardUploader(object):
             their name prefixed by this value.
         """
         self._experiment_name = experiment_name
+        print('\nExperimentName: ' + self._experiment_name + '\n')
         self._experiment_display_name = experiment_display_name
         self._tensorboard_resource_name = tensorboard_resource_name
         self._blob_storage_bucket = blob_storage_bucket
@@ -273,6 +274,7 @@ class TensorBoardUploader(object):
 
         experiment = self._create_or_get_experiment()
         self._experiment = experiment
+        print('\nExperimentName: %s\n', self._experiment.name)
         self._one_platform_resource_manager = uploader_utils.OnePlatformResourceManager(
             self._experiment.name, self._api
         )
