@@ -34,23 +34,23 @@ MAX_VARINT64_LENGTH_BYTES = 10
 
 # Default minimum interval between initiating WriteTensorbordRunData RPCs in
 # milliseconds.
-DEFAULT_MIN_SCALAR_REQUEST_INTERVAL = 10
+DEFAULT_MIN_SCALAR_REQUEST_INTERVAL = 30
 
 # Default maximum WriteTensorbordRunData request size in bytes.
-DEFAULT_MAX_SCALAR_REQUEST_SIZE = 128 * (2**10)  # 128KiB
+DEFAULT_MAX_SCALAR_REQUEST_SIZE = 64 * (2**10)  # 64KiB
 
 # Default minimum interval between initiating WriteTensorbordRunData RPCs in
 # milliseconds.
-DEFAULT_MIN_TENSOR_REQUEST_INTERVAL = 10
+DEFAULT_MIN_TENSOR_REQUEST_INTERVAL = 30
 
 # Default minimum interval between initiating WriteTensorbordRunData RPCs in
 # milliseconds.
-DEFAULT_MIN_BLOB_REQUEST_INTERVAL = 10
+DEFAULT_MIN_BLOB_REQUEST_INTERVAL = 30
 
 # Default maximum WriteTensorbordRunData request size in bytes.
-DEFAULT_MAX_TENSOR_REQUEST_SIZE = 512 * (2**10)  # 512KiB
+DEFAULT_MAX_TENSOR_REQUEST_SIZE = 64 * (2**10)  # 64KiB
 
-DEFAULT_MAX_BLOB_REQUEST_SIZE = 128 * (2**10)  # 24KiB
+DEFAULT_MAX_BLOB_REQUEST_SIZE = 64 * (2**10)  # 64KiB
 
 # Default maximum tensor point size in bytes.
 DEFAULT_MAX_TENSOR_POINT_SIZE = 16 * (2**10)  # 16KiB
