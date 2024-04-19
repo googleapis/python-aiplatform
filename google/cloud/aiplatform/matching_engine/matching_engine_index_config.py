@@ -125,12 +125,15 @@ class MatchingEngineIndexConfig:
             independently.
         distance_measure_type (DistanceMeasureType):
             Optional. The distance measure used in nearest neighbor search.
+        feature_norm_type (FeatureNormType):
+            Optional. The feature norm type used in nearest neighbor search.
     """
 
     dimensions: int
     algorithm_config: AlgorithmConfig
     approximate_neighbors_count: Optional[int] = None
     distance_measure_type: Optional[DistanceMeasureType] = None
+    feature_norm_type: Optional[FeatureNormType] = None
     shard_size: Optional[str] = None
 
     def as_dict(self) -> Dict[str, Any]:
@@ -144,6 +147,7 @@ class MatchingEngineIndexConfig:
             "algorithmConfig": self.algorithm_config.as_dict(),
             "approximateNeighborsCount": self.approximate_neighbors_count,
             "distanceMeasureType": self.distance_measure_type,
+            "featureNormType": self.feature_norm_type,
             "shardSize": self.shard_size,
         }
         return res
