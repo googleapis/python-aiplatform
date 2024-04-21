@@ -16,8 +16,6 @@
 # pylint: disable=bad-continuation, line-too-long, protected-access
 
 import copy
-import io
-import pathlib
 from typing import (
     Any,
     AsyncIterable,
@@ -42,13 +40,11 @@ from google.cloud.aiplatform_v1beta1.types import (
     prediction_service as gapic_prediction_service_types,
 )
 from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
+from vertexai.vision_models._vision_models import (
+    Image,  # pylint: disable=g-importing-member
+)
 from google.protobuf import json_format
 import warnings
-
-try:
-    from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
-except ImportError:
-    PIL_Image = None
 
 # Re-exporting some GAPIC types
 
@@ -1848,6 +1844,8 @@ class Part:
 
     @staticmethod
     def from_image(image: "Image") -> "Part":
+        if image._gcs_uri:
+            return Part.from_uri(uri=image._gcs_uri, mime_type=image._mime_type)
         return Part.from_data(data=image.data, mime_type=image._mime_type)
 
     @staticmethod
@@ -1892,6 +1890,8 @@ class Part:
 
     @property
     def _image(self) -> "Image":
+        if self._raw_part.file_data.file_uri:
+            return Image.load_from_file(location=self._raw_part.file_data.file_uri)
         return Image.from_bytes(data=self._raw_part.inline_data.data)
 
 
@@ -2167,76 +2167,6 @@ def _append_gapic_part(
         base_part.text += new_part.text
     else:
         base_part._pb = copy.deepcopy(new_part._pb)
-
-
-_FORMAT_TO_MIME_TYPE = {
-    "png": "image/png",
-    "jpeg": "image/jpeg",
-    "gif": "image/gif",
-}
-
-
-class Image:
-    """The image that can be sent to a generative model."""
-
-    _image_bytes: bytes
-    _loaded_image: Optional["PIL_Image.Image"] = None
-
-    @staticmethod
-    def load_from_file(location: str) -> "Image":
-        """Loads image from file.
-
-        Args:
-            location: Local path from where to load the image.
-
-        Returns:
-            Loaded image as an `Image` object.
-        """
-        image_bytes = pathlib.Path(location).read_bytes()
-        image = Image()
-        image._image_bytes = image_bytes
-        return image
-
-    @staticmethod
-    def from_bytes(data: bytes) -> "Image":
-        """Loads image from image bytes.
-
-        Args:
-            data: Image bytes.
-
-        Returns:
-            Loaded image as an `Image` object.
-        """
-        image = Image()
-        image._image_bytes = data
-        return image
-
-    @property
-    def _pil_image(self) -> "PIL_Image.Image":
-        if self._loaded_image is None:
-            if not PIL_Image:
-                raise RuntimeError(
-                    "The PIL module is not available. Please install the Pillow package."
-                )
-            self._loaded_image = PIL_Image.open(io.BytesIO(self._image_bytes))
-        return self._loaded_image
-
-    @property
-    def _mime_type(self) -> str:
-        """Returns the MIME type of the image."""
-        if PIL_Image:
-            return _FORMAT_TO_MIME_TYPE[self._pil_image.format.lower()]
-        else:
-            # Fall back to jpeg
-            return "image/jpeg"
-
-    @property
-    def data(self) -> bytes:
-        """Returns the image data."""
-        return self._image_bytes
-
-    def _repr_png_(self):
-        return self._pil_image._repr_png_()
 
 
 class AutomaticFunctionCallingResponder:

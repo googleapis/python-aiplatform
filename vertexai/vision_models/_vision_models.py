@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 """Classes for working with vision models."""
+# pylint: disable=bad-continuation, line-too-long, protected-access
 
 import base64
 import dataclasses
@@ -40,14 +41,11 @@ try:
 except ImportError:
     PIL_Image = None
 
-
 _SUPPORTED_UPSCALING_SIZES = [2048, 4096]
 
 
 class Image:
-    """Image."""
-
-    __module__ = "vertexai.vision_models"
+    """Image that can be sent to or recieved from a generative model."""
 
     _loaded_bytes: Optional[bytes] = None
     _loaded_image: Optional["PIL_Image.Image"] = None
@@ -99,15 +97,32 @@ class Image:
         image = Image(image_bytes=image_bytes)
         return image
 
+    @staticmethod
+    def from_bytes(data: bytes) -> "Image":
+        """Loads image from image bytes.
+
+        Args:
+            data: Image bytes.
+
+        Returns:
+            Loaded image as an `Image` object.
+        """
+        image = Image(image_bytes=data)
+        return image
+
+    @property
+    def _blob(self) -> storage.Blob:
+        if self._gcs_uri is None:
+            raise AttributeError("_blob is only supported when gcs_uri is set.")
+        storage_client = storage.Client(
+            credentials=aiplatform_initializer.global_config.credentials
+        )
+        return storage.Blob.from_string(uri=self._gcs_uri, client=storage_client)
+
     @property
     def _image_bytes(self) -> bytes:
         if self._loaded_bytes is None:
-            storage_client = storage.Client(
-                credentials=aiplatform_initializer.global_config.credentials
-            )
-            self._loaded_bytes = storage.Blob.from_string(
-                uri=self._gcs_uri, client=storage_client
-            ).download_as_bytes()
+            self._loaded_bytes = self._blob.download_as_bytes()
         return self._loaded_bytes
 
     @_image_bytes.setter
@@ -117,12 +132,34 @@ class Image:
     @property
     def _pil_image(self) -> "PIL_Image.Image":
         if self._loaded_image is None:
+            if not PIL_Image:
+                raise RuntimeError(
+                    "The PIL module is not available. Please install the Pillow package."
+                )
             self._loaded_image = PIL_Image.open(io.BytesIO(self._image_bytes))
         return self._loaded_image
 
     @property
     def _size(self):
         return self._pil_image.size
+
+    @property
+    def _mime_type(self) -> str:
+        """Returns the MIME type of the image."""
+        if self._gcs_uri:
+            return self._blob.content_type
+        if PIL_Image:
+            return PIL_Image.MIME.get(self._pil_image.format, "image/jpeg")
+        # Fall back to jpeg
+        return "image/jpeg"
+
+    def _repr_png_(self):
+        return self._pil_image._repr_png_()
+
+    @property
+    def data(self) -> bytes:
+        """Returns the image data."""
+        return self._image_bytes
 
     def show(self):
         """Shows the image.
