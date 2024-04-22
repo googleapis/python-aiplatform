@@ -404,6 +404,8 @@ class TestGenerativeModels:
                 candidate_count=1,
                 max_output_tokens=200,
                 stop_sequences=["\n\n\n"],
+                presence_penalty=0.0,
+                frequency_penalty=0.0,
             ),
             safety_settings=[
                 generative_models.SafetySetting(
@@ -419,6 +421,33 @@ class TestGenerativeModels:
             ],
         )
         assert response2.text
+
+        model3 = generative_models.GenerativeModel("gemini-1.5-pro-preview-0409")
+        response3 = model3.generate_content(
+            "Why is sky blue? Respond in JSON.",
+            generation_config=generative_models.GenerationConfig(
+                temperature=0.2,
+                top_p=0.9,
+                top_k=20,
+                candidate_count=1,
+                max_output_tokens=200,
+                stop_sequences=["\n\n\n"],
+                response_mime_type="application/json",
+            ),
+            safety_settings=[
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                    method=generative_models.SafetySetting.HarmBlockMethod.SEVERITY,
+                ),
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                    method=generative_models.SafetySetting.HarmBlockMethod.PROBABILITY,
+                ),
+            ],
+        )
+        assert response3.text
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
