@@ -18,7 +18,6 @@ import os
 import re
 from typing import (
     Dict,
-    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -587,9 +586,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[
-            Union[str, VizierServiceTransport, Callable[..., VizierServiceTransport]]
-        ] = None,
+        transport: Optional[Union[str, VizierServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -601,11 +598,9 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,VizierServiceTransport,Callable[..., VizierServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport.
-                If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the VizierServiceTransport constructor.
-                If set to None, a transport is chosen automatically.
+            transport (Union[str, VizierServiceTransport]): The
+                transport to use. If set to None, a transport is chosen
+                automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -717,15 +712,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                     api_key_value
                 )
 
-            transport_init: Union[
-                Type[VizierServiceTransport], Callable[..., VizierServiceTransport]
-            ] = (
-                type(self).get_transport_class(transport)
-                if isinstance(transport, str) or transport is None
-                else cast(Callable[..., VizierServiceTransport], transport)
-            )
-            # initialize with the provided callable or the passed in class
-            self._transport = transport_init(
+            Transport = type(self).get_transport_class(cast(str, transport))
+            self._transport = Transport(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -815,8 +803,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 A message representing a Study.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, study])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -824,8 +812,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.CreateStudyRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.CreateStudyRequest):
             request = vizier_service.CreateStudyRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -918,8 +908,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 A message representing a Study.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -927,8 +917,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.GetStudyRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.GetStudyRequest):
             request = vizier_service.GetStudyRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1027,8 +1019,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1036,8 +1028,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.ListStudiesRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.ListStudiesRequest):
             request = vizier_service.ListStudiesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1131,8 +1125,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1140,8 +1134,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.DeleteStudyRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.DeleteStudyRequest):
             request = vizier_service.DeleteStudyRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1232,8 +1228,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 A message representing a Study.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1241,8 +1237,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.LookupStudyRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.LookupStudyRequest):
             request = vizier_service.LookupStudyRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1339,8 +1337,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.SuggestTrialsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.SuggestTrialsRequest):
             request = vizier_service.SuggestTrialsRequest(request)
 
@@ -1447,8 +1447,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, trial])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1456,8 +1456,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.CreateTrialRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.CreateTrialRequest):
             request = vizier_service.CreateTrialRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1555,8 +1557,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1564,8 +1566,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.GetTrialRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.GetTrialRequest):
             request = vizier_service.GetTrialRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1663,8 +1667,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1672,8 +1676,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.ListTrialsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.ListTrialsRequest):
             request = vizier_service.ListTrialsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1774,8 +1780,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.AddTrialMeasurementRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.AddTrialMeasurementRequest):
             request = vizier_service.AddTrialMeasurementRequest(request)
 
@@ -1861,8 +1869,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.CompleteTrialRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.CompleteTrialRequest):
             request = vizier_service.CompleteTrialRequest(request)
 
@@ -1942,8 +1952,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1951,8 +1961,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.DeleteTrialRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.DeleteTrialRequest):
             request = vizier_service.DeleteTrialRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2045,8 +2057,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.CheckTrialEarlyStoppingStateRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.CheckTrialEarlyStoppingStateRequest):
             request = vizier_service.CheckTrialEarlyStoppingStateRequest(request)
 
@@ -2142,8 +2156,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.StopTrialRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.StopTrialRequest):
             request = vizier_service.StopTrialRequest(request)
 
@@ -2235,8 +2251,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2244,8 +2260,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a vizier_service.ListOptimalTrialsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, vizier_service.ListOptimalTrialsRequest):
             request = vizier_service.ListOptimalTrialsRequest(request)
             # If we have keyword arguments corresponding to fields on the

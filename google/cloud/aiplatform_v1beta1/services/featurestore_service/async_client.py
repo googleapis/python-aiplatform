@@ -18,7 +18,6 @@ import functools
 import re
 from typing import (
     Dict,
-    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -224,13 +223,7 @@ class FeaturestoreServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[
-            Union[
-                str,
-                FeaturestoreServiceTransport,
-                Callable[..., FeaturestoreServiceTransport],
-            ]
-        ] = "grpc_asyncio",
+        transport: Union[str, FeaturestoreServiceTransport] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -242,11 +235,9 @@ class FeaturestoreServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,FeaturestoreServiceTransport,Callable[..., FeaturestoreServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport to use.
-                If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the FeaturestoreServiceTransport constructor.
-                If set to None, a transport is chosen automatically.
+            transport (Union[str, ~.FeaturestoreServiceTransport]): The
+                transport to use. If set to None, a transport is chosen
+                automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -389,8 +380,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, featurestore, featurestore_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -398,10 +389,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.CreateFeaturestoreRequest):
-            request = featurestore_service.CreateFeaturestoreRequest(request)
+        request = featurestore_service.CreateFeaturestoreRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -414,9 +402,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_featurestore
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_featurestore,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -512,8 +502,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -521,10 +511,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.GetFeaturestoreRequest):
-            request = featurestore_service.GetFeaturestoreRequest(request)
+        request = featurestore_service.GetFeaturestoreRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -533,9 +520,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_featurestore
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_featurestore,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -625,8 +614,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -634,10 +623,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.ListFeaturestoresRequest):
-            request = featurestore_service.ListFeaturestoresRequest(request)
+        request = featurestore_service.ListFeaturestoresRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -646,9 +632,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_featurestores
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_featurestores,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -771,8 +759,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([featurestore, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -780,10 +768,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.UpdateFeaturestoreRequest):
-            request = featurestore_service.UpdateFeaturestoreRequest(request)
+        request = featurestore_service.UpdateFeaturestoreRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -794,9 +779,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.update_featurestore
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.update_featurestore,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -919,8 +906,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -928,10 +915,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.DeleteFeaturestoreRequest):
-            request = featurestore_service.DeleteFeaturestoreRequest(request)
+        request = featurestore_service.DeleteFeaturestoreRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -942,9 +926,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_featurestore
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_featurestore,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1068,8 +1054,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, entity_type, entity_type_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1077,10 +1063,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.CreateEntityTypeRequest):
-            request = featurestore_service.CreateEntityTypeRequest(request)
+        request = featurestore_service.CreateEntityTypeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1093,9 +1076,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_entity_type
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_entity_type,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1192,8 +1177,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1201,10 +1186,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.GetEntityTypeRequest):
-            request = featurestore_service.GetEntityTypeRequest(request)
+        request = featurestore_service.GetEntityTypeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1213,9 +1195,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_entity_type
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_entity_type,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1305,8 +1289,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1314,10 +1298,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.ListEntityTypesRequest):
-            request = featurestore_service.ListEntityTypesRequest(request)
+        request = featurestore_service.ListEntityTypesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1326,9 +1307,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_entity_types
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_entity_types,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1453,8 +1436,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1462,10 +1445,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.UpdateEntityTypeRequest):
-            request = featurestore_service.UpdateEntityTypeRequest(request)
+        request = featurestore_service.UpdateEntityTypeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1476,9 +1456,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.update_entity_type
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.update_entity_type,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1592,8 +1574,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1601,10 +1583,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.DeleteEntityTypeRequest):
-            request = featurestore_service.DeleteEntityTypeRequest(request)
+        request = featurestore_service.DeleteEntityTypeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1615,9 +1594,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_entity_type
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_entity_type,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1746,8 +1727,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, feature, feature_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1755,10 +1736,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.CreateFeatureRequest):
-            request = featurestore_service.CreateFeatureRequest(request)
+        request = featurestore_service.CreateFeatureRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1771,9 +1749,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_feature
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_feature,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1892,8 +1872,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1901,10 +1881,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.BatchCreateFeaturesRequest):
-            request = featurestore_service.BatchCreateFeaturesRequest(request)
+        request = featurestore_service.BatchCreateFeaturesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1915,9 +1892,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.batch_create_features
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.batch_create_features,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2014,8 +1993,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2023,10 +2002,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.GetFeatureRequest):
-            request = featurestore_service.GetFeatureRequest(request)
+        request = featurestore_service.GetFeatureRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2035,9 +2011,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_feature
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_feature,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2131,8 +2109,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2140,10 +2118,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.ListFeaturesRequest):
-            request = featurestore_service.ListFeaturesRequest(request)
+        request = featurestore_service.ListFeaturesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2152,9 +2127,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_features
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_features,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2273,8 +2250,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([feature, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2282,10 +2259,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.UpdateFeatureRequest):
-            request = featurestore_service.UpdateFeatureRequest(request)
+        request = featurestore_service.UpdateFeatureRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2296,9 +2270,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.update_feature
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.update_feature,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2403,8 +2379,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2412,10 +2388,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.DeleteFeatureRequest):
-            request = featurestore_service.DeleteFeatureRequest(request)
+        request = featurestore_service.DeleteFeatureRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2424,9 +2397,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_feature
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_feature,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2560,8 +2535,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2569,10 +2544,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.ImportFeatureValuesRequest):
-            request = featurestore_service.ImportFeatureValuesRequest(request)
+        request = featurestore_service.ImportFeatureValuesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2581,9 +2553,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.import_feature_values
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.import_feature_values,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2704,8 +2678,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([featurestore])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2713,10 +2687,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.BatchReadFeatureValuesRequest):
-            request = featurestore_service.BatchReadFeatureValuesRequest(request)
+        request = featurestore_service.BatchReadFeatureValuesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2725,9 +2696,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.batch_read_feature_values
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.batch_read_feature_values,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2838,8 +2811,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2847,10 +2820,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.ExportFeatureValuesRequest):
-            request = featurestore_service.ExportFeatureValuesRequest(request)
+        request = featurestore_service.ExportFeatureValuesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2859,9 +2829,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.export_feature_values
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.export_feature_values,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2980,8 +2952,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2989,10 +2961,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.DeleteFeatureValuesRequest):
-            request = featurestore_service.DeleteFeatureValuesRequest(request)
+        request = featurestore_service.DeleteFeatureValuesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3001,9 +2970,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_feature_values
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_feature_values,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3180,8 +3151,8 @@ class FeaturestoreServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([location, query])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3189,10 +3160,7 @@ class FeaturestoreServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, featurestore_service.SearchFeaturesRequest):
-            request = featurestore_service.SearchFeaturesRequest(request)
+        request = featurestore_service.SearchFeaturesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3203,9 +3171,11 @@ class FeaturestoreServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.search_features
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.search_features,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.

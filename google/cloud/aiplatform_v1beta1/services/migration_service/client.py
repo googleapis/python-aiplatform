@@ -18,7 +18,6 @@ import os
 import re
 from typing import (
     Dict,
-    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -665,11 +664,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[
-            Union[
-                str, MigrationServiceTransport, Callable[..., MigrationServiceTransport]
-            ]
-        ] = None,
+        transport: Optional[Union[str, MigrationServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -681,11 +676,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,MigrationServiceTransport,Callable[..., MigrationServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport.
-                If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the MigrationServiceTransport constructor.
-                If set to None, a transport is chosen automatically.
+            transport (Union[str, MigrationServiceTransport]): The
+                transport to use. If set to None, a transport is chosen
+                automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -797,16 +790,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                     api_key_value
                 )
 
-            transport_init: Union[
-                Type[MigrationServiceTransport],
-                Callable[..., MigrationServiceTransport],
-            ] = (
-                type(self).get_transport_class(transport)
-                if isinstance(transport, str) or transport is None
-                else cast(Callable[..., MigrationServiceTransport], transport)
-            )
-            # initialize with the provided callable or the passed in class
-            self._transport = transport_init(
+            Transport = type(self).get_transport_class(cast(str, transport))
+            self._transport = Transport(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -891,8 +876,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -900,8 +885,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a migration_service.SearchMigratableResourcesRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, migration_service.SearchMigratableResourcesRequest):
             request = migration_service.SearchMigratableResourcesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1035,8 +1022,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, migrate_resource_requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1044,8 +1031,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a migration_service.BatchMigrateResourcesRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, migration_service.BatchMigrateResourcesRequest):
             request = migration_service.BatchMigrateResourcesRequest(request)
             # If we have keyword arguments corresponding to fields on the

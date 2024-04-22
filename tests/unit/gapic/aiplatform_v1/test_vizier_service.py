@@ -1213,39 +1213,6 @@ def test_create_study_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_create_study_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.create_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.create_study] = mock_rpc
-
-        request = {}
-        client.create_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.create_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_create_study_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -1270,52 +1237,6 @@ async def test_create_study_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.CreateStudyRequest()
-
-
-@pytest.mark.asyncio
-async def test_create_study_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.create_study
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.create_study
-        ] = mock_object
-
-        request = {}
-        await client.create_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.create_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1595,39 +1516,6 @@ def test_get_study_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_get_study_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.get_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.get_study] = mock_rpc
-
-        request = {}
-        client.get_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_get_study_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -1652,50 +1540,6 @@ async def test_get_study_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.GetStudyRequest()
-
-
-@pytest.mark.asyncio
-async def test_get_study_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.get_study
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.get_study
-        ] = mock_object
-
-        request = {}
-        await client.get_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.get_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1961,39 +1805,6 @@ def test_list_studies_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_list_studies_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.list_studies in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.list_studies] = mock_rpc
-
-        request = {}
-        client.list_studies(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_studies(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_list_studies_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -2015,52 +1826,6 @@ async def test_list_studies_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.ListStudiesRequest()
-
-
-@pytest.mark.asyncio
-async def test_list_studies_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.list_studies
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.list_studies
-        ] = mock_object
-
-        request = {}
-        await client.list_studies(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.list_studies(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2509,39 +2274,6 @@ def test_delete_study_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_delete_study_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.delete_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.delete_study] = mock_rpc
-
-        request = {}
-        client.delete_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.delete_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_delete_study_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -2559,52 +2291,6 @@ async def test_delete_study_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.DeleteStudyRequest()
-
-
-@pytest.mark.asyncio
-async def test_delete_study_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.delete_study
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.delete_study
-        ] = mock_object
-
-        request = {}
-        await client.delete_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.delete_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2865,39 +2551,6 @@ def test_lookup_study_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_lookup_study_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.lookup_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.lookup_study] = mock_rpc
-
-        request = {}
-        client.lookup_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.lookup_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_lookup_study_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -2922,52 +2575,6 @@ async def test_lookup_study_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.LookupStudyRequest()
-
-
-@pytest.mark.asyncio
-async def test_lookup_study_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.lookup_study
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.lookup_study
-        ] = mock_object
-
-        request = {}
-        await client.lookup_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.lookup_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3230,43 +2837,6 @@ def test_suggest_trials_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_suggest_trials_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.suggest_trials in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.suggest_trials] = mock_rpc
-
-        request = {}
-        client.suggest_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.suggest_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_suggest_trials_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -3286,56 +2856,6 @@ async def test_suggest_trials_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.SuggestTrialsRequest()
-
-
-@pytest.mark.asyncio
-async def test_suggest_trials_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.suggest_trials
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.suggest_trials
-        ] = mock_object
-
-        request = {}
-        await client.suggest_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        await client.suggest_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3522,39 +3042,6 @@ def test_create_trial_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_create_trial_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.create_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.create_trial] = mock_rpc
-
-        request = {}
-        client.create_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.create_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_create_trial_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -3581,52 +3068,6 @@ async def test_create_trial_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.CreateTrialRequest()
-
-
-@pytest.mark.asyncio
-async def test_create_trial_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.create_trial
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.create_trial
-        ] = mock_object
-
-        request = {}
-        await client.create_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.create_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3914,39 +3355,6 @@ def test_get_trial_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_get_trial_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.get_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.get_trial] = mock_rpc
-
-        request = {}
-        client.get_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_get_trial_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -3973,50 +3381,6 @@ async def test_get_trial_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.GetTrialRequest()
-
-
-@pytest.mark.asyncio
-async def test_get_trial_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.get_trial
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.get_trial
-        ] = mock_object
-
-        request = {}
-        await client.get_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.get_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4286,39 +3650,6 @@ def test_list_trials_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_list_trials_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.list_trials in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.list_trials] = mock_rpc
-
-        request = {}
-        client.list_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_list_trials_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -4340,52 +3671,6 @@ async def test_list_trials_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.ListTrialsRequest()
-
-
-@pytest.mark.asyncio
-async def test_list_trials_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.list_trials
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.list_trials
-        ] = mock_object
-
-        request = {}
-        await client.list_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.list_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4853,44 +4138,6 @@ def test_add_trial_measurement_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_add_trial_measurement_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.add_trial_measurement
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.add_trial_measurement
-        ] = mock_rpc
-
-        request = {}
-        client.add_trial_measurement(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.add_trial_measurement(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_add_trial_measurement_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -4919,52 +4166,6 @@ async def test_add_trial_measurement_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.AddTrialMeasurementRequest()
-
-
-@pytest.mark.asyncio
-async def test_add_trial_measurement_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.add_trial_measurement
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.add_trial_measurement
-        ] = mock_object
-
-        request = {}
-        await client.add_trial_measurement(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.add_trial_measurement(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5171,39 +4372,6 @@ def test_complete_trial_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_complete_trial_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.complete_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.complete_trial] = mock_rpc
-
-        request = {}
-        client.complete_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.complete_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_complete_trial_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -5230,52 +4398,6 @@ async def test_complete_trial_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.CompleteTrialRequest()
-
-
-@pytest.mark.asyncio
-async def test_complete_trial_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.complete_trial
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.complete_trial
-        ] = mock_object
-
-        request = {}
-        await client.complete_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.complete_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5460,39 +4582,6 @@ def test_delete_trial_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_delete_trial_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.delete_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.delete_trial] = mock_rpc
-
-        request = {}
-        client.delete_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.delete_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_delete_trial_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -5510,52 +4599,6 @@ async def test_delete_trial_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.DeleteTrialRequest()
-
-
-@pytest.mark.asyncio
-async def test_delete_trial_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.delete_trial
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.delete_trial
-        ] = mock_object
-
-        request = {}
-        await client.delete_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.delete_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5811,48 +4854,6 @@ def test_check_trial_early_stopping_state_non_empty_request_with_auto_populated_
         )
 
 
-def test_check_trial_early_stopping_state_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.check_trial_early_stopping_state
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.check_trial_early_stopping_state
-        ] = mock_rpc
-
-        request = {}
-        client.check_trial_early_stopping_state(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.check_trial_early_stopping_state(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_check_trial_early_stopping_state_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -5874,56 +4875,6 @@ async def test_check_trial_early_stopping_state_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.CheckTrialEarlyStoppingStateRequest()
-
-
-@pytest.mark.asyncio
-async def test_check_trial_early_stopping_state_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.check_trial_early_stopping_state
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.check_trial_early_stopping_state
-        ] = mock_object
-
-        request = {}
-        await client.check_trial_early_stopping_state(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        await client.check_trial_early_stopping_state(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6117,39 +5068,6 @@ def test_stop_trial_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_stop_trial_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.stop_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.stop_trial] = mock_rpc
-
-        request = {}
-        client.stop_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.stop_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_stop_trial_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -6176,50 +5094,6 @@ async def test_stop_trial_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.StopTrialRequest()
-
-
-@pytest.mark.asyncio
-async def test_stop_trial_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.stop_trial
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.stop_trial
-        ] = mock_object
-
-        request = {}
-        await client.stop_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.stop_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6410,43 +5284,6 @@ def test_list_optimal_trials_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_list_optimal_trials_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.list_optimal_trials in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.list_optimal_trials
-        ] = mock_rpc
-
-        request = {}
-        client.list_optimal_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_optimal_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_list_optimal_trials_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -6468,52 +5305,6 @@ async def test_list_optimal_trials_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == vizier_service.ListOptimalTrialsRequest()
-
-
-@pytest.mark.asyncio
-async def test_list_optimal_trials_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.list_optimal_trials
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.list_optimal_trials
-        ] = mock_object
-
-        request = {}
-        await client.list_optimal_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.list_optimal_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6897,39 +5688,6 @@ def test_create_study_rest(request_type):
     assert response.inactive_reason == "inactive_reason_value"
 
 
-def test_create_study_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.create_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.create_study] = mock_rpc
-
-        request = {}
-        client.create_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.create_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_create_study_rest_required_fields(
     request_type=vizier_service.CreateStudyRequest,
 ):
@@ -7211,39 +5969,6 @@ def test_get_study_rest(request_type):
     assert response.inactive_reason == "inactive_reason_value"
 
 
-def test_get_study_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.get_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.get_study] = mock_rpc
-
-        request = {}
-        client.get_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_get_study_rest_required_fields(request_type=vizier_service.GetStudyRequest):
     transport_class = transports.VizierServiceRestTransport
 
@@ -7502,39 +6227,6 @@ def test_list_studies_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListStudiesPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_studies_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.list_studies in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.list_studies] = mock_rpc
-
-        request = {}
-        client.list_studies(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_studies(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
 
 
 def test_list_studies_rest_required_fields(
@@ -7870,39 +6562,6 @@ def test_delete_study_rest(request_type):
     assert response is None
 
 
-def test_delete_study_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.delete_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.delete_study] = mock_rpc
-
-        request = {}
-        client.delete_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.delete_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_delete_study_rest_required_fields(
     request_type=vizier_service.DeleteStudyRequest,
 ):
@@ -8160,39 +6819,6 @@ def test_lookup_study_rest(request_type):
     assert response.display_name == "display_name_value"
     assert response.state == study.Study.State.ACTIVE
     assert response.inactive_reason == "inactive_reason_value"
-
-
-def test_lookup_study_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.lookup_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.lookup_study] = mock_rpc
-
-        request = {}
-        client.lookup_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.lookup_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
 
 
 def test_lookup_study_rest_required_fields(
@@ -8466,43 +7092,6 @@ def test_suggest_trials_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert response.operation.name == "operations/spam"
-
-
-def test_suggest_trials_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.suggest_trials in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.suggest_trials] = mock_rpc
-
-        request = {}
-        client.suggest_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.suggest_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
 
 
 def test_suggest_trials_rest_required_fields(
@@ -8839,39 +7428,6 @@ def test_create_trial_rest(request_type):
     assert response.custom_job == "custom_job_value"
 
 
-def test_create_trial_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.create_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.create_trial] = mock_rpc
-
-        request = {}
-        client.create_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.create_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_create_trial_rest_required_fields(
     request_type=vizier_service.CreateTrialRequest,
 ):
@@ -9162,39 +7718,6 @@ def test_get_trial_rest(request_type):
     assert response.custom_job == "custom_job_value"
 
 
-def test_get_trial_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.get_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.get_trial] = mock_rpc
-
-        request = {}
-        client.get_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_get_trial_rest_required_fields(request_type=vizier_service.GetTrialRequest):
     transport_class = transports.VizierServiceRestTransport
 
@@ -9458,39 +7981,6 @@ def test_list_trials_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTrialsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_trials_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.list_trials in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.list_trials] = mock_rpc
-
-        request = {}
-        client.list_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
 
 
 def test_list_trials_rest_required_fields(
@@ -9846,44 +8336,6 @@ def test_add_trial_measurement_rest(request_type):
     assert response.custom_job == "custom_job_value"
 
 
-def test_add_trial_measurement_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.add_trial_measurement
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.add_trial_measurement
-        ] = mock_rpc
-
-        request = {}
-        client.add_trial_measurement(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.add_trial_measurement(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_add_trial_measurement_rest_required_fields(
     request_type=vizier_service.AddTrialMeasurementRequest,
 ):
@@ -10115,39 +8567,6 @@ def test_complete_trial_rest(request_type):
     assert response.custom_job == "custom_job_value"
 
 
-def test_complete_trial_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.complete_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.complete_trial] = mock_rpc
-
-        request = {}
-        client.complete_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.complete_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_complete_trial_rest_required_fields(
     request_type=vizier_service.CompleteTrialRequest,
 ):
@@ -10354,39 +8773,6 @@ def test_delete_trial_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert response is None
-
-
-def test_delete_trial_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.delete_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.delete_trial] = mock_rpc
-
-        request = {}
-        client.delete_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.delete_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
 
 
 def test_delete_trial_rest_required_fields(
@@ -10644,48 +9030,6 @@ def test_check_trial_early_stopping_state_rest(request_type):
     assert response.operation.name == "operations/spam"
 
 
-def test_check_trial_early_stopping_state_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.check_trial_early_stopping_state
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.check_trial_early_stopping_state
-        ] = mock_rpc
-
-        request = {}
-        client.check_trial_early_stopping_state(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.check_trial_early_stopping_state(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_check_trial_early_stopping_state_rest_required_fields(
     request_type=vizier_service.CheckTrialEarlyStoppingStateRequest,
 ):
@@ -10913,39 +9257,6 @@ def test_stop_trial_rest(request_type):
     assert response.custom_job == "custom_job_value"
 
 
-def test_stop_trial_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.stop_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[client._transport.stop_trial] = mock_rpc
-
-        request = {}
-        client.stop_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.stop_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_stop_trial_rest_required_fields(request_type=vizier_service.StopTrialRequest):
     transport_class = transports.VizierServiceRestTransport
 
@@ -11150,43 +9461,6 @@ def test_list_optimal_trials_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, vizier_service.ListOptimalTrialsResponse)
-
-
-def test_list_optimal_trials_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.list_optimal_trials in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.list_optimal_trials
-        ] = mock_rpc
-
-        request = {}
-        client.list_optimal_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_optimal_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
 
 
 def test_list_optimal_trials_rest_required_fields(

@@ -18,7 +18,6 @@ import os
 import re
 from typing import (
     Dict,
-    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -673,9 +672,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[
-            Union[str, DatasetServiceTransport, Callable[..., DatasetServiceTransport]]
-        ] = None,
+        transport: Optional[Union[str, DatasetServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -687,11 +684,9 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,DatasetServiceTransport,Callable[..., DatasetServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport.
-                If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the DatasetServiceTransport constructor.
-                If set to None, a transport is chosen automatically.
+            transport (Union[str, DatasetServiceTransport]): The
+                transport to use. If set to None, a transport is chosen
+                automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -803,15 +798,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                     api_key_value
                 )
 
-            transport_init: Union[
-                Type[DatasetServiceTransport], Callable[..., DatasetServiceTransport]
-            ] = (
-                type(self).get_transport_class(transport)
-                if isinstance(transport, str) or transport is None
-                else cast(Callable[..., DatasetServiceTransport], transport)
-            )
-            # initialize with the provided callable or the passed in class
-            self._transport = transport_init(
+            Transport = type(self).get_transport_class(cast(str, transport))
+            self._transport = Transport(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -904,8 +892,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, dataset])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -913,8 +901,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.CreateDatasetRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.CreateDatasetRequest):
             request = dataset_service.CreateDatasetRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1017,8 +1007,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1026,8 +1016,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.GetDatasetRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.GetDatasetRequest):
             request = dataset_service.GetDatasetRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1139,8 +1131,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([dataset, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1148,8 +1140,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.UpdateDatasetRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.UpdateDatasetRequest):
             request = dataset_service.UpdateDatasetRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1250,8 +1244,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1259,8 +1253,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.ListDatasetsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.ListDatasetsRequest):
             request = dataset_service.ListDatasetsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1377,8 +1373,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1386,8 +1382,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.DeleteDatasetRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.DeleteDatasetRequest):
             request = dataset_service.DeleteDatasetRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1508,8 +1506,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, import_configs])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1517,8 +1515,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.ImportDataRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.ImportDataRequest):
             request = dataset_service.ImportDataRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1639,8 +1639,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, export_config])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1648,8 +1648,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.ExportDataRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.ExportDataRequest):
             request = dataset_service.ExportDataRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1776,8 +1778,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, dataset_version])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1785,8 +1787,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.CreateDatasetVersionRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.CreateDatasetVersionRequest):
             request = dataset_service.CreateDatasetVersionRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1906,8 +1910,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1915,8 +1919,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.DeleteDatasetVersionRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.DeleteDatasetVersionRequest):
             request = dataset_service.DeleteDatasetVersionRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2016,8 +2022,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 Describes the dataset version.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2025,8 +2031,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.GetDatasetVersionRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.GetDatasetVersionRequest):
             request = dataset_service.GetDatasetVersionRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2126,8 +2134,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2135,8 +2143,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.ListDatasetVersionsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.ListDatasetVersionsRequest):
             request = dataset_service.ListDatasetVersionsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2248,8 +2258,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2257,8 +2267,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.RestoreDatasetVersionRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.RestoreDatasetVersionRequest):
             request = dataset_service.RestoreDatasetVersionRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2364,8 +2376,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2373,8 +2385,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.ListDataItemsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.ListDataItemsRequest):
             request = dataset_service.ListDataItemsRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2473,8 +2487,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.SearchDataItemsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.SearchDataItemsRequest):
             request = dataset_service.SearchDataItemsRequest(request)
 
@@ -2577,8 +2593,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2586,8 +2602,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.ListSavedQueriesRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.ListSavedQueriesRequest):
             request = dataset_service.ListSavedQueriesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2704,8 +2722,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2713,8 +2731,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.DeleteSavedQueryRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.DeleteSavedQueryRequest):
             request = dataset_service.DeleteSavedQueryRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2816,8 +2836,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2825,8 +2845,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.GetAnnotationSpecRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.GetAnnotationSpecRequest):
             request = dataset_service.GetAnnotationSpecRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -2924,8 +2946,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2933,8 +2955,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a dataset_service.ListAnnotationsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, dataset_service.ListAnnotationsRequest):
             request = dataset_service.ListAnnotationsRequest(request)
             # If we have keyword arguments corresponding to fields on the

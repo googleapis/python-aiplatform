@@ -18,7 +18,6 @@ import functools
 import re
 from typing import (
     Dict,
-    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -280,9 +279,7 @@ class JobServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[
-            Union[str, JobServiceTransport, Callable[..., JobServiceTransport]]
-        ] = "grpc_asyncio",
+        transport: Union[str, JobServiceTransport] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -294,11 +291,9 @@ class JobServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,JobServiceTransport,Callable[..., JobServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport to use.
-                If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the JobServiceTransport constructor.
-                If set to None, a transport is chosen automatically.
+            transport (Union[str, ~.JobServiceTransport]): The
+                transport to use. If set to None, a transport is chosen
+                automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -425,8 +420,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, custom_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -434,10 +429,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.CreateCustomJobRequest):
-            request = job_service.CreateCustomJobRequest(request)
+        request = job_service.CreateCustomJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -448,9 +440,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_custom_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_custom_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -539,8 +533,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -548,10 +542,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.GetCustomJobRequest):
-            request = job_service.GetCustomJobRequest(request)
+        request = job_service.GetCustomJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -560,9 +551,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_custom_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_custom_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -650,8 +643,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -659,10 +652,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.ListCustomJobsRequest):
-            request = job_service.ListCustomJobsRequest(request)
+        request = job_service.ListCustomJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -671,9 +661,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_custom_jobs
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_custom_jobs,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -780,8 +772,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -789,10 +781,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.DeleteCustomJobRequest):
-            request = job_service.DeleteCustomJobRequest(request)
+        request = job_service.DeleteCustomJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -801,9 +790,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_custom_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_custom_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -897,8 +888,8 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -906,10 +897,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.CancelCustomJobRequest):
-            request = job_service.CancelCustomJobRequest(request)
+        request = job_service.CancelCustomJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -918,9 +906,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.cancel_custom_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.cancel_custom_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1018,8 +1008,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, data_labeling_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1027,10 +1017,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.CreateDataLabelingJobRequest):
-            request = job_service.CreateDataLabelingJobRequest(request)
+        request = job_service.CreateDataLabelingJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1041,9 +1028,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_data_labeling_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_data_labeling_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1127,8 +1116,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1136,10 +1125,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.GetDataLabelingJobRequest):
-            request = job_service.GetDataLabelingJobRequest(request)
+        request = job_service.GetDataLabelingJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1148,9 +1134,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_data_labeling_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_data_labeling_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1237,8 +1225,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1246,10 +1234,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.ListDataLabelingJobsRequest):
-            request = job_service.ListDataLabelingJobsRequest(request)
+        request = job_service.ListDataLabelingJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1258,9 +1243,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_data_labeling_jobs
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_data_labeling_jobs,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1367,8 +1354,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1376,10 +1363,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.DeleteDataLabelingJobRequest):
-            request = job_service.DeleteDataLabelingJobRequest(request)
+        request = job_service.DeleteDataLabelingJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1388,9 +1372,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_data_labeling_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_data_labeling_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1473,8 +1459,8 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1482,10 +1468,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.CancelDataLabelingJobRequest):
-            request = job_service.CancelDataLabelingJobRequest(request)
+        request = job_service.CancelDataLabelingJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1494,9 +1477,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.cancel_data_labeling_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.cancel_data_labeling_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1603,8 +1588,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, hyperparameter_tuning_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1612,10 +1597,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.CreateHyperparameterTuningJobRequest):
-            request = job_service.CreateHyperparameterTuningJobRequest(request)
+        request = job_service.CreateHyperparameterTuningJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1626,9 +1608,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_hyperparameter_tuning_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_hyperparameter_tuning_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1716,8 +1700,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1725,10 +1709,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.GetHyperparameterTuningJobRequest):
-            request = job_service.GetHyperparameterTuningJobRequest(request)
+        request = job_service.GetHyperparameterTuningJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1737,9 +1718,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_hyperparameter_tuning_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_hyperparameter_tuning_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1829,8 +1812,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1838,10 +1821,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.ListHyperparameterTuningJobsRequest):
-            request = job_service.ListHyperparameterTuningJobsRequest(request)
+        request = job_service.ListHyperparameterTuningJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1850,9 +1830,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_hyperparameter_tuning_jobs
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_hyperparameter_tuning_jobs,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1961,8 +1943,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1970,10 +1952,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.DeleteHyperparameterTuningJobRequest):
-            request = job_service.DeleteHyperparameterTuningJobRequest(request)
+        request = job_service.DeleteHyperparameterTuningJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1982,9 +1961,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_hyperparameter_tuning_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_hyperparameter_tuning_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2082,8 +2063,8 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2091,10 +2072,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.CancelHyperparameterTuningJobRequest):
-            request = job_service.CancelHyperparameterTuningJobRequest(request)
+        request = job_service.CancelHyperparameterTuningJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2103,9 +2081,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.cancel_hyperparameter_tuning_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.cancel_hyperparameter_tuning_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2199,8 +2179,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, nas_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2208,10 +2188,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.CreateNasJobRequest):
-            request = job_service.CreateNasJobRequest(request)
+        request = job_service.CreateNasJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2222,9 +2199,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_nas_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_nas_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2307,8 +2286,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2316,10 +2295,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.GetNasJobRequest):
-            request = job_service.GetNasJobRequest(request)
+        request = job_service.GetNasJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2328,9 +2304,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_nas_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_nas_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2418,8 +2396,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2427,10 +2405,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.ListNasJobsRequest):
-            request = job_service.ListNasJobsRequest(request)
+        request = job_service.ListNasJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2439,9 +2414,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_nas_jobs
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_nas_jobs,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2548,8 +2525,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2557,10 +2534,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.DeleteNasJobRequest):
-            request = job_service.DeleteNasJobRequest(request)
+        request = job_service.DeleteNasJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2569,9 +2543,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_nas_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_nas_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2665,8 +2641,8 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2674,10 +2650,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.CancelNasJobRequest):
-            request = job_service.CancelNasJobRequest(request)
+        request = job_service.CancelNasJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2686,9 +2659,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.cancel_nas_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.cancel_nas_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2771,8 +2746,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2780,10 +2755,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.GetNasTrialDetailRequest):
-            request = job_service.GetNasTrialDetailRequest(request)
+        request = job_service.GetNasTrialDetailRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2792,9 +2764,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_nas_trial_detail
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_nas_trial_detail,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2881,8 +2855,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2890,10 +2864,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.ListNasTrialDetailsRequest):
-            request = job_service.ListNasTrialDetailsRequest(request)
+        request = job_service.ListNasTrialDetailsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2902,9 +2873,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_nas_trial_details
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_nas_trial_details,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3023,8 +2996,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, batch_prediction_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3032,10 +3005,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.CreateBatchPredictionJobRequest):
-            request = job_service.CreateBatchPredictionJobRequest(request)
+        request = job_service.CreateBatchPredictionJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3046,9 +3016,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_batch_prediction_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_batch_prediction_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3137,8 +3109,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3146,10 +3118,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.GetBatchPredictionJobRequest):
-            request = job_service.GetBatchPredictionJobRequest(request)
+        request = job_service.GetBatchPredictionJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3158,9 +3127,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_batch_prediction_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_batch_prediction_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3250,8 +3221,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3259,10 +3230,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.ListBatchPredictionJobsRequest):
-            request = job_service.ListBatchPredictionJobsRequest(request)
+        request = job_service.ListBatchPredictionJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3271,9 +3239,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_batch_prediction_jobs
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_batch_prediction_jobs,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3383,8 +3353,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3392,10 +3362,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.DeleteBatchPredictionJobRequest):
-            request = job_service.DeleteBatchPredictionJobRequest(request)
+        request = job_service.DeleteBatchPredictionJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3404,9 +3371,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_batch_prediction_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_batch_prediction_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3502,8 +3471,8 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3511,10 +3480,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.CancelBatchPredictionJobRequest):
-            request = job_service.CancelBatchPredictionJobRequest(request)
+        request = job_service.CancelBatchPredictionJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3523,9 +3489,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.cancel_batch_prediction_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.cancel_batch_prediction_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3627,8 +3595,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, model_deployment_monitoring_job])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3636,12 +3604,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, job_service.CreateModelDeploymentMonitoringJobRequest
-        ):
-            request = job_service.CreateModelDeploymentMonitoringJobRequest(request)
+        request = job_service.CreateModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3652,9 +3615,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_model_deployment_monitoring_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_model_deployment_monitoring_job,
+            default_timeout=60.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3756,8 +3721,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([model_deployment_monitoring_job, deployed_model_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3765,14 +3730,9 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest
-        ):
-            request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
-                request
-            )
+        request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
+            request
+        )
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3783,9 +3743,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.search_model_deployment_monitoring_stats_anomalies
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.search_model_deployment_monitoring_stats_anomalies,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3890,8 +3852,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3899,10 +3861,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, job_service.GetModelDeploymentMonitoringJobRequest):
-            request = job_service.GetModelDeploymentMonitoringJobRequest(request)
+        request = job_service.GetModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3911,9 +3870,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_model_deployment_monitoring_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_model_deployment_monitoring_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -4003,8 +3964,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4012,12 +3973,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, job_service.ListModelDeploymentMonitoringJobsRequest
-        ):
-            request = job_service.ListModelDeploymentMonitoringJobsRequest(request)
+        request = job_service.ListModelDeploymentMonitoringJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4026,9 +3982,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_model_deployment_monitoring_jobs
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_model_deployment_monitoring_jobs,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -4170,8 +4128,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([model_deployment_monitoring_job, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4179,12 +4137,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, job_service.UpdateModelDeploymentMonitoringJobRequest
-        ):
-            request = job_service.UpdateModelDeploymentMonitoringJobRequest(request)
+        request = job_service.UpdateModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4195,9 +4148,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.update_model_deployment_monitoring_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.update_model_deployment_monitoring_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -4312,8 +4267,8 @@ class JobServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4321,12 +4276,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, job_service.DeleteModelDeploymentMonitoringJobRequest
-        ):
-            request = job_service.DeleteModelDeploymentMonitoringJobRequest(request)
+        request = job_service.DeleteModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4335,9 +4285,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_model_deployment_monitoring_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_model_deployment_monitoring_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -4425,8 +4377,8 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4434,12 +4386,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, job_service.PauseModelDeploymentMonitoringJobRequest
-        ):
-            request = job_service.PauseModelDeploymentMonitoringJobRequest(request)
+        request = job_service.PauseModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4448,9 +4395,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.pause_model_deployment_monitoring_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.pause_model_deployment_monitoring_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -4526,8 +4475,8 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4535,12 +4484,7 @@ class JobServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, job_service.ResumeModelDeploymentMonitoringJobRequest
-        ):
-            request = job_service.ResumeModelDeploymentMonitoringJobRequest(request)
+        request = job_service.ResumeModelDeploymentMonitoringJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4549,9 +4493,11 @@ class JobServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.resume_model_deployment_monitoring_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.resume_model_deployment_monitoring_job,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
