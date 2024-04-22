@@ -18,7 +18,6 @@ import functools
 import re
 from typing import (
     Dict,
-    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -224,11 +223,7 @@ class NotebookServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[
-            Union[
-                str, NotebookServiceTransport, Callable[..., NotebookServiceTransport]
-            ]
-        ] = "grpc_asyncio",
+        transport: Union[str, NotebookServiceTransport] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -240,11 +235,9 @@ class NotebookServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,NotebookServiceTransport,Callable[..., NotebookServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport to use.
-                If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the NotebookServiceTransport constructor.
-                If set to None, a transport is chosen automatically.
+            transport (Union[str, ~.NotebookServiceTransport]): The
+                transport to use. If set to None, a transport is chosen
+                automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -385,8 +378,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, notebook_runtime_template, notebook_runtime_template_id]
         )
@@ -396,12 +389,7 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, notebook_service.CreateNotebookRuntimeTemplateRequest
-        ):
-            request = notebook_service.CreateNotebookRuntimeTemplateRequest(request)
+        request = notebook_service.CreateNotebookRuntimeTemplateRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -414,9 +402,11 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_notebook_runtime_template
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_notebook_runtime_template,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -513,8 +503,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -522,10 +512,7 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, notebook_service.GetNotebookRuntimeTemplateRequest):
-            request = notebook_service.GetNotebookRuntimeTemplateRequest(request)
+        request = notebook_service.GetNotebookRuntimeTemplateRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -534,9 +521,11 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_notebook_runtime_template
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_notebook_runtime_template,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -626,8 +615,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -635,12 +624,7 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, notebook_service.ListNotebookRuntimeTemplatesRequest
-        ):
-            request = notebook_service.ListNotebookRuntimeTemplatesRequest(request)
+        request = notebook_service.ListNotebookRuntimeTemplatesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -649,9 +633,11 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_notebook_runtime_templates
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_notebook_runtime_templates,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -760,8 +746,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -769,12 +755,7 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, notebook_service.DeleteNotebookRuntimeTemplateRequest
-        ):
-            request = notebook_service.DeleteNotebookRuntimeTemplateRequest(request)
+        request = notebook_service.DeleteNotebookRuntimeTemplateRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -783,9 +764,11 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_notebook_runtime_template
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_notebook_runtime_template,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -922,8 +905,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, notebook_runtime_template, notebook_runtime, notebook_runtime_id]
         )
@@ -933,10 +916,7 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, notebook_service.AssignNotebookRuntimeRequest):
-            request = notebook_service.AssignNotebookRuntimeRequest(request)
+        request = notebook_service.AssignNotebookRuntimeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -951,9 +931,11 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.assign_notebook_runtime
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.assign_notebook_runtime,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1053,8 +1035,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1062,10 +1044,7 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, notebook_service.GetNotebookRuntimeRequest):
-            request = notebook_service.GetNotebookRuntimeRequest(request)
+        request = notebook_service.GetNotebookRuntimeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1074,9 +1053,11 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_notebook_runtime
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_notebook_runtime,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1166,8 +1147,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1175,10 +1156,7 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, notebook_service.ListNotebookRuntimesRequest):
-            request = notebook_service.ListNotebookRuntimesRequest(request)
+        request = notebook_service.ListNotebookRuntimesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1187,9 +1165,11 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_notebook_runtimes
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_notebook_runtimes,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1302,8 +1282,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1311,10 +1291,7 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, notebook_service.DeleteNotebookRuntimeRequest):
-            request = notebook_service.DeleteNotebookRuntimeRequest(request)
+        request = notebook_service.DeleteNotebookRuntimeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1323,9 +1300,11 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_notebook_runtime
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_notebook_runtime,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1429,8 +1408,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1438,10 +1417,7 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, notebook_service.UpgradeNotebookRuntimeRequest):
-            request = notebook_service.UpgradeNotebookRuntimeRequest(request)
+        request = notebook_service.UpgradeNotebookRuntimeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1450,9 +1426,11 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.upgrade_notebook_runtime
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.upgrade_notebook_runtime,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1556,8 +1534,8 @@ class NotebookServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1565,10 +1543,7 @@ class NotebookServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, notebook_service.StartNotebookRuntimeRequest):
-            request = notebook_service.StartNotebookRuntimeRequest(request)
+        request = notebook_service.StartNotebookRuntimeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1577,9 +1552,11 @@ class NotebookServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.start_notebook_runtime
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.start_notebook_runtime,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.

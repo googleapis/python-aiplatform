@@ -18,7 +18,6 @@ import functools
 import re
 from typing import (
     Dict,
-    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -238,11 +237,7 @@ class PipelineServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[
-            Union[
-                str, PipelineServiceTransport, Callable[..., PipelineServiceTransport]
-            ]
-        ] = "grpc_asyncio",
+        transport: Union[str, PipelineServiceTransport] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -254,11 +249,9 @@ class PipelineServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,PipelineServiceTransport,Callable[..., PipelineServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport to use.
-                If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the PipelineServiceTransport constructor.
-                If set to None, a transport is chosen automatically.
+            transport (Union[str, ~.PipelineServiceTransport]): The
+                transport to use. If set to None, a transport is chosen
+                automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -388,8 +381,8 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, training_pipeline])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -397,10 +390,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.CreateTrainingPipelineRequest):
-            request = pipeline_service.CreateTrainingPipelineRequest(request)
+        request = pipeline_service.CreateTrainingPipelineRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -411,9 +401,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_training_pipeline
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_training_pipeline,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -503,8 +495,8 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -512,10 +504,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.GetTrainingPipelineRequest):
-            request = pipeline_service.GetTrainingPipelineRequest(request)
+        request = pipeline_service.GetTrainingPipelineRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -524,9 +513,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_training_pipeline
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_training_pipeline,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -616,8 +607,8 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -625,10 +616,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.ListTrainingPipelinesRequest):
-            request = pipeline_service.ListTrainingPipelinesRequest(request)
+        request = pipeline_service.ListTrainingPipelinesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -637,9 +625,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_training_pipelines
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_training_pipelines,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -748,8 +738,8 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -757,10 +747,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.DeleteTrainingPipelineRequest):
-            request = pipeline_service.DeleteTrainingPipelineRequest(request)
+        request = pipeline_service.DeleteTrainingPipelineRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -769,9 +756,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_training_pipeline
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_training_pipeline,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -868,8 +857,8 @@ class PipelineServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -877,10 +866,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.CancelTrainingPipelineRequest):
-            request = pipeline_service.CancelTrainingPipelineRequest(request)
+        request = pipeline_service.CancelTrainingPipelineRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -889,9 +875,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.cancel_training_pipeline
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.cancel_training_pipeline,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -993,8 +981,8 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, pipeline_job, pipeline_job_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1002,10 +990,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.CreatePipelineJobRequest):
-            request = pipeline_service.CreatePipelineJobRequest(request)
+        request = pipeline_service.CreatePipelineJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1018,9 +1003,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_pipeline_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_pipeline_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1103,8 +1090,8 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1112,10 +1099,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.GetPipelineJobRequest):
-            request = pipeline_service.GetPipelineJobRequest(request)
+        request = pipeline_service.GetPipelineJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1124,9 +1108,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_pipeline_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_pipeline_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1214,8 +1200,8 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1223,10 +1209,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.ListPipelineJobsRequest):
-            request = pipeline_service.ListPipelineJobsRequest(request)
+        request = pipeline_service.ListPipelineJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1235,9 +1218,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_pipeline_jobs
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_pipeline_jobs,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1346,8 +1331,8 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1355,10 +1340,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.DeletePipelineJobRequest):
-            request = pipeline_service.DeletePipelineJobRequest(request)
+        request = pipeline_service.DeletePipelineJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1367,9 +1349,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_pipeline_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_pipeline_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1482,8 +1466,8 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, names])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1491,10 +1475,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.BatchDeletePipelineJobsRequest):
-            request = pipeline_service.BatchDeletePipelineJobsRequest(request)
+        request = pipeline_service.BatchDeletePipelineJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1505,9 +1486,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.batch_delete_pipeline_jobs
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.batch_delete_pipeline_jobs,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1603,8 +1586,8 @@ class PipelineServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1612,10 +1595,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.CancelPipelineJobRequest):
-            request = pipeline_service.CancelPipelineJobRequest(request)
+        request = pipeline_service.CancelPipelineJobRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1624,9 +1604,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.cancel_pipeline_job
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.cancel_pipeline_job,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1733,8 +1715,8 @@ class PipelineServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, names])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1742,10 +1724,7 @@ class PipelineServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, pipeline_service.BatchCancelPipelineJobsRequest):
-            request = pipeline_service.BatchCancelPipelineJobsRequest(request)
+        request = pipeline_service.BatchCancelPipelineJobsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1756,9 +1735,11 @@ class PipelineServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.batch_cancel_pipeline_jobs
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.batch_cancel_pipeline_jobs,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.

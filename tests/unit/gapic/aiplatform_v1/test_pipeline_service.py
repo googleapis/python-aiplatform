@@ -1272,44 +1272,6 @@ def test_create_training_pipeline_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_create_training_pipeline_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.create_training_pipeline
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.create_training_pipeline
-        ] = mock_rpc
-
-        request = {}
-        client.create_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.create_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_create_training_pipeline_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -1338,52 +1300,6 @@ async def test_create_training_pipeline_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.CreateTrainingPipelineRequest()
-
-
-@pytest.mark.asyncio
-async def test_create_training_pipeline_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.create_training_pipeline
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.create_training_pipeline
-        ] = mock_object
-
-        request = {}
-        await client.create_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.create_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -1692,44 +1608,6 @@ def test_get_training_pipeline_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_get_training_pipeline_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.get_training_pipeline
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.get_training_pipeline
-        ] = mock_rpc
-
-        request = {}
-        client.get_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_get_training_pipeline_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -1758,52 +1636,6 @@ async def test_get_training_pipeline_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.GetTrainingPipelineRequest()
-
-
-@pytest.mark.asyncio
-async def test_get_training_pipeline_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.get_training_pipeline
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.get_training_pipeline
-        ] = mock_object
-
-        request = {}
-        await client.get_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.get_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2096,44 +1928,6 @@ def test_list_training_pipelines_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_list_training_pipelines_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.list_training_pipelines
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.list_training_pipelines
-        ] = mock_rpc
-
-        request = {}
-        client.list_training_pipelines(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_training_pipelines(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_list_training_pipelines_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -2157,52 +1951,6 @@ async def test_list_training_pipelines_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.ListTrainingPipelinesRequest()
-
-
-@pytest.mark.asyncio
-async def test_list_training_pipelines_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.list_training_pipelines
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.list_training_pipelines
-        ] = mock_object
-
-        request = {}
-        await client.list_training_pipelines(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.list_training_pipelines(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -2676,48 +2424,6 @@ def test_delete_training_pipeline_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_delete_training_pipeline_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.delete_training_pipeline
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.delete_training_pipeline
-        ] = mock_rpc
-
-        request = {}
-        client.delete_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.delete_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_delete_training_pipeline_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -2739,56 +2445,6 @@ async def test_delete_training_pipeline_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.DeleteTrainingPipelineRequest()
-
-
-@pytest.mark.asyncio
-async def test_delete_training_pipeline_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.delete_training_pipeline
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.delete_training_pipeline
-        ] = mock_object
-
-        request = {}
-        await client.delete_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        await client.delete_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3061,44 +2717,6 @@ def test_cancel_training_pipeline_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_cancel_training_pipeline_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.cancel_training_pipeline
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.cancel_training_pipeline
-        ] = mock_rpc
-
-        request = {}
-        client.cancel_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.cancel_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_cancel_training_pipeline_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -3118,52 +2736,6 @@ async def test_cancel_training_pipeline_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.CancelTrainingPipelineRequest()
-
-
-@pytest.mark.asyncio
-async def test_cancel_training_pipeline_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.cancel_training_pipeline
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.cancel_training_pipeline
-        ] = mock_object
-
-        request = {}
-        await client.cancel_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.cancel_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3449,43 +3021,6 @@ def test_create_pipeline_job_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_create_pipeline_job_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.create_pipeline_job in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.create_pipeline_job
-        ] = mock_rpc
-
-        request = {}
-        client.create_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.create_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_create_pipeline_job_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -3516,52 +3051,6 @@ async def test_create_pipeline_job_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.CreatePipelineJobRequest()
-
-
-@pytest.mark.asyncio
-async def test_create_pipeline_job_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.create_pipeline_job
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.create_pipeline_job
-        ] = mock_object
-
-        request = {}
-        await client.create_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.create_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -3882,41 +3371,6 @@ def test_get_pipeline_job_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_get_pipeline_job_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.get_pipeline_job in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.get_pipeline_job
-        ] = mock_rpc
-
-        request = {}
-        client.get_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_get_pipeline_job_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -3945,52 +3399,6 @@ async def test_get_pipeline_job_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.GetPipelineJobRequest()
-
-
-@pytest.mark.asyncio
-async def test_get_pipeline_job_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.get_pipeline_job
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.get_pipeline_job
-        ] = mock_object
-
-        request = {}
-        await client.get_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.get_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4278,43 +3686,6 @@ def test_list_pipeline_jobs_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_list_pipeline_jobs_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.list_pipeline_jobs in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.list_pipeline_jobs
-        ] = mock_rpc
-
-        request = {}
-        client.list_pipeline_jobs(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_pipeline_jobs(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_list_pipeline_jobs_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -4338,52 +3709,6 @@ async def test_list_pipeline_jobs_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.ListPipelineJobsRequest()
-
-
-@pytest.mark.asyncio
-async def test_list_pipeline_jobs_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.list_pipeline_jobs
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.list_pipeline_jobs
-        ] = mock_object
-
-        request = {}
-        await client.list_pipeline_jobs(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.list_pipeline_jobs(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -4857,47 +4182,6 @@ def test_delete_pipeline_job_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_delete_pipeline_job_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.delete_pipeline_job in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.delete_pipeline_job
-        ] = mock_rpc
-
-        request = {}
-        client.delete_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.delete_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_delete_pipeline_job_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -4919,56 +4203,6 @@ async def test_delete_pipeline_job_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.DeletePipelineJobRequest()
-
-
-@pytest.mark.asyncio
-async def test_delete_pipeline_job_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.delete_pipeline_job
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.delete_pipeline_job
-        ] = mock_object
-
-        request = {}
-        await client.delete_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        await client.delete_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5241,48 +4475,6 @@ def test_batch_delete_pipeline_jobs_non_empty_request_with_auto_populated_field(
         )
 
 
-def test_batch_delete_pipeline_jobs_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.batch_delete_pipeline_jobs
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.batch_delete_pipeline_jobs
-        ] = mock_rpc
-
-        request = {}
-        client.batch_delete_pipeline_jobs(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.batch_delete_pipeline_jobs(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_batch_delete_pipeline_jobs_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -5304,56 +4496,6 @@ async def test_batch_delete_pipeline_jobs_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.BatchDeletePipelineJobsRequest()
-
-
-@pytest.mark.asyncio
-async def test_batch_delete_pipeline_jobs_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.batch_delete_pipeline_jobs
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.batch_delete_pipeline_jobs
-        ] = mock_object
-
-        request = {}
-        await client.batch_delete_pipeline_jobs(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        await client.batch_delete_pipeline_jobs(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -5636,43 +4778,6 @@ def test_cancel_pipeline_job_non_empty_request_with_auto_populated_field():
         )
 
 
-def test_cancel_pipeline_job_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.cancel_pipeline_job in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.cancel_pipeline_job
-        ] = mock_rpc
-
-        request = {}
-        client.cancel_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.cancel_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_cancel_pipeline_job_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -5692,52 +4797,6 @@ async def test_cancel_pipeline_job_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.CancelPipelineJobRequest()
-
-
-@pytest.mark.asyncio
-async def test_cancel_pipeline_job_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.cancel_pipeline_job
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.cancel_pipeline_job
-        ] = mock_object
-
-        request = {}
-        await client.cancel_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        await client.cancel_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6004,48 +5063,6 @@ def test_batch_cancel_pipeline_jobs_non_empty_request_with_auto_populated_field(
         )
 
 
-def test_batch_cancel_pipeline_jobs_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.batch_cancel_pipeline_jobs
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.batch_cancel_pipeline_jobs
-        ] = mock_rpc
-
-        request = {}
-        client.batch_cancel_pipeline_jobs(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.batch_cancel_pipeline_jobs(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 @pytest.mark.asyncio
 async def test_batch_cancel_pipeline_jobs_empty_call_async():
     # This test is a coverage failsafe to make sure that totally empty calls,
@@ -6067,56 +5084,6 @@ async def test_batch_cancel_pipeline_jobs_empty_call_async():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == pipeline_service.BatchCancelPipelineJobsRequest()
-
-
-@pytest.mark.asyncio
-async def test_batch_cancel_pipeline_jobs_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = PipelineServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.batch_cancel_pipeline_jobs
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        class AwaitableMock(mock.AsyncMock):
-            def __await__(self):
-                self.await_count += 1
-                return iter([])
-
-        mock_object = AwaitableMock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.batch_cancel_pipeline_jobs
-        ] = mock_object
-
-        request = {}
-        await client.batch_cancel_pipeline_jobs(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_object.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        await client.batch_cancel_pipeline_jobs(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_object.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -6617,44 +5584,6 @@ def test_create_training_pipeline_rest(request_type):
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
 
 
-def test_create_training_pipeline_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.create_training_pipeline
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.create_training_pipeline
-        ] = mock_rpc
-
-        request = {}
-        client.create_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.create_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_create_training_pipeline_rest_required_fields(
     request_type=pipeline_service.CreateTrainingPipelineRequest,
 ):
@@ -6945,44 +5874,6 @@ def test_get_training_pipeline_rest(request_type):
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
 
 
-def test_get_training_pipeline_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.get_training_pipeline
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.get_training_pipeline
-        ] = mock_rpc
-
-        request = {}
-        client.get_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_get_training_pipeline_rest_required_fields(
     request_type=pipeline_service.GetTrainingPipelineRequest,
 ):
@@ -7252,44 +6143,6 @@ def test_list_training_pipelines_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTrainingPipelinesPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_training_pipelines_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.list_training_pipelines
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.list_training_pipelines
-        ] = mock_rpc
-
-        request = {}
-        client.list_training_pipelines(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_training_pipelines(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
 
 
 def test_list_training_pipelines_rest_required_fields(
@@ -7636,48 +6489,6 @@ def test_delete_training_pipeline_rest(request_type):
     assert response.operation.name == "operations/spam"
 
 
-def test_delete_training_pipeline_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.delete_training_pipeline
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.delete_training_pipeline
-        ] = mock_rpc
-
-        request = {}
-        client.delete_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.delete_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_delete_training_pipeline_rest_required_fields(
     request_type=pipeline_service.DeleteTrainingPipelineRequest,
 ):
@@ -7941,44 +6752,6 @@ def test_cancel_training_pipeline_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert response is None
-
-
-def test_cancel_training_pipeline_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.cancel_training_pipeline
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.cancel_training_pipeline
-        ] = mock_rpc
-
-        request = {}
-        client.cancel_training_pipeline(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.cancel_training_pipeline(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
 
 
 def test_cancel_training_pipeline_rest_required_fields(
@@ -8423,43 +7196,6 @@ def test_create_pipeline_job_rest(request_type):
     assert response.schedule_name == "schedule_name_value"
 
 
-def test_create_pipeline_job_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.create_pipeline_job in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.create_pipeline_job
-        ] = mock_rpc
-
-        request = {}
-        client.create_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.create_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_create_pipeline_job_rest_required_fields(
     request_type=pipeline_service.CreatePipelineJobRequest,
 ):
@@ -8756,41 +7492,6 @@ def test_get_pipeline_job_rest(request_type):
     assert response.schedule_name == "schedule_name_value"
 
 
-def test_get_pipeline_job_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.get_pipeline_job in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.get_pipeline_job
-        ] = mock_rpc
-
-        request = {}
-        client.get_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_get_pipeline_job_rest_required_fields(
     request_type=pipeline_service.GetPipelineJobRequest,
 ):
@@ -9058,43 +7759,6 @@ def test_list_pipeline_jobs_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListPipelineJobsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_pipeline_jobs_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.list_pipeline_jobs in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.list_pipeline_jobs
-        ] = mock_rpc
-
-        request = {}
-        client.list_pipeline_jobs(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_pipeline_jobs(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
 
 
 def test_list_pipeline_jobs_rest_required_fields(
@@ -9437,47 +8101,6 @@ def test_delete_pipeline_job_rest(request_type):
     assert response.operation.name == "operations/spam"
 
 
-def test_delete_pipeline_job_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.delete_pipeline_job in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.delete_pipeline_job
-        ] = mock_rpc
-
-        request = {}
-        client.delete_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.delete_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_delete_pipeline_job_rest_required_fields(
     request_type=pipeline_service.DeletePipelineJobRequest,
 ):
@@ -9737,48 +8360,6 @@ def test_batch_delete_pipeline_jobs_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert response.operation.name == "operations/spam"
-
-
-def test_batch_delete_pipeline_jobs_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.batch_delete_pipeline_jobs
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.batch_delete_pipeline_jobs
-        ] = mock_rpc
-
-        request = {}
-        client.batch_delete_pipeline_jobs(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.batch_delete_pipeline_jobs(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
 
 
 def test_batch_delete_pipeline_jobs_rest_required_fields(
@@ -10056,43 +8637,6 @@ def test_cancel_pipeline_job_rest(request_type):
     assert response is None
 
 
-def test_cancel_pipeline_job_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.cancel_pipeline_job in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.cancel_pipeline_job
-        ] = mock_rpc
-
-        request = {}
-        client.cancel_pipeline_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.cancel_pipeline_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
 def test_cancel_pipeline_job_rest_required_fields(
     request_type=pipeline_service.CancelPipelineJobRequest,
 ):
@@ -10343,48 +8887,6 @@ def test_batch_cancel_pipeline_jobs_rest(request_type):
 
     # Establish that the response is the type that we expect.
     assert response.operation.name == "operations/spam"
-
-
-def test_batch_cancel_pipeline_jobs_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.batch_cancel_pipeline_jobs
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        client._transport._wrapped_methods[
-            client._transport.batch_cancel_pipeline_jobs
-        ] = mock_rpc
-
-        request = {}
-        client.batch_cancel_pipeline_jobs(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.batch_cancel_pipeline_jobs(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
 
 
 def test_batch_cancel_pipeline_jobs_rest_required_fields(

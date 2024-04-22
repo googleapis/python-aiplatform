@@ -18,7 +18,6 @@ import os
 import re
 from typing import (
     Dict,
-    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -566,9 +565,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[
-            Union[str, IndexServiceTransport, Callable[..., IndexServiceTransport]]
-        ] = None,
+        transport: Optional[Union[str, IndexServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -580,11 +577,9 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,IndexServiceTransport,Callable[..., IndexServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport.
-                If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the IndexServiceTransport constructor.
-                If set to None, a transport is chosen automatically.
+            transport (Union[str, IndexServiceTransport]): The
+                transport to use. If set to None, a transport is chosen
+                automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -693,15 +688,8 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                     api_key_value
                 )
 
-            transport_init: Union[
-                Type[IndexServiceTransport], Callable[..., IndexServiceTransport]
-            ] = (
-                type(self).get_transport_class(transport)
-                if isinstance(transport, str) or transport is None
-                else cast(Callable[..., IndexServiceTransport], transport)
-            )
-            # initialize with the provided callable or the passed in class
-            self._transport = transport_init(
+            Transport = type(self).get_transport_class(cast(str, transport))
+            self._transport = Transport(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -792,8 +780,8 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, index])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -801,8 +789,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a index_service.CreateIndexRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, index_service.CreateIndexRequest):
             request = index_service.CreateIndexRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -907,8 +897,8 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -916,8 +906,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a index_service.GetIndexRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, index_service.GetIndexRequest):
             request = index_service.GetIndexRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1015,8 +1007,8 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1024,8 +1016,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a index_service.ListIndexesRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, index_service.ListIndexesRequest):
             request = index_service.ListIndexesRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1146,8 +1140,8 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([index, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1155,8 +1149,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a index_service.UpdateIndexRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, index_service.UpdateIndexRequest):
             request = index_service.UpdateIndexRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1278,8 +1274,8 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1287,8 +1283,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a index_service.DeleteIndexRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, index_service.DeleteIndexRequest):
             request = index_service.DeleteIndexRequest(request)
             # If we have keyword arguments corresponding to fields on the
@@ -1381,8 +1379,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a index_service.UpsertDatapointsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, index_service.UpsertDatapointsRequest):
             request = index_service.UpsertDatapointsRequest(request)
 
@@ -1463,8 +1463,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a index_service.RemoveDatapointsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(request, index_service.RemoveDatapointsRequest):
             request = index_service.RemoveDatapointsRequest(request)
 

@@ -18,7 +18,6 @@ import functools
 import re
 from typing import (
     Dict,
-    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -212,9 +211,7 @@ class VizierServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[
-            Union[str, VizierServiceTransport, Callable[..., VizierServiceTransport]]
-        ] = "grpc_asyncio",
+        transport: Union[str, VizierServiceTransport] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -226,11 +223,9 @@ class VizierServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,VizierServiceTransport,Callable[..., VizierServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport to use.
-                If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the VizierServiceTransport constructor.
-                If set to None, a transport is chosen automatically.
+            transport (Union[str, ~.VizierServiceTransport]): The
+                transport to use. If set to None, a transport is chosen
+                automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -355,8 +350,8 @@ class VizierServiceAsyncClient:
                 A message representing a Study.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, study])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -364,10 +359,7 @@ class VizierServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.CreateStudyRequest):
-            request = vizier_service.CreateStudyRequest(request)
+        request = vizier_service.CreateStudyRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -378,9 +370,11 @@ class VizierServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_study
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_study,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -461,8 +455,8 @@ class VizierServiceAsyncClient:
                 A message representing a Study.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -470,10 +464,7 @@ class VizierServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.GetStudyRequest):
-            request = vizier_service.GetStudyRequest(request)
+        request = vizier_service.GetStudyRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -482,9 +473,11 @@ class VizierServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_study
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_study,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -573,8 +566,8 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -582,10 +575,7 @@ class VizierServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.ListStudiesRequest):
-            request = vizier_service.ListStudiesRequest(request)
+        request = vizier_service.ListStudiesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -594,9 +584,11 @@ class VizierServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_studies
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_studies,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -680,8 +672,8 @@ class VizierServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -689,10 +681,7 @@ class VizierServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.DeleteStudyRequest):
-            request = vizier_service.DeleteStudyRequest(request)
+        request = vizier_service.DeleteStudyRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -701,9 +690,11 @@ class VizierServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_study
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_study,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -784,8 +775,8 @@ class VizierServiceAsyncClient:
                 A message representing a Study.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -793,10 +784,7 @@ class VizierServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.LookupStudyRequest):
-            request = vizier_service.LookupStudyRequest(request)
+        request = vizier_service.LookupStudyRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -805,9 +793,11 @@ class VizierServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.lookup_study
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.lookup_study,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -894,16 +884,15 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.SuggestTrialsRequest):
-            request = vizier_service.SuggestTrialsRequest(request)
+        request = vizier_service.SuggestTrialsRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.suggest_trials
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.suggest_trials,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1004,8 +993,8 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, trial])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1013,10 +1002,7 @@ class VizierServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.CreateTrialRequest):
-            request = vizier_service.CreateTrialRequest(request)
+        request = vizier_service.CreateTrialRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1027,9 +1013,11 @@ class VizierServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_trial
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_trial,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1115,8 +1103,8 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1124,10 +1112,7 @@ class VizierServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.GetTrialRequest):
-            request = vizier_service.GetTrialRequest(request)
+        request = vizier_service.GetTrialRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1136,9 +1121,11 @@ class VizierServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_trial
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_trial,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1226,8 +1213,8 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1235,10 +1222,7 @@ class VizierServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.ListTrialsRequest):
-            request = vizier_service.ListTrialsRequest(request)
+        request = vizier_service.ListTrialsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1247,9 +1231,11 @@ class VizierServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_trials
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_trials,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1340,16 +1326,15 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.AddTrialMeasurementRequest):
-            request = vizier_service.AddTrialMeasurementRequest(request)
+        request = vizier_service.AddTrialMeasurementRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.add_trial_measurement
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.add_trial_measurement,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1429,16 +1414,15 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.CompleteTrialRequest):
-            request = vizier_service.CompleteTrialRequest(request)
+        request = vizier_service.CompleteTrialRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.complete_trial
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.complete_trial,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1512,8 +1496,8 @@ class VizierServiceAsyncClient:
                 sent along with the request as metadata.
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1521,10 +1505,7 @@ class VizierServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.DeleteTrialRequest):
-            request = vizier_service.DeleteTrialRequest(request)
+        request = vizier_service.DeleteTrialRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1533,9 +1514,11 @@ class VizierServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_trial
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_trial,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1618,16 +1601,15 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.CheckTrialEarlyStoppingStateRequest):
-            request = vizier_service.CheckTrialEarlyStoppingStateRequest(request)
+        request = vizier_service.CheckTrialEarlyStoppingStateRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.check_trial_early_stopping_state
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.check_trial_early_stopping_state,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1715,16 +1697,15 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.StopTrialRequest):
-            request = vizier_service.StopTrialRequest(request)
+        request = vizier_service.StopTrialRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.stop_trial
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.stop_trial,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1810,8 +1791,8 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1819,10 +1800,7 @@ class VizierServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, vizier_service.ListOptimalTrialsRequest):
-            request = vizier_service.ListOptimalTrialsRequest(request)
+        request = vizier_service.ListOptimalTrialsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1831,9 +1809,11 @@ class VizierServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_optimal_trials
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_optimal_trials,
+            default_timeout=5.0,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.

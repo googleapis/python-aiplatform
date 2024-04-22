@@ -246,12 +246,6 @@ class ModelMonitoringSchema(proto.Message):
                analyzed.
         ground_truth_fields (MutableSequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringSchema.FieldSchema]):
             Target /ground truth names of the model.
-        instance_type (str):
-            The prediction instance type that the Model accepts when
-            serving. Supported values are:
-
-            -  ``object``: Each input is a JSON object format.
-            -  ``array``: Each input is a JSON array format.
     """
 
     class FieldSchema(proto.Message):
@@ -295,10 +289,6 @@ class ModelMonitoringSchema(proto.Message):
         proto.MESSAGE,
         number=3,
         message=FieldSchema,
-    )
-    instance_type: str = proto.Field(
-        proto.STRING,
-        number=4,
     )
 
 

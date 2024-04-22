@@ -18,7 +18,6 @@ import os
 import re
 from typing import (
     Dict,
-    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -609,13 +608,7 @@ class FeatureOnlineStoreAdminServiceClient(
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[
-            Union[
-                str,
-                FeatureOnlineStoreAdminServiceTransport,
-                Callable[..., FeatureOnlineStoreAdminServiceTransport],
-            ]
-        ] = None,
+        transport: Optional[Union[str, FeatureOnlineStoreAdminServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -627,11 +620,9 @@ class FeatureOnlineStoreAdminServiceClient(
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,FeatureOnlineStoreAdminServiceTransport,Callable[..., FeatureOnlineStoreAdminServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport.
-                If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the FeatureOnlineStoreAdminServiceTransport constructor.
-                If set to None, a transport is chosen automatically.
+            transport (Union[str, FeatureOnlineStoreAdminServiceTransport]): The
+                transport to use. If set to None, a transport is chosen
+                automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -749,18 +740,8 @@ class FeatureOnlineStoreAdminServiceClient(
                     api_key_value
                 )
 
-            transport_init: Union[
-                Type[FeatureOnlineStoreAdminServiceTransport],
-                Callable[..., FeatureOnlineStoreAdminServiceTransport],
-            ] = (
-                type(self).get_transport_class(transport)
-                if isinstance(transport, str) or transport is None
-                else cast(
-                    Callable[..., FeatureOnlineStoreAdminServiceTransport], transport
-                )
-            )
-            # initialize with the provided callable or the passed in class
-            self._transport = transport_init(
+            Transport = type(self).get_transport_class(cast(str, transport))
+            self._transport = Transport(
                 credentials=credentials,
                 credentials_file=self._client_options.credentials_file,
                 host=self._api_endpoint,
@@ -878,8 +859,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, feature_online_store, feature_online_store_id]
         )
@@ -889,8 +870,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.CreateFeatureOnlineStoreRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.CreateFeatureOnlineStoreRequest
         ):
@@ -1008,8 +991,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1017,8 +1000,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.GetFeatureOnlineStoreRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.GetFeatureOnlineStoreRequest
         ):
@@ -1125,8 +1110,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1134,8 +1119,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.ListFeatureOnlineStoresRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.ListFeatureOnlineStoresRequest
         ):
@@ -1284,8 +1271,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([feature_online_store, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1293,8 +1280,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest
         ):
@@ -1438,8 +1427,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, force])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1447,8 +1436,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest
         ):
@@ -1596,8 +1587,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, feature_view, feature_view_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1605,8 +1596,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.CreateFeatureViewRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.CreateFeatureViewRequest
         ):
@@ -1718,8 +1711,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1727,8 +1720,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.GetFeatureViewRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.GetFeatureViewRequest
         ):
@@ -1830,8 +1825,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1839,8 +1834,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.ListFeatureViewsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.ListFeatureViewsRequest
         ):
@@ -1978,8 +1975,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([feature_view, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1987,8 +1984,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.UpdateFeatureViewRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.UpdateFeatureViewRequest
         ):
@@ -2114,8 +2113,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2123,8 +2122,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.DeleteFeatureViewRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.DeleteFeatureViewRequest
         ):
@@ -2231,8 +2232,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([feature_view])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2240,8 +2241,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.SyncFeatureViewRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.SyncFeatureViewRequest
         ):
@@ -2343,8 +2346,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2352,8 +2355,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.GetFeatureViewSyncRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.GetFeatureViewSyncRequest
         ):
@@ -2457,8 +2462,8 @@ class FeatureOnlineStoreAdminServiceClient(
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2466,8 +2471,10 @@ class FeatureOnlineStoreAdminServiceClient(
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
+        # Minor optimization to avoid making a copy if the user passes
+        # in a feature_online_store_admin_service.ListFeatureViewSyncsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
         if not isinstance(
             request, feature_online_store_admin_service.ListFeatureViewSyncsRequest
         ):

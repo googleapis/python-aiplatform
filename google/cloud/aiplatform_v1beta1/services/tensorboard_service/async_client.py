@@ -18,7 +18,6 @@ import functools
 import re
 from typing import (
     Dict,
-    Callable,
     Mapping,
     MutableMapping,
     MutableSequence,
@@ -239,13 +238,7 @@ class TensorboardServiceAsyncClient:
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Optional[
-            Union[
-                str,
-                TensorboardServiceTransport,
-                Callable[..., TensorboardServiceTransport],
-            ]
-        ] = "grpc_asyncio",
+        transport: Union[str, TensorboardServiceTransport] = "grpc_asyncio",
         client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -257,11 +250,9 @@ class TensorboardServiceAsyncClient:
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,TensorboardServiceTransport,Callable[..., TensorboardServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport to use.
-                If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the TensorboardServiceTransport constructor.
-                If set to None, a transport is chosen automatically.
+            transport (Union[str, ~.TensorboardServiceTransport]): The
+                transport to use. If set to None, a transport is chosen
+                automatically.
                 NOTE: "rest" transport functionality is currently in a
                 beta state (preview). We welcome your feedback via an
                 issue in this library's source repository.
@@ -390,8 +381,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -399,10 +390,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.CreateTensorboardRequest):
-            request = tensorboard_service.CreateTensorboardRequest(request)
+        request = tensorboard_service.CreateTensorboardRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -413,9 +401,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_tensorboard
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_tensorboard,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -512,8 +502,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -521,10 +511,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.GetTensorboardRequest):
-            request = tensorboard_service.GetTensorboardRequest(request)
+        request = tensorboard_service.GetTensorboardRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -533,9 +520,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_tensorboard
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_tensorboard,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -645,8 +634,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -654,10 +643,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.UpdateTensorboardRequest):
-            request = tensorboard_service.UpdateTensorboardRequest(request)
+        request = tensorboard_service.UpdateTensorboardRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -668,9 +654,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.update_tensorboard
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.update_tensorboard,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -770,8 +758,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -779,10 +767,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.ListTensorboardsRequest):
-            request = tensorboard_service.ListTensorboardsRequest(request)
+        request = tensorboard_service.ListTensorboardsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -791,9 +776,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_tensorboards
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_tensorboards,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -902,8 +889,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -911,10 +898,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.DeleteTensorboardRequest):
-            request = tensorboard_service.DeleteTensorboardRequest(request)
+        request = tensorboard_service.DeleteTensorboardRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -923,9 +907,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_tensorboard
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_tensorboard,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1019,8 +1005,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1028,10 +1014,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.ReadTensorboardUsageRequest):
-            request = tensorboard_service.ReadTensorboardUsageRequest(request)
+        request = tensorboard_service.ReadTensorboardUsageRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1040,9 +1023,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.read_tensorboard_usage
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.read_tensorboard_usage,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1130,8 +1115,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1139,10 +1124,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.ReadTensorboardSizeRequest):
-            request = tensorboard_service.ReadTensorboardSizeRequest(request)
+        request = tensorboard_service.ReadTensorboardSizeRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1151,9 +1133,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.read_tensorboard_size
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.read_tensorboard_size,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1264,8 +1248,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, tensorboard_experiment, tensorboard_experiment_id]
         )
@@ -1275,12 +1259,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.CreateTensorboardExperimentRequest
-        ):
-            request = tensorboard_service.CreateTensorboardExperimentRequest(request)
+        request = tensorboard_service.CreateTensorboardExperimentRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1293,9 +1272,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_tensorboard_experiment
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_tensorboard_experiment,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1383,8 +1364,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1392,10 +1373,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.GetTensorboardExperimentRequest):
-            request = tensorboard_service.GetTensorboardExperimentRequest(request)
+        request = tensorboard_service.GetTensorboardExperimentRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1404,9 +1382,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_tensorboard_experiment
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_tensorboard_experiment,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1509,8 +1489,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1518,12 +1498,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.UpdateTensorboardExperimentRequest
-        ):
-            request = tensorboard_service.UpdateTensorboardExperimentRequest(request)
+        request = tensorboard_service.UpdateTensorboardExperimentRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1534,9 +1509,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.update_tensorboard_experiment
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.update_tensorboard_experiment,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1628,8 +1605,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1637,12 +1614,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.ListTensorboardExperimentsRequest
-        ):
-            request = tensorboard_service.ListTensorboardExperimentsRequest(request)
+        request = tensorboard_service.ListTensorboardExperimentsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1651,9 +1623,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_tensorboard_experiments
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_tensorboard_experiments,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1762,8 +1736,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1771,12 +1745,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.DeleteTensorboardExperimentRequest
-        ):
-            request = tensorboard_service.DeleteTensorboardExperimentRequest(request)
+        request = tensorboard_service.DeleteTensorboardExperimentRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1785,9 +1754,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_tensorboard_experiment
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_tensorboard_experiment,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1908,8 +1879,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_run, tensorboard_run_id])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1917,10 +1888,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.CreateTensorboardRunRequest):
-            request = tensorboard_service.CreateTensorboardRunRequest(request)
+        request = tensorboard_service.CreateTensorboardRunRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -1933,9 +1901,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_tensorboard_run
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_tensorboard_run,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2042,8 +2012,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2051,12 +2021,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.BatchCreateTensorboardRunsRequest
-        ):
-            request = tensorboard_service.BatchCreateTensorboardRunsRequest(request)
+        request = tensorboard_service.BatchCreateTensorboardRunsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2067,9 +2032,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.batch_create_tensorboard_runs
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.batch_create_tensorboard_runs,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2157,8 +2124,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2166,10 +2133,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.GetTensorboardRunRequest):
-            request = tensorboard_service.GetTensorboardRunRequest(request)
+        request = tensorboard_service.GetTensorboardRunRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2178,9 +2142,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_tensorboard_run
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_tensorboard_run,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2284,8 +2250,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2293,10 +2259,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.UpdateTensorboardRunRequest):
-            request = tensorboard_service.UpdateTensorboardRunRequest(request)
+        request = tensorboard_service.UpdateTensorboardRunRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2307,9 +2270,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.update_tensorboard_run
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.update_tensorboard_run,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2401,8 +2366,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2410,10 +2375,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.ListTensorboardRunsRequest):
-            request = tensorboard_service.ListTensorboardRunsRequest(request)
+        request = tensorboard_service.ListTensorboardRunsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2422,9 +2384,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_tensorboard_runs
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_tensorboard_runs,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2533,8 +2497,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2542,10 +2506,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.DeleteTensorboardRunRequest):
-            request = tensorboard_service.DeleteTensorboardRunRequest(request)
+        request = tensorboard_service.DeleteTensorboardRunRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2554,9 +2515,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_tensorboard_run
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_tensorboard_run,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2673,8 +2636,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2682,14 +2645,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.BatchCreateTensorboardTimeSeriesRequest
-        ):
-            request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest(
-                request
-            )
+        request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2700,9 +2656,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.batch_create_tensorboard_time_series
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.batch_create_tensorboard_time_series,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2803,8 +2761,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2812,12 +2770,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.CreateTensorboardTimeSeriesRequest
-        ):
-            request = tensorboard_service.CreateTensorboardTimeSeriesRequest(request)
+        request = tensorboard_service.CreateTensorboardTimeSeriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2828,9 +2781,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.create_tensorboard_time_series
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_tensorboard_time_series,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -2916,8 +2871,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -2925,10 +2880,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.GetTensorboardTimeSeriesRequest):
-            request = tensorboard_service.GetTensorboardTimeSeriesRequest(request)
+        request = tensorboard_service.GetTensorboardTimeSeriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -2937,9 +2889,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.get_tensorboard_time_series
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_tensorboard_time_series,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3045,8 +2999,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series, update_mask])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3054,12 +3008,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.UpdateTensorboardTimeSeriesRequest
-        ):
-            request = tensorboard_service.UpdateTensorboardTimeSeriesRequest(request)
+        request = tensorboard_service.UpdateTensorboardTimeSeriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3070,9 +3019,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.update_tensorboard_time_series
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.update_tensorboard_time_series,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3169,8 +3120,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3178,12 +3129,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.ListTensorboardTimeSeriesRequest
-        ):
-            request = tensorboard_service.ListTensorboardTimeSeriesRequest(request)
+        request = tensorboard_service.ListTensorboardTimeSeriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3192,9 +3138,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.list_tensorboard_time_series
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_tensorboard_time_series,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3303,8 +3251,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3312,12 +3260,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.DeleteTensorboardTimeSeriesRequest
-        ):
-            request = tensorboard_service.DeleteTensorboardTimeSeriesRequest(request)
+        request = tensorboard_service.DeleteTensorboardTimeSeriesRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3326,9 +3269,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.delete_tensorboard_time_series
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_tensorboard_time_series,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3432,8 +3377,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3441,14 +3386,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest
-        ):
-            request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(
-                request
-            )
+        request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3457,9 +3395,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.batch_read_tensorboard_time_series_data
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.batch_read_tensorboard_time_series_data,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3551,8 +3491,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3560,12 +3500,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.ReadTensorboardTimeSeriesDataRequest
-        ):
-            request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest(request)
+        request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3574,9 +3509,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.read_tensorboard_time_series_data
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.read_tensorboard_time_series_data,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3668,8 +3605,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3677,10 +3614,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.ReadTensorboardBlobDataRequest):
-            request = tensorboard_service.ReadTensorboardBlobDataRequest(request)
+        request = tensorboard_service.ReadTensorboardBlobDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3689,9 +3623,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.read_tensorboard_blob_data
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.read_tensorboard_blob_data,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3797,8 +3733,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, write_run_data_requests])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3806,12 +3742,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.WriteTensorboardExperimentDataRequest
-        ):
-            request = tensorboard_service.WriteTensorboardExperimentDataRequest(request)
+        request = tensorboard_service.WriteTensorboardExperimentDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3822,9 +3753,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.write_tensorboard_experiment_data
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.write_tensorboard_experiment_data,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -3935,8 +3868,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, time_series_data])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -3944,10 +3877,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, tensorboard_service.WriteTensorboardRunDataRequest):
-            request = tensorboard_service.WriteTensorboardRunDataRequest(request)
+        request = tensorboard_service.WriteTensorboardRunDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -3958,9 +3888,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.write_tensorboard_run_data
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.write_tensorboard_run_data,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -4053,8 +3985,8 @@ class TensorboardServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -4062,14 +3994,7 @@ class TensorboardServiceAsyncClient:
                 "the individual field arguments should be set."
             )
 
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(
-            request, tensorboard_service.ExportTensorboardTimeSeriesDataRequest
-        ):
-            request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(
-                request
-            )
+        request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
@@ -4078,9 +4003,11 @@ class TensorboardServiceAsyncClient:
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._client._transport._wrapped_methods[
-            self._client._transport.export_tensorboard_time_series_data
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.export_tensorboard_time_series_data,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
