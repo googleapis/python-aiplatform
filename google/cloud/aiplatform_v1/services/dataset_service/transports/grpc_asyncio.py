@@ -18,6 +18,8 @@ from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers_async
+from google.api_core import exceptions as core_exceptions
+from google.api_core import retry_async as retries
 from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
@@ -75,7 +77,6 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
                 the credentials from the environment.
             credentials_file (Optional[str]): A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is ignored if ``channel`` is provided.
             scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
                 service. These are only used when credentials are not specified and
                 are passed to :func:`google.auth.default`.
@@ -105,7 +106,7 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
-        channel: Optional[aio.Channel] = None,
+        channel: Optional[Union[aio.Channel, Callable[..., aio.Channel]]] = None,
         api_mtls_endpoint: Optional[str] = None,
         client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
         ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
@@ -125,15 +126,18 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-                This argument is ignored if ``channel`` is provided.
+                This argument is ignored if a ``channel`` instance is provided.
             credentials_file (Optional[str]): A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is ignored if ``channel`` is provided.
+                This argument is ignored if a ``channel`` instance is provided.
             scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
                 service. These are only used when credentials are not specified and
                 are passed to :func:`google.auth.default`.
-            channel (Optional[aio.Channel]): A ``Channel`` instance through
-                which to make calls.
+            channel (Optional[Union[aio.Channel, Callable[..., aio.Channel]]]):
+                A ``Channel`` instance through which to make calls, or a Callable
+                that constructs and returns one. If set to None, ``self.create_channel``
+                is used to create the channel. If a Callable is given, it will be called
+                with the same arguments as used in ``self.create_channel``.
             api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
                 If provided, it overrides the ``host`` argument and tries to create
                 a mutual TLS channel with client SSL credentials from
@@ -143,11 +147,11 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for the grpc channel. It is ignored if ``channel`` is provided.
+                for the grpc channel. It is ignored if a ``channel`` instance is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
                 both in PEM format. It is used to configure a mutual TLS channel. It is
-                ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
+                ignored if a ``channel`` instance or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
             client_info (google.api_core.gapic_v1.client_info.ClientInfo):
@@ -174,7 +178,7 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         if client_cert_source:
             warnings.warn("client_cert_source is deprecated", DeprecationWarning)
 
-        if channel:
+        if isinstance(channel, aio.Channel):
             # Ignore credentials if a channel was passed.
             credentials = False
             # If a channel was explicitly provided, set it.
@@ -214,7 +218,9 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         )
 
         if not self._grpc_channel:
-            self._grpc_channel = type(self).create_channel(
+            # initialize with the provided callable or the default channel
+            channel_init = channel or type(self).create_channel
+            self._grpc_channel = channel_init(
                 self._host,
                 # use the credentials which are saved
                 credentials=self._credentials,
@@ -771,6 +777,101 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
                 response_deserializer=dataset_service.ListAnnotationsResponse.deserialize,
             )
         return self._stubs["list_annotations"]
+
+    def _prep_wrapped_messages(self, client_info):
+        """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
+        self._wrapped_methods = {
+            self.create_dataset: gapic_v1.method_async.wrap_method(
+                self.create_dataset,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_dataset: gapic_v1.method_async.wrap_method(
+                self.get_dataset,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_dataset: gapic_v1.method_async.wrap_method(
+                self.update_dataset,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_datasets: gapic_v1.method_async.wrap_method(
+                self.list_datasets,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_dataset: gapic_v1.method_async.wrap_method(
+                self.delete_dataset,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.import_data: gapic_v1.method_async.wrap_method(
+                self.import_data,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.export_data: gapic_v1.method_async.wrap_method(
+                self.export_data,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_dataset_version: gapic_v1.method_async.wrap_method(
+                self.create_dataset_version,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_dataset_version: gapic_v1.method_async.wrap_method(
+                self.delete_dataset_version,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_dataset_version: gapic_v1.method_async.wrap_method(
+                self.get_dataset_version,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_dataset_versions: gapic_v1.method_async.wrap_method(
+                self.list_dataset_versions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.restore_dataset_version: gapic_v1.method_async.wrap_method(
+                self.restore_dataset_version,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_data_items: gapic_v1.method_async.wrap_method(
+                self.list_data_items,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.search_data_items: gapic_v1.method_async.wrap_method(
+                self.search_data_items,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_saved_queries: gapic_v1.method_async.wrap_method(
+                self.list_saved_queries,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_saved_query: gapic_v1.method_async.wrap_method(
+                self.delete_saved_query,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_annotation_spec: gapic_v1.method_async.wrap_method(
+                self.get_annotation_spec,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_annotations: gapic_v1.method_async.wrap_method(
+                self.list_annotations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+        }
 
     def close(self):
         return self.grpc_channel.close()
