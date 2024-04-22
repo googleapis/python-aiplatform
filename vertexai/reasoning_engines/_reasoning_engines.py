@@ -374,13 +374,13 @@ def _prepare(
         gcs_bucket = storage_client.create_bucket(new_bucket, location=location)
         _LOGGER.info(f"Creating bucket {staging_bucket} in {location=}")
 
-    blob = gcs_bucket.blob(os.path.join(gcs_dir_name, _BLOB_FILENAME))
+    blob = gcs_bucket.blob(f"{gcs_dir_name}/{_BLOB_FILENAME}")
     with blob.open("wb") as f:
         cloudpickle.dump(reasoning_engine, f)
     dir_name = f"gs://{staging_bucket}/{gcs_dir_name}"
     _LOGGER.info(f"Writing to {dir_name}/{_BLOB_FILENAME}")
 
-    blob = gcs_bucket.blob(os.path.join(gcs_dir_name, _REQUIREMENTS_FILE))
+    blob = gcs_bucket.blob(f"{gcs_dir_name}/{_REQUIREMENTS_FILE}")
     if requirements:
         blob.upload_from_string("\n".join(requirements))
         _LOGGER.info(f"Writing to {dir_name}/{_REQUIREMENTS_FILE}")
@@ -391,6 +391,6 @@ def _prepare(
         for file in extra_packages:
             tar.add(file)
     tar_fileobj.seek(0)
-    blob = gcs_bucket.blob(os.path.join(gcs_dir_name, _EXTRA_PACKAGES_FILE))
+    blob = gcs_bucket.blob(f"{gcs_dir_name}/{_EXTRA_PACKAGES_FILE}")
     blob.upload_from_string(tar_fileobj.read())
     _LOGGER.info(f"Writing to {dir_name}/{_EXTRA_PACKAGES_FILE}")
