@@ -43,6 +43,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from google.protobuf import json_format
+from vertexai.preview import rag
 import warnings
 
 try:
@@ -1189,6 +1190,9 @@ class GenerationConfig:
         candidate_count: Optional[int] = None,
         max_output_tokens: Optional[int] = None,
         stop_sequences: Optional[List[str]] = None,
+        presence_penalty: Optional[float] = None,
+        frequency_penalty: Optional[float] = None,
+        response_mime_type: Optional[str] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1199,6 +1203,18 @@ class GenerationConfig:
             candidate_count: Number of candidates to generate.
             max_output_tokens: The maximum number of output tokens to generate per message.
             stop_sequences: A list of stop sequences.
+            presence_penalty: Positive values penalize tokens that have appeared in the generated text,
+                thus increasing the possibility of generating more diversed topics. Range: [-2.0, 2.0]
+            frequency_penalty: Positive values penalize tokens that repeatedly appear in the generated
+                text, thus decreasing the possibility of repeating the same content. Range: [-2.0, 2.0]
+            response_mime_type: Output response mimetype of the generated
+                candidate text. Supported mimetypes:
+
+                -  ``text/plain``: (default) Text output.
+                -  ``application/json``: JSON response in the candidates.
+
+                The model needs to be prompted to output the appropriate
+                response type, otherwise the behavior is undefined.
 
         Usage:
             ```
@@ -1222,6 +1238,9 @@ class GenerationConfig:
             candidate_count=candidate_count,
             max_output_tokens=max_output_tokens,
             stop_sequences=stop_sequences,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            response_mime_type=response_mime_type,
         )
 
     @classmethod
@@ -1317,7 +1336,7 @@ class Tool:
     @classmethod
     def from_retrieval(
         cls,
-        retrieval: "grounding.Retrieval",
+        retrieval: Union["grounding.Retrieval", "rag.Retrieval"],
     ) -> "Tool":
         raw_tool = gapic_tool_types.Tool(retrieval=retrieval._raw_retrieval)
         return cls._from_gapic(raw_tool=raw_tool)
@@ -1650,7 +1669,7 @@ class GenerationResponse:
 
     @property
     def usage_metadata(
-        self
+        self,
     ) -> gapic_prediction_service_types.GenerateContentResponse.UsageMetadata:
         return self._raw_response.usage_metadata
 

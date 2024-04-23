@@ -56,6 +56,7 @@ class _WorkerPoolSpec(NamedTuple):
     accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED"
     boot_disk_type: str = "pd-ssd"
     boot_disk_size_gb: int = 100
+    tpu_topology: Optional[str] = None
 
     def _get_accelerator_type(self) -> Optional[str]:
         """Validates accelerator_type and returns the name of the accelerator.
@@ -96,6 +97,9 @@ class _WorkerPoolSpec(NamedTuple):
         if accelerator_type and self.accelerator_count:
             spec["machine_spec"]["accelerator_type"] = accelerator_type
             spec["machine_spec"]["accelerator_count"] = self.accelerator_count
+
+        if self.tpu_topology:
+            spec["machine_spec"]["tpu_topology"] = self.tpu_topology
 
         return spec
 
@@ -185,6 +189,7 @@ class _DistributedTrainingSpec(NamedTuple):
         boot_disk_size_gb: int = 100,
         reduction_server_replica_count: int = 0,
         reduction_server_machine_type: str = None,
+        tpu_topology: str = None,
     ) -> "_DistributedTrainingSpec":
         """Parametrizes Config to support only chief with worker replicas.
 
@@ -214,6 +219,10 @@ class _DistributedTrainingSpec(NamedTuple):
                 The number of reduction server replicas, default is 0.
             reduction_server_machine_type (str):
                 The type of machine to use for reduction server, default is `n1-highcpu-16`.
+            tpu_topology (str):
+                TPU topology for the TPU type. This field is
+                required for the TPU v5 versions. This field is only passed to the
+                chief replica as TPU jobs only allow 1 replica.
 
         Returns:
             _DistributedTrainingSpec representing one chief and n workers all of
@@ -230,6 +239,7 @@ class _DistributedTrainingSpec(NamedTuple):
             accelerator_type=accelerator_type,
             boot_disk_type=boot_disk_type,
             boot_disk_size_gb=boot_disk_size_gb,
+            tpu_topology=tpu_topology,
         )
 
         worker_spec = _WorkerPoolSpec(

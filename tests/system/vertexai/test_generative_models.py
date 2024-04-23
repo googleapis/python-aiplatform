@@ -17,6 +17,7 @@
 # pylint: disable=protected-access, g-multiple-import
 """System tests for generative models."""
 
+import json
 import pytest
 
 # Google imports
@@ -30,6 +31,7 @@ from vertexai.preview import (
 
 GEMINI_MODEL_NAME = "gemini-1.0-pro-002"
 GEMINI_VISION_MODEL_NAME = "gemini-1.0-pro-vision"
+GEMINI_15_MODEL_NAME = "gemini-1.5-pro-preview-0409"
 
 
 # A dummy function for function calling
@@ -149,6 +151,31 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             },
         )
         assert response.text
+
+    def test_generate_content_with_gemini_15_parameters(self):
+        model = generative_models.GenerativeModel(GEMINI_15_MODEL_NAME)
+        response = model.generate_content(
+            contents="Why is sky blue? Respond in JSON Format.",
+            generation_config=generative_models.GenerationConfig(
+                temperature=0,
+                top_p=0.95,
+                top_k=20,
+                candidate_count=1,
+                max_output_tokens=100,
+                stop_sequences=["STOP!"],
+                presence_penalty=0.0,
+                frequency_penalty=0.0,
+                response_mime_type="application/json",
+            ),
+            safety_settings={
+                generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+                generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+            },
+        )
+        assert response.text
+        assert json.loads(response.text)
 
     def test_generate_content_from_list_of_content_dict(self):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)

@@ -1924,6 +1924,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
         persistent_resource_id: Optional[str] = None,
+        tpu_topology: Optional[str] = None,
     ) -> "CustomJob":
         """Configures a custom job from a local script.
 
@@ -2034,6 +2035,12 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 on-demand short-live machines. The network, CMEK, and node pool
                 configs on the job should be consistent with those on the
                 PersistentResource, otherwise, the job will be rejected.
+            tpu_topology (str):
+                Optional. Specifies the tpu topology to be used for
+                TPU training job. This field is required for TPU v5 versions. For
+                details on the TPU topology, refer to
+                https://cloud.google.com/tpu/docs/v5e#tpu-v5e-config. The topology
+                must be a supported value for the TPU machine type.
 
         Raises:
             RuntimeError: If staging bucket was not set using aiplatform.init
@@ -2063,6 +2070,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 boot_disk_size_gb=boot_disk_size_gb,
                 reduction_server_replica_count=reduction_server_replica_count,
                 reduction_server_machine_type=reduction_server_machine_type,
+                tpu_topology=tpu_topology,
             ).pool_specs
         )
 

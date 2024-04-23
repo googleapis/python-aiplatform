@@ -76,6 +76,9 @@ class TrainingJobConstants:
     }
     _TEST_REPLICA_COUNT = 1
     _TEST_MACHINE_TYPE = "n1-standard-4"
+    _TEST_MACHINE_TYPE_TPU = "cloud-tpu"
+    _TEST_MACHINE_TYPE_TPU_V5E = "ct5lp-hightpu-4t"
+    _TEST_ACCELERATOR_TPU_TYPE = "TPU_V3"
     _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_K80"
     _TEST_ACCELERATOR_COUNT = 1
     _TEST_BOOT_DISK_TYPE = "pd-standard"
@@ -120,12 +123,40 @@ class TrainingJobConstants:
             },
         }
     ]
+    _TEST_TPU_V5E_WORKER_POOL_SPEC = [
+        {
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE_TPU_V5E,
+                "tpu_topology": "2x2",
+            },
+            "replica_count": 1,
+            "disk_spec": {"boot_disk_type": "pd-ssd", "boot_disk_size_gb": 100},
+            "container_spec": {
+                "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+            },
+        }
+    ]
+    _TEST_TPU_V3_WORKER_POOL_SPEC = [
+        {
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE_TPU,
+                "accelerator_type": _TEST_ACCELERATOR_TPU_TYPE,
+                "accelerator_count": 32,
+            },
+            "replica_count": 1,
+            "disk_spec": {"boot_disk_type": "pd-ssd", "boot_disk_size_gb": 100},
+            "container_spec": {
+                "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+            },
+        }
+    ]
     _TEST_ID = "1028944691210842416"
     _TEST_NETWORK = (
         f"projects/{ProjectConstants._TEST_PROJECT}/global/networks/{_TEST_ID}"
     )
     _TEST_RESERVED_IP_RANGES = ["example_ip_range"]
     _TEST_TIMEOUT = 8000
+    _TEST_TIMEOUT_SECONDS = duration_pb2.Duration(seconds=_TEST_TIMEOUT)
     _TEST_RESTART_JOB_ON_WORKER_RESTART = True
     _TEST_DISABLE_RETRIES = True
 
@@ -137,7 +168,7 @@ class TrainingJobConstants:
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
             ),
             scheduling=custom_job.Scheduling(
-                timeout=duration_pb2.Duration(seconds=_TEST_TIMEOUT),
+                timeout=_TEST_TIMEOUT_SECONDS,
                 restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
                 disable_retries=_TEST_DISABLE_RETRIES,
             ),
@@ -166,6 +197,28 @@ class TrainingJobConstants:
         "projects/my-project/locations/us-central1/trainingPipelines/12345"
     )
     _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+
+    def create_tpu_job_proto(tpu_version):
+        worker_pool_spec = (
+            TrainingJobConstants._TEST_TPU_V5E_WORKER_POOL_SPEC
+            if tpu_version == "v5e"
+            else TrainingJobConstants._TEST_TPU_V3_WORKER_POOL_SPEC
+        )
+        return custom_job.CustomJob(
+            display_name=TrainingJobConstants._TEST_DISPLAY_NAME,
+            job_spec=custom_job.CustomJobSpec(
+                worker_pool_specs=worker_pool_spec,
+                base_output_directory=io.GcsDestination(
+                    output_uri_prefix=TrainingJobConstants._TEST_BASE_OUTPUT_DIR
+                ),
+                scheduling=custom_job.Scheduling(
+                    timeout=TrainingJobConstants._TEST_TIMEOUT_SECONDS,
+                    restart_job_on_worker_restart=TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART,
+                ),
+                service_account=ProjectConstants._TEST_SERVICE_ACCOUNT,
+                network=TrainingJobConstants._TEST_NETWORK,
+            ),
+        )
 
 
 @dataclasses.dataclass(frozen=True)
