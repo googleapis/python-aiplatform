@@ -61,6 +61,9 @@ from google.cloud.aiplatform.compat.services import (
     persistent_resource_service_client_v1beta1,
     reasoning_engine_service_client_v1beta1,
     reasoning_engine_execution_service_client_v1beta1,
+    vertex_rag_data_service_async_client_v1beta1,
+    vertex_rag_data_service_client_v1beta1,
+    vertex_rag_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -795,6 +798,39 @@ class ReasoningEngineExecutionClientWithOverride(ClientWithOverride):
         (
             compat.V1BETA1,
             reasoning_engine_execution_service_client_v1beta1.ReasoningEngineExecutionServiceClient,
+        ),
+    )
+
+
+class VertexRagDataClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            vertex_rag_data_service_client_v1beta1.VertexRagDataServiceClient,
+        ),
+    )
+
+
+class VertexRagDataAsyncClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            vertex_rag_data_service_async_client_v1beta1.VertexRagDataServiceAsyncClient,
+        ),
+    )
+
+
+class VertexRagClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            vertex_rag_service_client_v1beta1.VertexRagServiceClient,
         ),
     )
 

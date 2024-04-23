@@ -25,6 +25,7 @@ from google.cloud.aiplatform import initializer
 from vertexai import generative_models
 from vertexai.preview import (
     generative_models as preview_generative_models,
+    rag,
 )
 from vertexai.generative_models._generative_models import (
     prediction_service,
@@ -155,6 +156,9 @@ def mock_generate_content(
     has_retrieval = any(
         tool.retrieval or tool.google_search_retrieval for tool in request.tools
     )
+    has_rag_retrieval = any(
+        isinstance(tool.retrieval, rag.Retrieval) for tool in request.tools
+    )
     has_function_declarations = any(
         tool.function_declarations for tool in request.tools
     )
@@ -198,6 +202,42 @@ def mock_generate_content(
     else:
         response_part_struct = _RESPONSE_TEXT_PART_STRUCT
 
+    if has_retrieval and (not has_rag_retrieval) and request.contents[0].parts[0].text:
+        grounding_metadata = gapic_content_types.GroundingMetadata(
+            web_search_queries=[request.contents[0].parts[0].text],
+            grounding_attributions=[
+                gapic_content_types.GroundingAttribution(
+                    segment=gapic_content_types.Segment(
+                        start_index=0,
+                        end_index=67,
+                    ),
+                    confidence_score=0.69857746,
+                    web=gapic_content_types.GroundingAttribution.Web(
+                        uri="https://math.ucr.edu/home/baez/physics/General/BlueSky/blue_sky.html",
+                        title="Why is the sky blue? - UCR Math",
+                    ),
+                ),
+            ],
+        )
+    elif has_rag_retrieval and request.contents[0].parts[0].text:
+        grounding_metadata = gapic_content_types.GroundingMetadata(
+            retrieval_queries=[request.contents[0].parts[0].text],
+            grounding_attributions=[
+                gapic_content_types.GroundingAttribution(
+                    retrieved_context=gapic_content_types.GroundingAttribution.RetrievedContext(
+                        uri="gs://my-bucket/my-file.pdf",
+                    ),
+                    segment=gapic_content_types.Segment(
+                        start_index=0,
+                        end_index=67,
+                    ),
+                    confidence_score=0.69857746,
+                ),
+            ],
+        )
+    else:
+        grounding_metadata = None
+
     response = gapic_prediction_service_types.GenerateContentResponse(
         candidates=[
             gapic_content_types.Candidate(
@@ -218,24 +258,7 @@ def mock_generate_content(
                         gapic_content_types.Citation(_RESPONSE_CITATION_STRUCT),
                     ]
                 ),
-                grounding_metadata=gapic_content_types.GroundingMetadata(
-                    web_search_queries=[request.contents[0].parts[0].text],
-                    grounding_attributions=[
-                        gapic_content_types.GroundingAttribution(
-                            segment=gapic_content_types.Segment(
-                                start_index=0,
-                                end_index=67,
-                            ),
-                            confidence_score=0.69857746,
-                            web=gapic_content_types.GroundingAttribution.Web(
-                                uri="https://math.ucr.edu/home/baez/physics/General/BlueSky/blue_sky.html",
-                                title="Why is the sky blue? - UCR Math",
-                            ),
-                        ),
-                    ],
-                )
-                if has_retrieval and request.contents[0].parts[0].text
-                else None,
+                grounding_metadata=grounding_metadata,
             ),
         ],
     )
@@ -777,6 +800,28 @@ class TestGenerativeModels:
         )
         response = model.generate_content(
             "Why is sky blue?", tools=[google_search_retriever_tool]
+        )
+        assert response.text
+
+    @mock.patch.object(
+        target=prediction_service.PredictionServiceClient,
+        attribute="generate_content",
+        new=mock_generate_content,
+    )
+    def test_generate_content_vertex_rag_retriever(self):
+        model = preview_generative_models.GenerativeModel("gemini-pro")
+        rag_retriever_tool = preview_generative_models.Tool.from_retrieval(
+            retrieval=rag.Retrieval(
+                source=rag.VertexRagStore(
+                    rag_corpora=[
+                        f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/1234556"
+                    ],
+                    similarity_top_k=1,
+                ),
+            ),
+        )
+        response = model.generate_content(
+            "Why is sky blue?", tools=[rag_retriever_tool]
         )
         assert response.text
 

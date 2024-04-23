@@ -63,11 +63,11 @@ from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     client as model_service_client_v1beta1,
 )
-from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
-    client as pipeline_service_client_v1beta1,
-)
 from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import (
     client as persistent_resource_service_client_v1beta1,
+)
+from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
+    client as pipeline_service_client_v1beta1,
 )
 from google.cloud.aiplatform_v1beta1.services.prediction_service import (
     client as prediction_service_client_v1beta1,
@@ -90,9 +90,19 @@ from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import (
 from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
     client as tensorboard_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
+    client as vertex_rag_data_service_client_v1beta1,
+)
+from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
+    async_client as vertex_rag_data_service_async_client_v1beta1,
+)
+from google.cloud.aiplatform_v1beta1.services.vertex_rag_service import (
+    client as vertex_rag_service_client_v1beta1,
+)
 from google.cloud.aiplatform_v1beta1.services.vizier_service import (
     client as vizier_service_client_v1beta1,
 )
+
 
 from google.cloud.aiplatform_v1.services.dataset_service import (
     client as dataset_service_client_v1,
@@ -195,9 +205,14 @@ __all__ = (
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
     prediction_service_async_client_v1beta1,
+    reasoning_engine_execution_service_client_v1beta1,
+    reasoning_engine_service_client_v1beta1,
     schedule_service_client_v1beta1,
     specialist_pool_service_client_v1beta1,
     metadata_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
+    vertex_rag_service_client_v1beta1,
+    vertex_rag_data_service_client_v1beta1,
+    vertex_rag_data_service_async_client_v1beta1,
     vizier_service_client_v1beta1,
 )
