@@ -390,8 +390,6 @@ class LangchainAgent:
         vertexai.init(project=self._project, location=self._location)
         self._llm = ChatVertexAI(
             model_name=self._model_name,
-            # https://github.com/langchain-ai/langchain/issues/14700
-            convert_system_message_to_human=True,
             **self._model_kwargs,
         )
         vertexai.init(project=current_project, location=current_location)
