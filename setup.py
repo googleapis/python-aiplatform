@@ -140,7 +140,7 @@ ray_testing_extra_require = ray_extra_require + [
 
 reasoning_engine_extra_require = [
     "cloudpickle >= 2.2.1, < 3.0",
-    "pydantic < 3",
+    "pydantic >= 2.6.3, < 3",
 ]
 
 rapid_evaluation_extra_require = [
@@ -154,9 +154,13 @@ langchain_extra_require = [
     "langchain-google-vertexai < 0.2",
 ]
 
-langchain_testing_extra_require = langchain_extra_require + [
-    "pytest-xdist",
-]
+langchain_testing_extra_require = list(
+    set(
+        langchain_extra_require
+        + reasoning_engine_extra_require
+        + ["absl-py", "pytest-xdist"]
+    )
+)
 
 full_extra_require = list(
     set(
@@ -174,7 +178,6 @@ full_extra_require = list(
         + autologging_extra_require
         + preview_extra_require
         + ray_extra_require
-        + reasoning_engine_extra_require
         + rapid_evaluation_extra_require
     )
 )
